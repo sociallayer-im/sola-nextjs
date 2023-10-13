@@ -1,0 +1,152 @@
+.lens-item
+  display: flex
+  flex-flow: column nowrap
+  padding-bottom: 32px
+  border-bottom: 1px solid #E7EDF2
+  margin-bottom: 16px
+  text-decoration: none
+  a
+    display: flex
+  .is-mirrored
+    display: flex
+    align-items: center
+    color: #64748B
+    font-size: 14px
+    font-style: normal
+    font-weight: 400
+    letter-spacing: 0.2px
+    margin-bottom: 9px
+    svg
+      margin-right: 8px
+  .lens-content
+    display: flex
+    align-items: flex-start
+    flex-flow: row nowrap
+    text-decoration: none
+    .avatar
+      min-width: 48px
+      max-width: 48px
+      height: 48px
+      border-radius: 50%
+      margin-right: 16px
+    .ids
+      flex: 1
+    .name
+      color: var(--greyscale-900,#0F172A)
+      font-size: 16px
+      font-style: normal
+      font-weight: 500
+      line-height: 140%
+      letter-spacing: 0.2px
+      text-decoration: none
+      display: flex
+      align-items: center
+      img
+        width: 50px
+        height: 50px
+        border-radius: 50%
+        margin-right: 6px
+        display: none
+    .handle-time
+      color: var(--greyscale-500,#64748B)
+      font-size: 14px
+      font-style: normal
+      font-weight: 500
+      line-height: normal
+      letter-spacing: 0.2px
+      display: flex
+      flex-flow: row nowrap
+      align-items: center
+      div
+        &:nth-child(2)
+          font-size: 12px
+          margin-left: 12px
+    .content
+      color: #000
+      font-size: 12px
+      font-style: normal
+      font-weight: 400
+      line-height: normal
+      margin-top: 12px
+      white-space: pre-wrap
+      text-decoration: none
+    .show-more
+      font-size: 12px
+      display: flex
+      flex-flow: row nowrap
+      align-items: center
+      font-weight: 600
+      color: #71717a
+      svg
+        margin-right: 8px
+    .qrcode
+      max-width: 100%
+    .media
+      margin-top: 12px
+      .images
+        height: 100px
+        width: 100%
+        display: flex
+        flex-flow: row nowrap
+        & > div
+          width: 90px
+          height: 90px
+          border-radius: 4px
+          overflow: hidden
+          margin-right: 4px
+          img
+            position: static
+            display: block
+            -o-object-fit: cover
+            object-fit: cover
+            width: 100%
+            height: 100%
+      .image
+        overflow: hidden
+        border-radius: 4px
+        display: inline-flex
+        img
+          position: static
+          display: block
+          max-width: 100%
+          max-height: 200px
+    .stats
+      display: flex
+      text-decoration: none
+      margin-top: 12px
+      & > div
+        display: flex
+        align-items: center
+        flex-flow: row nowrap
+        color: #64748B
+        font-size: 14px
+        margin-right: 20px
+        svg
+          margin-right: 8px
+    &.quote-item
+      margin-top: 12px
+      padding: 6px 8px
+      border: 1px solid #e4e4e7
+      border-radius: 4px
+      & > .avatar
+        display: none
+      .content
+        padding-left: 12px
+      .stats
+        display: none
+      .ids
+        .avatar
+          display: block
+        .name
+          img
+            display: block
+            min-width: 20px
+            max-width: 20px
+            height: 20px
+.lens-item .lens-content .media .video,
+.lens-item .lens-content .media .dplayer
+  width: 100%
+  max-height: 300px
+  border-radius: 8px
+  overflow: hidden
+  background: #000

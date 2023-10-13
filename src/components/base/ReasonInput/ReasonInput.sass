@@ -1,0 +1,62 @@
+.reason-input
+  background: #f8f9f8
+  border-radius: 12px
+  padding: 10px
+  position: relative
+  height: 190px
+  .editor
+    height: 150px
+    border: #f8f9f8
+    outline: none
+    box-sizing: border-box
+    font-size: 14px
+    line-height: 20px
+    font-family: 'Poppins', 'Noto Sans SC', sans-serif
+    word-break: break-all
+    overflow: auto
+    padding: 0
+  .showText
+    z-index: 1
+    pointer-events: none
+    user-select: none
+    width: 100%
+    white-space: pre-wrap
+    .event
+      color: #7492EF
+    .link
+      color: #7492EF
+  .textarea
+    resize: none
+    position: absolute
+    top: 10px
+    z-index: 2
+    background: none
+    color: rgba(255,255,255,0)
+    caret-color: #272928
+    width: calc(80%)
+  .action-bar
+    display: flex
+    margin-top: 12px
+    justify-content: space-between
+    align-items: center
+    color: #c3c7c3
+    .btns
+      display: flex
+      flex-flow: row nowrap
+  .btn
+    background: #ecf2ee
+    border-radius: 4px
+    width: 69px
+    height: 24px
+    text-align: center
+    margin-right: 8px
+    display: flex
+    flex-flow: row nowrap
+    align-items: center
+    justify-content: center
+    font-weight: 400
+    font-size: 14px
+    color: #3c3e3d
+    cursor: pointer
+    i
+      margin-right: 6px

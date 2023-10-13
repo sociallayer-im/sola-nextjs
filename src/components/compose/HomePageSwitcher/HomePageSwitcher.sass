@@ -1,0 +1,99 @@
+.home-page-switcher
+  display: flex
+  align-items: center
+  flex-flow: row nowrap
+  .badge-page
+    color: var(--fill-6-dark,#272928)
+    text-align: center
+    font-size: 12px
+    font-style: normal
+    font-weight: 600
+    line-height: 20px
+    text-decoration: none
+    margin-right: 10px
+    padding: 3px 8px
+    box-sizing: border-box
+    user-select: none
+    border: 1px solid var(--fill-6-dark,#272928)
+    border-radius: 8px
+    white-space: nowrap
+  .group-page
+    color: var(--fill-6-dark,#272928)
+    text-align: center
+    font-size: 12px
+    font-style: normal
+    font-weight: 600
+    line-height: 20px
+    text-decoration: none
+    margin-right: 10px
+    padding: 3px 8px
+    box-sizing: border-box
+    user-select: none
+    border: 1px solid var(--fill-6-dark,#272928)
+    border-radius: 8px
+    white-space: nowrap
+    display: flex
+    flex-flow: row nowrap
+    align-items: center
+    cursor: pointer
+    border: 1px solid rgba(0,0,0,0)
+    &:hover
+      border: 1px solid var(--fill-6-dark,#272928)
+      border-radius: 8px
+    & > div
+      max-width: 80%
+      overflow: hidden
+      white-space: nowrap
+      text-overflow: ellipsis
+  .group-list
+    position: fixed
+    top: 48px
+    left: 0
+    bottom: 0
+    right: 0
+    z-index: 9999
+    .shell
+      background: rgba(255,255,255,0.5)
+      backdrop-filter: blur(4.5px)
+      position: absolute
+      top: 0
+      bottom: 0
+      right: 0
+      left: 0
+    .list-content
+      position: absolute
+      width: 80%
+      border-radius: 16px
+      background: #F8F9F8
+      box-shadow: 0 0 18px 0 rgba(0,0,0,0.2)
+      padding: 16px 16px 0 16px
+      left: 50%
+      top: 12px
+      transform: translateX(-50%)
+      display: flex
+      flex-flow: row wrap
+      .list-item
+        user-select: none
+        margin-right: 16px
+        border-radius: 8px
+        border: 1px solid #EDEDED
+        display: flex
+        padding: 8px 12px
+        align-items: center
+        cursor: pointer
+        margin-bottom: 16px
+        img
+          height: 20px
+        &.active
+          border: 1px solid #272928
+        &:hover
+          border: 1px solid #272928
+
+@media(max-width: 400px)
+  .home-page-switcher .group-page
+    max-width: 60%
+
+  .home-page-switcher
+    .group-page
+      &.active
+        border: 1px solid var(--fill-6-dark,#272928)

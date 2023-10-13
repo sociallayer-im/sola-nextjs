@@ -1,0 +1,29 @@
+.user-assets-list
+  width: calc(112%)
+  .list-content
+    display: flex
+    flex-flow: row wrap
+    & > div
+      min-width: 162px
+      margin-right: 12px
+      flex-basis: 162px
+      flex-grow: 1
+  .list-action
+    display: flex
+    margin-top: 12px
+    justify-content: center
+    button
+      display: inline-flex
+      min-width: 126px
+      width: auto
+      background: #ECF2EE
+  &.compact
+    .list-content
+      & > div
+        flex-basis: 106px
+        min-width: 106px
+        max-width: 118px
+
+@media (min-width: 900px)
+    .user-assets-list .list-content > div
+      max-width: 162px

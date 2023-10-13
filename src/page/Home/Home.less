@@ -1,0 +1,122 @@
+.home-page {
+  width: 100%;
+  position: relative;
+  background: #F8F9F8;
+  height: 100%;
+  overflow-x: hidden;
+  touch-action: pan-y;
+
+  .circle-1 {
+    position: absolute;
+    width: 158px;
+    height: 158px;
+    left: -110px;
+    top: calc(50% - 70px);
+    background: #BD9EFE;
+    opacity: 0.6;
+    filter: blur(14px);
+    border-radius: 50%;
+  }
+
+  .circle-2 {
+    position: absolute;
+    width: 138px;
+    height: 138px;
+    right: -70px;
+    top: -22px;
+    background: #9EFEDD;
+    opacity: 0.5;
+    filter: blur(24px);
+    border-radius: 50%;
+  }
+
+  .circle-3 {
+    position: absolute;
+    width: 151px;
+    height: 151px;
+    right: -70px;
+    bottom: 100px;
+    background: #FFD0A5;
+    filter: blur(15px);
+    border-radius: 50%;
+  }
+
+  .wrapper {
+    padding: 53px 24px;
+    display: flex;
+    flex-flow: column wrap;
+    align-items: center;
+    position: relative;
+    z-index: 2;
+    max-width: var(--width-page-max);
+    box-sizing: border-box;
+    margin: 0 auto;
+  }
+
+  .cover {
+    width: 210px;
+    height: 266px;
+    margin-bottom: 24px;
+  }
+
+  .text {
+    text-align: center;
+
+    button {
+      display: flex;
+      flex-flow: row nowrap;
+      align-items: center;
+
+      >div {
+        opacity: 1!important;
+        margin: 0 10px;
+        height: auto!important;
+      }
+    }
+
+    h1 {
+      font-style: normal;
+      font-weight: 700;
+      font-size: 24px;
+      line-height: 16px;
+      color: #272928;
+    }
+
+    p {
+      font-style: normal;
+      font-weight: 400;
+      font-size: 14px;
+      line-height: 20px;
+      color: #272928;
+      margin-bottom: 45px;
+    }
+  }
+}
+
+@media (min-width: 660px) {
+  .home-page {
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: center;
+
+    .wrapper {
+      max-width: initial;
+      flex-direction: row;
+      align-items: flex-start;
+
+      .text {
+        max-width: 326px;
+        margin-left: 62px;
+        text-align: left;
+      }
+
+      h1 {
+        margin-bottom: 24px;
+      }
+
+      p {
+        margin-bottom: 64px;
+      }
+    }
+  }
+}

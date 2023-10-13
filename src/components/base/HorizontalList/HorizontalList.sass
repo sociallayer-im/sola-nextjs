@@ -1,0 +1,46 @@
+.horizontal-list-swiper-wrapper
+  position: relative
+  .right-size-gradient
+    position: absolute
+    top: 0
+    right: 0
+    bottom: 0
+    width: 30px
+    z-index: 99
+    background: linear-gradient(270deg,#FFFFFF 0%,rgba(255,255,255,0) 100%)
+    img
+      position: absolute
+      top: 50%
+      right: 0
+      transform: translate(0,-50%)
+      width: 44px
+      height: 44px
+      cursor: pointer
+      transition: margin-top 0.1s linear
+      &:active
+        margin-top: 2px
+  .left-size-gradient
+    position: absolute
+    top: 0
+    left: 0
+    bottom: 0
+    width: 30px
+    z-index: 99
+    transform: rotate(180deg)
+    background: linear-gradient(270deg,#FFFFFF 0%,rgba(255,255,255,0) 100%)
+    img
+      position: absolute
+      top: 50%
+      right: 0
+      transform: translate(0,-50%)
+      width: 44px
+      height: 44px
+      cursor: pointer
+      transition: margin-top 0.1s linear
+      &:active
+        margin-top: -2px
+
+@media (max-width: 450px)
+  .horizontal-list-swiper-wrapper
+    .right-size-gradient, .left-size-gradient
+      display: none

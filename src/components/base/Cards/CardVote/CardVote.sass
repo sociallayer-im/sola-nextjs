@@ -1,0 +1,153 @@
+.vote-card
+  border-radius: 13px
+  background: var(--unnamed,#FFF)
+  box-shadow: 0 2.15346px 12.92073px 0 rgba(0,0,0,0.1)
+  padding: 25px 12px
+  margin-bottom: 12px
+  position: relative
+  & > a
+    position: absolute
+    width: 100%
+    height: 100%
+    left: 0
+    top: 0
+  .vote-tips
+    margin-top: 8px
+    color: var(--text-2-secondary,#7B7C7B)
+    font-size: 12px
+    font-style: normal
+    font-weight: 400
+    line-height: 18px
+  .vote-title
+    color: var(--text-4-headline,#272928)
+    text-align: center
+    font-size: 16px
+    font-style: normal
+    font-weight: 600
+    line-height: 18px
+    display: flex
+    flex-flow: row nowrap
+    justify-content: space-between
+    align-items: center
+    margin-bottom: 16px
+    .count
+      color: var(--text-4-headline,#272928)
+      font-size: 14px
+      font-style: normal
+      font-weight: 400
+  &.ending
+    .vote-option
+      .vote-option-progress-bar
+        height: 8px
+      .option-info
+        height: auto
+        position: relative
+        .text
+          max-width: 50%
+        .count
+          font-size: 12px
+        .present
+          display: inline-flex
+          margin-left: 8px
+          flex-flow: row nowrap
+.vote-option
+  position: relative
+  margin-top: 12px
+  .vote-option-progress-bar
+    height: 40px
+    border-radius: 12px
+    border: 1px solid #F1F1F1
+    width: 100%
+    overflow: hidden
+    position: relative
+    cursor: pointer
+    .progress
+      position: absolute
+      left: 0
+      height: 42px
+      background: #F1F1F1
+      transition: width 2s ease-in-out
+      z-index: 1
+    &.voted
+      border-color: #BEFDE7
+      .progress
+        background: #BEFDE7
+  .option-info
+    position: absolute
+    top: 0
+    display: flex
+    flex-flow: row nowrap
+    justify-content: space-between
+    align-items: center
+    width: 100%
+    padding: 0 16px
+    box-sizing: border-box
+    height: 40px
+    .present
+      display: none
+    .text
+      max-width: 85%
+      min-width: 50%
+      position: relative
+      z-index: 2
+      overflow: hidden
+      white-space: nowrap
+      text-overflow: ellipsis
+      color: var(--text-4-headline,#272928)
+      font-size: 14px
+      font-weight: 600
+      display: flex
+      align-items: center
+      div
+        &:nth-child(1)
+          overflow: hidden
+          white-space: nowrap
+          text-overflow: ellipsis
+      .link
+        color: #7492EF
+        font-size: 14px
+        text-decoration: none
+        cursor: pointer
+        margin-left: 8px
+        font-weight: normal
+      svg
+        margin-left: 8px
+        min-width: 12px
+    .count
+      flex: 1
+      z-index: 2
+      text-align: right
+  .voters
+    display: flex
+    flex-flow: row nowrap
+    overflow: auto
+    margin-top: 12px
+    a
+      min-width: 24px
+      max-width: 24px
+      height: 24px
+      border-radius: 50%
+      overflow: hidden
+      margin-right: 8px
+      img
+        width: 24px
+        height: 24px
+  .tool-tip
+    position: absolute
+    top: 45px
+    width: 100%
+    background: var(--unnamed,#303133)
+    color: var(--text-0-white,#FFF)
+    font-variant-numeric: lining-nums tabular-nums
+    font-size: 12px
+    font-style: normal
+    font-weight: 400
+    line-height: 18px
+    z-index: 999
+    padding: 10px
+    display: none
+    box-sizing: border-box
+    border-radius: 4px
+  &:hover
+    .tool-tip
+      display: block

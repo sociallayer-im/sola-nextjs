@@ -1,0 +1,97 @@
+.dialog-manager-edit
+  position: fixed
+  width: 100%
+  height: 100%
+  z-index: 9999
+  top: 0
+  left: 0
+  .managers
+    padding-top: 30px
+    background: #F8F8F8
+    flex: 1
+    .des
+      white-space: pre-wrap
+      color: var(--text-4-headline,#272928)
+      font-size: 14px
+      font-style: normal
+      font-weight: 400
+      line-height: 22px
+      margin-bottom: 12px
+    .manager-item
+      display: flex
+      align-items: center
+      margin-bottom: 10px
+      .label
+        display: flex
+        flex-flow: row nowrap
+        align-items: center
+        flex: 1
+        background: #fff
+        padding: 20px 12px
+        border-radius: 8px
+        box-shadow: 0 1.987804889678955px 18px 0 rgba(0,0,0,0.1)
+        color: var(--text-4-headline,#272928)
+        font-size: 14px
+        font-style: normal
+        font-weight: 400
+        line-height: 22px
+        img
+          width: 28px
+          height: 28px
+          border-radius: 50%
+          margin-right: 10px
+      .del-btn
+        width: 28px
+        height: 28px
+        border-radius: 28px
+        border: 1px solid var(--fill-5-dark,#7B7C7B)
+        background: var(--fill-0-white,#FFF)
+        display: flex
+        align-items: center
+        justify-content: center
+        margin-left: 15px
+        cursor: pointer
+    .add-btn
+      display: flex
+      flex-flow: row nowrap
+      background: #fff
+      padding: 20px 12px
+      border-radius: 8px
+      box-shadow: 0 1.987804889678955px 18px 0 rgba(0,0,0,0.1)
+      align-items: center
+      cursor: pointer
+      color: var(--text-4-headline,#272928)
+      font-size: 14px
+      font-style: normal
+      font-weight: 600
+      line-height: 22px
+      .icon
+        width: 28px
+        height: 28px
+        border-radius: 50%
+        display: flex
+        flex-flow: row nowrap
+        align-items: center
+        justify-content: center
+        background: #F5F8F6
+        margin-right: 10px
+  .list-header
+    padding-bottom: 20px
+    border-bottom: 1px solid #f8f8f8
+  .center
+    max-width: var(--width-page-max)
+    margin: 0 auto
+    box-sizing: border-box
+    padding: 0 12px
+  .top-side
+    background: #fff
+    display: flex
+    flex-flow: column
+    height: 100%
+    & > div[data-baseweb="tabs"]
+      display: flex
+      flex-flow: column nowrap
+      flex: 1
+      overflow: hidden
+  .dialog-bottom
+    padding: 12px

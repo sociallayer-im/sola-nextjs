@@ -1,0 +1,22 @@
+.app-date-input
+  display: flex
+  flex-flow: row nowrap
+  position: relative
+  & > svg
+    position: absolute
+    left: 10px
+    top: 13px
+    z-index: 9
+  & > div
+    &:nth-child(2)
+      min-width: 60%
+      margin-right: 18px
+      div[data-baseweb="input"]
+        border: 0
+        input
+          margin-left: 20px
+          font-size: 14px
+  & > div[data-baseweb="select"]
+    & > div
+      border: 0
+      font-size: 14px

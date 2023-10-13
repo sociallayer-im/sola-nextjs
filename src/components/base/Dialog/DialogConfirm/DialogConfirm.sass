@@ -1,0 +1,41 @@
+.dialog-confirm
+  width: 100%
+  height: 100%
+  border-radius: 12px
+  background: #fff
+  box-shadow: 0 1px 3px #000000
+  padding: 20px 15px
+  box-sizing: border-box
+  .title
+    display: flex
+    flex-flow: row nowrap
+    justify-content: space-between
+    font-weight: 600
+    font-size: 16px
+    line-height: 24px
+    color: #272928
+    .dialog-close-btn
+      min-width: 24px
+      max-width: 24px
+      height: 24px
+      background: #F8F8F8
+      border-radius: 50%
+      display: flex
+      align-items: center
+      justify-content: center
+      color: #D2D2D2
+      cursor: pointer
+  .content
+    margin-top: 8px
+    font-weight: 400
+    font-size: 16px
+    line-height: 24px
+    color: #272928
+  .btns
+    display: flex
+    flex-flow: row nowrap
+    align-items: center
+    margin-top: 16px
+    button
+      &:not(:last-child)
+        margin-right: 16px

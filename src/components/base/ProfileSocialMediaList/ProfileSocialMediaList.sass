@@ -1,0 +1,37 @@
+.profile-social-media-list
+  display: flex
+  flex-flow: row nowrap
+  align-items: center
+  margin-top: 12px
+  .list-item
+    display: flex
+    flex-flow: row nowrap
+    align-items: center
+    text-decoration: none
+    font-size: 12px
+    color: #272928
+    margin-right: 12px
+    transition: all 0.2s ease-out
+    margin-bottom: 0
+    & > a
+      width: 0
+      overflow: hidden
+      text-decoration: none
+      color: #272928
+      transition: none
+    & > i
+      margin-right: 10px
+      font-size: 16px
+  &.active
+    flex-flow: column nowrap
+    align-items: flex-start
+    .list-item
+      padding: 8px 3px
+      border-radius: 3px
+      &:hover
+        background: #f1f1f1
+      &:first-child
+        margin-top: 0 !important
+      & > a
+        width: 300px
+        overflow: hidden

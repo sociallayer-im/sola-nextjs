@@ -1,0 +1,30 @@
+.search-result-page {
+  padding-top: 20px;
+  max-width: 875px;
+  margin: 0 auto;
+
+  div[data-testid=CardBadge] {
+    margin-right: 10px;
+    min-width: calc(50% - 10px);
+    max-width: calc(50% - 10px);
+
+    >div:first-child {
+      width: 100%;
+    }
+  }
+
+  @media (min-width: 850px) {
+    div[data-testid=CardBadge] {
+      min-width: calc((850px - 50px) / 6);
+      max-width: calc((850px - 50px) / 6);
+
+      &:nth-child(2n) {
+        margin-right: 10px
+      }
+
+      &:nth-child(6n) {
+        margin-right: 0
+      }
+    }
+  }
+}

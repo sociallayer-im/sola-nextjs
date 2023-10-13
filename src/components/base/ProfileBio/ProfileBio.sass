@@ -1,0 +1,30 @@
+.profile-bio
+  margin-top: 4px
+  font-style: normal
+  font-weight: 400
+  font-size: 12px
+  line-height: 18px
+  color: #272928
+  max-height: 54px
+  overflow: hidden
+  transition: max-height 0.1s linear
+  position: relative
+  & > div
+    word-break: break-all
+  &.active
+    max-height: 200px
+    .show-more-btn
+      position: relative
+      text-align: right
+  .show-more-btn
+    position: absolute
+    bottom: 0
+    right: 0
+    color: #7492EF
+    font-size: 12px
+    background: #fff
+    padding-left: 5px
+    cursor: pointer
+@media (min-width: 450px)
+    .profile-bio .show-more-btn
+      background: #fbfcfe

@@ -1,0 +1,29 @@
+.app-swiper-pagination
+  height: 4px
+  display: flex
+  flex-flow: row nowrap
+  align-items: center
+  overflow: hidden
+  position: absolute
+  top: 10px
+  margin-left: 50%
+  transform: translateX(-50%)
+  &.animate
+    .swiper-pagination-dot
+      transition: 0.3s ease-in-out
+  .swiper-pagination-dot
+    max-width: 20px
+    min-width: 20px
+    width: 0
+    height: 4px
+    border-radius: 4px
+    background: #cccbcb
+    margin-right: 8px
+    transform: scaleX(1) translateZ(0)
+    &.active
+      background: #9efedd
+    &.close
+      max-width: 0
+      min-width: 0
+      margin-right: 0
+      transform: scaleX(0) translateZ(0)
