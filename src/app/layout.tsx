@@ -19,7 +19,7 @@ import {configureChains, createClient, WagmiConfig} from 'wagmi'
 
 const engine = typeof window === 'undefined'
     ? new Server()
-    : new Client({hydrate: document.getElementsByClassName('_styletron_hydrate_')});
+    : new Client({hydrate: document.getElementsByClassName('_styletron_hydrate_') as any});
 console.log(engine)
 
 const inject = new InjectedConnector({
