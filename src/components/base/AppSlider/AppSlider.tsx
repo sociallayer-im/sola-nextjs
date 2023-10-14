@@ -1,6 +1,5 @@
 import {useEffect, useRef, useState} from 'react'
 import { Slider } from 'baseui/slider'
-import './AppSlider.sass'
 
 const overrides = {
     InnerThumb: () => null,

@@ -1,4 +1,4 @@
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import {  useSearchParams } from 'next/navigation'
 import CreateBadgeNonPrefill from './NonPrefill'
 import CreateBadgeWithPrefill from './WithPrefill'
 

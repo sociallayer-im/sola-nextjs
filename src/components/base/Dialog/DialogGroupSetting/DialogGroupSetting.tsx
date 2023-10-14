@@ -1,5 +1,4 @@
 import { useState, useContext, useEffect } from 'react'
-import './DialogGroupSetting.sass'
 import PageBack from '../../PageBack';
 import langContext from '../../../provider/LangProvider/LangContext'
 import UserContext from '../../../provider/UserProvider/UserContext'

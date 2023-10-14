@@ -3,7 +3,6 @@ import { Swiper, SwiperSlide } from 'swiper/react'
 import { Virtual } from 'swiper'
 import useScrollToLoad from '../../../hooks/scrollToLoad'
 import Empty from '../EmptySmall'
-import './HorizontalList.sass'
 import Slider from './Slider'
 
 export interface HorizontalListMethods {

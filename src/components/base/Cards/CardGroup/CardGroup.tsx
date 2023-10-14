@@ -1,10 +1,10 @@
-import {useNavigate} from 'react-router-dom'
 import { useStyletron } from 'baseui'
 import { useState, useContext, useEffect } from 'react'
 import { ellipsisText } from 'baseui/styles/util'
 import { Group, Profile } from '../../../../service/solas'
 import usePicture from '../../../../hooks/pictrue'
 import LangContext from '../../../provider/LangProvider/LangContext'
+import {useRouter} from "next/navigation";
 
 const style = {
     wrapper: {
@@ -63,12 +63,12 @@ export interface CardGroupProps {
 
 function CardGroup (props: CardGroupProps) {
     const [css] = useStyletron()
-    const navigate = useNavigate()
+    const router = useRouter()
     const { defaultAvatar } = usePicture()
     const { lang } = useContext(LangContext)
 
     const toGroupDetail = () => {
-        navigate(`/group/${props.group.username}`)
+        router.push(`/group/${props.group.username}`)
     }
 
     return (

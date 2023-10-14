@@ -1,5 +1,4 @@
 import {ReactNode, useContext} from 'react'
-import './DetailDes.sass'
 import LangContext from '../../../../provider/LangProvider/LangContext'
 
 interface DetailDesProp {

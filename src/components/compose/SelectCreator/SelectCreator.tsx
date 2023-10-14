@@ -1,4 +1,3 @@
-import {useNavigate} from 'react-router-dom'
 import { useState, useContext, useEffect, forwardRef } from 'react'
 import solas, {Group, Profile, queryGroupsUserCreated} from '../../../service/solas'
 import { useSearchParams } from 'react-router-dom'

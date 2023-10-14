@@ -1,4 +1,4 @@
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import {useRouter, useSearchParams} from "next/navigation";
 import { useState, useContext, useEffect } from 'react'
 import Layout from '../../components/Layout/Layout'
 import PageBack from '../../components/base/PageBack'
@@ -16,7 +16,7 @@ interface CreateBadgeWithPrefillProp {
     nftPassId: number
 }
 function CreateBadgeWithPrefill(props: CreateBadgeWithPrefillProp) {
-    const navigate = useNavigate()
+    const router = useRouter()
     const [reason, setReason] = useState('')
     const { showLoading, showToast } = useContext(DialogsContext)
     const { user } = useContext(UserContext)
@@ -51,7 +51,7 @@ function CreateBadgeWithPrefill(props: CreateBadgeWithPrefillProp) {
                 auth_token: user.authToken || ''
             })
             unload()
-            navigate(`/issue-success?nftpass=${nftPass[0].id}`)
+            router.push(`/issue-success?nftpass=${nftPass[0].id}`)
         } catch (e: any) {
             console.log('[handleCreateIssue]: ', e)
             unload()
@@ -61,9 +61,9 @@ function CreateBadgeWithPrefill(props: CreateBadgeWithPrefillProp) {
 
     const handleCreate = async () => {
         if (presetAcceptor) {
-            navigate( `/issue-nftpass/${props.nftPassId}?to=${presetAcceptor}`, { state: { reason: reason }})
+            router.push( `/issue-nftpass/${props.nftPassId}?to=${presetAcceptor}`, { state: { reason: reason }})
         } else {
-            navigate( `/issue-nftpass/${props.nftPassId}`, { state: { reason: reason }})
+            router.push( `/issue-nftpass/${props.nftPassId}`, { state: { reason: reason }})
         }
     }
 

@@ -1,11 +1,8 @@
-import {useNavigate} from 'react-router-dom'
-import {useStyletron} from 'baseui'
 import {useEffect, useState} from 'react'
 import {LensPublication, getPublicationDetail} from "../../../../service/lens";
 import LensIcons from "../LensIcons/LensIcons";
 import Player from "../Player/Player";
 
-import './LensItem.sass'
 
 export interface LensItemProps {
     item: LensPublication

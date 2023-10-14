@@ -1,4 +1,4 @@
-import {useLocation, useNavigate, useParams, useSearchParams} from 'react-router-dom'
+import {useRouter, useParams, useSearchParams, useLocation} from "next/navigation";
 import {useContext, useEffect, useState} from 'react'
 import Layout from '../../components/Layout/Layout'
 import PageBack from '../../components/base/PageBack'
@@ -18,7 +18,7 @@ function Issue() {
     const [badge, setBadge] = useState<Badge | null>(null)
     const params = useParams()
     const [SearchParams, _] = useSearchParams()
-    const navigate = useNavigate()
+    const router = useRouter()
     let {state} = useLocation()
 
     // 处理预填接受者
@@ -65,7 +65,7 @@ function Issue() {
                 auth_token: user.authToken || ''
             })
             unload()
-            navigate(`/issue-success?presend=${presend.id}`)
+            router.push(`/issue-success?presend=${presend.id}`)
         } catch (e: any) {
             console.log('[handleCreatePresend]: ', e)
             unload()
@@ -91,7 +91,7 @@ function Issue() {
                 auth_token: user.authToken || ''
             })
             unload()
-            navigate(`/issue-success?badgelet=${badgelets[0].id}&amount=${badgelets.length}`)
+            router.push(`/issue-success?badgelet=${badgelets[0].id}&amount=${badgelets.length}`)
         } catch (e: any) {
             console.log('[handleCreateIssue]: ', e)
             unload()
@@ -136,7 +136,7 @@ function Issue() {
                         initIssues={initIssues}
                         onConfirm={handleCreate}
                         onCancel={() => {
-                            navigate(fallBackPath, {replace: true})
+                            router.replace(fallBackPath)
                         }}
                     />
                 </div>

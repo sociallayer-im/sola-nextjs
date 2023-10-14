@@ -1,5 +1,4 @@
 import {ReactNode, useEffect, useRef, useState} from 'react'
-import './dialog.sass'
 
 export interface DialogProps {
     children?: (close: () => any) => ReactNode
@@ -70,7 +69,6 @@ function Dialog ({ position = '', ...props }: DialogProps) {
     }, [])
 
     return (<div data-testid='AppDialog' className='dialog' style={{height: `${height}px`}}>
-        <div>-============================================</div>
         <div className={ `dialog-shell ${ props.noShell ? 'light': '' }` } onClick={ close }></div>
         <div className={ contentClassName }  style={ sizeStyle } ref={ dialogContent! }>
             { children && children(close) }

@@ -1,4 +1,4 @@
-import { useNavigate, useParams, useSearchParams, useLocation } from 'react-router-dom'
+import {useRouter, useParams, useSearchParams, useLocation} from "next/navigation";
 import { useState, useContext, useEffect } from 'react'
 import Layout from '../../components/Layout/Layout'
 import PageBack from '../../components/base/PageBack'
@@ -27,7 +27,7 @@ function Issue() {
     const [face2faceShareLink, setFace2faceShareLink] = useState('')
     const [issueType, setIssueType] = useState('face2face')
     const [issues, setIssues] = useState<string[]>([''])
-    const navigate = useNavigate()
+    const router = useRouter()
     const { state } = useLocation()
 
     const { lang } = useContext(LangContext)
@@ -52,7 +52,7 @@ function Issue() {
                 setIssueType('domain')
             }
         } catch (e) {
-            navigate('/error')
+            router.push('/error')
         }
     }, [])
 
@@ -71,7 +71,7 @@ function Issue() {
                 auth_token: user.authToken || ''
             })
             unload()
-            navigate(`/issue-success?presend=${presend.id}`)
+            router.push(`/issue-success?presend=${presend.id}`)
         } catch (e: any) {
             console.log('[handleCreatePresend]: ', e)
             unload()
@@ -97,7 +97,7 @@ function Issue() {
                 auth_token: user.authToken || ''
             })
             unload()
-            navigate(`/issue-success?badgelet=${badgelets[0].id}&amount=${badgelets.length}`)
+            router.push(`/issue-success?badgelet=${badgelets[0].id}&amount=${badgelets.length}`)
         } catch (e: any) {
             console.log('[handleCreateIssue]: ', e)
             unload()

@@ -1,10 +1,7 @@
-import {useNavigate} from 'react-router-dom'
-import {useStyletron} from 'baseui'
 import React, {useContext, useEffect, useImperativeHandle, useState} from 'react'
 import {getGroupMembers, Profile} from '../../../service/solas'
 import UploadAvatar from '../UploadAvatar/UploadAvatar'
 import usePicture from '../../../hooks/pictrue'
-import './FormProfileEdit.sass'
 import AppInput from '../../base/AppInput'
 import LangContext from '../../provider/LangProvider/LangContext'
 import AppTextArea from '../../base/AppTextArea/AppTextArea'
@@ -27,9 +24,6 @@ export interface ProfileEditFormData {
 }
 
 function FormProfileEdit(props: ProfileEditFormProps) {
-    const [css] = useStyletron()
-    const navigate = useNavigate()
-    const [a, seta] = useState('')
     const {defaultAvatar} = usePicture()
     const [newProfile, setNewProfile] = useState<Profile>(props.profile)
     const {lang} = useContext(LangContext)

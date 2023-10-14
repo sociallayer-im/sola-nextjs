@@ -1,5 +1,5 @@
 import Layout from '../../components/Layout/Layout'
-import {useNavigate, useParams, useSearchParams} from 'react-router-dom'
+import {useRouter,useParams, useSearchParams} from 'next/navigation'
 import PageBack from '../../components/base/PageBack'
 import './Group.less'
 import {useContext, useEffect, useState} from 'react'
@@ -36,14 +36,14 @@ function GroupPage() {
     const [isGroupManager, setIsGroupManager] = useState(false)
     const startIssue = useIssueBadge({groupName: groupname})
     const {copyWithDialog} = useCopy()
-    const navigate = useNavigate()
+    const router = useRouter()
 
     const isGroupOwner = user.id === profile?.group_owner_id
 
     // 为了实现切换tab时，url也跟着变化，而且浏览器的前进后退按钮也能切换tab
     useEffect(() => {
         if (!searchParams.get('tab')) {
-            navigate(`/group/${groupname}?tab=0`, {replace: true})
+            router.push(`/group/${groupname}?tab=0`, {replace: true})
         }
 
         if (searchParams.get('tab')) {
@@ -94,7 +94,7 @@ function GroupPage() {
 
         // 处理用户登录后但是未注册域名的情况，即有authToken和钱包地址,但是没有domain和username的情况
         if (user.wallet && user.authToken && !user.domain) {
-            navigate('/regist')
+            router.push('/regist')
             return
         }
 
@@ -118,7 +118,7 @@ function GroupPage() {
     })
 
     const goToEditGroup = () => {
-        navigate(`/group-edit/${profile?.username}`)
+        router.push(`/group-edit/${profile?.username}`)
     }
 
     const ProfileMenu = () => <div className='profile-setting'>
@@ -162,13 +162,13 @@ function GroupPage() {
                             activeKey={selectedTab}
                             onChange={({activeKey}) => {
                                 setSelectedTab(activeKey as any);
-                                navigate(`/group/${groupname}?tab=${activeKey}`)
+                                router.push(`/group/${groupname}?tab=${activeKey}`)
                             }}>
                             <Tab title={lang['Profile_Tab_Received']}>
                                 <AppSubTabs
                                     activeKey={selectedSubtab}
                                     onChange={({activeKey}) => {
-                                        navigate(`/group/${groupname}?tab=${selectedTab}&subtab=${activeKey}`)
+                                        router.push(`/group/${groupname}?tab=${selectedTab}&subtab=${activeKey}`)
                                         setSelectedSubtab(activeKey as any)
                                     }}
                                     renderAll>

@@ -1,6 +1,5 @@
 import { useStyletron, styled } from 'baseui'
 import { ReactNode } from 'react'
-import './DetailWrapper.sass'
 
 interface DetailWrapperProp {
     children?: ReactNode

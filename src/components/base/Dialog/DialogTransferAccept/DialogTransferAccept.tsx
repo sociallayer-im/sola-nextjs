@@ -1,10 +1,6 @@
-import {useNavigate} from 'react-router-dom'
-import {useStyletron} from 'baseui'
 import {useState, useContext, useEffect} from 'react'
-import {Badge} from "baseui/badge";
 import {Badgelet, PointItem, NftPasslet} from "../../../../service/solas";
 import ReasonText from "../../ReasonText/ReasonText";
-import './DialogTransferAccept.sass'
 import AppButton from "../../AppButton/AppButton";
 import langContext from "../../../provider/LangProvider/LangContext";
 
@@ -15,8 +11,6 @@ export interface DialogTransferAcceptProps {
 }
 
 function DialogTransferAccept(props: DialogTransferAcceptProps) {
-    const [css] = useStyletron()
-    const navigate = useNavigate()
     const [a, seta] = useState('')
     const {lang} = useContext(langContext)
 

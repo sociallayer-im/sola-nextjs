@@ -1,4 +1,3 @@
-import {useNavigate} from 'react-router-dom'
 import { useStyletron } from 'baseui'
 import { useState, useContext, useEffect } from 'react'
 import { ellipsisText } from 'baseui/styles/util'
@@ -6,6 +5,7 @@ import { Group, Profile } from '../../../../service/solas'
 import usePicture from '../../../../hooks/pictrue'
 import LangContext from '../../../provider/LangProvider/LangContext'
 import { Plus } from 'baseui/icon'
+import {useRouter} from "next/navigation";
 
 const style = {
     wrapper: {
@@ -51,11 +51,11 @@ interface CardInviteMemberProps {
 
 function CardInviteMember (props: CardInviteMemberProps) {
     const [css] = useStyletron()
-    const navigate = useNavigate()
+    const router = useRouter()
     const { lang } = useContext(LangContext)
 
     return (
-        <div className={ css(style.wrapper) } onClick={() => { navigate(`/invite-create/${props.groupId}`) }}>
+        <div className={ css(style.wrapper) } onClick={() => { router.push(`/invite-create/${props.groupId}`) }}>
             <div className={ css(style.img) }><Plus size={28}/></div>
         </div>
     )

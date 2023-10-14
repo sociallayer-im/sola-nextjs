@@ -15,10 +15,10 @@ import ReasonText from '../../base/ReasonText/ReasonText'
 import DetailScrollBox from './atoms/DetailScrollBox/DetailScrollBox'
 import DetailCreator from './atoms/DetailCreator/DetailCreator'
 import useTime from '../../../hooks/formatTime'
-import {useNavigate} from 'react-router-dom'
 import PointCover from "./atoms/PointCover";
 import DetailRow from "./atoms/DetailRow";
 import DetailBadgeMenu from "./atoms/DetalBadgeMenu";
+import {useRouter} from "next/navigation";
 
 export interface DetailBadgeletProps {
     point: Point,
@@ -31,11 +31,11 @@ function DetailPoint(props: DetailBadgeletProps) {
     const {openConnectWalletDialog, showLoading, showToast} = useContext(DialogsContext)
     const {defaultAvatar} = usePicture()
     const formatTime = useTime()
-    const navigate = useNavigate()
+    const router = useRouter()
     const {point} = props
 
     const handleIssue = async () => {
-        navigate(`/create-point?point=${props.point.id}`)
+        router.push(`/create-point?point=${props.point.id}`)
         props.handleClose()
     }
 

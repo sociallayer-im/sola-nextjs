@@ -1,6 +1,5 @@
 import {ReactNode, useContext, useEffect, useRef, useState} from 'react'
 import langContext from '../../provider/LangProvider/LangContext'
-import './EditSocialMedia.sass'
 import DialogsContext from '../../provider/DialogProvider/DialogsContext'
 import {OpenDialogProps} from '../../provider/DialogProvider/DialogProvider'
 import { Delete } from 'baseui/icon'

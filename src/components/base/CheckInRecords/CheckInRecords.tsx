@@ -1,5 +1,4 @@
 import {useEffect, useState} from 'react'
-import './CheckInRecords.sass'
 import {CheckIn, getProfile, ProfileSimple} from "../../../service/solas";
 import usePicture from "../../../hooks/pictrue";
 import useTime from "../../../hooks/formatTime";

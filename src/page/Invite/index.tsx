@@ -1,4 +1,4 @@
-import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
+import {useRouter, useParams} from "next/navigation";
 import { useState, useContext, useEffect } from 'react'
 import Layout from '../../components/Layout/Layout'
 import PageBack from '../../components/base/PageBack'
@@ -24,7 +24,7 @@ function Invite() {
     const { showToast, showLoading } = useContext(DialogsContext)
     const params = useParams()
     const [issues, setIssues] = useState<string[]>([''])
-    const navigate = useNavigate()
+    const router = useRouter()
     const { defaultAvatar } = usePicture()
 
 
@@ -69,7 +69,7 @@ function Invite() {
                 return
             }
 
-            navigate(`/issue-success?invite=${invites[0].id}&amount=${invites.length}&group=${group?.id}`)
+            router.push(`/issue-success?invite=${invites[0].id}&amount=${invites.length}&group=${group?.id}`)
         } catch (e: any) {
             unload()
             console.log('[handleInvite]: ', e)

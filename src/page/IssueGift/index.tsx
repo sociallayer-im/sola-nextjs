@@ -1,4 +1,4 @@
-import {useLocation, useNavigate, useParams, useSearchParams} from 'react-router-dom'
+import {useLocation, useRouter, useParams, useSearchParams} from 'next/navigation'
 import {useContext, useEffect, useState} from 'react'
 import Layout from '../../components/Layout/Layout'
 import PageBack from '../../components/base/PageBack'
@@ -18,7 +18,7 @@ function Issue() {
     const [badge, setBadge] = useState<Badge | null>(null)
     const params = useParams()
     const [SearchParams, _] = useSearchParams()
-    const navigate = useNavigate()
+    const router = useRouter()
     let {state} = useLocation()
 
     // 处理预填接受者
@@ -62,7 +62,7 @@ function Issue() {
                 expires_at: data.expires_at || undefined,
             })
             unload()
-            navigate(`/issue-success?giftitem=${badgelets[0].id}`)
+            router.push(`/issue-success?giftitem=${badgelets[0].id}`)
         } catch (e: any) {
             console.log('[handleCreateIssue]: ', e)
             unload()
@@ -94,7 +94,7 @@ function Issue() {
                         initIssues={initIssues}
                         onConfirm={handleCreate}
                         onCancel={() => {
-                            navigate(fallBackPath, {replace: true})
+                            router.push(fallBackPath, {replace: true})
                         }}
                     />
                 </div>

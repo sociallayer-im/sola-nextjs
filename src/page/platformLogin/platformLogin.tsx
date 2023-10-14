@@ -1,15 +1,12 @@
-import {useNavigate} from 'react-router-dom'
-import {useStyletron} from 'baseui'
+import {useRouter, useSearchParams} from "next/navigation";
 import {useState, useContext, useEffect} from 'react'
 import './PlatformLogin.less'
 import { Spinner } from "baseui/spinner";
 import DialogsContext from "../../components/provider/DialogProvider/DialogsContext";
 import {getLatestAuth, getLastLoginType, setPlantLoginFallBack} from "../../utils/authStorage";
-import {useSearchParams, } from "react-router-dom";
 
 function platformLogin() {
-    const [css] = useStyletron()
-    const navigate = useNavigate()
+    const router = useRouter()
     const [a, seta] = useState('')
     const { showToast, clean, showLoading, openConnectWalletDialog } = useContext(DialogsContext)
     const [searchParams] = useSearchParams()
@@ -17,7 +14,7 @@ function platformLogin() {
     const fallbackUrl = searchParams.get('from')
     useEffect(() => {
         if (!fallbackUrl) {
-            navigate('/error')
+            router.push('/error')
             return
         }
 

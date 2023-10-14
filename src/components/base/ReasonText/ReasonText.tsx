@@ -1,5 +1,4 @@
 import React, {forwardRef} from 'react'
-import './ReasonText.sass'
 
 
 export interface ReasonTextProps extends React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement> {

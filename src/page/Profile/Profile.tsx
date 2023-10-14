@@ -1,5 +1,5 @@
 import Layout from '../../components/Layout/Layout'
-import {useNavigate, useParams, useSearchParams} from 'react-router-dom'
+import {useRoutes, useParams, useSearchParams} from "react-router";
 import PageBack from '../../components/base/PageBack'
 import './Profile.less'
 import {useContext, useEffect, useState} from 'react'
@@ -33,7 +33,7 @@ function ProfilePage() {
     const [searchParams,] = useSearchParams()
     const [selectedTab, setSelectedTab] = useState(searchParams.get('tab') || '0')
     const [selectedSubtab, setSelectedSubtab] = useState(searchParams.get('subtab') || '0')
-    const navigate = useNavigate()
+    const router = useRoutes()
     const startIssue = useIssueBadge()
     const [newProfile, _] = useEvent(EVENT.profileUpdate)
     const {copyWithDialog} = useCopy()
@@ -47,7 +47,7 @@ function ProfilePage() {
     // 为了实现切换tab时，url也跟着变化，而且浏览器的前进后退按钮也能切换tab
     useEffect(() => {
         if (!searchParams.get('tab')) {
-            navigate(`/profile/${username}?tab=0`, {replace: true})
+            router.replace(`/profile/${username}?tab=0`)
         }
 
         if (searchParams.get('tab')) {
@@ -83,7 +83,7 @@ function ProfilePage() {
 
         // 处理用户登录后但是未注册域名的情况，即有authToken和钱包地址,但是没有domain和username的情况
         if (user.wallet && user.authToken && !user.domain) {
-            navigate('/regist')
+            router.push('/regist')
             return
         }
 
@@ -103,7 +103,7 @@ function ProfilePage() {
     })
 
     const goToEditProfile = () => {
-        navigate(`/profile-edit/${profile?.username}`)
+        router.push(`/profile-edit/${profile?.username}`)
     }
 
     const ProfileMenu = () => <div className='profile-setting'>

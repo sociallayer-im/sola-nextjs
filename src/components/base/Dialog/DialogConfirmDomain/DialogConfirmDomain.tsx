@@ -1,6 +1,5 @@
 import { ReactNode } from 'react'
 import AppButton, { BTN_KIND } from '../../AppButton/AppButton'
-import './DialogConfirmDomain.sass'
 
 export interface DialogConfirmDomainProps {
     confirmLabel?: string,

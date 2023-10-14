@@ -1,6 +1,5 @@
 import {useState, useContext, useRef, useEffect, forwardRef} from 'react'
 import LangContext from '../../provider/LangProvider/LangContext'
-import './ReasonInput.sass'
 import ReasonText from '../ReasonText/ReasonText'
 
 export interface ReasonInputProps {

@@ -5,7 +5,7 @@ import {useContext, useEffect} from 'react'
 import UserContext from '../../components/provider/UserProvider/UserContext'
 import DialogsContext from '../../components/provider/DialogProvider/DialogsContext'
 import solas from '../../service/solas'
-import {useNavigate, useParams} from 'react-router-dom'
+import {useRouter, useParams} from "next/navigation";
 import useIssueBadge from '../../hooks/useIssueBadge'
 import LangContext from '../../components/provider/LangProvider/LangContext'
 
@@ -25,7 +25,7 @@ function Home() {
         showGift,
         showGiftItem
     } = useContext(DialogsContext)
-    const navigate = useNavigate()
+    const router = useRouter()
     const {badgeletId, presendId, groupId, inviteId, nftpassletId, nftpassId, pointId, pointItemId, giftId, giftitemId} = useParams()
     const startIssueBadge = useIssueBadge()
     const {lang} = useContext(LangContext)
@@ -143,7 +143,7 @@ function Home() {
             unload()
             startIssueBadge({badges})
         } else if (!user.userName && user.authToken) {
-            navigate('/regist')
+            router.push('/regist')
         } else {
             openConnectWalletDialog()
         }
@@ -151,7 +151,7 @@ function Home() {
 
     useEffect(() => {
         if (user.domain && user.userName && (!badgeletId && !presendId && !inviteId)) {
-            navigate(`/profile/${user.userName}`, {replace: true})
+            router.push(`/profile/${user.userName}`, {replace: true})
         }
     }, [user.userName, user.userName, badgeletId, presendId, inviteId])
 

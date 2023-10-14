@@ -1,4 +1,3 @@
-import {useNavigate} from 'react-router-dom'
 import {useStyletron} from 'baseui'
 import {useState, useContext, useEffect} from 'react'
 import { useParams } from 'react-router-dom'
@@ -15,7 +14,6 @@ import ListSearchResultBadge from '../../components/compose/ListSearchResultBadg
 
 function SearchPage() {
     const [css] = useStyletron()
-    const navigate = useNavigate()
     const { keyword } = useParams()
     const { lang } = useContext(LangContext)
 

@@ -1,5 +1,4 @@
 import React, {ReactNode, useEffect, useImperativeHandle, useState} from 'react'
-import './ListUserAssets.sass'
 import useScrollToLoad from "../../../hooks/scrollToLoad";
 import Empty from "../EmptySmall";
 import AppButton from "../AppButton/AppButton";
@@ -31,7 +30,7 @@ function ListUserAssets<T>(props: ListUserAssetsProps<T>) {
 
     const [isPreview, setIsPreview] = useState<boolean>(true)
     const [listData, setListData] = useState<T[]>(list)
-    const previewCount = window.innerWidth <= 450 ? 4 : 6
+    const previewCount = typeof window === 'undefined' ? 4: (window.innerWidth <= 450 ? 4 : 6)
 
     useImperativeHandle(props.onRef, () => {
         // 需要将暴露的接口返回出去

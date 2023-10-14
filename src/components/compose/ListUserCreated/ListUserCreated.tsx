@@ -1,4 +1,3 @@
-import { useNavigate} from 'react-router-dom'
 import { useStyletron} from 'baseui'
 import { useContext, useEffect, useState } from 'react'
 import ListTitle from '../../base/ListTitle/ListTitle'
@@ -9,7 +8,6 @@ import {Profile} from '../../../service/solas'
 import ListUserMinted from '../ListUserMinted'
 import ListUserPresend from '../ListUserPresend'
 import ListGroupInvite from '../ListGroupInvite'
-import './ListUserCreated.sass'
 import UserContext from '../../provider/UserProvider/UserContext'
 
 interface ListUserCreatedProps {
@@ -19,7 +17,6 @@ interface ListUserCreatedProps {
 
 function ListUserCreated(props: ListUserCreatedProps) {
     const [css] = useStyletron()
-    const navigate = useNavigate()
     const [a, seta] = useState('')
     const { lang } = useContext(LangContext)
     const { user } = useContext(UserContext)

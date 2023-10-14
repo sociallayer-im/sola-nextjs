@@ -1,5 +1,4 @@
-import {useNavigate, useParams} from 'react-router-dom'
-import {useStyletron} from 'baseui'
+import {useRoutes, useParams} from "next/navigation"
 import {createRef, useContext, useEffect, useState} from 'react'
 import Layout from '../../components/Layout/Layout'
 import solas, {Profile} from '../../service/solas'
@@ -14,8 +13,7 @@ import UserContext from "../../components/provider/UserProvider/UserContext";
 
 
 function GroupEdit() {
-    const [css] = useStyletron()
-    const navigate = useNavigate()
+    const router = useRoutes()
     const [profile, setProfile] = useState<Profile | null>(null)
     const [newProfile, setNewProfile] = useState<Profile | null>(null)
     const {groupname} = useParams()
@@ -65,7 +63,7 @@ function GroupEdit() {
             })
 
             showToast('Save Successfully')
-            navigate(`/group/${profile?.username}`)
+            router.push(`/group/${profile?.username}`)
         } catch (e) {
             showToast('Save Failed')
             console.error('[saveProfile]: ', e)
@@ -95,13 +93,13 @@ function GroupEdit() {
                 title: lang['Profile_Edit_Leave_Dialog_Title'],
                 content: lang['Profile_Edit_Leave_Dialog_Des'],
                 onConfirm: (close) => {
-                    navigate(`/group/${profile?.username}`)
+                    router.push(`/group/${profile?.username}`)
                     close()
                 }
             }
             const dialog = openConfirmDialog(props)
         } else {
-            navigate(`/group/${profile?.username}`)
+            router.push(`/group/${profile?.username}`)
         }
     }
 
@@ -123,7 +121,7 @@ function GroupEdit() {
                     })
                     unload()
                     showToast('Froze')
-                    navigate(`/profile/${user?.userName}`)
+                    router.push(`/profile/${user?.userName}`)
                 } catch (e: any) {
                     console.log('[handleFreeze]:', e)
                     showToast(e.message)

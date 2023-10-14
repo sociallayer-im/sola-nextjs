@@ -18,10 +18,8 @@ import ReasonText from '../../../base/ReasonText/ReasonText'
 import DetailScrollBox from '../atoms/DetailScrollBox/DetailScrollBox'
 import DetailCreator from '../atoms/DetailCreator/DetailCreator'
 import useTime from '../../../../hooks/formatTime'
-import {useNavigate} from 'react-router-dom'
 import QRcode from "../../../base/QRcode";
 import {useStyletron} from "baseui";
-import './DetailGiftItem.sass'
 import DetailRow from "../atoms/DetailRow";
 import DetailTransferable from "../atoms/DetailTransferable/DetailTransferable";
 import useTransferOrRevoke from "../../../../hooks/transferOrRevoke";
@@ -82,7 +80,6 @@ function DetailGiftItem(props: DetailNftpassletProps) {
     const [_, emitUpdate] = useEvent(EVENT.giftItemUpdate)
     const [nftpasslet, setNftpasslet] = useState(props.giftItem)
     const formatTime = useTime()
-    const navigate = useNavigate()
     const [showQrcode, setShowQrcode] = useState(false)
     const [showChecked, setShowChecked] = useState(false)
     const interval = useRef<any>(null)

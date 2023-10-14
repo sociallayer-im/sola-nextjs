@@ -1,6 +1,5 @@
 import usePicture from '../../../hooks/pictrue'
-import './AddressList.sass'
-import { Group, Profile } from "../../../service/solas";
+import { Group, Profile } from "@/service/solas";
 
 interface AddressListProp<T> {
     data: Array<Group | Profile>,
@@ -9,15 +8,15 @@ interface AddressListProp<T> {
 }
 function AddressList<T>({ selected = [], ...props }: AddressListProp<T>) {
     const { defaultAvatar } = usePicture()
-    return (<div className='address-list' data-testid='AddressList'>
+    return (<div className={'address-list'} data-testid='AddressList'>
         {
             props.data.map((item,index) => {
                 const isSelected = selected.includes(item.id as T) || selected.includes(item.domain! as T)
 
-                return <div className='list-item'
+                return <div className={'list-item'}
                             key={ index }
                             onClick={() => { !!props.onClick && props.onClick(item, index)} }>
-                    <div className='left'>
+                    <div className={'left'}>
                         <img src={item.image_url || defaultAvatar(item.id)} alt=""/>
                         <span>{item.nickname || item.username || item.domain?.split('.')[0]}</span>
                     </div>

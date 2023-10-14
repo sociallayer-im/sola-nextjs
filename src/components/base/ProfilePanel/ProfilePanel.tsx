@@ -1,7 +1,6 @@
 import { styled } from 'baseui'
 import { useState, useContext, useEffect } from 'react'
 import solas, { Profile }  from '../../../service/solas'
-import './ProfilePanel.sass'
 import usePicture from '../../../hooks/pictrue'
 import LangContext from '../../provider/LangProvider/LangContext'
 import UserContext from '../../provider/UserProvider/UserContext'

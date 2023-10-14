@@ -1,5 +1,4 @@
 import {useContext, useEffect, useState} from 'react'
-import './DialogBurn.sass'
 import PageBack from '../../PageBack';
 import langContext from '../../../provider/LangProvider/LangContext'
 import UserContext from '../../../provider/UserProvider/UserContext'

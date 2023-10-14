@@ -1,4 +1,4 @@
-import {useNavigate, useParams} from 'react-router-dom'
+import {useRouter, useParams} from "next/navigation";
 import {useContext, useEffect, useState} from 'react'
 import Layout from "../../components/Layout/Layout";
 import langContext from "../../components/provider/LangProvider/LangContext";
@@ -32,7 +32,7 @@ const overridesStyle = {
 
 
 function VoteDetail() {
-    const navigate = useNavigate()
+    const router = useRouter()
     const {lang} = useContext(langContext)
     const {voteid} = useParams()
     const {copy} = useCopy()
@@ -47,14 +47,14 @@ function VoteDetail() {
 
     const getVote = async () => {
         if (!voteid) {
-            navigate('/error')
+            router.push('/error')
             return
         }
 
         const unload = showLoading()
         const vote = await getVoteDetail(Number(voteid))
         if (!vote) {
-            navigate('/error')
+            router.push('/error')
             return
         }
 
@@ -94,7 +94,7 @@ function VoteDetail() {
                         id: Number(voteid!)
                     })
                     unloading()
-                    navigate(`/group/${group!.username}?tab=3`)
+                    router.push(`/group/${group!.username}?tab=3`)
                     return
                 } catch (e: any) {
                     unloading()
@@ -129,7 +129,7 @@ function VoteDetail() {
                 <PageBack
                     title={lang['Vote_detail_Title']}
                     onClose={() => {
-                        navigate(-1)
+                        router.back(-1)
                     }}
                     menu={isOwner ? () => {
                         return <MenuContent/>

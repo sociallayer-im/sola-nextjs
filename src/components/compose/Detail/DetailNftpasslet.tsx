@@ -18,7 +18,6 @@ import ReasonText from '../../base/ReasonText/ReasonText'
 import DetailScrollBox from './atoms/DetailScrollBox/DetailScrollBox'
 import DetailCreator from './atoms/DetailCreator/DetailCreator'
 import useTime from '../../../hooks/formatTime'
-import {useNavigate} from 'react-router-dom'
 import QRcode from "../../base/QRcode";
 import {useStyletron} from "baseui";
 import CheckInRecords from "../../base/CheckInRecords/CheckInRecords";
@@ -82,7 +81,6 @@ function DetailNftpasslet(props: DetailNftpassletProps) {
     const [_, emitUpdate] = useEvent(EVENT.nftpassItemUpdate)
     const [nftpasslet, setNftpasslet] = useState(props.nftpasslet)
     const formatTime = useTime()
-    const navigate = useNavigate()
     const [showQrcode, setShowQrcode] = useState(false)
     const [showRecord, setShowRecord] = useState(false)
     const [records, setRecords] = useState<CheckIn[]>([])

@@ -19,7 +19,6 @@ import ReasonText from '../../base/ReasonText/ReasonText'
 import DetailScrollBox from './atoms/DetailScrollBox/DetailScrollBox'
 import DetailCreator from './atoms/DetailCreator/DetailCreator'
 import useTime from '../../../hooks/formatTime'
-import {useNavigate} from 'react-router-dom'
 import DetailRow from "./atoms/DetailRow";
 
 
@@ -38,7 +37,6 @@ function DetailBadgelet(props: DetailBadgeletProps) {
     const [badgelet, setBadgelet] = useState(props.badgelet)
     const isBadgeletOwner = user.id === props.badgelet.receiver.id
     const formatTime = useTime()
-    const navigate = useNavigate()
 
     const [isGroupManager, setIsGroupManager] = useState(false)
     const isOwner = user.id === props.badgelet.owner.id

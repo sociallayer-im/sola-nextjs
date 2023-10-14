@@ -1,4 +1,4 @@
-import {useNavigate, useSearchParams} from 'react-router-dom'
+import {useRouter, useSearchParams} from "next/navigation";
 import {useContext, useEffect, useState} from "react";
 import {createPoint, Group, Profile} from "../../service/solas";
 import UserContext from "../../components/provider/UserProvider/UserContext";
@@ -17,7 +17,7 @@ import AppTips from "../../components/base/AppTips/AppTips";
 import Toggle from "../../components/base/Toggle/Toggle";
 
 function CreateBadge() {
-    const navigate = useNavigate()
+    const router = useRouter()
     const [cover, setCover] = useState(covers[0])
     const [name, setName] = useState('')
     const [domain, setDomain] = useState('')
@@ -77,7 +77,7 @@ function CreateBadge() {
                 group_id: creator?.is_group ? creator.id : undefined,
                 sym: symbol
             })
-            navigate(`/issue-point/${newPoint.id}`)
+            router.push(`/issue-point/${newPoint.id}`)
         } catch (e: any) {
             console.error(e)
             showToast(e.message)

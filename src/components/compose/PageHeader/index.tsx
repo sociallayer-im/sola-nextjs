@@ -1,4 +1,3 @@
-import './PageHeader.sass'
 import LangSwitch from '../../base/LangSwitch'
 import PageLogo from '../../base/PageLogo'
 import LoginBtn from '../../base/LoginBtn'

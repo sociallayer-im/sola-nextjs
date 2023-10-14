@@ -1,4 +1,4 @@
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import {useRouter, useSearchParams} from "next/navigation";
 import { useState, useContext, useEffect } from 'react'
 import Layout from '../../components/Layout/Layout'
 import PageBack from '../../components/base/PageBack'
@@ -17,7 +17,7 @@ import AppTips from "../../components/base/AppTips/AppTips";
 import Toggle from "../../components/base/Toggle/Toggle";
 
 function CreateBadgeNonPrefill() {
-    const navigate = useNavigate()
+    const router = useRouter()
     const [cover, setCover] = useState('')
     const [domain, setDomain,] = useState('')
     const [domainError, setDomainError,] = useState('')
@@ -91,9 +91,9 @@ function CreateBadgeNonPrefill() {
                     auth_token: user.authToken || ''
                 })
                 unload()
-                navigate(`/issue-success?giftitem=${badgelets[0].id}`)
+                router.push(`/issue-success?giftitem=${badgelets[0].id}`)
             } else {
-                navigate(`/issue-gift/${newBadge.id}`, { state: { reason: reason } })
+                router.push(`/issue-gift/${newBadge.id}`, { state: { reason: reason } })
             }
             unload()
         } catch (e: any) {

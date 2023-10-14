@@ -1,6 +1,5 @@
 import { useContext } from 'react'
 import { Profile, ProfileSimple, Group } from '../../../service/solas'
-import './SendSuccessCard.sass'
 import ReasonText from '../../base/ReasonText/ReasonText'
 import usePicture from '../../../hooks/pictrue'
 import QRcode from '../../base/QRcode'

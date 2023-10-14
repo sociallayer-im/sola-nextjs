@@ -1,8 +1,7 @@
-import {useNavigate} from 'react-router-dom'
 import { useState, useContext, useEffect } from 'react'
 import AppInput from '../AppInput'
-import './HeaderSearch.sass'
 import LangContext from '../../provider/LangProvider/LangContext'
+import {useRouter} from "next/navigation";
 
 interface HeaderSearchProps {
     onClose?: () => any
@@ -10,7 +9,7 @@ interface HeaderSearchProps {
 
 
 function HeaderSearch(props: HeaderSearchProps) {
-    const navigate = useNavigate()
+    const router = useRouter()
     const [keyword, setKeyword] = useState('')
     const { lang } = useContext(LangContext)
 
@@ -28,7 +27,7 @@ function HeaderSearch(props: HeaderSearchProps) {
             window.localStorage.setItem('searchfallback', window.location.pathname + window.location.search)
         }
 
-        navigate(`/search/${keyword}`)
+        router.push(`/search/${keyword}`)
     }
 
     const cancel = () => {
@@ -37,7 +36,7 @@ function HeaderSearch(props: HeaderSearchProps) {
         const ifFallback = window.localStorage.getItem('searchfallback')
         if (ifFallback) {
             window.localStorage.removeItem('searchfallback')
-            navigate(ifFallback)
+            router.push(ifFallback)
         }
     }
 

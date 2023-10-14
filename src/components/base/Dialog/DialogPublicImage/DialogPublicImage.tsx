@@ -1,7 +1,6 @@
 import { useStyletron } from 'baseui'
 import { useContext } from 'react'
 import langContext from '../../../provider/LangProvider/LangContext'
-import './DialogPublicImage.sass'
 import AppSwiper from '../../AppSwiper/AppSwiper'
 import { Delete } from 'baseui/icon'
 import DialogsContext from '../../../provider/DialogProvider/DialogsContext'

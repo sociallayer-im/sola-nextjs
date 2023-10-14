@@ -1,4 +1,3 @@
-import './DetailScrollBox.sass'
 import { createRef, ReactNode } from "react";
 
 interface DetailScrollBoxProp {

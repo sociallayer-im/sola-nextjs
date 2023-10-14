@@ -2,7 +2,6 @@ import { useContext } from 'react'
 import AppInput from '../AppInput'
 import LangContext from '../../provider/LangProvider/LangContext'
 import { Plus, CheckIndeterminate } from 'baseui/icon'
-import './IssuesInpu.sass'
 import DialogAddressList from '../Dialog/DialogAddressList/DialogAddressList'
 import DialogsContext from '../../provider/DialogProvider/DialogsContext'
 

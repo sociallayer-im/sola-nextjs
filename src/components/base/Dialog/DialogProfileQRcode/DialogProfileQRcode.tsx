@@ -1,6 +1,4 @@
-import './DialogProfileQRcode.sass'
 import { Profile } from '../../../../service/solas'
-import './DialogProfileQRcode.less'
 import {useContext, useEffect, useRef, useState} from 'react'
 import LangContext from '../../../provider/LangProvider/LangContext'
 import QRcode from '../../QRcode'

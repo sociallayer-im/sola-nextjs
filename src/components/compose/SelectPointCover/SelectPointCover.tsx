@@ -1,5 +1,4 @@
 import {useEffect, useState} from 'react'
-import './SelectPointCover.sass'
 import {Swiper, SwiperSlide} from 'swiper/react'
 
 export const covers = [

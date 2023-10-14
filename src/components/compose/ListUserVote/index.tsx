@@ -6,8 +6,7 @@ import UserContext from '../../provider/UserProvider/UserContext'
 import useEvent, { EVENT } from '../../../hooks/globalEvent'
 import ListUserAssets , {ListUserAssetsMethods} from "../../base/ListUserAssets/ListUserAssets";
 import CardVote from "../../base/Cards/CardVote/CardVote";
-import {useNavigate} from "react-router-dom";
-import './ListUserVote.sass'
+import {useRouter} from "next/navigation";
 
 interface ListUserPresendProps {
     profile: Profile,
@@ -18,7 +17,7 @@ function ListUserVote (props: ListUserPresendProps) {
     const { user } = useContext(UserContext)
     const listWrapperRef = React.createRef<ListUserAssetsMethods>()
     const [newVote, _] = useEvent(EVENT.VoteListUpdate)
-    const navigate = useNavigate()
+    const router = useRouter()
     const [member, setMember] = useState(false)
 
     const getVotes = async (page: number) => {
@@ -56,7 +55,7 @@ function ListUserVote (props: ListUserPresendProps) {
             { (member || props.profile.group_owner_id === user.id) &&
                 <div className={'action'}>
                     <div className={'create-vote-btn'} onClick={e => {
-                        navigate(`/create-vote?group=${props.profile.id}`)
+                        router.push(`/create-vote?group=${props.profile.id}`)
                     }}>+ {lang['Vote_Create_Page_Title']}</div>
                 </div>
             }

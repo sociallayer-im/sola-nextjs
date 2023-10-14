@@ -1,4 +1,4 @@
-import {useLocation, useNavigate, useParams, useSearchParams} from 'react-router-dom'
+import {useRouter, useLocation,  useParams, useSearchParams} from "next/navigation";
 import {useContext, useEffect, useState} from 'react'
 import Layout from '../../components/Layout/Layout'
 import PageBack from '../../components/base/PageBack'
@@ -17,7 +17,7 @@ function Issue() {
     const [badge, setBadge] = useState<Badge | null>(null)
     const params = useParams()
     const [SearchParams, _] = useSearchParams()
-    const navigate = useNavigate()
+    const router = useRouter()
     let {state} = useLocation()
     const { lang } = useContext(LangContext)
 
@@ -59,7 +59,7 @@ function Issue() {
                 starts_at: data.starts_at || undefined,
             })
             unload()
-            navigate(`/issue-success?nftpasslet=${nftpasslet[0].id}`)
+            router.push(`/issue-success?nftpasslet=${nftpasslet[0].id}`)
         } catch (e: any) {
             console.log('[handleCreateIssue]: ', e)
             unload()
@@ -84,7 +84,7 @@ function Issue() {
                         initIssues={initIssues}
                         onConfirm={handleIssue}
                         onCancel={() => {
-                            navigate(fallBackPath, {replace: true})
+                            router.push(fallBackPath, {replace: true})
                         }}
                     />
                 </div>

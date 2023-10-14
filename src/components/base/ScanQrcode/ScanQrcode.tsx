@@ -1,7 +1,5 @@
-import {useNavigate} from 'react-router-dom'
 import {useStyletron} from 'baseui'
 import {useContext, useEffect, useState} from 'react'
-import './ScanQrcode.sass'
 import {BrowserMultiFormatReader} from '@zxing/library'
 import DialogsContext from "../../provider/DialogProvider/DialogsContext";
 

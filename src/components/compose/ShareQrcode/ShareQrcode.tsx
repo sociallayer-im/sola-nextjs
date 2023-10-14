@@ -1,7 +1,6 @@
 import {useContext} from 'react'
 import {Group, Profile, ProfileSimple} from '../../../service/solas'
 import langContext from '../../provider/LangProvider/LangContext'
-import './ShareQrcode.sass'
 import QRcode from '../../base/QRcode'
 import useTime from '../../../hooks/formatTime'
 

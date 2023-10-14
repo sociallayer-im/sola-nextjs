@@ -1,6 +1,5 @@
 import {ReactNode} from 'react'
 import AppButton, {BTN_KIND, BTN_SIZE} from '../../AppButton/AppButton'
-import './DialogConfirm.sass'
 import {Delete} from 'baseui/icon'
 
 export interface DialogConfirmProps {

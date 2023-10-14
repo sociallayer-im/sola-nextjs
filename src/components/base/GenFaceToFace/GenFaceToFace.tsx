@@ -1,5 +1,4 @@
 import { Badge, Presend } from '../../../service/solas'
-import './GenFaceToFace.sass'
 import AppButton from '../AppButton/AppButton'
 
 interface GenFaceToFaceProp {

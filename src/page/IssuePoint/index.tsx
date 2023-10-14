@@ -1,4 +1,4 @@
-import {useLocation, useNavigate, useParams, useSearchParams} from 'react-router-dom'
+import {useRouter, useLocation,  useParams, useSearchParams} from "next/navigation";
 import {useContext, useEffect, useState} from 'react'
 import Layout from '../../components/Layout/Layout'
 import PageBack from '../../components/base/PageBack'
@@ -17,7 +17,7 @@ function Issue() {
     const [badge, setBadge] = useState<Badge | null>(null)
     const params = useParams()
     const [SearchParams, _] = useSearchParams()
-    const navigate = useNavigate()
+    const router = useRouter()
     let {state} = useLocation()
     const enhancer = process.env.NEXT_PUBLIC_SOLAS_DOMAIN
 
@@ -93,7 +93,7 @@ function Issue() {
                     }
                 })
             })
-            navigate(`/issue-success?point=${params.pointId}&pointitem=${pointItems[0].id}`)
+            router.push(`/issue-success?point=${params.pointId}&pointitem=${pointItems[0].id}`)
         } catch (e: any) {
             console.error(e)
             showToast(e.message || 'Issue fail')
@@ -122,7 +122,7 @@ function Issue() {
                         initIssues={initIssues}
                         onConfirm={handleCreate}
                         onCancel={() => {
-                            navigate(fallBackPath, {replace: true})
+                            router.push(fallBackPath, {replace: true})
                         }}
                     />
                 </div>

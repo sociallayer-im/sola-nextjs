@@ -1,8 +1,6 @@
-import {useNavigate} from 'react-router-dom'
 import {useStyletron} from 'baseui'
 import {useContext, useEffect, useState} from 'react'
 import {Group, Profile, removeManager} from "../../../../service/solas";
-import './DialogGroupManagerEdit.sass'
 import PageBack from "../../PageBack";
 import usePicture from "../../../../hooks/pictrue";
 import {CheckIndeterminate, Plus} from "baseui/icon";
@@ -20,7 +18,6 @@ interface DialogGroupManagerEditProp {
 
 function DialogGroupManagerEdit(props: DialogGroupManagerEditProp) {
     const [css] = useStyletron()
-    const navigate = useNavigate()
     const [a, seta] = useState('')
     const {defaultAvatar} = usePicture()
     const {openDialog, showLoading, showToast} = useContext(DialogsContext)

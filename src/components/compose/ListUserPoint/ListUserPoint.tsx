@@ -1,5 +1,4 @@
 import React, {useContext, useEffect, useRef} from 'react'
-import './ListUserPoint.sass'
 import ListUserAssets, {ListUserAssetsMethods} from "../../base/ListUserAssets/ListUserAssets";
 import {PointItem, Profile, queryPoint, queryPointItems} from "../../../service/solas";
 import UserContext from "../../provider/UserProvider/UserContext";

@@ -6,7 +6,6 @@ import useEvent, { EVENT } from '../../../hooks/globalEvent'
 import UserContext from '../../provider/UserProvider/UserContext'
 import ListTitle from '../../base/ListTitle/ListTitle'
 import HorizontalList, { HorizontalListMethods } from '../../base/HorizontalList/HorizontalList'
-import './ListUserBadgelet.sass'
 
 interface ListUserBadgeletProps {
     profile: Profile

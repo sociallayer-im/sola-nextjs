@@ -1,6 +1,5 @@
 import { useState, useContext, useEffect } from 'react'
 import solas, {leaveGroup, Profile} from '../../../service/solas'
-import './GroupPanel.sass'
 import usePicture from '../../../hooks/pictrue'
 import LangContext from '../../provider/LangProvider/LangContext'
 import UserContext from '../../provider/UserProvider/UserContext'

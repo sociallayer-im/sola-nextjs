@@ -1,4 +1,4 @@
-import {useNavigate, useParams, useSearchParams} from 'react-router-dom'
+import {useRouter, useSearchParams, useParams} from "next/navigation";
 import {useStyletron} from 'baseui'
 import {useContext, useEffect, useState} from 'react'
 import Layout from '../../components/Layout/Layout'
@@ -33,7 +33,7 @@ const getNearestTime = () => {
 
 function ComponentName() {
     const [css] = useStyletron()
-    const navigate = useNavigate()
+    const router = useRouter()
     const [a, seta] = useState('')
     const {lang} = useContext(LangContext)
     const {showToast, showLoading} = useContext(DialogsContext)
@@ -103,7 +103,7 @@ function ComponentName() {
 
             unload()
             showToast('Create Success')
-            navigate(`/group/${group.username}?tab=3`)
+            router.push(`/group/${group.username}?tab=3`)
         } catch (e: any) {
             unload()
             console.error(e)
@@ -168,7 +168,7 @@ function ComponentName() {
             const groupName = await queryGroupDetail(Number(groupId))
             unload()
             showToast('Save Success')
-            navigate(`/group/${groupName.username}?tab=3`)
+            router.push(`/group/${groupName.username}?tab=3`)
         } catch (e: any) {
             unload()
             console.error(e)
@@ -182,7 +182,7 @@ function ComponentName() {
                 const unload = showLoading()
                 const voteData = await getVoteDetail(Number(vote))
                 if (!voteData) {
-                    navigate('/error')
+                    router.push('/error')
                     return
                 }
 
@@ -265,7 +265,7 @@ function ComponentName() {
     return (<Layout>
         <div className='create-vote-page'>
             <div className={'create-vote-page-wrapper'}>
-                <PageBack onClose={() => navigate(-1)}
+                <PageBack onClose={() => router.back(-1)}
                           title={lang['Vote_Create_Page_Title']}/>
 
                 <div className='create-badge-page-form'>

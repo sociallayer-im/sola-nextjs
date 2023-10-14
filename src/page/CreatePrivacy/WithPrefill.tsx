@@ -1,4 +1,4 @@
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import {useRouter, useSearchParams} from 'next/navigation'
 import { useState, useContext, useEffect } from 'react'
 import Layout from '../../components/Layout/Layout'
 import PageBack from '../../components/base/PageBack'
@@ -15,7 +15,7 @@ interface CreateBadgeWithPrefillProp {
     privateId: number
 }
 function CreateBadgeWithPrefill(props: CreateBadgeWithPrefillProp) {
-    const navigate = useNavigate()
+    const router = useRouter()
     const [reason, setReason] = useState('')
     const { showLoading, showToast } = useContext(DialogsContext)
     const { user } = useContext(UserContext)
@@ -50,7 +50,7 @@ function CreateBadgeWithPrefill(props: CreateBadgeWithPrefillProp) {
                 auth_token: user.authToken || ''
             })
             unload()
-            navigate(`/issue-success?badgelet=${badgelets[0].id}`)
+            router.push(`/issue-success?badgelet=${badgelets[0].id}`)
         } catch (e: any) {
             console.log('[handleCreateIssue]: ', e)
             unload()
@@ -62,7 +62,7 @@ function CreateBadgeWithPrefill(props: CreateBadgeWithPrefillProp) {
         if (presetAcceptor) {
             send(presetAcceptor)
         } else {
-            navigate( `/issue-badge/${props.privateId}`, { state: { reason: reason }})
+            router.push( `/issue-badge/${props.privateId}`, { state: { reason: reason }})
         }
     }
 

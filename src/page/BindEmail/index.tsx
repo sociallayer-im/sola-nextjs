@@ -5,16 +5,15 @@ import CodeInputForm from '../../components/compose/FormCodeInput'
 import LangContext from '../../components/provider/LangProvider/LangContext'
 import {useContext, useState} from 'react'
 import UserContext from '../../components/provider/UserProvider/UserContext'
-import {deleteFallback, getPlantLoginFallBack} from '../../utils/authStorage'
-import {useNavigate, useSearchParams} from 'react-router-dom'
 import usePageHeight from '../../hooks/pageHeight'
 import PageBack from "../../components/base/PageBack";
+import {useRouter, useSearchParams} from "next/navigation";
 
 function BindEmail() {
     const {lang} = useContext(LangContext)
     const [loginEmail, setLoginEmail] = useState('')
     const {user} = useContext(UserContext)
-    const navigate = useNavigate()
+    const router = useRouter()
     const {heightWithoutNav} = usePageHeight()
     const [searchParams] = useSearchParams()
 
@@ -24,9 +23,9 @@ function BindEmail() {
         if (fallBack && fallBack !== window.location.href && !fallBack.includes('login') && !fallBack.includes('regist')) {
             const path = fallBack.replace(window.location.origin, '')
             window.localStorage.removeItem('fallback')
-            navigate(path)
+            router.push(path)
         } else {
-            navigate('/')
+            router.push('/')
         }
     }
 

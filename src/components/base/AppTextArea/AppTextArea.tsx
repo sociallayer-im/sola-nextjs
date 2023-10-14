@@ -1,7 +1,5 @@
-import {useNavigate} from 'react-router-dom'
 import {useStyletron, withStyle} from 'baseui'
 import React, {useEffect, useRef, useState} from 'react'
-import './AppTextArea.sass'
 
 export interface AppTextAreaProps  {
     value: string,
@@ -11,9 +9,6 @@ export interface AppTextAreaProps  {
 }
 
 function AppTextArea({ maxLength = 200, ...props }: AppTextAreaProps) {
-    const [css] = useStyletron()
-    const navigate = useNavigate()
-    const [a, seta] = useState('')
     const textarea = useRef<HTMLDivElement | null>(null)
 
     useEffect(() => {

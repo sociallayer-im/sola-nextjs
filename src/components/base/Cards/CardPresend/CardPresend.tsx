@@ -1,4 +1,3 @@
-import {useNavigate} from 'react-router-dom'
 import { useStyletron } from 'baseui'
 import { useContext } from 'react'
 import { Presend } from '../../../../service/solas'

@@ -1,4 +1,4 @@
-import {useNavigate, useParams} from 'react-router-dom'
+import {useRouter, useParams} from "next/navigation";
 import {useStyletron} from 'baseui'
 import {useContext, useEffect, useState, createRef} from 'react'
 import Layout from '../../components/Layout/Layout'
@@ -15,7 +15,7 @@ import UserContext from "../../components/provider/UserProvider/UserContext";
 
 function ProfileEdit() {
     const [css] = useStyletron()
-    const navigate = useNavigate()
+    const router = useRouter()
     const [profile, setProfile] = useState<Profile | null>(null)
     const [newProfile, setNewProfile] = useState<Profile | null>(null)
     const {username} = useParams()
@@ -70,7 +70,7 @@ function ProfileEdit() {
                 twitter: update.twitter,
                 nickname: update.nickname,
             })
-            navigate(`/profile/${user.userName}`)
+            router.push(`/profile/${user.userName}`)
         } catch (e) {
             console.error('[saveProfile]: ', e)
         } finally {
@@ -99,13 +99,13 @@ function ProfileEdit() {
                 title: lang['Profile_Edit_Leave_Dialog_Title'],
                 content: lang['Profile_Edit_Leave_Dialog_Des'],
                 onConfirm: (close) => {
-                    navigate(`/profile/${user.userName}`)
+                    router.push(`/profile/${user.userName}`)
                     close()
                 }
             }
             const dialog = openConfirmDialog(props)
         } else {
-            navigate(`/profile/${user.userName}`)
+            router.push(`/profile/${user.userName}`)
         }
     }
 

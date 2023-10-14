@@ -1,7 +1,5 @@
-import {useNavigate} from 'react-router-dom'
 import {useStyletron} from 'baseui'
 import {useState, useContext, useEffect} from 'react'
-import './BgProfile.less'
 import { Profile } from '../../../service/solas'
 import usePicture from '../../../hooks/pictrue'
 
@@ -12,7 +10,6 @@ interface BgProfileProps {
 
 function BgProfile(props: BgProfileProps) {
     const [css] = useStyletron()
-    const navigate = useNavigate()
     const [bg, setBg] = useState('linear-gradient(rgb(255,255,255), rgb(255,255,255))')
     const [bg2, setBg2] = useState('rgba(255,255,255)')
     const { defaultAvatar } = usePicture()

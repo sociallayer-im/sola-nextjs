@@ -1,10 +1,9 @@
-import {useNavigate} from 'react-router-dom'
 import {styled} from 'baseui'
 import LangContext from '../provider/LangProvider/LangContext'
 import {ReactNode, useContext, useEffect, useState} from 'react'
 import {ArrowLeft} from 'baseui/icon'
 import {PageBackContext} from '../provider/PageBackProvider'
-import {useLocation} from "react-router-dom";
+import {useRouter} from "next/navigation";
 
 const Wrapper = styled('div', ({$theme}) => ({
     display: 'flex',
@@ -43,24 +42,23 @@ interface PageBackProp {
 }
 
 function PageBack(props: PageBackProp) {
-    const navigate = useNavigate()
+    const router = useRouter()
     const {lang} = useContext(LangContext)
     const {back, cleanCurrentHistory, history} = useContext(PageBackContext)
     const [hideBackBtn, setHideBackBtn] = useState(false)
-    const location = useLocation()
 
     const handleBack = () => {
         if (props.to) {
             // 指定了to属性，就跳转到指定的页面,而且清除当前页面的历史记录，防止用户点击返回按钮返回到当前页面
             cleanCurrentHistory()
-            props.historyReplace ? navigate(props.to, {replace: true}) : navigate(props.to)
+            props.historyReplace ? router.replace(props.to) : router.push(props.to)
         } else if (props.onClose) {
             props.onClose()
         } else {
             if (document.referrer && (document.referrer.includes('sola') || document.referrer.includes('localhost'))) {
-                navigate(-1)
+                router.back(-1)
             } else {
-                navigate('/')
+                router.push('/')
             }
         }
     }

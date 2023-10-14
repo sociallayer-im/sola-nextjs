@@ -16,7 +16,6 @@ import ReasonText from '../../base/ReasonText/ReasonText'
 import DetailScrollBox from './atoms/DetailScrollBox/DetailScrollBox'
 import DetailCreator from './atoms/DetailCreator/DetailCreator'
 import useTime from '../../../hooks/formatTime'
-import {useNavigate} from 'react-router-dom'
 import PointCover from "./atoms/PointCover";
 import DetailRow from "./atoms/DetailRow";
 
@@ -43,7 +42,6 @@ function DetailPointItem(props: DetailBadgeletProps) {
     const [pointItem, setPointItem] = useState(props.pointItem)
     const [pointItemList, setPointItemList] = useState<PointItem[]>([])
     const formatTime = useTime()
-    const navigate = useNavigate()
     const swiper = useRef<any>(null)
     const swiperIndex = useRef(0)
 

@@ -3,8 +3,7 @@ import {useStyletron} from 'baseui'
 import solas, {EmailLoginRes, setEmail} from '../../../service/solas'
 import userContext from "../../provider/UserProvider/UserContext";
 import DialogsContext from '../../provider/DialogProvider/DialogsContext'
-import {useNavigate, useSearchParams} from "react-router-dom";
-import {deleteFallback, getPlantLoginFallBack} from "../../../utils/authStorage";
+import {useRouter} from "next/navigation";
 
 export interface CodeInputFormProps {
     onConfirm?: (loginRes: EmailLoginRes) => any
@@ -60,7 +59,7 @@ function CodeInputForm(props: CodeInputFormProps) {
     const [css] = useStyletron()
     const {showLoading, showToast} = useContext(DialogsContext)
     const {user} = useContext(userContext)
-    const navigate = useNavigate()
+    const router = useRouter()
 
     const inputRef = useRef<HTMLInputElement | null>(null)
 
@@ -137,7 +136,7 @@ function CodeInputForm(props: CodeInputFormProps) {
                 if (props.fallback) {
                     props.fallback()
                 } else {
-                    navigate(`/profile/${user.userName}`)
+                    router.push(`/profile/${user.userName}`)
                 }
             } catch (e: any) {
                 unload()

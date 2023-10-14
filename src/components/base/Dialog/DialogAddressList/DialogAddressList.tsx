@@ -1,5 +1,4 @@
 import { useState, useContext, useEffect } from 'react'
-import './DialogAddressList.sass'
 import PageBack from '../../PageBack';
 import langContext from '../../../provider/LangProvider/LangContext'
 import AppTabs from "../../AppTabs"

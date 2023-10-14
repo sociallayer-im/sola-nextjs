@@ -1,6 +1,5 @@
-import {Link, useNavigate} from 'react-router-dom'
+import Link from 'next/link'
 import {useContext, useEffect, useState} from 'react'
-import './CardVote.less'
 import ProfileBio from "../../ProfileBio/ProfileBio";
 import {
     BadgeWithBadgelets,
@@ -62,7 +61,7 @@ function ProgressBar(props: { lang: string, total: number, current: number, text
             <div className={'voters'}>
                 {
                     props.voters.map((voter, index) => {
-                        return <Link to={`/profile/${voter.id}`} key={index}>
+                        return <Link href={`/profile/${voter.id}`} key={index}>
                             <img src={voter.image_url || defaultAvatar(voter.id)} alt=""/>
                         </Link>
                     })
@@ -77,7 +76,6 @@ function ProgressBar(props: { lang: string, total: number, current: number, text
 }
 
 function CardVote(props: { item: Vote }) {
-    const navigate = useNavigate()
     const {user} = useContext(userContext)
     const {showToast, showLoading, openConfirmDialog} = useContext(DialogsContext)
     const formatTime = useTime()
@@ -270,7 +268,7 @@ function CardVote(props: { item: Vote }) {
     let status = ending ? 'ending' : ''
 
     return (<div className={`vote-card ${status}`}>
-        <Link to={`/vote/${voteDetail.id}`}></Link>
+        <Link href={`/vote/${voteDetail.id}`}></Link>
         <div className={'vote-title'}>
             <div>{props.item.title}</div>
             <div className={'count'}>{voteDetail.voter_count} {lang['Vote_Create_Voters']}</div>

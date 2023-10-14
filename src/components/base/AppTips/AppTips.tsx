@@ -1,6 +1,5 @@
 import {StatefulTooltip} from "baseui/tooltip";
 import {TRIGGER_TYPE} from "baseui/popover";
-import './AppTips.sass'
 
 interface AppTipsProps {
     text?: string

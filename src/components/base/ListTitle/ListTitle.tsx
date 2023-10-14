@@ -1,4 +1,3 @@
-import './ListTitle.sass'
 import {ReactNode} from "react";
 
 interface ListTitleProps {

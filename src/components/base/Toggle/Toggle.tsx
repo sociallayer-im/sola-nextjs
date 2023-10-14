@@ -1,4 +1,3 @@
-import {useNavigate} from 'react-router-dom'
 import {useStyletron} from 'baseui'
 import {useEffect, useState} from 'react'
 import {Checkbox, CheckboxProps, STYLE_TYPE, StyledToggle, StyledToggleTrack} from "baseui/checkbox";
@@ -34,9 +33,6 @@ const AppToggleTrack = withStyle(StyledToggleTrack, (props: any) => {
 })
 
 function Toggle(props: CheckboxProps) {
-    const [css] = useStyletron()
-    const navigate = useNavigate()
-    const [a, seta] = useState('')
 
     const overrideProps = {
         Toggle: {

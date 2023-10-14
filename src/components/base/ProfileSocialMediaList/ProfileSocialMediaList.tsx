@@ -1,8 +1,6 @@
-import {useNavigate} from 'react-router-dom'
 import {useStyletron} from 'baseui'
 import {useState, useContext, useEffect} from 'react'
 import { Profile } from '../../../service/solas'
-import './ProfileSocialMediaList.sass'
 import useSocialMedia from "../../../hooks/socialMedia";
 
 interface ProfileSocialMediaListProps {
@@ -11,7 +9,6 @@ interface ProfileSocialMediaListProps {
 
 function ProfileSocialMediaList(props: ProfileSocialMediaListProps) {
     const [css] = useStyletron()
-    const navigate = useNavigate()
     const [active, setActive] = useState(false)
     const {url2Id, id2Url} = useSocialMedia()
 

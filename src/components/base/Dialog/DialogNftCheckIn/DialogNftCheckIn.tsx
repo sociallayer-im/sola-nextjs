@@ -1,4 +1,3 @@
-import './DialogNftCheckIn.sass'
 import {Delete, Menu} from "baseui/icon";
 import LangContext from "../../../provider/LangProvider/LangContext";
 import {useContext, useEffect, useState} from "react";

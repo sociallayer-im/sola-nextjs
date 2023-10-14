@@ -4,7 +4,6 @@ import { Delete } from 'baseui/icon'
 import langContext from '../../../provider/LangProvider/LangContext'
 import Cropper, { ReactCropperElement } from 'react-cropper'
 import 'cropperjs/dist/cropper.css'
-import './DialogCropper.sass'
 import AppButton, { BTN_KIND, BTN_SIZE } from '../../AppButton/AppButton'
 import AppSlider from '../../AppSlider/AppSlider'
 

@@ -1,5 +1,4 @@
 import {useState, useContext, useEffect} from 'react'
-import './ProfileBio.sass'
 import LangContext from '../../provider/LangProvider/LangContext'
 import { useRef } from 'react'
 

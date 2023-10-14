@@ -1,4 +1,4 @@
-import {useNavigate, useSearchParams} from 'react-router-dom'
+import {useRouter, useSearchParams} from "next/navigation";
 import {useContext, useEffect, useState} from 'react'
 import Layout from '../../components/Layout/Layout'
 import PageBack from '../../components/base/PageBack'
@@ -16,7 +16,7 @@ interface CreateBadgeWithPrefillProp {
 }
 
 function CreateBadgeWithPrefill(props: CreateBadgeWithPrefillProp) {
-    const navigate = useNavigate()
+    const router = useRouter()
     const [reason, setReason] = useState('')
     const {showLoading, showToast} = useContext(DialogsContext)
     const {user} = useContext(UserContext)
@@ -51,7 +51,7 @@ function CreateBadgeWithPrefill(props: CreateBadgeWithPrefillProp) {
                 auth_token: user.authToken || ''
             })
             unload()
-            navigate(`/issue-success?nftpass=${nftPass[0].id}`)
+            router.push(`/issue-success?nftpass=${nftPass[0].id}`)
         } catch (e: any) {
             console.log('[handleCreateIssue]: ', e)
             unload()
@@ -61,9 +61,9 @@ function CreateBadgeWithPrefill(props: CreateBadgeWithPrefillProp) {
 
     const handleCreate = async () => {
         if (presetAcceptor) {
-            navigate(`/issue-point/${props.pointId}?to=${presetAcceptor}`, {state: {reason: reason}})
+            router.push(`/issue-point/${props.pointId}?to=${presetAcceptor}`, {state: {reason: reason}})
         } else {
-            navigate(`/issue-point/${props.pointId}`, {state: {reason: reason}})
+            router.push(`/issue-point/${props.pointId}`, {state: {reason: reason}})
         }
     }
 

@@ -1,7 +1,7 @@
 import {useStyletron} from 'baseui'
 import {Profile} from '../../../../service/solas'
-import {useNavigate} from 'react-router-dom'
 import usePicture from '../../../../hooks/pictrue'
+import {useRouter} from "next/navigation";
 
 const style = {
     wrapper: {
@@ -45,14 +45,14 @@ export interface CardSearchDomainProps {
 
 function CardSearchDomain(props: CardSearchDomainProps) {
     const [css] = useStyletron()
-    const navigate = useNavigate()
+    const router = useRouter()
     const {defaultAvatar} = usePicture()
 
     const navigateToProfile = () => {
         if (props.profile.is_group) {
-            navigate(`/group/${props.profile?.username}`)
+            router.push(`/group/${props.profile?.username}`)
         } else {
-            navigate(`/profile/${props.profile?.username}`)
+            router.push(`/profile/${props.profile?.username}`)
         }
     }
 

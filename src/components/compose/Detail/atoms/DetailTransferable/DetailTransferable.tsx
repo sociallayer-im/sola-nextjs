@@ -1,5 +1,4 @@
 import {HTMLAttributes, useContext} from 'react'
-import './DetailTransferable.sass'
 import LangContext from "../../../../provider/LangProvider/LangContext";
 
 function DetailTransferable(props: HTMLAttributes<HTMLDivElement>) {

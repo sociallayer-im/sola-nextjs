@@ -11,17 +11,16 @@ import DetailArea from '../atoms/DetailArea'
 import AppButton, {BTN_KIND, BTN_SIZE} from '../../../base/AppButton/AppButton'
 import BtnGroup from '../../../base/BtnGroup/BtnGroup'
 import DetailScrollBox from '../atoms/DetailScrollBox/DetailScrollBox'
-import {useNavigate} from 'react-router-dom'
 import useTime from '../../../../hooks/formatTime'
 import DetailCreator from '../atoms/DetailCreator/DetailCreator'
 import ReasonText from '../../../base/ReasonText/ReasonText'
 import DetailDes from '../atoms/DetailDes/DetailDes'
-import './DetailNftpass.sass'
 import SwiperPagination from '../../../base/SwiperPagination/SwiperPagination'
 import DialogsContext from "../../../provider/DialogProvider/DialogsContext";
 import useEvent, {EVENT} from "../../../../hooks/globalEvent";
 import DetailRow from "../atoms/DetailRow";
 import DetailBadgeMenu from "../atoms/DetalBadgeMenu";
+import {useRouter} from "next/navigation";
 
 //HorizontalList deps
 import {Swiper, SwiperSlide} from 'swiper/react'
@@ -37,9 +36,9 @@ export interface DetailBadgeProps {
 function DetailNftpass(props: DetailBadgeProps) {
     const {lang} = useContext(LangContext)
     const {user} = useContext(UserContext)
+    const router = useRouter()
     const {showNftCheckIn} = useContext(DialogsContext)
     const {defaultAvatar} = usePicture()
-    const navigate = useNavigate()
     const [nftPasslets, setNftPasslet] = useState<NftPasslet[]>([])
     const swiper = useRef<any>(null)
     const formatTime = useTime()
@@ -77,7 +76,7 @@ function DetailNftpass(props: DetailBadgeProps) {
     }, [user.id])
 
     const handleIssue = async () => {
-        navigate(`/create-nftpass?nftpass=${props.nftpass.id}`)
+        router.push(`/create-nftpass?nftpass=${props.nftpass.id}`)
         props.handleClose()
     }
 

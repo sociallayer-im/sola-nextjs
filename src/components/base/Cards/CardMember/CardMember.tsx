@@ -2,7 +2,7 @@ import { useStyletron } from 'baseui'
 import { useContext } from 'react'
 import { Profile } from '../../../../service/solas'
 import DialogsContext from '../../../provider/DialogProvider/DialogsContext'
-import {useNavigate} from "react-router-dom";
+import {useRouter} from "next/navigation";
 import usePicture from "../../../../hooks/pictrue";
 
 const style = {
@@ -94,10 +94,10 @@ export interface CardMemberProps {
 function CardMember (props: CardMemberProps) {
     const [css] = useStyletron()
     const { showBadge } = useContext(DialogsContext)
-    const navigate = useNavigate()
+    const router = useRouter()
     const { defaultAvatar } = usePicture()
 
-    return (<div className={ css(style.wrapper) } onClick={() => { navigate(`/profile/${props.profile?.username}`) }}>
+    return (<div className={ css(style.wrapper) } onClick={() => { router.push(`/profile/${props.profile?.username}`) }}>
                 <div className={ css(style.coverBg) }>
                     <img className={ css(style.img) } src={ props.profile.image_url || defaultAvatar(props.profile.id) } alt=""/>
                     {

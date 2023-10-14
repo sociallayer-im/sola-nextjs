@@ -2,7 +2,6 @@ import { useContext } from 'react'
 import {Group, Profile, ProfileSimple} from '../../../../../service/solas'
 import usePicture from '../../../../../hooks/pictrue'
 import langContext from '../../../../provider/LangProvider/LangContext'
-import './DetailCreator.sass'
 
 interface DetailCreatorProp {
     profile: Profile | ProfileSimple | Group

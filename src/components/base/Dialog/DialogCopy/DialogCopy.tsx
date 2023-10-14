@@ -1,4 +1,3 @@
-import './DialogCopy.sass'
 import AppButton, { BTN_KIND, BTN_SIZE } from '../../AppButton/AppButton'
 import LangContext from '../../../provider/LangProvider/LangContext'
 import { useContext } from 'react'

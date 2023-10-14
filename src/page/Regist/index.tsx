@@ -6,21 +6,19 @@ import RegistForm from '../../components/compose/FormRegist'
 import DialogsContext from '../../components/provider/DialogProvider/DialogsContext'
 import PageBack from '../../components/base/PageBack'
 import UserContext from "../../components/provider/UserProvider/UserContext";
-import {useNavigate} from "react-router-dom";
-import {useLocation} from "react-router-dom";
 import {deleteFallback, getPlantLoginFallBack} from "../../utils/authStorage";
+import {useRouter} from "next/navigation";
 
 function ComponentName () {
     const { lang } = useContext(langContext)
     const { clean } = useContext(DialogsContext)
     const { user, logOut } = useContext(UserContext)
-    const navigate = useNavigate()
-    const location = useLocation()
+    const router = useRouter()
 
     useEffect(() => {
         if (user.domain && !user.email) {
             // 钱包登录, 提示绑定邮箱
-            navigate(`/bind-email?new=true`)
+            router.push(`/bind-email?new=true`)
         } else if (user.domain) {
             const fallBack = window.localStorage.getItem('fallback')
             const platformLoginFallback = getPlantLoginFallBack()
@@ -31,9 +29,9 @@ function ComponentName () {
             } else if (fallBack && fallBack !== window.location.href) {
                 const path = fallBack.replace(window.location.origin, '')
                 window.localStorage.removeItem('fallback')
-                navigate(path)
+                router.push(path)
             } else {
-                navigate(`/profile/${user.userName}`)
+                router.push(`/profile/${user.userName}`)
             }
         }
     }, [user.domain, user.email])
@@ -57,7 +55,7 @@ function ComponentName () {
             <div className='regist-page'>
                 <div className='regist-page-bg'></div>
                 <div className='regist-page-wrapper'>
-                    <div className='regist-page-back'><PageBack onClose={() => { logOut();navigate('/')}} /></div>
+                    <div className='regist-page-back'><PageBack onClose={() => { logOut(); router.push('/')}} /></div>
                     <div className='regist-page-content' >
                         <div className='title'>{ lang['Regist_Title'] }</div>
                         <div className='des' dangerouslySetInnerHTML={ { __html: lang['Domain_Rule'] } }></div>

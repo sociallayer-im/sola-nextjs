@@ -1,5 +1,4 @@
 import { useContext } from 'react'
-import './AmountInput.sass'
 import LangContext from '../../provider/LangProvider/LangContext'
 
 export interface AmountInputProps {

@@ -12,16 +12,15 @@ import DetailArea from '../atoms/DetailArea'
 import AppButton, {BTN_KIND, BTN_SIZE} from '../../../base/AppButton/AppButton'
 import BtnGroup from '../../../base/BtnGroup/BtnGroup'
 import DetailScrollBox from '../atoms/DetailScrollBox/DetailScrollBox'
-import {useNavigate} from 'react-router-dom'
 import useTime from '../../../../hooks/formatTime'
 import DetailCreator from '../atoms/DetailCreator/DetailCreator'
 import ReasonText from '../../../base/ReasonText/ReasonText'
 import DetailDes from '../atoms/DetailDes/DetailDes'
-import './DetailGift.sass'
 import SwiperPagination from '../../../base/SwiperPagination/SwiperPagination'
 import DetailRow from "../atoms/DetailRow";
 import DetailBadgeMenu from "../atoms/DetalBadgeMenu";
 import useEvent, {EVENT} from "../../../../hooks/globalEvent";
+import {useRouter} from "next/navigation";
 
 //HorizontalList deps
 import {Swiper, SwiperSlide} from 'swiper/react'
@@ -39,7 +38,7 @@ function DetailGift(props: DetailBadgeProps) {
     const {user} = useContext(UserContext)
     const {showGiftCheckIn} = useContext(DialogsContext)
     const {defaultAvatar} = usePicture()
-    const navigate = useNavigate()
+    const router = useRouter()
     const [badgelets, setBadgelets] = useState<Badgelet[]>([])
     const swiper = useRef<any>(null)
     const formatTime = useTime()
@@ -79,7 +78,7 @@ function DetailGift(props: DetailBadgeProps) {
     }, [user.id])
 
     const handleIssue = async () => {
-        navigate(`/create-gift?gift=${props.badge.id}`)
+        router.push(`/create-gift?gift=${props.badge.id}`)
         props.handleClose()
     }
 

@@ -1,7 +1,6 @@
 import { useState, useContext, useEffect } from 'react'
 import solas, {Badge, Presend, PresendWithBadgelets, Profile} from '../../../service/solas'
 import langContext from '../../provider/LangProvider/LangContext'
-import './PresendQrcode.sass'
 import QRcode from '../../base/QRcode'
 import UserContext from '../../provider/UserProvider/UserContext'
 import AppButton, { BTN_KIND } from '../../base/AppButton/AppButton'

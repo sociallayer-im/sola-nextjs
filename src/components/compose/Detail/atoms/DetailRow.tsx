@@ -1,6 +1,4 @@
-import {useNavigate} from 'react-router-dom'
-import {styled, useStyletron} from 'baseui'
-import {useState, useContext, useEffect} from 'react'
+import {styled} from 'baseui'
 
 function DetailRow({children}: any) {
     const Wrapper = styled('div', ()=> {

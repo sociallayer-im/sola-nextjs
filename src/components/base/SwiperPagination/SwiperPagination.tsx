@@ -1,5 +1,4 @@
 import {useState, useEffect, useRef} from 'react'
-import './SwiperPagination.sass'
 import { useSwiper } from 'swiper/react'
 
 interface SwiperPaginationProps {

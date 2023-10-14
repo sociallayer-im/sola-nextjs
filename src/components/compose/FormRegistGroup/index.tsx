@@ -8,7 +8,6 @@ import solas, {createGroup} from '../../../service/solas'
 import useVerify from '../../../hooks/verify'
 import DialogsContext from '../../provider/DialogProvider/DialogsContext'
 import UserContext from '../../provider/UserProvider/UserContext'
-import './FormRegistGroup.sass'
 import useEvent, { EVENT } from '../../../hooks/globalEvent'
 import {useRouter} from 'next/navigation'
 

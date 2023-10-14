@@ -1,5 +1,4 @@
 import React, {useContext, useEffect} from 'react'
-import './ListUserNftpass.sass'
 import ListUserAssets, {ListUserAssetsMethods} from "../../base/ListUserAssets/ListUserAssets";
 import {Profile, queryNftpass, queryNftPasslet} from "../../../service/solas";
 import CardNftpass from "../../base/Cards/CardNftpass/CardNftpass";

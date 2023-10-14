@@ -1,5 +1,4 @@
 import React, {useContext, useEffect} from 'react'
-import './ListUserRecognition.sass'
 import ListUserAssets, {ListUserAssetsMethods} from "../../base/ListUserAssets/ListUserAssets";
 import solas, {Profile} from "../../../service/solas";
 import CardBadge from "../../base/Cards/CardBadge/CardBadge";

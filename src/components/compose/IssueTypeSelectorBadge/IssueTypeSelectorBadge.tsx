@@ -1,5 +1,4 @@
 import {useContext, useEffect, useState} from 'react'
-import './IssueTypeSelectorBadge.sass'
 import Toggle from "../../base/Toggle/Toggle";
 import IssuesInput from "../../base/IssuesInput/IssuesInput";
 import AppButton from "../../base/AppButton/AppButton";

@@ -1,7 +1,6 @@
 import {useContext, useEffect, useState} from 'react'
 import AppInput from "../AppInput";
 import LangContext from "../../provider/LangProvider/LangContext";
-import './AppVoteOptionsInput.sass'
 import {Delete} from "baseui/icon";
 import DialogsContext from "../../provider/DialogProvider/DialogsContext";
 import AppButton from "../AppButton/AppButton";

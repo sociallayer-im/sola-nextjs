@@ -1,5 +1,4 @@
 import {ReactNode, useContext, useEffect, useState} from 'react'
-import './DialogIssuePrefill.sass'
 import AppSwiper from '../../AppSwiper/AppSwiper'
 import {Delete} from 'baseui/icon'
 import LangContext from '../../../provider/LangProvider/LangContext'

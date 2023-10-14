@@ -5,7 +5,6 @@ import UserContext from "../../../provider/UserProvider/UserContext";
 import LensItem from "../LensItem/LensItem";
 import Empty from "../../../base/Empty";
 import {Spinner} from "baseui/spinner";
-import './LensList.sass'
 
 interface LensListProps {
     profile: Profile

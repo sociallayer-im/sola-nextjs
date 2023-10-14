@@ -1,6 +1,5 @@
 import {useContext, useEffect, useState} from 'react'
 import langContext from "../../provider/LangProvider/LangContext";
-import './HomePageSwitcher.sass'
 import TriangleDown from "baseui/icon/triangle-down";
 import {getEventGroup, Profile, queryUserGroup} from "../../../service/solas";
 import userContext from "../../provider/UserProvider/UserContext";

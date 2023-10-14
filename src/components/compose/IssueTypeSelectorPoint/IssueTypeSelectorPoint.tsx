@@ -1,5 +1,4 @@
 import {useContext, useState} from 'react'
-import './IssueTypeSelectorPoint.sass'
 import IssuesInput from "../../base/IssuesInput/IssuesInput";
 import AppButton from "../../base/AppButton/AppButton";
 import LangContext from "../../provider/LangProvider/LangContext";

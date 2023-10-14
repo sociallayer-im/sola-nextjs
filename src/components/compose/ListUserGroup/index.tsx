@@ -5,7 +5,6 @@ import LangContext from '../../provider/LangProvider/LangContext'
 import UserContext from '../../provider/UserProvider/UserContext'
 import ListTitle from '../../base/ListTitle/ListTitle'
 import CardCreateGroup from '../../base/Cards/CardCreateGroup/CardCreateGroup'
-import './ListUserGroup.sass'
 import ListUserAssets, {ListUserAssetsMethods} from "../../base/ListUserAssets/ListUserAssets";
 
 interface ListUserGroupProps {

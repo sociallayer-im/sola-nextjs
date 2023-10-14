@@ -8,7 +8,6 @@ import { styled } from 'baseui'
 import ListTitle from '../../base/ListTitle/ListTitle'
 import HorizontalList, { HorizontalListMethods}  from '../../base/HorizontalList/HorizontalList'
 import CardMember from '../../base/Cards/CardMember/CardMember'
-import './ListGroupMember.sass'
 import CardInviteMember from '../../base/Cards/CardInviteMember/CardInviteMember'
 import { StatefulPopover, PLACEMENT } from 'baseui/popover'
 import MenuItem from "../../base/MenuItem";
