@@ -1,4 +1,4 @@
-import {useRoutes, useSearchParams} from "next/navigation";
+import {useRouter, useSearchParams} from "next/navigation";
 import { useState, useContext, useEffect } from 'react'
 import Layout from '../../components/Layout/Layout'
 import PageBack from '../../components/base/PageBack'
@@ -15,7 +15,7 @@ import ReasonInput from '../../components/base/ReasonInput/ReasonInput'
 import SelectCreator from '../../components/compose/SelectCreator/SelectCreator'
 
 function CreateBadgeNonPrefill() {
-    const router = useRoutes()
+    const router = useRouter()
     const [cover, setCover] = useState('')
     const [domain, setDomain,] = useState('')
     const [domainError, setDomainError,] = useState('')
@@ -27,7 +27,7 @@ function CreateBadgeNonPrefill() {
     const { user } = useContext(UserContext)
     const { showLoading, showToast } = useContext(DialogsContext)
     const { verifyDomain } = useVerify()
-    const [searchParams, _] = useSearchParams()
+    const searchParams = useSearchParams()
     const presetAcceptor = searchParams.get('to')
 
     const { lang } = useContext(LangContext)
@@ -90,7 +90,7 @@ function CreateBadgeNonPrefill() {
                 unload()
                 router.push(`/issue-success?badgelet=${badgelets[0].id}`)
             } else {
-                router.push(`/issue-badge/${newBadge.id}`, { state: { reason: reason } })
+                router.push(`/issue-badge/${newBadge.id}?reason=${encodeURI(reason)}`)
             }
             unload()
         } catch (e: any) {

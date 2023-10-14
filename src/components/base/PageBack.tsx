@@ -56,7 +56,7 @@ function PageBack(props: PageBackProp) {
             props.onClose()
         } else {
             if (document.referrer && (document.referrer.includes('sola') || document.referrer.includes('localhost'))) {
-                router.back(-1)
+                router.back()
             } else {
                 router.push('/')
             }

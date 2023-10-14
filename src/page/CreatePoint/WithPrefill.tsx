@@ -20,7 +20,7 @@ function CreateBadgeWithPrefill(props: CreateBadgeWithPrefillProp) {
     const [reason, setReason] = useState('')
     const {showLoading, showToast} = useContext(DialogsContext)
     const {user} = useContext(UserContext)
-    const [searchParams, _] = useSearchParams()
+    const searchParams = useSearchParams()
     const [preFillBadge, setPreFillBadge] = useState<Point | null>(null)
     const presetAcceptor = searchParams.get('to')
 
@@ -61,9 +61,9 @@ function CreateBadgeWithPrefill(props: CreateBadgeWithPrefillProp) {
 
     const handleCreate = async () => {
         if (presetAcceptor) {
-            router.push(`/issue-point/${props.pointId}?to=${presetAcceptor}`, {state: {reason: reason}})
+            router.push(`/issue-point/${props.pointId}?to=${presetAcceptor}?reason=${encodeURI(reason)}`)
         } else {
-            router.push(`/issue-point/${props.pointId}`, {state: {reason: reason}})
+            router.push(`/issue-point/${props.pointId}?reason=${encodeURI(reason)}`)
         }
     }
 

@@ -27,7 +27,7 @@ function CreateBadgeNonPrefill() {
     const { user } = useContext(UserContext)
     const { showLoading, showToast } = useContext(DialogsContext)
     const { verifyDomain } = useVerify()
-    const [searchParams, _] = useSearchParams()
+    const searchParams = useSearchParams()
     const presetAcceptor = searchParams.get('to')
 
     const { lang } = useContext(LangContext)
@@ -90,7 +90,7 @@ function CreateBadgeNonPrefill() {
                 unload()
                 router.push(`/issue-success?badgelet=${badgelets[0].id}`)
             } else {
-                router.push(`/issue-badge/${newBadge.id}`, { state: { reason: reason } })
+                router.push(`/issue-badge/${newBadge.id}?reason=${encodeURI(reason)}`)
             }
             unload()
         } catch (e: any) {

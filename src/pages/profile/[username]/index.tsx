@@ -21,8 +21,9 @@ import ListUserPoint from "@/components/compose/ListUserPoint/ListUserPoint";
 import ListUserGift from "@/components/compose/ListUserGift/ListUserGift";
 import LensList from "@/components/compose/Lens/LensList/LensList";
 import {useRouter, useSearchParams, useParams } from "next/navigation";
+import type { InferGetServerSidePropsType, GetServerSideProps } from 'next'
 
-function Page(props) {
+function Page(props: InferGetServerSidePropsType<typeof getServerSideProps>) {
     const params = useParams()
     const username = props.username || params.username
     console.log('username==>', props.username || params.username)
@@ -213,7 +214,7 @@ function Page(props) {
 
 export default Page
 
-export const getServerSideProps = (async (context) => {
+export const getServerSideProps = (async (context: any) => {
     const username = context.params.username
     const profile = await solas.getProfile({username})
     return { props: { username:  context.params.username, profile} }

@@ -38,7 +38,7 @@ function ComponentName() {
     const {lang} = useContext(LangContext)
     const {showToast, showLoading} = useContext(DialogsContext)
     const {user} = useContext(UserContext)
-    const [searchParams] = useSearchParams()
+    const searchParams = useSearchParams()
     const {vote} = useParams()
     const {showSelectedBadge} = userSelectBadge()
 
@@ -265,7 +265,7 @@ function ComponentName() {
     return (<Layout>
         <div className='create-vote-page'>
             <div className={'create-vote-page-wrapper'}>
-                <PageBack onClose={() => router.back(-1)}
+                <PageBack onClose={() => router.back()}
                           title={lang['Vote_Create_Page_Title']}/>
 
                 <div className='create-badge-page-form'>

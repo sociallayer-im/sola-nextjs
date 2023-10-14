@@ -21,7 +21,7 @@ function Issue() {
     const { showToast, showLoading } = useContext(DialogsContext)
     const [badge, setBadge] = useState<Badge | null>(null)
     const params = useParams()
-    const [SearchParams, _] = useSearchParams()
+    const SearchParams = useSearchParams()
     const [presendAmount, setPresendAmount] = useState<number | string>(0)
     const [face2facePresend, setFace2facePresend] = useState<Presend | null>(null)
     const [face2faceShareLink, setFace2faceShareLink] = useState('')

@@ -30,7 +30,7 @@ function CreateBadge() {
     const [creator, setCreator] = useState<Group | Profile | null>(null)
     const {user} = useContext(UserContext)
     const {showLoading, showToast} = useContext(DialogsContext)
-    const [searchParams, _] = useSearchParams()
+    const searchParams = useSearchParams()
     const presetAcceptor = searchParams.get('to')
     const {lang} = useContext(LangContext)
     const enhancer = process.env.NEXT_PUBLIC_SOLAS_DOMAIN

@@ -15,7 +15,7 @@ function BindEmail() {
     const {user} = useContext(UserContext)
     const router = useRouter()
     const {heightWithoutNav} = usePageHeight()
-    const [searchParams] = useSearchParams()
+    const searchParams = useSearchParams()
 
     const fallback = async () => {
         // 返回之前的页面
@@ -35,7 +35,7 @@ function BindEmail() {
                 {searchParams.get('new') ?
                     <div className={'skip'} onClick={e => {fallback()}}>{lang['Bind_Email_Skip']}</div>
                     : <PageBack onClose={() => {
-                        navigate('/')
+                        router.push('/')
                     }}/>
                 }
             </div>

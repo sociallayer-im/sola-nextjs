@@ -30,11 +30,11 @@ function GroupPage() {
     const {showLoading, openConnectWalletDialog} = useContext(DialogsContext)
     const {lang} = useContext(LangContext)
     const {user, logOut} = useContext(UserContext)
-    const [searchParams, setURLSearchParams] = useSearchParams()
+    const searchParams = useSearchParams()
     const [selectedTab, setSelectedTab] = useState(searchParams.get('tab') || '0')
     const [selectedSubtab, setSelectedSubtab] = useState(searchParams.get('subtab') || '0')
     const [isGroupManager, setIsGroupManager] = useState(false)
-    const startIssue = useIssueBadge({groupName: groupname})
+    const startIssue = useIssueBadge({groupName: groupname as string})
     const {copyWithDialog} = useCopy()
     const router = useRouter()
 
@@ -43,7 +43,7 @@ function GroupPage() {
     // 为了实现切换tab时，url也跟着变化，而且浏览器的前进后退按钮也能切换tab
     useEffect(() => {
         if (!searchParams.get('tab')) {
-            router.push(`/group/${groupname}?tab=0`, {replace: true})
+            router.replace(`/group/${groupname}?tab=0`)
         }
 
         if (searchParams.get('tab')) {
@@ -60,7 +60,7 @@ function GroupPage() {
             if (!groupname) return
             const unload = showLoading()
             try {
-                const profile = await solas.getProfile({username: groupname})
+                const profile = await solas.getProfile({username: groupname as string})
                 setProfile(profile)
             } catch (e) {
                 console.log('[getProfile]: ', e)

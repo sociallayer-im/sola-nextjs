@@ -1,5 +1,5 @@
 import Layout from '../../components/Layout/Layout'
-import {useRoutes, useParams, useSearchParams} from "react-router";
+import {useRouter, useParams, useSearchParams} from "react-router";
 import PageBack from '../../components/base/PageBack'
 import './Profile.less'
 import {useContext, useEffect, useState} from 'react'
@@ -30,10 +30,10 @@ function ProfilePage() {
     const {showLoading, openConnectWalletDialog} = useContext(DialogsContext)
     const {lang} = useContext(LangContext)
     const {user} = useContext(UserContext)
-    const [searchParams,] = useSearchParams()
+    const searchParams = useSearchParams()
     const [selectedTab, setSelectedTab] = useState(searchParams.get('tab') || '0')
     const [selectedSubtab, setSelectedSubtab] = useState(searchParams.get('subtab') || '0')
-    const router = useRoutes()
+    const router = useRouter()
     const startIssue = useIssueBadge()
     const [newProfile, _] = useEvent(EVENT.profileUpdate)
     const {copyWithDialog} = useCopy()

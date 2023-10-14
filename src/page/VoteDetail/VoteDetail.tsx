@@ -129,7 +129,7 @@ function VoteDetail() {
                 <PageBack
                     title={lang['Vote_detail_Title']}
                     onClose={() => {
-                        router.back(-1)
+                        router.back()
                     }}
                     menu={isOwner ? () => {
                         return <MenuContent/>

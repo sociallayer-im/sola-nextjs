@@ -19,7 +19,7 @@ function CreateBadgeWithPrefill(props: CreateBadgeWithPrefillProp) {
     const [reason, setReason] = useState('')
     const { showLoading, showToast } = useContext(DialogsContext)
     const { user } = useContext(UserContext)
-    const [searchParams, _] = useSearchParams()
+    const searchParams = useSearchParams()
     const [preFillBadge,setPreFillBadge] = useState<Badge | null>(null)
     const presetAcceptor = searchParams.get('to')
 
@@ -62,7 +62,7 @@ function CreateBadgeWithPrefill(props: CreateBadgeWithPrefillProp) {
         if (presetAcceptor) {
             send(presetAcceptor)
         } else {
-            router.push( `/issue-badge/${props.privateId}`, { state: { reason: reason }})
+            router.push( `/issue-badge/${props.privateId}?reason=${encodeURI(reason)}`)
         }
     }
 

@@ -9,7 +9,7 @@ function platformLogin() {
     const router = useRouter()
     const [a, seta] = useState('')
     const { showToast, clean, showLoading, openConnectWalletDialog } = useContext(DialogsContext)
-    const [searchParams] = useSearchParams()
+    const searchParams = useSearchParams()
 
     const fallbackUrl = searchParams.get('from')
     useEffect(() => {

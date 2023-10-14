@@ -1,4 +1,4 @@
-import {useRoutes, useParams} from "next/navigation"
+import {useRouter, useParams} from "next/navigation"
 import {createRef, useContext, useEffect, useState} from 'react'
 import Layout from '../../components/Layout/Layout'
 import solas, {Profile} from '../../service/solas'
@@ -13,7 +13,7 @@ import UserContext from "../../components/provider/UserProvider/UserContext";
 
 
 function GroupEdit() {
-    const router = useRoutes()
+    const router = useRouter()
     const [profile, setProfile] = useState<Profile | null>(null)
     const [newProfile, setNewProfile] = useState<Profile | null>(null)
     const {groupname} = useParams()
@@ -29,7 +29,7 @@ function GroupEdit() {
             if (!groupname) return
             try {
                 const profile = await solas.getProfile({
-                    username: groupname
+                    username: groupname as string
                 })
 
                 setNewProfile(profile)

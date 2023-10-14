@@ -13,7 +13,7 @@ import DialogsContext from "../../components/provider/DialogProvider/DialogsCont
 import ShareQrcode, {ShareQrcodeProp} from "../../components/compose/ShareQrcode/ShareQrcode";
 
 function IssueSuccessPage() {
-    const [searchParams, _] = useSearchParams()
+    const searchParams = useSearchParams()
     const [info, setInfo] = useState<ShareQrcodeProp | null>(null)
     const {lang} = useContext(LangContext)
     const {user} = useContext(UserContext)

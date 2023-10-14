@@ -20,7 +20,7 @@ function CreateBadgeWithPrefill(props: CreateBadgeWithPrefillProp) {
     const [reason, setReason] = useState('')
     const { showLoading, showToast } = useContext(DialogsContext)
     const { user } = useContext(UserContext)
-    const [searchParams, _] = useSearchParams()
+    const searchParams = useSearchParams()
     const [preFillBadge,setPreFillBadge] = useState<Badge | null>(null)
     const presetAcceptor = searchParams.get('to')
 
@@ -61,9 +61,9 @@ function CreateBadgeWithPrefill(props: CreateBadgeWithPrefillProp) {
 
     const handleCreate = async () => {
         if (presetAcceptor) {
-            router.push( `/issue-nftpass/${props.nftPassId}?to=${presetAcceptor}`, { state: { reason: reason }})
+            router.push( `/issue-nftpass/${props.nftPassId}?to=${presetAcceptor}&reason=${encodeURI(reason)}`)
         } else {
-            router.push( `/issue-nftpass/${props.nftPassId}`, { state: { reason: reason }})
+            router.push( `/issue-nftpass/${props.nftPassId}?reason=${encodeURI(reason)}`)
         }
     }
 

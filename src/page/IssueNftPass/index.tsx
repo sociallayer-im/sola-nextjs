@@ -16,7 +16,7 @@ function Issue() {
     const {showToast, showLoading} = useContext(DialogsContext)
     const [badge, setBadge] = useState<Badge | null>(null)
     const params = useParams()
-    const [SearchParams, _] = useSearchParams()
+    const SearchParams = useSearchParams()
     const router = useRouter()
     let {state} = useLocation()
     const { lang } = useContext(LangContext)

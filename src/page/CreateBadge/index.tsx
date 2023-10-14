@@ -3,7 +3,7 @@ import CreateBadgeNonPrefill from './NonPrefill'
 import CreateBadgeWithPrefill from './WithPrefill'
 
 function CreateBadge() {
-    const [searchParams, _] = useSearchParams()
+    const searchParams = useSearchParams()
     const prefillBadgeId = searchParams.get('badge')
     return  <>
         { prefillBadgeId

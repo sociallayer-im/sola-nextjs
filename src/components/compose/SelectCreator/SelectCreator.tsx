@@ -1,10 +1,10 @@
 import { useState, useContext, useEffect, forwardRef } from 'react'
 import solas, {Group, Profile, queryGroupsUserCreated} from '../../../service/solas'
-import { useSearchParams } from 'react-router-dom'
 import UserContext from '../../provider/UserProvider/UserContext'
 import { withStyle, useStyletron, styled } from 'baseui'
 import { Select, StyledControlContainer } from 'baseui/select'
 import usePicture from '../../../hooks/pictrue'
+import { useSearchParams } from 'next/navigation'
 
 interface SelectCreatorProp {
     value: Profile | Group | null
@@ -65,7 +65,7 @@ function SelectCreator(props: SelectCreatorProp) {
     const [css] = useStyletron()
     const [list, setList] = useState<(Profile | Group)[]>([])
     const { user } = useContext(UserContext)
-    const [searchParams, _] = useSearchParams()
+    const searchParams = useSearchParams()
     const { defaultAvatar } = usePicture()
 
     const overrides = {
