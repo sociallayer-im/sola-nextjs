@@ -36,6 +36,7 @@
     "react-router-dom": "^6.8.1",
     "sass": "^1.69.3",
     "styletron-engine-atomic": "^1.5.0",
+    "styletron-engine-monolithic": "^1.0.0",
     "styletron-react": "^6.1.0",
     "swiper": "^9.1.0",
     "wagmi": "0.11.5",
