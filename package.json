@@ -39,7 +39,7 @@
     "styletron-engine-monolithic": "^1.0.0",
     "styletron-react": "^6.1.0",
     "swiper": "^9.1.0",
-    "wagmi": "0.11.5",
+    "wagmi": "^1.4.3",
     "web3-utils": "^1.8.2",
     "window-metadata": "^1.0.1"
   },

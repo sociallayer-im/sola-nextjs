@@ -22,6 +22,8 @@ const langEN = {
   Wallet_Title_WalletConnect: 'WalletConnect',
   Wallet_Intro_WalletConnect: 'Connect to your WalletConnect Wallet',
 
+  Wallet_Intro: 'Connect to explorer wallet',
+
   UserAction_MyProfile: 'My profile',
   UserAction_Bind_Email: 'Bind Email',
   UserAction_Disconnect: 'Sign Out',

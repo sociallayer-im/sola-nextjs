@@ -47,9 +47,8 @@ function Page(props: InferGetServerSidePropsType<typeof getServerSideProps>) {
 
     // 为了实现切换tab时，url也跟着变化，而且浏览器的前进后退按钮也能切换tab
     useEffect(() => {
-        console.log(searchParams.get('username'))
         if (!searchParams.get('tab')) {
-            router.replace(`/profile/${username}?tab=0`)
+            setSelectedTab('0')
         }
 
         if (searchParams.get('tab')) {
@@ -152,7 +151,7 @@ function Page(props: InferGetServerSidePropsType<typeof getServerSideProps>) {
                             activeKey={selectedTab}
                             onChange={({activeKey}) => {
                                 setSelectedTab(activeKey as any);
-                                router.push(`/profile/${username}?tab=${activeKey}`)
+                                router.push(`/profile/${username}?tab=${activeKey}`, {shallow: true})
                             }}>
                             <Tab title={lang['Profile_Tab_Received']}>
                                 <AppSubTabs

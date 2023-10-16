@@ -1,0 +1,16 @@
+.edit-profile-page {
+  position: relative;
+  background: #fff;
+
+  .edit-profile-page-wrapper {
+    z-index: 2;
+    max-width: var(--width-page-max);
+    padding: 0 var(--width-page-edge) 0 var(--width-page-edge);
+    margin: 0 auto;
+    display: flex;
+    flex-flow: column nowrap;
+    min-height: calc(100vh - var(--height-nav));
+    position: relative;
+    padding-bottom: 30px;
+  }
+}

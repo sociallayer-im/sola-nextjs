@@ -1,5 +1,5 @@
 import {ReactNode, useContext, useEffect, useState} from 'react'
-import {useAccount, useDisconnect, useSigner} from 'wagmi'
+import {useAccount, useDisconnect, useWalletClient} from 'wagmi'
 import UserContext from './UserContext'
 import DialogsContext from '../DialogProvider/DialogsContext'
 import * as AuthStorage from '../../../utils/authStorage'
@@ -51,7 +51,7 @@ function UserProvider (props: UserProviderProps) {
     const [userInfo, setUserInfo] = useState<User>(emptyUser)
     const { address, isConnecting, isDisconnected } = useAccount()
     const { disconnect } = useDisconnect()
-    const { data } = useSigner()
+    const { data } = useWalletClient()
     const { showToast, clean, showLoading } = useContext(DialogsContext)
     const router = useRouter()
     const [newProfile, _] = useEvent(EVENT.profileUpdate)

@@ -14,30 +14,29 @@ import {BaseProvider} from 'baseui'
 import {mainnet, moonbeam} from 'wagmi/chains'
 import {InjectedConnector} from 'wagmi/connectors/injected'
 import {publicProvider} from 'wagmi/providers/public'
-import {configureChains, createClient, WagmiConfig} from 'wagmi'
+import {configureChains, createConfig, WagmiConfig} from 'wagmi'
 import {styletron} from '@/styletron'
 
 const inject = new InjectedConnector({
     chains: [mainnet, moonbeam],
 } as any)
 
-const {chains, provider} = configureChains(
-    ([mainnet, moonbeam] as any),
+const {chains, publicClient, webSocketPublicClient} = configureChains(
+    [mainnet, moonbeam],
     [publicProvider()],
 )
 
-const wagmiClient = createClient({
+const config = createConfig({
     autoConnect: true,
-    connectors: [inject],
-    provider,
+    publicClient,
+    webSocketPublicClient,
 })
-
 
 
 function MyApp({Component, pageProps}: any) {
   return (
       <PageBacProvider>
-          <WagmiConfig client={wagmiClient as any}>
+          <WagmiConfig config={config as any}>
               <StyletronProvider value={styletron}>
                   <BaseProvider theme={theme}>
                       <DialogProvider>

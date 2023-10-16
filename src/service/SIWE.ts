@@ -1,5 +1,5 @@
 import fetch from '../utils/fetch'
-import {setAuth, setLastLoginType} from '../utils/authStorage'
+import {setAuth} from '@/utils/authStorage'
 
 const api = process.env.NEXT_PUBLIC_SOLAS_API
 
@@ -22,12 +22,13 @@ Issued At: ${new Date().toISOString()}`
 }
 
 export async function signInWithEthereum (signer: any): Promise<string> {
-  const loginAddress = await signer.getAddress()
+  const connect = await signer.requestAddresses()
+  const loginAddress = await signer.account.address
   const message = await createSiweMessage(
-    loginAddress,
-    'Sign in with Ethereum to the app.'
+      loginAddress,
+      'Sign in with Ethereum to the app.'
   )
-  const signature = await signer.signMessage(message)
+  const signature = await signer.signMessage({account: loginAddress, message})
 
   const res = await fetch.post({ url: `${api}/siwe/verify`, data: { message, signature, nonce: (window as any).nonce }
   })
