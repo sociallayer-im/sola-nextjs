@@ -3,7 +3,7 @@ import { ProfileSimple } from '../../../../service/solas'
 import usePicture from '../../../../hooks/pictrue'
 import { StatefulTooltip, PLACEMENT } from 'baseui/tooltip'
 import { Overflow } from 'baseui/icon'
-import { Link } from 'react-router-dom'
+import Link from 'next/link'
 
 const Wrapper = styled('div', ()=> {
     return {
@@ -71,7 +71,7 @@ export default function DetailReceivers (props: DetailReceiversProps) {
                             placement={PLACEMENT.top}
                             key={ index.toString() }
                             content={() => <span>{ item!.domain?.split('.')[0] }</span>} >
-                            <Link to={ `/profile/${item!.domain?.split('.')[0]}` } target='_blank'>
+                            <Link href={ `/profile/${item!.domain?.split('.')[0]}` } target='_blank'>
                                 <Avatar src={ item!.image_url || defaultAvatar(item!.id) } />
                             </Link>
                           </StatefulTooltip>

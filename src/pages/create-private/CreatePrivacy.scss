@@ -1,0 +1,105 @@
+.create-private-page {
+  position: relative;
+  background: #fff;
+
+  .create-badge-page-wrapper {
+    z-index: 2;
+    max-width: var(--width-page-max);
+    padding: 0 var(--width-page-edge) 0 var(--width-page-edge);
+    margin: 0 auto;
+    display: flex;
+    flex-flow: column nowrap;
+    min-height: calc(100vh - var(--height-nav));
+    position: relative;
+    padding-bottom: 30px;
+  }
+
+  .create-badge-page-form {
+    margin-top: 30px;
+
+    .form-tips {
+      background: #7492EF;
+      padding: 4px 8px;
+      font-size: 12px;
+      line-height: 18px;
+      color: #7492EF;
+      border-radius: 4px;
+      background: var(--secondary-color-brand-51-light, #EEF2FE);
+      margin-bottom: 20px;
+    }
+  }
+
+  .create-badge-title {
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 24px;
+    color: #272928;
+    text-align: center;
+  }
+
+  .input-area {
+    margin-bottom: 20px;
+
+    .input-area-des {
+      color: #999;
+      font-size: 12px;
+      margin-top: 12px;
+    }
+
+    .input-area-title {
+      font-size: 14px;
+      font-weight: 600;
+      line-height: 22px;
+      color: #272928;
+      margin-bottom: 10px;
+      margin-left: 10px;
+    }
+  }
+
+  .prefill-preview {
+    height: 205px;
+    background: #F8F9F8;
+    border-radius: 8px;
+    display: flex;
+    flex-flow: column wrap;
+    align-items: center;
+    justify-content: center;
+    margin-top: 26px;
+
+    .avatar {
+      height: 84px;
+      width: 84px;
+      border: 2.28731px solid #FFFFFF;
+      filter: drop-shadow(0px 11.4365px 16.7736px rgba(0, 0, 0, 0.08));
+      border-radius: 50%;
+      margin-bottom: 16px;
+    }
+
+    .name {
+      color: #272928;
+      font-weight: 700;
+      font-size: 20px;
+      line-height: 15px;
+    }
+
+    .create-time {
+      height: 32px;
+      background: #ECF2EE;
+      border-radius: 33px;
+      padding: 0 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 24px;
+      font-weight: 600;
+      font-size: 14px;
+      line-height: 22px;
+      color: #272928;
+
+      .icon-clock {
+        font-weight: bold;
+        margin-right: 4px;
+      }
+    }
+  }
+}

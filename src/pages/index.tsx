@@ -4,10 +4,9 @@ import {useContext, useEffect} from 'react'
 import UserContext from '@/components/provider/UserProvider/UserContext'
 import DialogsContext from '@/components/provider/DialogProvider/DialogsContext'
 import solas from '@/service/solas'
-import { useParams} from 'react-router-dom'
 import useIssueBadge from '@/hooks/useIssueBadge'
 import LangContext from '@/components/provider/LangProvider/LangContext'
-import {useRouter} from "next/navigation";
+import {useRouter, useParams} from "next/navigation";
 
 function Home() {
     const {user} = useContext(UserContext)
@@ -26,115 +25,115 @@ function Home() {
         showGiftItem
     } = useContext(DialogsContext)
     const router = useRouter()
-    const {badgeletId, presendId, groupId, inviteId, nftpassletId, nftpassId, pointId, pointItemId, giftId, giftitemId} = useParams()
+    const params = useParams()
     const startIssueBadge = useIssueBadge()
     const {lang} = useContext(LangContext)
 
     useEffect(() => {
         async function showBadgeletDetail() {
-            const newBadgelet = await solas.queryBadgeletDetail({id: Number(badgeletId)})
+            const newBadgelet = await solas.queryBadgeletDetail({id: Number(params!.badgeletId)})
             showBadgelet(newBadgelet)
         }
 
         async function showPresendDetail() {
-            const id = presendId?.split('_')[0]
-            const code = presendId?.split('_')[1]
+            const id = params!.presendId?.split('_')[0]
+            const code = params!.presendId?.split('_')[1]
             const newBadgelet = await solas.queryPresendDetail({id: Number(id)})
             showPresend(newBadgelet, code)
         }
 
         async function showInviteDetail() {
-            const item = await solas.queryInviteDetail({group_id: Number(groupId), invite_id: Number(inviteId)})
+            const item = await solas.queryInviteDetail({group_id: Number(params!.groupId), invite_id: Number(params!.inviteId)})
             showInvite(item)
         }
 
         async function showNftpassletDetail() {
-            const item = await solas.queryBadgeletDetail({id: Number(nftpassletId)})
+            const item = await solas.queryBadgeletDetail({id: Number(params!.nftpassletId)})
             showNftpasslet(item)
         }
 
         async function showNftpassDetail() {
-            const item = await solas.queryNftPassDetail({id: Number(nftpassId)})
+            const item = await solas.queryNftPassDetail({id: Number(params!.nftpassId)})
             showNftpass(item)
         }
 
         async function showPointDetail() {
-            const item = await solas.queryPointDetail({id: Number(pointId)})
+            const item = await solas.queryPointDetail({id: Number(params!.pointId)})
             showPoint(item)
         }
 
         async function showPointItemDetail() {
-            const item = await solas.queryPointItemDetail({id: Number(pointItemId)})
+            const item = await solas.queryPointItemDetail({id: Number(params!.pointItemId)})
             showPointItem(item)
         }
 
         async function showGiftDetail() {
-            const item = await solas.queryBadgeDetail({id: Number(giftId)})
+            const item = await solas.queryBadgeDetail({id: Number(params!.giftId)})
             showGift(item)
         }
 
         async function showGiftItemDetail() {
-            const item = await solas.queryBadgeletDetail({id: Number(giftitemId)})
+            const item = await solas.queryBadgeletDetail({id: Number(params!.giftitemId)})
             showGiftItem(item)
         }
 
-        if (badgeletId) {
+        if (params?.badgeletId) {
             clean('show badgelet detail')
             setTimeout(() => {
                 showBadgeletDetail()
             }, 500)
         }
 
-        if (presendId) {
+        if (params?.presendId) {
             clean('show presend detail')
             setTimeout(() => {
                 showPresendDetail()
             }, 500)
         }
 
-        if (groupId && inviteId) {
+        if (params?.groupId && params?.inviteId) {
             clean('show invite detail')
             setTimeout(() => {
                 showInviteDetail()
             }, 500)
         }
 
-        if (nftpassletId) {
+        if (params?.nftpassletId) {
             setTimeout(() => {
                 showNftpassletDetail()
             }, 500)
         }
 
-        if (nftpassId) {
+        if (params?.nftpassId) {
             setTimeout(() => {
                 showNftpassDetail()
             }, 500)
         }
 
-        if (pointId) {
+        if (params?.pointId) {
             setTimeout(() => {
                 showPointDetail()
             }, 500)
         }
 
-        if (pointItemId) {
+        if (params?.pointItemId) {
             setTimeout(() => {
                 showPointItemDetail()
             }, 500)
         }
 
-        if (giftId) {
+        if (params?.giftId) {
             setTimeout(() => {
                 showGiftDetail()
             }, 500)
         }
 
-        if (giftitemId) {
+        if (params?.giftitemId) {
             setTimeout(() => {
                 showGiftItemDetail()
             }, 500)
         }
-    }, [])
+    }, [params])
 
     const start = async () => {
         if (user.userName && user.authToken) {
@@ -150,10 +149,10 @@ function Home() {
     }
 
     useEffect(() => {
-        if (user.domain && user.userName && (!badgeletId && !presendId && !inviteId)) {
+        if (user.domain && user.userName && (!params?.badgeletId && !params?.presendId && !params?.inviteId)) {
             router.replace(`/profile/${user.userName}`)
         }
-    }, [user.userName, user.userName, badgeletId, presendId, inviteId])
+    }, [user.userName, user.userName, params?.badgeletId, params?.presendId, params?.inviteId])
 
     return <div className='home-page'>
         <div className='circle-1'></div>

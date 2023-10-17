@@ -70,7 +70,7 @@ function Subscriber() {
         }
 
         solas.queryUserActivity({target_id: user.id})
-        showPendingInvite()
+        // showPendingInvite()
     }, [user.id, user.domain])
 
     return (<></>)

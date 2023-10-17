@@ -1,4 +1,4 @@
-import React, {useContext, useEffect} from 'react'
+import React, {useContext, useEffect, useRef} from 'react'
 import ListUserAssets, {ListUserAssetsMethods} from "../../base/ListUserAssets/ListUserAssets";
 import solas, {Profile} from "../../../service/solas";
 import CardBadge from "../../base/Cards/CardBadge/CardBadge";

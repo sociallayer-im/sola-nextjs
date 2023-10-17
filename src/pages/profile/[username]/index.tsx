@@ -23,10 +23,9 @@ import LensList from "@/components/compose/Lens/LensList/LensList";
 import {useRouter, useSearchParams, useParams } from "next/navigation";
 import type { InferGetServerSidePropsType, GetServerSideProps } from 'next'
 
-function Page(props: InferGetServerSidePropsType<typeof getServerSideProps>) {
+function Page(props: any) {
     const params = useParams()
-    const username = props.username || params.username
-    console.log('username==>', props.username || params.username)
+    const [username, setUsername] = useState<string>(props.username || params.username)
     const [profile, setProfile] = useState<Profile | null>(props.profile || null)
     const {showLoading, openConnectWalletDialog} = useContext(DialogsContext)
     const {lang} = useContext(LangContext)
@@ -65,8 +64,9 @@ function Page(props: InferGetServerSidePropsType<typeof getServerSideProps>) {
             if (!username) return
             const unload = showLoading()
             try {
-                const profile = await solas.getProfile({username})
-                setProfile(profile)
+                const newPofile = await solas.getProfile({username})
+                if (newPofile?.id === profile?.id) return
+                setProfile(newPofile)
             } catch (e) {
                 console.log('[getProfile]: ', e)
             } finally {
@@ -75,6 +75,12 @@ function Page(props: InferGetServerSidePropsType<typeof getServerSideProps>) {
         }
         getProfile()
     }, [username])
+
+    useEffect(() => {
+        if (params.username) {
+            setUsername(params.username)
+        }
+    }, [params])
 
     const handleMintOrIssue = async () => {
         if (!user.id) {
@@ -151,15 +157,17 @@ function Page(props: InferGetServerSidePropsType<typeof getServerSideProps>) {
                             activeKey={selectedTab}
                             onChange={({activeKey}) => {
                                 setSelectedTab(activeKey as any);
-                                router.push(`/profile/${username}?tab=${activeKey}`, {shallow: true})
+                                const query = { ...router.query, tab: activeKey,  subtab: selectedSubtab, username: profile!.username};
+                                router.push({query, pathname: router.pathname}, {shallow: true})
                             }}>
                             <Tab title={lang['Profile_Tab_Received']}>
                                 <AppSubTabs
                                     renderAll
                                     activeKey={selectedSubtab}
                                     onChange={({activeKey}) => {
-                                        router.push(`/profile/${username}?tab=${selectedTab}&subtab=${activeKey}`)
                                         setSelectedSubtab(activeKey as any);
+                                        const query = { ...router.query, tab: selectedTab,  subtab: activeKey, username: profile!.username};
+                                        router.push({query, pathname: router.pathname}, {shallow: true})
                                     }}>
                                     <Tab title={lang['Profile_Tab_Basic']}>
                                         <ListUserRecognition profile={profile}/>
@@ -213,9 +221,8 @@ function Page(props: InferGetServerSidePropsType<typeof getServerSideProps>) {
 
 export default Page
 
-export const getServerSideProps = (async (context: any) => {
+export const getServerSideProps: any = (async (context: any) => {
     const username = context.params.username
     const profile = await solas.getProfile({username})
     return { props: { username:  context.params.username, profile} }
 })
-

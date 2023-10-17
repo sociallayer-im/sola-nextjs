@@ -3,6 +3,7 @@ import CardInvite from '../../base/Cards/CardInvite/CardInvite'
 import solas, {Profile} from '../../../service/solas'
 import LangContext from '../../provider/LangProvider/LangContext'
 import ListUserAssets, {ListUserAssetsMethods} from "../../base/ListUserAssets/ListUserAssets";
+import UserContext from "@/components/provider/UserProvider/UserContext";
 
 interface ListUserBadgeletProps {
     group: Profile
@@ -11,11 +12,13 @@ interface ListUserBadgeletProps {
 function ListGroupInvite(props: ListUserBadgeletProps) {
     const {lang} = useContext(LangContext)
     const listWrapperRef = React.createRef<ListUserAssetsMethods>()
+    const {user} = useContext(UserContext)
 
     const getInvite = async (page: number) => {
         return await solas.queryGroupInvites({
             group_id: props.group.id,
-            page
+            page,
+            auth_token: user.authToken || ''
         })
     }
 

@@ -55,7 +55,7 @@ function CardInviteMember (props: CardInviteMemberProps) {
     const { lang } = useContext(LangContext)
 
     return (
-        <div className={ css(style.wrapper) } onClick={() => { router.push(`/invite-create/${props.groupId}`) }}>
+        <div className={ css(style.wrapper) } onClick={() => { router.push(`/create-invite/${props.groupId}`) }}>
             <div className={ css(style.img) }><Plus size={28}/></div>
         </div>
     )

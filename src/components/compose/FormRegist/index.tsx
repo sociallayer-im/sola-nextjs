@@ -8,7 +8,6 @@ import solas from '../../../service/solas'
 import useVerify from '../../../hooks/verify'
 import DialogsContext from '../../provider/DialogProvider/DialogsContext'
 import UserContext from '../../provider/UserProvider/UserContext'
-import './RegistForm.ass'
 
 export interface RegistFormProps {
     onConfirm: (domain: string) => any

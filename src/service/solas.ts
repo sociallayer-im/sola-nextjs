@@ -925,10 +925,13 @@ export interface Invite {
 
 export interface QueryGroupInvitesProps {
     group_id: number,
-    page: number
+    page: number,
+    auth_token: string
 }
 
 export async function queryGroupInvites(props: QueryGroupInvitesProps): Promise<Invite[]> {
+    if (!props.auth_token) return  []
+
     const res = await fetch.get({
         url: `${api}/group/group-invites`,
         data: props

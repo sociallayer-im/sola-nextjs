@@ -417,7 +417,7 @@ const langEN = {
 
   Dialog_Check_In_Title: 'Check In',
 
-  Create_Privacy_Title: 'Create a privacy badge',
+  Create_Privacy_Title: 'Create privacy badge',
   Create_Privacy_Tips: 'Only you and the owner can view the badge, others can only see the creator and owner of the badge.',
 
   Create_Gift_Title: 'Create a Gift card',

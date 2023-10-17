@@ -1,0 +1,50 @@
+.regist-page {
+  position: relative;
+  height: 100%;
+
+  .regist-page-bg {
+    top: 0;
+    left: 0;
+    width: 100%;
+    position: absolute;
+    height: 660px;
+    background: linear-gradient(180deg,#9efedd,rgba(237,251,246,0));
+    opacity: .2;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .regist-page-wrapper {
+    z-index: 2;
+    max-width: var(--width-page-max);
+    padding: 0 var(--width-page-edge);
+    margin: 0 auto;
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: center;
+    height: 100%;
+
+    .regist-page-back {
+      position: absolute;
+      top: 0
+    }
+  }
+
+  .regist-page-content {
+    .title {
+      font-weight: 600;
+      font-size: 24px;
+      line-height: 32px;
+      color: #272928;
+    }
+    .des {
+      margin-top: 12px;
+      font-weight: 400;
+      font-size: 12px;
+      line-height: 18px;
+      font-feature-settings: 'tnum' on, 'lnum' on;
+      color: #4F5150;
+      margin-bottom: 70px;
+    }
+  }
+}

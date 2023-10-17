@@ -16,6 +16,7 @@ import {InjectedConnector} from 'wagmi/connectors/injected'
 import {publicProvider} from 'wagmi/providers/public'
 import {configureChains, createConfig, WagmiConfig} from 'wagmi'
 import {styletron} from '@/styletron'
+import Head from 'next/head'
 
 const inject = new InjectedConnector({
     chains: [mainnet, moonbeam],
@@ -34,27 +35,31 @@ const config = createConfig({
 
 
 function MyApp({Component, pageProps}: any) {
-  return (
-      <PageBacProvider>
-          <WagmiConfig config={config as any}>
-              <StyletronProvider value={styletron}>
-                  <BaseProvider theme={theme}>
-                      <DialogProvider>
-                          <UserProvider>
-                              <LangProvider>
-                                  <DialogProvider>
-                                      <Layout>
-                                          <Component {...pageProps} />
-                                      </Layout>
-                                  </DialogProvider>
-                              </LangProvider>
-                          </UserProvider>
-                      </DialogProvider>
-                  </BaseProvider>
-              </StyletronProvider>
-          </WagmiConfig>
-      </PageBacProvider>
-  );
+    return (
+        <PageBacProvider>
+            <Head>
+                <link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+                <title>Social Layer</title>
+            </Head>
+            <WagmiConfig config={config as any}>
+                <StyletronProvider value={styletron}>
+                    <BaseProvider theme={theme}>
+                        <DialogProvider>
+                            <UserProvider>
+                                <LangProvider>
+                                    <DialogProvider>
+                                        <Layout>
+                                            <Component {...pageProps} />
+                                        </Layout>
+                                    </DialogProvider>
+                                </LangProvider>
+                            </UserProvider>
+                        </DialogProvider>
+                    </BaseProvider>
+                </StyletronProvider>
+            </WagmiConfig>
+        </PageBacProvider>
+    );
 }
 
 export default MyApp;
