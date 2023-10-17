@@ -27,7 +27,7 @@ const ReasonText = forwardRef(function (props: ReasonTextProps, ref: any) {
             const r = new RegExp(`${_tagsSorted.join('|')}`, 'g')
             // 全局顺序匹配
             newShowText = newShowText.replace(r, (tagtext) => {
-                return `<a class="event" href="/event/${tagtext.replace('#', '')}" target="_blank">${tagtext}</a>`
+                return `<a class="event" href="/hashtag/${tagtext.replace('#', '')}" target="_blank">${tagtext}</a>`
             })
         }
 

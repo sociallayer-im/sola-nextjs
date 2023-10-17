@@ -76,7 +76,7 @@ function Issue() {
                         initIssues={initIssues}
                         onConfirm={handleIssue}
                         onCancel={() => {
-                            router.push(fallBackPath, {replace: true})
+                            router.replace(fallBackPath)
                         }}
                     />
                 </div>

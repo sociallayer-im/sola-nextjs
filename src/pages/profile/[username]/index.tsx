@@ -77,8 +77,8 @@ function Page(props: any) {
     }, [username])
 
     useEffect(() => {
-        if (params.username) {
-            setUsername(params.username)
+        if (params?.username) {
+            setUsername(params?.username as string)
         }
     }, [params])
 
@@ -157,8 +157,8 @@ function Page(props: any) {
                             activeKey={selectedTab}
                             onChange={({activeKey}) => {
                                 setSelectedTab(activeKey as any);
-                                const query = { ...router.query, tab: activeKey,  subtab: selectedSubtab, username: profile!.username};
-                                router.push({query, pathname: router.pathname}, {shallow: true})
+                                const query = { tab: activeKey,  subtab: selectedSubtab, username: profile!.username};
+                                router.push({query, pathname: (router as any).pathname} as any, {shallow: true} as any)
                             }}>
                             <Tab title={lang['Profile_Tab_Received']}>
                                 <AppSubTabs
@@ -166,8 +166,8 @@ function Page(props: any) {
                                     activeKey={selectedSubtab}
                                     onChange={({activeKey}) => {
                                         setSelectedSubtab(activeKey as any);
-                                        const query = { ...router.query, tab: selectedTab,  subtab: activeKey, username: profile!.username};
-                                        router.push({query, pathname: router.pathname}, {shallow: true})
+                                        const query = {tab: selectedTab,  subtab: activeKey, username: profile!.username};
+                                        router.push({query, pathname: (router as any).pathname!} as any, {shallow: true} as any)
                                     }}>
                                     <Tab title={lang['Profile_Tab_Basic']}>
                                         <ListUserRecognition profile={profile}/>

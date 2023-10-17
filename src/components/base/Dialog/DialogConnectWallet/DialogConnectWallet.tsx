@@ -1,4 +1,4 @@
-import {Connector, useAccount, useConnect, useSigner, useDisconnect } from 'wagmi'
+import {Connector, useAccount, useConnect, useDisconnect } from 'wagmi'
 import {useContext, useEffect, useRef} from 'react'
 import LangContext from '../../../provider/LangProvider/LangContext'
 import { setLastLoginType } from '../../../../utils/authStorage'

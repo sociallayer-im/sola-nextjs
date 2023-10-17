@@ -36,8 +36,8 @@ function Home() {
         }
 
         async function showPresendDetail() {
-            const id = params!.presendId?.split('_')[0]
-            const code = params!.presendId?.split('_')[1]
+            const id = (params!.presendId as string)?.split('_')[0]
+            const code = (params!.presendId as string)?.split('_')[1]
             const newBadgelet = await solas.queryPresendDetail({id: Number(id)})
             showPresend(newBadgelet, code)
         }

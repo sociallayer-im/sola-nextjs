@@ -31,7 +31,7 @@ function ProfileEdit() {
 
             try {
                 const profile = await solas.getProfile({
-                    username: params.username
+                    username: params.username as string
                 })
 
                 setNewProfile(profile)

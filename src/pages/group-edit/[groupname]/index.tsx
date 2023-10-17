@@ -29,7 +29,7 @@ function GroupEdit() {
             const unload = showLoading()
             try {
                 const profile = await solas.getProfile({
-                    username: params.groupname
+                    username: params?.groupname as string
                 })
 
                 setNewProfile(profile)
