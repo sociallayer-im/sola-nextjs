@@ -37,10 +37,7 @@ function Layout(props?: any) {
 
         window.addEventListener('focusout', watchSoftKeyboard)
         window.addEventListener('orientationchange', watchSoftKeyboard)
-
-        alert('ok')
-        document.getElementById('PageContent')!.scrollTo(0, 0);
-
+        
         return () => {
             window.removeEventListener('focusout', watchSoftKeyboard)
             window.removeEventListener('orientationchange', watchSoftKeyboard)
