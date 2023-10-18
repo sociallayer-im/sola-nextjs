@@ -1,5 +1,6 @@
 import React from 'react';
 import '@/styles/index.sass'
+import NextNProgress from 'nextjs-progressbar';
 
 import Layout from "@/components/Layout/Layout";
 
@@ -49,6 +50,7 @@ function MyApp({Component, pageProps}: any) {
                                 <LangProvider>
                                     <DialogProvider>
                                         <Layout>
+                                            <NextNProgress />
                                             <Component {...pageProps} />
                                         </Layout>
                                     </DialogProvider>
