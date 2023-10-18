@@ -158,7 +158,7 @@ function Page(props: any) {
                             onChange={({activeKey}) => {
                                 setSelectedTab(activeKey as any);
                                 const query = { tab: activeKey,  subtab: selectedSubtab, username: profile!.username};
-                                router.push({query, pathname: (router as any).pathname} as any, {shallow: true} as any)
+                                router.push({query, pathname: (router as any).pathname} as any, {shallow: true, scroll: false} as any)
                             }}>
                             <Tab title={lang['Profile_Tab_Received']}>
                                 <AppSubTabs
@@ -167,7 +167,7 @@ function Page(props: any) {
                                     onChange={({activeKey}) => {
                                         setSelectedSubtab(activeKey as any);
                                         const query = {tab: selectedTab,  subtab: activeKey, username: profile!.username};
-                                        router.push({query, pathname: (router as any).pathname!} as any, {shallow: true} as any)
+                                        router.push({query, pathname: (router as any).pathname!} as any, {shallow: true, scroll: false} as any)
                                     }}>
                                     <Tab title={lang['Profile_Tab_Basic']}>
                                         <ListUserRecognition profile={profile}/>

@@ -65,6 +65,9 @@ function VoteDetail() {
 
     useEffect(() => {
         getVote()
+        if (typeof window !== 'undefined') {
+            document.getElementById('PageContent')?.scrollTo(0, 0)
+        }
     }, [params?.voteid])
 
     useEffect(() => {

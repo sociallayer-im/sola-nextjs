@@ -27,7 +27,7 @@ function ProgressBar(props: { lang: string, total: number, current: number, text
     const {defaultAvatar} = usePicture()
 
     return (<div className={'vote-option'} onClick={e => {
-        e.stopPropagation()
+        // e.stopPropagation()
         !!props.onClick && props.onClick(props.id)
     }}>
         <div className={'option-info'}>
@@ -268,7 +268,7 @@ function CardVote(props: { item: Vote }) {
     let status = ending ? 'ending' : ''
 
     return (<div className={`vote-card ${status}`}>
-        <Link href={`/vote/${voteDetail.id}`}></Link>
+        <Link href={`/vote/${voteDetail.id}`} scroll={true}></Link>
         <div className={'vote-title'}>
             <div>{props.item.title}</div>
             <div className={'count'}>{voteDetail.voter_count} {lang['Vote_Create_Voters']}</div>

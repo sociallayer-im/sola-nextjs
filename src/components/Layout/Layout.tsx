@@ -1,7 +1,4 @@
-'use client'
-
 import PageHeader from '../compose/PageHeader'
-
 import { useStyletron, styled } from 'baseui'
 import {useEffect, useState, useContext} from 'react'
 import usePageHeight from '../../hooks/pageHeight'
@@ -21,12 +18,14 @@ function Layout(props?: any) {
         display: 'flex',
         flexDirection: 'column' as const,
         overflow: 'hidden',
+        height: `${windowHeight}px`
     }
 
     const content: any = {
         width: '100%',
         flex: 1,
         overflowX: 'hidden',
+        height: `${heightWithoutNav}px`,
         touchAction: 'pan-y' as const
     }
 
@@ -38,6 +37,9 @@ function Layout(props?: any) {
 
         window.addEventListener('focusout', watchSoftKeyboard)
         window.addEventListener('orientationchange', watchSoftKeyboard)
+
+        alert('ok')
+        document.getElementById('PageContent')!.scrollTo(0, 0);
 
         return () => {
             window.removeEventListener('focusout', watchSoftKeyboard)

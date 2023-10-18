@@ -161,13 +161,13 @@ function GroupPage(props: any) {
                             activeKey={selectedTab}
                             onChange={({activeKey}) => {
                                 setSelectedTab(activeKey as any);
-                                router.push(`/group/${groupname}?tab=${activeKey}`)
+                                router.push(`/group/${groupname}?tab=${activeKey}`, {scroll: false})
                             }}>
                             <Tab title={lang['Profile_Tab_Received']}>
                                 <AppSubTabs
                                     activeKey={selectedSubtab}
                                     onChange={({activeKey}) => {
-                                        router.push(`/group/${groupname}?tab=${selectedTab}&subtab=${activeKey}`)
+                                        router.push(`/group/${groupname}?tab=${selectedTab}&subtab=${activeKey}`, {scroll: false})
                                         setSelectedSubtab(activeKey as any)
                                     }}
                                     renderAll>
