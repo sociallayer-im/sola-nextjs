@@ -18,18 +18,15 @@ function Layout(props?: any) {
 
     const wrapper = {
         width: '100%',
-        maxHeight: 'fill-available',
         display: 'flex',
         flexDirection: 'column' as const,
         overflow: 'hidden',
-        height: `${windowHeight}px`
     }
 
     const content: any = {
         width: '100%',
         flex: 1,
         overflowX: 'hidden',
-        height: `${heightWithoutNav}px`,
         touchAction: 'pan-y' as const
     }
 
@@ -55,10 +52,15 @@ function Layout(props?: any) {
         }
     })
 
+    useEffect(() => {
+        document.getElementById('PageWrapper')!.style.height = `${windowHeight}px`
+        document.getElementById('PageContent')!.style.height = `${heightWithoutNav}px`
+    }, [windowHeight, heightWithoutNav])
+
     return (
-        <div className={ css(wrapper) }>
+        <div className={ css(wrapper) } id={'PageWrapper'}>
             <PageHeader />
-            <div className={ css(content)} >
+            <div className={ css(content)} id={'PageContent'}>
                 {props.children}
             </div>
         </div>
