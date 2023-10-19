@@ -64,6 +64,10 @@ const langCN: LangConfig = {
   Profile_Show_Email: '你的邮箱',
   Profile_Show_Close: '关闭',
   Profile_Show_Copy: '复制',
+  Profile_Tab_Asset: '资产',
+  Profile_Tab_Token: '代币',
+
+  Profile_Asset_Amount: '数量',
 
   Avatar_Upload_Button: '更改头像',
 

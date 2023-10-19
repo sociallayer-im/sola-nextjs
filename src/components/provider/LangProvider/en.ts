@@ -64,6 +64,10 @@ const langEN = {
   Profile_Show_Email: 'Your email is',
   Profile_Show_Close: 'Close',
   Profile_Show_Copy: 'Copy',
+  Profile_Tab_Asset: 'Asset',
+  Profile_Tab_Token: 'Token',
+
+  Profile_Asset_Amount: 'Amount',
 
   Avatar_Upload_Button: 'Upload',
 

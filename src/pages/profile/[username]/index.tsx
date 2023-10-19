@@ -5,23 +5,18 @@ import DialogsContext from '@/components/provider/DialogProvider/DialogsContext'
 import ProfilePanel from '@/components/base/ProfilePanel/ProfilePanel'
 import AppButton, {BTN_KIND, BTN_SIZE} from '@/components/base/AppButton/AppButton'
 import LangContext from '@/components/provider/LangProvider/LangContext'
-import ListUserGroup from '@/components/compose/ListUserGroup'
-import ListUserPresend from '@/components/compose/ListUserPresend'
 import UserContext from '@/components/provider/UserProvider/UserContext'
 import useIssueBadge from '@/hooks/useIssueBadge'
 import BgProfile from '@/components/base/BgProfile/BgProfile'
 import useEvent, {EVENT} from '@/hooks/globalEvent'
 import {styled} from 'baseui'
 import useCopy from '@/hooks/copy'
-import {Tab, Tabs} from "baseui/tabs";
-import ListUserRecognition from "@/components/compose/ListUserRecognition/ListUserRecognition";
-import AppSubTabs from "@/components/base/AppSubTabs";
-import ListUserNftpass from "@/components/compose/ListUserNftpass/ListUserNftpass";
-import ListUserPoint from "@/components/compose/ListUserPoint/ListUserPoint";
-import ListUserGift from "@/components/compose/ListUserGift/ListUserGift";
-import LensList from "@/components/compose/Lens/LensList/LensList";
-import {useRouter, useSearchParams, useParams } from "next/navigation";
-import type { InferGetServerSidePropsType, GetServerSideProps } from 'next'
+import {useRouter, useParams } from "next/navigation";
+import dynamic from 'next/dynamic'
+
+const UserTabs = dynamic(() => import('@/components/compose/ProfileTabs/ProfileTabs'), {
+    loading: () => <p>Loading...</p>,
+})
 
 function Page(props: any) {
     const params = useParams()
@@ -30,9 +25,6 @@ function Page(props: any) {
     const {showLoading, openConnectWalletDialog} = useContext(DialogsContext)
     const {lang} = useContext(LangContext)
     const {user} = useContext(UserContext)
-    const searchParams = useSearchParams()
-    const [selectedTab, setSelectedTab] = useState(searchParams.get('tab') || '0')
-    const [selectedSubtab, setSelectedSubtab] = useState(searchParams.get('subtab') || '0')
     const router = useRouter()
     const startIssue = useIssueBadge()
     const [newProfile, _] = useEvent(EVENT.profileUpdate)
@@ -44,20 +36,6 @@ function Page(props: any) {
         }
     }, [newProfile])
 
-    // 为了实现切换tab时，url也跟着变化，而且浏览器的前进后退按钮也能切换tab
-    useEffect(() => {
-        if (!searchParams.get('tab')) {
-            setSelectedTab('0')
-        }
-
-        if (searchParams.get('tab')) {
-            setSelectedTab(searchParams.get('tab') || '0')
-        }
-
-        if (searchParams.get('subtab')) {
-            setSelectedSubtab(searchParams.get('subtab') || '0')
-        }
-    }, [searchParams])
 
     useEffect(() => {
         const getProfile = async function () {
@@ -151,68 +129,7 @@ function Page(props: any) {
                     </div>
                 </div>
                 <div className='down-side'>
-                    <div className={'profile-tab'}>
-                        <Tabs
-                            renderAll
-                            activeKey={selectedTab}
-                            onChange={({activeKey}) => {
-                                setSelectedTab(activeKey as any);
-                                const query = { tab: activeKey,  subtab: selectedSubtab, username: profile!.username};
-                                router.push({query, pathname: (router as any).pathname} as any, {shallow: true, scroll: false} as any)
-                            }}>
-                            <Tab title={lang['Profile_Tab_Received']}>
-                                <AppSubTabs
-                                    renderAll
-                                    activeKey={selectedSubtab}
-                                    onChange={({activeKey}) => {
-                                        setSelectedSubtab(activeKey as any);
-                                        const query = {tab: selectedTab,  subtab: activeKey, username: profile!.username};
-                                        router.push({query, pathname: (router as any).pathname!} as any, {shallow: true, scroll: false} as any)
-                                    }}>
-                                    <Tab title={lang['Profile_Tab_Basic']}>
-                                        <ListUserRecognition profile={profile}/>
-                                    </Tab>
-                                    {
-                                        !!profile?.permissions.includes('nftpass') ?
-                                            <Tab title={lang['Profile_Tab_NFTPASS']}>
-                                                <ListUserNftpass profile={profile}/>
-                                            </Tab> : <></>
-                                    }
-                                    {
-                                        !!profile?.permissions.includes('gift') ?
-                                            <Tab title={lang['Badgebook_Dialog_Gift']}>
-                                                <ListUserGift profile={profile}/>
-                                            </Tab> : <></>
-                                    }
-                                </AppSubTabs>
-                            </Tab>
-                            {user.id === profile.id ?
-                                <Tab title={lang['Profile_Tab_Presend']}>
-                                    <ListUserPresend profile={profile}/>
-                                </Tab>
-                                : <></>
-                            }
-                            {
-                                !!profile?.permissions.includes('point') ?
-                                    <Tab title={lang['Profile_Tab_Point']}>
-                                        <ListUserPoint profile={profile}/>
-                                    </Tab>
-                                    : <></>
-                            }
-
-                            <Tab title={lang['Profile_Tab_Groups']}>
-                                <ListUserGroup profile={profile}/>
-                            </Tab>
-
-                            {/*{ profile.address ?*/}
-                            {/*    <Tab title={lang['Profile_Tab_Lens']}>*/}
-                            {/*        <LensList profile={profile} />*/}
-                            {/*    </Tab>*/}
-                            {/*    : <></>*/}
-                            {/*}*/}
-                        </Tabs>
-                    </div>
-                    <div className='profile-user-name' style={{display: 'none'}}>{profile.username}</div>
+                    <UserTabs profile={profile}/>
                 </div>
             </div>
         }
