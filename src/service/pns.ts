@@ -39,7 +39,7 @@ export async function queryDomainByWalletAddress (address: string) {
             contract: '0x7d5f0398549c9fdea03bbdde388361827cb376d5',
             standard: 'ERC721',
             chain: 'Moonbeam',
-            explorer: 'https://moonscan.io/token/'
+            explorer: 'https://www.pns.link/domain/'
         }
     })
 

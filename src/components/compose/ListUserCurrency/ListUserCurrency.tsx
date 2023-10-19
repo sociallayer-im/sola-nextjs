@@ -11,11 +11,11 @@ function ComponentName({profile}: {profile: Profile}) {
     const {lang} = useContext(LangContext)
 
     const [balance, setBalance] = useState<CurrencyBalance>({
-        eth: '',
-        matic: '',
-        arb: '',
-        opt: '',
-        astar: ''
+        eth: '--',
+        matic: '--',
+        arb: '--',
+        opt: '--',
+        astar: '--'
     })
 
     useEffect(() => {
@@ -23,10 +23,6 @@ function ComponentName({profile}: {profile: Profile}) {
             Alchemy.getBalance(profile.address).then((res) => {
                 console.log(res)
                 setBalance(res)
-            })
-
-            Alchemy.getNftBalance(profile.address, 'ens').then((res) => {
-                console.log('ensensensens', res)
             })
         }
     }, [user])

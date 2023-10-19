@@ -111,7 +111,6 @@ function ComponentName({profile}: {profile: Profile}) {
 
             <Tab title={lang['Profile_Tab_Asset']}>
                 <AppSubTabs
-                    renderAll
                     activeKey={selectedSubtab}
                     onChange={({activeKey}) => {
                         setSelectedSubtab(activeKey as any);

@@ -6,26 +6,39 @@ import CardNft from "@/components/base/Cards/CardNft/CardNft";
 import {queryDomainByWalletAddress} from "@/service/pns";
 import {DotBitAccount, getDotBitAccount} from "@/service/dotbit";
 import CardDotBit from "@/components/base/Cards/CardDotBit/CardDotBit";
+import styles from './ListNftAsset.module.sass'
+import {Spinner} from "baseui/spinner";
 
 function ListNftAsset({profile, type}: { profile: Profile, type: string }) {
-    const getNft = async (page: number):Promise<NftDetail[]> => {
+    const [ready, setReady] = React.useState(false)
+
+    const getNft = async (page: number): Promise<NftDetail[]> => {
         if (profile.address && page === 1) {
-            if (type === 'ens') {
-                return await Alchemy.getNftBalance(profile.address, type as any)
-            } else if (type === 'pns') {
-                return await queryDomainByWalletAddress(profile.address)
-            } else return []
+            try {
+                if (type === 'ens') {
+                    return await Alchemy.getNftBalance(profile.address, type as any)
+                } else if (type === 'pns') {
+                    return await queryDomainByWalletAddress(profile.address)
+                } else return []
+            } finally {
+                setReady(true)
+            }
         } else {
+            setReady(true)
             return [] as NftDetail[]
         }
     }
 
-    const getDotbit = async (page: number):Promise<DotBitAccount[]> => {
-        if (profile.address && page === 1) {
-            return await getDotBitAccount(profile.address)
-        }
+    const getDotbit = async (page: number): Promise<DotBitAccount[]> => {
+        try {
+            if (profile.address && page === 1) {
+                return await getDotBitAccount(profile.address)
+            }
 
-        return [] as DotBitAccount[]
+            return [] as DotBitAccount[]
+        } finally {
+            setReady(true)
+        }
     }
 
     const listRef = React.createRef<ListUserAssetsMethods>()
@@ -36,7 +49,8 @@ function ListNftAsset({profile, type}: { profile: Profile, type: string }) {
     }, [profile])
 
 
-    return (<>
+    return (<div className={styles.wrapper}>
+            {!ready && <Spinner className={styles.spinner} $color={'#98f6db'}/>}
             {type === 'dotbit' ?
                 <ListUserAssets
                     queryFcn={getDotbit}
@@ -47,7 +61,7 @@ function ListNftAsset({profile, type}: { profile: Profile, type: string }) {
                     onRef={listRef}
                     child={(item: NftDetail, key) => <CardNft key={key} detail={item}/>}/>
             }
-        </>
+        </div>
     )
 }
 

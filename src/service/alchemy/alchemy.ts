@@ -84,23 +84,19 @@ class Alchemy {
         return balance
     }
 
-    async getNftBalance(owner: string, type:'ens' | 'pns'): Promise<NftDetail[]> {
-        if (type=== 'ens') {
-            const list = await this.alchemy.forNetwork(Network.ETH_MAINNET).nft.getNftsForOwner(owner, {contractAddresses:['0x57f1887a8BF19b14fC0dF6Fd9B2acc9Af147eA85']})
-            return  list.ownedNfts.map((item: any) => {
-                return {
-                    title: item.title,
-                    image: item.rawMetadata?.image_url,
-                    contract: item.contract.address,
-                    id: item.tokenId,
-                    standard: 'ERC721',
-                    chain: 'Ethereuem',
-                    explorer: ExplorerUrls.eth + item.contract.address
-                } as NftDetail
-            })
-        } else {
-            return []
-        }
+    async getNftBalance(owner: string): Promise<NftDetail[]> {
+        const list = await this.alchemy.forNetwork(Network.ETH_MAINNET).nft.getNftsForOwner(owner, {contractAddresses:['0x57f1887a8BF19b14fC0dF6Fd9B2acc9Af147eA85']})
+        return  list.ownedNfts.map((item: any) => {
+            return {
+                title: item.title,
+                image: item.rawMetadata?.image_url,
+                contract: item.contract.address,
+                id: item.tokenId,
+                standard: 'ERC721',
+                chain: 'Ethereuem',
+                explorer: 'https://app.ens.domains/' + item.title
+            } as NftDetail
+        })
     }
 }
 
