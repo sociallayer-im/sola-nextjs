@@ -38,14 +38,15 @@ function ComponentName({profile}: {profile: Profile}) {
         </div>
         {
             Object.keys(balance).map((key) => {
-              return <a className={`${styles.row} ${styles.item}`} key={key} href={ExplorerUrls[key] + profile.address!}>
+              return <a className={`${styles.row} ${styles.item}`} key={key} href={(ExplorerUrls as any)[key] + profile.address!}>
                   <div className={styles.label}>
                       <Image className={styles.icon}
+                             alt={key}
                              src={`/images/tokens/${key}.png`}
                              width={22} height={22} />
                       {key.toUpperCase()}
                   </div>
-                  <div>{balance[key]}</div>
+                  <div>{(balance as any)[key]}</div>
               </a>
             })
         }

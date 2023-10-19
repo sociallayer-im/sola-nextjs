@@ -29,7 +29,7 @@ export class AlchemyMultichainClient {
     overrides?: Partial<Record<Network, AlchemyMultichainSettings>>
   ) {
     this.settings = settings;
-    this.overrides = overrides;
+    this.overrides = overrides as any;
   }
 
   /**
@@ -57,7 +57,7 @@ export class AlchemyMultichainClient {
           : { ...this.settings, network };
       this.instances.set(network, new Alchemy(alchemySettings));
     }
-    return this.instances.get(network);
+    return this.instances.get(network)!;
   }
 }
 

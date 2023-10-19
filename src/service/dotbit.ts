@@ -10,13 +10,15 @@ export interface DotBitAccount {
     image:string,
 }
 
-export async function getDotBitAccount (owner: string): Promise<DotBitAccount> {
+export async function getDotBitAccount (owner: string): Promise<DotBitAccount[]> {
     const list = await dotbit.accountsOfOwner({
         key: owner,
-        coin_type: "60" // The coin type of ETH
+        coin_type: "60" as any// The coin type of ETH
     })
 
-    return list.map(item => {
+    console.log('list', list)
+
+    return list.map((item:any) => {
         return {
             image:'/images/dotbit.png',
             account: item.account,

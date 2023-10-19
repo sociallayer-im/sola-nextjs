@@ -27,10 +27,10 @@ export const ExplorerUrls = {
     arb: 'https://arbiscan.io/address/',
     opt: 'https://optimistic.etherscan.io/address/',
     astar: 'https://astar.subscan.io/account/'
-} as {[key in CurrencyBalance]: string }
+} as {[key : string]: string }
 
 class Alchemy {
-    alchemy: typeof AlchemyMultichainClient
+    alchemy: AlchemyMultichainClient
 
     constructor() {
         const defaultConfig = {

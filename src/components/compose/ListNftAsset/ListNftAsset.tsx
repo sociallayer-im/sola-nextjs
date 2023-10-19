@@ -8,25 +8,24 @@ import {DotBitAccount, getDotBitAccount} from "@/service/dotbit";
 import CardDotBit from "@/components/base/Cards/CardDotBit/CardDotBit";
 
 function ListNftAsset({profile, type}: { profile: Profile, type: string }) {
-    const getNft = async (page: number) => {
+    const getNft = async (page: number):Promise<NftDetail[]> => {
         if (profile.address && page === 1) {
             if (type === 'ens') {
                 return await Alchemy.getNftBalance(profile.address, type as any)
-            }
-            if (type === 'pns') {
+            } else if (type === 'pns') {
                 return await queryDomainByWalletAddress(profile.address)
-            }
+            } else return []
         } else {
-            return []
+            return [] as NftDetail[]
         }
     }
 
-    const getDotbit = async (page: number) => {
+    const getDotbit = async (page: number):Promise<DotBitAccount[]> => {
         if (profile.address && page === 1) {
             return await getDotBitAccount(profile.address)
-        } else {
-            return []
         }
+
+        return [] as DotBitAccount[]
     }
 
     const listRef = React.createRef<ListUserAssetsMethods>()

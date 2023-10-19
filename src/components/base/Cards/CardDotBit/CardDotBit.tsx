@@ -1,7 +1,7 @@
 import {useStyletron} from 'baseui'
 import {useContext} from 'react'
 import DialogsContext from '../../../provider/DialogProvider/DialogsContext'
-import {DotBitAccount} from "@/service/DotBit";
+import {DotBitAccount} from "@/service/dotbit";
 import DialogDotBitDetail from "@/components/base/Dialog/DialogDotBit/DialogDotBit";
 
 const style = {
