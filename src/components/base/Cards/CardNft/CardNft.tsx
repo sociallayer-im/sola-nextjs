@@ -1,9 +1,8 @@
 import {useStyletron} from 'baseui'
-import {useContext} from 'react'
+import {useContext, useEffect, useState} from 'react'
 import DialogsContext from '../../../provider/DialogProvider/DialogsContext'
 import UserContext from '../../../provider/UserProvider/UserContext'
 import {NftDetail} from "@/service/alchemy/alchemy";
-import Image from "next/image";
 import DialogNftDetail from "@/components/base/Dialog/DialogNftDetail/DialogNftDetail";
 
 const style1 = {
@@ -165,20 +164,33 @@ function CardNft(props: CardNftProps) {
     const [css] = useStyletron()
     const {openDialog} = useContext(DialogsContext)
     const style = props.type === 'badge' ? style2 : style1
+    const [cover, setCover] = useState<string>('/images/nft.jpg')
 
     const showDialog = () => {
         const dialog = openDialog({
-            content: (close: any) => DialogNftDetail({detail: props.detail, close}),
+            content: (close: any) => DialogNftDetail({detail: {...props.detail, image: cover}, close}),
             size: [460, 'auto'],
             position: 'bottom' as const
          })
     }
 
+    useEffect(() => {
+        const img = new Image()
+        const src = props.detail.image.includes('ipfs://')
+            ? props.detail.image.replace('ipfs://', 'https://ipfs.io/ipfs/')
+            : props.detail.image
+
+        img.src = src
+        img.onload = () => {
+            setCover(src)
+        }
+    }, [])
+
     return (<div className={css(style.wrapper)} onClick={() => {
         showDialog()
     }}>
         <div className={css(style.coverBg)}>
-            <img className={css(style.img)} src={props.detail.image} alt="" width={132} height={132} />
+            <img className={css(style.img)} src={cover} alt="" width={132} height={132} />
         </div>
         <div className={css(style.name)}>{props.detail.title}</div>
     </div>)

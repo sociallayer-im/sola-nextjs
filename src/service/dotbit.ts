@@ -16,8 +16,6 @@ export async function getDotBitAccount (owner: string): Promise<DotBitAccount[]>
         coin_type: "60" as any// The coin type of ETH
     })
 
-    console.log('list', list)
-
     return list.map((item:any) => {
         return {
             image:'/images/dotbit.png',

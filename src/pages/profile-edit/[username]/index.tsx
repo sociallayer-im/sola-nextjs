@@ -24,7 +24,6 @@ function ProfileEdit() {
     const { user, setUser } = useContext(UserContext)
 
     useEffect(() => {
-        console.log('===============', params)
         const getProfile = async () => {
             if (!params?.username) return
             const unload = showLoading()

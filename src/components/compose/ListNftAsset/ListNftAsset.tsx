@@ -21,7 +21,9 @@ function ListNftAsset({profile, type}: { profile: Profile, type: string }) {
                     return await queryDomainByWalletAddress(profile.address)
                 } else if (type === 'maodao') {
                     return await Alchemy.getMaodaoNft(profile.address)
-                } else return []
+                } else if (type === 'seedao') {
+                    return await Alchemy.getSeedaoNft(profile.address)
+                }else return []
             } finally {
                 setReady(true)
             }
@@ -47,6 +49,10 @@ function ListNftAsset({profile, type}: { profile: Profile, type: string }) {
     useEffect(() => {
         if (profile.id) {
             !!listRef.current && listRef.current!.refresh()
+
+            const a = Alchemy.getSeedaoNft('0x332345477db00239f88ca2eb015b159750cf3c44').then(res=> {
+                console.log('getSeedaoNftgetSeedaoNft==', res)
+            })
         }
     }, [profile])
 
