@@ -129,7 +129,7 @@ function ComponentName({profile}: {profile: Profile}) {
                         <ListNftAsset profile={profile} type={'dotbit'}/>
                     </Tab>
                     <Tab title={'SeeDAO'}>
-                        PNS
+                        SeeDAO
                     </Tab>
                 </AppSubTabs>
             </Tab>

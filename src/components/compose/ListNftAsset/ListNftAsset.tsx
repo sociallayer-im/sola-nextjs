@@ -16,9 +16,11 @@ function ListNftAsset({profile, type}: { profile: Profile, type: string }) {
         if (profile.address && page === 1) {
             try {
                 if (type === 'ens') {
-                    return await Alchemy.getNftBalance(profile.address, type as any)
+                    return await Alchemy.getEnsBalance(profile.address)
                 } else if (type === 'pns') {
                     return await queryDomainByWalletAddress(profile.address)
+                } else if (type === 'maodao') {
+                    return await Alchemy.getMaodaoNft(profile.address)
                 } else return []
             } finally {
                 setReady(true)
@@ -59,7 +61,9 @@ function ListNftAsset({profile, type}: { profile: Profile, type: string }) {
                 : <ListUserAssets
                     queryFcn={getNft}
                     onRef={listRef}
-                    child={(item: NftDetail, key) => <CardNft key={key} detail={item}/>}/>
+                    child={(item: NftDetail, key) => <CardNft key={key}
+                                                              type={type === 'maodao' ? 'badge': 'nft'}
+                                                              detail={item}/>}/>
             }
         </div>
     )

@@ -84,11 +84,13 @@ function DialogConnectWallet (props: DialogConnectWalletProps) {
                     </div>
                 </div>
             ))}
-            <div className='connect-item' onClick={ handleConnectEmail }>
-                <img src="/images/email.svg" alt="email"/>
-                <div className='connect-name'>Email</div>
-                <div className='connect-des'>{ lang['Login_Title'] }</div>
-            </div>
+            { process.env.NEXT_PUBLIC_SPECIAL_VERSION !== 'maodao' &&
+                <div className='connect-item' onClick={ handleConnectEmail }>
+                    <img src="/images/email.svg" alt="email"/>
+                    <div className='connect-name'>Email</div>
+                    <div className='connect-des'>{ lang['Login_Title'] }</div>
+                </div>
+            }
         </div>
     )
 }
