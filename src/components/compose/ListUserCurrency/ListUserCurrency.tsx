@@ -11,11 +11,11 @@ function ComponentName({profile}: {profile: Profile}) {
     const {lang} = useContext(LangContext)
 
     const [balance, setBalance] = useState<CurrencyBalance>({
-        eth: '--',
-        matic: '--',
-        arb: '--',
-        opt: '--',
-        astar: '--'
+        eth: '0.0000',
+        matic: '0.0000',
+        arb: '0.0000',
+        opt: '0.0000',
+        astar: '0.0000'
     })
 
     useEffect(() => {
