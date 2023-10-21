@@ -189,7 +189,9 @@ function UserProvider (props: UserProviderProps) {
     }, [])
 
     useEffect(() => {
-        walletLogin()
+       if (data) {
+           walletLogin()
+       }
     }, [data])
 
     // update profile from event
