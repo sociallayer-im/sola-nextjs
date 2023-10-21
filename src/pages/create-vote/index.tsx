@@ -254,9 +254,15 @@ function ComponentName() {
                 setAuth('has_badge')
             }
         } else if (auth === 'enableBadgeCount') {
-            setEnableMembership(false)
-            setEnableBadgeCount(true)
-            setAuth('badge_count')
+            if (enableBadgeCount) {
+                setEnableBadgeCount(false)
+                setAuth('has_badge')
+            } else {
+                setEnableMembership(false)
+                setEnableBadgeCount(true)
+                setAuth('badge_count')
+            }
+
         }
     }
 
