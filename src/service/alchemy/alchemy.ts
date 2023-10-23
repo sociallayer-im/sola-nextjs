@@ -123,6 +123,15 @@ class Alchemy {
             } as NftDetail
         })
     }
+
+    async getMaodaoOwner(nftId: string): Promise<string | null> {
+        const response = await this.alchemy
+            .forNetwork(Network.ETH_MAINNET)
+            .nft
+            .getOwnersForNft('0xcdb7c1a6fe7e112210ca548c214f656763e13533', nftId)
+
+        return  response.owners[0] || null
+    }
 }
 
 const alchemy = new Alchemy();
