@@ -1,6 +1,6 @@
 import PageBack from '@/components/base/PageBack'
 import React, {useContext, useEffect, useState} from 'react'
-import {Profile, queryBadge, getProfile as getProfileDetail} from '@/service/solas'
+import {Profile, queryBadge, getProfile as getProfileDetail, getProfile} from '@/service/solas'
 import DialogsContext from '@/components/provider/DialogProvider/DialogsContext'
 import ProfilePanel from '@/components/base/ProfilePanel/ProfilePanel'
 import AppButton, {BTN_KIND, BTN_SIZE} from '@/components/base/AppButton/AppButton'
@@ -16,6 +16,7 @@ import dynamic from 'next/dynamic'
 import ListNftAsset from "@/components/compose/ListNftAsset/ListNftAsset";
 import Alchemy from "@/service/alchemy/alchemy";
 import fetch from "@/utils/fetch";
+import { toChecksumAddress } from 'web3-utils'
 
 const UserTabs = dynamic(() => import('@/components/compose/ProfileTabs/ProfileTabs'), {
     loading: () => <p>Loading...</p>,
@@ -23,7 +24,7 @@ const UserTabs = dynamic(() => import('@/components/compose/ProfileTabs/ProfileT
 
 function Page(props: any) {
     const params = useParams()
-    const [username, setUsername] = useState<string>(props.username || params?.username)
+    const [tokenId, setTokenId] = useState<string>(props.tokenId || params?.tokenId)
     const [profile, setProfile] = useState<Profile | null>(props.profile || null)
     const [maodaoProfile, setMaodaoProfile] = useState<any | null>( null)
     const {showLoading, openConnectWalletDialog} = useContext(DialogsContext)
@@ -35,7 +36,7 @@ function Page(props: any) {
     const {copyWithDialog} = useCopy()
 
     useEffect(() => {
-        if (newProfile && newProfile.id === profile?.id) {
+        if (newProfile && newProfile.id !== profile?.id) {
             setProfile(newProfile)
         }
     }, [newProfile])
@@ -43,28 +44,61 @@ function Page(props: any) {
 
     useEffect(() => {
         const getProfile = async function () {
-            if (!username) return
+
+
+            const emptyProfile: Profile = {
+                address: null,
+                domain: null,
+                group_owner_id: null,
+                id: 0,
+                image_url: null,
+                email: null,
+                twitter: null,
+                telegram: null,
+                github: null,
+                discord: null,
+                ens: null,
+                lens: null,
+                website: null,
+                nostr: null,
+                location: null,
+                about:null,
+                nickname: '--',
+                username: '--',
+                followers: 0,
+                following: 0,
+                is_group: false,
+                badge_count: 0,
+                status: 'active',
+                permissions: [],
+                group_event_visibility: 'public',
+            }
+            if (!tokenId) {
+                setProfile(emptyProfile)
+                return
+            }
+
             const unload = showLoading()
             try {
-                const newPofile = await getProfileDetail({username})
+                const maodaoProfile = await fetch.get({
+                    url: `https://metadata.readyplayerclub.com/api/rpc-fam/${tokenId}`,
+                    data: {}
+                }) as any
 
-                if (newPofile?.id === profile?.id) return
+                const walletAddress = await Alchemy.getMaodaoOwner(tokenId)
+                if (walletAddress) {
+                    const solaProfile = await getProfileDetail({address: toChecksumAddress(walletAddress)})
 
-                if (newPofile?.address) {
-                    const maodaoNft = await Alchemy.getMaodaoNft(newPofile.address)
-                    console.log('maodaoProfielmaodaoProfielmaodaoProfiel', maodaoNft)
-                    if (maodaoNft.length) {
-                        const profile = await fetch.get({
-                            url: `https://metadata.readyplayerclub.com/api/rpc-fam/${maodaoNft[0].id}`,
-                            data: {}
-                        }) as any
-                        if (profile?.data?.name) {
-                            newPofile.nickname = profile.data.info.owner
-                            newPofile.image_url = profile.data.image
-                        }
+                    if (solaProfile) {
+                        solaProfile.nickname = maodaoProfile.data.info.owner
+                        solaProfile.image_url = maodaoProfile.data.image
+                        setProfile(solaProfile)
+                    } else {
+                        emptyProfile.nickname = maodaoProfile.data.info.owner
+                        emptyProfile.image_url = maodaoProfile.data.image
+                        setProfile(emptyProfile)
                     }
                 }
-                setProfile(newPofile)
             } catch (e) {
                 console.log('[getProfile]: ', e)
             } finally {
@@ -72,11 +106,11 @@ function Page(props: any) {
             }
         }
         getProfile()
-    }, [username])
+    }, [tokenId])
 
     useEffect(() => {
         if (params?.username) {
-            setUsername(params?.username as string)
+            setTokenId(params?.username as string)
         }
     }, [params])
 

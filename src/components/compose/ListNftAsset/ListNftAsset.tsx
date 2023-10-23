@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react'
+import React, {useEffect, useRef} from 'react'
 import {Profile} from "@/service/solas";
 import Alchemy, {NftDetail} from "@/service/alchemy/alchemy";
 import ListUserAssets, {ListUserAssetsMethods} from "@/components/base/ListUserAssets/ListUserAssets";
@@ -11,8 +11,14 @@ import {Spinner} from "baseui/spinner";
 
 function ListNftAsset({profile, type}: { profile: Profile, type: string }) {
     const [ready, setReady] = React.useState(false)
+    const profileRef = useRef<null | Profile>(null)
 
     const getNft = async (page: number): Promise<NftDetail[]> => {
+        if (profile.id === 0) {
+            setReady(true)
+            return []
+        }
+
         if (profile.address && page === 1) {
             try {
                 if (type === 'ens') {
@@ -47,12 +53,9 @@ function ListNftAsset({profile, type}: { profile: Profile, type: string }) {
 
     const listRef = React.createRef<ListUserAssetsMethods>()
     useEffect(() => {
-        if (profile.id) {
+        if (profile.id !== profileRef.current?.id) {
             !!listRef.current && listRef.current!.refresh()
-
-            const a = Alchemy.getSeedaoNft('0x332345477db00239f88ca2eb015b159750cf3c44').then(res=> {
-                console.log('getSeedaoNftgetSeedaoNft==', res)
-            })
+            profileRef.current = profile
         }
     }, [profile])
 

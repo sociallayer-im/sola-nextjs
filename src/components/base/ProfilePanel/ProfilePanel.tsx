@@ -41,6 +41,7 @@ function ProfilePanel(props: ProfilePanelProps) {
     }, [props.profile.id])
 
     useEffect(() => {
+        if (!profile.id) return;
         if (!user.id) {
             setShowFollowBtn(false)
             setShowUnFollowBtn(false)
