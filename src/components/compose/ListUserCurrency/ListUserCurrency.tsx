@@ -63,7 +63,7 @@ function ComponentName({profile}: { profile: Profile }) {
                         </a>
                     }
                     {(erc20Balance as any)[key].usdt !== '0.0000' &&
-                        <a href="#" className={`${styles.row} ${styles.item}`}>
+                        <a href={(ExplorerUrls as any)[key] + profile.address!} className={`${styles.row} ${styles.item}`}>
                             <div className={styles.label}>
                                 <div className={styles.erc20}>
                                     <Image className={styles.icon}
@@ -81,7 +81,7 @@ function ComponentName({profile}: { profile: Profile }) {
                         </a>
                     }
                     {(erc20Balance as any)[key].usdc !== '0.0000' &&
-                        <a href="#" className={`${styles.row} ${styles.item}`}>
+                        <a href={(ExplorerUrls as any)[key] + profile.address!} className={`${styles.row} ${styles.item}`}>
                             <div className={styles.label}>
                                 <div className={styles.erc20}>
                                     <Image className={styles.icon}
