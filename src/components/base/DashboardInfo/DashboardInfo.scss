@@ -1,0 +1,74 @@
+.dashboard-info {
+  border-radius: 16px;
+  background: var(--fill-1-light-disabled, #F8F9F8);
+  padding: 10px 10px 10px 14px;
+  margin-top: 12px;
+
+  .dashboard-title {
+    color: var(--text-4-headline, #272928);
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 22px;
+    height: 22px;
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-between;
+  }
+
+  .dashboard-info-item {
+    height: 22px;
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 16px;
+
+    .label {
+      color: var(--text-4-headline, #272928);
+      font-size: 14px;
+      font-style: normal;
+      font-weight: 600;
+    }
+
+    .value {
+      color: var(--text-4-headline, #272928);
+      text-align: right;
+      font-size: 14px;
+      font-style: normal;
+      font-weight: 400;
+    }
+  }
+
+  div[data-baseweb="select"] {
+    width: auto;
+    display: inline-block;
+    line-height: initial;
+    cursor: pointer;
+
+    >div {
+      border: 0;
+      background: none;
+      font-size: 14px;
+
+      >div {
+        padding: 0;
+      }
+    }
+  }
+}
+
+div[data-baseweb="popover"]{
+  white-space: nowrap;
+  width: auto;
+  >div {
+   >div {
+     width: auto;
+   }
+  }
+
+  div[aria-selected="true"] {
+    color: #6CD7B2;
+    font-weight: normal;
+  }
+}

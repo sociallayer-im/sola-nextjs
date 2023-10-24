@@ -24,6 +24,7 @@ export interface DialogsContextType {
     showGiftCheckIn: (...rest: any[]) => any,
     showRevoke: (...rest: any[]) => any,
     showTransferAccept: (...rest: any[]) => any,
+    showEventCheckIn: (...rest: any[]) => any,
     clean: (msg?: string) => any
     dialogsCount: number
 }
@@ -33,6 +34,7 @@ const DialogsContext  = createContext<DialogsContextType>({
     showLoading: () => (() => {}),
     showToast: () => {},
     openDomainConfirmDialog: () => {},
+    showEventCheckIn: () => {},
     openConfirmDialog: () => {},
     openDialog: () => {},
     showBadgelet: () => {},

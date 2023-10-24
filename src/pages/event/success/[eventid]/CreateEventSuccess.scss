@@ -1,0 +1,91 @@
+.create-event-success-page {
+  .center {
+    width: 335px;
+    margin: 20px auto;
+  }
+
+  .done {
+    padding: 12px;
+    color: var(--primary-color-brand-14, #6CD7B2);
+    text-align: right;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 20px;
+    width: 100%;
+    box-sizing: border-box;
+    text-decoration: none;
+    display: block;
+  }
+
+  .title {
+    color: var(--text-4-headline, #272928);
+    text-align: center;
+    font-size: 20px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 18px; /* 90% */
+  }
+
+  .event-share-card {
+    width: 335px;
+    height: auto;
+    flex-shrink: 0;
+    margin: 18px auto;
+    border-radius: 20px;
+    background: #F1FCF8;
+    padding: 20px;
+    box-sizing: border-box;
+    overflow: hidden;
+
+    .cover {
+      display: block;
+      max-height: 200px;
+      max-width: 295px;
+      margin: 0 auto;
+      border-radius: 8px;
+    }
+
+    .name {
+      color: var(--text-4-headline, #272928);
+      font-size: 20px;
+      font-style: normal;
+      font-weight: 600;
+      line-height: 28px;
+      margin-top: 33px;
+      margin-bottom: 22px;
+    }
+
+    .time {
+      display: flex;
+      flex-flow: row nowrap;
+      align-items: center;
+      color: #000;
+      font-size: 12px;
+      font-style: normal;
+      font-weight: 400;
+
+      i {
+        margin-right: 4px;
+      }
+    }
+
+    .card-footer {
+      background: rgba(149, 170, 163, 0.15);
+      padding: 20px;
+      margin: 20px -20px -20px;
+      display: flex;
+      flex-flow: row nowrap;
+      justify-content: space-between;
+      align-items: center;
+
+      .left {
+        color: #272928;
+        font-size: 16px;
+        font-style: normal;
+        font-weight: 600;
+        line-height: 19px;
+      }
+    }
+  }
+}

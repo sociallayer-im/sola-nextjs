@@ -22,6 +22,7 @@ export interface User {
     authToken: string | null,
     nickname: string | null,
     permissions: string[],
+    phone: string | null,
 }
 
 export interface UserContext {
@@ -45,6 +46,7 @@ const emptyUser: User = {
     authToken: null,
     nickname: null,
     permissions: [],
+    phone: null,
 }
 
 function UserProvider (props: UserProviderProps) {

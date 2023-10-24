@@ -1,0 +1,50 @@
+.upload-wechat {
+  .upload-btn {
+    display: flex;
+    padding: 12px 29px;
+    align-items: flex-start;
+    border-radius: 12px;
+    background: var(--fill-3-dark, #ECF2EE);
+    justify-content: center;
+    flex-flow: row nowrap;
+    width: 150px;
+    box-sizing: border-box;
+    color: #000;
+    text-align: center;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 400;
+    margin-top: 12px;
+    margin-left: 12px;
+  }
+
+  .preview {
+    width: 114px;
+    height: 114px;
+    border-radius: 12px;
+    background: var(--fill-3-dark, #ECF2EE);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 12px;
+    margin-left: 12px;
+    position: relative;
+
+    img {
+      max-width: 114px;
+      max-height: 114px;
+      cursor: pointer;
+    }
+
+    .delete {
+      position: absolute;
+      right: 5px;
+      top: 8px;
+      width: 28px;
+      height: 28px;
+      background: #fff;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+  }
+}

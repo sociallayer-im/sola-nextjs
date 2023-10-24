@@ -1,0 +1,95 @@
+.event-checkin-page {
+  background: #fff;
+  min-height: 100%;
+  padding-bottom: 80px;
+  box-sizing: border-box;
+
+  .center {
+    max-width: 450px;
+    padding: 0 20px;
+    margin: 0 auto;
+  }
+
+  .checkin-card {
+    border-radius: 20px;
+    background: var(--fill-0-white, #FFF);
+    box-shadow: 0 0 18px 0 rgba(0, 0, 0, 0.08);
+    padding: 34px 20px;
+    margin-top: 20px;
+  }
+
+  .checkin-checkin-btn {
+    padding: 30px 0;
+    text-align: center;
+
+    .login-tips {
+      text-align: center;
+      font-weight: 600;
+      font-size: 16px;
+    }
+  }
+
+  .event-name {
+    color: var(--text-4-headline, #272928);
+    text-align: center;
+    font-size: 20px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 28px;
+  }
+
+  .time {
+    color: var(--fill-6-dark, #272928);
+    text-align: center;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 18px;
+    margin-top: 12px;
+  }
+
+  .checkin-qrcode {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 30px;
+    flex-flow: column nowrap;
+
+    .text {
+      margin-top: 20px;
+      color: #000;
+      text-align: center;
+      font-size: 16px;
+      font-style: normal;
+      font-weight: 700;
+      line-height: 28px;
+    }
+  }
+
+  .checkin-list {
+    margin-top: 30px;
+
+    .title {
+      color: #000;
+      font-size: 16px;
+      font-style: normal;
+      font-weight: 700;
+      line-height: 28px; /* 175% */
+      margin-bottom: 12px;
+
+      span {
+        font-size: 14px;
+      }
+    }
+  }
+
+  .actions {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: #fff;
+    padding: 12px;
+    box-shadow: 0 0 6px #eee;
+  }
+}

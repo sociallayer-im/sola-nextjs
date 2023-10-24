@@ -47,6 +47,7 @@ const RootWithStyle = withStyle(StyledRoot, (props) => {
 
 interface AppInputProps  {
     onChange?: (...rest: any[]) => any
+    onKeyUp?: (...rest: any[]) => any
     error?: boolean,
     errorMsg?: string,
     value: string,
@@ -57,7 +58,9 @@ interface AppInputProps  {
     startEnhancer?: () => ReactNode,
     maxLength?: number,
     style?: any
-    autoFocus?: boolean
+    autoFocus?: boolean,
+    onFocus?: (...rest: any[]) => any
+    onBlur?: (...rest: any[]) => any
 }
 
 /**
@@ -96,6 +99,7 @@ export default function AppInput(props: AppInputProps) {
     return (
         <>
             <Input
+                onKeyUp={ (e) => { if (props.onKeyUp) { props.onKeyUp(e) } } }
                 value={ props.value }
                 maxLength={ props.maxLength }
                 readOnly={ props.readOnly || false }
@@ -107,7 +111,8 @@ export default function AppInput(props: AppInputProps) {
                 startEnhancer={ props.startEnhancer }
                 endEnhancer={ props.endEnhancer }
                 autoFocus={ props.autoFocus || false }
-                size={'compact'}
+                onFocus={ (e) => { if (props.onFocus) { props.onFocus(e) } } }
+                onBlur={ (e) => { if (props.onBlur) { props.onBlur(e) } } }
             />
             {   props.errorMsg ?
                 <div className={css(errorStyle)}>{ props.errorMsg }</div>

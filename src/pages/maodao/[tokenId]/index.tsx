@@ -34,6 +34,11 @@ export const getServerSideProps: any = (async (context: any) => {
         status: 'active',
         permissions: [],
         group_event_visibility: 'public',
+        group_event_tags: null,
+        group_map_enabled: false,
+        banner_image_url:null,
+        banner_link_url: null,
+        group_location_details: null
     }
 
     if (tokenId) {

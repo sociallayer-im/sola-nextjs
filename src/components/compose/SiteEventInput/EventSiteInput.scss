@@ -1,0 +1,122 @@
+.event-site-input {
+  margin-bottom: 30px;
+
+  #map {
+    width: 0;
+    height: 0;
+    opacity: 0;
+    display: block;
+  }
+
+  .input-area-sub-title {
+    color: var(--text-4-headline, #272928);
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 22px;
+    margin-top: 12px;
+    margin-bottom: 4px;
+  }
+
+  .title {
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 22px;
+    color: #272928;
+    margin-bottom: 10px;
+    margin-left: 10px;
+  }
+
+  .selector {
+    position: relative;
+    margin-top: 12px;
+
+    i {
+      position: absolute;
+      z-index: 9;
+      left: 12px;
+      font-size: 18px;
+      top: 13px;
+    }
+
+    div[data-baseweb="select"] {
+
+      >div {
+        font-size: 14px;
+        border: 0;
+        color: rgb(39, 41, 40);
+        padding-left: 24px;
+        border-radius: 12px;
+      }
+      div[value], input {
+        font-size: 14px;
+        border: 0;
+        color: rgb(39, 41, 40)
+      }
+    }
+  }
+
+  .delete {
+    cursor: pointer;
+    margin-right: -12px;
+  }
+
+  .custom-selector {
+    position: relative;
+
+    .shell {
+      position: fixed;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0,0,0,0);
+      left: 0;
+      top: 0;
+      z-index: 9;
+    }
+
+    div[data-baseweb="input"] {
+      position: relative;
+      z-index: 99;
+    }
+
+    .search-res {
+      position: absolute;
+      width: 100%;
+      border-radius: 18px;
+      background: var(--background-background-primary, #FFF);
+      box-shadow: 0px 4px 16px 0px rgba(0, 0, 0, 0.12);
+      z-index: 888;
+      padding: 12px;
+      box-sizing: border-box;
+      overflow: hidden;
+
+
+
+      .res-list {
+        max-height: 200px;
+        overflow: auto;
+        margin-top: 12px;
+      }
+
+      .search-res-item {
+        padding: 12px;
+        cursor: pointer;
+        border-radius: 6px;
+
+        &:hover {
+          background: #F5F8F6;
+        }
+
+        .search-title {
+          color: var(--text-4-headline, #272928);
+          font-size: 16px;
+          margin-bottom: 4px;
+        }
+        .search-sub-title {
+          color: var(--fill-5-dark, #7B7C7B);
+          font-size: 12px;
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,143 @@
+.home-page-switcher {
+  display: flex;
+  align-items: center;
+  flex-flow: row nowrap;
+
+  .toggle {
+    margin-left: 6px;
+  }
+
+  .badge-page {
+    color: var(--fill-6-dark, #272928);
+    text-align: center;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 20px;
+    text-decoration: none;
+    margin-right: 10px;
+    padding: 0 8px;
+    height: 30px;
+    box-sizing: border-box;
+    border: 1px solid rgba(0, 0, 0, 0);
+    user-select: none;
+
+    &:hover {
+      border-radius: 8px;
+      border: 1px solid var(--fill-6-dark, #272928);
+    }
+  }
+
+  .group-page {
+    color: var(--fill-6-dark, #272928);
+    text-align: center;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 20px;
+    text-decoration: none;
+    margin-right: 10px;
+    padding: 0 8px;
+    height: 30px;
+    box-sizing: border-box;
+    user-select: none;
+
+    &:hover {
+      border-radius: 8px;
+      border: 1px solid var(--fill-6-dark, #272928);
+    }
+
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    border-radius: 8px;
+    border: 1px solid var(--fill-6-dark, #272928);
+    cursor: pointer;
+
+    >div {
+      height: 20px;
+    }
+
+    img {
+      height: 20px;
+    }
+
+
+    @media (max-width: 400px) {
+      & {
+
+        > div {
+          max-width: 80%;
+          overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+        }
+      }
+    }
+
+    &.active {
+      background: #F5F8F6;
+      border-color: rgba(0,0,0,0);
+    }
+  }
+
+  .group-list {
+    position: fixed;
+    top: 48px;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    z-index: 9999;
+
+    .shell {
+      background: rgba(255, 255, 255, 0.50);
+      backdrop-filter: blur(4.5px);
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      right: 0;
+      left: 0;
+    }
+
+    .list-content {
+      position: absolute;
+      width: 80%;
+      border-radius: 16px;
+      background: #F8F9F8;
+      box-shadow: 0 0 18px 0 rgba(0, 0, 0, 0.20);
+      padding: 16px 16px 0 16px;
+      left: 50%;
+      top: 12px;
+      transform: translateX(-50%);
+      display: flex;
+      flex-flow: row wrap;
+      max-height: 70vh;
+      overflow-y: auto;
+
+
+      .list-item {
+        user-select: none;
+        margin-right: 16px;
+        border-radius: 8px;
+        border: 1px solid #EDEDED;
+        display: flex;
+        padding: 8px 12px;
+        align-items: center;
+        cursor: pointer;
+        margin-bottom: 16px;
+
+        img {
+          height: 20px;
+        }
+
+        &.active {
+          border: 1px solid #272928;
+        }
+
+        &:hover {
+          border: 1px solid #272928;
+        }
+      }
+    }
+  }
+}

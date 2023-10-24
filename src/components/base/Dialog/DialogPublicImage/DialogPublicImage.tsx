@@ -1,4 +1,3 @@
-import { useStyletron } from 'baseui'
 import { useContext } from 'react'
 import langContext from '../../../provider/LangProvider/LangContext'
 import AppSwiper from '../../AppSwiper/AppSwiper'
@@ -7,7 +6,6 @@ import DialogsContext from '../../../provider/DialogProvider/DialogsContext'
 import chooseFile from "../../../../utils/chooseFile";
 import solas from "../../../../service/solas";
 import UserContext from "../../../provider/UserProvider/UserContext";
-import {useRouter} from 'next/navigation'
 
 const sample = [
     'https://ik.imagekit.io/soladata/tr:n-ik_ml_thumbnail/cvs06g2n_kARAFJMkR',
@@ -28,8 +26,6 @@ export interface DialogPublicImageProps {
 }
 
 function DialogPublicImage (props: DialogPublicImageProps) {
-    const [css] = useStyletron()
-    const router = useRouter()
     const { lang } = useContext(langContext)
     const { user } = useContext(UserContext)
     const { showToast, showLoading, showCropper, openDialog } = useContext(DialogsContext)

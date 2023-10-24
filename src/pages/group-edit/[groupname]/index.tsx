@@ -58,7 +58,7 @@ function GroupEdit() {
 
         try {
             const update = await solas.updateGroup({
-                data: form.current!.profile,
+                ...form.current!.profile,
                 auth_token: user.authToken || ''
             })
 

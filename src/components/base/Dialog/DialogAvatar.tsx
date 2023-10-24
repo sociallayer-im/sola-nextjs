@@ -114,10 +114,7 @@ function DialogAvatar(props: DialogAvatarProps) {
                             let newProfile: Profile
                             if (props.profile.is_group) {
                                 newProfile = await solas.updateGroup({
-                                    data: {
-                                        id: props.profile.id,
-                                        image_url: newImage,
-                                    },
+                                    ...props.profile,
                                     auth_token: user.authToken || ''
                                 })
                                 emitGroupUpdate(newProfile)

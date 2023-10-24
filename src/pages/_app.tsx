@@ -18,6 +18,8 @@ import {publicProvider} from 'wagmi/providers/public'
 import {configureChains, createConfig, WagmiConfig} from 'wagmi'
 import {styletron} from '@/styletron'
 import Head from 'next/head'
+import MapProvider from "@/components/provider/MapProvider/MapProvider";
+import EventHomeProvider from "@/components/provider/EventHomeProvider/EventHomeProvider";
 
 const inject = new InjectedConnector({
     chains: [mainnet, moonbeam],
@@ -40,6 +42,7 @@ function MyApp({Component, pageProps}: any) {
         <PageBacProvider>
             <Head>
                 <link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+                <script src={'/jslib/google.map.js'} async></script>
                 <title>Social Layer</title>
             </Head>
             <WagmiConfig config={config as any}>
@@ -49,10 +52,14 @@ function MyApp({Component, pageProps}: any) {
                             <UserProvider>
                                 <LangProvider>
                                     <DialogProvider>
-                                        <Layout>
-                                            <NextNProgress />
-                                            <Component {...pageProps} />
-                                        </Layout>
+                                        <MapProvider>
+                                            <EventHomeProvider>
+                                                <Layout>
+                                                    <NextNProgress/>
+                                                    <Component {...pageProps} />
+                                                </Layout>
+                                            </EventHomeProvider>
+                                        </MapProvider>
                                     </DialogProvider>
                                 </LangProvider>
                             </UserProvider>

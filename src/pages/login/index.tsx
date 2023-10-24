@@ -2,21 +2,21 @@ import EmailLoginForm from '@/components/compose/FormEmailLogin'
 import CodeInputForm from '@/components/compose/FormCodeInput'
 import LangContext from '@/components/provider/LangProvider/LangContext'
 import {useContext, useEffect, useState} from 'react'
-import solas, { EmailLoginRes } from '../../service/solas'
 import UserContext from '@/components/provider/UserProvider/UserContext'
 import { setAuth } from '@/utils/authStorage'
 import usePageHeight from '@/hooks/pageHeight'
 import PageBack from "@/components/base/PageBack";
 import {useRouter} from 'next/navigation'
+import {LoginRes} from '@/service/solas'
 
 function Login () {
     const { lang } = useContext(LangContext)
     const [loginEmail, setLoginEmail] = useState('')
-    const { setUser, user, emailLogin } = useContext(UserContext)
+    const { user, emailLogin } = useContext(UserContext)
     const { heightWithoutNav } = usePageHeight()
     const router = useRouter()
 
-    const setEmailAuth = async (loginRes: EmailLoginRes) => {
+    const setEmailAuth = async (loginRes: LoginRes) => {
         window.localStorage.setItem('lastLoginType', 'email')
         setAuth(loginRes.email, loginRes.auth_token)
 

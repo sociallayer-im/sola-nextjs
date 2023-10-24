@@ -1,0 +1,224 @@
+.calender-new {
+  min-height: 100%;
+  background: #fff;
+
+
+  .center {
+    max-width: 375px;
+    margin: 0 auto;
+  }
+
+  .calendar-head {
+    background: var(--fill-2-medium, #F5F8F6);
+
+    .page-back {
+      padding: 0 12px;
+    }
+  }
+
+  .calendar-head-title {
+    padding: 30px 12px 0 12px;
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-between;
+    align-items: flex-start;
+
+    .left {
+      color: var(--text-4-headline, #272928);
+      font-size: 24px;
+      font-style: normal;
+      font-weight: 700;
+      line-height: normal;
+      text-transform: capitalize;
+      position: relative;
+
+      &:before {
+        content: url('/images/title.png');
+        position: absolute;
+        left: 0;
+        top: 0;
+        margin-left: -12px;
+        margin-top: -4px;
+      }
+    }
+
+    .curr-date {
+      display: flex;
+      flex-flow: row nowrap;
+      align-items: center;
+
+      .date {
+        color: #212525;
+        font-size: 29.097px;
+        font-style: normal;
+        font-weight: 500;
+        line-height: normal;
+        margin-right: 5px;
+      }
+
+      .other {
+        white-space: nowrap;
+        color: #C1C3C0;
+        font-size: 10px;
+        font-style: normal;
+        font-weight: 400;
+        line-height: 18px; /* 180% */
+      }
+    }
+  }
+
+  .calendar-wrapper {
+    min-height: 190px;
+  }
+}
+
+.calendar-event-list {
+  max-width: 375px;
+  margin: 0 auto;
+  padding: 12px;
+  box-sizing: border-box;
+
+  .calendar-event-title {
+    display: flex;
+    color: var(--text-4-headline, #272928);
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 18px;
+    margin-bottom: 20px;
+
+    .col1 {
+      max-width: 50px;
+      min-width: 50px;
+    }
+
+    .col2 {
+      flex: 1;
+      padding-left: 18px;
+    }
+
+    .col3 {
+      max-width: 100px;
+      min-width: 100px;
+      text-align: right;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      cursor: pointer;
+
+      svg {
+        margin-right: 4px;
+        path {
+          fill: #e5e5e5;
+        }
+      }
+
+      &.active {
+        svg {
+          path {
+            fill: #6CD7B2!important;
+          }
+        }
+      }
+    }
+  }
+
+  .date-marker {
+    color: #000;
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 24px;
+    margin-bottom: 16px;
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    margin-top: 24px;
+    padding-left: 4px;
+  }
+
+  .grouped-events {
+    .grouped-events-item {
+      display: flex;
+      flex-flow: row nowrap;
+
+      .col1 {
+        min-width: 70px;
+        white-space: nowrap;
+        max-width: 70px;
+        text-align: right;
+        padding-right: 20px;
+        box-sizing: border-box;
+
+        .start, .ending {
+          color: var(--text-4-headline, #272928);
+          font-size: 14px;
+          font-style: normal;
+          font-weight: 600;
+          line-height: 22px;
+        }
+
+        .ending {
+          color: #C3C7C3
+        }
+      }
+
+      .col2 {
+        border-left: 1px dashed #CECED3;
+        padding-left: 8px;
+        flex: 1;
+
+        .event-item {
+          margin-bottom: 8px;
+          border-radius: 4px;
+          background: var(--fill-2-medium, #F5F8F6);
+          padding: 8px 15px;
+          position: relative;
+          overflow: hidden;
+          cursor: pointer;
+
+          .label-color {
+            position: absolute;
+            left: 0;
+            top:0;
+            bottom: 0;
+            width: 7px;
+            display: flex;
+            flex-flow: column nowrap;
+
+            span {
+              flex: 1;
+            }
+          }
+
+          .event-name {
+            color: var(--text-4-headline, #272928);
+            font-size: 14px;
+            font-style: normal;
+            font-weight: 400;
+            line-height: 22px;
+            margin-bottom: 6px;
+          }
+
+          .creator {
+            display: flex;
+            flex-flow: row nowrap;
+            align-items: center;
+            color: var(--text-3-subtitle, #4F5150);
+            font-size: 12px;
+            font-style: normal;
+            font-weight: 400;
+            line-height: 18px;
+
+            img {
+              width: 16px;
+              height: 16px;
+              border-radius: 50%;
+              margin-right: 8px;
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -17,6 +17,7 @@ import ListNftAsset from "@/components/compose/ListNftAsset/ListNftAsset";
 import Alchemy from "@/service/alchemy/alchemy";
 import fetch from "@/utils/fetch";
 import { toChecksumAddress } from 'web3-utils'
+import fa from "@walletconnect/legacy-modal/dist/cjs/browser/languages/fa";
 
 const UserTabs = dynamic(() => import('@/components/compose/ProfileTabs/ProfileTabs'), {
     loading: () => <p>Loading...</p>,
@@ -72,6 +73,11 @@ function Page(props: any) {
                 status: 'active',
                 permissions: [],
                 group_event_visibility: 'public',
+                group_event_tags: null,
+                group_map_enabled: false,
+                banner_image_url:null,
+                banner_link_url: null,
+                group_location_details: null
             }
             if (!tokenId) {
                 setProfile(emptyProfile)

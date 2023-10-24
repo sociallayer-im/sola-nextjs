@@ -1,0 +1,293 @@
+.event-detail {
+  position: relative;
+  background: #fff;
+  padding-bottom: 60px;
+  min-height: 100vh;
+
+  .event-share-btn {
+    display: flex;
+    width: 32px;
+    height: 32px;
+    justify-content: center;
+    align-items: center;
+    border-radius: 8px;
+    background: #FFF;
+    margin-top: -8px;
+    margin-right: 12px;
+    cursor: pointer;
+  }
+
+  >div:first-child {
+    margin-left: 12px;
+  }
+
+  .cover {
+    border-radius: 0 0 20px 20px;
+    background: var(--fill-3-dark, #ECF2EE);
+    padding: 12px;
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-top: 52px;
+    margin-top: -40px;
+
+    img {
+      max-width: 100%;
+      max-height: 250px;
+    }
+  }
+
+  .center {
+    max-width: 450px;
+    margin: 0 auto;
+  }
+
+  .detail {
+    padding: 23px 12px;
+
+    .name {
+      color: var(--text-4-headline, #272928);
+      font-size: 20px;
+      font-style: normal;
+      font-weight: 600;
+      line-height: 28px;
+      margin-bottom: 10px;
+    }
+
+    .detail-item {
+      display: flex;
+      flex-flow: row wrap;
+      color: var(--fill-6-dark, #272928);
+      font-size: 14px;
+      font-style: normal;
+      font-weight: 400;
+
+
+      > div {
+        max-width: 90%;
+      }
+
+      i {
+        margin-right: 8px;
+        margin-top: 2px;
+      }
+    }
+
+    a.detail-item {
+      text-decoration: none;
+      color: #7492EF !important;
+    }
+
+    .label {
+      margin-top: 12px;
+    }
+
+    .hoster {
+      margin-top: 16px;
+
+      border-top: 1px solid var(--fill-3-dark, #EEE);
+      border-bottom: 1px solid var(--fill-3-dark, #EEE);
+      padding: 13px 0;
+
+      .center {
+        display: flex;
+        flex-flow: row nowrap;
+        align-items: center;
+        overflow: auto;
+        &::-webkit-scrollbar {
+          display: none;
+        }
+
+        .host-item {
+          display: flex;
+          flex-flow: row nowrap;
+          align-items: center;
+          white-space: nowrap;
+          margin-right: 30px;
+          cursor: pointer;
+
+
+          img {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            margin-right: 8px;
+          }
+
+          .host-name {
+            color: var(--text-4-headline, #272928);
+            font-size: 14px;
+            font-style: normal;
+            font-weight: 600;
+            line-height: 22px;
+          }
+        }
+      }
+
+
+    }
+
+    .event-badge {
+      display: flex;
+      flex-flow: row nowrap;
+      align-items: center;
+      justify-content: space-between;
+      margin: 12px 5px 0px 5px;
+      padding: 10px;
+      width: 100%;
+      background: #E2E2E2;
+      border-radius: 8px;
+      color: #000;
+      font-size: 12px;
+      font-style: normal;
+      font-weight: 900;
+      line-height: normal;
+
+      img {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+      }
+    }
+
+    .event-des {
+      color: var(--text-3-subtitle, #3C3E3D);
+      font-size: 16px;
+      font-style: normal;
+      font-weight: 400;
+      line-height: 24px;
+      white-space: pre-wrap;
+    }
+
+    .event-tab {
+      .tab-titles {
+        width: 100%;
+        border-bottom: 1px solid #eee;
+        padding-top: 3px;
+
+        .center {
+          display: flex;
+        }
+
+        .tab-title {
+          flex: 1;
+          text-align: center;
+          padding: 13px 0;
+          color: var(--text-4-headline, #7B7C7B);
+          font-size: 14px;
+          font-style: normal;
+          line-height: 22px;
+          border-bottom: 3px solid #fff;
+          box-sizing: border-box;
+          cursor: pointer;
+
+          &.active {
+            color: #000;
+            font-weight: 600;
+            border-bottom: 3px solid #9EFEDD;
+          }
+        }
+      }
+
+      .tab-contains {
+        padding: 12px 0 0 0;
+      }
+    }
+
+    .wechat-title {
+      color: var(--text-4-headline, #272928);
+      font-size: 14px;
+      font-style: normal;
+      font-weight: 600;
+      line-height: 22px; /* 157.143% */
+
+      a {
+        color: #58a7ff;
+        cursor: pointer;
+      }
+    }
+
+    .wechat-account {
+      color: var(--text-4-headline, #272928);
+      font-size: 12px;
+      font-style: normal;
+      font-weight: 400;
+      line-height: 18px; /* 150% */
+      margin-bottom: 12px;
+
+      span {
+        color: #58a7ff;
+        cursor: pointer;
+      }
+
+      a {
+        color: #58a7ff;
+        cursor: pointer;
+      }
+    }
+
+    .wechat-contact-group {
+      display: flex;
+      flex-flow: row nowrap;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      margin-bottom: 30px;
+      height: 172px;
+      overflow: hidden;
+      position: relative;
+
+      img {
+        max-width: 100%;
+        height: auto;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
+    }
+
+    .event-action {
+      position: fixed;
+      height: 50px;
+      background: #fff;
+      width: 100%;
+      bottom: 0;
+      left: 0;
+      padding: 10px 0;
+      box-shadow: 0 1.9878px 11.9268px rgba(0, 0, 0, 0.1);
+
+      .can-not-access {
+        text-align: center;
+        height: 50px;
+        line-height: 50px;
+        color: var(--text-1-disabled, #C3C7C3);
+        font-size: 14px;
+        font-style: normal;
+        font-weight: 700;
+      }
+
+      .center {
+        display: flex;
+
+        button {
+          margin: 0 6px;
+        }
+      }
+    }
+
+    .min-participants-alert {
+      margin-bottom: 12px;
+    }
+  }
+
+  .spinner-bar {
+    height: 200px;
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    justify-content: center;
+  }
+}

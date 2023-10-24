@@ -12,7 +12,7 @@ import {
     Point,
     PointItem,
     NftPasslet
-} from '../../../service/solas'
+} from '@/service/solas'
 import DialogsContext, { DialogsContextType } from './DialogsContext'
 import DialogDomainConfirm, { DialogConfirmDomainProps } from '../../base/Dialog/DialogConfirmDomain/DialogConfirmDomain'
 import DialogConfirm, { DialogConfirmProps } from '../../base/Dialog/DialogConfirm/DialogConfirm'
@@ -37,6 +37,7 @@ import DialogGiftCheckIn from "../../base/Dialog/DialogGiftCheckIn/DialogGiftChe
 import DetailGiftItem from "../../compose/Detail/DetailGiftItem/DetailGiftItem";
 import DialogTransferAccept, {DialogTransferAcceptProps} from "../../base/Dialog/DialogTransferAccept/DialogTransferAccept";
 import DialogRevoke from "../../base/Dialog/DialogBurn/DialogBurn";
+import DialogEventCheckIn from "@/components/base/Dialog/DialogEventCheckIn/DialogEventCheckIn";
 
 export interface DialogProviderProps {
     children: ReactNode
@@ -706,7 +707,33 @@ function DialogProvider (props: DialogProviderProps) {
         setDialogsGroup({ ...dialogsGroup })
     }
 
+    const showEventCheckIn = (eventId: number, isCheckLog: boolean) => {
+        const id = genID()
+        const width = window.innerWidth
+        dialogsGroup.dialogs.push({
+            id,
+            content: () => {
+                const close = () => {
+                    closeDialogByID(id)
+                }
 
+                const dialogProps = {
+                    key: id.toString(),
+                    size: width < 768 ?  ['100%', '100%'] :  [500, 'auto'],
+                    handleClose: close
+                }
+
+                return (
+                    <Dialog { ...dialogProps } >
+                        { (close) => <DialogEventCheckIn
+                            isCheckLog={isCheckLog}
+                            eventId={eventId} handleClose={close} /> }
+                    </Dialog>
+                )
+            }
+        })
+        setDialogsGroup({ ...dialogsGroup })
+    }
 
     const showTransferAccept = (props: {badgelet?: Badgelet, PointItem: PointItem}) => {
         const id = genID()
@@ -762,6 +789,7 @@ function DialogProvider (props: DialogProviderProps) {
 
     const contextValue: DialogsContextType = {
         showRevoke,
+        showEventCheckIn,
         dialogsCount,
         openConnectWalletDialog,
         showLoading,

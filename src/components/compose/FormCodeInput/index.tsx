@@ -1,12 +1,12 @@
 import {useContext, useEffect, useRef, useState} from 'react'
 import {useStyletron} from 'baseui'
-import solas, {EmailLoginRes, setEmail} from '../../../service/solas'
+import solas, {LoginRes, setEmail} from '../../../service/solas'
 import userContext from "../../provider/UserProvider/UserContext";
 import DialogsContext from '../../provider/DialogProvider/DialogsContext'
 import {useRouter} from "next/navigation";
 
 export interface CodeInputFormProps {
-    onConfirm?: (loginRes: EmailLoginRes) => any
+    onConfirm?: (loginRes: LoginRes) => any
     loginEmail: string,
     type?: 'login' | 'binding',
     fallback?: () => any

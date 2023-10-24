@@ -1,62 +1,43 @@
 import {useContext, useEffect, useState} from 'react'
 import langContext from "../../provider/LangProvider/LangContext";
 import TriangleDown from "baseui/icon/triangle-down";
-import {getEventGroup, Profile, queryUserGroup} from "../../../service/solas";
-import userContext from "../../provider/UserProvider/UserContext";
-import DialogsContext from "../../provider/DialogProvider/DialogsContext";
-import Link from 'next/link'
-
-const leadingEvent = {
-    id: 1572,
-    username: 'muchiangmai',
-    logo: 'https://ik.imagekit.io/soladata/iosjmr58_gFa04c32n'
-}
+import {Profile} from "@/service/solas";
+import {usePathname, useRouter, useParams} from "next/navigation";
+import EventHomeContext from "../../provider/EventHomeProvider/EventHomeContext";
 
 function HomePageSwitcher() {
-    const {lang, langType} = useContext(langContext)
+    const {lang} = useContext(langContext)
     const [showList, setShowList] = useState(false)
-    const {user} = useContext(userContext)
-    const {showToast, showLoading} = useContext(DialogsContext)
-    const [groupList, setGroupList] = useState<Profile[]>([])
-    const [availableList, setAvailableList] = useState<Profile[]>([])
+    const params = useParams()
+    const router = useRouter()
+    const location = usePathname()
+    const {
+        eventGroups: groupList,
+        ready,
+        setEventGroup,
+        findGroup,
+        eventGroup,
+        availableList,
+        leadingEvent
+    } = useContext(EventHomeContext)
 
     useEffect(() => {
-        async function getAvailableList() {
-            if (groupList.length) {
-                if (user.id) {
-                    const userGroup = await queryUserGroup({profile_id: user.id})
-                    const res = groupList.filter(g => {
-                        return g.group_event_visibility !== 'private' ||
-                            userGroup.find(ug => ug.id === g.id)
-                    })
-                    setAvailableList(res as Profile[])
-                } else {
-                    const res = groupList.filter(g => {
-                        return g.group_event_visibility !== 'private'
-                    })
-                    setAvailableList(res as Profile[])
-                }
-            }
+        if (ready && location === '/event') {
+            router.push(`/event/${groupList[0].username}`)
+            return
         }
 
-        getAvailableList()
-    }, [groupList])
-
-    useEffect(() => {
-        const getEventGroupList = async () => {
-            const eventGroup: any = await getEventGroup()
-
-            if (leadingEvent) {
-                const leading = eventGroup.find((g: any) => g.id === leadingEvent.id)
-                const listWithoutLeading = eventGroup.filter((g: any) => g.id !== leadingEvent.id)
-                const toTop = [leading, ...listWithoutLeading]
-                setGroupList(toTop as Profile[])
-            } else {
-                setGroupList(eventGroup as Profile[])
+        if (ready && params?.groupname) {
+            const group = findGroup(params?.groupname as string)
+            if (!group) {
+                router.push('/event')
+                return
             }
+
+            setEventGroup(group)
+            return
         }
-        getEventGroupList()
-    }, [])
+    }, [ready, params, groupList])
 
 
     const switchList = () => {
@@ -69,14 +50,27 @@ function HomePageSwitcher() {
     }
 
     const setSelect = async (group: Profile) => {
-        window.location.href = `https://event.sola.day/${group.username}`
+        router.push(`/event/${group.username}`)
     }
 
     return (<div className={'home-page-switcher'}>
-        <Link href={'/'} className={'badge-page'}>{lang['Nav_Badge_Page']}</Link>
-        <div className={ 'group-page' } onClick={switchList}>
-            <div>{lang['Nav_Event_Page']}</div>
-            <TriangleDown/>
+        <div className={'group-page active'}>
+            <div onClick={
+                e => {
+                    if (eventGroup) {
+                        setSelect(eventGroup)
+                    }
+                }
+            }>
+                {eventGroup ?
+                    leadingEvent?.id === eventGroup.id ?
+                        leadingEvent.logo ? <img src={leadingEvent.logo} alt={''}/>
+                            : (eventGroup.nickname || eventGroup.username)
+                        : (eventGroup.nickname || eventGroup.username)
+                    : lang['Nav_Event_Page']
+                }
+            </div>
+            <TriangleDown className={'toggle'} onClick={switchList} size={18} />
         </div>
         {showList &&
             <div className={'group-list'}>
@@ -84,15 +78,16 @@ function HomePageSwitcher() {
                 <div className={'list-content'}>
                     {
                         availableList.map((group, index) => {
-                            return <div className={'list-item'}
+                            return <div className={group.id === eventGroup?.id ? 'list-item active' : 'list-item'}
                                         key={index}
                                         onClick={() => {
                                             setSelect(group)
                                             switchList()
                                         }}>
-                                { leadingEvent?.id === group.id ?
-                                    <img src={leadingEvent.logo} alt={''} />
-                                    :  (group.nickname || group.username)}
+                                {leadingEvent?.id === group.id ?
+                                    leadingEvent.logo ? <img src={leadingEvent.logo} alt={''}/>
+                                        : (group.nickname || group.username)
+                                    : (group.nickname || group.username)}
                             </div>
                         })
                     }
