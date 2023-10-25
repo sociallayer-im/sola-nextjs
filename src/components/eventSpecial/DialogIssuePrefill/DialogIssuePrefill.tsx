@@ -3,6 +3,7 @@ import AppSwiper from '../AppSwiper/AppSwiper'
 import {Delete} from 'baseui/icon'
 import LangContext from '@/components/provider/LangProvider/LangContext'
 import {Badge} from '@/service/solas'
+import {useRouter} from "next/navigation";
 
 export type CreateType = 'badge' | 'point' | 'nftpass' | 'private' | 'gift'
 
@@ -21,13 +22,13 @@ interface DialogIssuePrefillProps {
 
 
 function DialogIssuePrefill(props: DialogIssuePrefillProps) {
-    const [showCreateOption, setShowCreateOption] = useState(false)
+    const [showCreateOption] = useState(false)
     const {lang} = useContext(LangContext)
+    const router = useRouter()
 
     const gotoCreateBadge = (type: CreateType) => {
         !!props.onSelect && props.onSelect({type})
-        const home = import.meta.env.VITE_SOLAS_HOME
-        window.open(`${home}/create-badge`, '_blank')
+        router.push('/create-badge')
         props.handleClose()
     }
 

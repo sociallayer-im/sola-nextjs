@@ -51,7 +51,9 @@ function Login () {
                 <div className='login-page-content code' >
                     <div className='title'>{ lang['Login_input_Code_title'] }</div>
                     <div className='des'>{ lang['Login_input_Code_des']([loginEmail]) }</div>
-                    <CodeInputForm loginEmail={ loginEmail } onConfirm={(loginRes) => { setEmailAuth(loginRes) } } />
+                    <CodeInputForm
+                        loginType={'email'}
+                        loginAccount={ loginEmail } onConfirm={(loginRes) => { setEmailAuth(loginRes) } } />
                 </div>
             }
         </div>

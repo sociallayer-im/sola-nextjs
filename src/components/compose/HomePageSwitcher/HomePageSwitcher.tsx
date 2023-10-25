@@ -22,7 +22,7 @@ function HomePageSwitcher() {
     } = useContext(EventHomeContext)
 
     useEffect(() => {
-        if (ready && location === '/event') {
+        if (ready && location === '/event' || ready && location === '/') {
             router.push(`/event/${groupList[0].username}`)
             return
         }

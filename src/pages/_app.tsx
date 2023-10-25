@@ -36,7 +36,6 @@ const config = createConfig({
     webSocketPublicClient,
 })
 
-
 function MyApp({Component, pageProps}: any) {
     return (
         <PageBacProvider>
@@ -55,7 +54,7 @@ function MyApp({Component, pageProps}: any) {
                                         <MapProvider>
                                             <EventHomeProvider>
                                                 <Layout>
-                                                    <NextNProgress/>
+                                                    <NextNProgress options={{showSpinner: false}}/>
                                                     <Component {...pageProps} />
                                                 </Layout>
                                             </EventHomeProvider>

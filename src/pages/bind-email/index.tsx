@@ -1,9 +1,7 @@
-import Layout from '@/components/Layout/Layout'
 import EmailLoginForm from '@/components/compose/FormEmailLogin'
 import CodeInputForm from '@/components/compose/FormCodeInput'
 import LangContext from '@/components/provider/LangProvider/LangContext'
 import {useContext, useState} from 'react'
-import UserContext from '@/components/provider/UserProvider/UserContext'
 import usePageHeight from '@/hooks/pageHeight'
 import PageBack from "@/components/base/PageBack";
 import {useRouter, useSearchParams} from "next/navigation";
@@ -11,7 +9,6 @@ import {useRouter, useSearchParams} from "next/navigation";
 function BindEmail() {
     const {lang} = useContext(LangContext)
     const [loginEmail, setLoginEmail] = useState('')
-    const {user} = useContext(UserContext)
     const router = useRouter()
     const {heightWithoutNav} = usePageHeight()
     const searchParams = useSearchParams()
@@ -44,7 +41,7 @@ function BindEmail() {
                     <div className='title'>{lang['Bind_Email_Title']}</div>
                     <div className='des'>{lang['Bind_Email_Des']}</div>
                     <EmailLoginForm
-                        type={'binding'}
+                        inputType={'binding'}
                         onConfirm={(email) => {
                             setLoginEmail(email)
                         }}/>
@@ -54,9 +51,9 @@ function BindEmail() {
                     <div className='title'>{lang['Login_input_Code_title']}</div>
                     <div className='des'>{lang['Login_input_Code_des']([loginEmail])}</div>
                     <CodeInputForm
-                        fallback={searchParams.get('new') ? fallback : () => {}}
-                        type={'binding'}
-                        loginEmail={loginEmail}/>
+                        fallback={searchParams?.get('new') ? fallback : () => {}}
+                        loginType={'binding'}
+                        loginAccount={loginEmail}/>
                 </div>
             }
         </div>

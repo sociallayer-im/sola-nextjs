@@ -1,7 +1,7 @@
 import {Connector, useAccount, useConnect, useDisconnect } from 'wagmi'
 import {useContext, useEffect, useRef} from 'react'
 import LangContext from '../../../provider/LangProvider/LangContext'
-import { setLastLoginType } from '../../../../utils/authStorage'
+import { setLastLoginType } from '@/utils/authStorage'
 import DialogsContext from '../../../provider/DialogProvider/DialogsContext'
 import UserContext from '../../../provider/UserProvider/UserContext'
 import {useRouter} from 'next/navigation'
@@ -71,6 +71,14 @@ function DialogConnectWallet (props: DialogConnectWalletProps) {
         router.push('/login')
     }
 
+    const handlePhoneLogin = () => {
+        window.localStorage.setItem('fallback', window.location.href)
+        clean()
+        router.push('/login-phone')
+    }
+
+    const arrowPhoneLogin = process.env.NEXT_PUBLIC_ALLOW_PHONE_LOGIN === 'true'
+
     return (
         <div className='dialog-connect-wallet'>
             {connectors.map((connector) => (
@@ -89,6 +97,13 @@ function DialogConnectWallet (props: DialogConnectWalletProps) {
                     <img src="/images/email.svg" alt="email"/>
                     <div className='connect-name'>Email</div>
                     <div className='connect-des'>{ lang['Login_Title'] }</div>
+                </div>
+            }
+            { arrowPhoneLogin &&
+                <div className='connect-item' onClick={ handlePhoneLogin }>
+                    <img src="/images/phone_login.png" alt="email"/>
+                    <div className='connect-name'>Phone</div>
+                    <div className='connect-des'>{ lang['Login_Phone_Title'] }</div>
                 </div>
             }
         </div>

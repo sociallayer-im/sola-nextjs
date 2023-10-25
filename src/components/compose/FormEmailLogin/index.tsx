@@ -4,49 +4,72 @@ import AppInput from '../../base/AppInput'
 import AppButton from '../../base/AppButton/AppButton'
 import { KIND } from 'baseui/button'
 import { useStyletron } from 'baseui'
-import solas from '../../../service/solas'
+import {requestPhoneCode, requestEmailCode, getProfile} from '@/service/solas'
 import DialogsContext from '../../provider/DialogProvider/DialogsContext'
 
 export interface EmailLoginFormProps {
-    onConfirm: (email: string) => any,
-    type?: 'login' | 'binding'
+    onConfirm: (email: string) => any
+    inputType?: 'email' | 'phone' | 'binding'
 }
 
 function EmailLoginForm (props: EmailLoginFormProps) {
-    const [email, setEmail] = useState('')
+    const [account, setAccount] = useState('')
     const [error, setError] = useState('')
     const { lang } = useContext(langContext)
-    const { showLoading, showToast } = useContext(DialogsContext)
+    const {showLoading, showToast } = useContext(DialogsContext)
     const [css] = useStyletron()
 
-    const verifyAndSetEmail = (value: string) => {
-        const valid = value && value.includes('@') && value.includes('.')
-        setError(valid ? '' : 'Invalid email address')
-        return valid
+    const handleChange = (value: string) => {
+        setError('')
+        setAccount(value)
     }
 
     const sendEmail  = async () => {
-        const isValid = verifyAndSetEmail(email)
-        if (!isValid) return
+        let requestFc: any = null
 
-        const unload = showLoading()
-        try {
-            if (props.type === 'binding') {
-                const checkProfile = await solas.getProfile({email: email.trim()})
+        if (props.inputType === 'binding') {
+            const unload = showLoading()
+            try {
+                const checkProfile = await getProfile({email: account.trim()})
                 if (checkProfile) {
                     unload()
                     setError('Email has been bound, Please use another email')
                     return
                 }
+                const requestEmailLoginCode = await requestEmailCode(account.trim())
+                props.onConfirm(account)
+                unload()
+            } catch (e: any) {
+                unload()
+                console.log('[sendEmail]: ', e)
+                showToast(e.message || 'Send email fail')
             }
+            return
+        }
 
-            const requestEmailLoginCode = await solas.requestEmailCode(email.trim())
-            props.onConfirm(email)
+        if (props.inputType !== 'phone') {
+            if (!account && account.includes('@') && account.includes('.')) {
+                setError('Invalid email address')
+                return
+            }
+            requestFc = requestEmailCode
+        } else {
+            if (!account.match(/^\d{11}$/)) {
+                setError('Invalid phone number')
+                return
+            }
+            requestFc = requestPhoneCode
+        }
+
+        const unload = showLoading()
+        try {
+            const requestEmailLoginCode = await requestFc(account)
+            props.onConfirm(account)
             unload()
         } catch (e: any) {
             unload()
             console.log('[sendEmail]: ', e)
-            showToast(e.message || 'Send email fail')
+            showToast(e.message || 'Send code fail')
         }
     }
 
@@ -54,9 +77,9 @@ function EmailLoginForm (props: EmailLoginFormProps) {
         <AppInput
             clearable={ true }
             errorMsg={ error }
-            value={email}
-            onChange={ (e) => { setError('');setEmail(e.target.value.toLowerCase()) } }
-            placeholder={ lang['Login_Placeholder'] }></AppInput>
+            value={account}
+            onChange={ (e) => { handleChange(e.target.value.toLowerCase()) } }
+            placeholder={ props.inputType === 'phone' ? lang['Login_Phone_Placeholder'] : lang['Login_Placeholder'] }></AppInput>
         <div className={css({ marginTop: '34px' })}>
             <AppButton
                 onClick={ sendEmail }

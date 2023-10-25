@@ -1,9 +1,10 @@
-import {useState, useContext, useRef, useEffect, forwardRef} from 'react'
+import {useState, useContext, useRef, useEffect} from 'react'
 import LangContext from '../../provider/LangProvider/LangContext'
 import ReasonText from '../ReasonText/ReasonText'
 
 export interface ReasonInputProps {
     value: string,
+    unlimited?: boolean,
     onChange: (value: string) => any
 }
 
@@ -15,9 +16,11 @@ function ReasonInput(props: ReasonInputProps) {
 
     const mapInput = (value: string) => {
         scroll()
-        const newString = value.substr(0, 200)
-        setValue(newString)
-        props.onChange(newString)
+        if (!props.unlimited) {
+            value = value.substr(0, 200)
+        }
+        setValue(value)
+        props.onChange(value)
     }
 
     useEffect(() => {
@@ -56,19 +59,20 @@ function ReasonInput(props: ReasonInputProps) {
             value={ value }
             className='editor textarea'
             onChange={ (e) => { mapInput(e.target.value)} }/>
-       <div className='action-bar'>
-           <div className='btns'>
-               <div className='btn' onClick={() => { addTag() }}>
-                   <i className='icon icon-hash'></i>
-                   { lang['IssueBadge_Eventbtn'] }
-               </div>
-               <div className='btn' onClick={() => { addLink() }}>
-                   <i className='icon icon-link'></i>
-                   { lang['IssueBadge_linkbtn'] }
-               </div>
-           </div>
-           <div>{ value ? value.length : 0 }/200</div>
-       </div>
+        <div className='action-bar'>
+            <div className='btns'>
+                {/*<div className='btn' onClick={() => { addTag() }}>*/}
+                {/*    <i className='icon icon-hash'></i>*/}
+                {/*    { lang['IssueBadge_Eventbtn'] }*/}
+                {/*</div>*/}
+                <div className='btn' onClick={() => { addLink() }}>
+                    <i className='icon icon-link'></i>
+                    { lang['IssueBadge_linkbtn'] }
+                </div>
+            </div>
+            { !props.unlimited && <div>{ value ? value.length : 0 }/200</div> }
+
+        </div>
     </div>)
 }
 

@@ -3,7 +3,7 @@ import Link from 'next/link'
 import HomePageSwitcher from "../compose/HomePageSwitcher/HomePageSwitcher";
 
 const Logo = styled('div', ({ $theme }) => ({
-    width: '102px',
+    width: '174px',
     height: '32px',
     display: 'inline-flex',
     alignItems: 'center',

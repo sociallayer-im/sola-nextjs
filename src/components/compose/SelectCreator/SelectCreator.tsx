@@ -1,14 +1,17 @@
 import { useState, useContext, useEffect, forwardRef } from 'react'
-import solas, {Group, Profile, queryGroupsUserCreated} from '../../../service/solas'
+import {Group, Profile, getProfile, queryGroupsUserCreated} from '@/service/solas'
+import { useSearchParams } from 'next/navigation'
 import UserContext from '../../provider/UserProvider/UserContext'
-import { withStyle, useStyletron, styled } from 'baseui'
+import { withStyle, styled } from 'baseui'
 import { Select, StyledControlContainer } from 'baseui/select'
 import usePicture from '../../../hooks/pictrue'
-import { useSearchParams } from 'next/navigation'
 
 interface SelectCreatorProp {
+    groupFirst?: boolean
     value: Profile | Group | null
     onChange: (res: (Profile | Group)) => any
+    autoSet?: boolean,
+    data?: (Profile | Group)[]
 }
 
 const WithStyledControlContainer = withStyle(StyledControlContainer, (props) => {
@@ -61,11 +64,11 @@ const GroupMark = styled('div', ({$theme}) => ({
     color: ' #7B7C7B'
 }))
 
-function SelectCreator(props: SelectCreatorProp) {
-    const [css] = useStyletron()
-    const [list, setList] = useState<(Profile | Group)[]>([])
+function SelectCreator({autoSet=true, ...props}: SelectCreatorProp) {
+    const [list, setList] = useState<(Profile | Group)[]>(props.data || [])
     const { user } = useContext(UserContext)
     const searchParams = useSearchParams()
+    const [selected, setSelected] = useState(props.value ? [props.value] : [])
     const { defaultAvatar } = usePicture()
 
     const overrides = {
@@ -89,15 +92,26 @@ function SelectCreator(props: SelectCreatorProp) {
     }
 
     useEffect(() => {
+        setList(props.data || [])
+    }, [props.data])
+
+    useEffect(() => {
         if (!user.id) return
+        if (list.length) return
+        if (props.data) return
+
         async function getList () {
-            const profile = await solas.getProfile({ id: user.id! })
+            const profile = await getProfile({ id: user.id! })
             if (!profile) return
 
-            const groups = await solas.queryGroupsUserCreated({ profile_id: user.id!})
-            setList([profile!, ...groups])
+            const groups = await queryGroupsUserCreated({ profile_id: user.id!})
+            if (props.groupFirst) {
+                setList([...groups, profile!])
+            } else  {
+                setList([profile!, ...groups])
+            }
 
-            const groupSenderDomain = searchParams.get('group')
+            const groupSenderDomain = searchParams?.get('group')
             if (groupSenderDomain) {
                 const selectedGroup = groups.find(item => {
                     return item.domain === groupSenderDomain
@@ -108,19 +122,30 @@ function SelectCreator(props: SelectCreatorProp) {
                 }
             }
 
-            if (!props.value) {
-                props.onChange(profile)
+            if (!selected.length && autoSet && !props.value) {
+                if (props.groupFirst && groups.length) {
+                    props.onChange(groups[0])
+                } else  {
+                    props.onChange(profile)
+                }
+
             }
         }
         getList()
-    }, [user.id])
+    }, [user.id, props.value, list])
+
+    useEffect(() => {
+        if (props.value) {
+            setSelected([props.value])
+        }
+    }, [props.value])
 
     return (<div>
         { !!props.value &&
             <Select
                 overrides={ overrides }
                 options={ list }
-                value={ [props.value] }
+                value={ selected }
                 labelKey="username"
                 valueKey="id"
                 searchable={false}

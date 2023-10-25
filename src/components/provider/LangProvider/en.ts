@@ -318,6 +318,7 @@ const langEN = {
     Empty_No_Invite: 'No invite yet~',
     Search_Tab_Domain: 'Domain',
     Search_Tab_Badge: 'Badge',
+    Search_Tab_Tag: 'Tag',
     Search_Tab_Event: 'Event',
     Badgebook_Dialog_Choose_Badgebook: 'Choose from Badge book',
     Badgebook_Dialog_Choose_Badge: 'Choose from Created',

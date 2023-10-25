@@ -23,7 +23,9 @@ function PageHeader () {
 
                 { showSearch &&
                     <div className="header-search">
-                        <HeaderSearch onClose={() => { setShowSearch(false) }} />
+                        <HeaderSearch onClose={() => { setTimeout(()=> {
+                            setShowSearch(false)
+                        }, 300) }} />
                     </div>
                 }
 

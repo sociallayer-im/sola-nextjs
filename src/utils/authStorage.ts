@@ -100,7 +100,7 @@ export function burnAuth (key: string) {
   }
 }
 
-export type LoginType =  'wallet' | 'email' | null
+export type LoginType =  'wallet' | 'email' | 'phone' | null
 
 export function setLastLoginType (type: LoginType) {
   if (!type) {
@@ -146,6 +146,29 @@ function getCookie(key: string) {
 
 function setCookie(key: string, value: string) {
   document.cookie = key + "=" + value;
+}
+
+export function getPhoneAuth (account? : string): {phone: string, authToken: string} | null {
+  const authStorage = window.localStorage.getItem('wa') || ''
+  if (!authStorage) {
+    return null
+  }
+
+  try {
+    const jsonStorage: [string, string][] = JSON.parse(authStorage)
+    let target
+    if (account) {
+      target = jsonStorage.find((item) => {
+        return account === item[0]
+      })
+    } else {
+      target = jsonStorage[0]
+    }
+
+    return target? { phone: target[0], authToken: target[1] } : null
+  } catch (e) {
+    return null
+  }
 }
 
 

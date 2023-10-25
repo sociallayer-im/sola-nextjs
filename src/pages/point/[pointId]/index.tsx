@@ -1,3 +1,3 @@
-import Home from "@/pages/index"
+import Home from "@/pages/BadgeHome"
 
 export default Home

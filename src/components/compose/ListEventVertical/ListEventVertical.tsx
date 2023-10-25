@@ -1,11 +1,9 @@
-import {useRouter, useSearchParams} from "next/navigation";
+import {useSearchParams} from "next/navigation";
 import {useContext, useEffect, useState, useRef} from 'react'
 import LangContext from "../../provider/LangProvider/LangContext";
 import Empty from "../../base/Empty";
 import CardEvent from "../../base/Cards/CardEvent/CardEvent";
 import {Participants, queryEvent, Event} from "@/service/solas";
-import AppInput from "../../base/AppInput";
-import {Search} from "baseui/icon";
 import EventLabels from "../../base/EventLabels/EventLabels";
 import DialogsContext from "../../provider/DialogProvider/DialogsContext";
 import scrollToLoad from "../../../hooks/scrollToLoad";
@@ -18,7 +16,6 @@ import { Virtual } from 'swiper'
 
 function ListEventVertical(props: {participants: Participants[]}) {
     const searchParams = useSearchParams()
-    const router = useRouter()
     const [tab2Index, setTab2Index] = useState<'latest' | 'soon' | 'past'>(searchParams?.get('tab') as any || 'soon')
     const {lang} = useContext(LangContext)
     const {showLoading} = useContext(DialogsContext)
@@ -29,7 +26,6 @@ function ListEventVertical(props: {participants: Participants[]}) {
     const {Map, MapEvent, Marker, MapError, MapReady} = useContext(MapContext)
 
     const [selectTag, setSelectTag] = useState<string[]>([])
-    const [searchKeyword, setSearchKeyWork] = useState<string>('')
     const [mode, setMode] = useState<'list' | 'map'>(searchParams?.get('mode') === 'map' ? 'map' : 'list')
     const [eventsWithLocation, setEventsWithLocation] = useState<Event[]>([])
     const [compact, setCompact] = useState(true)
@@ -186,7 +182,6 @@ function ListEventVertical(props: {participants: Participants[]}) {
             activeMarker.classList.remove('active')
         }
     }
-
 
     const showEventInMapCenter = (event: Event, zoom?: boolean) => {
         const eventLocation = event.location_details
@@ -388,18 +383,6 @@ function ListEventVertical(props: {participants: Participants[]}) {
                         </svg>
                     </div>
                 }
-            </div>
-            <div className={'event-search-bar'}>
-                <AppInput
-                    onKeyUp={(e) => {
-                        e.key === 'Enter' && router.push(`/event/search/${searchKeyword}`)
-                    }}
-                    onChange={(e) => {
-                        setSearchKeyWork(e.currentTarget.value)
-                    }}
-                    placeholder={lang['Activity_search_placeholder']}
-                    value={searchKeyword}
-                    startEnhancer={() => <Search/>}/>
             </div>
 
             { !!eventGroup && eventGroup.group_event_tags && mode == 'list' &&

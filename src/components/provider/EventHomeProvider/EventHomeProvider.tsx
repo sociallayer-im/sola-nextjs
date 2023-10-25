@@ -20,7 +20,7 @@ function EventHomeProvider(props: { children: any }) {
 
     const getEventGroupList = async () => {
         const unload = showLoading()
-        const eventGroup = await getEventGroup()
+        let eventGroup = await getEventGroup()
         const leadingEventGroupId = process.env.NEXT_PUBLIC_LEADING_EVENT_GROUP_ID
         const leadingEventGroupLogo = process.env.NEXT_PUBLIC_LEADING_EVENT_GROUP_LOGO
         console.log('leadingEventGroupIdleadingEventGroupId', leadingEventGroupId)
@@ -34,8 +34,8 @@ function EventHomeProvider(props: { children: any }) {
                     logo: leadingEventGroupLogo || null
                 })
                 const listWithoutLeading = eventGroup.filter(g => g.id !== Number(leadingEventGroupId))
-                const toTop = [leading, ...listWithoutLeading]
-                setEventGroups(toTop as Profile[])
+                eventGroup = [leading, ...listWithoutLeading]
+                setEventGroups(eventGroup as Profile[])
             } else {
                 setEventGroups(eventGroup as Profile[])
             }
@@ -43,6 +43,9 @@ function EventHomeProvider(props: { children: any }) {
             setEventGroups(eventGroup as Profile[])
         }
 
+        if (!selectedEventGroup) {
+            setSelectedEventGroup(eventGroup[0] as Profile)
+        }
 
         unload()
         setReady(true)

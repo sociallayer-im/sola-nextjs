@@ -60,6 +60,8 @@ export interface ProfileSimple {
     domain: string | null,
     image_url: string | null,
     email: string | null,
+    nickname: string | null,
+    username: string | null,
 }
 
 interface GetProfileProps {
@@ -783,7 +785,7 @@ export async function issueBatch(props: IssueBatchProps): Promise<Badgelet[]> {
     const socialLayerUsers: string[] = []
     const domains: string[] = []
     const emails: string[] = []
-    const socialLayerDomain = import.meta.env.VITE_SOLAS_DOMAIN
+    const socialLayerDomain = process.env.NEXT_PUBLIC_SOLAS_DOMAIN
 
     props.issues.forEach(item => {
         if (item.endsWith('.eth') || item.endsWith('.dot')) {
@@ -1926,6 +1928,7 @@ export interface Event {
     category: null | string,
     status: string,
     telegram_contact_group: null | string,
+    repeat_event_id: null | number,
 
     participants: null | Participants[],
 }

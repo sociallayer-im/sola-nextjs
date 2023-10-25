@@ -314,6 +314,7 @@ const langCN: LangConfig = {
   Empty_No_Invite: '没有邀请~',
   Search_Tab_Domain: 'Domain',
   Search_Tab_Badge: 'Badge',
+  Search_Tab_Tag: 'Tag',
   Search_Tab_Event: 'Event',
   Badgebook_Dialog_Choose_Badgebook: '从 Badge book 选择',
   Badgebook_Dialog_Choose_Badge: '从已经颁发的徽章中选择',

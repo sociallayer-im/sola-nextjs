@@ -1,6 +1,6 @@
 import {useContext, useEffect, useState} from 'react'
 import langContext from "@/components/provider/LangProvider/LangContext";
-import {Event, getDateList, Profile, ProfileSimple, queryEvent, queryMyEvent} from "@/service/solas";
+import {Event, getDateList, Profile, ProfileSimple, queryEvent, queryMyEvent, getProfile} from "@/service/solas";
 import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
 import EventHomeContext from "@/components/provider/EventHomeProvider/EventHomeContext";
 import EventCalendar from "@/components/compose/EventCalendar/EventCalendar";
@@ -108,13 +108,21 @@ function Calendar() {
             setCurrMonthEventList(getCache)
         } else {
             const events = await fetchData(target)
-            const eventWithProfile = events.map((event, index) => {
-                return {
-                    ...event,
-                    profile: event.event_owner
+            const eventWithProfileTask = events.map(async (event, index) => {
+                if (!event.host_info) {
+                    return {
+                        ...event,
+                        profile: event.event_owner
+                    }
+                } else {
+                    const profile = await getProfile({id: Number(event.host_info!)})
+                    return {
+                        ...event,
+                        profile: profile
+                    }
                 }
             })
-
+            const eventWithProfile = await Promise.all(eventWithProfileTask)
             setCurrMonthEventList(eventWithProfile)
             cache.set(dateStart.toISOString() + eventGroup?.username, eventWithProfile)
         }

@@ -6,6 +6,7 @@ import LangContext from '@/components/provider/LangProvider/LangContext'
 import ListSearchResultDomain from '@/components/compose/ListSearchResultDomain'
 import ListSearchResultBadgelet from '@/components/compose/ListSearchResultBadgelet'
 import ListSearchResultBadge from '@/components/compose/ListSearchResultBadge'
+import ListSearchResultEvent from "@/components/compose/ListSearchResultEvent/ListSearchResultEvent";
 
 function SearchPage() {
     const params = useParams()
@@ -24,8 +25,11 @@ function SearchPage() {
             <Tab key='badge' title={ lang['Search_Tab_Badge'] }>
                 <ListSearchResultBadge keyword={ keyword as string}/>
             </Tab>
-            <Tab key='event' title={ lang['Search_Tab_Event'] }>
+            <Tab key='hashtag' title={ lang['Search_Tab_Tag'] }>
                 <ListSearchResultBadgelet keyword={ params?.keyword as string } />
+            </Tab>
+            <Tab key='event' title={ lang['Search_Tab_Event'] }>
+                <ListSearchResultEvent keyword={ params?.keyword as string } />
             </Tab>
         </AppTabs>
     </div>)

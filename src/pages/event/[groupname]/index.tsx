@@ -74,7 +74,7 @@ function Home() {
 
 
     return <>
-        <div className='home-page'>
+        <div className='home-page-event'>
             <HomeUserPanel/>
             {!!user.id &&
                 <>

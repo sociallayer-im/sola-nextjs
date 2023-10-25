@@ -3,10 +3,10 @@ import {useAccount, useDisconnect, useWalletClient} from 'wagmi'
 import UserContext from './UserContext'
 import DialogsContext from '../DialogProvider/DialogsContext'
 import * as AuthStorage from '../../../utils/authStorage'
-import solas, {myProfile} from '../../../service/solas'
+import {myProfile, login as solaLogin} from '@/service/solas'
 import { useRouter } from 'next/navigation'
 import useEvent, {EVENT} from '../../../hooks/globalEvent'
-import {getPlantLoginFallBack, deleteFallback, setAuth} from "../../../utils/authStorage";
+import {setAuth} from "@/utils/authStorage";
 
 
 import solaExtensionLogin from '../../../service/ExtensionLogin'
@@ -66,7 +66,7 @@ function UserProvider (props: UserProviderProps) {
 
     const setProfile = async (props: { authToken: string}) => {
         try {
-            const profileInfo = await solas.myProfile({auth_token: props.authToken})
+            const profileInfo = await myProfile({auth_token: props.authToken})
             console.log('Profile: ', profileInfo)
             setUser({
                 wallet: profileInfo?.address,
@@ -168,7 +168,7 @@ function UserProvider (props: UserProviderProps) {
         if (!authToken) {
             const unloading = showLoading()
             try {
-                authToken = await solas.login(data)
+                authToken = await solaLogin(data)
                 console.log('New token: ', authToken)
             } catch (e) {
                 console.error(e)
@@ -185,9 +185,54 @@ function UserProvider (props: UserProviderProps) {
         setAuth(address, authToken)
     }
 
+    const phoneLogin = async () => {
+        const loginType = AuthStorage.getLastLoginType()
+        if (!loginType) return
+        if (loginType !== 'phone') return
+
+        console.log('Login ...')
+        console.log('Login type: ', loginType)
+
+        const emailAuthInfo = AuthStorage.getPhoneAuth()
+        if (!emailAuthInfo) return
+
+        const authToken = emailAuthInfo.authToken
+        const phone = emailAuthInfo.phone
+        console.log('Login phone: ', phone)
+        console.log('Storage token: ', authToken)
+        await setProfile({ authToken })
+        setAuth(phone, authToken)
+    }
+
+    const login = async () => {
+        const loginType = AuthStorage.getLastLoginType()
+        if (!loginType) return
+
+        console.log('Login ...')
+        console.log('Login type: ', loginType)
+
+        let auth = AuthStorage.getAuth(address)
+        if (!auth) {
+            return
+        }
+
+        const authToken = auth.authToken
+        const account = auth.account
+
+        console.log('Login account: ', account)
+        console.log('Storage token: ', authToken)
+
+        if (loginType === 'wallet') {
+            await setProfile({ authToken })
+        } else if (loginType === 'email') {
+            await setProfile({ authToken })
+        }else if (loginType === 'phone') {
+            await setProfile({ authToken })
+        }
+    }
+
     useEffect(() => {
-        emailLogin()
-        return () => {}
+        login()
     }, [])
 
     useEffect(() => {
@@ -209,7 +254,7 @@ function UserProvider (props: UserProviderProps) {
     }, [newProfile])
 
     return (
-        <UserContext.Provider value={{ user: userInfo, setUser, logOut, emailLogin, walletLogin}}>
+        <UserContext.Provider value={{ user: userInfo, setUser, logOut, emailLogin, walletLogin, phoneLogin}}>
             { props.children }
         </UserContext.Provider>
     )

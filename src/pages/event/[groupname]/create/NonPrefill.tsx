@@ -85,7 +85,6 @@ const getNearestTime = () => {
 
     const initStartTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), nearestMinute || 0)
     const initEndTime = new Date(initStartTime.getTime() + 60 * 60 * 1000)
-    console.log('[initStartTime, initEndTime]', [initStartTime.toTimeString(), initEndTime.toTimeString()])
     return [initStartTime, initEndTime]
 }
 
@@ -586,7 +585,6 @@ function CreateEvent(props: CreateEventPageProps) {
 
         if (siteOccupied) {
             showToast(lang['Activity_Detail_site_Occupied'])
-            window.location.href = router.pathname + '#SiteError'
             return
         }
 
@@ -669,7 +667,7 @@ function CreateEvent(props: CreateEventPageProps) {
                 unloading()
                 showToast('create success')
                 window.localStorage.removeItem('event_draft')
-                router.push(`/event/success/${newEvents[0].id}`, {replace: true})
+                router.push(`/event/success/${newEvents[0].id}`)
                 setCreating(false)
             } else {
                 const newEvent = await createEvent(props)
@@ -693,7 +691,7 @@ function CreateEvent(props: CreateEventPageProps) {
                 unloading()
                 showToast('create success')
                 window.localStorage.removeItem('event_draft')
-                router.push(`/event/success/${newEvent.id}`, {replace: true})
+                router.push(`/event/success/${newEvent.id}`)
                 setCreating(false)
             }
         } catch (e: any) {
