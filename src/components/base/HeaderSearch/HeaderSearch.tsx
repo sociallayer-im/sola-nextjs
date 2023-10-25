@@ -32,12 +32,6 @@ function HeaderSearch(props: HeaderSearchProps) {
 
     const cancel = () => {
         !!props.onClose && props.onClose()
-
-        const ifFallback = window.localStorage.getItem('searchfallback')
-        if (ifFallback) {
-            window.localStorage.removeItem('searchfallback')
-            router.push(ifFallback)
-        }
     }
 
 
