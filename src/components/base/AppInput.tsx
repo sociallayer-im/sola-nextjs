@@ -99,19 +99,19 @@ export default function AppInput(props: AppInputProps) {
         Input: { style: {...inputStyle} },
         ClearIcon: { style: clearBtnStyle, props: { size: 26 } },
         EndEnhancer: {
-            style: ({ $theme }) => ({
+            style: ({$theme} : any) => ({
                 backgroundColor: 'var(--color-card-bg)',
                 color: 'var(--color-text-main)',
             })
         },
         StartEnhancer: {
-            style: ({ $theme }) => ({
+            style: ({$theme} : any) => ({
                 backgroundColor: 'var(--color-card-bg)',
                 color: 'var(--color-text-main)',
             })
         },
         ClearIconContainer : {
-            style: ({ $theme }) => ({
+            style: ({$theme} : any) => ({
                 backgroundColor: 'var(--color-card-bg)'
             })
         }

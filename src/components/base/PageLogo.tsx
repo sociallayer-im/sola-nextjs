@@ -4,7 +4,7 @@ import HomePageSwitcher from "../compose/HomePageSwitcher/HomePageSwitcher";
 import {ColorSchemeContext} from "@/components/provider/ColorSchemeProvider";
 import {useContext} from "react";
 
-const Logo = styled('div', ({ $theme }) => ({
+const Logo = styled('div', ({ $theme} : any ) => ({
     width: '174px',
     height: '32px',
     display: 'inline-flex',

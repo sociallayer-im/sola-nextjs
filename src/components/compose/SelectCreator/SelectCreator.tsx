@@ -35,9 +35,9 @@ const WithStyledControlContainer = withStyle(StyledControlContainer, (props) => 
     }
 })
 
-const Icon =  styled('span', ({$theme}) => ({ fontSize: '22px' }) )
+const Icon =  styled('span', ({$theme} : any) => ({ fontSize: '22px' }) )
 
-const ListItem = styled('li', ({$theme}) => ({
+const ListItem = styled('li', ({$theme} : any) => ({
     display: 'flex',
     flexDirection: 'row',
     cursor: 'pointer',
@@ -48,18 +48,18 @@ const ListItem = styled('li', ({$theme}) => ({
     }
 }))
 
-const Avatar = styled('img', ({$theme}) => ({
+const Avatar = styled('img', ({$theme} : any) => ({
     width: '16px',
     height: '16px',
     borderRadius: '50%',
     marginRight: '8px'
 }))
 
-const Label = styled('div', ({$theme}) => ({
+const Label = styled('div', ({$theme} : any) => ({
     fontSize: '14px'
 }))
 
-const GroupMark = styled('div', ({$theme}) => ({
+const GroupMark = styled('div', ({$theme} : any) => ({
     fontSize: '14px',
     flex: 1,
     textAlign: 'right',

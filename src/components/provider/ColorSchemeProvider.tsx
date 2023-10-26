@@ -7,7 +7,7 @@ export const ColorSchemeContext = createContext<{ theme: ColorTheme, switchTheme
     switchTheme: () => {}
 })
 
-const defaultTheme: ColorTheme = process.env.NEXT_PUBLIC_COLOR_SCHEME || 'light'
+const defaultTheme: ColorTheme = process.env.NEXT_PUBLIC_COLOR_SCHEME as ColorTheme || 'light'
 
 function ColorSchemeProvider(props: { children: any }) {
     const [colorTheme, setColorTheme] = useState<ColorTheme>(defaultTheme)

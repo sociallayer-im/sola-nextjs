@@ -81,7 +81,7 @@ function Page(props: any) {
             : startIssue({badges, to: profile?.domain || ''})
     }
 
-    const ShowDomain = styled('div', ({$theme}) => {
+    const ShowDomain = styled('div', ({$theme} : any) => {
         return {
             color: 'var(--color-text-main)'
         }

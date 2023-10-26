@@ -5,7 +5,7 @@ import {ArrowLeft} from 'baseui/icon'
 import {PageBackContext} from '../provider/PageBackProvider'
 import {useRouter} from "next/navigation";
 
-const Wrapper = styled('div', ({$theme}) => ({
+const Wrapper = styled('div', ({$theme} : any) => ({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -13,7 +13,7 @@ const Wrapper = styled('div', ({$theme}) => ({
     position: 'relative'
 }))
 
-const BackBtn = styled('div', ({$theme}) => ({
+const BackBtn = styled('div', ({$theme} : any) => ({
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
@@ -24,7 +24,7 @@ const BackBtn = styled('div', ({$theme}) => ({
     userSelect: 'none'
 }))
 
-const Title = styled('div', ({$theme}) => ({
+const Title = styled('div', ({$theme} : any) => ({
     position: 'absolute',
     left: '50%',
     transform: 'translate(-50%, 0)',
