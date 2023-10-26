@@ -1,5 +1,5 @@
 import Page from '@/components/maodao/page'
-import {getProfile, getProfile as getProfileDetail, Profile} from "@/service/solas";
+import {getProfile, Profile} from "@/service/solas";
 import Alchemy from "@/service/alchemy/alchemy";
 import fetch from "@/utils/fetch";
 import { toChecksumAddress } from 'web3-utils'

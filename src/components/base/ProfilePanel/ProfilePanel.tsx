@@ -19,6 +19,8 @@ interface ProfilePanelProps {
     profile: Profile
 }
 
+const isMaodao = process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'maodao'
+
 function ProfilePanel(props: ProfilePanelProps) {
     const { defaultAvatar } = usePicture()
     const { lang } = useContext(LangContext)
@@ -172,10 +174,12 @@ function ProfilePanel(props: ProfilePanelProps) {
                         </div>
                     }
                 </div>
-                <div className='follow' onClick={ showFollowInfo }>
-                    <div><b>{ profile.followers }</b> { lang['Follow_detail_followed'] } </div>
-                    <div><b>{ profile.following }</b> { lang['Follow_detail_following'] } </div>
-                </div>
+                {!isMaodao &&
+                        <div className='follow' onClick={ showFollowInfo }>
+                        <div><b>{ profile.followers }</b> { lang['Follow_detail_followed'] } </div>
+                        <div><b>{ profile.following }</b> { lang['Follow_detail_following'] } </div>
+                    </div>
+                }
                 { !!props.profile.location &&
                     <div className='profile-position'>
                         <i className='icon-Outline' />
@@ -187,34 +191,36 @@ function ProfilePanel(props: ProfilePanelProps) {
                 }
                 <ProfileSocialMediaList profile={ props.profile }/>
             </div>
-            <div className='right-size'>
-                {
-                    showUnFollowBtn &&
-                    <StatefulPopover
-                        placement={ PLACEMENT.bottomRight }
-                        popoverMargin={ 0 }
-                        content={ ({ close }) => <MenuItem onClick={ () => { handleUnFollow() } }>{ lang['Relation_Ship_Action_Unfollow'] }{ profile.username }</MenuItem> }>
-                        <div>
-                            <AppButton
-                                size={ BTN_SIZE.mini }
-                                style={{ width: '37px', border: '1px solid #272928', marginRight: '12px'}}>
-                                <i className='icon-user-check'></i>
-                            </AppButton>
-                        </div>
-                    </StatefulPopover>
-                }
+            {!isMaodao &&
+                <div className='right-size'>
+                    {
+                        showUnFollowBtn &&
+                        <StatefulPopover
+                            placement={ PLACEMENT.bottomRight }
+                            popoverMargin={ 0 }
+                            content={ ({ close }) => <MenuItem onClick={ () => { handleUnFollow() } }>{ lang['Relation_Ship_Action_Unfollow'] }{ profile.username }</MenuItem> }>
+                            <div>
+                                <AppButton
+                                    size={ BTN_SIZE.mini }
+                                    style={{ width: '37px', border: '1px solid #272928', marginRight: '12px'}}>
+                                    <i className='icon-user-check'></i>
+                                </AppButton>
+                            </div>
+                        </StatefulPopover>
+                    }
 
-                {
-                    showFollowBtn &&
-                    <AppButton
-                        style={{ backgroundColor: '#272928!important', color: '#fff', width: '94px'}}
-                        onClick={ () => { handleFollow() } }
-                        kind={ BTN_KIND.primary } size={ BTN_SIZE.mini }>
-                        <i className='icon-user-plus'></i>
-                        <span>{ lang['Relation_Ship_Action_Follow'] }</span>
-                    </AppButton>
-                }
-            </div>
+                    {
+                        showFollowBtn &&
+                        <AppButton
+                            style={{ backgroundColor: '#272928!important', color: '#fff', width: '94px'}}
+                            onClick={ () => { handleFollow() } }
+                            kind={ BTN_KIND.primary } size={ BTN_SIZE.mini }>
+                            <i className='icon-user-plus'></i>
+                            <span>{ lang['Relation_Ship_Action_Follow'] }</span>
+                        </AppButton>
+                    }
+                </div>
+            }
         </div>
     )
 }

@@ -5,7 +5,6 @@ import UserContext from "../UserProvider/UserContext";
 import DialogsContext from "../DialogProvider/DialogsContext";
 
 function EventHomeProvider(props: { children: any }) {
-
     const [eventGroups, setEventGroups] = useState<Profile[]>([])
     const [availableList, setAvailableList] = useState<Profile[]>([])
     const [userGroup, setUserGroup] = useState<Profile[]>([])

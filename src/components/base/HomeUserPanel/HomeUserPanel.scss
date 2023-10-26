@@ -131,8 +131,8 @@
 
 .home-login-panel {
   border-radius: 20px;
-  border: 1px dashed var(--line-2-dark, #CECED3);
-  background: #FFF;
+  border: 1px dashed var(--color-item-border);
+  background: var(--color-page-bg-1);
   display: flex;
   flex-flow: column nowrap;
   padding: 20px;

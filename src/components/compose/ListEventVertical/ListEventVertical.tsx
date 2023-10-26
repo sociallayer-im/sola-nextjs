@@ -1,4 +1,4 @@
-import {useSearchParams} from "next/navigation";
+import {useSearchParams, useParams, usePathname} from "next/navigation";
 import {useContext, useEffect, useState, useRef} from 'react'
 import LangContext from "../../provider/LangProvider/LangContext";
 import Empty from "../../base/Empty";
@@ -16,10 +16,12 @@ import { Virtual } from 'swiper'
 
 function ListEventVertical(props: {participants: Participants[]}) {
     const searchParams = useSearchParams()
+    const params = useParams()
+    const pathname = usePathname()
     const [tab2Index, setTab2Index] = useState<'latest' | 'soon' | 'past'>(searchParams?.get('tab') as any || 'soon')
     const {lang} = useContext(LangContext)
     const {showLoading} = useContext(DialogsContext)
-    const {eventGroup} = useContext(EventHomeContext)
+    const {eventGroup, availableList, setEventGroup} = useContext(EventHomeContext)
     const GoogleMapRef = useRef<google.maps.Map | null>()
     const mapDomRef = useRef<any>()
     const markersRef = useRef<any[]>([])
@@ -117,9 +119,22 @@ function ListEventVertical(props: {participants: Participants[]}) {
 
     useEffect(() => {
         if (eventGroup) {
-            refresh()
+            if (params?.groupname
+                && params?.groupname !== eventGroup?.username
+                && availableList.length
+                && pathname?.includes('event-home')
+            ) {
+                setEventGroup(availableList.find(item => item.username === params?.groupname)!)
+                return
+            } else {
+                refresh()
+            }
         }
-    }, [selectTag, tab2Index, eventGroup])
+
+        return () => {
+            setEventGroup(availableList[0])
+        }
+    }, [selectTag, tab2Index, eventGroup,availableList, params, pathname])
 
     // useEffect(() => {
     //     setSearchParams({'mode': mode})

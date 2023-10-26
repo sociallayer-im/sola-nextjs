@@ -1,6 +1,6 @@
 import PageBack from '@/components/base/PageBack'
 import React, {useContext, useEffect, useState} from 'react'
-import {Profile, queryBadge, getProfile as getProfileDetail, getProfile} from '@/service/solas'
+import {getProfile as getProfileDetail, Profile, queryBadge} from '@/service/solas'
 import DialogsContext from '@/components/provider/DialogProvider/DialogsContext'
 import ProfilePanel from '@/components/base/ProfilePanel/ProfilePanel'
 import AppButton, {BTN_KIND, BTN_SIZE} from '@/components/base/AppButton/AppButton'
@@ -11,23 +11,18 @@ import BgProfile from '@/components/base/BgProfile/BgProfile'
 import useEvent, {EVENT} from '@/hooks/globalEvent'
 import {styled} from 'baseui'
 import useCopy from '@/hooks/copy'
-import {useRouter, useParams } from "next/navigation";
-import dynamic from 'next/dynamic'
+import {useParams, useRouter} from "next/navigation";
 import ListNftAsset from "@/components/compose/ListNftAsset/ListNftAsset";
 import Alchemy from "@/service/alchemy/alchemy";
 import fetch from "@/utils/fetch";
-import { toChecksumAddress } from 'web3-utils'
-import fa from "@walletconnect/legacy-modal/dist/cjs/browser/languages/fa";
-
-const UserTabs = dynamic(() => import('@/components/compose/ProfileTabs/ProfileTabs'), {
-    loading: () => <p>Loading...</p>,
-})
+import {toChecksumAddress} from 'web3-utils'
+import MaodaoMyEvent from "@/components/maodao/MaodaoMyEvent/MaodaoMyEvent";
 
 function Page(props: any) {
     const params = useParams()
     const [tokenId, setTokenId] = useState<string>(props.tokenId || params?.tokenId)
     const [profile, setProfile] = useState<Profile | null>(props.profile || null)
-    const [maodaoProfile, setMaodaoProfile] = useState<any | null>( null)
+    const [maodaoProfile, setMaodaoProfile] = useState<any | null>(null)
     const {showLoading, openConnectWalletDialog} = useContext(DialogsContext)
     const {lang} = useContext(LangContext)
     const {user} = useContext(UserContext)
@@ -63,7 +58,7 @@ function Page(props: any) {
                 website: null,
                 nostr: null,
                 location: null,
-                about:null,
+                about: null,
                 nickname: '--',
                 username: '--',
                 followers: 0,
@@ -75,7 +70,7 @@ function Page(props: any) {
                 group_event_visibility: 'public',
                 group_event_tags: null,
                 group_map_enabled: false,
-                banner_image_url:null,
+                banner_image_url: null,
                 banner_link_url: null,
                 group_location_details: null
             }
@@ -141,7 +136,7 @@ function Page(props: any) {
             : startIssue({badges, to: profile?.domain || ''})
     }
 
-    const ShowDomain = styled('div', ({$theme} : any) => {
+    const ShowDomain = styled('div', ({$theme}: any) => {
         return {
             color: 'var(--color-text-main)'
         }
@@ -174,30 +169,22 @@ function Page(props: any) {
                         <div className='slot_1'>
                             <ProfilePanel profile={profile}/>
                         </div>
-                        <div className='slot_2'>
-                            <AppButton
-                                special kind={BTN_KIND.primary}
-                                size={BTN_SIZE.compact}
-                                onClick={handleMintOrIssue}>
-                                <span className='icon-sendfasong'></span>
-                                {user.id === profile.id
-                                    ? lang['Profile_User_MindBadge']
-                                    : lang['Profile_User_IssueBadge'] + (profile.nickname || profile.username)
-                                }
-                            </AppButton>
-                        </div>
                     </div>
                 </div>
-                <div className='down-side'>
+                <div className='down-side' style={{margin: '0 0 30px 0'}}>
                     <div className='maodao-nft'>
-                        <div className={'list-title'} style={{ fontWeight: 600,
-                            fontSize: '16px',
-                            lineHeight: '24px',
-                            color:'var(--color-text-main)',
-                            marginTop: '15px',
-                            marginBottom: '15px'}}>Ready Player Cat</div>
-                        <ListNftAsset profile={profile} type={'maodao'} />
+                        <ListNftAsset profile={profile} type={'maodao'} title={'RPC'}/>
                     </div>
+                    {user.authToken ?
+                        <MaodaoMyEvent profile={profile}/>
+                        : <div className={'home-login-panel'} style={{margin: '0 12px'}}>
+                            <img src="/images/balloon.png" alt=""/>
+                            <div className={'text'}>{lang['Activity_login_des']}</div>
+                            <AppButton onClick={e => {
+                                openConnectWalletDialog()
+                            }} special size={'compact'}>{lang['Activity_login_btn']}</AppButton>
+                        </div>
+                    }
                 </div>
             </div>
         }

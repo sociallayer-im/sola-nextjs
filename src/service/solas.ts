@@ -2035,7 +2035,8 @@ export async function queryEventDetail(props: QueryEventDetailProps) {
 }
 export interface QueryMyEventProps {
     auth_token: string,
-    page?: number
+    page?: number,
+    group_id?: number,
 }
 
 export async function queryMyEvent({page=1, ...props}: QueryMyEventProps): Promise<Participants[]> {

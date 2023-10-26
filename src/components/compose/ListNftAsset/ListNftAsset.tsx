@@ -9,7 +9,7 @@ import CardDotBit from "@/components/base/Cards/CardDotBit/CardDotBit";
 import styles from './ListNftAsset.module.sass'
 import {Spinner} from "baseui/spinner";
 
-function ListNftAsset({profile, type}: { profile: Profile, type: string }) {
+function ListNftAsset({profile, type, title=''}: { profile: Profile, type: string, title?: string }) {
     const [ready, setReady] = React.useState(false)
     const profileRef = useRef<null | Profile>(null)
 
@@ -60,21 +60,32 @@ function ListNftAsset({profile, type}: { profile: Profile, type: string }) {
     }, [profile])
 
 
-    return (<div className={styles.wrapper}>
-            {!ready && <Spinner className={styles.spinner} $color={'#98f6db'}/>}
-            {type === 'dotbit' ?
-                <ListUserAssets
-                    queryFcn={getDotbit}
-                    onRef={listRef}
-                    child={(item: DotBitAccount, key) => <CardDotBit key={key} detail={item}/>}/>
-                : <ListUserAssets
-                    queryFcn={getNft}
-                    onRef={listRef}
-                    child={(item: NftDetail, key) => <CardNft key={key}
-                                                              type={type === 'maodao' ? 'badge': 'nft'}
-                                                              detail={item}/>}/>
+    return (
+        <>
+            {title &&
+                <div className={'list-title'} style={{ fontWeight: 600,
+                    fontSize: '16px',
+                    lineHeight: '24px',
+                    color:'var(--color-text-main)',
+                    marginTop: '15px',
+                    marginBottom: '15px'}}>{title}</div>
             }
-        </div>
+            <div className={styles.wrapper}>
+                {!ready && <Spinner className={styles.spinner} $color={'#98f6db'}/>}
+                {type === 'dotbit' ?
+                    <ListUserAssets
+                        queryFcn={getDotbit}
+                        onRef={listRef}
+                        child={(item: DotBitAccount, key) => <CardDotBit key={key} detail={item}/>}/>
+                    : <ListUserAssets
+                        queryFcn={getNft}
+                        onRef={listRef}
+                        child={(item: NftDetail, key) => <CardNft key={key}
+                                                                  type={type === 'maodao' ? 'badge': 'nft'}
+                                                                  detail={item}/>}/>
+                }
+            </div>
+        </>
     )
 }
 

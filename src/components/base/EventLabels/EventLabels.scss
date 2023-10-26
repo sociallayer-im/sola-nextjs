@@ -32,3 +32,37 @@
     }
   }
 }
+
+.event-label-list.nowrap  {
+  flex-flow: row nowrap;
+  overflow: auto;
+  margin-left: 12px;
+
+  .event-label-item {
+    white-space: nowrap;
+  }
+}
+
+.maodao-goto-group-home {
+  text-align: center;
+  margin-top: 60px;
+  color: var(--color-text-main);
+  font-size: 16px;
+
+  .link {
+    display: inline-flex;
+    padding: 8px 21px 8px 20px;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
+    border-radius: 37px;
+    background: #252525;
+    margin-top: 14px;
+  }
+}
+
+@media (max-width: 450px) {
+  .event-label-list::-webkit-scrollbar {
+    display: none;
+  }
+}

@@ -1,6 +1,6 @@
 import {useContext, useEffect, useState} from 'react'
 import UserContext from '@/components/provider/UserProvider/UserContext'
-import {useRouter} from 'next/navigation'
+import {useRouter, usePathname} from 'next/navigation'
 import LangContext from '@/components/provider/LangProvider/LangContext'
 import HomeUserPanel from "@/components/base/HomeUserPanel/HomeUserPanel";
 import AppSubTabs from "@/components/base/AppSubTabs";
@@ -12,13 +12,15 @@ import ListEventVertical from "@/components/compose/ListEventVertical/ListEventV
 import ListRecommendedEvent from "@/components/compose/ListRecommendedEvent/ListRecommendedEvent";
 import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
 import EventHomeContext from "@/components/provider/EventHomeProvider/EventHomeContext";
+import MaodaoListEventVertical from "@/components/maodao/MaodaoListEventVertical/ListEventVertical";
 
 function Home() {
     const {user} = useContext(UserContext)
     const router = useRouter()
+    const pathname = usePathname()
     const {lang} = useContext(LangContext)
     const {showToast} = useContext(DialogsContext)
-    const {eventGroup , ready, joined, isManager} = useContext(EventHomeContext)
+    const {eventGroup, ready, joined, isManager} = useContext(EventHomeContext)
 
     const [tabIndex, setTabIndex] = useState('0')
     const [showMyCreate, setShowMyCreate] = useState(true)
@@ -72,6 +74,7 @@ function Home() {
         router.push(`/event/${eventGroup.username}/create`)
     }
 
+    const isMaodao = process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'maodao'
 
     return <>
         <div className='home-page-event'>
@@ -93,7 +96,7 @@ function Home() {
                                         <ListMyAttentedEvent />
                                     </Tab>: <></>}
 
-                                    { showMyCreate ?
+                                    { showMyCreate  && !isMaodao ?
                                         <Tab title={lang['Activity_State_Created']}>
                                             <ListMyCreatedEvent participants={myRegistered} />
                                         </Tab>: <></>
@@ -111,7 +114,10 @@ function Home() {
             }
 
             <div className={'center'}>
-                <ListEventVertical participants={myRegistered} />
+                { !isMaodao || pathname?.includes('event-home') ?
+                    <ListEventVertical participants={myRegistered} />
+                    : <MaodaoListEventVertical participants={myRegistered}/>
+                }
             </div>
 
             {
