@@ -16,7 +16,7 @@ const RootWithStyle = withStyle(StyledRoot, (props) => {
             ? colors.inputBorderError
             : $isFocused
                 ? 'var(--color-theme)'
-                : 'var(--color-item-border)'
+                : 'var(--color-input-bg)'
 
     return {
         borderLeftColor: borderColor,
@@ -32,7 +32,7 @@ const RootWithStyle = withStyle(StyledRoot, (props) => {
         borderBottomLeftRadius: '16px',
         borderTopLeftRadius: '16px',
         borderTopRightRadius: '16px',
-        backgroundColor: 'var(--color-card-bg)',
+        backgroundColor: 'var(--color-input-bg)',
     }
 })
 
@@ -100,19 +100,19 @@ export default function AppInput(props: AppInputProps) {
         ClearIcon: { style: clearBtnStyle, props: { size: 26 } },
         EndEnhancer: {
             style: ({$theme} : any) => ({
-                backgroundColor: 'var(--color-card-bg)',
+                backgroundColor: 'var(--color-input-bg)',
                 color: 'var(--color-text-main)',
             })
         },
         StartEnhancer: {
             style: ({$theme} : any) => ({
-                backgroundColor: 'var(--color-card-bg)',
+                backgroundColor: 'var(--color-input-bg)',
                 color: 'var(--color-text-main)',
             })
         },
         ClearIconContainer : {
             style: ({$theme} : any) => ({
-                backgroundColor: 'var(--color-card-bg)'
+                backgroundColor: 'var(--color-input-bg)'
             })
         }
     }
