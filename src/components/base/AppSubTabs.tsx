@@ -28,8 +28,8 @@ function AppSubTabs (props: AppTabsProps) {
             borderRightWidth: '1px',
             borderBottomWidth: '1px!important',
             borderStyle: 'solid',
-            borderColor: $active ? 'var(--color-subtab-active)' : 'var(--color-item-border)',
-            background: $active ? 'var(--color-subtab-active)' : 'var(--color-page-main)',
+            borderColor: $active ? 'var(--color-text-main)' : 'var(--color-item-border)',
+            background: $active ? 'var(--color-subtab-active)' : 'rgba(0,0,0,0)',
             position: 'relative'
         }
 

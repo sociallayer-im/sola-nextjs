@@ -39,7 +39,7 @@
   .module-tabs {
     .tab-titles {
       margin-bottom: 20px;
-      background: var(--color-page-bg);
+      background: var(--color-page-bg-1);
       transition: top 0.3s;
       top: 10px;
 
@@ -238,7 +238,7 @@
     align-items: center;
     width: 38px;
     box-sizing: border-box;
-    background: #fff;
+    background: var(--color-page-bg-1);
     color:var(--color-text-main);
     cursor: pointer;
     font-size: 17px;
