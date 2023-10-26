@@ -75,7 +75,8 @@ function IssueSuccessPage() {
             if (inviteId && groupId) {
                 const inviteDetail = await solas.queryInviteDetail({
                     invite_id: Number(inviteId),
-                    group_id: Number(groupId)
+                    group_id: Number(groupId),
+                    auth_token: user?.authToken || ''
                 })
                 if (!inviteDetail) return
 

@@ -1066,13 +1066,14 @@ export async function sendInvite(props: SendInviteProps): Promise<Invite[]> {
 
 export interface QueryInviteDetailProps {
     group_id: number
-    invite_id: number
+    invite_id: number,
+    auth_token?: string
 }
 
 export async function queryInviteDetail(props: QueryInviteDetailProps): Promise<Invite | null> {
     const res = await fetch.get({
         url: `${api}/group/group-invites`,
-        data: {group_id: props.group_id}
+        data: {group_id: props.group_id, auth_token: props.auth_token}
     })
 
     if (res.data.result === 'error') {
@@ -1113,10 +1114,10 @@ export async function cancelInvite(props: AcceptInviteProps) {
     }
 }
 
-export async function queryPendingInvite(receiverId: number): Promise<Invite[]> {
+export async function queryPendingInvite(receiverId: number, auth_token?: string): Promise<Invite[]> {
     const res = await fetch.get({
         url: `${api}/group/group-invites`,
-        data: {receiver_id: receiverId, status: 'new'}
+        data: {receiver_id: receiverId, status: 'new', auth_token}
     })
 
     if (res.data.result === 'error') {
