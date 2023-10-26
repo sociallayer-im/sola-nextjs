@@ -25,7 +25,7 @@ function DialogConnectWallet (props: DialogConnectWalletProps) {
     const { isDisconnected } = useAccount()
     const router = useRouter()
     const { clean, showLoading } = useContext(DialogsContext)
-    const { user } = useContext(UserContext)
+    const { user, logOut } = useContext(UserContext)
 
 
     useEffect(() => {
@@ -53,11 +53,8 @@ function DialogConnectWallet (props: DialogConnectWalletProps) {
             console.error('connector error: ' + error)
         }
 
-        if (!isDisconnected) {
-            disconnect()
-        }
-
-        window.localStorage.removeItem('wagmi.cache')
+        disconnect()
+        logOut()
 
        setTimeout(() => {
            setLastLoginType('wallet')
