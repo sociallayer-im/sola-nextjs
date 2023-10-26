@@ -5,10 +5,11 @@
 
   .toggle {
     margin-left: 6px;
+    color: var(--color-text-sub);
   }
 
   .badge-page {
-    color: var(--fill-6-dark, #272928);
+    color: var(--color-text-main);
     text-align: center;
     font-size: 12px;
     font-style: normal;
@@ -29,7 +30,7 @@
   }
 
   .group-page {
-    color: var(--fill-6-dark, #272928);
+    color: var(--color-text-main);
     text-align: center;
     font-size: 12px;
     font-style: normal;
@@ -83,7 +84,7 @@
     }
 
     &.active {
-      background: #F5F8F6;
+      background: var(--color-card-bg);
       border-color: rgba(0, 0, 0, 0);
     }
   }
@@ -110,7 +111,7 @@
       position: absolute;
       width: 80%;
       border-radius: 16px;
-      background: #F8F9F8;
+      background: var(--color-card-bg);
       box-shadow: 0 0 18px 0 rgba(0, 0, 0, 0.20);
       padding: 16px 16px 0 16px;
       left: 50%;

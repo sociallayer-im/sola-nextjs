@@ -20,6 +20,7 @@ import {styletron} from '@/styletron'
 import Head from 'next/head'
 import MapProvider from "@/components/provider/MapProvider/MapProvider";
 import EventHomeProvider from "@/components/provider/EventHomeProvider/EventHomeProvider";
+import ColorSchemeProvider from "@/components/provider/ColorSchemeProvider";
 
 const inject = new InjectedConnector({
     chains: [mainnet, moonbeam],
@@ -45,26 +46,28 @@ function MyApp({Component, pageProps}: any) {
                 <title>Social Layer</title>
             </Head>
             <WagmiConfig config={config as any}>
-                <StyletronProvider value={styletron}>
-                    <BaseProvider theme={theme}>
-                        <DialogProvider>
-                            <UserProvider>
-                                <LangProvider>
-                                    <DialogProvider>
-                                        <MapProvider>
-                                            <EventHomeProvider>
-                                                <Layout>
-                                                    <NextNProgress options={{showSpinner: false}}/>
-                                                    <Component {...pageProps} />
-                                                </Layout>
-                                            </EventHomeProvider>
-                                        </MapProvider>
-                                    </DialogProvider>
-                                </LangProvider>
-                            </UserProvider>
-                        </DialogProvider>
-                    </BaseProvider>
-                </StyletronProvider>
+                <ColorSchemeProvider>
+                    <StyletronProvider value={styletron}>
+                        <BaseProvider theme={theme}>
+                            <DialogProvider>
+                                <UserProvider>
+                                    <LangProvider>
+                                        <DialogProvider>
+                                            <MapProvider>
+                                                <EventHomeProvider>
+                                                    <Layout>
+                                                        <NextNProgress options={{showSpinner: false}}/>
+                                                        <Component {...pageProps} />
+                                                    </Layout>
+                                                </EventHomeProvider>
+                                            </MapProvider>
+                                        </DialogProvider>
+                                    </LangProvider>
+                                </UserProvider>
+                            </DialogProvider>
+                        </BaseProvider>
+                    </StyletronProvider>
+                </ColorSchemeProvider>
             </WagmiConfig>
         </PageBacProvider>
     );

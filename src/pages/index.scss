@@ -1,7 +1,7 @@
 .home-page {
   width: 100%;
   position: relative;
-  background: #F8F9F8;
+  background: var(--color-page-bg);
   height: 100%;
   overflow-x: hidden;
   touch-action: pan-y;
@@ -79,7 +79,7 @@
       font-weight: 700;
       font-size: 24px;
       line-height: 16px;
-      color: #272928;
+      color: var(--color-text-main);
     }
 
     p {
@@ -87,7 +87,7 @@
       font-weight: 400;
       font-size: 14px;
       line-height: 20px;
-      color: #272928;
+      color: var(--color-text-main);
       margin-bottom: 45px;
     }
   }

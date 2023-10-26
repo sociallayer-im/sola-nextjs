@@ -13,7 +13,7 @@ const style = {
         height: '210px',
         width: '162px',
         borderRadius: '15px',
-        background: '#fff',
+        background: 'var(--color-card-bg)',
         boxShadow: '0 1.9878px 11.9268px rgb(0 0 0 / 10%)',
         padding: '10px',
         cursor: 'pointer' as const,
@@ -43,7 +43,8 @@ const style = {
         overflow: 'hidden' as const,
         textOverflow: 'ellipsis' as const,
         lineHeight: 'auto',
-        fontSize: '16px'
+        fontSize: '16px',
+        color: 'var(--color-text-main)',
     },
     des: {
         padding: '6px 12px',

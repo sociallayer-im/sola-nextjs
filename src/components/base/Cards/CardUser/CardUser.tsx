@@ -10,7 +10,7 @@ const style = {
         display: 'flex',
         flexDirection: 'row' as const,
         borderRadius: '12px',
-        background: '#fff',
+        background: 'var(--color-card-bg)',
         boxShadow: '0 1.9878px 11.9268px rgb(0 0 0 / 10%)',
         padding: '10px',
         cursor: 'pointer' as const,
@@ -28,7 +28,7 @@ const style = {
     },
     name: {
         fontWeight: 400,
-        color: '#272928',
+        color: 'var(--color-text-main)',
         fontSize: '14px'
     },
     leftSide: {

@@ -1,7 +1,6 @@
 import {useStyletron} from 'baseui'
 import {useContext, useEffect, useState} from 'react'
 import DialogsContext from '../../../provider/DialogProvider/DialogsContext'
-import UserContext from '../../../provider/UserProvider/UserContext'
 import {NftDetail} from "@/service/alchemy/alchemy";
 import DialogNftDetail from "@/components/base/Dialog/DialogNftDetail/DialogNftDetail";
 
@@ -13,7 +12,7 @@ const style1 = {
         width: '162px',
         height: '192px',
         borderRadius: '15px',
-        background: '#fff',
+        background: 'var(--color-card-bg)',
         boxShadow: '0 1.9878px 11.9268px rgb(0 0 0 / 10%)',
         padding: '10px',
         cursor: 'pointer' as const,
@@ -87,7 +86,7 @@ const style2 = {
         width: '162px',
         height: '182px',
         borderRadius: '15px',
-        background: '#fff',
+        background: 'var(--color-card-bg)',
         boxShadow: '0 1.9878px 11.9268px rgb(0 0 0 / 10%)',
         padding: '10px',
         cursor: 'pointer' as const,
@@ -114,7 +113,8 @@ const style2 = {
         whiteSpace: 'nowrap' as const,
         overflow: 'hidden' as const,
         textOverflow: 'ellipsis' as const,
-        fontSize: '14px'
+        fontSize: '14px',
+        color:'var(--color-text-main)'
     },
     pendingMark: {
         position: 'absolute' as const,
@@ -149,7 +149,7 @@ const style2 = {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: 'linear-gradient(180deg, rgba(247, 247, 247, 0.82) 0%, #EBF2F1 100%);',
+        background: 'var(--color-card-image-bg)',
         borderRadius: '6px',
         marginBottom: '8px'
     }

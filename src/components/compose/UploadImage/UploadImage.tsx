@@ -14,7 +14,7 @@ const Wrapper = styled('div', () => {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: '#F8F9F8',
+        background: 'var(--color-card-bg)',
         borderRadius: '16px',
         userSelect: 'none',
     }

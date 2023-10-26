@@ -40,8 +40,8 @@ function EventLabels({showAll=false, ...props}: EventLabelsProps) {
                         borderColor: color,
                     } :
                     {
-                        color: '#1B2028',
-                        borderColor: '#EDEDED',
+                        color: 'var(--color-text-main)',
+                        borderColor: 'var(--color-item-border)',
                     }
                 const style_2 = {background: isSelected ? color : '#c4c4c4'}
 

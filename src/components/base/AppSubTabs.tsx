@@ -13,8 +13,7 @@ function AppSubTabs (props: AppTabsProps) {
 
     const tabStyle = ({$active, $disabled, $theme}: any) => {
         const defaultStyle = {
-            color: '#272928',
-            fontWeight: $active ? 600 : 'normal',
+            color: $active ? '#272928!important': 'var(--color-text-main)!important',
             height: '34px',
             lineHeight: '32px',
             borderRadius: '8px',
@@ -29,7 +28,8 @@ function AppSubTabs (props: AppTabsProps) {
             borderRightWidth: '1px',
             borderBottomWidth: '1px!important',
             borderStyle: 'solid',
-            borderColor: $active ? '#272928' : '#EDEDED',
+            borderColor: $active ? 'var(--color-subtab-active)' : 'var(--color-item-border)',
+            background: $active ? 'var(--color-subtab-active)' : 'var(--color-page-main)',
             position: 'relative'
         }
 

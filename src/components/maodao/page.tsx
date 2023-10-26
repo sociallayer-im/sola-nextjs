@@ -143,7 +143,7 @@ function Page(props: any) {
 
     const ShowDomain = styled('div', ({$theme}) => {
         return {
-            color: '#272928'
+            color: 'var(--color-text-main)'
         }
     })
 
@@ -193,7 +193,7 @@ function Page(props: any) {
                         <div className={'list-title'} style={{ fontWeight: 600,
                             fontSize: '16px',
                             lineHeight: '24px',
-                            color:' #272928',
+                            color:'var(--color-text-main)',
                             marginTop: '15px',
                             marginBottom: '15px'}}>Ready Player Cat</div>
                         <ListNftAsset profile={profile} type={'maodao'} />

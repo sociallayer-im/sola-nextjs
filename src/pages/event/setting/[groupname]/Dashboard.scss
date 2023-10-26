@@ -1,6 +1,6 @@
 .dashboard-page {
   min-height: 100vh;
-  background: #fff;
+  background: var(--color-page-bg);
   position: relative;
 
   .center {
@@ -25,7 +25,7 @@
     margin-bottom: 12px;
 
     .label {
-      color: var(--text-4-headline, #272928);
+      color: var(--color-text-main);
       font-size: 14px;
       font-style: normal;
       font-weight: 600;
@@ -33,7 +33,7 @@
 
     .value {
       display: flex;
-      color: var(--text-4-headline, #272928);
+      color: var(--color-text-main);
       font-size: 14px;
       font-style: normal;
       font-weight: 400;
@@ -53,7 +53,7 @@
   left: 0;
   height: calc(100vh - 48px);
   overflow: hidden;
-  background: #fff;
+  background: var(--color-card-bg);
   padding: 0 0 12px 0;
   box-sizing: border-box;
 
@@ -73,7 +73,7 @@
     box-sizing: border-box;
     left: 0;
     bottom: 0;
-    background: #fff;
+    background: var(--color-page-bg);
     z-index: 99;
     display: flex;
     flex-flow: row nowrap;
@@ -100,7 +100,7 @@
 
     .event-site-item-title {
       margin-top: 12px;
-      color: var(--text-4-headline, #272928);
+      color: var(--color-text-main);
       font-size: 14px;
       font-style: normal;
       font-weight: 600;
@@ -111,7 +111,7 @@
   .add-event-site-btn {
     display: flex;
     align-items: center;
-    color: var(--text-4-headline, #272928);
+    color: var(--color-text-main);
     font-size: 14px;
     font-style: normal;
     font-weight: 600;
@@ -127,7 +127,7 @@
 
     .issues-des {
       font-size: 12px;
-      color: #272928;
+      color: var(--color-text-main);
       margin-bottom: 15px;
       padding-left: 10px;
     }
@@ -142,7 +142,7 @@
       font-size: 14px;
       font-weight: 600;
       line-height: 22px;
-      color: #272928;
+      color: var(--color-text-main);
       margin-bottom: 10px;
       margin-left: 10px;
     }

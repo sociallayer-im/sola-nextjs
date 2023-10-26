@@ -16,7 +16,7 @@ interface SelectCreatorProp {
 
 const WithStyledControlContainer = withStyle(StyledControlContainer, (props) => {
     const { $isFocused, $theme: { colors } } = props
-    const borderColor = $isFocused ? colors.primaryB : 'rgba(0,0,0,0)'
+    const borderColor = $isFocused ? 'var(--color-theme)' : 'var(--color-item-border)'
     return {
         borderTopWidth: '1px',
         borderLeftWidth: '1px',
@@ -30,6 +30,8 @@ const WithStyledControlContainer = withStyle(StyledControlContainer, (props) => 
         borderRightColor: borderColor,
         borderBottomColor: borderColor,
         borderLeftColor: borderColor,
+        backgroundColor: 'var(--color-card-bg)',
+        color: 'var(--color-text-main)'
     }
 })
 

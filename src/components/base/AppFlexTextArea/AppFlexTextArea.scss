@@ -6,12 +6,13 @@
 
   .flex-text-area {
     width: 100%;
-    background: #f6f6f6;
+    background: var(--color-input-bg);
     border-radius: 12px;
     display: flex;
     flex-flow: row nowrap;
     padding: 10px 12px;
     box-sizing: border-box;
+    color: var(--color-text-main);
 
     &.error {
       border: 1px solid #FF4D4F;
@@ -40,6 +41,7 @@
       word-break: break-all;
       overflow: auto;
       position: relative;
+      caret-color: var(--color-text-main);
 
       &.empty:before {
         content: attr(data-placeholder);

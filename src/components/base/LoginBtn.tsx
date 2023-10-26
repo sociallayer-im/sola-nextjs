@@ -19,12 +19,14 @@ function LoginBtn () {
             alignItems: 'center',
             padding: '0 3px',
             borderRadius: '2px',
+            color: 'var(--color-text-main)',
             ':hover': {
                 background: 'rgba(0,0,0,.05)'
             }
         },
         text: {
-            marginLeft: '8px'
+            marginLeft: '8px',
+            color: 'var(--color-text-main)'
         }
     }
 

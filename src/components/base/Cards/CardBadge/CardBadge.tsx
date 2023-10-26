@@ -12,7 +12,7 @@ const style = {
         width: '162px',
         height: '182px',
         borderRadius: '15px',
-        background: '#fff',
+        background: 'var(--color-card-bg)',
         boxShadow: '0 1.9878px 11.9268px rgb(0 0 0 / 10%)',
         padding: '10px',
         cursor: 'pointer' as const,
@@ -45,7 +45,7 @@ const style = {
         position: 'absolute' as const,
         fontWeight: 600,
         fontSize: '12px',
-        color: '#272928',
+        color: 'var(--color-text-main)',
         padding: '0 10px',
         background: '#ffdc62',
         height: '28px',
@@ -74,7 +74,7 @@ const style = {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: 'linear-gradient(180deg, rgba(247, 247, 247, 0.82) 0%, #EBF2F1 100%);',
+        background: 'var(--color-card-image-bg)',
         borderRadius: '6px',
         marginBottom: '8px'
     }

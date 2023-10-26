@@ -888,7 +888,7 @@ function CreateEvent(props: CreateEventPageProps) {
 
     return (
         <>
-            <div className='create-badge-page'>
+            <div className='create-event-page'>
                 <div className='create-badge-page-wrapper'>
                     <PageBack title={lang['Activity_Create_title']}/>
 

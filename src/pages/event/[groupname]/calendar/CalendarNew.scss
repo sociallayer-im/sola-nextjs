@@ -1,6 +1,6 @@
 .calender-new {
   min-height: 100%;
-  background: #fff;
+  background: var(--color-page-bg);
 
 
   .center {
@@ -24,7 +24,7 @@
     align-items: flex-start;
 
     .left {
-      color: var(--text-4-headline, #272928);
+      color: var(--color-text-main);
       font-size: 24px;
       font-style: normal;
       font-weight: 700;
@@ -80,7 +80,7 @@
 
   .calendar-event-title {
     display: flex;
-    color: var(--text-4-headline, #272928);
+    color: var(--color-text-main);
     font-size: 12px;
     font-style: normal;
     font-weight: 400;
@@ -151,7 +151,7 @@
         box-sizing: border-box;
 
         .start, .ending {
-          color: var(--text-4-headline, #272928);
+          color: var(--color-text-main);
           font-size: 14px;
           font-style: normal;
           font-weight: 600;
@@ -192,7 +192,7 @@
           }
 
           .event-name {
-            color: var(--text-4-headline, #272928);
+            color: var(--color-text-main);
             font-size: 14px;
             font-style: normal;
             font-weight: 400;

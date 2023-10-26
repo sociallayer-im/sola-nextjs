@@ -18,7 +18,7 @@ const BackBtn = styled('div', ({$theme}) => ({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    color: '#272928',
+    color: 'var(--color-text-main)',
     fontSize: '14px',
     cursor: "pointer",
     userSelect: 'none'
@@ -29,7 +29,8 @@ const Title = styled('div', ({$theme}) => ({
     left: '50%',
     transform: 'translate(-50%, 0)',
     fontSize: '14px',
-    fontWeight: '600'
+    fontWeight: '600',
+    color: 'var(--color-text-main)',
 }))
 
 interface PageBackProp {

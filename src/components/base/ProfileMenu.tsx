@@ -57,6 +57,7 @@ function ProfileMenu () {
             overflow: 'hidden',
             'text-overflow': 'ellipsis',
             whitespace: 'nowrap',
+            color:'var(--color-text-main)'
         },
     }
 

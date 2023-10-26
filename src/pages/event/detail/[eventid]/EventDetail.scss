@@ -1,6 +1,6 @@
 .event-detail {
   position: relative;
-  background: #fff;
+  background: var(--color-page-bg);
   padding-bottom: 60px;
   min-height: 100vh;
 
@@ -11,7 +11,7 @@
     justify-content: center;
     align-items: center;
     border-radius: 8px;
-    background: #FFF;
+    background: var(--color-page-bg);
     margin-top: -8px;
     margin-right: 12px;
     cursor: pointer;
@@ -23,7 +23,7 @@
 
   .cover {
     border-radius: 0 0 20px 20px;
-    background: var(--fill-3-dark, #ECF2EE);
+    background: var(--color-event-header-bg);
     padding: 12px;
     width: 100%;
     box-sizing: border-box;
@@ -48,7 +48,7 @@
     padding: 23px 12px;
 
     .name {
-      color: var(--text-4-headline, #272928);
+      color: var(--color-text-main);
       font-size: 20px;
       font-style: normal;
       font-weight: 600;
@@ -59,7 +59,7 @@
     .detail-item {
       display: flex;
       flex-flow: row wrap;
-      color: var(--fill-6-dark, #272928);
+      color: var(--color-text-main);
       font-size: 14px;
       font-style: normal;
       font-weight: 400;
@@ -86,9 +86,8 @@
 
     .hoster {
       margin-top: 16px;
-
-      border-top: 1px solid var(--fill-3-dark, #EEE);
-      border-bottom: 1px solid var(--fill-3-dark, #EEE);
+      border-top: 1px solid var(--color-box-border);
+      border-bottom: 1px solid var(--color-box-border)  ;
       padding: 13px 0;
 
       .center {
@@ -107,6 +106,7 @@
           white-space: nowrap;
           margin-right: 30px;
           cursor: pointer;
+          color: var(--color-text-sub);
 
 
           img {
@@ -117,7 +117,7 @@
           }
 
           .host-name {
-            color: var(--text-4-headline, #272928);
+            color: var(--color-text-main);
             font-size: 14px;
             font-style: normal;
             font-weight: 600;
@@ -153,7 +153,7 @@
     }
 
     .event-des {
-      color: var(--text-3-subtitle, #3C3E3D);
+      color: var(--color-text-main);
       font-size: 16px;
       font-style: normal;
       font-weight: 400;
@@ -164,7 +164,7 @@
     .event-tab {
       .tab-titles {
         width: 100%;
-        border-bottom: 1px solid #eee;
+        border-bottom: 1px solid var(--color-box-border);
         padding-top: 3px;
 
         .center {
@@ -179,12 +179,12 @@
           font-size: 14px;
           font-style: normal;
           line-height: 22px;
-          border-bottom: 3px solid #fff;
+          border-bottom: 3px solid var(--color-page-bg);
           box-sizing: border-box;
           cursor: pointer;
 
           &.active {
-            color: #000;
+            color: var(--color-text-main);
             font-weight: 600;
             border-bottom: 3px solid #9EFEDD;
           }
@@ -197,7 +197,7 @@
     }
 
     .wechat-title {
-      color: var(--text-4-headline, #272928);
+      color: var(--color-text-main);
       font-size: 14px;
       font-style: normal;
       font-weight: 600;
@@ -210,7 +210,7 @@
     }
 
     .wechat-account {
-      color: var(--text-4-headline, #272928);
+      color: var(--color-text-main);
       font-size: 12px;
       font-style: normal;
       font-weight: 400;
@@ -252,7 +252,7 @@
     .event-action {
       position: fixed;
       height: 50px;
-      background: #fff;
+      background: var(--color-page-bg);
       width: 100%;
       bottom: 0;
       left: 0;

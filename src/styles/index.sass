@@ -148,12 +148,44 @@ body
   margin: 0
   padding: 0
   font-size: 12px
-  color: #3c3e3d
+  color: var(--color-text-main, #272928)
   box-sizing: border-box
   background: #f8f8f8
   --width-page-max: 450px
   --width-page-edge: 20px
   --height-nav: 48px
+
+.light
+  --color-theme: #9efedd
+  --color-page-bg: #f8f8f8
+  --color-text-main: #272928
+  --color-text-sub: #7B7C7B
+  --color-card-bg: #fff
+  --color-input-bg: #f6f6f6
+  --color-scroll-thumb: #dedede
+  --color-box-border: #eee
+  --color-item-border: #EDEDED
+  --color-subtab-active: #fff
+  --color-shell: rgba(255, 255, 255, 0.5)
+  --color-event-header-bg: #ECF2EE
+  --color-card-image-bg: linear-gradient(180deg, rgba(247, 247, 247, 0.82) 0%, #EBF2F1 100%)
+  background: var(--color-page-bg)
+
+.dark
+  --color-theme: #9efedd
+  --color-page-bg: #0D0D0D
+  --color-text-main: #eee
+  --color-text-sub: #7B7C7B
+  --color-card-bg: #252525
+  --color-input-bg: #252525
+  --color-scroll-thumb: #464646
+  --color-box-border: #1E1E1E
+  --color-item-border: #1F1F1F
+  --color-subtab-active: #DAD6D7
+  --color-shell: rgba(0, 0, 0, 0.3)
+  --color-event-header-bg: #252525
+  --color-card-image-bg: linear-gradient(180deg, rgba(50, 50, 50, 0.82) 0%, #171717 100%)
+  background: var(--color-page-bg)
 
 @media (min-width: 450px)
   body
@@ -170,11 +202,11 @@ body
   height: 6px
 
 ::-webkit-scrollbar-track
-  background: 0
+  background: var(--color-card-bg)
 
 ::-webkit-scrollbar-thumb
   border-radius: 8px
-  background: #dedede
+  background: var(--color-scroll-thumb)
 
 @media (max-width: 360px)
   *::-webkit-scrollbar

@@ -1,6 +1,6 @@
 .create-private-page {
   position: relative;
-  background: #fff;
+  background: var(--color-page-bg);
 
   .create-badge-page-wrapper {
     z-index: 2;
@@ -50,7 +50,7 @@
       font-size: 14px;
       font-weight: 600;
       line-height: 22px;
-      color: #272928;
+      color: var(--color-text-main);
       margin-bottom: 10px;
       margin-left: 10px;
     }
@@ -58,7 +58,7 @@
 
   .prefill-preview {
     height: 205px;
-    background: #F8F9F8;
+    background: var(--color-page-bg);
     border-radius: 8px;
     display: flex;
     flex-flow: column wrap;

@@ -83,7 +83,7 @@ function Page(props: any) {
 
     const ShowDomain = styled('div', ({$theme}) => {
         return {
-            color: '#272928'
+            color: 'var(--color-text-main)'
         }
     })
 

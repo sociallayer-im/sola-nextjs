@@ -8,9 +8,9 @@
 
   .event-label-item {
     border-radius: 8px;
-    border: 1px solid #EDEDED;
+    border: 1px solid var(--color-item-border);
     padding: 8px 12px;
-    color: #1B2028;
+    color: var(--color-text-main);
     font-size: 12px;
     font-style: normal;
     font-weight: 500;

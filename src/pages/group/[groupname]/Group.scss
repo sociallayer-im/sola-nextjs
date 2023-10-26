@@ -1,5 +1,5 @@
 .profile-page {
-  background: #f8f8f8;
+  background: var(--color-page-bg);
   min-height: 100%;
   position: relative;
 
@@ -20,7 +20,7 @@
   }
 
   .up-side {
-    background: #fff;
+    background: var(--color-page-bg);
     padding-bottom: 20px;
   }
 
@@ -50,6 +50,7 @@
     flex-flow: row nowrap;
     align-items: center;
     cursor: pointer;
+    color: var(--color-text-main);
 
     .profile-setting-btn {
       margin-left: 10px;
@@ -57,7 +58,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      color: #272928;
+      color: var(--color-text-main);
     }
   }
 
@@ -108,7 +109,7 @@
     padding: 0 20px;
     margin-left: auto;
     margin-right: auto;
-    background: #fff;
+    background: var(--color-page-bg);
 
     .profile-user-name {
       display: block;

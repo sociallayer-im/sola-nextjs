@@ -2,7 +2,7 @@
   width: 300px;
   max-height: 176px;
   border-radius: 20px;
-  background: var(--fill-0-white, #FFF);
+  background: var(--color-card-bg);
   box-shadow: 0 0 8px 0 rgba(0, 0, 0, 0.08);
   position: relative;
   overflow: hidden;
@@ -93,7 +93,7 @@
       background: var(--primary-color-brand-16, #9EFEDD);
       display: flex;
       height: 26px;
-      color: var(--text-4-headline, #272928);
+      color: var(--color-text-main);
       font-size: 12px;
       margin-right: 12px;
       font-weight: 500;
@@ -103,7 +103,7 @@
     }
 
     .title {
-      color: var(--text-4-headline, #272928);
+      color: var(--color-text-main);
       font-size: 14px;
       font-style: normal;
       font-weight: 600;
@@ -120,7 +120,7 @@
       display: flex;
       align-items: center;
       white-space: nowrap;
-      color: var(--text-4-headline, #272928);
+      color: var(--color-text-main);
       font-size: 14px;
       font-style: normal;
       font-weight: 400;

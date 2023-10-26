@@ -1,9 +1,10 @@
 import PageHeader from '../compose/PageHeader'
-import { useStyletron, styled } from 'baseui'
-import {useEffect, useState, useContext} from 'react'
+import { useStyletron } from 'baseui'
+import {useEffect, useContext} from 'react'
 import usePageHeight from '../../hooks/pageHeight'
 import userContext from "../provider/UserProvider/UserContext";
 import { useRouter } from 'next/navigation'
+import {ColorSchemeContext} from "@/components/provider/ColorSchemeProvider";
 
 
 
@@ -11,6 +12,7 @@ function Layout(props?: any) {
     const [css] = useStyletron()
     const { windowHeight, heightWithoutNav } = usePageHeight()
     const { user } = useContext(userContext)
+    const { theme } = useContext(ColorSchemeContext)
     const router = useRouter()
 
     const wrapper = {
@@ -57,10 +59,12 @@ function Layout(props?: any) {
     }, [windowHeight, heightWithoutNav])
 
     return (
-        <div className={ css(wrapper) } id={'PageWrapper'}>
-            <PageHeader />
-            <div className={ css(content)} id={'PageContent'}>
-                {props.children}
+        <div className={theme}>
+            <div className={ css(wrapper) } id={'PageWrapper'}>
+                <PageHeader />
+                <div className={css(content)} id={'PageContent'}>
+                    {props.children}
+                </div>
             </div>
         </div>
     )

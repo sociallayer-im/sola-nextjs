@@ -1,5 +1,5 @@
 .event-checkin-page {
-  background: #fff;
+  background: var(--color-page-bg);
   min-height: 100%;
   padding-bottom: 80px;
   box-sizing: border-box;
@@ -12,7 +12,7 @@
 
   .checkin-card {
     border-radius: 20px;
-    background: var(--fill-0-white, #FFF);
+    background: var(--color-card-bg);
     box-shadow: 0 0 18px 0 rgba(0, 0, 0, 0.08);
     padding: 34px 20px;
     margin-top: 20px;
@@ -30,7 +30,7 @@
   }
 
   .event-name {
-    color: var(--text-4-headline, #272928);
+    color: var(--color-text-main);
     text-align: center;
     font-size: 20px;
     font-style: normal;
@@ -39,7 +39,7 @@
   }
 
   .time {
-    color: var(--fill-6-dark, #272928);
+    color: var(--color-text-main);
     text-align: center;
     font-size: 12px;
     font-style: normal;
@@ -88,7 +88,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: #fff;
+    background: var(--color-page-bg);
     padding: 12px;
     box-shadow: 0 0 6px #eee;
   }

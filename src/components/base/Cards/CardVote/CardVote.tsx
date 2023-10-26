@@ -11,7 +11,7 @@ import {
     queryVoteRecords,
     Vote,
     VoteRecord,
-} from "../../../../service/solas";
+} from "@/service/solas";
 import userContext from "../../../provider/UserProvider/UserContext";
 import DialogsContext from "../../../provider/DialogProvider/DialogsContext";
 import LangContext from "../../../provider/LangProvider/LangContext";

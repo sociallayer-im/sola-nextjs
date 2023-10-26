@@ -1,6 +1,8 @@
 import { styled, useStyletron } from 'baseui'
 import Link from 'next/link'
 import HomePageSwitcher from "../compose/HomePageSwitcher/HomePageSwitcher";
+import {ColorSchemeContext} from "@/components/provider/ColorSchemeProvider";
+import {useContext} from "react";
 
 const Logo = styled('div', ({ $theme }) => ({
     width: '174px',
@@ -8,12 +10,13 @@ const Logo = styled('div', ({ $theme }) => ({
     display: 'inline-flex',
     alignItems: 'center',
     textDecoration: 'none',
-    color: $theme.colors.contentPrimary,
     flexDirection: 'row',
 }))
 
 function PageLogo () {
     const [css] = useStyletron()
+    const {theme} = useContext(ColorSchemeContext)
+
     const imgStyle = {
         height: '32px',
         display: 'block',
@@ -31,9 +34,8 @@ function PageLogo () {
         marginRight: '8px',
     }
 
-    const home = process.env.NEXT_PUBLIC_SOLAS_HOME
     return (<Logo>
-        <Link href={'/'}><img className={css(imgStyle)} src="/images/header_logo.svg" alt=""/></Link>
+        <Link href={'/'}><img className={css(imgStyle)} src={theme=== 'light' ? "/images/header_logo.svg" : "/images/head_logo_dark.svg"} alt=""/></Link>
         <HomePageSwitcher />
     </Logo>)
 }

@@ -15,8 +15,8 @@ const RootWithStyle = withStyle(StyledRoot, (props) => {
         : $error
             ? colors.inputBorderError
             : $isFocused
-                ? colors.primaryB
-                : 'rgba(0,0,0,0)'
+                ? 'var(--color-theme)'
+                : 'var(--color-item-border)'
 
     return {
         borderLeftColor: borderColor,
@@ -31,7 +31,8 @@ const RootWithStyle = withStyle(StyledRoot, (props) => {
         borderBottomRightRadius: '16px',
         borderBottomLeftRadius: '16px',
         borderTopLeftRadius: '16px',
-        borderTopRightRadius: '16px'
+        borderTopRightRadius: '16px',
+        backgroundColor: 'var(--color-card-bg)',
     }
 })
 
@@ -76,9 +77,12 @@ export default function AppInput(props: AppInputProps) {
         paddingLeft: '10px',
         paddingRight: '10px',
         fontSize: '14px',
+        color: 'var(--color-text-main)',
+        backgroundColor: 'var(--color-input-bg)',
         '::placeholder' : {
             color: '#919191'
-        }
+        },
+        caretColor: 'var(--color-text-main)'
     }
 
     const errorStyle = {
@@ -87,13 +91,30 @@ export default function AppInput(props: AppInputProps) {
     }
 
     const clearBtnStyle = {
-        color: '#c7c7c7'
+        color: 'var(--color-text-main)',
     }
 
     const overrides = {
         Root: { component: RootWithStyle },
         Input: { style: {...inputStyle} },
         ClearIcon: { style: clearBtnStyle, props: { size: 26 } },
+        EndEnhancer: {
+            style: ({ $theme }) => ({
+                backgroundColor: 'var(--color-card-bg)',
+                color: 'var(--color-text-main)',
+            })
+        },
+        StartEnhancer: {
+            style: ({ $theme }) => ({
+                backgroundColor: 'var(--color-card-bg)',
+                color: 'var(--color-text-main)',
+            })
+        },
+        ClearIconContainer : {
+            style: ({ $theme }) => ({
+                backgroundColor: 'var(--color-card-bg)'
+            })
+        }
     }
 
     return (

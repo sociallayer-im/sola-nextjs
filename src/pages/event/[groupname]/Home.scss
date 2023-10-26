@@ -1,7 +1,7 @@
 .home-page-event {
   width: 100%;
   position: relative;
-  background: #fff;
+  background: var(--color-page-bg);
   min-height: 100%;
   padding-bottom: 100px;
   box-sizing: border-box;
@@ -13,7 +13,7 @@
 
   .module-title {
     position: relative;
-    color: var(--text-4-headline, #272928);
+    color: var(--color-text-main);
     font-size: 24px;
     font-style: normal;
     font-weight: 700;
@@ -39,7 +39,7 @@
   .module-tabs {
     .tab-titles {
       margin-bottom: 20px;
-      background: #fff;
+      background: var(--color-page-bg);
       transition: top 0.3s;
       top: 10px;
 
@@ -74,7 +74,7 @@
 
 
       .tab-title {
-        color: var(--text-4-headline, #272928);
+        color: var(--color-text-main);
         font-size: 16px;
         font-style: normal;
         font-weight: 400;
@@ -151,7 +151,7 @@
     border-radius: 16px;
     background: linear-gradient(88.02deg, rgb(186, 255, 173) -2.09%, rgb(161, 244, 230) 62.09%, rgb(128, 248, 192) 97.29%);
     box-sizing: border-box;
-    color: var(--text-4-headline, #272928);
+    color: var(--color-text-main);
     font-size: 16px;
     font-style: normal;
     font-weight: 700;
@@ -176,7 +176,7 @@
     cursor: pointer;
     flex: 1;
     background: #ECF2EE;
-    color: #272928;
+    color:var(--color-text-main);
     max-width: 92px;
     margin-left: 16px;
 
@@ -239,7 +239,7 @@
     width: 38px;
     box-sizing: border-box;
     background: #fff;
-    color: #272928;
+    color:var(--color-text-main);
     cursor: pointer;
     font-size: 17px;
 
@@ -279,7 +279,7 @@
 }
 
 .event-map-marker {
-  color: #272928;
+  color: var(--color-text-main);
   height: auto;
   display: inline-flex;
   width: initial;

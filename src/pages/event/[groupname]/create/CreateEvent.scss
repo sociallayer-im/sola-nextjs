@@ -1,6 +1,6 @@
-.create-badge-page {
+.create-event-page {
   position: relative;
-  background: #fff;
+  background: var(--color-page-bg);
 
   .banded-badge {
     display: flex;
@@ -58,7 +58,7 @@
     font-size: 16px;
     font-weight: 600;
     line-height: 24px;
-    color: #272928;
+    color: var(--color-text-main);
     text-align: center;
   }
 
@@ -127,7 +127,7 @@
 
       &.active {
         background: var(--fill-2, #fff);
-        color: #272928;
+        color: var(--color-text-main);
         font-weight: 600;
         box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.05);
       }
@@ -182,7 +182,7 @@
         font-weight: 600;
         font-size: 14px;
         line-height: 22px;
-        color: #272928;
+        color: var(--color-text-main);
         padding-left: 12px;
       }
 
@@ -263,13 +263,13 @@
       font-size: 16px;
       font-weight: 600;
       line-height: 22px;
-      color: #272928;
+      color: var(--color-text-main);
       margin-bottom: 10px;
       margin-left: 10px;
     }
 
     .input-area-sub-title {
-      color: var(--text-4-headline, #272928);
+      color: var(--color-text-main);
       font-size: 14px;
       font-style: normal;
       font-weight: 600;
@@ -282,7 +282,7 @@
 
   .prefill-preview {
     height: 205px;
-    background: #F8F9F8;
+    background: var(--color-page-bg);
     border-radius: 8px;
     display: flex;
     flex-flow: column wrap;
@@ -300,7 +300,7 @@
     }
 
     .name {
-      color: #272928;
+      color: var(--color-text-main);
       font-weight: 700;
       font-size: 20px;
       line-height: 15px;
@@ -318,7 +318,7 @@
       font-weight: 600;
       font-size: 14px;
       line-height: 22px;
-      color: #272928;
+      color: var(--color-text-main);
 
       .icon-clock {
         font-weight: bold;

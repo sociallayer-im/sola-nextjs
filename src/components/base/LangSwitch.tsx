@@ -33,7 +33,7 @@ function LangSwitch () {
         returnFocus
         content={({close}) => menuContent(close) }
         autoFocus>
-        <div className={css({cursor: 'pointer'})}>
+        <div className={css({cursor: 'pointer', color: 'var(--color-text-main)'})}>
             { langType.toUpperCase() }
         </div>
     </StatefulPopover>
