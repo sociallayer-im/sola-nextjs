@@ -1,11 +1,11 @@
-import { Profile } from '../../../../service/solas'
+import { Profile } from '@/service/solas'
 import {useContext, useEffect, useRef, useState} from 'react'
 import LangContext from '../../../provider/LangProvider/LangContext'
 import QRcode from '../../QRcode'
 import usePicture from '../../../../hooks/pictrue'
 // import html2canvas from 'html2canvas'
 import DialogsContext from '../../../provider/DialogProvider/DialogsContext'
-import {useLocation} from "react-router-dom";
+import {usePathname} from "next/navigation";
 
 export interface DialogProfileQRcodeProps {
     profile: Profile
@@ -19,10 +19,9 @@ function DialogProfileQRcode (props: DialogProfileQRcodeProps) {
     const { defaultAvatar } = usePicture()
     const shareUrl = `${domain}/profile/${props.profile.username}`
     const card = useRef(null)
-    const [saving, setSaving] = useState(false)
     const [bgLoading, setBgLoading] = useState(true)
     const bgURL = `/images/qrcode_bg/qrcode_bg_${langType}.png`
-    const { pathname } = useLocation()
+    const pathname = usePathname()
 
     useEffect(() => {
         setBgLoading(true)
@@ -35,12 +34,12 @@ function DialogProfileQRcode (props: DialogProfileQRcodeProps) {
         }
     }, [])
 
-    useEffect(() => {
-        console.log('pathname', pathname)
-        if (!pathname.includes(props.profile.username!)) {
-            props.handleClose()
-        }
-    }, [pathname])
+    // useEffect(() => {
+    //     console.log('pathname', pathname)
+    //     if (!pathname?.includes(props.profile.username!)) {
+    //         props.handleClose()
+    //     }
+    // }, [pathname])
 
     // const saveCard = () => {
     //     if (!card.current) return
