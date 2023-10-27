@@ -32,7 +32,10 @@ const style = {
         'text-align': 'center',
         lineHeight: '44px',
         fontWeight: 600,
-        padding: 0,
+        paddingTop: '0',
+        paddingLeft: '0',
+        paddingRight: '0',
+        paddingBottom: '0',
         boxSizing: 'border-box' as const
     },
     input: {
