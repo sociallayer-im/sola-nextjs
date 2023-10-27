@@ -10,8 +10,6 @@ import {setAuth} from "@/utils/authStorage";
 
 
 import solaExtensionLogin from '../../../service/ExtensionLogin'
-import Alchemy from "@/service/alchemy/alchemy";
-import fetch from "@/utils/fetch";
 
 export interface User {
     id: number | null,
@@ -25,7 +23,7 @@ export interface User {
     nickname: string | null,
     permissions: string[],
     phone: string | null,
-    maodaoid: number | null
+    maodaoid?: number | null
 }
 
 export interface UserContext {
@@ -50,7 +48,6 @@ const emptyUser: User = {
     nickname: null,
     permissions: [],
     phone: null,
-    maodaoid: null
 }
 
 function UserProvider (props: UserProviderProps) {
