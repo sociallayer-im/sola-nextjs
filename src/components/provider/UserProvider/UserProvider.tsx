@@ -10,6 +10,8 @@ import {setAuth} from "@/utils/authStorage";
 
 
 import solaExtensionLogin from '../../../service/ExtensionLogin'
+import Alchemy from "@/service/alchemy/alchemy";
+import fetch from "@/utils/fetch";
 
 export interface User {
     id: number | null,
@@ -23,6 +25,7 @@ export interface User {
     nickname: string | null,
     permissions: string[],
     phone: string | null,
+    maodaoid: number | null
 }
 
 export interface UserContext {
@@ -47,6 +50,7 @@ const emptyUser: User = {
     nickname: null,
     permissions: [],
     phone: null,
+    maodaoid: null
 }
 
 function UserProvider (props: UserProviderProps) {
@@ -67,7 +71,6 @@ function UserProvider (props: UserProviderProps) {
     const setProfile = async (props: { authToken: string}) => {
         try {
             const profileInfo = await myProfile({auth_token: props.authToken})
-            console.log('Profile: ', profileInfo)
             setUser({
                 wallet: profileInfo?.address,
                 id: profileInfo?.id! || null,
@@ -77,8 +80,9 @@ function UserProvider (props: UserProviderProps) {
                 email:  profileInfo?.email || null,
                 avatar: profileInfo?.image_url || null,
                 authToken: props.authToken,
-                nickname: profileInfo?.nickname || null,
+                nickname:profileInfo?.nickname || null,
                 permissions: profileInfo?.permissions || [],
+                maodaoid: profileInfo?.maodaoid
             })
 
             if (!profileInfo!.domain) {

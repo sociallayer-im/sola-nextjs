@@ -22,7 +22,6 @@ function Page(props: any) {
     const params = useParams()
     const [tokenId, setTokenId] = useState<string>(props.tokenId || params?.tokenId)
     const [profile, setProfile] = useState<Profile | null>(props.profile || null)
-    const [maodaoProfile, setMaodaoProfile] = useState<any | null>(null)
     const {showLoading, openConnectWalletDialog} = useContext(DialogsContext)
     const {lang} = useContext(LangContext)
     const {user} = useContext(UserContext)

@@ -18,6 +18,8 @@ const UserTabs = dynamic(() => import('@/components/compose/ProfileTabs/ProfileT
     loading: () => <p>Loading...</p>,
 })
 
+const isMaodao = process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'maodao'
+
 function Page(props: any) {
     const params = useParams()
     const [username, setUsername] = useState<string>(props?.username || params?.username)
@@ -114,18 +116,20 @@ function Page(props: any) {
                         <div className='slot_1'>
                             <ProfilePanel profile={profile}/>
                         </div>
-                        <div className='slot_2'>
-                            <AppButton
-                                special kind={BTN_KIND.primary}
-                                size={BTN_SIZE.compact}
-                                onClick={handleMintOrIssue}>
-                                <span className='icon-sendfasong'></span>
-                                {user.id === profile.id
-                                    ? lang['Profile_User_MindBadge']
-                                    : lang['Profile_User_IssueBadge'] + (profile.nickname || profile.username)
-                                }
-                            </AppButton>
-                        </div>
+                        { !isMaodao &&
+                            <div className='slot_2'>
+                                <AppButton
+                                    special kind={BTN_KIND.primary}
+                                    size={BTN_SIZE.compact}
+                                    onClick={handleMintOrIssue}>
+                                    <span className='icon-sendfasong'></span>
+                                    {user.id === profile.id
+                                        ? lang['Profile_User_MindBadge']
+                                        : lang['Profile_User_IssueBadge'] + (profile.nickname || profile.username)
+                                    }
+                                </AppButton>
+                            </div>
+                        }
                     </div>
                 </div>
                 <div className='down-side'>

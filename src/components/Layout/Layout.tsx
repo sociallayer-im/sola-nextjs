@@ -6,7 +6,7 @@ import userContext from "../provider/UserProvider/UserContext";
 import { useRouter } from 'next/navigation'
 import {ColorSchemeContext} from "@/components/provider/ColorSchemeProvider";
 
-
+const isMaodao = process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'maodao'
 
 function Layout(props?: any) {
     const [css] = useStyletron()
@@ -59,7 +59,7 @@ function Layout(props?: any) {
     }, [windowHeight, heightWithoutNav])
 
     return (
-        <div className={theme}>
+        <div className={theme + ' ' + (isMaodao ? 'maodao' : '')}>
             <div className={ css(wrapper) } id={'PageWrapper'}>
                 <PageHeader />
                 <div className={css(content)} id={'PageContent'}>

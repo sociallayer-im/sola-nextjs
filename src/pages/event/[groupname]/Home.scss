@@ -176,7 +176,7 @@
     cursor: pointer;
     flex: 1;
     background: #ECF2EE;
-    color:var(--color-text-main);
+    color:#272928;
     max-width: 92px;
     margin-left: 16px;
 
@@ -387,5 +387,10 @@
 .gmnoprint.gm-bundled-control.gm-bundled-control-on-bottom {
   top: 50px !important;
   bottom: initial;
+}
+
+.maodao .create-event-btn {
+  background: #E1575D;
+  color: #D6D8D7;
 }
 

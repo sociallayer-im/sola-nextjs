@@ -1,5 +1,6 @@
 import {signInWithEthereum} from './SIWE'
 import fetch from '../utils/fetch'
+import Alchemy from "@/service/alchemy/alchemy";
 
 const api = process.env.NEXT_PUBLIC_SOLAS_API
 
@@ -52,6 +53,7 @@ export interface Profile {
     banner_image_url:null | string
     banner_link_url: null | string
     group_location_details: null | string
+    maodaoid?: number
 }
 
 export interface ProfileSimple {
@@ -79,6 +81,20 @@ export async function getProfile(props: GetProfileProps): Promise<Profile | null
     })
 
     if (!res.data.profile) return null
+
+    const isMaodao = process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'maodao'
+    let maodaoProfile: any = null
+    if (isMaodao && res.data.profile?.address) {
+        const maodaonft = await Alchemy.getMaodaoNft(res.data.profile?.address)
+        if (maodaonft.length) {
+            maodaoProfile = await fetch.get({
+                url: `https://metadata.readyplayerclub.com/api/rpc-fam/${maodaonft[0].id}`,
+                data: {}
+            }) as any
+            res.data.profile.nickname = maodaoProfile?.data.info.owner
+            res.data.profile.image_url = maodaoProfile?.data.image
+        }
+    }
 
     return {
         ...res.data.profile,
@@ -1871,6 +1887,20 @@ export async function myProfile (props: {auth_token: string}) {
 
     if (res.data.result === 'error') {
         throw new Error(res.data.message)
+    }
+
+    const isMaodao = process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'maodao'
+    let maodaoProfile: any = null
+    if (isMaodao && res.data.profile?.address) {
+        const maodaonft = await Alchemy.getMaodaoNft(res.data.profile?.address)
+        if (maodaonft.length) {
+            maodaoProfile = await fetch.get({
+                url: `https://metadata.readyplayerclub.com/api/rpc-fam/${maodaonft[0].id}`,
+                data: {}
+            }) as any
+            res.data.profile.nickname = maodaoProfile?.data.info.owner
+            res.data.profile.image_url = maodaoProfile?.data.image
+        }
     }
 
     return res.data.profile as Profile

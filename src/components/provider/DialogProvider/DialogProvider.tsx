@@ -166,6 +166,7 @@ function DialogProvider (props: DialogProviderProps) {
     }
 
     const showLoading = () => {
+        console.trace('showLoading========================')
         const id = genID()
         dialogsGroup.dialogs.push({
             id,

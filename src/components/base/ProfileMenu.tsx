@@ -19,7 +19,11 @@ function ProfileMenu () {
     }
 
     const toProfile = () => {
-        router.push(`/profile/${user.userName}`)
+        if (user?.maodaoid) {
+            router.push(`/maodao/${user.maodaoid}`)
+        } else {
+            router.push(`/profile/${user.userName}`)
+        }
     }
 
     const toBind = () => {
