@@ -91,7 +91,7 @@ export default function AppInput(props: AppInputProps) {
     }
 
     const clearBtnStyle = {
-        color: 'var(--color-text-main)',
+        color: 'var(--color-text-main)!important',
     }
 
     const overrides = {

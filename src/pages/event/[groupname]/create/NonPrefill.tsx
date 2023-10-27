@@ -910,7 +910,7 @@ function CreateEvent(props: CreateEventPageProps) {
                                 maxLength={30}
                                 value={title}
                                 errorMsg={''}
-                                placeholder={''}
+                                placeholder={lang['Activity_Form_Name']}
                                 onChange={(e) => {
                                     setTitle(e.target.value)
                                 }}/>
