@@ -32,6 +32,7 @@ const style = {
         'text-align': 'center',
         lineHeight: '44px',
         fontWeight: 600,
+        padding: 0,
         boxSizing: 'border-box' as const
     },
     input: {

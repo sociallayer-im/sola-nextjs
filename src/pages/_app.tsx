@@ -42,6 +42,7 @@ function MyApp({Component, pageProps}: any) {
         <PageBacProvider>
             <Head>
                 <link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+                <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
                 <script src={'/jslib/google.map.js'} async></script>
                 <title>Social Layer</title>
             </Head>
