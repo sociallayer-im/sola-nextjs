@@ -205,7 +205,7 @@ function EventDetail() {
     }
 
     const goToProfile = (username: string, isGroup?: boolean) => {
-        router.push(`/profile/${isGroup ? 'group' : 'profile'}/${username}`)
+       router.push(`/${isGroup ? 'group' : 'profile'}/${username}`)
     }
 
     const handleJoin = async () => {
