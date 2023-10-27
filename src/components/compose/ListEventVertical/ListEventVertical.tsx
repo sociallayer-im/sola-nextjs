@@ -126,14 +126,12 @@ function ListEventVertical(props: {participants: Participants[]}) {
                 && pathname?.includes('event-home')
             ) {
                 setEventGroup(availableList.find(item => item.username === params?.groupname)!)
-                return
+                return () => {
+                    setEventGroup(availableList[0])
+                }
             } else {
                 refresh()
             }
-        }
-
-        return () => {
-            setEventGroup(availableList[0])
         }
     }, [selectTag, tab2Index, eventGroup,availableList, params, pathname])
 
