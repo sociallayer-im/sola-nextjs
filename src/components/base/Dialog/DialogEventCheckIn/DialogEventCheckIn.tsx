@@ -42,11 +42,10 @@ function DialogEventCheckIn(props: DialogNftCheckInProps) {
                 showToast('Success !')
                 setTimeout(() => {
                     props.handleClose()
-                } , 1000)
+                }, 1000)
             } catch (e: any) {
                 console.error(e)
                 showToast(e.message || 'Check in fail !')
-            } finally {
                 setCanScan(true)
             }
         }
@@ -61,11 +60,10 @@ function DialogEventCheckIn(props: DialogNftCheckInProps) {
                 showToast('Checked !')
                 setTimeout(() => {
                     props.handleClose()
-                } , 1000)
+                }, 1000)
             } catch (e: any) {
                 console.error(e)
                 showToast(e.message || 'Check in fail !')
-            } finally {
                 setTimeout(() => {
                     setCanScan(true)
                 }, 1000)

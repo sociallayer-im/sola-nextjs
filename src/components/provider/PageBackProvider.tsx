@@ -57,6 +57,7 @@ function PageBacProvider(props: PageBacProviderProps) {
                     && !item.includes('edit')
                     && !item.includes('regist')
                     && !item.includes('login')
+                    && !item.includes('checkin')
             })
 
             if (index === -1) {
