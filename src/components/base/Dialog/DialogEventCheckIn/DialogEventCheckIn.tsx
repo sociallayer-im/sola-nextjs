@@ -5,6 +5,7 @@ import ScanQrcode from "../../ScanQrcode/ScanQrcode";
 import DialogsContext from "../../../provider/DialogProvider/DialogsContext";
 import {eventCheckIn, punchIn} from '@/service/solas'
 import UserContext from "@/components/provider/UserProvider/UserContext";
+import useEvent, {EVENT} from "@/hooks/globalEvent";
 
 export interface DialogNftCheckInProps {
     handleClose: () => any
@@ -17,6 +18,7 @@ function DialogEventCheckIn(props: DialogNftCheckInProps) {
     const [canScan, setCanScan] = useState(true)
     const {showToast} = useContext(DialogsContext)
     const {user} = useContext(UserContext)
+    const [_, emitCheckIn] = useEvent(EVENT.eventCheckin)
 
     const handleScanResult = async (res: string) => {
         setCanScan(false)
@@ -58,6 +60,7 @@ function DialogEventCheckIn(props: DialogNftCheckInProps) {
                     profile_id: Number(profileId) || 0,
                 })
                 showToast('Checked !')
+                emitCheckIn(eventId)
                 setTimeout(() => {
                     props.handleClose()
                 }, 1000)

@@ -15,6 +15,7 @@ export enum EVENT {
     giftItemUpdate = 'giftItemUpdate',
     badgeDetailUpdate = 'badgeDetailUpdate',
     managerListUpdate = 'managerListUpdate',
+    eventCheckin = 'eventCheckin',
 }
 
 export default function useEvent (eventName: EVENT) {
