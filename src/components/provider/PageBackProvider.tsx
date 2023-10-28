@@ -52,12 +52,14 @@ function PageBacProvider(props: PageBacProviderProps) {
 
             const currPathname = location.href.replace(location.origin, '')
             const index = historyList.findLastIndex((item, index) => {
+                // 下面列表的页面不能通过返回按钮访问
                 return item !== currPathname
                     && !item.includes('create')
                     && !item.includes('edit')
                     && !item.includes('regist')
                     && !item.includes('login')
                     && !item.includes('checkin')
+                    && !item.includes('success')
             })
 
             if (index === -1) {
