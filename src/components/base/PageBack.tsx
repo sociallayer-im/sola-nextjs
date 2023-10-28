@@ -1,11 +1,11 @@
 import {styled} from 'baseui'
 import LangContext from '../provider/LangProvider/LangContext'
-import {ReactNode, useContext, useEffect, useState} from 'react'
+import {ReactNode, useContext, useState} from 'react'
 import {ArrowLeft} from 'baseui/icon'
 import {PageBackContext} from '../provider/PageBackProvider'
 import {useRouter} from "next/navigation";
 
-const Wrapper = styled('div', ({$theme} : any) => ({
+const Wrapper = styled('div', ({$theme}: any) => ({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -13,7 +13,7 @@ const Wrapper = styled('div', ({$theme} : any) => ({
     position: 'relative'
 }))
 
-const BackBtn = styled('div', ({$theme} : any) => ({
+const BackBtn = styled('div', ({$theme}: any) => ({
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
@@ -24,7 +24,7 @@ const BackBtn = styled('div', ({$theme} : any) => ({
     userSelect: 'none'
 }))
 
-const Title = styled('div', ({$theme} : any) => ({
+const Title = styled('div', ({$theme}: any) => ({
     position: 'absolute',
     left: '50%',
     transform: 'translate(-50%, 0)',
@@ -45,34 +45,24 @@ interface PageBackProp {
 function PageBack(props: PageBackProp) {
     const router = useRouter()
     const {lang} = useContext(LangContext)
-    const {back, cleanCurrentHistory, history} = useContext(PageBackContext)
-    const [hideBackBtn, setHideBackBtn] = useState(false)
+    const {back} = useContext(PageBackContext)
 
     const handleBack = () => {
         if (props.to) {
-            // 指定了to属性，就跳转到指定的页面,而且清除当前页面的历史记录，防止用户点击返回按钮返回到当前页面
-            cleanCurrentHistory()
             props.historyReplace ? router.replace(props.to) : router.push(props.to)
         } else if (props.onClose) {
             props.onClose()
         } else {
-            if (document.referrer && (document.referrer.includes('sola') || document.referrer.includes('localhost'))) {
-                router.back()
-            } else {
-                router.push('/')
-            }
+            back()
         }
     }
 
     return (
         <Wrapper>
-            {hideBackBtn ?
-                <div/>
-                : <BackBtn onClick={handleBack}>
-                    {!props.backBtnLabel && <ArrowLeft size={18}/>}
-                    {props.backBtnLabel ? props.backBtnLabel : lang['Page_Back']}
-                </BackBtn>
-            }
+            <BackBtn onClick={handleBack}>
+                {!props.backBtnLabel && <ArrowLeft size={18}/>}
+                {props.backBtnLabel ? props.backBtnLabel : lang['Page_Back']}
+            </BackBtn>
             <Title>{props.title}</Title>
             {!!props.menu && props.menu()}
         </Wrapper>
