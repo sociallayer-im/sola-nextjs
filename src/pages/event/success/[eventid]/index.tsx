@@ -63,7 +63,7 @@ function CreateEventSuccess() {
 
     return (<>
         <div className={'create-event-success-page'}>
-            <Link className={'done'} href={`/event/detail/${params?.eventid}`}>Done</Link>
+            <div className={'center'}><Link className={'done'} href={`/event/detail/${params?.eventid}`}>Done</Link></div>
             <div className={'title'}>{lang['IssueFinish_Title']}</div>
             {event &&
                 <>
