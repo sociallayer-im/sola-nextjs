@@ -1,19 +1,19 @@
-import { styled } from 'baseui'
-import { useState, useContext, useEffect } from 'react'
-import solas, { Profile }  from '../../../service/solas'
+import {styled} from 'baseui'
+import {useContext, useEffect, useState} from 'react'
+import solas, {Profile} from '../../../service/solas'
 import usePicture from '../../../hooks/pictrue'
 import LangContext from '../../provider/LangProvider/LangContext'
 import UserContext from '../../provider/UserProvider/UserContext'
 import DialogsContext from '../../provider/DialogProvider/DialogsContext'
 import DialogProfileQRcode from '../Dialog/DialogProfileQRcode/DialogProfileQRcode'
-import useEvent, { EVENT } from '../../../hooks/globalEvent'
 import DialogFollowInfo from '../Dialog/DialogFollowInfo/DialogFollowInfo'
-import { StatefulPopover, PLACEMENT } from 'baseui/popover'
-import AppButton, { BTN_KIND, BTN_SIZE } from '../AppButton/AppButton'
+import {PLACEMENT, StatefulPopover} from 'baseui/popover'
+import AppButton, {BTN_KIND, BTN_SIZE} from '../AppButton/AppButton'
 import MenuItem from '../MenuItem'
 import ProfileBio from '../ProfileBio/ProfileBio'
 import ProfileSocialMediaList from '../ProfileSocialMediaList/ProfileSocialMediaList'
 import useCopy from "../../../hooks/copy";
+import useEvent, {EVENT} from '@/hooks/globalEvent'
 
 interface ProfilePanelProps {
     profile: Profile
@@ -123,6 +123,8 @@ function ProfilePanel(props: ProfilePanelProps) {
                 auth_token: user.authToken || ''
             })
             unload()
+            const newProfile = {...profile, followers: profile.followers + 1}
+            setProfile(newProfile)
             setShowUnFollowBtn(true)
             setShowFollowBtn(false)
         } catch (e: any) {
@@ -139,6 +141,8 @@ function ProfilePanel(props: ProfilePanelProps) {
                 target_id: props.profile.id,
                 auth_token: user.authToken || ''
             })
+            const newProfile = {...profile, followers: profile.followers - 1}
+            setProfile(newProfile)
             unload()
             setShowUnFollowBtn(false)
             setShowFollowBtn(true)
