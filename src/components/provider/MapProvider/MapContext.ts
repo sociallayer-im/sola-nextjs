@@ -1,5 +1,4 @@
 import { createContext } from 'react'
-import {Profile} from "../../../service/solas";
 
 interface MapContextType {
     Map: typeof google.maps.Map | null

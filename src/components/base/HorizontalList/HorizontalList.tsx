@@ -21,6 +21,7 @@ export interface HorizontalList<T> {
     immediate?: boolean
     endEnhancer?: () => ReactNode
     preEnhancer?: () => ReactNode
+    emptyComponent?: () => ReactNode
 }
 
 function HorizontalList<T>(props: HorizontalList<T>) {
@@ -44,7 +45,7 @@ function HorizontalList<T>(props: HorizontalList<T>) {
 
     return <>
         {isEmpty && !props.preEnhancer && !props.endEnhancer
-            ? <Empty text={props.emptyText || 'No data'}/>
+            ? props.emptyComponent ? props.emptyComponent(): <Empty text={props.emptyText || 'No data'}/>
             : <div className='horizontal-list-swiper-wrapper'>
                 <Swiper
                     data-testid='HorizontalList'

@@ -1,0 +1,24 @@
+.map-entry {
+  border-radius: 8px;
+  background: var(--fill-2-medium, #F5F8F6);
+  display: flex;
+  box-sizing: border-box;
+  padding: 8px;
+  justify-content: center;
+  align-items: center;
+  color: #292526;
+  font-size: 12px;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.map-entry-active {
+  background: #292526;
+  color: #fff;
+}
+
+.text {
+  margin-left: 4px;
+}
+
+

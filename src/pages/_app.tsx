@@ -1,6 +1,7 @@
 import React from 'react';
 import '@/styles/index.sass'
 import NextNProgress from 'nextjs-progressbar';
+import Script from 'next/script'
 
 import Layout from "@/components/Layout/Layout";
 
@@ -43,9 +44,9 @@ function MyApp({Component, pageProps}: any) {
             <Head>
                 <link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
                 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-                <script src={'/jslib/google.map.js'} async></script>
                 <title>Social Layer</title>
             </Head>
+            <Script src={'/jslib/google.map.js'} async></Script>
             <WagmiConfig config={config as any}>
                 <ColorSchemeProvider>
                     <StyletronProvider value={styletron}>
