@@ -34,6 +34,7 @@ function MapEntry() {
     return (
         <>
             {MapReady
+                && process.env.NEXT_PUBLIC_SPECIAL_VERSION !== 'maodao'
                 && eventGroup?.group_map_enabled
                 && (pathname?.includes('map') || pathname?.includes('event')) &&
                 <Link href={`/event/${eventGroup.username}/map/`} className={`${styles['map-entry']} ${selected ? styles['map-entry-active'] : ''}`}>
