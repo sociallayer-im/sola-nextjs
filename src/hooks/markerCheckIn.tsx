@@ -5,7 +5,7 @@ import DialogMarkerCheckIn from "@/components/base/Dialog/DialogMarkerCheckIn/Di
 function useMarkerCheckIn() {
     const {openDialog} = useContext(DialogsContext)
 
-    const scanQrcode = async (markerid: number, callback?: (result) => any) => {
+    const scanQrcode = async (markerid: number, callback?: (result: boolean) => any) => {
         const dialog = openDialog({
             content: (close: any) => <DialogMarkerCheckIn
                 markerid={markerid}

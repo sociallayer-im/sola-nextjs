@@ -9,7 +9,7 @@ interface ScanQrcodeProps {
 
 function ScanQrcode(props: ScanQrcodeProps) {
     const {showToast} = useContext(DialogsContext)
-    const videoRef = useRef()
+    const videoRef = useRef<HTMLVideoElement>()
 
     useEffect(() => {
         if(videoRef.current) {
@@ -53,7 +53,7 @@ function ScanQrcode(props: ScanQrcodeProps) {
 
     return (<div className={'scan-qrcode'}>
         <img className={'scan-line'} src={'/images/scan.png'}/>
-        <video id="video" className="video vjs-fluid" ref={videoRef}/>
+        <video id="video" className="video vjs-fluid" ref={videoRef as any}/>
     </div>)
 }
 

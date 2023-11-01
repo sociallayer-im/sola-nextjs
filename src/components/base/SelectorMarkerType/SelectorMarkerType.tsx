@@ -4,7 +4,7 @@ import langContext from "@/components/provider/LangProvider/LangContext";
 import {useParams, useRouter} from "next/navigation";
 import EventHomeContext from "@/components/provider/EventHomeProvider/EventHomeContext";
 
-export const markerTypeList = {
+export const markerTypeList: any = {
     'Event': '',
     'Utility Table': '/images/marker/Utility Table.png',
     'Merkle training ground': '/images/marker/Merkle training ground.png',
@@ -31,7 +31,7 @@ export const markerTypeList = {
                 Object.keys(markerTypeList).map((item, index) => {
                     return <div
                         onClick={() => {
-                            props.onChange && props.onChange([item, markerTypeList[item]])
+                            props.onChange && props.onChange([item, (markerTypeList as any)[item]])
                             if (item.toLowerCase() === 'event') {
                                 router.push(`/event/${params?.groupname}/create`)
                             } else {

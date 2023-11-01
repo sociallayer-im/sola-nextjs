@@ -44,7 +44,7 @@ function ComponentName() {
     const [titleError, setTitleError] = useState('')
     const [link, setLink] = useState('')
     const [cover, setCover] = useState('')
-    const [icon, setIcon] = useState<string | null>(markerTypeList[Object.keys(markerTypeList)[0]])
+    const [icon, setIcon] = useState<string | null>((markerTypeList as any)[Object.keys(markerTypeList)[0]])
     const [category, setCategory] = useState<string>(Object.keys(markerTypeList)[0])
     const [content, setContent] = useState('')
     const [creator, setCreator] = useState<Profile | null>(null)
@@ -157,7 +157,7 @@ function ComponentName() {
 
         const unload = showLoading()
         try {
-            let newVoucherId: number
+            let newVoucherId: number = 0
             if (badgeId !== badgeIdRef.current) {
                 const voucher = await createPresend({
                     message: badgeDetail?.content || '',
@@ -167,7 +167,7 @@ function ComponentName() {
                 })
                 newVoucherId = voucher.id
             }
-alert('zfd')
+
             const save = await saveMarker({
                 auth_token: user.authToken || '',
                 group_id: eventGroup?.id,
@@ -210,11 +210,11 @@ alert('zfd')
         const detail = merkerDetail || await markerDetail(Number(markerid))
         setMarkerId(Number(markerid))
         setTitle(detail.title)
-        setLink(detail.link || null)
-        setCover(detail.cover_url || null)
+        setLink(detail.link || '')
+        setCover(detail.cover_url || '')
         setIcon(detail.icon_url)
         setCategory(detail.category)
-        setContent(detail.message)
+        setContent(detail.message || '')
         markerInfoRef.current = detail
 
         const creator = await getProfile({id: detail.owner_id})
@@ -237,17 +237,17 @@ alert('zfd')
 
     useEffect(() => {
         if (params?.markerid) {
-            prefill(params?.markerid)
+            prefill(params?.markerid as string)
         } else {
             setBadgeId(990)
             if (searchParams?.get('type')) {
-                const key = searchParams.get('type')
-                if (markerTypeList[key]) {
-                    setIcon(markerTypeList[key])
+                const key = searchParams.get('type') as string
+                if ((markerTypeList as any)[key]) {
+                    setIcon((markerTypeList as any)[key])
                     setCategory(key)
                 }
             } else {
-                setIcon(markerTypeList[Object.keys(markerTypeList)[0]])
+                setIcon((markerTypeList as any)[Object.keys(markerTypeList)[0]])
                 setCategory(Object.keys(markerTypeList)[0])
             }
         }
@@ -336,7 +336,7 @@ alert('zfd')
                                 console.log('======e.metaData', e.metaData)
                                 console.log('======location', location)
                                 if (e.metaData !== location) {
-                                    setLocation(e.metaData)
+                                    setLocation(e.metaData!)
                                 }
                             }}/>
                         </div>

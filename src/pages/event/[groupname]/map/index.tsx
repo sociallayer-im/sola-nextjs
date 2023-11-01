@@ -291,7 +291,7 @@ function ComponentName() {
         // 绘制marker
         markersGrouped.map((markers, index) => {
             const content = document.createElement('img');
-            content.setAttribute('src', markerTypeList[markers[0].category] || '/images/map_marker.png')
+            content.setAttribute('src', (markerTypeList as any)[markers[0].category] || '/images/map_marker.png')
             content.className = 'map-marker'
 
             const markerView = new Marker!({
@@ -463,7 +463,7 @@ function ComponentName() {
     }, [eventWithLocationList, markers, Marker, selectedType])
 
     return (<div className={styles['map-page']}>
-        <div id={'gmap'} className={styles['map-container']} ref={mapDomRef}/>
+        <div id={'gmap'} className={styles['map-container']} ref={mapDomRef as any}/>
         <div className={styles['top-menu']}>
             <div className={styles['menu-item']} onClick={() => {
                 router.push(`/event/${eventGroup?.username}/create-marker`)
