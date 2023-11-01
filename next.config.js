@@ -15,6 +15,12 @@ const nextConfig = {
                 hostname: 'metadata.ens.domains',
                 port: '',
                 pathname: '/mainnet/**'
+            },
+            {
+                protocol: 'https',
+                hostname: 'ik.imagekit.io',
+                port: '',
+                pathname: '/*/**'
             }
         ]
     }

@@ -18,6 +18,15 @@
     position: relative;
     margin-left: 12px;
 
+
+    >div {
+      width: 100px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      text-align: center;
+    }
+
     svg {
       z-index: 12;
       position: absolute;

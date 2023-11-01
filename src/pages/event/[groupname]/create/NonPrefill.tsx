@@ -1180,7 +1180,6 @@ function CreateEvent(props: CreateEventPageProps) {
                                 {lang['Activity_Btn_Create']}
                             </AppButton>
                         }
-
                         {
                             isEditMode && <div style={{marginTop: '12px'}}>
                                 <AppButton onClick={e => {

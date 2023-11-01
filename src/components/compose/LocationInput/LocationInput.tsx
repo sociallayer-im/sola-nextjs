@@ -27,9 +27,11 @@ export interface LocationInputProps {
     eventGroup: Profile,
     onChange?: (value: LocationInputValue) => any,
     arrowAlias?: boolean,
+    errorMsg?: string,
+    cleanable?: boolean,
 }
 
-function LocationInput({arrowAlias = true, ...props}: LocationInputProps) {
+function LocationInput({arrowAlias = true, cleanable = true, ...props}: LocationInputProps) {
     const {showToast, showLoading} = useContext(DialogsContext)
     const {langType, lang} = useContext(langContext)
     const {AutoComplete, Section, MapLibReady, MapReady, MapError} = useContext(MapContext)
@@ -37,7 +39,10 @@ function LocationInput({arrowAlias = true, ...props}: LocationInputProps) {
 
     const [eventSiteList, setEventSiteList] = useState<EventSites[]>([])
     const [isCustom, setIsCustom] = useState(!!props?.initValue?.customLocation || false)
-    const [eventSite, setEventSite] = useState<{ id: number, title: string, isCreatable?: boolean }[]>(props?.initValue?.eventSite ? [{id: props?.initValue.eventSite.id, title: props.initValue.eventSite.title}] : [])
+    const [eventSite, setEventSite] = useState<{ id: number, title: string, isCreatable?: boolean }[]>(props?.initValue?.eventSite ? [{
+        id: props?.initValue.eventSite.id,
+        title: props.initValue.eventSite.title
+    }] : [])
     const [customLocation, setCustomLocation] = useState(props?.initValue?.customLocation || '')
 
     const [searchKeyword, setSearchKeyword] = useState('')
@@ -50,6 +55,13 @@ function LocationInput({arrowAlias = true, ...props}: LocationInputProps) {
     const mapService = useRef<any>(null)
     const delay = useRef<any>(null)
     const sessionToken = useRef<any>(null)
+
+    // useEffect(() => {
+    //     setIsCustom(!!props?.initValue?.customLocation || false)
+    //     setEventSite(props?.initValue?.eventSite ? [{id: props?.initValue.eventSite.id, title: props.initValue.eventSite.title}] : [])
+    //     setCustomLocation(props?.initValue?.customLocation || '')
+    //     setCustomLocationDetail(props?.initValue?.metaData ? JSON.parse(props.initValue.metaData) : null)
+    // }, [props.initValue])
 
     useEffect(() => {
         async function fetchLocation() {
@@ -172,11 +184,11 @@ function LocationInput({arrowAlias = true, ...props}: LocationInputProps) {
 
     return (<div className={'input-area event-location-input'}>
         <input type="text" id={'map'}/>
-        { arrowAlias &&
-           <>
-               <div className={'input-area-title'}>{lang['Activity_Form_Where']}</div>
-               <div className={'input-area-sub-title'}>{lang['Activity_Detail_Offline_location']}</div>
-           </>
+        {arrowAlias &&
+            <>
+                <div className={'input-area-title'}>{lang['Activity_Form_Where']}</div>
+                <div className={'input-area-sub-title'}>{lang['Activity_Detail_Offline_location']}</div>
+            </>
         }
 
         {!isCustom && arrowAlias &&
@@ -194,12 +206,12 @@ function LocationInput({arrowAlias = true, ...props}: LocationInputProps) {
                             setIsCustom(true)
                             setEventSite([])
                             setCustomLocation(params.value[0].title)
-                               if (MapReady) {
-                                   setSearchKeyword(params.value[0].title)
-                                   setTimeout(() => {
-                                       setShowSearchRes(true)
-                                   }, 100)
-                               }
+                            if (MapReady) {
+                                setSearchKeyword(params.value[0].title)
+                                setTimeout(() => {
+                                    setShowSearchRes(true)
+                                }, 100)
+                            }
                             return
                         }
 
@@ -211,20 +223,21 @@ function LocationInput({arrowAlias = true, ...props}: LocationInputProps) {
 
         {(isCustom || !arrowAlias) &&
             <>
-                { arrowAlias &&
+                {arrowAlias &&
                     <AppInput
                         startEnhancer={() => <i className={'icon-edit'}/>}
-                        endEnhancer={() => <Delete size={24} onClick={reset} className={'delete'}/>}
+                        endEnhancer={() => cleanable ? <Delete size={24} onClick={reset} className={'delete'}/> : <></>}
                         placeholder={'Enter location'}
                         value={customLocation}
                         onChange={(e) => setCustomLocation(e.currentTarget.value)}
                     />
                 }
 
-                { MapReady  &&
+                {MapReady &&
                     <>
-                        { arrowAlias &&
-                            <div className={'input-area-sub-title'}>{lang['Activity_Detail_Offline_location_Custom']}</div>
+                        {arrowAlias &&
+                            <div
+                                className={'input-area-sub-title'}>{lang['Activity_Detail_Offline_location_Custom']}</div>
                         }
                         <div className={'custom-selector'}>
                             {
@@ -238,8 +251,10 @@ function LocationInput({arrowAlias = true, ...props}: LocationInputProps) {
                                     setSearchKeyword(e.target.value);
                                     setShowSearchRes(true)
                                 }}
+                                errorMsg={props.errorMsg || ''}
                                 startEnhancer={() => <i className={'icon-Outline'}/>}
-                                endEnhancer={() => <Delete size={24} onClick={resetSelect} className={'delete'}/>}
+                                endEnhancer={() => cleanable ?
+                                    <Delete size={24} onClick={reset} className={'delete'}/> : <></>}
                                 placeholder={'Select location'}
                                 value={customLocationDetail ? customLocationDetail.name : ''}
                             />

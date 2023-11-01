@@ -290,7 +290,10 @@
   .title {
     border-radius: 4px;
     border: 1px solid var(--fill-6-dark, #272928);
-    padding: 8px;
+    height: 32px;
+    line-height: 32px;
+    padding: 0 8px;
+    box-sizing: border-box;
     background: #FFF;
     display: flex;
     font-size: 12px;
@@ -344,13 +347,14 @@
   }
 
   .inner {
-    max-height: 66px;
+    max-height: 64px;
     overflow: hidden;
     display: flex;
     flex-flow: column nowrap;
     justify-content: flex-start;
     align-items: flex-start;
     transform: translateY(-30px);
+    font-family: 'Poppins', 'Noto Sans SC', sans-serif;
 
     .event-map-marker {
       transform: none;

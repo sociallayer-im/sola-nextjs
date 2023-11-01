@@ -531,6 +531,20 @@ const langCN: LangConfig = {
   Form_Repeat_Day: '每天',
   Form_Repeat_Week: '每周',
   Form_Repeat_Month: '每月',
+  Form_Marker_Title: '创建标记',
+  Form_Marker_Category: '分类',
+  Form_Marker_Title_Label: '标题',
+  Form_Marker_Des_Label: '描述(选填)',
+  Form_Marker_Creator_Label: '创建者',
+  Form_Marker_Image_Label: '图片(选填)',
+  Form_Marker_Badge_Label: '打卡徽章',
+  Form_Marker_Badge_Des: 'The badge is automatically sent to the user as a reward after checking in.',
+  Form_Marker_Location: '地点',
+  Form_Marker_Create_Btn: '创建标记',
+  Form_Marker_Title_Error: '请输入标题',
+  Form_Marker_Location_Error: '请选择地点',
+  Form_Marker_Link_Label: '链接(选填)',
+  Marker_Detail_Records: '记录',
 }
 
 

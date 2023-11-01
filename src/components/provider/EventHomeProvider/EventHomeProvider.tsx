@@ -1,10 +1,13 @@
 import {useContext, useEffect, useState} from 'react'
 import EventHomeContext from "./EventHomeContext";
-import {getEventGroup, Profile, queryUserGroup, checkIsManager} from "@/service/solas";
+import {checkIsManager, getEventGroup, Profile, queryUserGroup} from "@/service/solas";
 import UserContext from "../UserProvider/UserContext";
+import {useParams} from "next/navigation";
 import DialogsContext from "../DialogProvider/DialogsContext";
 
 function EventHomeProvider(props: { children: any }) {
+    const params = useParams()
+
     const [eventGroups, setEventGroups] = useState<Profile[]>([])
     const [availableList, setAvailableList] = useState<Profile[]>([])
     const [userGroup, setUserGroup] = useState<Profile[]>([])
@@ -13,7 +16,7 @@ function EventHomeProvider(props: { children: any }) {
     const [joined, setJoined] = useState(true)
 
     const [isManager, setIsManager] = useState(false)
-    const [leadingEvent, setLeadingEvent] = useState<{id: number, username: string, logo: string | null} | null>(null)
+    const [leadingEvent, setLeadingEvent] = useState<{ id: number, username: string, logo: string | null } | null>(null)
     const {user} = useContext(UserContext)
     const {showToast, showLoading} = useContext(DialogsContext)
 
@@ -40,10 +43,6 @@ function EventHomeProvider(props: { children: any }) {
             }
         } else {
             setEventGroups(eventGroup as Profile[])
-        }
-
-        if (!selectedEventGroup) {
-            setSelectedEventGroup(eventGroup[0] as Profile)
         }
 
         unload()
@@ -75,7 +74,7 @@ function EventHomeProvider(props: { children: any }) {
             }
         }
 
-        async function checkManager () {
+        async function checkManager() {
             if (user.id && selectedEventGroup) {
                 const isManager = await checkIsManager({profile_id: user.id, group_id: selectedEventGroup.id})
                 setIsManager(isManager)

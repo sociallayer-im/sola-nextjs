@@ -33,7 +33,6 @@ function HomePageSwitcher() {
                 router.push('/event')
                 return
             }
-
             setEventGroup(group)
             return
         }
