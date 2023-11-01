@@ -32,15 +32,16 @@
   justify-content: center;
 }
 
-@media (max-width: 715px) {
+@media (max-width: 450px) {
   .top-menu {
     justify-content: flex-start;
   }
+
+  .top-menu::-webkit-scrollbar {
+    display: none;
+  }
 }
 
-.top-menu::-webkit-scrollbar {
-  display: none;
-}
 
 .menu-item {
   display: flex;
@@ -55,6 +56,7 @@
   margin: 0 8px;
   white-space: nowrap;
   cursor: pointer;
+  user-select: none;
 }
 
 .menu-item-active {
