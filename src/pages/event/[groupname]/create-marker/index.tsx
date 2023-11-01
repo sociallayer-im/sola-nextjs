@@ -29,7 +29,7 @@ import LocationInput from "@/components/compose/LocationInput/LocationInput";
 import EventHomeContext from "@/components/provider/EventHomeProvider/EventHomeContext";
 import AppFlexTextArea from "@/components/base/AppFlexTextArea/AppFlexTextArea";
 import {Delete} from "baseui/icon";
-import {router} from "next/client";
+import {useRouter} from "next/navigation";
 
 function ComponentName() {
     const {lang} = useContext(LangContext)
@@ -37,9 +37,10 @@ function ComponentName() {
     const searchParams = useSearchParams()
     const params = useParams()
     const {user} = useContext(userContext)
+    const router = useRouter()
     const {eventGroup} = useContext(EventHomeContext)
 
-    const [creating, setCreating] = useState(false)
+    const [busy, setBusy] = useState(false)
 
     const [title, setTitle] = useState('')
     const [titleError, setTitleError] = useState('')
@@ -105,6 +106,7 @@ function ComponentName() {
         }
 
         const unload = showLoading()
+        setBusy(true)
         try {
             const voucher = await createPresend({
                 message: badgeDetail?.content || '',
@@ -137,6 +139,8 @@ function ComponentName() {
             console.error(e)
             unload()
             showToast('Create fail', 500)
+        } finally {
+            setBusy(false)
         }
     }
 
@@ -157,6 +161,7 @@ function ComponentName() {
         }
 
         const unload = showLoading()
+        setBusy(true)
         try {
             let newVoucherId: number = 0
             if (badgeId !== badgeIdRef.current) {
@@ -193,6 +198,8 @@ function ComponentName() {
             console.error(e)
             unload()
             showToast('Save fail', 500)
+        } finally {
+            setBusy(false)
         }
     }
 
@@ -390,7 +397,7 @@ function ComponentName() {
                         {!markerId ?
                             <>
                                 <AppButton kind={BTN_KIND.primary}
-                                           disabled={creating}
+                                           disabled={busy}
                                            special
                                            onClick={() => {
                                                handleCreate()
@@ -400,7 +407,7 @@ function ComponentName() {
                             </>
                             : <>
                                 <AppButton kind={BTN_KIND.primary}
-                                           disabled={creating}
+                                           disabled={busy}
                                            special
                                            onClick={() => {
                                                handleSave()

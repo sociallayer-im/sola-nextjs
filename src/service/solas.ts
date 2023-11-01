@@ -2721,7 +2721,7 @@ export async function queryMarkers(props: {
         throw new Error(res.data.message)
     }
 
-    return res.data.markers.filter(item => item.status !== 'cancel') as Marker[]
+    return res.data.markers.filter((item: Marker) => item.status !== 'cancel') as Marker[]
 }
 
 export interface MarkerCheckinDetail {
