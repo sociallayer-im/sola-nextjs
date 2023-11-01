@@ -1,9 +1,9 @@
 import {useContext, useEffect, useRef} from 'react'
 import UserContext from '../provider/UserProvider/UserContext'
 import DialogsContext from '../provider/DialogProvider/DialogsContext'
-import solas, {queryUserActivity} from '../../service/solas'
+import solas from '../../service/solas'
 
-const Pusher = (window as any).Pusher
+const Pusher = typeof window !== 'undefined' ? (window as any).Pusher : null
 let pusher: any = null
 if (Pusher) {
     Pusher.logToConsole = true

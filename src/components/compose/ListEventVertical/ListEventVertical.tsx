@@ -359,7 +359,7 @@ function ListEventVertical(props: { participants: Participants[] }) {
                         {lang['Activity_Past']}
                     </div>
 
-                    {MapReady && eventGroup?.group_map_enabled &&
+                    {false && MapReady && eventGroup?.group_map_enabled &&
                         <div className={'mode-switch'}>
                             <div className={'switcher'}>
                                 <div onClick={() => {

@@ -22,6 +22,7 @@ import Head from 'next/head'
 import MapProvider from "@/components/provider/MapProvider/MapProvider";
 import EventHomeProvider from "@/components/provider/EventHomeProvider/EventHomeProvider";
 import ColorSchemeProvider from "@/components/provider/ColorSchemeProvider";
+import Subscriber from '@/components/base/Subscriber'
 
 const inject = new InjectedConnector({
     chains: [mainnet, moonbeam],
@@ -47,6 +48,9 @@ function MyApp({Component, pageProps}: any) {
                 <title>Social Layer</title>
             </Head>
             <Script src={'/jslib/google.map.js'} async></Script>
+            { process.env.NODE_ENV === 'production' &&
+                <Script src="/jslib/trackjs.min.js" async></Script>
+            }
             <WagmiConfig config={config as any}>
                 <ColorSchemeProvider>
                     <StyletronProvider value={styletron}>
@@ -60,6 +64,7 @@ function MyApp({Component, pageProps}: any) {
                                                     <Layout>
                                                         <NextNProgress options={{showSpinner: false}}/>
                                                         <Component {...pageProps} />
+                                                        <Subscriber />
                                                     </Layout>
                                                 </EventHomeProvider>
                                             </MapProvider>

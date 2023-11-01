@@ -21,7 +21,7 @@ Object.keys(MarkerCache).forEach(item => {
 
 function ComponentName() {
     const {Map, MapEvent, Marker, MapError, MapReady} = useContext(MapContext)
-    const {eventGroup} = useContext(EventHomeContext)
+    const {eventGroup, isManager} = useContext(EventHomeContext)
     const {user} = useContext(userContext)
     const router = useRouter()
     const searchParams = useSearchParams()
@@ -39,6 +39,8 @@ function ComponentName() {
     const [showList, setShowList] = useState(false)
     const [selectedEvent, setSelectedEvent] = useState<Event | null>(null)
     const [itemWidth, setItemWidth] = useState(0)
+
+    const [currSwiperIndex, setCurrSwiperIndex] = useState(0)
 
     const getMyEvent = async () => {
         const now = new Date()
@@ -59,8 +61,8 @@ function ComponentName() {
 
         const eventWithLocation = res.filter(item => !!item.location_details || !!item.event_site?.location_details)
         setEventWithLocationList(eventWithLocation)
-        MarkerCache['Event'] = eventWithLocation
-        cacheGroupId === eventGroup?.id
+       // MarkerCache['Event'] = eventWithLocation
+        // cacheGroupId === eventGroup?.id
     }
 
     const getMarker = async () => {
@@ -68,11 +70,11 @@ function ComponentName() {
         if (MarkerCache[selectedType!].length && cacheGroupId === eventGroup?.id) {
             res = MarkerCache[selectedType!]
         } else {
-            res = await queryMarkers({category: selectedType!})
+            res = await queryMarkers({category: selectedType!, group_id: eventGroup?.id || undefined})
         }
 
-        MarkerCache[selectedType!] = res
-        cacheGroupId === eventGroup?.id
+        // MarkerCache[selectedType!] = res
+        // cacheGroupId === eventGroup?.id
         setMarkers(res)
     }
 
@@ -198,8 +200,7 @@ function ComponentName() {
                 })
 
                 markersRef.current.push(markerView)
-            }
-            else {
+            } else {
                 const eventGroupMarker = document.createElement('div');
                 eventGroupMarker.className = 'event-map-marker-group';
                 const eventGroupInner = document.createElement('div');
@@ -392,7 +393,7 @@ function ComponentName() {
     }
 
     const calcWidth = () => {
-        setItemWidth(window.innerWidth > 1050 ? (1050 / 2)
+        setItemWidth(window.innerWidth > 1050 ? (1050 / 2.5)
             : (window.innerWidth > 750 ? (window.innerWidth * 0.7)
                     : window.innerWidth * 0.8
             )
@@ -462,24 +463,28 @@ function ComponentName() {
         }
     }, [eventWithLocationList, markers, Marker, selectedType])
 
-    return (<div className={styles['map-page']}>
+    return (<div className={`${styles['map-page']} map-page`}>
         <div id={'gmap'} className={styles['map-container']} ref={mapDomRef as any}/>
-        <div className={styles['top-menu']}>
-            <div className={styles['menu-item']} onClick={() => {
-                router.push(`/event/${eventGroup?.username}/create-marker`)
-            }}>Create Marker +
+        { (eventGroup?.id === 1984 || eventGroup?.id === 1516) &&
+            <div className={styles['top-menu']}>
+                {(isManager || eventGroup?.group_owner_id === user.id) &&
+                    <div className={styles['menu-item']} onClick={() => {
+                        router.push(`/event/${eventGroup?.username}/create-marker`)
+                    }}>Create Marker +
+                    </div>
+                }
+                {
+                    Object.keys(menuList).map((item, index) => {
+                        const isSelected = selectedType === item
+                        return <div key={index}
+                                    onClick={() => {
+                                        router.push(`/event/${eventGroup?.username}/map?type=${item}`)
+                                    }}
+                                    className={`${styles['menu-item']} ${isSelected ? styles['menu-item-active'] : ''}`}>{item}</div>
+                    })
+                }
             </div>
-            {
-                Object.keys(menuList).map((item, index) => {
-                    const isSelected = selectedType === item
-                    return <div key={index}
-                                onClick={() => {
-                                    router.push(`/event/${eventGroup?.username}/map?type=${item}`)
-                                }}
-                                className={`${styles['menu-item']} ${isSelected ? styles['menu-item-active'] : ''}`}>{item}</div>
-                })
-            }
-        </div>
+        }
         {showList && !!eventGroup && selectedType === 'Event' &&
             <div className={styles['marker-list']}>
                 {eventWithLocationList.length > 0 ?
@@ -498,6 +503,7 @@ function ComponentName() {
                             const targetEvent = eventWithLocationList[index]
                             setSelectedEvent(targetEvent)
                             showEventInMapCenter(targetEvent)
+                            setCurrSwiperIndex(swiper.activeIndex)
                         }}
                     >
                         {eventWithLocationList.map((data, index) => {
@@ -512,10 +518,13 @@ function ComponentName() {
                 {typeof window !== 'undefined'
                     && window.innerWidth > 750
                     && swiperRef.current
-                    && swiperRef.current.activeIndex > 0
+                    && currSwiperIndex > 0
                     && <img
                         onClick={() => {
                             swiperRef.current.slidePrev()
+                            setTimeout(() => {
+                                setCurrSwiperIndex(swiperRef.current.activeIndex)
+                            }, 300)
                         }}
                         className={window.innerWidth >= 1050 ? styles['slide-left-wide'] : styles['slide-left']}
                         src="/images/slide.png" alt=""/>
@@ -523,10 +532,13 @@ function ComponentName() {
                 {typeof window !== 'undefined'
                     && window.innerWidth > 750
                     && swiperRef.current
-                    && swiperRef.current.activeIndex < eventWithLocationList.length - 2
+                    && currSwiperIndex < eventWithLocationList.length - 2
                     && <img
                         onClick={() => {
                             swiperRef.current.slideNext()
+                            setTimeout(() => {
+                                setCurrSwiperIndex(swiperRef.current.activeIndex)
+                            }, 300)
                         }}
                         className={window.innerWidth >= 1050 ? styles['slide-wide'] : styles['slide']}
                         src="/images/slide.png" alt=""/>
@@ -552,11 +564,12 @@ function ComponentName() {
                             const index = swiper.activeIndex
                             const targetEvent = markers[index]
                             showMarkerInMapCenter(targetEvent)
+                            setCurrSwiperIndex(index)
                         }}
                     >
                         {markers.map((data, index) => {
                             return <SwiperSlide style={{width: `${itemWidth}px`}} key={index}>
-                                <CardMarker item={data}  key={data.id}/>
+                                <CardMarker item={data} key={data.id}/>
                             </SwiperSlide>
                         })
                         }
@@ -566,10 +579,13 @@ function ComponentName() {
                 {typeof window !== 'undefined'
                     && window.innerWidth > 750
                     && swiperRef.current
-                    && swiperRef.current.activeIndex > 0
+                    && currSwiperIndex > 0
                     && <img
                         onClick={() => {
                             swiperRef.current.slidePrev()
+                            setTimeout(() => {
+                                setCurrSwiperIndex(swiperRef.current.activeIndex)
+                            }, 300)
                         }}
                         className={window.innerWidth >= 1050 ? styles['slide-left-wide'] : styles['slide-left']}
                         src="/images/slide.png" alt=""/>
@@ -577,10 +593,13 @@ function ComponentName() {
                 {typeof window !== 'undefined'
                     && window.innerWidth > 750
                     && swiperRef.current
-                    && swiperRef.current.activeIndex < eventWithLocationList.length - 2
+                    && currSwiperIndex < markers.length - 2
                     && <img
                         onClick={() => {
                             swiperRef.current.slideNext()
+                            setTimeout(() => {
+                                setCurrSwiperIndex(swiperRef.current.activeIndex)
+                            }, 300)
                         }}
                         className={window.innerWidth >= 1050 ? styles['slide-wide'] : styles['slide']}
                         src="/images/slide.png" alt=""/>
