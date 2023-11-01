@@ -35,8 +35,12 @@ function HomePageSwitcher() {
             }
             setEventGroup(group)
             return
+        } else {
+            if (!eventGroup) {
+                setEventGroup(groupList[0])
+            }
         }
-    }, [ready, params, groupList])
+    }, [ready, params, groupList, eventGroup])
 
 
     const switchList = () => {
