@@ -2721,7 +2721,7 @@ export async function queryMarkers(props: {
         throw new Error(res.data.message)
     }
 
-    return res.data.markers as Marker[]
+    return res.data.markers.filter(item => item.status !== 'cancel') as Marker[]
 }
 
 export interface MarkerCheckinDetail {
@@ -2768,7 +2768,23 @@ export async function markerCheckin(props: {
     return res.data.checklog as MarkerCheckinDetail
 }
 
+export async function removeMarker(props: {
+    auth_token: string,
+    id?: number,
+}) {
+    checkAuth(props)
+    const res = await fetch.post({
+        url: `${api}/marker/cancel`,
+        data: props
+    })
+
+    if (res.data.result === 'error') {
+        throw new Error(res.data.message)
+    }
+}
+
 export default {
+    removeMarker,
     queryMarkers,
     saveMarker,
     markerDetail,

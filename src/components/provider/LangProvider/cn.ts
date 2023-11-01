@@ -545,6 +545,7 @@ const langCN: LangConfig = {
   Form_Marker_Location_Error: '请选择地点',
   Form_Marker_Link_Label: '链接(选填)',
   Marker_Detail_Records: '记录',
+  Marker_Edit_Remove: 'Remove marker',
 }
 
 

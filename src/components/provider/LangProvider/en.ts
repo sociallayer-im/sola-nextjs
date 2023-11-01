@@ -549,6 +549,7 @@ const langEN = {
     Form_Marker_Location_Error: 'Location cannot be empty',
     Form_Marker_Link_Label: 'Link (Optional)',
     Marker_Detail_Records: 'Records',
+    Marker_Edit_Remove: 'Remove marker',
 }
 
 

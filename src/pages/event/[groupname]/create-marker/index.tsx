@@ -6,7 +6,6 @@ import {useParams, useSearchParams} from "next/navigation";
 import AppInput from "@/components/base/AppInput";
 import UploadImage from "@/components/compose/UploadImage/UploadImage";
 import ReasonInput from "@/components/base/ReasonInput/ReasonInput";
-import SelectCreator from "@/components/compose/SelectCreator/SelectCreator";
 import {
     Badge,
     createMarker,
@@ -18,6 +17,7 @@ import {
     queryBadge,
     queryBadgeDetail,
     queryPresendDetail,
+    removeMarker,
     saveMarker
 } from "@/service/solas";
 import DialogIssuePrefill from "@/components/eventSpecial/DialogIssuePrefill/DialogIssuePrefill";
@@ -29,10 +29,11 @@ import LocationInput from "@/components/compose/LocationInput/LocationInput";
 import EventHomeContext from "@/components/provider/EventHomeProvider/EventHomeContext";
 import AppFlexTextArea from "@/components/base/AppFlexTextArea/AppFlexTextArea";
 import {Delete} from "baseui/icon";
+import {router} from "next/client";
 
 function ComponentName() {
     const {lang} = useContext(LangContext)
-    const {showLoading, openDialog, showToast} = useContext(DialogsContext)
+    const {showLoading, openDialog, showToast, openConfirmDialog} = useContext(DialogsContext)
     const searchParams = useSearchParams()
     const params = useParams()
     const {user} = useContext(userContext)
@@ -193,6 +194,31 @@ function ComponentName() {
             unload()
             showToast('Save fail', 500)
         }
+    }
+
+    const handleRemove = () => {
+        const dialog = openConfirmDialog({
+            confirmLabel: 'Remove',
+            cancelLabel: 'Cancel',
+            title: `Do you want to remove marker 「${markerInfoRef.current!.title}」`,
+            onConfirm: async (close: any) => {
+                const unload = showLoading()
+                try {
+                    await removeMarker({
+                        auth_token: user.authToken || '',
+                        id: markerId!
+                    })
+                    unload()
+                    showToast('Remove Success', 500)
+                    close()
+                    router.push(`/event/${eventGroup?.username}/map?type=${markerInfoRef.current!.category}`)
+                } catch (e: any) {
+                    console.error(e)
+                    unload()
+                    showToast('Remove fail', 500)
+                }
+            }
+        })
     }
 
     useEffect(() => {
@@ -381,6 +407,13 @@ function ComponentName() {
                                            }}>
                                     {lang['Profile_Edit_Save']}
                                 </AppButton>
+                                {
+                                    <div style={{marginTop: '12px'}}>
+                                        <AppButton style={{color: 'red'}} onClick={e => {
+                                            handleRemove()
+                                        }}>{lang['Marker_Edit_Remove']}</AppButton>
+                                    </div>
+                                }
                             </>
                         }
                     </div>
