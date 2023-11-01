@@ -333,8 +333,6 @@ function ComponentName() {
                                 }}
                                 arrowAlias={false}
                                 eventGroup={eventGroup} onChange={e => {
-                                console.log('======e.metaData', e.metaData)
-                                console.log('======location', location)
                                 if (e.metaData !== location) {
                                     setLocation(e.metaData!)
                                 }
