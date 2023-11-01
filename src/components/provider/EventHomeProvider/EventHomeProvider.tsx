@@ -86,7 +86,7 @@ function EventHomeProvider(props: { children: any }) {
 
         checkManager()
         getAvailableList()
-    }, [eventGroups, user.id])
+    }, [eventGroups, user.id, selectedEventGroup])
 
 
     useEffect(() => {

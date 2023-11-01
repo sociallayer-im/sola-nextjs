@@ -44,7 +44,7 @@ function EventDetail() {
     const {addToCalender} = useCalender()
     const {showImage} = useShowImage()
     const {copy} = useCopy()
-    const {eventGroups, setEventGroup, eventGroup, ready} = useContext(EventHomeContext)
+    const {eventGroups, setEventGroup, eventGroup, ready, isManager} = useContext(EventHomeContext)
     const {getMeetingName, getUrl} = useGetMeetingName()
 
 
@@ -490,7 +490,7 @@ function EventDetail() {
                                             {lang['Activity_Detail_Btn_add_Calender']}</AppButton>
                                     }
 
-                                    {isHoster && !canceled &&
+                                    {(isHoster || isManager) && !canceled &&
                                         <AppButton onClick={gotoModify}>{lang['Activity_Detail_Btn_Modify']}</AppButton>
                                     }
 
