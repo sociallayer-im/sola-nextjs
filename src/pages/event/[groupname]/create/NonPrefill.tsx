@@ -936,7 +936,7 @@ function CreateEvent(props: CreateEventPageProps) {
                             </div>
                         }
 
-                        { !isEditMode &&
+                        { !isEditMode || (!!currEvent && !currEvent.repeat_event_id) &&
                             <div className='input-area'>
                                 <div className='input-area-title'>{lang['Activity_Form_Starttime']}</div>
                                 <AppEventTimeInput from={start} to={ending} arrowRepeat={!currEvent} onChange={e => {
