@@ -123,6 +123,7 @@ function CreateEvent(props: CreateEventPageProps) {
     const [locationDetail, setLocationDetail] = useState('')
     const [telegram, setTelegram] = useState('')
     const [telegramError, setTelegramError] = useState('')
+    const [timezone, setTimezone] = useState<string>(Intl.DateTimeFormat().resolvedOptions().timeZone)
 
     const [start, setStart] = useState(initTime[0].toISOString())
     const [ending, setEnding] = useState(initTime[1].toISOString())
@@ -450,6 +451,10 @@ function CreateEvent(props: CreateEventPageProps) {
                 setLocationDetail(event.location_details)
             }
 
+            if (event.timezone) {
+                setTimezone(event.timezone)
+            }
+
             setFormReady(true)
         }
 
@@ -762,6 +767,7 @@ function CreateEvent(props: CreateEventPageProps) {
             telegram_contact_group: telegram || null,
             location_details: locationDetail,
             repeat_event_id: currEvent!.repeat_event_id || undefined,
+            timezone
         }
 
         if (currEvent?.repeat_event_id) {
@@ -936,15 +942,22 @@ function CreateEvent(props: CreateEventPageProps) {
                             </div>
                         }
 
-                        { !isEditMode &&
+                        {(!isEditMode || (formReady && !currEvent?.repeat_event_id)) &&
                             <div className='input-area'>
                                 <div className='input-area-title'>{lang['Activity_Form_Starttime']}</div>
-                                <AppEventTimeInput from={start} to={ending} arrowRepeat={!currEvent} onChange={e => {
-                                    setStart(e.from)
-                                    setEnding(e.to)
-                                    setRepeat(e.repeat as any || null)
-                                    setRepeatEnd(e.repeatEndingTime as any || null)
-                                }}/>
+                                <AppEventTimeInput
+                                    from={start}
+                                    to={ending}
+                                    arrowRepeat={!currEvent}
+                                    timezone={timezone}
+                                    onChange={e => {
+                                        setStart(e.from)
+                                        setEnding(e.to)
+                                        setRepeat(e.repeat as any || null)
+                                        setRepeatEnd(e.repeatEndingTime as any || null)
+                                        setTimezone(e.timezone as any || null)
+                                        console.log('================= value', e.timezone)
+                                    }}/>
                             </div>
                         }
 

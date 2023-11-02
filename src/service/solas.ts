@@ -1960,6 +1960,7 @@ export interface Event {
     status: string,
     telegram_contact_group: null | string,
     repeat_event_id: null | number,
+    timezone: null | string,
 
     participants: null | Participants[],
 }

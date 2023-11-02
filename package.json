@@ -22,6 +22,7 @@
     "axios": "^1.3.3",
     "baseui": "^12.2.0",
     "copy-to-clipboard": "^3.3.3",
+    "dayjs": "^1.11.10",
     "dotbit": "^0.4.26",
     "dplayer": "^1.27.1",
     "ethers": "^5",
