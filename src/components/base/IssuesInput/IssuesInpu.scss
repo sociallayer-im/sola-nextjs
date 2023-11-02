@@ -1,0 +1,96 @@
+.issue-input-item {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  margin-bottom: 12px;
+  position: relative;
+
+  input {
+    flex: 1;
+}
+
+  .search-res {
+    width: 90%;
+    position: absolute;
+    top:54px;
+    background: #FFF;
+    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.10);
+    left: 0;
+    z-index: 1;
+
+    .shell {
+      position: fixed;
+      top: 0;
+      background: rgba(0,0,0,0);
+      right: 0;
+      bottom: 0;
+      left: 0;
+      z-index: -1;
+  }
+
+    .res-item {
+      display: flex;
+      flex-flow: row nowrap;
+      align-items: center;
+      height: 42px;
+      padding: 0 12px;
+      cursor: pointer;
+
+      div {
+        flex: 1;
+        font-size: 14px;
+        color: #272928;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+      img {
+        min-width: 24px;
+        max-width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        margin-right: 6px;
+    }
+
+      &:hover {
+        background: #f6f6f6;
+    }
+  }
+}
+
+  .issue-input-add-btn {
+    min-width: 32px;
+    max-width: 32px;
+    height: 32px;
+    margin-left: 20px;
+    border-radius: 100%;
+    font-size: 14px;
+    cursor: pointer;
+    color: #6cd7b2;
+    border: 1px solid #6cd7b2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+}
+
+  .issue-input-remove-btn {
+    min-width: 32px;
+    height: 32px;
+    margin-left: 20px;
+    border-radius: 50%;
+    font-size: 14px;
+    cursor: pointer;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    background: #ceced1;
+}
+
+  .icon-address-list {
+    cursor: pointer;
+}
+}
