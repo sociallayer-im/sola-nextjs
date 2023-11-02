@@ -45,9 +45,11 @@ function MyApp({Component, pageProps}: any) {
             <Head>
                 <link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
                 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+                <script src="/jslib/pusher.min.js"></script>
                 <title>Social Layer</title>
             </Head>
             <Script src={'/jslib/google.map.js'} async></Script>
+
             { process.env.NODE_ENV === 'production' &&
                 <Script src="/jslib/trackjs.min.js" async></Script>
             }
