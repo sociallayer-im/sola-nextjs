@@ -1,6 +1,14 @@
 import {useParams, useRouter} from 'next/navigation'
 import {useContext, useEffect, useRef, useState} from 'react'
-import {getProfile, Marker, MarkerCheckinDetail, markerDetail, markersCheckinList, Profile} from "@/service/solas";
+import {
+    getProfile,
+    getVoucherCode,
+    Marker,
+    MarkerCheckinDetail,
+    markerDetail,
+    markersCheckinList,
+    Profile
+} from "@/service/solas";
 import userContext from "@/components/provider/UserProvider/UserContext";
 import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
 import PageBack from "@/components/base/PageBack";
@@ -22,6 +30,7 @@ function MarkerCheckIn() {
     const [checkins, setCheckins] = useState<MarkerCheckinDetail[]>([])
     const [hasCheckin, setHasCheckin] = useState<string[]>([])
     const [isCheckLog, setIsCheckLog] = useState(false)
+    const [code, setCode] = useState('123')
     const [needUpdate, _] = useEvent(EVENT.eventCheckin)
     const {defaultAvatar} = usePicture()
     const formatTime = useformatTime()
@@ -76,6 +85,11 @@ function MarkerCheckIn() {
         if (user.id && marker) {
             setIsHoster(user.id === marker.owner_id || user.id === marker.owner?.id)
             setIsJoin(false)
+            // if (marker.voucher_id) {
+            //     getVoucherCode({id: marker.id, auth_token: user.authToken || ''}).then((code) => {
+            //         setCode(code)
+            //     })
+            // }
         }
     }, [user.id, hoster, marker])
 
@@ -87,7 +101,7 @@ function MarkerCheckIn() {
         {!!marker &&
             <div className={'event-checkin-page'}>
                 <div className={'center'}>
-                    <PageBack />
+                    <PageBack/>
                     <div className={'checkin-card'}>
                         <div className={'event-name'}>{marker.title}</div>
 
@@ -97,7 +111,7 @@ function MarkerCheckIn() {
                             </div>
                         }
 
-                        {isHoster &&
+                        {isHoster && code &&
                             <div className={'checkin-qrcode'}>
                                 <QRcode text={`${location.href}` || ''} size={[155, 155]}/>
                                 <div className={'text'}>{lang['Activity_Scan_checkin']}</div>
@@ -130,7 +144,7 @@ function MarkerCheckIn() {
                             }
                             {
                                 checkins.length === 0 &&
-                                <Empty />
+                                <Empty/>
                             }
                         </div>
                     </div>

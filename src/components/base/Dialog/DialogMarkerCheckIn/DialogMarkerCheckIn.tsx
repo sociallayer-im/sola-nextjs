@@ -28,6 +28,9 @@ function DialogMarkerCheckIn(props: DialogNftCheckInProps) {
 
         if (Number(resMarkerId) !== props.markerid) {
             showToast('invalid QR code')
+            setTimeout(() => {
+                setCanScan(true)
+            }, 1500)
             return
         }
 
@@ -50,7 +53,7 @@ function DialogMarkerCheckIn(props: DialogNftCheckInProps) {
                 showToast(e.message || 'Check in fail !')
                 setTimeout(() => {
                     setCanScan(true)
-                }, 1000)
+                }, 1500)
             }
         }
     }
@@ -58,24 +61,14 @@ function DialogMarkerCheckIn(props: DialogNftCheckInProps) {
     const screenWidth = window.innerWidth
     const isMobile = screenWidth <= 768
 
-    return <div className={isMobile ? 'dialog-nft-check-in mobile' : 'dialog-nft-check-in'}>
-        {screenWidth > 768 &&
-            <div className='dialog-title'>
-                <span>{lang['Dialog_Check_In_Title']}</span>
-                <div className='close-dialog-btn' onClick={e => {props.handleClose(ifSuccess)}}>
-                    <Delete title={'Close'} size={20}/>
-                </div>
-            </div>
-        }
+    return <div className={isMobile ? 'dialog-nft-check-in mobile' : 'dialog-nft-check-in mobile'}>
         <div className={'scan-window'}>
             <ScanQrcode enable={canScan} onResult={(res) => {
                 handleScanResult(res)
             }}/>
-            {isMobile &&
-                <div className={'btns'}>
-                    <div role={"button"} onClick={e => {props.handleClose(ifSuccess)}}><Delete size={30}/></div>
-                </div>
-            }
+            <div className={'btns'}>
+                <div role={"button"} onClick={e => {props.handleClose(ifSuccess)}}><Delete size={30}/></div>
+            </div>
         </div>
     </div>
 }

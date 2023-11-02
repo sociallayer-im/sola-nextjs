@@ -470,7 +470,7 @@ function ComponentName() {
                 {(isManager || eventGroup?.group_owner_id === user.id) &&
                     <div className={styles['menu-item']} onClick={() => {
                         router.push(`/event/${eventGroup?.username}/create-marker`)
-                    }}>Create Marker +
+                    }}>Create a Marker +
                     </div>
                 }
                 {
@@ -493,6 +493,7 @@ function ComponentName() {
                         mousewheel={true}
                         spaceBetween={10}
                         freeMode={true}
+                        centeredSlides={eventWithLocationList.length === 1}
                         slidesPerView={'auto'}
                         style={{paddingLeft: '12px', paddingRight: '12px'}}
                         onSwiper={(swiper) => {
@@ -553,6 +554,7 @@ function ComponentName() {
                     <Swiper
                         modules={[Virtual, Mousewheel]}
                         mousewheel={true}
+                        centeredSlides={markers.length === 1}
                         spaceBetween={10}
                         freeMode={true}
                         slidesPerView={'auto'}

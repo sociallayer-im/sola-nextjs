@@ -2691,7 +2691,7 @@ export async function markerDetail(markerid: number) {
         throw new Error(res.data.message)
     }
 
-    return res.data as Marker
+    return res.data.marker as Marker
 }
 
 export async function saveMarker(props: CreateMarkerProps) {
@@ -2751,7 +2751,7 @@ export async function markersCheckinList(props: {
         throw new Error(res.data.message)
     }
 
-    return res.data.checkins as MarkerCheckinDetail[]
+    return res.data.map_checkins as MarkerCheckinDetail[]
 }
 
 export async function markerCheckin(props: {
@@ -2785,6 +2785,23 @@ export async function removeMarker(props: {
     if (res.data.result === 'error') {
         throw new Error(res.data.message)
     }
+}
+
+export async function getVoucherCode(props: {
+    auth_token: string,
+    id?: number,
+}) {
+    checkAuth(props)
+    const res = await fetch.get({
+        url: `${api}/voucher/get_code`,
+        data: props
+    })
+
+    if (res.data.result === 'error') {
+        throw new Error(res.data.message)
+    }
+
+    return res.data.code as string
 }
 
 export default {

@@ -239,7 +239,7 @@ function ComponentName() {
     }, [badgeId])
 
     useEffect(() => {
-        if (user.id) {
+        if (user?.id && !markerId) {
             const profile = getProfile({id: user.id}).then(res => {
                 setCreator(res!)
             })
@@ -257,7 +257,7 @@ function ComponentName() {
         setContent(detail.message || '')
         markerInfoRef.current = detail
 
-        const creator = await getProfile({id: detail.owner_id})
+        const creator = await getProfile({id: detail.owner.id})
         setCreator(creator!)
 
         if (detail.voucher_id) {

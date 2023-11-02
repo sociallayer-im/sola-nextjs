@@ -10,6 +10,7 @@ import {
     markersCheckinList,
     Profile,
     ProfileSimple,
+    queryPresendDetail,
     queryUserGroup
 } from "@/service/solas";
 import LangContext from "@/components/provider/LangProvider/LangContext";
@@ -100,9 +101,13 @@ function EventDetail() {
                     setInProgress(true)
                 }
             }
-
             const profile = await getProfile({id: Number(marker.owner?.id || marker.owner_id)})
             setHoster(profile)
+
+            if (marker.voucher_id) {
+                const presend = await queryPresendDetail({id: marker.voucher_id})
+                setBadge(presend.badge)
+            }
         } else {
             router.push('/error')
         }
@@ -239,7 +244,7 @@ function EventDetail() {
                             {
                                 !!badge && <div className={'center'}>
                                     <div className={'event-badge'}>
-                                        <div>{lang['Activity_Detail_Badge']}</div>
+                                        <div>{lang['Form_Marker_Badge_Des']}</div>
                                         <img src={badge.image_url} alt=""/>
                                     </div>
                                 </div>
@@ -254,7 +259,7 @@ function EventDetail() {
                                 <div className={tab === 1 ? 'tab-title active' : 'tab-title'}
                                      onClick={e => {
                                          setTab(1)
-                                     }}>{lang['Activity_Des']}</div>
+                                     }}>{lang['NFT_Detail_Des']}</div>
                                 <div className={tab === 2 ? 'tab-title active' : 'tab-title'}
                                      onClick={e => {
                                          setTab(2)
@@ -278,9 +283,13 @@ function EventDetail() {
                                             {
                                                 checkins.map((item, index) => {
                                                     return <div key={index} className={'user-list-item'}
-                                                        onClick={e => {goToProfile(item.profile.domain?.split('.')[0]!)}}>
+                                                                onClick={e => {
+                                                                    goToProfile(item.profile.domain?.split('.')[0]!)
+                                                                }}>
                                                         <div className={'left'}>
-                                                            <img src={item.profile.image_url || defaultAvatar(item.profile.id)} alt=""/>
+                                                            <img
+                                                                src={item.profile.image_url || defaultAvatar(item.profile.id)}
+                                                                alt=""/>
                                                             {item.profile.domain?.split('.')[0]}
                                                         </div>
                                                         <div className={'right'}>
@@ -291,7 +300,7 @@ function EventDetail() {
                                             }
                                             {
                                                 checkins.length === 0 &&
-                                                <Empty />
+                                                <Empty/>
                                             }
                                         </div>
                                     </div>
