@@ -28,13 +28,17 @@ function HomePageSwitcher() {
         }
 
         if (ready && params?.groupname) {
-            const group = findGroup(params?.groupname as string)
-            if (!group) {
-                router.push('/event')
+            if (location.includes('event')) {
+                const group = findGroup(params?.groupname as string)
+                if (!group && location.includes('event')) {
+                    router.push('/event')
+                    return
+                }
+                setEventGroup(group)
                 return
+            } else {
+                setEventGroup(groupList[0])
             }
-            setEventGroup(group)
-            return
         } else {
             if (!eventGroup) {
                 setEventGroup(groupList[0])
