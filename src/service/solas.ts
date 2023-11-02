@@ -1077,6 +1077,10 @@ export async function sendInvite(props: SendInviteProps): Promise<Invite[]> {
         throw new Error(res.data.message)
     }
 
+    if (!res.data.group_invites[0]) {
+        throw new Error('Can not invite')
+    }
+
     return res.data.group_invites
 }
 

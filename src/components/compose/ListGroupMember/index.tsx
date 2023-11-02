@@ -1,6 +1,6 @@
 import React, {useContext, useEffect, useState} from 'react'
 import CardUser from '../../base/Cards/CardUser/CardUser'
-import solas, { Profile } from '../../../service/solas'
+import solas, { Profile, checkIsManager } from '../../../service/solas'
 import ListWrapper from '../../base/ListWrapper'
 import LangContext from '../../provider/LangProvider/LangContext'
 import UserContext from '../../provider/UserProvider/UserContext'
@@ -15,6 +15,7 @@ import DialogsContext from "../../provider/DialogProvider/DialogsContext";
 import { Overflow } from 'baseui/icon'
 import DialogManageMember from '../../base/Dialog/DialogManageMember/DialogManageMember'
 import ListUserAssets, { ListUserAssetsMethods } from "../../base/ListUserAssets/ListUserAssets";
+import fa from "@walletconnect/legacy-modal/dist/cjs/browser/languages/fa";
 
 
 interface ListGroupMemberProps {
@@ -25,6 +26,7 @@ function ListGroupMember (props: ListGroupMemberProps) {
     const { lang } = useContext(LangContext)
     const { user } = useContext(UserContext)
     const [members, setMembers] = useState<Profile[]>([])
+    const [isManager, setIsManager] = useState(false)
     const [owner, setOwner] = useState<Profile | null>(null)
     const listWrapperRef = React.createRef<ListUserAssetsMethods>()
     const { showToast, showLoading, openConfirmDialog, openDialog } = useContext(DialogsContext)
@@ -33,6 +35,11 @@ function ListGroupMember (props: ListGroupMemberProps) {
     useEffect(() => {
         getOwner()
         listWrapperRef.current?.refresh()
+
+        if (user.id) {
+            checkIsManager({group_id: props.group.id, profile_id: user.id})
+                .then(res => {setIsManager(res)})
+        }
     }, [props.group, user.id])
 
     const getOwner = async () => {
@@ -107,7 +114,7 @@ function ListGroupMember (props: ListGroupMemberProps) {
     const PreEnhancer = () => {
         return <>
             {
-                user.id === props.group.group_owner_id && <CardInviteMember groupId={props.group.id} />
+                (user.id === props.group.group_owner_id || isManager) && <CardInviteMember groupId={props.group.id} />
             }
             {
                 !!owner && <CardMember isOwner profile={owner}/>
