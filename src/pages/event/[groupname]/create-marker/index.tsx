@@ -45,8 +45,8 @@ function ComponentName() {
     const [titleError, setTitleError] = useState('')
     const [link, setLink] = useState('')
     const [cover, setCover] = useState('')
-    const [icon, setIcon] = useState<string | null>((markerTypeList as any)[Object.keys(markerTypeList)[0]])
-    const [category, setCategory] = useState<string>(Object.keys(markerTypeList)[0])
+    const [icon, setIcon] = useState<string | null>((markerTypeList as any)[Object.keys(markerTypeList)[1]])
+    const [category, setCategory] = useState<string>(Object.keys(markerTypeList)[1])
     const [content, setContent] = useState('')
     const [creator, setCreator] = useState<Profile | null>(null)
     const [badgeId, setBadgeId] = useState<number | null>(null)
@@ -134,12 +134,12 @@ function ComponentName() {
             })
             unload()
             showToast('Create Success', 500)
+            router.push(`/event/detail-marker/${create.id}`)
         } catch (e: any) {
+            setBusy(false)
             console.error(e)
             unload()
-            showToast('Create fail', 500)
-        } finally {
-            setBusy(false)
+            showToast('Create fail', 1000)
         }
     }
 
@@ -193,11 +193,11 @@ function ComponentName() {
             })
             unload()
             showToast('Save Success', 500)
+            router.push(`/event/detail-marker/${markerId}`)
         } catch (e: any) {
             console.error(e)
             unload()
-            showToast('Save fail', 500)
-        } finally {
+            showToast('Save fail', 1000)
             setBusy(false)
         }
     }
@@ -287,8 +287,8 @@ function ComponentName() {
                     setCategory(key)
                 }
             } else {
-                setIcon((markerTypeList as any)[Object.keys(markerTypeList)[0]])
-                setCategory(Object.keys(markerTypeList)[0])
+                setIcon((markerTypeList as any)[Object.keys(markerTypeList)[1]])
+                setCategory(Object.keys(markerTypeList)[1])
             }
         }
     }, [searchParams, params])

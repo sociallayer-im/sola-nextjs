@@ -14,15 +14,9 @@ export const markerTypeList: any = {
     }
 
     function SelectorMarkerType(props: { value?: string, onChange?: (value: string[]) => any }) {
-    const [a, seta] = useState('')
     const {lang} = useContext(langContext)
     const router = useRouter()
     const params = useParams()
-    const {eventGroup} = useContext(EventHomeContext)
-
-    useEffect(() => {
-
-    }, [])
 
     return (<div className={styles['marker-type-selector']}>
         <div className={styles['title']}>{lang['Form_Marker_Category']}</div>

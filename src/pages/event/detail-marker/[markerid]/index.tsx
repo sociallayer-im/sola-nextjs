@@ -308,7 +308,6 @@ function EventDetail() {
                                 {(isHoster || isManager) && !canceled &&
                                     <>
                                         <AppButton onClick={gotoModify}>{lang['Activity_Detail_Btn_Modify']}</AppButton>
-                                        <AppButton onClick={gotoModify}>{'Cancel'}</AppButton>
                                     </>
                                 }
 
