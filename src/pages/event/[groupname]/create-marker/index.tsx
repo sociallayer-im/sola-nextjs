@@ -2,7 +2,7 @@ import {useContext, useEffect, useRef, useState} from 'react'
 import PageBack from "@/components/base/PageBack";
 import LangContext from "@/components/provider/LangProvider/LangContext";
 import SelectorMarkerType, {markerTypeList} from "@/components/base/SelectorMarkerType/SelectorMarkerType";
-import {useParams, useSearchParams} from "next/navigation";
+import {useParams, useRouter, useSearchParams} from "next/navigation";
 import AppInput from "@/components/base/AppInput";
 import UploadImage from "@/components/compose/UploadImage/UploadImage";
 import ReasonInput from "@/components/base/ReasonInput/ReasonInput";
@@ -29,7 +29,6 @@ import LocationInput from "@/components/compose/LocationInput/LocationInput";
 import EventHomeContext from "@/components/provider/EventHomeProvider/EventHomeContext";
 import AppFlexTextArea from "@/components/base/AppFlexTextArea/AppFlexTextArea";
 import {Delete} from "baseui/icon";
-import {useRouter} from "next/navigation";
 
 function ComponentName() {
     const {lang} = useContext(LangContext)
@@ -239,6 +238,14 @@ function ComponentName() {
         fetchBadgeDetail()
     }, [badgeId])
 
+    useEffect(() => {
+        if (user.id) {
+            const profile = getProfile({id: user.id}).then(res => {
+                setCreator(res!)
+            })
+        }
+    }, [user.id])
+
     const prefill = async (markerid: string, merkerDetail?: Marker) => {
         const detail = merkerDetail || await markerDetail(Number(markerid))
         setMarkerId(Number(markerid))
@@ -373,57 +380,58 @@ function ComponentName() {
                         </div>
                     }
 
-                    <div className={'input-area'}>
-                        <div className={'input-area-title'}>{lang['Form_Marker_Badge_Label']}</div>
-                        <div className={'input-area-des'}>{lang['Form_Marker_Badge_Des']}</div>
+                    {!!user?.id &&
+                        <div className={'input-area'}>
+                            <div className={'input-area-title'}>{lang['Form_Marker_Badge_Label']}</div>
+                            <div className={'input-area-des'}>{lang['Form_Marker_Badge_Des']}</div>
 
-                        {!!badgeDetail &&
-                            <div className={'banded-badge'}>
-                                <Delete size={22} onClick={e => {
-                                    setBadgeId(badgeIdRef.current || 990)
-                                }
-                                }/>
-                                <img src={badgeDetail.image_url} alt=""/>
-                                <div>{badgeDetail.title}</div>
-                            </div>
-                        }
+                            {!!badgeDetail &&
+                                <div className={'banded-badge'}>
+                                    <Delete size={22} onClick={e => {
+                                        setBadgeId(badgeIdRef.current || 990)
+                                    }
+                                    }/>
+                                    <img src={badgeDetail.image_url} alt=""/>
+                                    <div>{badgeDetail.title}</div>
+                                </div>
+                            }
 
-                        <div className={'add-badge'} onClick={async () => {
-                            await showBadges()
-                        }}>{lang['Activity_Form_Badge_Select']}</div>
+                            <div className={'add-badge'} onClick={async () => {
+                                await showBadges()
+                            }}>{lang['Activity_Form_Badge_Select']}</div>
+                        </div>}
 
-                        <div className='input-area'></div>
+                    <div className='input-area'></div>
 
-                        {!markerId ?
-                            <>
-                                <AppButton kind={BTN_KIND.primary}
-                                           disabled={busy}
-                                           special
-                                           onClick={() => {
-                                               handleCreate()
-                                           }}>
-                                    {lang['Form_Marker_Create_Btn']}
-                                </AppButton>
-                            </>
-                            : <>
-                                <AppButton kind={BTN_KIND.primary}
-                                           disabled={busy}
-                                           special
-                                           onClick={() => {
-                                               handleSave()
-                                           }}>
-                                    {lang['Profile_Edit_Save']}
-                                </AppButton>
-                                {
-                                    <div style={{marginTop: '12px'}}>
-                                        <AppButton style={{color: 'red'}} onClick={e => {
-                                            handleRemove()
-                                        }}>{lang['Marker_Edit_Remove']}</AppButton>
-                                    </div>
-                                }
-                            </>
-                        }
-                    </div>
+                    {!markerId ?
+                        <>
+                            <AppButton kind={BTN_KIND.primary}
+                                       disabled={busy}
+                                       special
+                                       onClick={() => {
+                                           handleCreate()
+                                       }}>
+                                {lang['Form_Marker_Create_Btn']}
+                            </AppButton>
+                        </>
+                        : <>
+                            <AppButton kind={BTN_KIND.primary}
+                                       disabled={busy}
+                                       special
+                                       onClick={() => {
+                                           handleSave()
+                                       }}>
+                                {lang['Profile_Edit_Save']}
+                            </AppButton>
+                            {
+                                <div style={{marginTop: '12px'}}>
+                                    <AppButton style={{color: 'red'}} onClick={e => {
+                                        handleRemove()
+                                    }}>{lang['Marker_Edit_Remove']}</AppButton>
+                                </div>
+                            }
+                        </>
+                    }
                 </div>
             </div>
         </div>
