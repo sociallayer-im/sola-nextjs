@@ -36,6 +36,7 @@ export default function AppButton (props: AppButtonProps) {
             width: props.inline ? 'auto' : '100%',
             fontSize: '14px',
             fontWeight: 600,
+            backgroundColor: '#ECF2EE'
         }
 
         if ($size === SIZE.compact) {
