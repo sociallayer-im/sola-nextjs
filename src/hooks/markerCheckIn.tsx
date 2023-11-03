@@ -1,14 +1,15 @@
 import {useContext} from 'react'
 import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
 import DialogMarkerCheckIn from "@/components/base/Dialog/DialogMarkerCheckIn/DialogMarkerCheckIn";
+import {Marker} from "@/service/solas";
 
 function useMarkerCheckIn() {
     const {openDialog} = useContext(DialogsContext)
 
-    const scanQrcode = async (markerid: number, callback?: (result: boolean) => any) => {
+    const scanQrcode = async (marker: Marker, callback?: (result: boolean) => any) => {
         const dialog = openDialog({
             content: (close: any) => <DialogMarkerCheckIn
-                markerid={markerid}
+                marker={marker}
                 handleClose={(result) => {
                     close()
                     callback && callback(result)

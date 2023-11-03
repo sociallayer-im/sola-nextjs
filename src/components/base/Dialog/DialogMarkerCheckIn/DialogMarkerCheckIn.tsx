@@ -3,14 +3,14 @@ import LangContext from "../../../provider/LangProvider/LangContext";
 import {useContext, useState} from "react";
 import ScanQrcode from "../../ScanQrcode/ScanQrcode";
 import DialogsContext from "../../../provider/DialogProvider/DialogsContext";
-import {markerCheckin} from '@/service/solas'
+import {acceptPresend, Marker, markerCheckin} from '@/service/solas'
 import UserContext from "@/components/provider/UserProvider/UserContext";
 import useEvent, {EVENT} from "@/hooks/globalEvent";
 import fa from "@walletconnect/legacy-modal/dist/cjs/browser/languages/fa";
 
 export interface DialogNftCheckInProps {
     handleClose: (result: boolean) => any
-    markerid: number
+    marker: Marker
 }
 
 function DialogMarkerCheckIn(props: DialogNftCheckInProps) {
@@ -23,10 +23,9 @@ function DialogMarkerCheckIn(props: DialogNftCheckInProps) {
 
     const handleScanResult = async (res: string) => {
         setCanScan(false)
-        console.log('scan', res)
-        const resMarkerId = res.split('/')[res.split('/').length - 1]
-
-        if (Number(resMarkerId) !== props.markerid) {
+        // res: https://event.sola.day?info=<marker id>-<voucher code>
+        const info = res.split('info=')[1]
+        if (!info) {
             showToast('invalid QR code')
             setTimeout(() => {
                 setCanScan(true)
@@ -34,12 +33,53 @@ function DialogMarkerCheckIn(props: DialogNftCheckInProps) {
             return
         }
 
-        await checkIn()
-        async function checkIn() {
+        const [resMarkerId, resVoucherCode] = info.split('-')
+
+        if (Number(resMarkerId) !== props.marker.id) {
+            showToast('invalid QR code')
+            setTimeout(() => {
+                setCanScan(true)
+            }, 1500)
+            return
+        }
+
+        try {
+            let badgeletId = 0
+            if (resVoucherCode) {
+                const mintBadge = await acceptPresend({
+                    id: props.marker.voucher_id!,
+                    code: Number(resVoucherCode),
+                    auth_token: user.authToken || ''
+                })
+                badgeletId = mintBadge.id
+            }
+
+            if (!badgeletId) {
+                showToast('invalid QR code')
+                setTimeout(() => {
+                    setCanScan(true)
+                }, 1500)
+                return
+            }
+
+
+
+            await checkIn(badgeletId)
+        } catch (e: any) {
+            console.error(e)
+            showToast(e.message || 'Check in fail !')
+            setTimeout(() => {
+                setCanScan(true)
+            }, 1500)
+        }
+
+        async function checkIn(badgeletId: number) {
             try {
                 const checkInRes = await markerCheckin({
                     auth_token: user.authToken || '',
                     id: Number(resMarkerId),
+                    reaction_type: 'message',
+                    badgelet_id: badgeletId
                 })
                 showToast('Checked !')
                 emitCheckIn(Number(resMarkerId))

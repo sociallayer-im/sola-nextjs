@@ -70,7 +70,13 @@ function ComponentName() {
         if (MarkerCache[selectedType!].length && cacheGroupId === eventGroup?.id) {
             res = MarkerCache[selectedType!]
         } else {
-            res = await queryMarkers({category: selectedType!, group_id: eventGroup?.id || undefined})
+            res = await queryMarkers({
+                category: selectedType!,
+                group_id: eventGroup?.id || undefined,
+                with_checkins: user.authToken ? true : undefined,
+                auth_token: user.authToken ? user.authToken : undefined
+            })
+
         }
 
         // MarkerCache[selectedType!] = res
@@ -405,6 +411,7 @@ function ComponentName() {
             queryMyEvent({auth_token: user.authToken || '', page: 1}).then(res => {
                 setParticipants(res)
             })
+            getMarker()
         }
     }, [user.id])
 

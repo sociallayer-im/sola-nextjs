@@ -563,7 +563,7 @@ export async function rejectBadgelet(props: RejectBadgeletProp): Promise<void> {
 
 export interface AcceptPresendProps {
     id: number,
-    code: string,
+    code: string | number,
     auth_token: string
 }
 
@@ -578,7 +578,7 @@ export async function acceptPresend(props: AcceptPresendProps) {
         throw new Error(res.data.message)
     }
 
-    return res.data
+    return res.data.badgelet
 }
 
 export type SetBadgeletStatusType = 'untop' | 'top' | 'hide' | 'unhide'
@@ -2660,6 +2660,7 @@ export interface Marker {
     start_time: string | null,
     end_time: string | null,
     checkins_count: number,
+    checkin?: MarkerCheckinDetail | undefined,
 }
 
 export interface CreateMarkerProps extends Partial<Marker> {
@@ -2714,6 +2715,8 @@ export async function queryMarkers(props: {
     group_id?: number,
     marker_type?: string,
     category?: string,
+    with_checkins?: boolean,
+    auth_token?: string,
 }) {
 
     const res = await fetch.get({
@@ -2729,7 +2732,8 @@ export async function queryMarkers(props: {
 }
 
 export interface MarkerCheckinDetail {
-    profile: ProfileSimple,
+    creator: ProfileSimple,
+    profile_id: number
     marker: Marker,
     badgelet_id: number | null,
     reaction_type: string,
@@ -2738,8 +2742,8 @@ export interface MarkerCheckinDetail {
     created_at: string,
 }
 
-export async function markersCheckinList(props: {
-    marker_id?: number,
+    export async function markersCheckinList(props: {
+    id?: number,
     page?: number,
 }) {
     const res = await fetch.get({
@@ -2757,6 +2761,8 @@ export async function markersCheckinList(props: {
 export async function markerCheckin(props: {
     auth_token: string,
     id?: number,
+    reaction_type: string
+    badgelet_id: number,
 }) {
 
     checkAuth(props)

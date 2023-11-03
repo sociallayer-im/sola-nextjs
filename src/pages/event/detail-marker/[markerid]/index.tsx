@@ -65,9 +65,9 @@ function EventDetail() {
             setMarker(marker)
             setCanceled(marker.status === 'cancel')
 
-            const records = await markersCheckinList({marker_id: Number(params?.markerid)})
+            const records = await markersCheckinList({id: Number(params?.markerid)})
             setCheckins(records)
-            const checkin = records.find(item => item.profile.id === user.id)
+            const checkin = records.find(item => item.creator.id === user.id)
             setIsJoined(!!checkin)
 
             const now = new Date().getTime()
@@ -115,7 +115,7 @@ function EventDetail() {
 
     async function checkHasCheckin() {
         if (!user.id) return false
-        const target = checkins.find(item => item.profile.id === user.id)
+        const target = checkins.find(item => item.creator.id === user.id)
         setIsJoined(!!target)
     }
 
@@ -173,7 +173,7 @@ function EventDetail() {
     }
 
     const handleUserCheckIn = async () => {
-        scanQrcode(marker!.id, (ifSuccess: boolean) => {
+        scanQrcode(marker!, (ifSuccess: boolean) => {
             if (ifSuccess) {
                 // refresh data
                 fetchData()
@@ -284,13 +284,13 @@ function EventDetail() {
                                                 checkins.map((item, index) => {
                                                     return <div key={index} className={'user-list-item'}
                                                                 onClick={e => {
-                                                                    goToProfile(item.profile.domain?.split('.')[0]!)
+                                                                    goToProfile(item.creator.domain?.split('.')[0]!)
                                                                 }}>
                                                         <div className={'left'}>
                                                             <img
-                                                                src={item.profile.image_url || defaultAvatar(item.profile.id)}
+                                                                src={item.creator.image_url || defaultAvatar(item.creator.id)}
                                                                 alt=""/>
-                                                            {item.profile.domain?.split('.')[0]}
+                                                            {item.creator.domain?.split('.')[0]}
                                                         </div>
                                                         <div className={'right'}>
                                                             {formatTime(item.created_at)}
