@@ -10,6 +10,7 @@ import CardEvent from "@/components/base/Cards/CardEvent/CardEvent";
 import {useRouter, useSearchParams} from "next/navigation";
 import {markerTypeList} from "@/components/base/SelectorMarkerType/SelectorMarkerType";
 import userContext from "@/components/provider/UserProvider/UserContext";
+import DialogGuideFollow from "@/components/base/Dialog/DialogGuideFollow/DialogGuideFollow";
 
 const menuList = markerTypeList
 
@@ -48,16 +49,22 @@ function ComponentName() {
 
 
         let res: Event[] = []
-        if (MarkerCache['Event'].length && cacheGroupId === eventGroup?.id) {
-            res = MarkerCache['Event']
-        } else {
-            res = await queryEvent({
-                page: 1,
-                start_time_from: todayZero,
-                event_order: 'start_time_asc',
-                group_id: eventGroup?.id || undefined
-            })
-        }
+        // if (MarkerCache['Event'].length && cacheGroupId === eventGroup?.id) {
+        //     res = MarkerCache['Event']
+        // } else {
+        //     res = await queryEvent({
+        //         page: 1,
+        //         start_time_from: todayZero,
+        //         event_order: 'start_time_asc',
+        //         group_id: eventGroup?.id || undefined
+        //     })
+        // }
+        res = await queryEvent({
+            page: 1,
+            start_time_from: todayZero,
+            event_order: 'start_time_asc',
+            group_id: eventGroup?.id || undefined
+        })
 
         const eventWithLocation = res.filter(item => !!item.location_details || !!item.event_site?.location_details)
         setEventWithLocationList(eventWithLocation)
@@ -67,17 +74,24 @@ function ComponentName() {
 
     const getMarker = async () => {
         let res: Marker[] = []
-        if (MarkerCache[selectedType!].length && cacheGroupId === eventGroup?.id) {
-            res = MarkerCache[selectedType!]
-        } else {
-            res = await queryMarkers({
-                category: selectedType!,
-                group_id: eventGroup?.id || undefined,
-                with_checkins: user.authToken ? true : undefined,
-                auth_token: user.authToken ? user.authToken : undefined
-            })
+        // if (MarkerCache[selectedType!].length && cacheGroupId === eventGroup?.id) {
+        //     res = MarkerCache[selectedType!]
+        // } else {
+        //     res = await queryMarkers({
+        //         category: selectedType!,
+        //         group_id: eventGroup?.id || undefined,
+        //         with_checkins: user.authToken ? true : undefined,
+        //         auth_token: user.authToken ? user.authToken : undefined
+        //     })
+        //
+        // }
 
-        }
+        res = await queryMarkers({
+            category: selectedType!,
+            group_id: eventGroup?.id || undefined,
+            with_checkins: user.authToken ? true : undefined,
+            auth_token: user.authToken ? user.authToken : undefined
+        })
 
         // MarkerCache[selectedType!] = res
         // cacheGroupId === eventGroup?.id
@@ -471,6 +485,9 @@ function ComponentName() {
     }, [eventWithLocationList, markers, Marker, selectedType])
 
     return (<div className={`${styles['map-page']} map-page`}>
+        <div className={styles['follow-window']}>
+            <DialogGuideFollow />
+        </div>
         <div id={'gmap'} className={styles['map-container']} ref={mapDomRef as any}/>
         { (eventGroup?.id === 1984 || eventGroup?.id === 1516) &&
             <div className={styles['top-menu']}>

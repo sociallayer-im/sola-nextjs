@@ -1,19 +1,20 @@
 import styles from './CardMarker.module.scss'
-import {Marker, MarkerCheckinDetail} from '@/service/solas'
+import {getFollowings, Marker} from '@/service/solas'
 import {useRouter} from "next/navigation";
 import Image from "next/image";
 import usePicture from "@/hooks/pictrue";
-import {useContext, useEffect, useState} from "react";
+import {useContext, useState} from "react";
 import userContext from "@/components/provider/UserProvider/UserContext";
 import useMarkerCheckIn from "@/hooks/markerCheckIn";
+import useEvent, {EVENT} from "@/hooks/globalEvent";
 
-function CardMarker(props: { item: Marker}) {
+function CardMarker(props: { item: Marker }) {
     const router = useRouter()
     const {defaultAvatar} = usePicture()
     const {user} = useContext(userContext)
     const {scanQrcode} = useMarkerCheckIn()
-
     const [hasCheckin, setHasCheckin] = useState(!!props.item.checkin)
+    const [_, showFollowGuide] = useEvent(EVENT.showFollowGuide)
 
 
     return (<div className={styles['marker-card']} onClick={e => {
@@ -47,7 +48,7 @@ function CardMarker(props: { item: Marker}) {
                     <img className={styles['img']} src={props.item.cover_url} alt=""/>
                 }
             </div>
-            { hasCheckin ?
+            {hasCheckin ?
                 <div className={styles['checked']}>
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
                         <path
@@ -59,14 +60,22 @@ function CardMarker(props: { item: Marker}) {
                 : <div className={styles['checkin-btn']}
                        onClick={(e) => {
                            e.stopPropagation()
+
+
                            const isHost = user && user.id === props.item.owner.id
                            if (isHost) {
                                router.push(`/event/checkin-marker/${props.item.id}`)
                            } else {
                                scanQrcode(props.item, (checked) => {
-                                      if (checked) {
-                                        setHasCheckin(true)
-                                      }
+                                   if (checked) {
+                                       setHasCheckin(true)
+                                       getFollowings(user.id!).then(res => {
+                                           const ifFollow = res.find(item => item.id === props.item.owner.id)
+                                           if (!ifFollow) {
+                                               showFollowGuide(props.item.owner)
+                                           }
+                                       })
+                                   }
                                })
                            }
                        }}>
