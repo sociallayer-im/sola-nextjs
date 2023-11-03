@@ -60,6 +60,12 @@ function AppDateInput({arrowRepeat = true, ...props}: AppDateInputProps) {
 
         const newDate = new Date(year, mouth, day, hour, minute)
         setFrom(newDate)
+        if (!allDay) {
+            const toHour = to.getHours()
+            const toMinute = to.getMinutes()
+            const _date = new Date(year, mouth, day, toHour, toMinute)
+            changeToDate(_date)
+        }
     }
 
     function changeToDate(date: Date) {
@@ -153,7 +159,6 @@ function AppDateInput({arrowRepeat = true, ...props}: AppDateInputProps) {
                 <div className={'show-date'}>{showDate(from)}</div>
                 <DatePicker
                     minDate={new Date()}
-                    maxDate={to || undefined}
                     value={from}
                     onChange={({date}) => {
                         changeFromDate(Array.isArray(date) ? date : [date][0] as any)
