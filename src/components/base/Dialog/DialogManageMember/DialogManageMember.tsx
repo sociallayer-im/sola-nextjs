@@ -126,7 +126,7 @@ function DialogManageMember(props: AddressListProps) {
                    <AddressList selected={ selected.length ?  [ selected[0].domain || '' ]: [] } data= { groupsMember } onClick={(profile) => { addAddress(profile.domain!)} } />
                </div>
            </div>
-           <div className='dialog-bottom'>
+           <div className='dialog-bottom center'>
                <AppButton
                    onClick={() => { removeMember() }}
                    size={ BTN_SIZE.compact }
