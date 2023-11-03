@@ -10,7 +10,7 @@ import {getLabelColor} from "@/hooks/labelColor";
 import usePicture from "@/hooks/pictrue";
 import Empty from "@/components/base/Empty";
 import PageBack from "@/components/base/PageBack";
-import {useRouter, useParams, useSearchParams} from "next/navigation";
+import {useParams, useSearchParams, useRouter} from "next/navigation";
 
 
 interface EventWithProfile extends Event {
@@ -217,7 +217,8 @@ function Calendar() {
 
         if (eventGroup && (dateStart.getTime() > date.getTime() || dateEnd.getTime() < date.getTime())) {
             await getEventList(date)
-            router.push(`/event/${eventGroup?.username || ''}/calendar?date=${date.getTime()}`, {shallow: true})
+            alert(eventGroup?.username)
+            router.push(`/event/${eventGroup?.username}/calendar?date=${date.getTime()}`)
             setSelectedDate(date)
             setTimeout(() => {
                 scrollIntoView(`date-${date.getDate()}`)
