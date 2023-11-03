@@ -217,7 +217,6 @@ function Calendar() {
 
         if (eventGroup && (dateStart.getTime() > date.getTime() || dateEnd.getTime() < date.getTime())) {
             await getEventList(date)
-            alert(eventGroup?.username)
             router.push(`/event/${eventGroup?.username}/calendar?date=${date.getTime()}`)
             setSelectedDate(date)
             setTimeout(() => {
