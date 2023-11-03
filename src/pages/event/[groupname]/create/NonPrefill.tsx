@@ -941,7 +941,7 @@ function CreateEvent(props: CreateEventPageProps) {
                             </div>
                         }
 
-                        {
+                        { false &&
                             <div className='input-area'>
                                 <div className='input-area-title'>{lang['Activity_Form_Starttime']}</div>
                                 <AppDateInput value={start} onChange={(data) => {
@@ -951,7 +951,7 @@ function CreateEvent(props: CreateEventPageProps) {
                             </div>
                         }
 
-                        {hasDuration &&
+                        {false && hasDuration &&
                             <div className='input-area'>
                                 <div className='input-area-title'>{lang['Activity_Form_Ending']}</div>
                                 <AppDateInput value={ending} onChange={(data) => {
