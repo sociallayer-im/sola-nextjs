@@ -916,13 +916,6 @@ function CreateEvent(props: CreateEventPageProps) {
                                 }}/>
                         </div>
 
-                        <div className='input-area'>
-                            <div className='input-area-title'>{lang['Activity_Form_Details']}</div>
-                            <ReasonInput unlimited value={content} onChange={(value) => {
-                                setContent(value)
-                            }}/>
-                        </div>
-
                         {false &&
                             <div className='input-area'>
                                 <div className={'toggle'}>
@@ -985,8 +978,14 @@ function CreateEvent(props: CreateEventPageProps) {
                                     setCustomLocation(values.customLocation)
                                     setLocationDetail(values.metaData || '')
                                 }}/>
-
                         }
+
+                        <div className='input-area'>
+                            <div className='input-area-title'>{lang['Activity_Form_Details']}</div>
+                            <ReasonInput unlimited value={content} onChange={(value) => {
+                                setContent(value)
+                            }}/>
+                        </div>
 
                         {eventType === 'event' &&
                             <div className='input-area'>

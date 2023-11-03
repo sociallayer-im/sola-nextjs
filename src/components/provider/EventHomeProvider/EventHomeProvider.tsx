@@ -77,7 +77,7 @@ function EventHomeProvider(props: { children: any }) {
         async function checkManager() {
             if (user.id && selectedEventGroup) {
                 const isManager = await checkIsManager({profile_id: user.id, group_id: selectedEventGroup.id})
-                setIsManager(isManager)
+                setIsManager(isManager || user.id === selectedEventGroup.group_owner_id)
             } else {
                 setIsManager(false)
             }

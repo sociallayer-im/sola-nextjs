@@ -215,7 +215,7 @@ const langEN = {
     Activity_Form_Cover: 'Cover/Poster',
     Activity_Form_Checklog: 'Set as a punch in location',
     Activity_Form_Name: 'Event Name',
-    Activity_Form_Details: 'Details',
+    Activity_Form_Details: 'Details (Optional)',
     Activity_Form_online_address: 'Online',
     Activity_Form_Starttime: 'When will it happen?',
     Activity_Form_Ending: 'When will it Ending?',
