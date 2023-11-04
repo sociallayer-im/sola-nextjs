@@ -19,6 +19,7 @@ export interface ListUserAssetsProps<T> {
     preEnhancer?: () => ReactNode
     compact?: boolean
     onload?: (data:T[]) => any
+    previewCount?: number
 }
 
 function ListUserAssets<T>(props: ListUserAssetsProps<T>) {
@@ -31,7 +32,9 @@ function ListUserAssets<T>(props: ListUserAssetsProps<T>) {
 
     const [isPreview, setIsPreview] = useState<boolean>(true)
     const [listData, setListData] = useState<T[]>(list)
-    const previewCount = typeof window === 'undefined' ? 4: (window.innerWidth <= 450 ? 4 : 6)
+    const previewCount = typeof window === 'undefined'
+        ? (props.previewCount || 4)
+        : (window.innerWidth <= 450 ? (props.previewCount || 4) : (props.previewCount || 6))
 
     useImperativeHandle(props.onRef, () => {
         // 需要将暴露的接口返回出去
