@@ -421,7 +421,7 @@ function ComponentName() {
                             }
 
                             <div className={'add-badge'} onClick={async () => {
-                                await showBadges((eventGroup && canUserGroupBadge) ? [eventGroup as Profile] : undefined)
+                                await showBadges((eventGroup && canUserGroupBadge) ? [eventGroup as any] : undefined)
                             }}>{lang['Activity_Form_Badge_Select']}</div>
                         </div>}
 
