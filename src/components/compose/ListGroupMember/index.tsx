@@ -8,7 +8,6 @@ import MenuItem from "../../base/MenuItem";
 import DialogsContext from "../../provider/DialogProvider/DialogsContext";
 import {Overflow} from 'baseui/icon'
 import DialogManageMember from '../../base/Dialog/DialogManageMember/DialogManageMember'
-import {ListUserAssetsMethods} from "../../base/ListUserAssets/ListUserAssets";
 import DialogGroupManagerEdit from "@/components/base/Dialog/DialogGroupManagerEdit/DialogGroupManagerEdit";
 import {useRouter} from "next/navigation";
 import usePicture from "@/hooks/pictrue";
@@ -19,23 +18,28 @@ interface ListGroupMemberProps {
     group: Profile
 }
 
+interface ProfileWithRole extends Profile {
+    isManager?: boolean
+}
+
 function ListGroupMember(props: ListGroupMemberProps) {
     const {lang} = useContext(LangContext)
     const {user} = useContext(UserContext)
     const [members, setMembers] = useState<Profile[]>([])
+    const [managers, setManagers] = useState<Profile[]>([])
     const [isManager, setIsManager] = useState(false)
+    const [listToShow, setListToShow] = useState<ProfileWithRole[]>([])
     const [owner, setOwner] = useState<Profile | null>(null)
-    const listWrapperRef = React.createRef<ListUserAssetsMethods>()
     const {showToast, showLoading, openConfirmDialog, openDialog} = useContext(DialogsContext)
     const [currUserJoinedGroup, setCurrUserJoinedGroup] = useState(false)
     const [groupOwnerId, setGroupOwnerId] = useState(props.group.group_owner_id!)
     const {defaultAvatar} = usePicture()
     const router = useRouter()
 
-    useEffect(() => {
-        getOwner()
-        getMember(1)
-        listWrapperRef.current?.refresh()
+    async function init() {
+        await getOwner()
+        await getManager()
+        await getMember(1)
 
         if (user.id) {
             checkIsManager({group_id: props.group.id, profile_id: user.id})
@@ -43,7 +47,32 @@ function ListGroupMember(props: ListGroupMemberProps) {
                     setIsManager(res)
                 })
         }
+    }
+
+    useEffect(() => {
+        init()
     }, [props.group, user.id])
+
+    useEffect(() => {
+            const listWithoutManager = members.filter((member) => {
+                return !managers.find((manager) => manager.id === member.id)
+            })
+
+            const MemberListWithRole = listWithoutManager.map((member) => {
+                return {
+                    ...member,
+                    isManager: false
+                }
+            })
+            const managerListWithRole = managers.map((manager) => {
+                return {
+                    ...manager,
+                    isManager: true
+                }
+            })
+        setListToShow([...managerListWithRole, ...MemberListWithRole])
+        }, [managers, members]
+    )
 
     const getOwner = async () => {
         const owner = await solas.getProfile({id: groupOwnerId})
@@ -73,6 +102,11 @@ function ListGroupMember(props: ListGroupMemberProps) {
 
         const deleteOwner = members.filter((member) => member.id !== groupOwnerId)
         setMembers(deleteOwner)
+    }
+
+    const getManager = async () => {
+        const managerlist = await solas.getGroupMembers({group_id: props.group.id, role: 'group_manager'})
+        setManagers(managerlist)
     }
 
     const leaveGroup = async () => {
@@ -111,7 +145,10 @@ function ListGroupMember(props: ListGroupMemberProps) {
         const dialog = openDialog({
             content: (close: any) => <DialogManageMember
                 groupId={props.group.id}
-                handleClose={close}/>,
+                handleClose={() => {
+                    init()
+                    close()
+                }}/>,
             size: ['100%', '100%']
         })
     }
@@ -124,9 +161,9 @@ function ListGroupMember(props: ListGroupMemberProps) {
                 handleClose={(newOwner) => {
                     if (newOwner) {
                         setGroupOwnerId(newOwner.id)
-                        const newMembers = members.filter((member) => member.id !== newOwner.id)
+                        const newMembers = listToShow.filter((member) => member.id !== newOwner.id)
                         newMembers.push(owner!)
-                        setMembers(newMembers)
+                        setListToShow(newMembers)
                         setOwner(newOwner)
                     }
                     close()
@@ -144,7 +181,10 @@ function ListGroupMember(props: ListGroupMemberProps) {
                 group={props.group as any}
                 members={members}
                 managers={res2}
-                handleClose={close}/>,
+                handleClose={()=> {
+                    close()
+                    init()
+                }} />,
             size: ['100%', '100%']
         })
     }
@@ -161,9 +201,10 @@ function ListGroupMember(props: ListGroupMemberProps) {
                          gotoProfile(owner!)
                      }}>
                     <div className={'left'}>
-                        <img className={'owner-marker'} src='/images/icon_owner.png' />
+                        <img className={'owner-marker'} src='/images/icon_owner.png'/>
                         <img src={owner.image_url || defaultAvatar(owner.id)} alt=""/>
                         <span>{owner.nickname || owner.username || owner.domain?.split('.')[0]}</span>
+                        <span className={'role'}>{lang['Group_Role_Owner']}</span>
                     </div>
                 </div>
             }
@@ -224,7 +265,7 @@ function ListGroupMember(props: ListGroupMemberProps) {
         <div className={'address-list'}>
             <PreEnhancer/>
             {
-                members.map((member, index) => {
+                listToShow.map((member, index) => {
                     return <div className={'list-item'}
                                 key={index}
                                 onClick={(e) => {
@@ -233,6 +274,9 @@ function ListGroupMember(props: ListGroupMemberProps) {
                         <div className={'left'}>
                             <img src={member.image_url || defaultAvatar(member.id)} alt=""/>
                             <span>{member.nickname || member.username || member.domain?.split('.')[0]}</span>
+                            {
+                                member.isManager && <span className={'role'}>{lang['Group_Role_Manager']}</span>
+                            }
                         </div>
                     </div>
                 })

@@ -549,6 +549,8 @@ const langCN: LangConfig = {
   Marker_Detail_Records: '记录',
   Marker_Edit_Remove: 'Remove marker',
   Group_Change_Owner: '转移组织',
+  Group_Role_Owner: '拥有者',
+  Group_Role_Manager: '管理员',
 }
 
 

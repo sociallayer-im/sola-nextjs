@@ -553,6 +553,8 @@ const langEN = {
     Marker_Detail_Records: 'Records',
     Marker_Edit_Remove: 'Remove marker',
     Group_Change_Owner: 'Change owner',
+    Group_Role_Owner: 'Owner',
+    Group_Role_Manager: 'Manager',
 }
 
 

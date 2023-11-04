@@ -64,6 +64,7 @@ function ComponentName() {
     const [canUserGroupBadge, setCanUserGroupBadge] = useState(false)
 
     useEffect(() => {
+        // owner 和 manager 可以使用 group badge
         // 1516 playgroup2
         // 1984 istanbul2023
         setCanUserGroupBadge((isManager || eventGroup?.group_owner_id == user?.id)
