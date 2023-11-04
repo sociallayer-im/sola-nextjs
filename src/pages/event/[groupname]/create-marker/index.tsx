@@ -7,13 +7,14 @@ import AppInput from "@/components/base/AppInput";
 import UploadImage from "@/components/compose/UploadImage/UploadImage";
 import ReasonInput from "@/components/base/ReasonInput/ReasonInput";
 import {
-    Group,
     Badge,
     createMarker,
     createPresend,
     getProfile,
+    Group,
     Marker,
     markerDetail,
+    Presend,
     Profile,
     queryBadge,
     queryBadgeDetail,
@@ -69,7 +70,7 @@ function ComponentName() {
             && (eventGroup?.id === 1516 || eventGroup?.id === 1984))
     }, [isManager, eventGroup, user?.id])
 
-    const showBadges = async (withGroup?:Group[]) => {
+    const showBadges = async (withGroup?: Group[]) => {
         const props = creator?.is_group ? {
                 group_id: creator!.id,
                 page: 1
@@ -129,13 +130,15 @@ function ComponentName() {
         const unload = showLoading()
         setBusy(true)
         try {
-            const voucher = await createPresend({
-                message: badgeDetail?.content || '',
-                auth_token: user.authToken || '',
-                badge_id: badgeId || 990,
-                counter: null
-            })
-
+            let voucher: null | Presend = null
+            if (badgeId) {
+                voucher = await createPresend({
+                    message: badgeDetail?.content || '',
+                    auth_token: user.authToken || '',
+                    badge_id: badgeId || 990,
+                    counter: null
+                })
+            }
 
             const create = await createMarker({
                 auth_token: user.authToken || '',
@@ -152,7 +155,7 @@ function ComponentName() {
                 lat: location ? JSON.parse(location).geometry.location.lat : null,
                 lng: location ? JSON.parse(location).geometry.location.lng : null,
                 marker_type: 'site',
-                voucher_id: voucher.id
+                voucher_id: voucher ? voucher.id : undefined
             })
             unload()
             showToast('Create Success', 500)
@@ -185,7 +188,7 @@ function ComponentName() {
         setBusy(true)
         try {
             let newVoucherId: number = 0
-            if (badgeId !== badgeIdRef.current) {
+            if (badgeId && badgeId !== badgeIdRef.current) {
                 const voucher = await createPresend({
                     message: badgeDetail?.content || '',
                     auth_token: user.authToken || '',
@@ -211,7 +214,7 @@ function ComponentName() {
                 lng: location ? JSON.parse(location).geometry.location.lng : null,
                 marker_type: 'site',
                 id: markerId!,
-                voucher_id: newVoucherId || markerInfoRef.current?.voucher_id
+                voucher_id: badgeId ? (newVoucherId || markerInfoRef.current?.voucher_id) : null
             })
             unload()
             showToast('Save Success', 500)
@@ -412,7 +415,8 @@ function ComponentName() {
                             {!!badgeDetail &&
                                 <div className={'banded-badge'}>
                                     <Delete size={22} onClick={e => {
-                                        setBadgeId(badgeIdRef.current || 990)
+                                        setBadgeId(null)
+                                        setBadgeDetail(null)
                                     }
                                     }/>
                                     <img src={badgeDetail.image_url} alt=""/>

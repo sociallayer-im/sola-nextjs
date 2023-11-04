@@ -2762,7 +2762,7 @@ export async function markerCheckin(props: {
     auth_token: string,
     id?: number,
     reaction_type: string
-    badgelet_id: number,
+    badgelet_id?: number,
 }) {
 
     checkAuth(props)

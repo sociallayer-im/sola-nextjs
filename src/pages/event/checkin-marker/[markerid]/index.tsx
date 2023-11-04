@@ -89,7 +89,7 @@ function MarkerCheckIn() {
                 getVoucherCode({id: marker.voucher_id, auth_token: user.authToken || ''}).then((code) => {
                     setCode(code)
                 })
-            }
+            } else setCode('0')
         }
     }, [user.id, hoster, marker])
 

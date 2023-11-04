@@ -45,7 +45,7 @@ function DialogMarkerCheckIn(props: DialogNftCheckInProps) {
 
         try {
             let badgeletId = 0
-            if (resVoucherCode) {
+            if (resVoucherCode && resVoucherCode!== '0') {
                 const mintBadge = await acceptPresend({
                     id: props.marker.voucher_id!,
                     code: Number(resVoucherCode),
@@ -54,17 +54,8 @@ function DialogMarkerCheckIn(props: DialogNftCheckInProps) {
                 badgeletId = mintBadge.id
             }
 
-            if (!badgeletId) {
-                showToast('invalid QR code')
-                setTimeout(() => {
-                    setCanScan(true)
-                }, 1500)
-                return
-            }
 
-
-
-            await checkIn(badgeletId)
+            await checkIn(badgeletId || undefined)
         } catch (e: any) {
             console.error(e)
             showToast(e.message || 'Check in fail !')
@@ -73,7 +64,7 @@ function DialogMarkerCheckIn(props: DialogNftCheckInProps) {
             }, 1500)
         }
 
-        async function checkIn(badgeletId: number) {
+        async function checkIn(badgeletId?: number) {
             try {
                 const checkInRes = await markerCheckin({
                     auth_token: user.authToken || '',
