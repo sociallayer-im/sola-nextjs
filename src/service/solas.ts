@@ -2810,6 +2810,17 @@ export async function getVoucherCode(props: {
     return res.data.code as string
 }
 
+export async function transferGroupOwner(props: {id: number, new_owner_username: string, auth_token: string}) {
+    const res = await fetch.post({
+        url: `${api}/group/transfer_owner`,
+        data: props
+    })
+
+    if (res.data.result === 'error') {
+        throw new Error(res.data.message)
+    }
+}
+
 export default {
     removeMarker,
     queryMarkers,

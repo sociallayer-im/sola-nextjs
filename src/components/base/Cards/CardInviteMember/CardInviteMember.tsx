@@ -33,15 +33,15 @@ const style = {
         }
     },
     img:  {
-        width: '50px',
-        height: '50px',
+        width: '28px',
+        height: '28px',
         borderRadius: '50%',
-        marginBottom: '10px',
         background: '#f5f8f6',
         display: 'flex',
         flexDirection: 'column' as const,
         alignItems: 'center',
         justifyContent: 'center',
+        marginRight: '10px'
     }
 }
 
@@ -55,8 +55,11 @@ function CardInviteMember (props: CardInviteMemberProps) {
     const { lang } = useContext(LangContext)
 
     return (
-        <div className={ css(style.wrapper) } onClick={() => { router.push(`/create-invite/${props.groupId}`) }}>
-            <div className={ css(style.img) }><Plus size={28}/></div>
+        <div className={ 'list-item' } onClick={() => { router.push(`/create-invite/${props.groupId}`) }}>
+            <div className={'left'}>
+                <div className={ css(style.img) }><Plus size={16}/></div>
+                <span>{'Invite members'}</span>
+            </div>
         </div>
     )
 }

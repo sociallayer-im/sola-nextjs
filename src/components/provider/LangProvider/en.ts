@@ -376,6 +376,7 @@ const langEN = {
     Profile_Edit_Leave_Dialog_Title: 'Are you sure to leave?',
     Profile_Edit_Leave_Dialog_Des: "You haven't saved your settings yet.",
     Group_Member_Manage_Dialog_Title: 'Member Management',
+    Group_Manager_Setting: 'Manager setting',
     Group_Member_Manage_Dialog_Confirm_Btn: 'Remove from the group',
     Group_Member_Manage_Dialog_Confirm_Dialog_des: slotLang('Are you sure to remove {1} from the group？'),
     Group_Member_Manage_Dialog_Confirm_Dialog_Confirm: 'Remove',
@@ -550,6 +551,7 @@ const langEN = {
     Form_Marker_Link_Label: 'Link (Optional)',
     Marker_Detail_Records: 'Records',
     Marker_Edit_Remove: 'Remove marker',
+    Group_Change_Owner: 'Change owner',
 }
 
 
