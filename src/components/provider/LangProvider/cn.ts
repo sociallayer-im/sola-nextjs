@@ -318,6 +318,7 @@ const langCN: LangConfig = {
   Search_Tab_Event: 'Event',
   Badgebook_Dialog_Choose_Badgebook: '从 Badge book 选择',
   Badgebook_Dialog_Choose_Badge: '从已经颁发的徽章中选择',
+  Badgebook_Dialog_Choose_Group_Badge: slotLang('从组织「{groupname}」创建的徽章中种选择'),
   Badgebook_Dialog_Choose_Draft: '从保存的草稿中选择',
   Badgebook_Dialog_Cetate_Badge: '创建新的徽章',
   Badgebook_Dialog_Recognition_Badge: '基础徽章',

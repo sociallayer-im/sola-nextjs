@@ -7,6 +7,7 @@ import AppInput from "@/components/base/AppInput";
 import UploadImage from "@/components/compose/UploadImage/UploadImage";
 import ReasonInput from "@/components/base/ReasonInput/ReasonInput";
 import {
+    Group,
     Badge,
     createMarker,
     createPresend,
@@ -37,7 +38,7 @@ function ComponentName() {
     const params = useParams()
     const {user} = useContext(userContext)
     const router = useRouter()
-    const {eventGroup} = useContext(EventHomeContext)
+    const {eventGroup, isManager} = useContext(EventHomeContext)
 
     const [busy, setBusy] = useState(false)
 
@@ -59,7 +60,16 @@ function ComponentName() {
     const badgeIdRef = useRef<number | null>(null)
     const markerInfoRef = useRef<Marker | null>(null)
 
-    const showBadges = async () => {
+    const [canUserGroupBadge, setCanUserGroupBadge] = useState(false)
+
+    useEffect(() => {
+        // 1516 playgroup2
+        // 1984 istanbul2023
+        setCanUserGroupBadge((isManager || eventGroup?.group_owner_id == user?.id)
+            && (eventGroup?.id === 1516 || eventGroup?.id === 1984))
+    }, [isManager, eventGroup, user?.id])
+
+    const showBadges = async (withGroup?:Group[]) => {
         const props = creator?.is_group ? {
                 group_id: creator!.id,
                 page: 1
@@ -71,10 +81,22 @@ function ComponentName() {
 
         const unload = showLoading()
         const badges = await queryBadge(props)
-        unload()
+        let groupBadges: any[] = []
+        if (withGroup) {
+            const tasks = withGroup.map(group => queryBadge({group_id: group.id, page: 1}))
+            const groupBadgesList = await Promise.all(tasks)
+            groupBadges = groupBadgesList.map((badges, index) => {
+                return {
+                    groupName: (withGroup as any)[index].nickname || (withGroup as any)[index].username,
+                    badges
+                }
+            })
+        }
 
+        unload()
         openDialog({
             content: (close: any) => <DialogIssuePrefill
+                groupBadges={groupBadges.length ? groupBadges : undefined}
                 badges={badges}
                 profileId={user.id!}
                 onSelect={(res) => {
@@ -279,7 +301,9 @@ function ComponentName() {
         if (params?.markerid) {
             prefill(params?.markerid as string)
         } else {
-            setBadgeId(990)
+            if (canUserGroupBadge) {
+                setBadgeId(990)
+            }
             if (searchParams?.get('type')) {
                 const key = searchParams.get('type') as string
                 if ((markerTypeList as any)[key]) {
@@ -291,7 +315,7 @@ function ComponentName() {
                 setCategory(Object.keys(markerTypeList)[1])
             }
         }
-    }, [searchParams, params])
+    }, [searchParams, params, canUserGroupBadge])
 
     useEffect(() => {
         async function fetchBadgeDetail() {
@@ -397,7 +421,7 @@ function ComponentName() {
                             }
 
                             <div className={'add-badge'} onClick={async () => {
-                                await showBadges()
+                                await showBadges((eventGroup && canUserGroupBadge) ? [eventGroup as Profile] : undefined)
                             }}>{lang['Activity_Form_Badge_Select']}</div>
                         </div>}
 

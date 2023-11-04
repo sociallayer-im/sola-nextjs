@@ -69,6 +69,10 @@ function CreateBadgeNonPrefill() {
                 groupId = group!.id
             }
 
+            if (creator?.group_owner_id) {
+                groupId = creator.id
+            }
+
             const newNftPass = await solas.createBadge({
                 name: badgeName,
                 title: badgeName,

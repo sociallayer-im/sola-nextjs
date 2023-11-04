@@ -491,12 +491,10 @@ function ComponentName() {
         <div id={'gmap'} className={styles['map-container']} ref={mapDomRef as any}/>
         { (eventGroup?.id === 1984 || eventGroup?.id === 1516) &&
             <div className={styles['top-menu']}>
-                {(isManager || eventGroup?.group_owner_id === user.id) &&
-                    <div className={styles['menu-item']} onClick={() => {
-                        router.push(`/event/${eventGroup?.username}/create-marker`)
-                    }}>Create a Marker +
-                    </div>
-                }
+                <div className={styles['menu-item']} onClick={() => {
+                    router.push(`/event/${eventGroup?.username}/create-marker`)
+                }}>Create a Marker +
+                </div>
                 {
                     Object.keys(menuList).map((item, index) => {
                         const isSelected = selectedType === item
