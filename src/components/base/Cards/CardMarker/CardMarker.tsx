@@ -1,7 +1,6 @@
 import styles from './CardMarker.module.scss'
-import {getFollowings, joinEvent, Marker, Participants, queryEventDetail} from '@/service/solas'
+import {getFollowings, getProfile, joinEvent, Marker, Participants, Profile, queryEventDetail} from '@/service/solas'
 import {useRouter} from "next/navigation";
-import Image from "next/image";
 import usePicture from "@/hooks/pictrue";
 import {useContext, useEffect, useState} from "react";
 import userContext from "@/components/provider/UserProvider/UserContext";
@@ -18,6 +17,7 @@ function CardMarker(props: { item: Marker, participants?: Participants[] }) {
     const [hasJoin, setHasJoin] = useState(false)
     const [_, showFollowGuide] = useEvent(EVENT.showFollowGuide)
     const {showToast, showLoading} = useContext(DialogsContext)
+    const [groupHost, setGroupHost] = useState<Profile | null>(null)
 
     const handleJoin = async (e: any) => {
         e.stopPropagation()
@@ -49,6 +49,16 @@ function CardMarker(props: { item: Marker, participants?: Participants[] }) {
         }
     }, [props.participants])
 
+    useEffect(() => {
+        if (props.item.host_info) {
+            getProfile({id: Number(props.item.host_info)}).then(res => {
+                if (res) {
+                    setGroupHost(res)
+                }
+            })
+        }
+    }, [props.item.host_info])
+
 
     return (<div className={styles['marker-card']} onClick={e => {
         if (props.item.marker_type === 'event') {
@@ -60,10 +70,21 @@ function CardMarker(props: { item: Marker, participants?: Participants[] }) {
         <div className={styles['left']}>
             <div className={styles['title']}>{props.item.title}</div>
             <div className={styles['des']}>{props.item.about}</div>
-            <div className={styles['creator']}>by <img
-                alt=""
-                className={styles['avatar']}
-                src={props.item.owner.image_url || defaultAvatar(props.item.owner.id)} height={16} width={16}/></div>
+            {groupHost &&
+                <div className={styles['creator']}>by <img
+                    alt=""
+                    className={styles['avatar']}
+                    src={groupHost.image_url || defaultAvatar(groupHost.id)} height={16} width={16}/>
+                </div>
+            }
+            {!props.item.host_info &&
+                <div className={styles['creator']}>by <img
+                    alt=""
+                    className={styles['avatar']}
+                    src={props.item.owner.image_url || defaultAvatar(props.item.owner.id)} height={16} width={16}/>
+                </div>
+            }
+
             <div className={styles['info']}>
                 {props.item.location &&
                     <div className={styles['detail']}>
@@ -135,7 +156,9 @@ function CardMarker(props: { item: Marker, participants?: Participants[] }) {
                             </svg>
                             <span style={{color: '#38E699', fontSize: '12px', marginLeft: '4px'}}>Applied</span>
                         </div>
-                        : <div className={styles['checkin-btn']} onClick={e => {handleJoin(e)}}>
+                        : <div className={styles['checkin-btn']} onClick={e => {
+                            handleJoin(e)
+                        }}>
                             Apply
                         </div>
                     }
