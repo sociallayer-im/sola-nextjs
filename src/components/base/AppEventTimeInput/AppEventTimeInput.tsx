@@ -5,6 +5,7 @@ import Toggle from "../Toggle/Toggle";
 import {Select} from "baseui/select";
 import timezoneList, {locateTimeTransfer} from "@/utils/timezone";
 import * as dayjs from 'dayjs'
+
 const utc = require('dayjs/plugin/utc')
 const timezone = require('dayjs/plugin/timezone')
 dayjs.extend(utc)
@@ -17,12 +18,24 @@ function mapTimezone(value) {
     })
 }
 
+function getTimeStr (date: Date) {
+    const year = date.getFullYear()
+    const month = date.getMonth() + 1
+    const day = date.getDate()
+    const hours = date.getHours()
+    const minute = date.getMinutes()
+
+    return `${year}-${month}-${day} ${hours}:${minute}`
+}
+
+const localeTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone
+
 interface AppDateInputProps {
     from: string
     to: string
     repeat?: string,
     arrowRepeat?: boolean,
-    timezone?: string,
+    timezone: string,
     onChange: (value: {
         from: string,
         to: string,
@@ -33,8 +46,8 @@ interface AppDateInputProps {
 
 function AppDateInput({arrowRepeat = true, ...props}: AppDateInputProps) {
     const {lang} = useContext(LangContext)
-    const [from, setFrom] = useState(new Date(props.from))
-    const [to, setTo] = useState(new Date(props.to))
+    const [from, setFrom] = useState(new Date(dayjs.tz(getTimeStr(new Date(props.from)), localeTimezone).toISOString()))
+    const [to, setTo] = useState(new Date(dayjs.tz(getTimeStr(new Date(props.from)), localeTimezone).toISOString()))
     const [allDay, setAllDay] = useState(false)
     const [timezone, setTimezone] = useState([mapTimezone(props.timezone)])
     const history = useRef<[Date, Date]>([from, to])
@@ -145,15 +158,23 @@ function AppDateInput({arrowRepeat = true, ...props}: AppDateInputProps) {
 
     useEffect(() => {
         // repeatEndingTime 是to的一年后
-        const toTime = new Date(locateTimeTransfer(to, timezone[0].id))
+        const toTime = new Date(dayjs.tz(getTimeStr(to), timezone[0].id).toISOString())
         const repeatEndingTime = new Date(toTime.getFullYear() + 1, toTime.getMonth(), toTime.getDate(), toTime.getHours(), toTime.getMinutes()).toISOString()
         const res = {
-            from: locateTimeTransfer(from, timezone[0].id),
-            to: locateTimeTransfer(to, timezone[0].id),
+            from: dayjs.tz(getTimeStr(from), timezone[0].id).toISOString(),
+            to: dayjs.tz(getTimeStr(to), timezone[0].id).toISOString(),
             repeat: repeat[0].id,
             repeatEndingTime,
             timezone: timezone[0].id
         }
+
+        // test
+        const d = new Date('2023-01-01T00:00:00.000Z') // 2023-01-01 08:00(locale) -> 2023-01-01 08:00 (timezone) -> 2023-01-01 00:80(locale)
+        const a =  dayjs.tz(getTimeStr(d), localeTimezone).toISOString() // input
+        const b = dayjs.tz(getTimeStr(d), timezone[0].id).toISOString() // output
+        const c = dayjs.tz(b, localeTimezone).toISOString()
+        console.log('==================test==========================>', getTimeStr(d), getTimeStr(new Date(dayjs.tz(getTimeStr(new Date(b)), localeTimezone).toISOString())))
+
         console.log('duration',res)
         console.log(res.from, '→', res.to, repeat[0].id)
         props.onChange(res)
@@ -164,8 +185,8 @@ function AppDateInput({arrowRepeat = true, ...props}: AppDateInputProps) {
             setAllDay(true)
         }
 
-        setFrom(new Date(props.from))
-        setTo(new Date(props.to))
+        setFrom(new Date(dayjs.tz(getTimeStr(new Date(props.from)), localeTimezone).toISOString()))
+        setTo(new Date(dayjs.tz(getTimeStr(new Date(props.to)), localeTimezone).toISOString()))
 
     }, [props.from, props.to, props.repeat])
 
@@ -248,7 +269,7 @@ function AppDateInput({arrowRepeat = true, ...props}: AppDateInputProps) {
             <Select
                 clearable={false}
                 searchable={true}
-                creatable={false}
+                creatable={false}t
                 options={timezoneList}
                 value={timezone}
                 placeholder=""
