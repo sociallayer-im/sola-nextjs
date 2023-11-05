@@ -60,7 +60,7 @@ function CardMarker(props: { item: Marker, participants?: Participants[] }) {
         <div className={styles['left']}>
             <div className={styles['title']}>{props.item.title}</div>
             <div className={styles['des']}>{props.item.about}</div>
-            <div className={styles['creator']}>by <Image
+            <div className={styles['creator']}>by <img
                 alt=""
                 className={styles['avatar']}
                 src={props.item.owner.image_url || defaultAvatar(props.item.owner.id)} height={16} width={16}/></div>
