@@ -1964,6 +1964,8 @@ export interface Event {
     status: string,
     telegram_contact_group: null | string,
     repeat_event_id: null | number,
+    lng: null | string,
+    lat: null | string,
 
     participants: null | Participants[],
 }
@@ -2661,6 +2663,7 @@ export interface Marker {
     end_time: string | null,
     checkins_count: number,
     checkin?: MarkerCheckinDetail | undefined,
+    event_id: number | null,
 }
 
 export interface CreateMarkerProps extends Partial<Marker> {

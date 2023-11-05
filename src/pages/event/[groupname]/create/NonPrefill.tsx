@@ -613,6 +613,17 @@ function CreateEvent(props: CreateEventPageProps) {
             return
         }
 
+        let lng: string | null = null
+        let lat: string | null = null
+
+        if (eventSite && eventSite.location_details) {
+            lng = JSON.parse(eventSite!.location_details!).geometry.location.lng
+            lat = JSON.parse(eventSite!.location_details!).geometry.location.lat
+        } else if (locationDetail) {
+            lng = JSON.parse(locationDetail).geometry.location.lng
+            lat = JSON.parse(locationDetail).geometry.location.lat
+        }
+
         const props: CreateRepeatEventProps = {
             title: title.trim(),
             cover,
@@ -637,6 +648,8 @@ function CreateEvent(props: CreateEventPageProps) {
             host_info: creator && creator.is_group ? creator.id + '' : undefined,
             interval: repeat || undefined,
             repeat_ending_time: repeatEnd || undefined,
+            lng,
+            lat
         }
 
         setCreating(true)
@@ -739,6 +752,17 @@ function CreateEvent(props: CreateEventPageProps) {
             return
         }
 
+        let lng: string | null = null
+        let lat: string | null = null
+
+        if (eventSite && eventSite.location_details) {
+            lng = JSON.parse(eventSite!.location_details!).geometry.location.lng
+            lat = JSON.parse(eventSite!.location_details!).geometry.location.lat
+        } else if (locationDetail) {
+            lng = JSON.parse(locationDetail).geometry.location.lng
+            lat = JSON.parse(locationDetail).geometry.location.lat
+        }
+
         const saveProps: CreateEventProps = {
             id: props.eventId!,
             title: title.trim(),
@@ -762,6 +786,8 @@ function CreateEvent(props: CreateEventPageProps) {
             telegram_contact_group: telegram || null,
             location_details: locationDetail,
             repeat_event_id: currEvent!.repeat_event_id || undefined,
+            lng,
+            lat
         }
 
         if (currEvent?.repeat_event_id) {

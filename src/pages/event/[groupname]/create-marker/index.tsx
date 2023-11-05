@@ -149,7 +149,7 @@ function ComponentName() {
                 cover_url: cover,
                 title,
                 category,
-                message: content,
+                about: content,
                 link,
                 location: JSON.parse(location).name,
                 location_detail: location,
@@ -207,7 +207,7 @@ function ComponentName() {
                 cover_url: cover,
                 title,
                 category,
-                message: content,
+                about: content,
                 link,
                 location: JSON.parse(location).name,
                 location_detail: location,
@@ -280,7 +280,7 @@ function ComponentName() {
         setCover(detail.cover_url || '')
         setIcon(detail.icon_url)
         setCategory(detail.category)
-        setContent(detail.message || '')
+        setContent(detail.about || '')
         markerInfoRef.current = detail
 
         const creator = await getProfile({id: detail.owner.id})
