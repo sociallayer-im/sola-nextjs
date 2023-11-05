@@ -18,6 +18,8 @@ export interface ListUserAssetsProps<T> {
     endEnhancer?: () => ReactNode
     preEnhancer?: () => ReactNode
     compact?: boolean
+    onload?: (data:T[]) => any
+    previewCount?: number
 }
 
 function ListUserAssets<T>(props: ListUserAssetsProps<T>) {
@@ -30,12 +32,15 @@ function ListUserAssets<T>(props: ListUserAssetsProps<T>) {
 
     const [isPreview, setIsPreview] = useState<boolean>(true)
     const [listData, setListData] = useState<T[]>(list)
-    const previewCount = typeof window === 'undefined' ? 4: (window.innerWidth <= 450 ? 4 : 6)
+    const previewCount = typeof window === 'undefined'
+        ? (props.previewCount || 4)
+        : (window.innerWidth <= 450 ? (props.previewCount || 4) : (props.previewCount || 6))
 
     useImperativeHandle(props.onRef, () => {
         // 需要将暴露的接口返回出去
         return {refresh}
     })
+
 
     useEffect(() => {
         // 处理排序
@@ -43,7 +48,9 @@ function ListUserAssets<T>(props: ListUserAssetsProps<T>) {
 
         // 如果是preview，只显示前四个
         setListData(isPreview ? sortedList.slice(0, previewCount) : sortedList)
+        props.onload && props.onload(sortedList)
     }, [list])
+
 
     return <>
         {isEmpty && !props.preEnhancer && !props.endEnhancer

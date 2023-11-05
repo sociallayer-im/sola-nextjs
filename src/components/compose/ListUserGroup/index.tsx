@@ -38,6 +38,7 @@ function ListUserGroup (props: ListUserGroupProps) {
             {/*    uint={ lang['Profile_Tab_Groups'] }*/}
             {/*    count={ amount } />*/}
             <ListUserAssets
+                previewCount={ 20 }
                 child={(data, key) => <CardGroup profile={props.profile} group={data} key={key} />}
                 queryFcn={ getGroup }
                 preEnhancer={ isProfileOwner ? () => <CardCreateGroup /> : undefined }

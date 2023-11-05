@@ -1,11 +1,31 @@
 .list-group-member
   margin-bottom: 12px
+
+  .action-left
+    display: flex
+    flex-flow: row nowrap
+    align-items: center
+    justify-content: space-between
+    white-space: nowrap
+
+    svg
+      min-width: 20px
+      cursor: pointer
+
+    span
+      margin-right: 12px
+
   .action
     display: flex
     justify-content: flex-end
-    margin-bottom: 12px
+    font-size: 12px
+
+    span
+      font-weight: normal
+      margin-left: 4px
+
 .member-list-joined-label
-  width: 60px
+  min-width: 60px
   height: 22px
   background: #ECF2EE
   border-radius: 16px
@@ -14,6 +34,7 @@
   justify-content: center
   cursor: pointer
   font-size: 12px
+
 .member-manage-btn
   display: flex
   align-items: center

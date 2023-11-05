@@ -11,8 +11,10 @@ import {
     createMarker,
     createPresend,
     getProfile,
+    Group,
     Marker,
     markerDetail,
+    Presend,
     Profile,
     queryBadge,
     queryBadgeDetail,
@@ -37,7 +39,7 @@ function ComponentName() {
     const params = useParams()
     const {user} = useContext(userContext)
     const router = useRouter()
-    const {eventGroup} = useContext(EventHomeContext)
+    const {eventGroup, isManager} = useContext(EventHomeContext)
 
     const [busy, setBusy] = useState(false)
 
@@ -59,7 +61,17 @@ function ComponentName() {
     const badgeIdRef = useRef<number | null>(null)
     const markerInfoRef = useRef<Marker | null>(null)
 
-    const showBadges = async () => {
+    const [canUserGroupBadge, setCanUserGroupBadge] = useState(false)
+
+    useEffect(() => {
+        // owner 和 manager 可以使用 group badge
+        // 1516 playgroup2
+        // 1984 istanbul2023
+        setCanUserGroupBadge((isManager || eventGroup?.group_owner_id == user?.id)
+            && (eventGroup?.id === 1516 || eventGroup?.id === 1984))
+    }, [isManager, eventGroup, user?.id])
+
+    const showBadges = async (withGroup?: Group[]) => {
         const props = creator?.is_group ? {
                 group_id: creator!.id,
                 page: 1
@@ -71,10 +83,22 @@ function ComponentName() {
 
         const unload = showLoading()
         const badges = await queryBadge(props)
-        unload()
+        let groupBadges: any[] = []
+        if (withGroup) {
+            const tasks = withGroup.map(group => queryBadge({group_id: group.id, page: 1}))
+            const groupBadgesList = await Promise.all(tasks)
+            groupBadges = groupBadgesList.map((badges, index) => {
+                return {
+                    groupName: (withGroup as any)[index].nickname || (withGroup as any)[index].username,
+                    badges
+                }
+            })
+        }
 
+        unload()
         openDialog({
             content: (close: any) => <DialogIssuePrefill
+                groupBadges={groupBadges.length ? groupBadges : undefined}
                 badges={badges}
                 profileId={user.id!}
                 onSelect={(res) => {
@@ -107,13 +131,15 @@ function ComponentName() {
         const unload = showLoading()
         setBusy(true)
         try {
-            const voucher = await createPresend({
-                message: badgeDetail?.content || '',
-                auth_token: user.authToken || '',
-                badge_id: badgeId || 990,
-                counter: null
-            })
-
+            let voucher: null | Presend = null
+            if (badgeId) {
+                voucher = await createPresend({
+                    message: badgeDetail?.content || '',
+                    auth_token: user.authToken || '',
+                    badge_id: badgeId || 990,
+                    counter: null
+                })
+            }
 
             const create = await createMarker({
                 auth_token: user.authToken || '',
@@ -123,14 +149,14 @@ function ComponentName() {
                 cover_url: cover,
                 title,
                 category,
-                message: content,
+                about: content,
                 link,
                 location: JSON.parse(location).name,
                 location_detail: location,
                 lat: location ? JSON.parse(location).geometry.location.lat : null,
                 lng: location ? JSON.parse(location).geometry.location.lng : null,
                 marker_type: 'site',
-                voucher_id: voucher.id
+                voucher_id: voucher ? voucher.id : undefined
             })
             unload()
             showToast('Create Success', 500)
@@ -163,7 +189,7 @@ function ComponentName() {
         setBusy(true)
         try {
             let newVoucherId: number = 0
-            if (badgeId !== badgeIdRef.current) {
+            if (badgeId && badgeId !== badgeIdRef.current) {
                 const voucher = await createPresend({
                     message: badgeDetail?.content || '',
                     auth_token: user.authToken || '',
@@ -181,7 +207,7 @@ function ComponentName() {
                 cover_url: cover,
                 title,
                 category,
-                message: content,
+                about: content,
                 link,
                 location: JSON.parse(location).name,
                 location_detail: location,
@@ -189,7 +215,7 @@ function ComponentName() {
                 lng: location ? JSON.parse(location).geometry.location.lng : null,
                 marker_type: 'site',
                 id: markerId!,
-                voucher_id: newVoucherId || markerInfoRef.current?.voucher_id
+                voucher_id: badgeId ? (newVoucherId || markerInfoRef.current?.voucher_id) : null
             })
             unload()
             showToast('Save Success', 500)
@@ -239,7 +265,7 @@ function ComponentName() {
     }, [badgeId])
 
     useEffect(() => {
-        if (user.id) {
+        if (user?.id && !markerId) {
             const profile = getProfile({id: user.id}).then(res => {
                 setCreator(res!)
             })
@@ -254,10 +280,10 @@ function ComponentName() {
         setCover(detail.cover_url || '')
         setIcon(detail.icon_url)
         setCategory(detail.category)
-        setContent(detail.message || '')
+        setContent(detail.about || '')
         markerInfoRef.current = detail
 
-        const creator = await getProfile({id: detail.owner_id})
+        const creator = await getProfile({id: detail.owner.id})
         setCreator(creator!)
 
         if (detail.voucher_id) {
@@ -279,7 +305,9 @@ function ComponentName() {
         if (params?.markerid) {
             prefill(params?.markerid as string)
         } else {
-            setBadgeId(990)
+            if (canUserGroupBadge) {
+                setBadgeId(990)
+            }
             if (searchParams?.get('type')) {
                 const key = searchParams.get('type') as string
                 if ((markerTypeList as any)[key]) {
@@ -291,7 +319,7 @@ function ComponentName() {
                 setCategory(Object.keys(markerTypeList)[1])
             }
         }
-    }, [searchParams, params])
+    }, [searchParams, params, canUserGroupBadge])
 
     useEffect(() => {
         async function fetchBadgeDetail() {
@@ -388,7 +416,8 @@ function ComponentName() {
                             {!!badgeDetail &&
                                 <div className={'banded-badge'}>
                                     <Delete size={22} onClick={e => {
-                                        setBadgeId(badgeIdRef.current || 990)
+                                        setBadgeId(null)
+                                        setBadgeDetail(null)
                                     }
                                     }/>
                                     <img src={badgeDetail.image_url} alt=""/>
@@ -397,7 +426,7 @@ function ComponentName() {
                             }
 
                             <div className={'add-badge'} onClick={async () => {
-                                await showBadges()
+                                await showBadges((eventGroup && canUserGroupBadge) ? [eventGroup as any] : undefined)
                             }}>{lang['Activity_Form_Badge_Select']}</div>
                         </div>}
 

@@ -116,3 +116,8 @@
   overflow: hidden;
   margin-left: 4px;
 }
+
+.checked {
+  display: flex;
+  flex-flow: row nowrap;
+}

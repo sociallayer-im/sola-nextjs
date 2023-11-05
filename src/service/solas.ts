@@ -563,7 +563,7 @@ export async function rejectBadgelet(props: RejectBadgeletProp): Promise<void> {
 
 export interface AcceptPresendProps {
     id: number,
-    code: string,
+    code: string | number,
     auth_token: string
 }
 
@@ -578,7 +578,7 @@ export async function acceptPresend(props: AcceptPresendProps) {
         throw new Error(res.data.message)
     }
 
-    return res.data
+    return res.data.badgelet
 }
 
 export type SetBadgeletStatusType = 'untop' | 'top' | 'hide' | 'unhide'
@@ -1075,6 +1075,10 @@ export async function sendInvite(props: SendInviteProps): Promise<Invite[]> {
 
     if (res.data.result === 'error') {
         throw new Error(res.data.message)
+    }
+
+    if (!res.data.group_invites[0]) {
+        throw new Error('Can not invite')
     }
 
     return res.data.group_invites
@@ -1961,7 +1965,8 @@ export interface Event {
     telegram_contact_group: null | string,
     repeat_event_id: null | number,
     timezone: null | string,
-
+    lng: null | string,
+    lat: null | string,
     participants: null | Participants[],
 }
 
@@ -2657,6 +2662,8 @@ export interface Marker {
     start_time: string | null,
     end_time: string | null,
     checkins_count: number,
+    checkin?: MarkerCheckinDetail | undefined,
+    event_id: number | null,
 }
 
 export interface CreateMarkerProps extends Partial<Marker> {
@@ -2688,7 +2695,7 @@ export async function markerDetail(markerid: number) {
         throw new Error(res.data.message)
     }
 
-    return res.data as Marker
+    return res.data.marker as Marker
 }
 
 export async function saveMarker(props: CreateMarkerProps) {
@@ -2711,6 +2718,8 @@ export async function queryMarkers(props: {
     group_id?: number,
     marker_type?: string,
     category?: string,
+    with_checkins?: boolean,
+    auth_token?: string,
 }) {
 
     const res = await fetch.get({
@@ -2726,7 +2735,8 @@ export async function queryMarkers(props: {
 }
 
 export interface MarkerCheckinDetail {
-    profile: ProfileSimple,
+    creator: ProfileSimple,
+    profile_id: number
     marker: Marker,
     badgelet_id: number | null,
     reaction_type: string,
@@ -2735,8 +2745,8 @@ export interface MarkerCheckinDetail {
     created_at: string,
 }
 
-export async function markersCheckinList(props: {
-    marker_id?: number,
+    export async function markersCheckinList(props: {
+    id?: number,
     page?: number,
 }) {
     const res = await fetch.get({
@@ -2748,12 +2758,14 @@ export async function markersCheckinList(props: {
         throw new Error(res.data.message)
     }
 
-    return res.data.checkins as MarkerCheckinDetail[]
+    return res.data.map_checkins as MarkerCheckinDetail[]
 }
 
 export async function markerCheckin(props: {
     auth_token: string,
     id?: number,
+    reaction_type: string
+    badgelet_id?: number,
 }) {
 
     checkAuth(props)
@@ -2776,6 +2788,34 @@ export async function removeMarker(props: {
     checkAuth(props)
     const res = await fetch.post({
         url: `${api}/marker/cancel`,
+        data: props
+    })
+
+    if (res.data.result === 'error') {
+        throw new Error(res.data.message)
+    }
+}
+
+export async function getVoucherCode(props: {
+    auth_token: string,
+    id?: number,
+}) {
+    checkAuth(props)
+    const res = await fetch.get({
+        url: `${api}/voucher/get_code`,
+        data: props
+    })
+
+    if (res.data.result === 'error') {
+        throw new Error(res.data.message)
+    }
+
+    return res.data.code as string
+}
+
+export async function transferGroupOwner(props: {id: number, new_owner_username: string, auth_token: string}) {
+    const res = await fetch.post({
+        url: `${api}/group/transfer_owner`,
         data: props
     })
 

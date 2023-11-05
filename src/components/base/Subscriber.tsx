@@ -18,6 +18,7 @@ function Subscriber() {
     // 实时接受badgelet
     useEffect(() => {
         if (!pusher) return
+
         if (!user.domain) {
             if (SubscriptionDomain.current) {
                 pusher.unsubscribe(SubscriptionDomain.current)
@@ -31,6 +32,17 @@ function Subscriber() {
             const badgeletId = data.message
             const badgelet = await solas.queryBadgeletDetail({id: Number(badgeletId)})
             showBadgelet(badgelet)
+        })
+
+        channel.bind('send_group_invite', async (data: any) => {
+            const inviteId = data.message.group_invite_id
+            const groupId = data.message.group_id
+            const badgelet = await solas.queryInviteDetail({
+                group_id: groupId,
+                invite_id: inviteId,
+                auth_token: user.authToken || ''
+            })
+            showInvite(badgelet)
         })
 
     }, [user.domain])
@@ -70,7 +82,7 @@ function Subscriber() {
         }
 
         solas.queryUserActivity({target_id: user.id})
-        // showPendingInvite()
+        showPendingInvite()
     }, [user.id, user.domain])
 
     return (<></>)

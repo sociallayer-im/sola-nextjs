@@ -1,4 +1,4 @@
-import {ReactNode, useContext, useState} from 'react'
+import {ReactNode, useContext, useEffect, useState} from 'react'
 import AppSwiper from '../AppSwiper/AppSwiper'
 import {Delete} from 'baseui/icon'
 import LangContext from '@/components/provider/LangProvider/LangContext'
@@ -15,6 +15,7 @@ export interface BadgeBookDialogRes {
 
 interface DialogIssuePrefillProps {
     badges: Badge[]
+    groupBadges?: { groupName: string, badges: Badge[] }[]
     handleClose: () => any
     profileId: number
     onSelect?: (res: BadgeBookDialogRes) => any
@@ -99,7 +100,7 @@ function DialogIssuePrefill(props: DialogIssuePrefillProps) {
                 </div>
             </>
             : <>
-                { props.badges.length > 0 &&
+                {props.badges.length > 0 &&
                     <div className='prefill-module'>
                         <div className='prefill-module-title'>{lang['Badgebook_Dialog_Choose_Badge']}</div>
                         <div className='prefill-module-items'>
@@ -107,8 +108,21 @@ function DialogIssuePrefill(props: DialogIssuePrefillProps) {
                         </div>
                     </div>
                 }
+                {props.groupBadges && props.groupBadges.length > 0 &&
+                    <>
+                        { props.groupBadges.map((item, index) => {
+                            return <div className='prefill-module' key={item.groupName}>
+                                <div className='prefill-module-title'>{lang['Badgebook_Dialog_Choose_Group_Badge']([item.groupName])}</div>
+                                <div className='prefill-module-items'>
+                                    <AppSwiper items={badgeItems(item.badges)} space={6} itemWidth={68}/>
+                                </div>
+                            </div>
+                        })
+                        }
+                    </>
+                }
                 <div className='create-badge-btn' onClick={event => {
-                   // setShowCreateOption(true)
+                    // setShowCreateOption(true)
                     gotoCreateBadge('badge')
                 }}>
                     <img src="/images/create_badge_icon.png" alt=""/>

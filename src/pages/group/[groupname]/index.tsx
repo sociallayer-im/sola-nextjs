@@ -163,6 +163,7 @@ function GroupPage(props: any) {
                                 setSelectedTab(activeKey as any);
                                 router.push(`/group/${groupname}?tab=${activeKey}`, {scroll: false})
                             }}>
+
                             <Tab title={lang['Profile_Tab_Received']}>
                                 <AppSubTabs
                                     activeKey={selectedSubtab}
@@ -208,10 +209,13 @@ function GroupPage(props: any) {
                                     </Tab> : <></>
                             }
 
-                            <Tab title={lang['Group_detail_tabs_Group']}>
+                            <Tab title={lang['Group_detail_tabs_Vote']}>
                                 <div className={'list-vote'}>
                                     <ListUserVote profile={profile}/>
                                 </div>
+                            </Tab>
+
+                            <Tab title={lang['Group_detail_tabs_member']}>
                                 <div>
                                     <ListGroupMember group={profile}/>
                                 </div>

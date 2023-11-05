@@ -1,6 +1,14 @@
 import {useParams, useRouter} from 'next/navigation'
 import {useContext, useEffect, useRef, useState} from 'react'
-import {getProfile, Marker, MarkerCheckinDetail, markerDetail, markersCheckinList, Profile} from "@/service/solas";
+import {
+    getProfile,
+    getVoucherCode,
+    Marker,
+    MarkerCheckinDetail,
+    markerDetail,
+    markersCheckinList,
+    Profile
+} from "@/service/solas";
 import userContext from "@/components/provider/UserProvider/UserContext";
 import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
 import PageBack from "@/components/base/PageBack";
@@ -22,6 +30,7 @@ function MarkerCheckIn() {
     const [checkins, setCheckins] = useState<MarkerCheckinDetail[]>([])
     const [hasCheckin, setHasCheckin] = useState<string[]>([])
     const [isCheckLog, setIsCheckLog] = useState(false)
+    const [code, setCode] = useState('')
     const [needUpdate, _] = useEvent(EVENT.eventCheckin)
     const {defaultAvatar} = usePicture()
     const formatTime = useformatTime()
@@ -43,9 +52,9 @@ function MarkerCheckIn() {
                 setMarker(details)
                 const profile = await getProfile({id: Number(details.owner_id || details.owner.id)})
                 setHoster(profile)
-                const records = await markersCheckinList({marker_id: Number(params?.markerid)})
+                const records = await markersCheckinList({id: Number(params?.markerid)})
                 setCheckins(records)
-                const checkin = records.find(item => item.profile.id === user.id)
+                const checkin = records.find(item => item.creator.id === user.id)
                 setIsJoin(!!checkin)
 
                 unload()
@@ -76,6 +85,11 @@ function MarkerCheckIn() {
         if (user.id && marker) {
             setIsHoster(user.id === marker.owner_id || user.id === marker.owner?.id)
             setIsJoin(false)
+            if (marker.voucher_id) {
+                getVoucherCode({id: marker.voucher_id, auth_token: user.authToken || ''}).then((code) => {
+                    setCode(code)
+                })
+            } else setCode('0')
         }
     }, [user.id, hoster, marker])
 
@@ -87,7 +101,7 @@ function MarkerCheckIn() {
         {!!marker &&
             <div className={'event-checkin-page'}>
                 <div className={'center'}>
-                    <PageBack />
+                    <PageBack/>
                     <div className={'checkin-card'}>
                         <div className={'event-name'}>{marker.title}</div>
 
@@ -97,9 +111,9 @@ function MarkerCheckIn() {
                             </div>
                         }
 
-                        {isHoster &&
+                        {isHoster && code &&
                             <div className={'checkin-qrcode'}>
-                                <QRcode text={`${location.href}` || ''} size={[155, 155]}/>
+                                <QRcode text={`info=${marker.id}-${code}`} size={[155, 155]}/>
                                 <div className={'text'}>{lang['Activity_Scan_checkin']}</div>
                             </div>
                         }
@@ -116,11 +130,11 @@ function MarkerCheckIn() {
                                 checkins.map((item, index) => {
                                     return <div key={index} className={'user-list-item'}
                                                 onClick={e => {
-                                                    goToProfile(item.profile.domain!.split('.')[0]!)
+                                                    goToProfile(item.creator.domain!.split('.')[0]!)
                                                 }}>
                                         <div className={'left'}>
-                                            <img src={item.profile.image_url || defaultAvatar(item.profile.id)} alt=""/>
-                                            {item.profile.domain!.split('.')[0]}
+                                            <img src={item.creator.image_url || defaultAvatar(item.creator.id)} alt=""/>
+                                            {item.creator.domain!.split('.')[0]}
                                         </div>
                                         <div className={'right'}>
                                             {formatTime(item.created_at)}
@@ -130,7 +144,7 @@ function MarkerCheckIn() {
                             }
                             {
                                 checkins.length === 0 &&
-                                <Empty />
+                                <Empty/>
                             }
                         </div>
                     </div>

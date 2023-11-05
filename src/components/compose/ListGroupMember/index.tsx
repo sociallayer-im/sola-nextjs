@@ -1,42 +1,81 @@
 import React, {useContext, useEffect, useState} from 'react'
-import CardUser from '../../base/Cards/CardUser/CardUser'
-import solas, { Profile } from '../../../service/solas'
-import ListWrapper from '../../base/ListWrapper'
+import solas, {checkIsManager, getGroupMembers, Profile} from '../../../service/solas'
 import LangContext from '../../provider/LangProvider/LangContext'
 import UserContext from '../../provider/UserProvider/UserContext'
-import { styled } from 'baseui'
-import ListTitle from '../../base/ListTitle/ListTitle'
-import HorizontalList, { HorizontalListMethods}  from '../../base/HorizontalList/HorizontalList'
-import CardMember from '../../base/Cards/CardMember/CardMember'
 import CardInviteMember from '../../base/Cards/CardInviteMember/CardInviteMember'
-import { StatefulPopover, PLACEMENT } from 'baseui/popover'
+import {PLACEMENT, StatefulPopover} from 'baseui/popover'
 import MenuItem from "../../base/MenuItem";
 import DialogsContext from "../../provider/DialogProvider/DialogsContext";
-import { Overflow } from 'baseui/icon'
+import {Overflow} from 'baseui/icon'
 import DialogManageMember from '../../base/Dialog/DialogManageMember/DialogManageMember'
-import ListUserAssets, { ListUserAssetsMethods } from "../../base/ListUserAssets/ListUserAssets";
+import DialogGroupManagerEdit from "@/components/base/Dialog/DialogGroupManagerEdit/DialogGroupManagerEdit";
+import {useRouter} from "next/navigation";
+import usePicture from "@/hooks/pictrue";
+import DialogTransferGroupOwner from "@/components/base/Dialog/DialogTransferGroupOwner/DialogTransferGroupOwner";
 
 
 interface ListGroupMemberProps {
     group: Profile
 }
 
-function ListGroupMember (props: ListGroupMemberProps) {
-    const { lang } = useContext(LangContext)
-    const { user } = useContext(UserContext)
+interface ProfileWithRole extends Profile {
+    isManager?: boolean
+}
+
+function ListGroupMember(props: ListGroupMemberProps) {
+    const {lang} = useContext(LangContext)
+    const {user} = useContext(UserContext)
     const [members, setMembers] = useState<Profile[]>([])
+    const [managers, setManagers] = useState<Profile[]>([])
+    const [isManager, setIsManager] = useState(false)
+    const [listToShow, setListToShow] = useState<ProfileWithRole[]>([])
     const [owner, setOwner] = useState<Profile | null>(null)
-    const listWrapperRef = React.createRef<ListUserAssetsMethods>()
-    const { showToast, showLoading, openConfirmDialog, openDialog } = useContext(DialogsContext)
+    const {showToast, showLoading, openConfirmDialog, openDialog} = useContext(DialogsContext)
     const [currUserJoinedGroup, setCurrUserJoinedGroup] = useState(false)
+    const [groupOwnerId, setGroupOwnerId] = useState(props.group.group_owner_id!)
+    const {defaultAvatar} = usePicture()
+    const router = useRouter()
+
+    async function init() {
+        await getOwner()
+        await getManager()
+        await getMember(1)
+
+        if (user.id) {
+            checkIsManager({group_id: props.group.id, profile_id: user.id})
+                .then(res => {
+                    setIsManager(res)
+                })
+        }
+    }
 
     useEffect(() => {
-        getOwner()
-        listWrapperRef.current?.refresh()
+        init()
     }, [props.group, user.id])
 
+    useEffect(() => {
+            const listWithoutManager = members.filter((member) => {
+                return !managers.find((manager) => manager.id === member.id)
+            })
+
+            const MemberListWithRole = listWithoutManager.map((member) => {
+                return {
+                    ...member,
+                    isManager: false
+                }
+            })
+            const managerListWithRole = managers.map((manager) => {
+                return {
+                    ...manager,
+                    isManager: true
+                }
+            })
+        setListToShow([...managerListWithRole, ...MemberListWithRole])
+        }, [managers, members]
+    )
+
     const getOwner = async () => {
-        const owner = await solas.getProfile({ id: props.group.group_owner_id! })
+        const owner = await solas.getProfile({id: groupOwnerId})
         setOwner(owner)
         await checkUserJoinedGroup()
     }
@@ -61,9 +100,13 @@ function ListGroupMember (props: ListGroupMemberProps) {
             group_id: props.group.id
         })
 
-        const deleteOwner = members.filter((member) => member.id !== props.group.group_owner_id)
+        const deleteOwner = members.filter((member) => member.id !== groupOwnerId)
         setMembers(deleteOwner)
-        return deleteOwner
+    }
+
+    const getManager = async () => {
+        const managerlist = await solas.getGroupMembers({group_id: props.group.id, role: 'group_manager'})
+        setManagers(managerlist)
     }
 
     const leaveGroup = async () => {
@@ -91,7 +134,10 @@ function ListGroupMember (props: ListGroupMemberProps) {
             confirmTextColor: '#fff!important',
             title: 'Are you sure to leave the group?',
             content: '',
-            onConfirm: (close: any) => { close(); leaveGroup() }
+            onConfirm: (close: any) => {
+                close();
+                leaveGroup()
+            }
         })
     }
 
@@ -99,7 +145,46 @@ function ListGroupMember (props: ListGroupMemberProps) {
         const dialog = openDialog({
             content: (close: any) => <DialogManageMember
                 groupId={props.group.id}
-                handleClose={close}/>,
+                handleClose={() => {
+                    init()
+                    close()
+                }}/>,
+            size: ['100%', '100%']
+        })
+    }
+
+    const showChangeOwnerDialog = () => {
+        const dialog = openDialog({
+            content: (close: any) => <DialogTransferGroupOwner
+                group={props.group as any}
+                members={members}
+                handleClose={(newOwner) => {
+                    if (newOwner) {
+                        setGroupOwnerId(newOwner.id)
+                        const newMembers = listToShow.filter((member) => member.id !== newOwner.id)
+                        newMembers.push(owner!)
+                        setListToShow(newMembers)
+                        setOwner(newOwner)
+                    }
+                    close()
+                }}/>,
+            size: ['100%', '100%']
+        })
+    }
+
+    const showManagerDialog = async () => {
+        const unload = showLoading()
+        const res2 = await getGroupMembers({group_id: props.group.id, role: 'group_manager'})
+        unload()
+        const dialog = openDialog({
+            content: (close: any) => <DialogGroupManagerEdit
+                group={props.group as any}
+                members={members}
+                managers={res2}
+                handleClose={()=> {
+                    close()
+                    init()
+                }} />,
             size: ['100%', '100%']
         })
     }
@@ -107,24 +192,62 @@ function ListGroupMember (props: ListGroupMemberProps) {
     const PreEnhancer = () => {
         return <>
             {
-                user.id === props.group.group_owner_id && <CardInviteMember groupId={props.group.id} />
+                (user.id === groupOwnerId || isManager) && <CardInviteMember groupId={props.group.id}/>
             }
             {
-                !!owner && <CardMember isOwner profile={owner}/>
+                !!owner &&
+                <div className={'list-item'}
+                     onClick={(e) => {
+                         gotoProfile(owner!)
+                     }}>
+                    <div className={'left'}>
+                        <img className={'owner-marker'} src='/images/icon_owner.png'/>
+                        <img src={owner.image_url || defaultAvatar(owner.id)} alt=""/>
+                        <span>{owner.nickname || owner.username || owner.domain?.split('.')[0]}</span>
+                        <span className={'role'}>{lang['Group_Role_Owner']}</span>
+                    </div>
+                </div>
             }
         </>
     }
 
     const MemberAction = <StatefulPopover
-        placement={ PLACEMENT.bottom }
-        popoverMargin={ 0 }
-        content={ ({ close }) => <MenuItem onClick={ () => { showLeaveGroupConfirm(); close()} }>{ lang['Relation_Ship_Action_Leave'] }</MenuItem> }>
+        placement={PLACEMENT.bottom}
+        popoverMargin={0}
+        content={({close}) => <MenuItem onClick={() => {
+            showLeaveGroupConfirm();
+            close()
+        }}>{lang['Relation_Ship_Action_Leave']}</MenuItem>}>
         <div className='member-list-joined-label'>Joined</div>
     </StatefulPopover>
 
-    const OwnerAction = <div className='member-list-joined-label' onClick={ showMemberManageDialog }><Overflow size={20} title={'Member Manage'} /></div>
+    const OwnerAction = <StatefulPopover
+        placement={PLACEMENT.bottom}
+        popoverMargin={0}
+        content={({close}) => {
+            return <div>
+                <MenuItem onClick={() => {
+                    showMemberManageDialog();
+                    close()
+                }}>{lang['Group_Member_Manage_Dialog_Title']}</MenuItem>
+                <MenuItem onClick={() => {
+                    showManagerDialog();
+                    close()
+                }}>{lang['Group_Manager_Setting']}</MenuItem>
+                <MenuItem onClick={() => {
+                    showChangeOwnerDialog();
+                    close()
+                }}>{lang['Group_Change_Owner']}</MenuItem>
+            </div>
+        }}>
+        <Overflow size={20} title={'action'}/>
+    </StatefulPopover>
 
-    const Action = props.group.group_owner_id === user.id
+    const gotoProfile = (profile: Profile) => {
+        router.push(`/profile/${profile.username}`, {scroll: false})
+    }
+
+    const Action = (groupOwnerId === user.id || isManager)
         ? OwnerAction
         : currUserJoinedGroup
             ? MemberAction
@@ -132,18 +255,33 @@ function ListGroupMember (props: ListGroupMemberProps) {
 
     return <div className='list-group-member'>
         <div className={'title-member'}>
-            <div>{lang['Group_detail_tabs_member']}</div>
-            <div className={'action'}>
+            <div className={'action-left'}><span>{lang['Group_detail_tabs_member']}</span>
                 {Action}
             </div>
+            <div className={'action'}>
+                {members.length} <span> {lang['Group_detail_tabs_member']}</span>
+            </div>
         </div>
-        <ListUserAssets
-            child={(data, key) => <CardMember profile={data} key={key} /> }
-            onRef={ listWrapperRef }
-            queryFcn={ getMember }
-            compact
-            preEnhancer={ () => <PreEnhancer /> }
-        />
+        <div className={'address-list'}>
+            <PreEnhancer/>
+            {
+                listToShow.map((member, index) => {
+                    return <div className={'list-item'}
+                                key={index}
+                                onClick={(e) => {
+                                    gotoProfile(member)
+                                }}>
+                        <div className={'left'}>
+                            <img src={member.image_url || defaultAvatar(member.id)} alt=""/>
+                            <span>{member.nickname || member.username || member.domain?.split('.')[0]}</span>
+                            {
+                                member.isManager && <span className={'role'}>{lang['Group_Role_Manager']}</span>
+                            }
+                        </div>
+                    </div>
+                })
+            }
+        </div>
     </div>
 }
 

@@ -618,6 +618,17 @@ function CreateEvent(props: CreateEventPageProps) {
             return
         }
 
+        let lng: string | null = null
+        let lat: string | null = null
+
+        if (eventSite && eventSite.location_details) {
+            lng = JSON.parse(eventSite!.location_details!).geometry.location.lng
+            lat = JSON.parse(eventSite!.location_details!).geometry.location.lat
+        } else if (locationDetail) {
+            lng = JSON.parse(locationDetail).geometry.location.lng
+            lat = JSON.parse(locationDetail).geometry.location.lat
+        }
+
         const props: CreateRepeatEventProps = {
             title: title.trim(),
             cover,
@@ -642,6 +653,8 @@ function CreateEvent(props: CreateEventPageProps) {
             host_info: creator && creator.is_group ? creator.id + '' : undefined,
             interval: repeat || undefined,
             repeat_ending_time: repeatEnd || undefined,
+            lng,
+            lat
         }
 
         setCreating(true)
@@ -744,6 +757,17 @@ function CreateEvent(props: CreateEventPageProps) {
             return
         }
 
+        let lng: string | null = null
+        let lat: string | null = null
+
+        if (eventSite && eventSite.location_details) {
+            lng = JSON.parse(eventSite!.location_details!).geometry.location.lng
+            lat = JSON.parse(eventSite!.location_details!).geometry.location.lat
+        } else if (locationDetail) {
+            lng = JSON.parse(locationDetail).geometry.location.lng
+            lat = JSON.parse(locationDetail).geometry.location.lat
+        }
+
         const saveProps: CreateEventProps = {
             id: props.eventId!,
             title: title.trim(),
@@ -767,7 +791,9 @@ function CreateEvent(props: CreateEventPageProps) {
             telegram_contact_group: telegram || null,
             location_details: locationDetail,
             repeat_event_id: currEvent!.repeat_event_id || undefined,
-            timezone
+            timezone,
+            lng,
+            lat
         }
 
         if (currEvent?.repeat_event_id) {
@@ -922,13 +948,6 @@ function CreateEvent(props: CreateEventPageProps) {
                                 }}/>
                         </div>
 
-                        <div className='input-area'>
-                            <div className='input-area-title'>{lang['Activity_Form_Details']}</div>
-                            <ReasonInput unlimited value={content} onChange={(value) => {
-                                setContent(value)
-                            }}/>
-                        </div>
-
                         {false &&
                             <div className='input-area'>
                                 <div className={'toggle'}>
@@ -962,7 +981,7 @@ function CreateEvent(props: CreateEventPageProps) {
                             </div>
                         }
 
-                        {false &&
+                        { false &&
                             <div className='input-area'>
                                 <div className='input-area-title'>{lang['Activity_Form_Starttime']}</div>
                                 <AppDateInput value={start} onChange={(data) => {
@@ -972,7 +991,7 @@ function CreateEvent(props: CreateEventPageProps) {
                             </div>
                         }
 
-                        {hasDuration && false &&
+                        {false && hasDuration &&
                             <div className='input-area'>
                                 <div className='input-area-title'>{lang['Activity_Form_Ending']}</div>
                                 <AppDateInput value={ending} onChange={(data) => {
@@ -999,8 +1018,14 @@ function CreateEvent(props: CreateEventPageProps) {
                                     setCustomLocation(values.customLocation)
                                     setLocationDetail(values.metaData || '')
                                 }}/>
-
                         }
+
+                        <div className='input-area'>
+                            <div className='input-area-title'>{lang['Activity_Form_Details']}</div>
+                            <ReasonInput unlimited value={content} onChange={(value) => {
+                                setContent(value)
+                            }}/>
+                        </div>
 
                         {eventType === 'event' &&
                             <div className='input-area'>

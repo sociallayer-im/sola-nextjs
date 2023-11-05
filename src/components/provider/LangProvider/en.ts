@@ -215,7 +215,7 @@ const langEN = {
     Activity_Form_Cover: 'Cover/Poster',
     Activity_Form_Checklog: 'Set as a punch in location',
     Activity_Form_Name: 'Event Name',
-    Activity_Form_Details: 'Details',
+    Activity_Form_Details: 'Details (Optional)',
     Activity_Form_online_address: 'Online',
     Activity_Form_Starttime: 'When will it happen?',
     Activity_Form_Ending: 'When will it Ending?',
@@ -321,7 +321,8 @@ const langEN = {
     Search_Tab_Tag: 'Tag',
     Search_Tab_Event: 'Event',
     Badgebook_Dialog_Choose_Badgebook: 'Choose from Badge book',
-    Badgebook_Dialog_Choose_Badge: 'Choose from Created',
+    Badgebook_Dialog_Choose_Badge: 'Choose from you Created',
+    Badgebook_Dialog_Choose_Group_Badge: slotLang('Choose from 「{groupname}」 Created'),
     Badgebook_Dialog_Choose_Draft: 'Choose from Draft',
     Badgebook_Dialog_Cetate_Badge: 'Create a new badge',
     Badgebook_Dialog_Recognition_Badge: 'Basic Badge',
@@ -376,6 +377,7 @@ const langEN = {
     Profile_Edit_Leave_Dialog_Title: 'Are you sure to leave?',
     Profile_Edit_Leave_Dialog_Des: "You haven't saved your settings yet.",
     Group_Member_Manage_Dialog_Title: 'Member Management',
+    Group_Manager_Setting: 'Manager setting',
     Group_Member_Manage_Dialog_Confirm_Btn: 'Remove from the group',
     Group_Member_Manage_Dialog_Confirm_Dialog_des: slotLang('Are you sure to remove {1} from the group？'),
     Group_Member_Manage_Dialog_Confirm_Dialog_Confirm: 'Remove',
@@ -550,6 +552,9 @@ const langEN = {
     Form_Marker_Link_Label: 'Link (Optional)',
     Marker_Detail_Records: 'Records',
     Marker_Edit_Remove: 'Remove marker',
+    Group_Change_Owner: 'Change owner',
+    Group_Role_Owner: 'Owner',
+    Group_Role_Manager: 'Manager',
 }
 
 

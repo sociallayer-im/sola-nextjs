@@ -10,6 +10,7 @@ import CardEvent from "@/components/base/Cards/CardEvent/CardEvent";
 import {useRouter, useSearchParams} from "next/navigation";
 import {markerTypeList} from "@/components/base/SelectorMarkerType/SelectorMarkerType";
 import userContext from "@/components/provider/UserProvider/UserContext";
+import DialogGuideFollow from "@/components/base/Dialog/DialogGuideFollow/DialogGuideFollow";
 
 const menuList = markerTypeList
 
@@ -35,7 +36,7 @@ function ComponentName() {
 
     const [markers, setMarkers] = useState<Marker[]>([])
     const [eventWithLocationList, setEventWithLocationList] = useState<Event[]>([])
-    const [selectedType, setSelectedType] = useState<string | null>()
+    const [selectedType, setSelectedType] = useState<string | null>(null)
     const [showList, setShowList] = useState(false)
     const [selectedEvent, setSelectedEvent] = useState<Event | null>(null)
     const [itemWidth, setItemWidth] = useState(0)
@@ -48,33 +49,65 @@ function ComponentName() {
 
 
         let res: Event[] = []
-        if (MarkerCache['Event'].length && cacheGroupId === eventGroup?.id) {
-            res = MarkerCache['Event']
-        } else {
-            res = await queryEvent({
-                page: 1,
-                start_time_from: todayZero,
-                event_order: 'start_time_asc',
-                group_id: eventGroup?.id || undefined
-            })
-        }
+        // if (MarkerCache['Event'].length && cacheGroupId === eventGroup?.id) {
+        //     res = MarkerCache['Event']
+        // } else {
+        //     res = await queryEvent({
+        //         page: 1,
+        //         start_time_from: todayZero,
+        //         event_order: 'start_time_asc',
+        //         group_id: eventGroup?.id || undefined
+        //     })
+        // }
+        res = await queryEvent({
+            page: 1,
+            start_time_from: todayZero,
+            event_order: 'start_time_asc',
+            group_id: eventGroup?.id || undefined
+        })
 
         const eventWithLocation = res.filter(item => !!item.location_details || !!item.event_site?.location_details)
         setEventWithLocationList(eventWithLocation)
-       // MarkerCache['Event'] = eventWithLocation
+        // MarkerCache['Event'] = eventWithLocation
         // cacheGroupId === eventGroup?.id
     }
 
     const getMarker = async () => {
         let res: Marker[] = []
-        if (MarkerCache[selectedType!].length && cacheGroupId === eventGroup?.id) {
-            res = MarkerCache[selectedType!]
+        // if (MarkerCache[selectedType!].length && cacheGroupId === eventGroup?.id) {
+        //     res = MarkerCache[selectedType!]
+        // } else {
+        //     res = await queryMarkers({
+        //         category: selectedType!,
+        //         group_id: eventGroup?.id || undefined,
+        //         with_checkins: user.authToken ? true : undefined,
+        //         auth_token: user.authToken ? user.authToken : undefined
+        //     })
+        //
+        // }
+
+        if (!selectedType) {
+            res = await queryMarkers({
+                group_id: eventGroup?.id || undefined,
+                with_checkins: user.authToken ? true : undefined,
+                auth_token: user.authToken ? user.authToken : undefined
+            })
+        } else if ( selectedType === 'Event') {
+            res = await queryMarkers({
+                marker_type: 'event',
+                group_id: eventGroup?.id || undefined,
+                with_checkins: user.authToken ? true : undefined,
+                auth_token: user.authToken ? user.authToken : undefined
+            })
         } else {
-            res = await queryMarkers({category: selectedType!, group_id: eventGroup?.id || undefined})
+            res = await queryMarkers({
+                category: selectedType!,
+                group_id: eventGroup?.id || undefined,
+                with_checkins: user.authToken ? true : undefined,
+                auth_token: user.authToken ? user.authToken : undefined
+            })
         }
 
-        // MarkerCache[selectedType!] = res
-        // cacheGroupId === eventGroup?.id
         setMarkers(res)
     }
 
@@ -117,12 +150,8 @@ function ComponentName() {
     }
 
     const showMarkerInMapCenter = (marker: Marker, zoom?: boolean) => {
-        const eventLocation = marker.location_detail
-        if (!eventLocation) return
-
-        const metadata = JSON.parse(eventLocation)
         if (GoogleMapRef.current) {
-            const location = metadata.geometry.location
+            const location = {lat: Number(marker.lat), lng: Number(marker.lng)}
             GoogleMapRef.current!.setCenter(location)
             if (zoom) {
                 GoogleMapRef.current!.setZoom(14)
@@ -277,11 +306,12 @@ function ComponentName() {
 
         // 将相同location的event合并
         let markersGrouped: Marker[][] = []
-        markers.filter((item) => !!item.location_detail).forEach(event => {
-            const location = JSON.parse(event.location_detail).geometry.location
-            const index = markersGrouped.findIndex(item => {
-                return JSON.stringify(JSON.parse(item[0].location_detail).geometry.location) === JSON.stringify(location)
+        markers.filter((item) => item.lng && item.lat).forEach(event => {
+
+            const index = markersGrouped.findIndex(target => {
+                return target[0].lat === event.lat && target[0].lng === event.lng
             })
+
             if (index > -1) {
                 markersGrouped[index].push(event)
             } else {
@@ -297,7 +327,7 @@ function ComponentName() {
 
             const markerView = new Marker!({
                 map: GoogleMapRef.current,
-                position: JSON.parse(markers[0].location_detail).geometry.location,
+                position: {lat: Number(markers[0].lat), lng: Number(markers[0].lng)},
                 content: content,
             })
             markersRef.current.push(markerView)
@@ -313,7 +343,7 @@ function ComponentName() {
 
                 const markerView = new Marker!({
                     map: GoogleMapRef.current,
-                    position: JSON.parse(markers[0].location_detail).geometry.location,
+                    position: {lat: Number(markers[0].lat), lng: Number(markers[0].lng)},
                     content: eventMarker,
                 })
 
@@ -354,7 +384,7 @@ function ComponentName() {
 
                 const markerView = new Marker!({
                     map: GoogleMapRef.current,
-                    position: JSON.parse(markers[0].location_detail).geometry.location,
+                    position: {lat: Number(markers[0].lat), lng: Number(markers[0].lng)},
                     content: eventGroupMarker,
                 })
 
@@ -409,14 +439,6 @@ function ComponentName() {
     }, [user.id])
 
     useEffect(() => {
-        if (searchParams?.get('type')) {
-            setSelectedType(searchParams?.get('type')!)
-        } else {
-            setSelectedType('Event')
-        }
-    }, [searchParams])
-
-    useEffect(() => {
         if (typeof window !== 'undefined' && !GoogleMapRef.current && MapReady && Map && MapEvent && mapDomRef.current && eventGroup?.id) {
             GoogleMapRef.current = new Map(mapDomRef.current as HTMLElement, {
                 center: eventGroup && eventGroup.group_location_details ? JSON.parse(eventGroup.group_location_details).geometry.location : {
@@ -431,13 +453,16 @@ function ComponentName() {
 
     useEffect(() => {
         async function initData() {
-            if (typeof window !== 'undefined' && eventGroup?.id && selectedType && Marker) {
+            if (typeof window !== 'undefined' && eventGroup?.id && Marker) {
                 calcWidth()
-                if (selectedType === 'Event') {
-                    await getMyEvent()
-                } else {
-                    await getMarker()
-                }
+                // if (selectedType === 'Event') {
+                //     await getMyEvent()
+                // } else {
+                //     await getMarker()
+                // }
+
+                await getMarker()
+
                 setTimeout(() => {
                     setShowList(true)
                 }, 100)
@@ -451,28 +476,39 @@ function ComponentName() {
         }
 
         initData()
-    }, [eventGroup?.id, selectedType, Marker])
+    }, [eventGroup?.id, selectedType, Marker, user.id])
 
     useEffect(() => {
-        if (Marker) {
-            if (selectedType === 'Event') {
-                drawEventMarkers()
-            } else {
-                drawMarkers()
-            }
+        if (searchParams?.get('type')) {
+            setSelectedType(searchParams?.get('type')!)
         }
+    }, [searchParams])
+
+    useEffect(() => {
+        // if (Marker) {
+        //     if (selectedType === 'Event') {
+        //         drawEventMarkers()
+        //     } else {
+        //         drawMarkers()
+        //     }
+        // }
+        drawMarkers()
     }, [eventWithLocationList, markers, Marker, selectedType])
 
     return (<div className={`${styles['map-page']} map-page`}>
+        <div className={styles['follow-window']}>
+            <DialogGuideFollow/>
+        </div>
         <div id={'gmap'} className={styles['map-container']} ref={mapDomRef as any}/>
-        { (eventGroup?.id === 1984 || eventGroup?.id === 1516) &&
+        {(eventGroup?.id === 1984 || eventGroup?.id === 1516) &&
             <div className={styles['top-menu']}>
-                {(isManager || eventGroup?.group_owner_id === user.id) &&
-                    <div className={styles['menu-item']} onClick={() => {
-                        router.push(`/event/${eventGroup?.username}/create-marker`)
-                    }}>Create Marker +
-                    </div>
-                }
+                <div className={styles['menu-item']} onClick={() => {
+                    router.push(`/event/${eventGroup?.username}/create-marker`)
+                }}>Create a Marker +
+                </div>
+                <div className={`${styles['menu-item']} ${!selectedType ? styles['menu-item-active'] : ''}`} onClick={() => {
+                    router.push(`/event/${eventGroup?.username}/map`)
+                }}>All</div>
                 {
                     Object.keys(menuList).map((item, index) => {
                         const isSelected = selectedType === item
@@ -485,74 +521,14 @@ function ComponentName() {
                 }
             </div>
         }
-        {showList && !!eventGroup && selectedType === 'Event' &&
-            <div className={styles['marker-list']}>
-                {eventWithLocationList.length > 0 ?
-                    <Swiper
-                        modules={[Virtual, Mousewheel]}
-                        mousewheel={true}
-                        spaceBetween={10}
-                        freeMode={true}
-                        slidesPerView={'auto'}
-                        style={{paddingLeft: '12px', paddingRight: '12px'}}
-                        onSwiper={(swiper) => {
-                            swiperRef.current = swiper
-                        }}
-                        onSlideChange={(swiper) => {
-                            const index = swiper.activeIndex
-                            const targetEvent = eventWithLocationList[index]
-                            setSelectedEvent(targetEvent)
-                            showEventInMapCenter(targetEvent)
-                            setCurrSwiperIndex(swiper.activeIndex)
-                        }}
-                    >
-                        {eventWithLocationList.map((data, index) => {
-                            return <SwiperSlide style={{width: `${itemWidth}px`}} key={index}>
-                                <CardEvent event={data} key={data.id} participants={participants}/>
-                            </SwiperSlide>
-                        })
-                        }
-                    </Swiper>
-                    : <div className={styles['nodata']}>No marker</div>
-                }
-                {typeof window !== 'undefined'
-                    && window.innerWidth > 750
-                    && swiperRef.current
-                    && currSwiperIndex > 0
-                    && <img
-                        onClick={() => {
-                            swiperRef.current.slidePrev()
-                            setTimeout(() => {
-                                setCurrSwiperIndex(swiperRef.current.activeIndex)
-                            }, 300)
-                        }}
-                        className={window.innerWidth >= 1050 ? styles['slide-left-wide'] : styles['slide-left']}
-                        src="/images/slide.png" alt=""/>
-                }
-                {typeof window !== 'undefined'
-                    && window.innerWidth > 750
-                    && swiperRef.current
-                    && currSwiperIndex < eventWithLocationList.length - 2
-                    && <img
-                        onClick={() => {
-                            swiperRef.current.slideNext()
-                            setTimeout(() => {
-                                setCurrSwiperIndex(swiperRef.current.activeIndex)
-                            }, 300)
-                        }}
-                        className={window.innerWidth >= 1050 ? styles['slide-wide'] : styles['slide']}
-                        src="/images/slide.png" alt=""/>
-                }
-            </div>
-        }
 
-
-        {showList && !!eventGroup && selectedType !== 'Event' &&
+        {showList && !!eventGroup &&
             <div className={styles['marker-list']}>
                 {markers.length > 0 ?
                     <Swiper
                         modules={[Virtual, Mousewheel]}
                         mousewheel={true}
+                        centeredSlides={markers.length === 1}
                         spaceBetween={10}
                         freeMode={true}
                         slidesPerView={'auto'}
@@ -569,7 +545,7 @@ function ComponentName() {
                     >
                         {markers.map((data, index) => {
                             return <SwiperSlide style={{width: `${itemWidth}px`}} key={index}>
-                                <CardMarker item={data} key={data.id}/>
+                                <CardMarker item={data} key={data.id} participants={participants}/>
                             </SwiperSlide>
                         })
                         }

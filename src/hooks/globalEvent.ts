@@ -17,6 +17,7 @@ export enum EVENT {
     managerListUpdate = 'managerListUpdate',
     eventCheckin = 'eventCheckin',
     markerCheckin = 'markerCheckin',
+    showFollowGuide = 'showFollowGuide',
 }
 
 export default function useEvent (eventName: EVENT) {

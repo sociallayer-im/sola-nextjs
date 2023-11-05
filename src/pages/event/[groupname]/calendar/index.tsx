@@ -10,7 +10,7 @@ import {getLabelColor} from "@/hooks/labelColor";
 import usePicture from "@/hooks/pictrue";
 import Empty from "@/components/base/Empty";
 import PageBack from "@/components/base/PageBack";
-import {useRouter, useParams, useSearchParams} from "next/navigation";
+import {useParams, useSearchParams, useRouter} from "next/navigation";
 
 
 interface EventWithProfile extends Event {
@@ -85,8 +85,12 @@ function Calendar() {
     const getEventList = async (date?: Date) => {
         async function fetchData(date: Date) {
             const unload = showLoading()
-            const dateStart = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0, 0)
-            const dateEnd = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59, 999)
+           // const dateStart = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0, 0)
+           // const dateEnd = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59, 999)
+
+            // 获得选中日期的星期日到星期六的日期
+            const dateStart = new Date(date.getFullYear(), date.getMonth(), date.getDate() - date.getDay(), 0, 0, 0, 0)
+            const dateEnd = new Date(date.getFullYear(), date.getMonth(), date.getDate() + (6 - date.getDay()), 23, 59, 59, 999)
 
             let res = await queryEvent({
                 group_id: eventGroup!.id,
@@ -193,8 +197,9 @@ function Calendar() {
     const scrollIntoView = (id: string) => {
         const target = document.getElementById(id)
         if (target) {
-            const targetHeight = target.offsetTop - 260
-            document.querySelector('#layout-content')!.scroll(0, targetHeight);
+            // const targetHeight = target.offsetTop - 260
+            const targetHeight = target.offsetTop - 60
+            document.querySelector('#PageContent')!.scroll(0, targetHeight);
         }
     }
 
@@ -207,12 +212,19 @@ function Calendar() {
             getDateHasEvent(date)
         }
 
-        if (eventGroup) {
-            await getEventList(date)
-        }
+        const dateStart = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate() - selectedDate.getDay(), 0, 0, 0, 0)
+        const dateEnd = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate() + (6 - selectedDate.getDay()), 23, 59, 59, 999)
 
-        router.push(`/event/${eventGroup?.username || ''}/calendar?date=${date.getTime()}`)
-        setSelectedDate(date)
+        if (eventGroup && (dateStart.getTime() > date.getTime() || dateEnd.getTime() < date.getTime())) {
+            await getEventList(date)
+            router.push(`/event/${eventGroup?.username}/calendar?date=${date.getTime()}`)
+            setSelectedDate(date)
+            setTimeout(() => {
+                scrollIntoView(`date-${date.getDate()}`)
+            },300)
+        } else {
+            scrollIntoView(`date-${date.getDate()}`)
+        }
     }
 
     return (
@@ -294,7 +306,7 @@ function Calendar() {
                         eventGroupByDateMerged.map((item, index) => {
                             return <div key={index}>
                                 <div className={'date-marker'} id={`date-${item.date.getDate()}`}>
-                                    <div>{item.date.getDate()} {mouthName[item.date.getMonth()]}.</div>
+                                    <div>{item.date.getDate()} {mouthName[item.date.getMonth()]}</div>
                                 </div>
                                 <div className={'grouped-events'}>
                                     {

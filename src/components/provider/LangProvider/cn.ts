@@ -318,6 +318,7 @@ const langCN: LangConfig = {
   Search_Tab_Event: 'Event',
   Badgebook_Dialog_Choose_Badgebook: '从 Badge book 选择',
   Badgebook_Dialog_Choose_Badge: '从已经颁发的徽章中选择',
+  Badgebook_Dialog_Choose_Group_Badge: slotLang('从组织「{groupname}」创建的徽章中种选择'),
   Badgebook_Dialog_Choose_Draft: '从保存的草稿中选择',
   Badgebook_Dialog_Cetate_Badge: '创建新的徽章',
   Badgebook_Dialog_Recognition_Badge: '基础徽章',
@@ -372,6 +373,7 @@ const langCN: LangConfig = {
   Profile_Edit_Leave_Dialog_Title: '是否离开？',
   Profile_Edit_Leave_Dialog_Des: '你的修改将不会被保存。',
   Group_Member_Manage_Dialog_Title: '管理群组成员',
+  Group_Manager_Setting: '设置管理员',
   Group_Member_Manage_Dialog_Confirm_Btn: '移除成员',
   Group_Member_Manage_Dialog_Confirm_Dialog_des: slotLang('你确定要移除 {1} 吗？'),
   Group_Member_Manage_Dialog_Confirm_Dialog_Confirm: '移除',
@@ -546,6 +548,9 @@ const langCN: LangConfig = {
   Form_Marker_Link_Label: '链接(选填)',
   Marker_Detail_Records: '记录',
   Marker_Edit_Remove: 'Remove marker',
+  Group_Change_Owner: '转移组织',
+  Group_Role_Owner: '拥有者',
+  Group_Role_Manager: '管理员',
 }
 
 
