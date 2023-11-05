@@ -2664,6 +2664,7 @@ export interface Marker {
     checkins_count: number,
     checkin?: MarkerCheckinDetail | undefined,
     event_id: number | null,
+    host_info: string | null
 }
 
 export interface CreateMarkerProps extends Partial<Marker> {
