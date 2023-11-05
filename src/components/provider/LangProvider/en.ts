@@ -235,7 +235,7 @@ const langEN = {
     Activity_Form_Badge_Select: 'Select badge',
     Activity_Form_wechat_Select: 'Select Image',
     Activity_Form_Ending_Time_Error: 'The end time must be later than the start time',
-    Activity_Detail_Btn_Modify: 'Modify',
+    Activity_Detail_Btn_Modify: 'Edit',
     Activity_Detail_site_Occupied: 'The selected site is already occupied during the chosen time slot. Please choose a different site or a different time for the event.',
     Activity_Detail_Btn_Canceled: 'Canceled',
     Activity_Detail_Btn_unjoin: 'Cancel',
