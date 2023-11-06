@@ -133,7 +133,7 @@ function GroupPage(props: any) {
     const getRpc = async () => {
         const info = await Alchemy.getAllMaodaoNft(pageKeyRef.current)
         if (info.nfts.length) {
-            pageKeyRef.current = info.pageKey
+            pageKeyRef.current = info.pageKey || ''
             return info.nfts
         } else {
             return []
