@@ -19,6 +19,7 @@ function mapTimezone(value) {
 }
 
 function output (date: Date, timezone: string) {
+    console.trace('=====', timezone)
     const year = date.getFullYear()
     const month = date.getMonth() + 1
     const day = date.getDate()
@@ -165,7 +166,7 @@ function AppDateInput({arrowRepeat = true, ...props}: AppDateInputProps) {
 
     useEffect(() => {
         // repeatEndingTime 是to的一年后
-        const toTime = new Date(output(to, repeat[0].id))
+        const toTime = new Date(output(to, timezone[0].id))
         const repeatEndingTime = new Date(toTime.getFullYear() + 1, toTime.getMonth(), toTime.getDate(), toTime.getHours(), toTime.getMinutes()).toISOString()
         const res = {
             from: output(from, timezone[0].id),
