@@ -133,6 +133,28 @@ class Alchemy {
         })
     }
 
+    async getAllMaodaoNft(pageKey: string) {
+        const list = await this.alchemy.forNetwork(Network.ETH_MAINNET).nft.getNftsForContract('0xcdb7C1a6fE7e112210CA548C214F656763E13533', {pageKey: pageKey, pageSize: 20})
+        const nfts =  list.nfts.map((item: any) => {
+            return {
+                title: item.title,
+                image: item.rawMetadata?.image,
+                contract: item.contract.address,
+                id: Number(item.tokenId) + '',
+                standard: 'ERC721',
+                chain: 'Ethereuem',
+                explorer: `https://opensea.io/assets/ethereum/0xcdb7c1a6fe7e112210ca548c214f656763e13533/${item.tokenId}`
+            } as NftDetail
+        })
+
+        console.log('=====list', list)
+
+        return {
+            nfts,
+            pageKey: list.pageKey
+        }
+    }
+
     async getSeedaoNft(owner: string): Promise<NftDetail[]> {
         // toto replace owner address
         const list = await this.alchemy.forNetwork(Network.ETH_MAINNET).nft.getNftsForOwner('0x332345477db00239f88ca2eb015b159750cf3c44', {contractAddresses: ['0x30093266e34a816a53e302be3e59a93b52792fd4']})

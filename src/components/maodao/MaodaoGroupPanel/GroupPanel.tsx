@@ -5,13 +5,13 @@ import LangContext from '../../provider/LangProvider/LangContext'
 import UserContext from '../../provider/UserProvider/UserContext'
 import DialogsContext from '../../provider/DialogProvider/DialogsContext'
 import useEvent, { EVENT } from '../../../hooks/globalEvent'
-import DialogFollowInfo from '../Dialog/DialogFollowInfo/DialogFollowInfo'
+import DialogFollowInfo from '@/components/base/Dialog/DialogFollowInfo/DialogFollowInfo'
 import { StatefulPopover, PLACEMENT } from 'baseui/popover'
-import AppButton, { BTN_KIND, BTN_SIZE } from '../AppButton/AppButton'
-import MenuItem from '../MenuItem'
-import ProfileBio from '../ProfileBio/ProfileBio'
-import ProfileSocialMediaList from '../ProfileSocialMediaList/ProfileSocialMediaList'
-import DialogProfileQRcode from "../Dialog/DialogProfileQRcode/DialogProfileQRcode";
+import AppButton, { BTN_KIND, BTN_SIZE } from '@/components/base/AppButton/AppButton'
+import MenuItem from '@/components/base/MenuItem'
+import ProfileBio from '@/components/base/ProfileBio/ProfileBio'
+import ProfileSocialMediaList from '@/components/base/ProfileSocialMediaList/ProfileSocialMediaList'
+import DialogProfileQRcode from "@/components/base/Dialog/DialogProfileQRcode/DialogProfileQRcode";
 
 interface GroupPanelProps {
     group: Profile
@@ -132,10 +132,10 @@ function GroupPanel(props: GroupPanelProps) {
         <div className='profile-panel'>
             <div className='left-size'>
                 <div className='avatar' onClick={ showAvatarDialog }>
-                    <img src={ group.image_url || defaultAvatar(group.id) } alt=""/>
+                    <img src={ group.image_url || '/images/maodao/maodao_avatar.jpg' } alt=""/>
                 </div>
                 <div className='domain-bar'>
-                    <div className='domain'>{ group.nickname || group.username }</div>
+                    <div className='domain'>{ group.nickname || 'Ready Player Club' }</div>
                     <img src="/images/group_label.png" alt=""/>
                     {
                         <div className='qrcode-btn' onClick={showProfileQRcode}>
@@ -155,8 +155,10 @@ function GroupPanel(props: GroupPanelProps) {
                         <span>{group.location}</span>
                     </div>
                 }
-                { !!group.about &&
+                { !!group.about ?
                     <ProfileBio text={ group.about }/>
+                    : <ProfileBio text={ 'Ready Player Club (RPC) is a club for Web3 Chinese professionals dedicated to promoting resource sharing and collaboration among its members.' }/>
+
                 }
                 <ProfileSocialMediaList profile={props.group}/>
             </div>
