@@ -126,10 +126,13 @@ function ComponentName() {
             }
         })
 
+        // 为了保证marker不会遮住详情，先绘制marker
         // 绘制marker
         markersGrouped.map((markersList, index) => {
+            const category = markersList[0].category[0].toUpperCase() + markersList[0].category.slice(1)
             const content = document.createElement('img');
-            content.setAttribute('src', (markerTypeList as any)[markersList[0].category] || '/images/map_marker.png')
+            const iconUrl = markersList[0].checkin ? (markerTypeList as any)[category].split('#')[1] : (markerTypeList as any)[category].split('#')[0]
+            content.setAttribute('src', iconUrl)
             content.className = 'map-marker'
 
             const markerView = new Marker!({
