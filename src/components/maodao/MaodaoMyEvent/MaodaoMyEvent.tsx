@@ -1,4 +1,4 @@
-import {Participants, Profile, queryMyEvent} from "@/service/solas";
+import {Participants, Profile, queryEvent, queryMyEvent} from "@/service/solas";
 import Empty from "@/components/base/Empty";
 import CardEvent from "@/components/base/Cards/CardEvent/CardEvent";
 import scrollToLoad from "@/hooks/scrollToLoad";
@@ -7,34 +7,42 @@ import React, {useContext, useEffect} from "react";
 import styles from './MaodaoMyEvent.module.sass'
 import EventHomeContext from "@/components/provider/EventHomeProvider/EventHomeContext";
 
-function MaodaoMyEvent({profile}: { profile: Profile }) {
+function MaodaoMyEvent({profile, isGroup}: { profile: Profile, isGroup?: boolean }) {
     const {user} = useContext(userContext)
     const {eventGroup} = useContext(EventHomeContext)
 
 
     const getMyEvent = async (page: number) => {
         if (profile.id !== 0) {
-            const res = await queryMyEvent({auth_token: user.authToken!, group_id: eventGroup?.id, page})
-            const list =  res.map((item: Participants) => item.event)
-            return list
-        }  else return []
+            if (isGroup) {
+                const res = await queryEvent({group_id: profile.id, page})
+                return  res
+            } else {
+                const res = await queryMyEvent({auth_token: user.authToken!, group_id: eventGroup?.id, page})
+                const list = res.map((item: Participants) => item.event)
+                return list
+            }
+
+        } else return []
     }
 
     const {list, ref, refresh, loading} = scrollToLoad({
         queryFunction: getMyEvent
     })
 
-    useEffect(()=> {
+    useEffect(() => {
         refresh()
     }, [profile.id])
 
     return (<div className={styles.wrapper}>
-        <div className={'list-title'} style={{ fontWeight: 600,
+        <div className={'list-title'} style={{
+            fontWeight: 600,
             fontSize: '16px',
             lineHeight: '24px',
-            color:'var(--color-text-main)',
+            color: 'var(--color-text-main)',
             marginTop: '15px',
-            marginBottom: '15px'}}>{'Applied Events'}</div>
+            marginBottom: '15px'
+        }}>{'Applied Events'}</div>
         {!list.length ? <Empty/> :
             <div className={'list'}>
                 {

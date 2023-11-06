@@ -1,0 +1,116 @@
+.profile-panel
+  display: flex
+  flex-flow: row nowrap
+  justify-content: space-between
+  position: relative
+  .avatar
+    width: 60px
+    height: 60px
+    margin-bottom: 5px
+    position: relative
+    .qrcode-btn
+      position: absolute
+      width: 28px
+      height: 28px
+      border-radius: 50%
+      background: #fff
+      filter: drop-shadow(0 4px 13px rgba(0,0,0,0.15))
+      bottom: 0
+      right: 0
+      cursor: pointer
+      transform: translate(50%)
+      .icon
+        position: absolute
+        left: 50%
+        top: 50%
+        transform: translate(-50%,-50%)
+    & > img
+      width: 100%
+      height: 100%
+      border-radius: 50%
+  .domain-bar
+    display: flex
+    flex-flow: row nowrap
+    align-items: center
+    margin-bottom: 10px
+    & > img
+      width: 48px
+      height: 18px
+      margin: 0 4px
+    .domain
+      font-weight: 600
+      font-size: 20px
+      line-height: 28px
+    .show-wallet
+      color: #7b7c7b
+      padding: 0 9px
+      border-radius: 8px
+      background-color: #f8f9f8
+      margin-left: 4px
+      cursor: pointer
+      height: 20px
+      display: inline-flex
+      flex-flow: column nowrap
+      justify-content: center
+    .show-email
+      color: #7b7c7b
+      padding: 0 9px
+      border-radius: 8px
+      background-color: #f8f9f8
+      margin-left: 4px
+      cursor: pointer
+      height: 20px
+      display: inline-flex
+      flex-flow: column nowrap
+      justify-content: center
+      font-size: 14px
+    .qrcode-btn
+      color: #7b7c7b
+      padding: 0 9px
+      border-radius: 8px
+      background-color: #f8f9f8
+      margin-left: 4px
+      cursor: pointer
+      height: 20px
+      display: inline-flex
+      flex-flow: column nowrap
+      justify-content: center
+  .follow
+    font-size: 14px
+    line-height: 22px
+    color: var(--color-text-main)
+    display: flex
+    flex-flow: row nowrap
+    cursor: pointer
+    &:hover
+      color: #6cd7b2
+    & > div
+      margin-right: 20px
+  .right-size
+    padding-top: 15px
+    position: absolute
+    right: 0px
+  .icon-user-plus
+    margin-right: 12px
+    font-size: 16px
+  .icon-user-check
+    font-size: 16px
+  .social-media-list
+    display: flex
+    flex-flow: row nowrap
+    margin-top: 10px
+    & > a
+      color: var(--color-text-main)
+      text-decoration: none
+      font-size: 18px
+      outline: none
+  .profile-position
+    margin-top: 22px
+    display: flex
+    flex-flow: row nowrap
+    align-items: center
+    color: var(--color-text-main)
+    font-size: 12px
+    & > i
+      font-size: 16px
+      margin-right: 4px

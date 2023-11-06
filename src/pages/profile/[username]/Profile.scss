@@ -27,6 +27,14 @@
   .down-side {
     padding-top: 12px;
 
+    .maodao-event {
+      .event-card {
+        width: 100%;
+        margin-bottom: 10px;
+        max-width: initial;
+      }
+    }
+
     .maodao-nft {
       padding: 0 12px;
     }
