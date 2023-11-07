@@ -43,6 +43,24 @@
   .slot_1 {
     margin-top: 72px;
 
+    .maodao-position {
+      color: var(--color-text-sub);
+      margin-bottom: 8px;
+    }
+
+    .maodao-tag {
+      padding: 0 7px;
+      height: 24px;
+      background: var(--color-page-bg);
+      color: var(--color-text-main);
+      font-size: 12px;
+      display: inline-flex;
+      line-height: 24px;
+      border-radius: 4px;
+      margin-top: 8px;
+      margin-right: 8px;
+    }
+
     @media (min-width: 450px) {
       margin-top: 124px;
     }

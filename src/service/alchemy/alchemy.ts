@@ -147,8 +147,6 @@ class Alchemy {
             } as NftDetail
         })
 
-        console.log('=====list', list)
-
         return {
             nfts,
             pageKey: list.pageKey

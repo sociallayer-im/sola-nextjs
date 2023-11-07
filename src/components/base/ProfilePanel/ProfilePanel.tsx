@@ -172,7 +172,7 @@ function ProfilePanel(props: ProfilePanelProps) {
                             <i className='icon icon-email'></i>
                         </div>
                     }
-                    {
+                    { !isMaodao &&
                         <div className='qrcode-btn' onClick={showProfileQRcode}>
                             <i className='icon icon-qrcode'></i>
                         </div>

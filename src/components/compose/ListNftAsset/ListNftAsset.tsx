@@ -14,12 +14,12 @@ function ListNftAsset({profile, type, title=''}: { profile: Profile, type: strin
     const profileRef = useRef<null | Profile>(null)
 
     const getNft = async (page: number): Promise<NftDetail[]> => {
-        if (profile.id === 0) {
+        if (profile.id === 0 && !profile.address) {
             setReady(true)
             return []
         }
 
-        if (profile.address && page === 1) {
+        if (profile.address && page <= 1) {
             try {
                 if (type === 'ens') {
                     return await Alchemy.getEnsBalance(profile.address)
@@ -53,10 +53,7 @@ function ListNftAsset({profile, type, title=''}: { profile: Profile, type: strin
 
     const listRef = React.createRef<ListUserAssetsMethods>()
     useEffect(() => {
-        if (profile.id !== profileRef.current?.id) {
-            !!listRef.current && listRef.current!.refresh()
-            profileRef.current = profile
-        }
+        listRef.current && listRef.current!.refresh()
     }, [profile])
 
 
@@ -80,6 +77,7 @@ function ListNftAsset({profile, type, title=''}: { profile: Profile, type: strin
                     : <ListUserAssets
                         queryFcn={getNft}
                         onRef={listRef}
+                        immediate={true}
                         child={(item: NftDetail, key) => <CardNft key={key}
                                                                   type={type === 'maodao' ? 'badge': 'nft'}
                                                                   detail={item}/>}/>

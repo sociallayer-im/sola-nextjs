@@ -87,12 +87,22 @@ export async function getProfile(props: GetProfileProps): Promise<Profile | null
     if (isMaodao && res.data.profile?.address) {
         const maodaonft = await Alchemy.getMaodaoNft(res.data.profile?.address)
         if (maodaonft.length) {
-            maodaoProfile = await fetch.get({
-                url: `https://metadata.readyplayerclub.com/api/rpc-fam/${maodaonft[0].id}`,
-                data: {}
-            }) as any
-            res.data.profile.nickname = maodaoProfile?.data.info.owner
-            res.data.profile.image_url = maodaoProfile?.data.image
+           try {
+               maodaoProfile = await fetch.get({
+                   url: `https://metadata.readyplayerclub.com/api/rpc-fam/${maodaonft[0].id}`,
+                   data: {}
+               }) as any
+               res.data.profile.nickname = maodaoProfile?.data.info.owner
+               res.data.profile.image_url = maodaoProfile?.data.image
+           } catch (e) {
+               const zeroPad = (num: string) => {
+                   // 使用正则匹配出第一个数字，然后补0
+                   const numStr = num.split('（')[0]
+                   return String(numStr).padStart(4, '0')
+               }
+               res.data.profile.nickname = maodaonft[0].id
+               res.data.profile.image_url = `https://asset.maonft.com/rpc/${zeroPad(maodaonft[0].id)}.png`
+           }
         }
     }
 

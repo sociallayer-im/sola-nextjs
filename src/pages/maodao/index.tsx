@@ -19,6 +19,8 @@ import {DotBitAccount} from "@/service/dotbit";
 import CardDotBit from "@/components/base/Cards/CardDotBit/CardDotBit";
 import Alchemy, {NftDetail} from "@/service/alchemy/alchemy";
 import CardNft from "@/components/base/Cards/CardNft/CardNft";
+import MaodaoCardMembers from "@/components/maodao/MaodaoCardMembers/MaodaoCardMembers";
+import fetch from '@/utils/fetch'
 
 function GroupPage(props: any) {
     const groupname = 'maodao'
@@ -140,6 +142,26 @@ function GroupPage(props: any) {
         }
     }
 
+    const getMaodaoMember = async (page: number) => {
+        const res = await fetch.get({
+            url: `https://metadata.readyplayerclub.com/api/rpc-fam/fam?page=${page || 1}&pageSize=20`
+        })
+
+        let resArr:{
+            "cat_id": string,
+            "cat_name": string,
+            "owner": string,
+            "tag1": string,
+            "tag2": string,
+            "project": string,
+            "position": string
+        }[] = []
+
+
+
+        return Object.values(res.data.family)
+    }
+
     return <>
         {!!profile &&
             <div className='profile-page'>
@@ -175,10 +197,32 @@ function GroupPage(props: any) {
                                                                                   detail={item}/>}/>
                             </div>
                         </div>
+
+                        <div className='maodao-nft'>
+                            <div className={'list-title'} style={{
+                                fontWeight: 600,
+                                fontSize: '16px',
+                                lineHeight: '24px',
+                                color: 'var(--color-text-main)',
+                                marginTop: '15px',
+                                marginBottom: '15px'
+                            }}>{'Members'}</div>
+                            <div style={{'minHeight': '202px'}}>
+                                <ListUserAssets
+                                    immediate={true}
+                                    queryFcn={getMaodaoMember}
+                                    onRef={listRef}
+                                    child={(item: any, key) => <MaodaoCardMembers key={key}
+                                                                              type={'badge'}
+                                                                              detail={item}/>}/>
+                            </div>
+                        </div>
+
+                        <div className={'maodao-event'}><MaodaoMyEvent profile={profile} isGroup={true} /></div>
+
                         <div className={'maodao-event'}>
-                            {user.authToken ?
-                                <div><MaodaoMyEvent profile={profile} isGroup={true} /></div>
-                                : <div className={'home-login-panel'} style={{margin: '0 12px'}}>
+                            {user.authToken &&
+                                <div className={'home-login-panel'} style={{margin: '0 12px'}}>
                                     <img src="/images/balloon.png" alt=""/>
                                     <div className={'text'}>{lang['Activity_login_des']}</div>
                                     <AppButton onClick={e => {
