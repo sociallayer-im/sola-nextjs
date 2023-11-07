@@ -2635,7 +2635,7 @@ const timezoneList = [
     ["Australia/Melbourne", "Melbourne"],
     ["Australia/Perth", "Perth"],
     ["Australia/Sydney", "Sydney"],
-    ["Etc/UTC", "UTC"],
+    ["UTC", "UTC"],
     ["Europe/Amsterdam", "Amsterdam"],
     ["Europe/Athens", "Athens"],
     ["Europe/Belgrade", "Belgrade"],
