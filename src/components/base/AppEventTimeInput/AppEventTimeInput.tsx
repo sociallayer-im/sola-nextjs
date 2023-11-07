@@ -14,9 +14,12 @@ dayjs.extend(timezone)
 
 
 function mapTimezone(value: any) {
-    return timezoneList.find((item) => {
+    const target =  timezoneList.find((item) => {
         return item.id === value
     })
+
+    console.log('timezoone', target)
+    return target
 }
 
 function output (date: Date, timezone: string) {
