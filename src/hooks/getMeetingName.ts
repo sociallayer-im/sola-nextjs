@@ -18,13 +18,17 @@ function useGetMeetingName() {
 
     const getUrl = (link: string) => {
         // 匹配URL的正则表达式
-        const urlRegex = /(https?:\/\/[^\s]+)/;
+        const urlRegex = /^(https?|ftp):\/\/[^\s/$.?#].[^\s]*$|^(?!https?|ftp:\/\/)\S+\.\S+$/;
 
         // 查找第一个匹配的URL
         const match = link.match(urlRegex);
 
         // 如果有匹配的URL则返回第一个URL，否则返回空字符串
-        return match ? match[0] : null;
+        if (match) {
+            return match[0].startsWith('http') ? match[0] : `https://${match[0]}`;
+        } else {
+            return null;
+        }
     }
 
     return {getUrl, getMeetingName}

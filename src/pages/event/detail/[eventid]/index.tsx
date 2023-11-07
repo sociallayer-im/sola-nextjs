@@ -296,7 +296,12 @@ function EventDetail() {
                         }
 
                         {event.online_location &&
-                            <div className={'detail-item'}>
+                            <div className={'detail-item'} onClick={e => {
+                                if (isJoined) {
+                                    copy(event!.online_location!)
+                                    showToast('Online location has been copied!')
+                                }
+                            }}>
                                 <i className={'icon-link'}/>
                                 <div>{isJoined ? event.online_location : getMeetingName(event.online_location)}</div>
                             </div>
@@ -527,7 +532,9 @@ function EventDetail() {
                                     {!canceled && isJoined && inProgress && !!event.online_location &&
                                         <AppButton
                                             onClick={e => {
-                                                window.open(getUrl(event!.online_location!) || '#', '_blank')
+                                                copy(event!.online_location!);
+                                                showToast('Online location has been copied!')
+                                                // window.open(getUrl(event!.online_location!) || '#', '_blank')
                                             }}
                                             special>{lang['Activity_Detail_Btn_AttendOnline']}</AppButton>
                                     }
