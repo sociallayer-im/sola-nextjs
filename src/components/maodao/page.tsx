@@ -191,8 +191,8 @@ function Page(props: any) {
                         </div>
                         <div className='slot_1'>
                             <ProfilePanel profile={profile}/>
-                            {!!maodaoprofile && maodaoprofile.position &&
-                                <div className={'maodao-tag'}>{maodaoprofile.position}</div>
+                            {!!maodaoprofile && maodaoprofile.company &&
+                                <div className={'maodao-tag'}>{maodaoprofile.company}</div>
                             }
                             {!!maodaoprofile && maodaoprofile.tag &&
                                 <div className={'maodao-tag'}>{maodaoprofile.tag}</div>
@@ -204,9 +204,10 @@ function Page(props: any) {
                     <div className='maodao-nft'>
                         <ListNftAsset profile={profile} type={'maodao'} title={'RPC'}/>
                     </div>
-                    {profile?.id && profile?.id === user.id &&
+                    {!profile?.id && profile?.id === user.id &&
                         <MaodaoMyEvent profile={profile}/>
                     }
+
                     {!user.authToken &&
                         <div className={'home-login-panel'} style={{margin: '0 12px'}}>
                             <img src="/images/balloon.png" alt=""/>

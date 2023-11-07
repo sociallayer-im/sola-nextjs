@@ -9,7 +9,7 @@ import CardDotBit from "@/components/base/Cards/CardDotBit/CardDotBit";
 import styles from './ListNftAsset.module.sass'
 import {Spinner} from "baseui/spinner";
 
-function ListNftAsset({profile, type, title=''}: { profile: Profile, type: string, title?: string }) {
+function ListNftAsset({profile, type, manual, title=''}: { profile: Profile, type: string, title?: string, manual?:boolean }) {
     const [ready, setReady] = React.useState(false)
     const profileRef = useRef<null | Profile>(null)
 

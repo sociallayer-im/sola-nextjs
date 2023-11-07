@@ -94,14 +94,14 @@ const style2 = {
         marginBottom: '10px',
         boxSizing: 'border-box' as const,
         transition: 'all 0.12s linear',
-        ':hover' : {
+        ':hover': {
             transform: 'translateY(-8px)'
         },
-        ':active' : {
+        ':active': {
             boxShadow: '0px 1.9878px 3px rgba(0, 0, 0, 0.1)'
         }
     },
-    img:  {
+    img: {
         width: '90px',
         height: '90px',
         borderRadius: '50%',
@@ -114,7 +114,7 @@ const style2 = {
         overflow: 'hidden' as const,
         textOverflow: 'ellipsis' as const,
         fontSize: '14px',
-        color:'var(--color-text-main)'
+        color: 'var(--color-text-main)'
     },
     pendingMark: {
         position: 'absolute' as const,
@@ -171,18 +171,25 @@ function CardNft(props: CardNftProps) {
             content: (close: any) => DialogNftDetail({detail: {...props.detail, image: cover}, close}),
             size: [460, 'auto'],
             position: 'bottom' as const
-         })
+        })
     }
 
     useEffect(() => {
-        const img = new Image()
-        const src = props.detail.image.includes('ipfs://')
-            ? props.detail.image.replace('ipfs://', 'https://ipfs.io/ipfs/')
-            : props.detail.image
+        try {
+            const img = new Image()
+            const src = props.detail.image.includes('ipfs://')
+                ? props.detail.image.replace('ipfs://', 'https://ipfs.io/ipfs/')
+                : props.detail.image
 
-        img.src = src
-        img.onload = () => {
-            setCover(src)
+            img.src = src
+            img.onload = () => {
+                setCover(src)
+            }
+            img.onerror = () => {
+                setCover('/images/nft.jpg')
+            }
+        } catch (e) {
+            setCover(props.detail.image)
         }
     }, [])
 
@@ -190,7 +197,7 @@ function CardNft(props: CardNftProps) {
         showDialog()
     }}>
         <div className={css(style.coverBg)}>
-            <img className={css(style.img)} src={cover} alt="" width={132} height={132} />
+            <img className={css(style.img)} src={cover} alt="" width={132} height={132}/>
         </div>
         <div className={css(style.name)}>{props.detail.title}</div>
     </div>)

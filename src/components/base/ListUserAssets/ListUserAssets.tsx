@@ -19,7 +19,8 @@ export interface ListUserAssetsProps<T> {
     preEnhancer?: () => ReactNode
     compact?: boolean
     onload?: (data:T[]) => any
-    previewCount?: number
+    previewCount?: number,
+    manual?: boolean
 }
 
 function ListUserAssets<T>(props: ListUserAssetsProps<T>) {

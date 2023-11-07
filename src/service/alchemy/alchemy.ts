@@ -134,7 +134,7 @@ class Alchemy {
     }
 
     async getAllMaodaoNft(pageKey: string) {
-        const list = await this.alchemy.forNetwork(Network.ETH_MAINNET).nft.getNftsForContract('0xcdb7C1a6fE7e112210CA548C214F656763E13533', {pageKey: pageKey, pageSize: 20})
+        const list = await this.alchemy.forNetwork(Network.ETH_MAINNET).nft.getNftsForContract('0xcdb7C1a6fE7e112210CA548C214F656763E13533', {pageKey: pageKey, pageSize: 6 })
         const nfts =  list.nfts.map((item: any) => {
             return {
                 title: item.title,
@@ -148,7 +148,7 @@ class Alchemy {
         })
 
         return {
-            nfts,
+            list: nfts,
             pageKey: list.pageKey
         }
     }

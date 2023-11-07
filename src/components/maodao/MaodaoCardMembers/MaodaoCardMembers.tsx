@@ -1,5 +1,4 @@
 import {useStyletron} from 'baseui'
-import {useContext, useEffect, useState} from 'react'
 import {useRouter} from 'next/navigation'
 
 const style1 = {
@@ -92,14 +91,14 @@ const style2 = {
         marginBottom: '10px',
         boxSizing: 'border-box' as const,
         transition: 'all 0.12s linear',
-        ':hover' : {
+        ':hover': {
             transform: 'translateY(-8px)'
         },
-        ':active' : {
+        ':active': {
             boxShadow: '0px 1.9878px 3px rgba(0, 0, 0, 0.1)'
         }
     },
-    img:  {
+    img: {
         width: '50px',
         height: '50px',
         borderRadius: '50%',
@@ -111,7 +110,7 @@ const style2 = {
         overflow: 'hidden' as const,
         textOverflow: 'ellipsis' as const,
         fontSize: '14px',
-        color:'var(--color-text-main)',
+        color: 'var(--color-text-main)',
         lineHeight: '20px'
     },
     pendingMark: {
@@ -158,7 +157,7 @@ const style2 = {
         overflow: 'hidden' as const,
         textOverflow: 'ellipsis' as const,
         fontSize: '12px',
-        color:'var(--color-text-sub)',
+        color: 'var(--color-text-sub)',
         lineHeight: '20px'
     },
     tag: {
@@ -168,7 +167,7 @@ const style2 = {
         overflow: 'hidden' as const,
         textOverflow: 'ellipsis' as const,
         fontSize: '12px',
-        color:'var(--color-text-main)',
+        color: 'var(--color-text-main)',
         backgroundColor: 'var(--color-page-bg)',
         lineHeight: '24px',
         padding: '0 7px',
@@ -179,13 +178,15 @@ const style2 = {
 }
 
 export interface CardNftProps {
-    detail: {"cat_id": string,
+    detail: {
+        "cat_id": string,
         "cat_name": string,
         "owner": string,
         "tag1": string,
         "tag2": string,
         "project": string,
-        "position": string},
+        "position": string
+    },
     type?: 'badge' | 'nft'
 }
 
@@ -210,12 +211,17 @@ function MaodaoCardMembers(props: CardNftProps) {
         showDialog(zeroPad(props.detail.cat_id))
     }}>
         <div className={css(style.coverBg)}>
-            <img className={css(style.img)} src={`https://asset.maonft.com/rpc/${zeroPad(props.detail.cat_id)}.png`} alt="" width={132} height={132} />
+            <img className={css(style.img)} src={`https://asset.maonft.com/rpc/${zeroPad(props.detail.cat_id)}.png`}
+                 alt="" width={132} height={132}/>
         </div>
         <div className={css(style.name)}>{props.detail.owner}</div>
-        <div className={css(style2.position)}>{props.detail.position}</div>
-        <div className={css(style2.tag)}>{props.detail.tag1}</div>
-        <div className={css(style2.tag)}>{props.detail.tag2}</div>
+        <div className={css(style2.position)}>{props.detail.project}</div>
+        {!!props.detail.tag1 &&
+            <div className={css(style2.tag)}>{props.detail.tag1}</div>
+        }
+        {!!props.detail.tag2 &&
+            <div className={css(style2.tag)}>{props.detail.tag2}</div>
+        }
     </div>)
 }
 
