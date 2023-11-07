@@ -3,7 +3,7 @@ import React, {useContext, useEffect, useState} from 'react'
 import {getProfile as getProfileDetail, Profile, queryBadge} from '@/service/solas'
 import DialogsContext from '@/components/provider/DialogProvider/DialogsContext'
 import ProfilePanel from '@/components/base/ProfilePanel/ProfilePanel'
-import AppButton, {BTN_KIND, BTN_SIZE} from '@/components/base/AppButton/AppButton'
+import AppButton from '@/components/base/AppButton/AppButton'
 import LangContext from '@/components/provider/LangProvider/LangContext'
 import UserContext from '@/components/provider/UserProvider/UserContext'
 import useIssueBadge from '@/hooks/useIssueBadge'
@@ -39,7 +39,9 @@ function Page(props: any) {
 
     useEffect(() => {
         setTimeout(() => {
-            document.getElementById('PageContent').scroll(0, 0)
+            if (typeof window !== 'undefined') {
+                document!.getElementById('PageContent')?.scroll(0, 0)
+            }
         }, 100)
     })
 
@@ -89,7 +91,9 @@ function Page(props: any) {
                 const maodaoProfile = await fetch.get({
                     url: `https://metadata.readyplayerclub.com/api/rpc-fam/${tokenId}`,
                     data: {}
-                }).catch(e => {console.log(e)})
+                }).catch(e => {
+                    console.log(e)
+                })
 
                 if (maodaoProfile) {
                     setMaodaoprofile(maodaoProfile.data.info)
@@ -99,15 +103,25 @@ function Page(props: any) {
                 if (walletAddress) {
                     const solaProfile = await getProfileDetail({address: toChecksumAddress(walletAddress)})
                     if (solaProfile) {
-                        solaProfile.nickname = maodaoProfile.data.info.owner
-                        solaProfile.image_url = maodaoProfile.data.image
                         setProfile(solaProfile)
-                    } else  {
+                    } else if (maodaoProfile) {
                         emptyProfile.nickname = maodaoProfile.data.info.owner
                         emptyProfile.image_url = maodaoProfile.data.image
                         emptyProfile.address = walletAddress
                         setProfile(emptyProfile)
+                    } else {
+                        emptyProfile.nickname = '#' + tokenId
+                        emptyProfile.image_url = `https://asset.maonft.com/rpc/${tokenId}.png`
+                        setProfile(emptyProfile)
                     }
+                } else {
+                    const zeroPad = (num: string) => {
+                        const numStr = num.split('（')[0]
+                        return String(numStr).padStart(4, '0')
+                    }
+                    emptyProfile.nickname = '#' + tokenId
+                    emptyProfile.image_url = `https://asset.maonft.com/rpc/${zeroPad(tokenId)}.png`
+                    setProfile(emptyProfile)
                 }
             } catch (e) {
                 console.log('[getProfile]: ', e)
@@ -177,10 +191,10 @@ function Page(props: any) {
                         </div>
                         <div className='slot_1'>
                             <ProfilePanel profile={profile}/>
-                            { !!maodaoprofile && maodaoprofile.position &&
+                            {!!maodaoprofile && maodaoprofile.position &&
                                 <div className={'maodao-tag'}>{maodaoprofile.position}</div>
                             }
-                            { !!maodaoprofile && maodaoprofile.tag &&
+                            {!!maodaoprofile && maodaoprofile.tag &&
                                 <div className={'maodao-tag'}>{maodaoprofile.tag}</div>
                             }
                         </div>
@@ -190,7 +204,7 @@ function Page(props: any) {
                     <div className='maodao-nft'>
                         <ListNftAsset profile={profile} type={'maodao'} title={'RPC'}/>
                     </div>
-                    { profile?.id && profile?.id === user.id &&
+                    {profile?.id && profile?.id === user.id &&
                         <MaodaoMyEvent profile={profile}/>
                     }
                     {!user.authToken &&

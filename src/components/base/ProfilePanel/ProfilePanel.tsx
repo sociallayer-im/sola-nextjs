@@ -40,7 +40,7 @@ function ProfilePanel(props: ProfilePanelProps) {
 
     useEffect(() => {
         setProfile(props.profile)
-    }, [props.profile.id])
+    }, [props.profile])
 
     useEffect(() => {
         if (!profile.id) return;

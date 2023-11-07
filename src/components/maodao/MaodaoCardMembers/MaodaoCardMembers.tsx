@@ -202,7 +202,7 @@ function MaodaoCardMembers(props: CardNftProps) {
     const router = useRouter()
 
 
-    const showDialog = (id) => {
+    const showDialog = (id: string) => {
         router.push(`/maodao/${id}`, {scroll: false})
     }
 
