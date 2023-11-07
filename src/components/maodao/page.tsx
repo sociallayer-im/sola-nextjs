@@ -190,7 +190,7 @@ function Page(props: any) {
                     <div className='maodao-nft'>
                         <ListNftAsset profile={profile} type={'maodao'} title={'RPC'}/>
                     </div>
-                    { profile?.id &&
+                    { profile?.id && profile?.id === user.id &&
                         <MaodaoMyEvent profile={profile}/>
                     }
                     {!user.authToken &&
