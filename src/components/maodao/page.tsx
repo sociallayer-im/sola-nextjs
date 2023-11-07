@@ -3,12 +3,11 @@ import React, {useContext, useEffect, useState} from 'react'
 import {getProfile as getProfileDetail, Profile, queryBadge} from '@/service/solas'
 import DialogsContext from '@/components/provider/DialogProvider/DialogsContext'
 import ProfilePanel from '@/components/base/ProfilePanel/ProfilePanel'
-import AppButton, {BTN_KIND, BTN_SIZE} from '@/components/base/AppButton/AppButton'
+import AppButton from '@/components/base/AppButton/AppButton'
 import LangContext from '@/components/provider/LangProvider/LangContext'
 import UserContext from '@/components/provider/UserProvider/UserContext'
 import useIssueBadge from '@/hooks/useIssueBadge'
 import BgProfile from '@/components/base/BgProfile/BgProfile'
-import useEvent, {EVENT} from '@/hooks/globalEvent'
 import {styled} from 'baseui'
 import useCopy from '@/hooks/copy'
 import {useParams, useRouter} from "next/navigation";
@@ -22,25 +21,33 @@ function Page(props: any) {
     const params = useParams()
     const [tokenId, setTokenId] = useState<string>(props.tokenId || params?.tokenId)
     const [profile, setProfile] = useState<Profile | null>(props.profile || null)
+    const [maodaoprofile, setMaodaoprofile] = useState<{
+        cat: string,
+        company: string,
+        industry: string,
+        owner: string,
+        position: string,
+        tag: string,
+    } | null>(null)
     const {showLoading, openConnectWalletDialog} = useContext(DialogsContext)
     const {lang} = useContext(LangContext)
     const {user} = useContext(UserContext)
     const router = useRouter()
     const startIssue = useIssueBadge()
-    const [newProfile, _] = useEvent(EVENT.profileUpdate)
     const {copyWithDialog} = useCopy()
 
+
     useEffect(() => {
-        if (newProfile && newProfile.id !== profile?.id) {
-            setProfile(newProfile)
-        }
-    }, [newProfile])
+        setTimeout(() => {
+            if (typeof window !== 'undefined') {
+                document!.getElementById('PageContent')?.scroll(0, 0)
+            }
+        }, 100)
+    })
 
 
     useEffect(() => {
         const getProfile = async function () {
-
-
             const emptyProfile: Profile = {
                 address: null,
                 domain: null,
@@ -73,6 +80,7 @@ function Page(props: any) {
                 banner_link_url: null,
                 group_location_details: null
             }
+
             if (!tokenId) {
                 setProfile(emptyProfile)
                 return
@@ -83,21 +91,37 @@ function Page(props: any) {
                 const maodaoProfile = await fetch.get({
                     url: `https://metadata.readyplayerclub.com/api/rpc-fam/${tokenId}`,
                     data: {}
-                }) as any
+                }).catch(e => {
+                    console.log(e)
+                })
+
+                if (maodaoProfile) {
+                    setMaodaoprofile(maodaoProfile.data.info)
+                }
 
                 const walletAddress = await Alchemy.getMaodaoOwner(tokenId)
                 if (walletAddress) {
                     const solaProfile = await getProfileDetail({address: toChecksumAddress(walletAddress)})
-
                     if (solaProfile) {
-                        solaProfile.nickname = maodaoProfile.data.info.owner
-                        solaProfile.image_url = maodaoProfile.data.image
                         setProfile(solaProfile)
-                    } else {
+                    } else if (maodaoProfile) {
                         emptyProfile.nickname = maodaoProfile.data.info.owner
                         emptyProfile.image_url = maodaoProfile.data.image
+                        emptyProfile.address = walletAddress
+                        setProfile(emptyProfile)
+                    } else {
+                        emptyProfile.nickname = '#' + tokenId
+                        emptyProfile.image_url = `https://asset.maonft.com/rpc/${tokenId}.png`
                         setProfile(emptyProfile)
                     }
+                } else {
+                    const zeroPad = (num: string) => {
+                        const numStr = num.split('（')[0]
+                        return String(numStr).padStart(4, '0')
+                    }
+                    emptyProfile.nickname = '#' + tokenId
+                    emptyProfile.image_url = `https://asset.maonft.com/rpc/${zeroPad(tokenId)}.png`
+                    setProfile(emptyProfile)
                 }
             } catch (e) {
                 console.log('[getProfile]: ', e)
@@ -167,6 +191,12 @@ function Page(props: any) {
                         </div>
                         <div className='slot_1'>
                             <ProfilePanel profile={profile}/>
+                            {!!maodaoprofile && maodaoprofile.company &&
+                                <div className={'maodao-tag'}>{maodaoprofile.company}</div>
+                            }
+                            {!!maodaoprofile && maodaoprofile.tag &&
+                                <div className={'maodao-tag'}>{maodaoprofile.tag}</div>
+                            }
                         </div>
                     </div>
                 </div>
@@ -174,9 +204,12 @@ function Page(props: any) {
                     <div className='maodao-nft'>
                         <ListNftAsset profile={profile} type={'maodao'} title={'RPC'}/>
                     </div>
-                    {user.authToken ?
+                    {!profile?.id && profile?.id === user.id &&
                         <MaodaoMyEvent profile={profile}/>
-                        : <div className={'home-login-panel'} style={{margin: '0 12px'}}>
+                    }
+
+                    {!user.authToken &&
+                        <div className={'home-login-panel'} style={{margin: '0 12px'}}>
                             <img src="/images/balloon.png" alt=""/>
                             <div className={'text'}>{lang['Activity_login_des']}</div>
                             <AppButton onClick={e => {

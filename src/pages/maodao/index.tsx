@@ -11,29 +11,25 @@ import useIssueBadge from '@/hooks/useIssueBadge'
 import BgProfile from '@/components/base/BgProfile/BgProfile'
 import {styled} from "baseui";
 import useCopy from '@/hooks/copy'
-import {Spinner} from "baseui/spinner";
-import ListNftAsset from "@/components/compose/ListNftAsset/ListNftAsset";
 import MaodaoMyEvent from "@/components/maodao/MaodaoMyEvent/MaodaoMyEvent";
-import ListUserAssets from "@/components/base/ListUserAssets/ListUserAssets";
-import {DotBitAccount} from "@/service/dotbit";
-import CardDotBit from "@/components/base/Cards/CardDotBit/CardDotBit";
 import Alchemy, {NftDetail} from "@/service/alchemy/alchemy";
 import CardNft from "@/components/base/Cards/CardNft/CardNft";
+import MaodaoCardMembers from "@/components/maodao/MaodaoCardMembers/MaodaoCardMembers";
+import fetch from '@/utils/fetch'
+import MaodaoNftList from "@/components/maodao/MaodaoNftList/MaodaoNftList";
 
 function GroupPage(props: any) {
     const groupname = 'maodao'
     const [profile, setProfile] = useState<Profile | null>(null)
     const {showLoading, openConnectWalletDialog} = useContext(DialogsContext)
     const {lang} = useContext(LangContext)
-    const {user, logOut} = useContext(UserContext)
+    const {user} = useContext(UserContext)
     const searchParams = useSearchParams()
     const [selectedTab, setSelectedTab] = useState(searchParams.get('tab') || '0')
     const [selectedSubtab, setSelectedSubtab] = useState(searchParams.get('subtab') || '0')
     const [isGroupManager, setIsGroupManager] = useState(false)
     const startIssue = useIssueBadge({groupName: groupname as string})
     const {copyWithDialog} = useCopy()
-    const listRef = useRef<any>()
-    const pageKeyRef = useRef<string>('')
     const router = useRouter()
 
     const isGroupOwner = user.id === profile?.group_owner_id
@@ -130,14 +126,21 @@ function GroupPage(props: any) {
         }
     </div>
 
-    const getRpc = async () => {
-        const info = await Alchemy.getAllMaodaoNft(pageKeyRef.current)
-        if (info.nfts.length) {
-            pageKeyRef.current = info.pageKey
-            return info.nfts
-        } else {
-            return []
-        }
+    const getMaodaoMember = async (props: { page: number }) => {
+        const unload = showLoading()
+        const res = await fetch.get({
+            url: `https://metadata.readyplayerclub.com/api/rpc-fam/fam?page=${props.page || 1}&pageSize=6`
+        })
+
+        unload()
+        return Object.values(res.data.family)
+    }
+
+    const getRpc = async (props: {pageKey: string , page: number}) => {
+        const unload = showLoading()
+        const res = await Alchemy.getAllMaodaoNft(props.pageKey)
+        unload()
+        return res
     }
 
     return <>
@@ -166,19 +169,42 @@ function GroupPage(props: any) {
                                 marginBottom: '15px'
                             }}>{'RPC'}</div>
                             <div style={{'minHeight': '202px'}}>
-                                <ListUserAssets
-                                    immediate={true}
-                                    queryFcn={getRpc}
-                                    onRef={listRef}
-                                    child={(item: NftDetail, key) => <CardNft key={key}
-                                                                                  type={'badge'}
-                                                                                  detail={item}/>}/>
+                                <MaodaoNftList
+                                    queryFn={getRpc}
+                                    hasPageKey={true}
+                                    item={(item: any, key) => <CardNft key={key}
+                                                                             type={'badge'}
+                                                                             detail={item}/>}
+                                />
                             </div>
                         </div>
+
+                        <div className='maodao-nft'>
+                            <div className={'list-title'} style={{
+                                fontWeight: 600,
+                                fontSize: '16px',
+                                lineHeight: '24px',
+                                color: 'var(--color-text-main)',
+                                marginTop: '15px',
+                                marginBottom: '15px'
+                            }}>{'Members'}</div>
+                            <div style={{'minHeight': '202px'}}>
+                                <MaodaoNftList
+                                    queryFn={getMaodaoMember}
+                                    item={(item: any, key) => <MaodaoCardMembers key={key}
+                                                                                 type={'badge'}
+                                                                                 detail={item}/>}
+                                />
+                            </div>
+                        </div>
+
                         <div className={'maodao-event'}>
-                            {user.authToken ?
-                                <div><MaodaoMyEvent profile={profile} isGroup={true} /></div>
-                                : <div className={'home-login-panel'} style={{margin: '0 12px'}}>
+                            <MaodaoMyEvent profile={profile} isGroup={true}/>
+                        </div>
+
+                        <div className={'maodao-event'}>
+                            {!user.authToken &&
+                                <div className={'home-login-panel'} style={{margin: '0 12px'}}>
                                     <img src="/images/balloon.png" alt=""/>
                                     <div className={'text'}>{lang['Activity_login_des']}</div>
                                     <AppButton onClick={e => {

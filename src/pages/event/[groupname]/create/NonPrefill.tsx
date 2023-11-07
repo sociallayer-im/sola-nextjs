@@ -165,7 +165,7 @@ function CreateEvent(props: CreateEventPageProps) {
                 confirmLabel: 'Cancel event',
                 cancelLabel: 'Not now',
                 title: `Cancel repeat event 「${currEvent!.title}」`,
-                content: () => {
+                content: function Dialog() {
                     const [repeatEventSelector, setRepeatEventSelector] = useState<'one' | 'after' | 'all'>('one')
                     return <div className={'repeat-event-edit-option'}>
                         {
@@ -801,7 +801,7 @@ function CreateEvent(props: CreateEventPageProps) {
                 confirmLabel: 'Save',
                 cancelLabel: 'Cancel',
                 title: `Edit repeat event 「${currEvent!.title}」`,
-                content: () => {
+                content: function Dialog() {
                     const [repeatEventSelector, setRepeatEventSelector] = useState<'one' | 'after' | 'all'>('one')
                     return <div className={'repeat-event-edit-option'}>
                         {
@@ -960,9 +960,8 @@ function CreateEvent(props: CreateEventPageProps) {
                                 </div>
                             </div>
                         }
-
-
-                        { (!isEditMode || (!!currEvent && !currEvent.repeat_event_id)) &&
+                        
+                        {(!isEditMode || (!!currEvent && !currEvent.repeat_event_id)) &&
                             <div className='input-area'>
                                 <div className='input-area-title'>{lang['Activity_Form_Starttime']}</div>
                                 <AppEventTimeInput
@@ -1011,7 +1010,7 @@ function CreateEvent(props: CreateEventPageProps) {
                                     eventSite: eventSite,
                                     customLocation: customLocation,
                                     metaData: locationDetail
-                                } : undefined}
+                                } as any : undefined}
                                 eventGroup={eventGroup}
                                 onChange={values => {
                                     setEventSite(values.eventSite?.id ? values.eventSite : null)
@@ -1049,7 +1048,7 @@ function CreateEvent(props: CreateEventPageProps) {
                                         {enableMaxParticipants &&
                                             <input value={maxParticipants} onChange={
                                                 e => {
-                                                    toNumber(e.target.value.trim(), setMaxParticipants)
+                                                    toNumber(e.target.value!.trim(), setMaxParticipants)
                                                 }
                                             }/>
                                         }
@@ -1074,7 +1073,7 @@ function CreateEvent(props: CreateEventPageProps) {
                                         {enableMinParticipants &&
                                             <input value={minParticipants} onChange={
                                                 e => {
-                                                    toNumber(e.target.value.trim(), setMinParticipants)
+                                                    toNumber(e.target.value!.trim(), setMinParticipants)
                                                 }
                                             }/>
                                         }

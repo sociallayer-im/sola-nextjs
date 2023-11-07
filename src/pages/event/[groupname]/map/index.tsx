@@ -307,6 +307,7 @@ function ComponentName() {
                 </div>
                 <div className={`${styles['menu-item']} ${!selectedType ? styles['menu-item-active'] : ''}`}
                      onClick={() => {
+                         setSelectedType('')
                          router.push(`/event/${eventGroup?.username}/map`)
                      }}>All
                 </div>

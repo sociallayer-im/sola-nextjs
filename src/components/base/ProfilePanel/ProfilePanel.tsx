@@ -40,7 +40,7 @@ function ProfilePanel(props: ProfilePanelProps) {
 
     useEffect(() => {
         setProfile(props.profile)
-    }, [props.profile.id])
+    }, [props.profile])
 
     useEffect(() => {
         if (!profile.id) return;
@@ -172,7 +172,7 @@ function ProfilePanel(props: ProfilePanelProps) {
                             <i className='icon icon-email'></i>
                         </div>
                     }
-                    {
+                    { !isMaodao &&
                         <div className='qrcode-btn' onClick={showProfileQRcode}>
                             <i className='icon icon-qrcode'></i>
                         </div>

@@ -18,7 +18,7 @@ function MaodaoMyEvent({profile, isGroup}: { profile: Profile, isGroup?: boolean
                 const res = await queryEvent({group_id: profile.id, page})
                 return  res
             } else {
-                const res = await queryMyEvent({auth_token: user.authToken!, group_id: eventGroup?.id, page})
+                const res = await queryMyEvent({auth_token: user.authToken!, group_id: profile.id, page})
                 const list = res.map((item: Participants) => item.event)
                 return list
             }
@@ -42,7 +42,7 @@ function MaodaoMyEvent({profile, isGroup}: { profile: Profile, isGroup?: boolean
             color: 'var(--color-text-main)',
             marginTop: '15px',
             marginBottom: '15px'
-        }}>{'Applied Events'}</div>
+        }}>{isGroup ? "Events" : 'Applied Events'}</div>
         {!list.length ? <Empty/> :
             <div className={'list'}>
                 {
