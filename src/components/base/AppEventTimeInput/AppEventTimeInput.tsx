@@ -4,15 +4,16 @@ import LangContext from "../../provider/LangProvider/LangContext";
 import Toggle from "../Toggle/Toggle";
 import {Select} from "baseui/select";
 import timezoneList, {locateTimeTransfer} from "@/utils/timezone";
-import * as dayjs from 'dayjs'
+import * as dayjsLib from 'dayjs'
 
 const utc = require('dayjs/plugin/utc')
 const timezone = require('dayjs/plugin/timezone')
+const dayjs: any = dayjsLib
 dayjs.extend(utc)
 dayjs.extend(timezone)
 
 
-function mapTimezone(value) {
+function mapTimezone(value: any) {
     return timezoneList.find((item) => {
         return item.id === value
     })
@@ -166,19 +167,19 @@ function AppDateInput({arrowRepeat = true, ...props}: AppDateInputProps) {
 
     useEffect(() => {
         // repeatEndingTime 是to的一年后
-        const toTime = new Date(output(to, timezone[0].id))
+        const toTime = new Date(output(to, timezone[0]!.id))
         const repeatEndingTime = new Date(toTime.getFullYear() + 1, toTime.getMonth(), toTime.getDate(), toTime.getHours(), toTime.getMinutes()).toISOString()
         const res = {
-            from: output(from, timezone[0].id),
-            to: output(to, timezone[0].id),
-            repeat: repeat[0].id,
+            from: output(from, timezone[0]!.id),
+            to: output(to, timezone[0]!.id),
+            repeat: repeat[0]!.id,
             repeatEndingTime,
-            timezone: timezone[0].id
+            timezone: timezone[0]!.id
         }
 
 
         console.log('duration',res)
-        console.log(res.from, '→', res.to, repeat[0].id)
+        console.log(res.from, '→', res.to, repeat[0]!.id)
         props.onChange(res)
     }, [from, to, repeat, timezone])
 
@@ -272,9 +273,9 @@ function AppDateInput({arrowRepeat = true, ...props}: AppDateInputProps) {
             <Select
                 clearable={false}
                 searchable={true}
-                creatable={false}t
+                creatable={false}
                 options={timezoneList}
-                value={timezone}
+                value={timezone as any}
                 placeholder=""
                 onChange={params => {
                     if (params.type === 'select') {

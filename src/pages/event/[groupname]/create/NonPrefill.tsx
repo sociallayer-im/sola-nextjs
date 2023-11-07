@@ -960,7 +960,7 @@ function CreateEvent(props: CreateEventPageProps) {
                                 </div>
                             </div>
                         }
-                        
+
                         {(!isEditMode || (!!currEvent && !currEvent.repeat_event_id)) &&
                             <div className='input-area'>
                                 <div className='input-area-title'>{lang['Activity_Form_Starttime']}</div>

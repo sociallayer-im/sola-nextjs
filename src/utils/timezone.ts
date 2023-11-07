@@ -1,9 +1,10 @@
 // data from https://github.com/filipdanic/compact-timezone-list/blob/master/index.js
-import * as dayjs from 'dayjs'
+import * as dayjsLib from 'dayjs'
 
 const utc = require('dayjs/plugin/utc')
 const timezone = require('dayjs/plugin/timezone')
 
+const dayjs:any = dayjsLib
 dayjs.extend(utc)
 dayjs.extend(timezone)
 
