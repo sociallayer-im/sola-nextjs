@@ -50,7 +50,7 @@ function MaodaoNftList<T>(props: {
                 })
             }
             {!isEmpty && !isLoadAll &&
-                <div className={'list-action'}>
+                <div className={'list-action'} style={{maxWidth: 'initial'}}>
                     <AppButton kind={'secondary'} size={'compact'} onClick={() => {
                         setPage(page + 1)
                     }}>Show more</AppButton>
