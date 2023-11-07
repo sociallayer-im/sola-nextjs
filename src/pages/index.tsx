@@ -5,7 +5,7 @@ import MapPage from '@/pages/event/[groupname]/map'
 export default function HomePage (props: {domain: string}) {
     const routerClient = useClientRouter()
 
-    const needRedirect = (props.domain.includes('3000'))
+    const needRedirect = (props.domain.includes('zumap.org'))
 
     if (needRedirect && typeof window !== 'undefined') {
         routerClient.push('/event/istanbul2023/map')
