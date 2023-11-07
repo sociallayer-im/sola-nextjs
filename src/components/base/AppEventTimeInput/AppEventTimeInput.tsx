@@ -18,7 +18,7 @@ function mapTimezone(value: any) {
         return item.id === value
     })
 
-    console.log('timezoone', target)
+    console.log('timezoone', value, target)
     return target
 }
 
