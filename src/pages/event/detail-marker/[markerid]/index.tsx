@@ -281,7 +281,7 @@ function EventDetail() {
                             {tab === 1 &&
                                 <div className={'tab-contain'}>
                                     <div className={'center'}>
-                                        <ReasonText className={'event-des'} text={marker.message || ''}/>
+                                        <ReasonText className={'event-des'} text={marker.about || ''}/>
                                     </div>
                                 </div>}
                             {tab === 2 &&
