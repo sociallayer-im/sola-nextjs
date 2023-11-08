@@ -976,7 +976,6 @@ function CreateEvent(props: CreateEventPageProps) {
                                         setRepeat(e.repeat as any || null)
                                         setRepeatEnd(e.repeatEndingTime as any || null)
                                         setTimezone(e.timezone as any || null)
-                                        console.log('================= value', e.timezone)
                                     }}/>
                             </div>
                         }
