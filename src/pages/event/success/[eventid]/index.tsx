@@ -3,7 +3,7 @@ import Link from 'next/link'
 import {useContext, useEffect, useRef, useState} from 'react'
 import {Event, queryEventDetail} from "@/service/solas";
 import LangContext from "@/components/provider/LangProvider/LangContext";
-import {formatTime} from "@/hooks/formatTime";
+import {formatTime ,formatTimeWithTimezone} from "@/hooks/formatTime";
 import QRcode from "@/components/base/QRcode";
 import AppButton from "@/components/base/AppButton/AppButton";
 import saveCard from "@/utils/html2png";
@@ -74,12 +74,21 @@ function CreateEventSuccess() {
                         {!!event.start_time &&
                             <div className={'time'}>
                                 <i className={'icon-calendar'}/>
-                                <div className={'start-time'}>{formatTime(event.start_time)}</div>
+                                <div className={'start-time'}>
+                                    {event.timezone ?
+                                        formatTimeWithTimezone(event.start_time, event.timezone)
+                                        : formatTime(event.start_time)
+                                    }
+                                </div>
                                 {
                                     event.ending_time &&
                                     <>
                                         <span>—</span>
-                                        <div className={'end-time'}> {formatTime(event.ending_time)}</div>
+                                        <div className={'end-time'}> {
+                                            event.timezone ?
+                                                formatTimeWithTimezone(event.ending_time, event.timezone)
+                                                : formatTime(event.ending_time)
+                                        }</div>
                                     </>
                                 }
                             </div>

@@ -1,5 +1,12 @@
 import {useContext} from "react";
 import LangContext from "../components/provider/LangProvider/LangContext";
+import * as dayjsLib from 'dayjs'
+
+const utc = require('dayjs/plugin/utc')
+const timezone = require('dayjs/plugin/timezone')
+const dayjs: any = dayjsLib
+dayjs.extend(utc)
+dayjs.extend(timezone)
 
 export const formatTime = (dateString: string) => {
     const dateObject = new Date(dateString)
@@ -9,6 +16,11 @@ export const formatTime = (dateString: string) => {
     const hour = dateObject.getHours() + ''
     const min = dateObject.getMinutes() + ''
     return `${year}.${mon.padStart(2, '0')}.${date.padStart(2, '0')} ${hour.padStart(2, '0')}:${min.padStart(2, '0')}`
+}
+
+export const formatTimeWithTimezone = (dateString: string, timezone: string) => {
+    const diff = dayjs.tz('2023-01-01 00:00', timezone).diff(dayjs.tz('2023-01-01 00:00'), 'millisecond')
+    return dayjs(new Date(new Date(dateString).getTime() - diff).toString()).format("YYYY.MM.DD HH:mm")
 }
 
 function useTime () {
