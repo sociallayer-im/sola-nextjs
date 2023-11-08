@@ -19,6 +19,8 @@ Object.keys(MarkerCache).forEach(item => {
     MarkerCache[item] = []
 })
 
+const defaultZoom = 17
+
 function ComponentName() {
     const {Map, MapEvent, Marker, MapError, MapReady} = useContext(MapContext)
     const {eventGroup, isManager} = useContext(EventHomeContext)
@@ -92,7 +94,7 @@ function ComponentName() {
             const location = {lat: Number(marker.lat), lng: Number(marker.lng)}
             GoogleMapRef.current!.setCenter(location)
             if (zoom) {
-                GoogleMapRef.current!.setZoom(14)
+                GoogleMapRef.current!.setZoom(defaultZoom)
             }
 
             setTimeout(() => {
@@ -255,7 +257,7 @@ function ComponentName() {
                     lat: -34.397,
                     lng: 150.644
                 },
-                zoom: 14,
+                zoom: defaultZoom,
                 mapId: eventGroup.id === 1984 ? '2c7555ce0787c1b' : 'e2f9ddc0facd5a80',
             })
         }
