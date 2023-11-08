@@ -13,12 +13,12 @@ dayjs.extend(utc)
 dayjs.extend(timezone)
 
 
-function mapTimezone(value: any) {
+export function mapTimezone(value: any) {
     const target =  timezoneList.find((item) => {
         return item.id === value
     })
 
-    console.log('timezoone', value, target)
+    if (!target) return {id: 'UTC', label: 'UTC (GMT+0:00)'}
     return target
 }
 

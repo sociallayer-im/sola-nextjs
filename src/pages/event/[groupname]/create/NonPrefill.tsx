@@ -653,6 +653,7 @@ function CreateEvent(props: CreateEventPageProps) {
             host_info: creator && creator.is_group ? creator.id + '' : undefined,
             interval: repeat || undefined,
             repeat_ending_time: repeatEnd || undefined,
+            timezone,
             lng,
             lat
         }
@@ -980,7 +981,7 @@ function CreateEvent(props: CreateEventPageProps) {
                             </div>
                         }
 
-                        {
+                        { false &&
                             <div className='input-area'>
                                 <div className='input-area-title'>{lang['Activity_Form_Starttime']}</div>
                                 <AppDateInput value={start} onChange={(data) => {
@@ -990,7 +991,7 @@ function CreateEvent(props: CreateEventPageProps) {
                             </div>
                         }
 
-                        {hasDuration &&
+                        {false && hasDuration &&
                             <div className='input-area'>
                                 <div className='input-area-title'>{lang['Activity_Form_Ending']}</div>
                                 <AppDateInput value={ending} onChange={(data) => {
@@ -1003,6 +1004,7 @@ function CreateEvent(props: CreateEventPageProps) {
                         {startTimeError && <div className={'start-time-error'}>
                             {lang['Activity_Form_Ending_Time_Error']}
                         </div>}
+
 
                         {!!eventGroup && ((isEditMode && formReady) || !isEditMode) &&
                             <LocationInput
@@ -1019,13 +1021,6 @@ function CreateEvent(props: CreateEventPageProps) {
                                 }}/>
                         }
 
-                        <div className='input-area'>
-                            <div className='input-area-title'>{lang['Activity_Form_Details']}</div>
-                            <ReasonInput unlimited value={content} onChange={(value) => {
-                                setContent(value)
-                            }}/>
-                        </div>
-
                         {eventType === 'event' &&
                             <div className='input-area'>
                                 <div className='input-area-title'>{lang['Activity_Form_online_address']}</div>
@@ -1039,6 +1034,13 @@ function CreateEvent(props: CreateEventPageProps) {
                                     placeholder={'Url...'}/>
                             </div>
                         }
+
+                        <div className='input-area'>
+                            <div className='input-area-title'>{lang['Activity_Form_Details']}</div>
+                            <ReasonInput unlimited value={content} onChange={(value) => {
+                                setContent(value)
+                            }}/>
+                        </div>
 
                         {eventType === 'event' &&
                             <div className={'input-area'}>
