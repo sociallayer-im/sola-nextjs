@@ -127,3 +127,20 @@ ul[role="listbox"] {
   min-width: 200px;
   white-space: nowrap;
 }
+
+.timezone {
+  margin-bottom: 8px;
+  margin-top: 8px;
+  div[data-baseweb="select"] {
+    width: auto;
+
+    * {
+      border: 0!important;
+      color: var(--text-2-secondary, #7B7C7B);
+      font-size: 14px;
+      font-style: normal;
+      font-weight: 400;
+    }
+
+  }
+}

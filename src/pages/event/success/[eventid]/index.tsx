@@ -3,7 +3,7 @@ import Link from 'next/link'
 import {useContext, useEffect, useRef, useState} from 'react'
 import {Event, queryEventDetail} from "@/service/solas";
 import LangContext from "@/components/provider/LangProvider/LangContext";
-import useTime from "@/hooks/formatTime";
+import {formatTime} from "@/hooks/formatTime";
 import QRcode from "@/components/base/QRcode";
 import AppButton from "@/components/base/AppButton/AppButton";
 import saveCard from "@/utils/html2png";
@@ -11,6 +11,7 @@ import copy from "@/utils/copy";
 import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
 import EventHomeContext from "@/components/provider/EventHomeProvider/EventHomeContext";
 import useGetMeetingName from "@/hooks/getMeetingName";
+import {mapTimezone} from '@/components/base/AppEventTimeInput/AppEventTimeInput'
 
 
 function CreateEventSuccess() {
@@ -18,7 +19,7 @@ function CreateEventSuccess() {
     const [event, setEvent] = useState<Event | null>(null)
     const params = useParams()
     const {lang} = useContext(LangContext)
-    const formatTime = useTime()
+    // const formatTime = useTime()
     const card = useRef<any>()
     const {showToast} = useContext(DialogsContext)
     const {availableList, setEventGroup} = useContext(EventHomeContext)
@@ -70,36 +71,40 @@ function CreateEventSuccess() {
                     <div className={'event-share-card'} ref={card}>
                         <img src={event.cover} className={'cover'} alt=""/>
                         <div className={'name'}>{event.title}</div>
-                        {event.start_time &&
+                        {!!event.start_time &&
                             <div className={'time'}>
                                 <i className={'icon-calendar'}/>
                                 <div className={'start-time'}>{formatTime(event.start_time)}</div>
                                 {
                                     event.ending_time &&
                                     <>
-                                        <span>--</span>
+                                        <span>—</span>
                                         <div className={'end-time'}> {formatTime(event.ending_time)}</div>
                                     </>
                                 }
                             </div>
                         }
-
+                        {!!event.timezone &&
+                            <div className={'time'}>
+                                <div className={'event-timezone'}>{mapTimezone(event.timezone).label}</div>
+                            </div>
+                        }
                         {
-                            event.event_site && <div className={'time'}>
+                            !!event.event_site && <div className={'time'}>
                                 <i className={'icon-Outline'}/>
                                 <div>{event.event_site.title}</div>
                             </div>
                         }
 
                         {
-                            event.location && <div className={'time'}>
+                            !!event.location && <div className={'time'}>
                                 <i className={'icon-Outline'}/>
                                 <div>{event.location}{event.location_details? `(${JSON.parse(event.location_details).name})` : ''}</div>
                             </div>
                         }
 
                         {
-                            event.online_location && <div className={'time'}>
+                            !!event.online_location && <div className={'time'}>
                                 <i className={'icon-link'}/>
                                 <div>{getMeetingName(event.online_location)}</div>
                             </div>

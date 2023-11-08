@@ -3,22 +3,64 @@ import {DatePicker, TimePicker} from "baseui/datepicker";
 import LangContext from "../../provider/LangProvider/LangContext";
 import Toggle from "../Toggle/Toggle";
 import {Select} from "baseui/select";
+import timezoneList, {locateTimeTransfer} from "@/utils/timezone";
+import * as dayjsLib from 'dayjs'
 
+const utc = require('dayjs/plugin/utc')
+const timezone = require('dayjs/plugin/timezone')
+const dayjs: any = dayjsLib
+dayjs.extend(utc)
+dayjs.extend(timezone)
+
+
+export function mapTimezone(value: any) {
+    const target =  timezoneList.find((item) => {
+        return item.id === value
+    })
+
+    if (!target) return {id: 'UTC', label: 'UTC (GMT+0:00)'}
+    return target
+}
+
+function output (date: Date, timezone: string) {
+    const year = date.getFullYear()
+    const month = date.getMonth() + 1
+    const day = date.getDate()
+    const hours = date.getHours()
+    const minute = date.getMinutes()
+
+    const str =  `${year}-${month}-${day} ${hours}:${minute}`
+    return dayjs.tz(str, timezone).toISOString()
+}
+
+function input (dateStr: string, timezone: string ) {
+    const date = new Date(dateStr)
+    const diff = dayjs.tz('2023-01-01 00:00', timezone).diff(dayjs.tz('2023-01-01 00:00', localeTimezone), 'millisecond')
+    return new Date(date.getTime() - diff)
+}
+
+const localeTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone
 
 interface AppDateInputProps {
     from: string
     to: string
     repeat?: string,
     arrowRepeat?: boolean,
-    onChange: (value: { from: string, to: string, repeat: string, repeatEndingTime: string }) => any
+    timezone: string,
+    onChange: (value: {
+        from: string,
+        to: string,
+        repeat: string,
+        timezone: string,
+        repeatEndingTime: string }) => any
 }
 
 function AppDateInput({arrowRepeat = true, ...props}: AppDateInputProps) {
     const {lang} = useContext(LangContext)
-    const [from, setFrom] = useState(new Date(props.from))
-    const [to, setTo] = useState(new Date(props.to))
+    const [from, setFrom] = useState(input(props.from, props.timezone))
+    const [to, setTo] = useState(input(props.to, props.timezone))
     const [allDay, setAllDay] = useState(false)
-
+    const [timezone, setTimezone] = useState([mapTimezone(props.timezone)])
     const history = useRef<[Date, Date]>([from, to])
 
     const repeatOptions: any = [
@@ -126,26 +168,33 @@ function AppDateInput({arrowRepeat = true, ...props}: AppDateInputProps) {
     }
 
     useEffect(() => {
-        console.log(from.toLocaleString(), '→', to.toLocaleString(), repeat[0].id)
         // repeatEndingTime 是to的一年后
-        const repeatEndingTime = new Date(to.getFullYear() + 1, to.getMonth(), to.getDate(), to.getHours(), to.getMinutes()).toISOString()
-        props.onChange({
-            from: from.toISOString(),
-            to: to.toISOString(),
-            repeat: repeat[0].id,
-            repeatEndingTime
-        })
-    }, [from, to, repeat])
+        const toTime = new Date(output(to, timezone[0]!.id))
+        const repeatEndingTime = new Date(toTime.getFullYear() + 1, toTime.getMonth(), toTime.getDate(), toTime.getHours(), toTime.getMinutes()).toISOString()
+        const res = {
+            from: output(from, timezone[0]!.id),
+            to: output(to, timezone[0]!.id),
+            repeat: repeat[0]!.id,
+            repeatEndingTime,
+            timezone: timezone[0]!.id
+        }
+
+
+        console.log('duration',res)
+        console.log(res.from, '→', res.to, repeat[0]!.id)
+        props.onChange(res)
+    }, [from, to, repeat, timezone])
 
     useEffect(() => {
         if ((new Date(props.to).getTime() - new Date(props.from).getTime() + 60000) % 8640000 === 0) {
             setAllDay(true)
         }
 
-        setFrom(new Date(props.from))
-        setTo(new Date(props.to))
+        setFrom(input(props.from, props.timezone))
+        setTo(input(props.to, props.timezone))
+        setTimezone([mapTimezone(props.timezone)])
 
-    }, [props.from, props.to, props.repeat])
+    }, [props.from, props.to, props.repeat, props.timezone])
 
 
     return (<>
@@ -220,6 +269,22 @@ function AppDateInput({arrowRepeat = true, ...props}: AppDateInputProps) {
             }
 
             <div className={'duration'}>{calculateDuration(from, to)}</div>
+        </div>
+
+        <div className={'timezone'}>
+            <Select
+                clearable={false}
+                searchable={true}
+                creatable={false}
+                options={timezoneList}
+                value={timezone as any}
+                placeholder=""
+                onChange={params => {
+                    if (params.type === 'select') {
+                        setTimezone(params.value as any)
+                    }
+                }}
+            />
         </div>
 
         <div className={'all-day-repeat'}>

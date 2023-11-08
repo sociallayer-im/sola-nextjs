@@ -123,6 +123,7 @@ function CreateEvent(props: CreateEventPageProps) {
     const [locationDetail, setLocationDetail] = useState('')
     const [telegram, setTelegram] = useState('')
     const [telegramError, setTelegramError] = useState('')
+    const [timezone, setTimezone] = useState<string>(Intl.DateTimeFormat().resolvedOptions().timeZone)
 
     const [start, setStart] = useState(initTime[0].toISOString())
     const [ending, setEnding] = useState(initTime[1].toISOString())
@@ -450,6 +451,10 @@ function CreateEvent(props: CreateEventPageProps) {
                 setLocationDetail(event.location_details)
             }
 
+            if (event.timezone) {
+                setTimezone(event.timezone)
+            }
+
             setFormReady(true)
         }
 
@@ -648,6 +653,7 @@ function CreateEvent(props: CreateEventPageProps) {
             host_info: creator && creator.is_group ? creator.id + '' : undefined,
             interval: repeat || undefined,
             repeat_ending_time: repeatEnd || undefined,
+            timezone,
             lng,
             lat
         }
@@ -786,6 +792,7 @@ function CreateEvent(props: CreateEventPageProps) {
             telegram_contact_group: telegram || null,
             location_details: locationDetail,
             repeat_event_id: currEvent!.repeat_event_id || undefined,
+            timezone,
             lng,
             lat
         }
@@ -958,16 +965,22 @@ function CreateEvent(props: CreateEventPageProps) {
                         {(!isEditMode || (!!currEvent && !currEvent.repeat_event_id)) &&
                             <div className='input-area'>
                                 <div className='input-area-title'>{lang['Activity_Form_Starttime']}</div>
-                                <AppEventTimeInput from={start} to={ending} arrowRepeat={!currEvent} onChange={e => {
-                                    setStart(e.from)
-                                    setEnding(e.to)
-                                    setRepeat(e.repeat as any || null)
-                                    setRepeatEnd(e.repeatEndingTime as any || null)
-                                }}/>
+                                <AppEventTimeInput
+                                    from={start}
+                                    to={ending}
+                                    arrowRepeat={!currEvent}
+                                    timezone={timezone}
+                                    onChange={e => {
+                                        setStart(e.from)
+                                        setEnding(e.to)
+                                        setRepeat(e.repeat as any || null)
+                                        setRepeatEnd(e.repeatEndingTime as any || null)
+                                        setTimezone(e.timezone as any || null)
+                                    }}/>
                             </div>
                         }
 
-                        {false &&
+                        { false &&
                             <div className='input-area'>
                                 <div className='input-area-title'>{lang['Activity_Form_Starttime']}</div>
                                 <AppDateInput value={start} onChange={(data) => {
@@ -991,6 +1004,7 @@ function CreateEvent(props: CreateEventPageProps) {
                             {lang['Activity_Form_Ending_Time_Error']}
                         </div>}
 
+
                         {!!eventGroup && ((isEditMode && formReady) || !isEditMode) &&
                             <LocationInput
                                 initValue={isEditMode ? {
@@ -1006,13 +1020,6 @@ function CreateEvent(props: CreateEventPageProps) {
                                 }}/>
                         }
 
-                        <div className='input-area'>
-                            <div className='input-area-title'>{lang['Activity_Form_Details']}</div>
-                            <ReasonInput unlimited value={content} onChange={(value) => {
-                                setContent(value)
-                            }}/>
-                        </div>
-
                         {eventType === 'event' &&
                             <div className='input-area'>
                                 <div className='input-area-title'>{lang['Activity_Form_online_address']}</div>
@@ -1026,6 +1033,13 @@ function CreateEvent(props: CreateEventPageProps) {
                                     placeholder={'Url...'}/>
                             </div>
                         }
+
+                        <div className='input-area'>
+                            <div className='input-area-title'>{lang['Activity_Form_Details']}</div>
+                            <ReasonInput unlimited value={content} onChange={(value) => {
+                                setContent(value)
+                            }}/>
+                        </div>
 
                         {eventType === 'event' &&
                             <div className={'input-area'}>
