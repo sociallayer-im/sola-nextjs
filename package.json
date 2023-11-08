@@ -15,7 +15,7 @@
     "query-string": "6.13.5"
   },
   "dependencies": {
-    "@vercel/analytics": "^1.0.1",
+    "@vercel/analytics": "^1.1.1",
     "@zxing/library": "^0.20.0",
     "add": "^2.0.6",
     "alchemy-sdk": "^2.10.1",

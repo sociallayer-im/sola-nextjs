@@ -2,7 +2,7 @@ import React from 'react';
 import '@/styles/index.sass'
 import NextNProgress from 'nextjs-progressbar';
 import Script from 'next/script'
-
+import { Analytics } from '@vercel/analytics/react';
 import Layout from "@/components/Layout/Layout";
 
 // providers
@@ -67,6 +67,7 @@ function MyApp({Component, pageProps}: any) {
                                                         <NextNProgress options={{showSpinner: false}}/>
                                                         <Component {...pageProps} />
                                                         <Subscriber />
+                                                        <Analytics />
                                                     </Layout>
                                                 </EventHomeProvider>
                                             </MapProvider>
