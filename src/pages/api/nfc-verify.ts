@@ -1,4 +1,5 @@
 import type {NextApiRequest, NextApiResponse} from 'next'
+import path from "path";
 
 import {
     createProofInstance,
@@ -35,7 +36,7 @@ export const urlVerification = async (
         N,
         pathToCircuits,
     });
-    console.log('=======', proofInstance)
+
     const {verified, consumedSigNullifiers} = await proofInstance.verify(
         decodedProof
     );
@@ -87,14 +88,14 @@ export default function handler(
             collectionPubKeys,
             sigNullifierRandomness,
             N,
-            './public/',
+            process.env.NODE_ENV === 'production' ? path.resolve('public/') + '/' : './public/',
         )
             .then(result => {
                 if (result.res) {
                     console.log('consumedSigNullifiers', result.consumedSigNullifiers)
                     // todo find marker
                     // todo handle chackin
-                    res.status(200).json({result: 'ok', marker_id: 3} as any )
+                    res.status(200).json({result: 'ok', marker_id: 3} as any)
                 } else {
                     res.status(200).json({result: 'fail', message: 'Invalid proof'} as any)
                 }
@@ -103,8 +104,7 @@ export default function handler(
                 console.error('err', err)
                 res.status(500).json({result: 'fail', message: err.message} as any)
             })
-    }
-    else {
+    } else {
         res.status(404).json({result: 'fail', message: 'api not exits'} as any)
     }
 }
