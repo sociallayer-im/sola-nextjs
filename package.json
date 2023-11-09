@@ -48,7 +48,10 @@
     "swiper": "^9.1.0",
     "wagmi": "^1.4.3",
     "web3-utils": "^1.8.2",
-    "window-metadata": "^1.0.1"
+    "window-metadata": "^1.0.1",
+    "@noble/secp256k1": "1.6.0",
+    "babyjubjub-ecdsa": "^1.1.2",
+    "js-sha256": "^0.10.1"
   },
   "devDependencies": {
     "@next/bundle-analyzer": "^13.5.5",
