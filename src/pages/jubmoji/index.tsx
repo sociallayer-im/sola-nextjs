@@ -19,7 +19,7 @@ function Page() {
     const timeOutRef = useRef<any>(null)
 
     useEffect(() => {
-        if (user.authToken && searchParams?.get('proof') && !verifying) {
+        if (user.authToken && searchParams?.get('proof') && !verifying && !errorMsg && !success) {
             setVerifying(true)
             verifyAndChecking({proof: searchParams!.get('proof')!, auth_token: user.authToken})
                 .then(res => {
@@ -31,7 +31,7 @@ function Page() {
                 })
                 .catch((e: any) => {
                     console.error(e)
-                    setErrorMsg(e.message)
+                    setErrorMsg('Verify failed')
                     setVerifying(false)
                 })
         }
@@ -65,7 +65,7 @@ function Page() {
             </>
         }
 
-        {!user.authToken &&
+        {!user.authToken && !islogining &&
             <div className={styles['action']}>
                 <AppButton special
                            onClick={openConnectWalletDialog}>Login to continue</AppButton>
@@ -77,14 +77,18 @@ function Page() {
                 <div className={styles['error-msg']}>Error: Invalid proof params</div>
                 <div className={styles['action']}>
                     <AppButton special
-                               onClick={openConnectWalletDialog}>Home</AppButton>
+                               onClick={() => {router.push('/')}}>Home</AppButton>
                 </div>
             </>
         }
 
-        {errorMsg &&
+        {errorMsg && user.authToken &&
             <>
                 <div className={styles['error-msg']}>{errorMsg}</div>
+                <div className={styles['action']}>
+                    <AppButton special
+                               onClick={() => {router.push('/')}}>Home Page</AppButton>
+                </div>
             </>
         }
 
