@@ -83,7 +83,7 @@ export default function handler(
         }
 
         const verify = urlVerification(
-            proof,
+            proof!,
             collectionPubKeys,
             sigNullifierRandomness,
             N,
