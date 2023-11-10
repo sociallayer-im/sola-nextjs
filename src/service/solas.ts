@@ -2852,6 +2852,21 @@ export async function zupassLogin(props: {
     return res.data.auth_token as string
 }
 
+export async function jubmojiCheckin(props: {
+    id: number,
+    auth_token: string,
+    reaction_type: string,
+}) {
+    const res = await fetch.post({
+        url: `${api}/marker/check_jubmoji`,
+        data: props
+    })
+
+    if (res.data.result === 'error') {
+        throw new Error(res.data.message)
+    }
+}
+
 export default {
     removeMarker,
     queryMarkers,
