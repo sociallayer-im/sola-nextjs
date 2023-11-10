@@ -130,6 +130,26 @@ function UserProvider (props: UserProviderProps) {
         setUserInfo(emptyUser)
     }
 
+    const zupassLogin = async () => {
+        const loginType = AuthStorage.getLastLoginType()
+        if (!loginType) return
+        if (loginType !== 'zupass') return
+
+        console.log('Login ...')
+        console.log('Login type: ', loginType)
+
+        const emailAuthInfo = AuthStorage.getEmailAuth()
+        if (!emailAuthInfo) return
+
+        const authToken = emailAuthInfo.authToken
+        const email = emailAuthInfo.email
+        console.log('Login email: ', email)
+        console.log('Storage token: ', authToken)
+
+        await setProfile({ authToken })
+        setAuth(email, authToken)
+    }
+
     const emailLogin = async () => {
         const loginType = AuthStorage.getLastLoginType()
         if (!loginType) return
@@ -228,8 +248,10 @@ function UserProvider (props: UserProviderProps) {
             await setProfile({ authToken })
         } else if (loginType === 'email') {
             await setProfile({ authToken })
-        }else if (loginType === 'phone') {
+        } else if (loginType === 'phone') {
             await setProfile({ authToken })
+        } else if (loginType == 'zupass') {
+            setProfile({ authToken })
         }
     }
 
@@ -256,7 +278,7 @@ function UserProvider (props: UserProviderProps) {
     }, [newProfile])
 
     return (
-        <UserContext.Provider value={{ user: userInfo, setUser, logOut, emailLogin, walletLogin, phoneLogin}}>
+        <UserContext.Provider value={{ user: userInfo, setUser, logOut, emailLogin, walletLogin, phoneLogin, zupassLogin}}>
             { props.children }
         </UserContext.Provider>
     )

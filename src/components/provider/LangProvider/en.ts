@@ -152,7 +152,7 @@ const langEN = {
     Landing_Button: 'Get Start',
     Landing_Badge_Receive: 'Login to receive',
     WhatsApp_Share: slotLang('{domain} send you an NFT badge: {badge}. Go get it! {url}'),
-    Login_Title: 'Login with Email',
+    Login_Title: 'Login using Email',
     Login_alert: 'Please enter a email address',
     Login_solar: 'Login with Social Layer',
     Login_continue: 'Continue',

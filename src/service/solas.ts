@@ -87,22 +87,22 @@ export async function getProfile(props: GetProfileProps): Promise<Profile | null
     if (isMaodao && res.data.profile?.address) {
         const maodaonft = await Alchemy.getMaodaoNft(res.data.profile?.address)
         if (maodaonft.length) {
-           try {
-               maodaoProfile = await fetch.get({
-                   url: `https://metadata.readyplayerclub.com/api/rpc-fam/${maodaonft[0].id}`,
-                   data: {}
-               }) as any
-               res.data.profile.nickname = maodaoProfile?.data.info.owner
-               res.data.profile.image_url = maodaoProfile?.data.image
-           } catch (e) {
-               const zeroPad = (num: string) => {
-                   // 使用正则匹配出第一个数字，然后补0
-                   const numStr = num.split('（')[0]
-                   return String(numStr).padStart(4, '0')
-               }
-               res.data.profile.nickname = maodaonft[0].id
-               res.data.profile.image_url = `https://asset.maonft.com/rpc/${zeroPad(maodaonft[0].id)}.png`
-           }
+            try {
+                maodaoProfile = await fetch.get({
+                    url: `https://metadata.readyplayerclub.com/api/rpc-fam/${maodaonft[0].id}`,
+                    data: {}
+                }) as any
+                res.data.profile.nickname = maodaoProfile?.data.info.owner
+                res.data.profile.image_url = maodaoProfile?.data.image
+            } catch (e) {
+                const zeroPad = (num: string) => {
+                    // 使用正则匹配出第一个数字，然后补0
+                    const numStr = num.split('（')[0]
+                    return String(numStr).padStart(4, '0')
+                }
+                res.data.profile.nickname = maodaonft[0].id
+                res.data.profile.image_url = `https://asset.maonft.com/rpc/${zeroPad(maodaonft[0].id)}.png`
+            }
         }
     }
 
@@ -2756,7 +2756,7 @@ export interface MarkerCheckinDetail {
     created_at: string,
 }
 
-    export async function markersCheckinList(props: {
+export async function markersCheckinList(props: {
     id?: number,
     page?: number,
 }) {
@@ -2824,7 +2824,7 @@ export async function getVoucherCode(props: {
     return res.data.code as string
 }
 
-export async function transferGroupOwner(props: {id: number, new_owner_username: string, auth_token: string}) {
+export async function transferGroupOwner(props: { id: number, new_owner_username: string, auth_token: string }) {
     const res = await fetch.post({
         url: `${api}/group/transfer_owner`,
         data: props
@@ -2833,6 +2833,23 @@ export async function transferGroupOwner(props: {id: number, new_owner_username:
     if (res.data.result === 'error') {
         throw new Error(res.data.message)
     }
+}
+
+export async function zupassLogin(props: {
+    zupass_event_id: string,
+    zupass_product_id: string,
+    email: string,
+    next_token: string}) {
+    const res = await fetch.post({
+        url: `${api}/profile/signin_with_zupass`,
+        data: props
+    })
+
+    if (res.data.result === 'error') {
+        throw new Error(res.data.message)
+    }
+
+    return res.data.auth_token as string
 }
 
 export default {

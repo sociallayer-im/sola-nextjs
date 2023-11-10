@@ -20,6 +20,7 @@ const UserContext  = createContext<UserContextType>({
     setUser: (data: Partial<Record<keyof User, any>>):void => {},
     logOut: ():void => {},
     walletLogin: ():void => {},
+    zupassLogin: ():void => {},
     emailLogin: ():void => {},
     phoneLogin: ():void => {}
 })
@@ -29,6 +30,7 @@ export interface UserContextType {
     walletLogin: () => any
     emailLogin: () => any
     phoneLogin: () => any
+    zupassLogin: () => any
     setUser: (data: Partial<Record<keyof User, any>>) => any,
     logOut: (data?: Partial<Record<keyof User, any>>) => any
 }
