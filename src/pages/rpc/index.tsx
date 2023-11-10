@@ -159,24 +159,30 @@ function GroupPage(props: any) {
                 </div>
                 <div className='down-side'>
                     <div className='down-side' style={{margin: '0 0 30px 0'}}>
-                        <div className='maodao-nft'>
-                            <div className={'list-title'} style={{
-                                fontWeight: 600,
-                                fontSize: '16px',
-                                lineHeight: '24px',
-                                color: 'var(--color-text-main)',
-                                marginTop: '15px',
-                                marginBottom: '15px'
-                            }}>{'RPC'}</div>
-                            <div style={{'minHeight': '202px'}}>
-                                <MaodaoNftList
-                                    queryFn={getRpc}
-                                    hasPageKey={true}
-                                    item={(item: any, key) => <CardNft key={key}
-                                                                             type={'badge'}
-                                                                             detail={item}/>}
-                                />
+                        { false &&
+                            <div className='maodao-nft'>
+                                <div className={'list-title'} style={{
+                                    fontWeight: 600,
+                                    fontSize: '16px',
+                                    lineHeight: '24px',
+                                    color: 'var(--color-text-main)',
+                                    marginTop: '15px',
+                                    marginBottom: '15px'
+                                }}>{'RPC'}</div>
+                                <div style={{'minHeight': '202px'}}>
+                                    <MaodaoNftList
+                                        queryFn={getRpc}
+                                        hasPageKey={true}
+                                        item={(item: any, key) => <CardNft key={key}
+                                                                           type={'badge'}
+                                                                           detail={item}/>}
+                                    />
+                                </div>
                             </div>
+                        }
+
+                        <div className={'maodao-event'}>
+                            <MaodaoMyEvent profile={profile} isGroup={true}/>
                         </div>
 
                         <div className='maodao-nft'>
@@ -187,7 +193,7 @@ function GroupPage(props: any) {
                                 color: 'var(--color-text-main)',
                                 marginTop: '15px',
                                 marginBottom: '15px'
-                            }}>{'Members'}</div>
+                            }}>{'RPC Fams'}</div>
                             <div style={{'minHeight': '202px'}}>
                                 <MaodaoNftList
                                     queryFn={getMaodaoMember}
@@ -196,22 +202,6 @@ function GroupPage(props: any) {
                                                                                  detail={item}/>}
                                 />
                             </div>
-                        </div>
-
-                        <div className={'maodao-event'}>
-                            <MaodaoMyEvent profile={profile} isGroup={true}/>
-                        </div>
-
-                        <div className={'maodao-event'}>
-                            {!user.authToken &&
-                                <div className={'home-login-panel'} style={{margin: '0 12px'}}>
-                                    <img src="/images/balloon.png" alt=""/>
-                                    <div className={'text'}>{lang['Activity_login_des']}</div>
-                                    <AppButton onClick={e => {
-                                        openConnectWalletDialog()
-                                    }} special size={'compact'}>{lang['Activity_login_btn']}</AppButton>
-                                </div>
-                            }
                         </div>
                     </div>
                 </div>

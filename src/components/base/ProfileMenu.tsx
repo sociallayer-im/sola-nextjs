@@ -20,7 +20,7 @@ function ProfileMenu () {
 
     const toProfile = () => {
         if (user?.maodaoid) {
-            router.push(`/maodao/${user.maodaoid}`)
+            router.push(`/rpc/${user.maodaoid}`)
         } else {
             router.push(`/profile/${user.userName}`)
         }

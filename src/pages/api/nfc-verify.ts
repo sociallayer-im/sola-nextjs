@@ -7,7 +7,7 @@ import {
 } from "@/libs/jubmoji-api/src";
 import {jubmojiCheckin} from "@/service/solas";
 
-const cardEventMap = {
+const cardEventMap: any = {
     '0403a3bf364825e32af785d1691bd4248e39457090955ea2fff4e2e6ec1f7372b2271bcf23718d930ef8a21c22876487989eda2c2a64740910ec237ef9d100e62c': 57
 }
 const cards = [
@@ -76,6 +76,7 @@ export default async function handler(
 
         if (!auth_token || !proof) {
             res.status(200).json({result: 'fail', message: 'Invalid parameters'} as any)
+            return
         }
 
         const result = await urlVerification(
@@ -88,7 +89,7 @@ export default async function handler(
             res.status(500).json({result: 'fail', message: err.message} as any)
         })
 
-        if (result.res) {
+        if (result && result.res && result.marker) {
             console.log('consumedSigNullifiers', result)
             await jubmojiCheckin({
                 reaction_type: 'message',

@@ -105,7 +105,7 @@ function DialogConnectWallet (props: DialogConnectWalletProps) {
                     <div className='connect-des'>{ lang['Login_Phone_Title'] }</div>
                 </div>
             }
-            {
+            {(window.location.origin.includes('zumap') || window.location.origin.includes('localhost')) &&
                 <div className='connect-item' onClick={ login }>
                     <img src="/images/zupass.png" alt="email"/>
                     <div className='connect-name'>Zupass</div>

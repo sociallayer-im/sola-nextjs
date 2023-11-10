@@ -29,7 +29,11 @@ function ComponentName () {
                 window.localStorage.removeItem('fallback')
                 router.push(path)
             } else {
-                router.push(`/profile/${user.userName}`)
+                if (user?.maodaoid) {
+                    router.push(`/rpc/${user.maodaoid}`)
+                } else {
+                    router.push(`/profile/${user.userName}`)
+                }
             }
         }
     }, [user.domain, user.email])
