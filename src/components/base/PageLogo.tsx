@@ -21,6 +21,8 @@ function PageLogo() {
     const [css] = useStyletron()
     const {theme} = useContext(ColorSchemeContext)
     const [isMobile, setIsMobile] = useState(false)
+    const [isZugame, setIsZugame] = useState(false)
+    const [ready, setReady] = useState(false)
 
     const imgStyle = {
         height: '32px',
@@ -45,6 +47,9 @@ function PageLogo() {
 
     useEffect(() => {
         if (typeof window !== 'undefined') {
+            setIsZugame(window.location.host.includes('zugame.org'))
+            setReady(true)
+
             setMobile()
             window.addEventListener('resize', setMobile, false)
             return () => {
@@ -53,15 +58,24 @@ function PageLogo() {
         }
     }, [])
 
+
     return (<Logo>
-        {!isMaodao &&
-        true ?
+        {!isMaodao ?
             <>
-                <Link href={'/'}><img className={css(imgStyle)}
-                                      src={theme === 'light' ? "/images/header_logo.svg" : "/images/head_logo_dark.svg"}
-                                      alt=""/></Link>
-                <HomePageSwitcher/>
-                <MapEntry />
+                <Link href={'/'}>
+                    {isZugame && ready ?
+                        <img className={css(imgStyle)}
+                             src={"/images/zumage_logo.png"}
+                             style={{height: '24px'}}
+                             alt=""/>
+                        : <img className={css(imgStyle)}
+                               src={theme === 'light' ? "/images/header_logo.svg" : "/images/head_logo_dark.svg"}
+                               alt=""/>
+                    }
+
+                </Link>
+                {!isZugame && <HomePageSwitcher/>}
+                <MapEntry/>
             </>
             : <Link href={'/'} className={'maodao-logo'}>
                 <img className={css(imgStyle)}

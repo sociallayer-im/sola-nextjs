@@ -339,7 +339,9 @@ function ComponentName(props: {markerType: string | null}) {
             <DialogGuideFollow/>
         </div>
         <div id={'gmap'} className={styles['map-container']} ref={mapDomRef as any}/>
-        <GameMenu/>
+        { selectedType === 'Zugame' &&
+            <GameMenu/>
+        }
 
         {(eventGroup?.id === 1984 || eventGroup?.id === 1516) &&
             <div className={styles['top-menu']}>
