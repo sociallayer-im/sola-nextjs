@@ -151,8 +151,8 @@ function ComponentName(props: {markerType: string | null}) {
                             (markerTypeList as any)['Zugame'].split('#')[3]
                             : (markerTypeList as any)['Zugame'].split('#')[0]
                 : markersList[0].checkin
-                    ? (markerTypeList as any)[category].split('#')[1]
-                    : (markerTypeList as any)[category].split('#')[0]
+                    ? (markerTypeList as any)[category]?.split('#')[1] || (markerTypeList as any)['Vision Spot'].split('#')[0]
+                    : (markerTypeList as any)[category]?.split('#')[0] || (markerTypeList as any)['Vision Spot'].split('#')[0]
             content.setAttribute('src', iconUrl)
             content.className = 'map-marker'
 
@@ -349,6 +349,11 @@ function ComponentName(props: {markerType: string | null}) {
                     router.push(`/event/${eventGroup?.username}/create-marker`)
                 }}>Create a Marker +
                 </div>
+                { process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'zumap' &&
+                    <div className={styles['menu-item']} onClick={() => {
+                        router.push(`/event/${eventGroup?.username}/create-share-me`)
+                    }}>Share me + </div>
+                }
                 <div className={`${styles['menu-item']} ${!selectedType ? styles['menu-item-active'] : ''}`}
                      onClick={() => {
                          setSelectedType('')

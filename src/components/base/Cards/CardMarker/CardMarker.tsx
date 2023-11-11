@@ -9,7 +9,7 @@ import useEvent, {EVENT} from "@/hooks/globalEvent";
 import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
 
 export const genGoogleMapUrl = (marker: Marker) => {
-    if (marker.location_detail) {
+    if (marker.location_detail && marker.location !== 'Custom location') {
         const json = JSON.parse(marker.location_detail)
         return `https://www.google.com/maps/search/?api=1&query=${json.name.split('').join('+')}`
     } else {

@@ -62,9 +62,9 @@ function PageLogo() {
                              src={"/images/zumap_logo.svg"}
                              style={{height: '20px', marginRight: '20px'}}
                              alt=""/>
-                        :<img className={css(imgStyle)}
-                              src={theme === 'light' ? "/images/header_logo.svg" : "/images/head_logo_dark.svg"}
-                              alt=""/>
+                        : <img className={css(imgStyle)}
+                               src={theme === 'light' ? "/images/header_logo.svg" : "/images/head_logo_dark.svg"}
+                               alt=""/>
                     }
 
                 </Link>

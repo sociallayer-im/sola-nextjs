@@ -322,7 +322,7 @@ function EventDetail() {
                                     <AppButton disabled>{lang['Activity_Detail_Btn_has_Cancel']}</AppButton>
                                 }
 
-                                {(isHoster || isManager) && !canceled &&
+                                {(isHoster || isManager) && !canceled && (marker.category !== 'share') &&
                                     <>
                                         <AppButton onClick={gotoModify}>{lang['Activity_Detail_Btn_Modify']}</AppButton>
                                     </>
