@@ -11,7 +11,7 @@ export default function HomePage (props: {domain: string}) {
         routerClient.push('/event/istanbul2023/map')
     }
 
-    return needRedirect ? <MapPage /> : <Page />
+    return needRedirect ? <MapPage markerType={undefined}/> : <Page />
 }
 
 export const getServerSideProps: any = (async (context: any) => {

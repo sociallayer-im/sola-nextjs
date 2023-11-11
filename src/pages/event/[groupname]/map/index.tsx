@@ -2,7 +2,7 @@ import {createRef, useContext, useEffect, useRef, useState} from 'react'
 import styles from './map.module.scss'
 import MapContext from "@/components/provider/MapProvider/MapContext";
 import EventHomeContext from "@/components/provider/EventHomeProvider/EventHomeContext";
-import {Event, Marker, markersCheckinList, Participants, queryMarkers, queryMyEvent} from "@/service/solas";
+import {Event, getProfile, Marker, markersCheckinList, Participants, queryMarkers, queryMyEvent} from "@/service/solas";
 import {Swiper, SwiperSlide} from 'swiper/react'
 import {Mousewheel, Virtual} from 'swiper'
 import CardMarker from "@/components/base/Cards/CardMarker/CardMarker";
@@ -22,7 +22,7 @@ Object.keys(MarkerCache).forEach(item => {
 
 const defaultZoom = 17
 
-function ComponentName() {
+function ComponentName(props: {markerType: string | undefined}) {
     const {Map, MapEvent, Marker, MapError, MapReady} = useContext(MapContext)
     const {eventGroup, isManager} = useContext(EventHomeContext)
     const {user} = useContext(userContext)
@@ -37,29 +37,29 @@ function ComponentName() {
     const [participants, setParticipants] = useState<Participants[]>([])
 
     const [markers, setMarkers] = useState<Marker[]>([])
-    const [selectedType, setSelectedType] = useState<string | null>(null)
+    const [selectedType, setSelectedType] = useState<string | null>(props.markerType || 'All')
     const [showList, setShowList] = useState(false)
     const [itemWidth, setItemWidth] = useState(0)
     const [currSwiperIndex, setCurrSwiperIndex] = useState(0)
 
-    const getMarker = async () => {
+    const getMarker = async (type?: any) => {
         let res: Marker[] = []
-
-        if (!selectedType) {
+        if (!type) {
             // All
             res = await queryMarkers({
                 group_id: eventGroup?.id || undefined,
                 with_checkins: user.authToken ? true : undefined,
                 auth_token: user.authToken ? user.authToken : undefined
             })
-        } else if (selectedType === 'Event') {
+        } else if (type === 'Event') {
             res = await queryMarkers({
                 marker_type: 'event',
                 group_id: eventGroup?.id || undefined,
                 with_checkins: user.authToken ? true : undefined,
                 auth_token: user.authToken ? user.authToken : undefined
             })
-        } else if (selectedType === 'Zugame') {
+        } else if (type === 'Zugame') {
+            console.log('===== Zugame')
             res = await queryMarkers({
                 group_id: eventGroup?.id || undefined,
                 with_checkins: user.authToken ? true : undefined,
@@ -76,6 +76,7 @@ function ComponentName() {
         }
 
         setMarkers(res)
+        console.log('============', type)
     }
 
     const findParent = (element: HTMLElement, className: string): null | HTMLElement => {
@@ -306,12 +307,10 @@ function ComponentName() {
         async function initData() {
             if (typeof window !== 'undefined' && eventGroup?.id && Marker) {
                 calcWidth()
-                await getMarker()
-
-                setTimeout(() => {
+                getMarker(selectedType)
+                setTimeout( () => {
                     setShowList(true)
-                }, 50)
-
+                }, 100)
                 window.addEventListener('resize', calcWidth, false)
                 return () => {
                     window.removeEventListener('resize', calcWidth, false)
@@ -324,7 +323,7 @@ function ComponentName() {
     }, [eventGroup?.id, selectedType, Marker, user.id])
 
     useEffect(() => {
-        if (searchParams?.get('type')) {
+        if (searchParams && searchParams.get('type')) {
             setSelectedType(searchParams?.get('type')!)
         }
     }, [searchParams])
@@ -433,3 +432,9 @@ function ComponentName() {
 }
 
 export default ComponentName
+
+export const getServerSideProps: any = (async (context: any) => {
+    const type = context.query?.type
+    return { props: { markerType: type} }
+})
+
