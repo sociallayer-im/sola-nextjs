@@ -22,7 +22,7 @@ Object.keys(MarkerCache).forEach(item => {
 
 const defaultZoom = 17
 
-function ComponentName(props: {markerType: string | undefined}) {
+function ComponentName(props: {markerType: string | null}) {
     const {Map, MapEvent, Marker, MapError, MapReady} = useContext(MapContext)
     const {eventGroup, isManager} = useContext(EventHomeContext)
     const {user} = useContext(userContext)
@@ -37,7 +37,7 @@ function ComponentName(props: {markerType: string | undefined}) {
     const [participants, setParticipants] = useState<Participants[]>([])
 
     const [markers, setMarkers] = useState<Marker[]>([])
-    const [selectedType, setSelectedType] = useState<string | null>(props.markerType || 'All')
+    const [selectedType, setSelectedType] = useState<string | null>(props.markerType || null)
     const [showList, setShowList] = useState(false)
     const [itemWidth, setItemWidth] = useState(0)
     const [currSwiperIndex, setCurrSwiperIndex] = useState(0)
@@ -435,6 +435,6 @@ export default ComponentName
 
 export const getServerSideProps: any = (async (context: any) => {
     const type = context.query?.type
-    return { props: { markerType: type} }
+    return { props: { markerType: type || null} }
 })
 

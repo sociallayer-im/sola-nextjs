@@ -6,12 +6,15 @@ export default function HomePage (props: {domain: string}) {
     const routerClient = useClientRouter()
 
     const needRedirect = (props.domain.includes('zumap.org'))
+    // const needRedirect = (props.domain.includes('localhost'))
+
+    console.log(needRedirect)
 
     if (needRedirect && typeof window !== 'undefined') {
         routerClient.push('/event/istanbul2023/map')
     }
 
-    return needRedirect ? <MapPage markerType={undefined}/> : <Page />
+    return needRedirect ? <MapPage markerType={null}/> : <Page />
 }
 
 export const getServerSideProps: any = (async (context: any) => {
