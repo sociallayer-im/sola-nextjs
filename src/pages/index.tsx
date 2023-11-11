@@ -1,20 +1,28 @@
 import Page from "@/pages/event/index"
 import {useRouter as useClientRouter } from "next/navigation";
 import MapPage from '@/pages/event/[groupname]/map'
+import {useEffect, useState} from "react";
 
 export default function HomePage (props: {domain: string}) {
     const routerClient = useClientRouter()
 
-    const needRedirect = (props.domain.includes('zumap.org'))
-    // const needRedirect = (props.domain.includes('localhost'))
+    // const needRedirect = (props.domain.includes('zumap.org'))
+    const [needRedirect, setNeedRedirect] = useState(props.domain.includes('zumap.org'))
 
     console.log(needRedirect)
 
-    if (needRedirect && typeof window !== 'undefined') {
-        routerClient.push('/event/istanbul2023/map')
-    }
+    useEffect(() => {
+        if (needRedirect && typeof window !== 'undefined') {
+            routerClient.push('/event/istanbul2023/map')
+            return
+        }
+    }, [needRedirect])
 
-    return needRedirect ? <MapPage markerType={null}/> : <Page />
+    return <>
+        {
+            needRedirect ?  <MapPage markerType={null}/> : <Page />
+        }
+    </>
 }
 
 export const getServerSideProps: any = (async (context: any) => {
