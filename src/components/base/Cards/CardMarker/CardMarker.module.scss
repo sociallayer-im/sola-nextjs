@@ -126,3 +126,18 @@
   display: flex;
   flex-flow: row nowrap;
 }
+
+.marker-card-bg {
+  background: var(--color-card-bg);
+  height: 180px;
+  border-radius: 20px;
+  box-sizing: border-box;
+  padding: 20px;
+  display: flex;
+  flex-flow: row nowrap;
+  width: 100%;
+  overflow: hidden;
+  justify-content: space-between;
+  background: linear-gradient(276deg, #F7DF3A -18.27%, #D2F8E8 59.84%);
+  box-shadow: 0px 0px 18px 0px rgba(0, 0, 0, 0.08);
+}

@@ -299,6 +299,12 @@
     font-size: 12px;
     font-weight: 700;
     position: relative;
+
+    &.game {
+      height: auto;
+      display: block;
+    }
+
     span {
       max-width: 120px;
       white-space: nowrap;

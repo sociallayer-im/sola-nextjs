@@ -1,0 +1,144 @@
+.zugame-menu {
+  width: 98px;
+  height: 172px;
+  flex-shrink: 0;
+  border-radius: 5.071px;
+  background: #FFF;
+  display: flex;
+  flex-flow: column nowrap;
+  position: absolute;
+  right: calc((100vw - 1050px) / 2 + 98px);
+  z-index: 99;
+  padding: 10px 0;
+  box-sizing: border-box;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.role {
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: center;
+  align-items: center;
+}
+
+.icon {
+    font-size: 30px;
+}
+
+.name {
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.des {
+  position: relative;
+  font-size: 12px;
+  color: #7B7C7B;
+  transform-origin: center;
+  transform: scale(0.8);
+}
+
+.menu {
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  border-top: 1px solid #E5E5E5;
+  padding-top: 10px;
+}
+
+.leader-board {
+  width: 100%;
+  height: 100%;
+  background: #fff;
+}
+
+.center {
+  max-width: 370px;
+  padding: 0 12px;
+  margin: 0 auto;
+  height: 100%;
+  overflow: auto;
+  position: relative;
+}
+
+.tab-titles {
+  display: flex;
+  flex-flow: row nowrap;
+  margin-top: 12px;
+}
+
+.tab-title {
+  flex: 1;
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: center;
+  align-items: center;
+  padding: 8px 0;
+  cursor: pointer;
+}
+
+.tab-title-active {
+  flex: 1;
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: center;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 2px solid var(--secondary-color-brand-43-normal, #F26692);
+  background: var(--fill-1-light-disabled, #F8F9F8);
+  box-sizing: border-box;
+}
+
+.profiles {
+  display: flex;
+  flex-flow: column nowrap;
+  margin-top: 14px;
+}
+
+.profile {
+  border-radius: 8px;
+  background: #FFF;
+  padding: 12px 20px;
+  box-shadow: 0px 1.9878px 18px 0px rgba(0, 0, 0, 0.10);
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: space-between;
+}
+
+.avatar-info {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  color: var(--text-4-headline, #272928);
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 22px;
+}
+
+.checkin-count {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+}
+
+.count {
+  margin-left: 8px;
+}
+
+.avatar {
+  height: 28px;
+  width: 28px;
+  border-radius: 50%;
+  margin-right: 10px;
+
+}
+
+@media (max-width:1050px) {
+  .zugame-menu {
+    right: 12px;
+  }
+}

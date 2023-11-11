@@ -7,6 +7,7 @@ import {myProfile, login as solaLogin} from '@/service/solas'
 import { useRouter } from 'next/navigation'
 import useEvent, {EVENT} from '../../../hooks/globalEvent'
 import {setAuth} from "@/utils/authStorage";
+import useShowRole from "@/components/zugame/RoleDialog/RoleDialog";
 
 
 import solaExtensionLogin from '../../../service/ExtensionLogin'
@@ -58,6 +59,7 @@ function UserProvider (props: UserProviderProps) {
     const { showToast, clean, showLoading } = useContext(DialogsContext)
     const router = useRouter()
     const [newProfile, _] = useEvent(EVENT.profileUpdate)
+    const showRoleDialog = useShowRole()
 
     const setUser = (data: Partial<Record<keyof User, any>>) => {
         const copyUserInfo = { ...userInfo , ...data }
@@ -100,7 +102,12 @@ function UserProvider (props: UserProviderProps) {
             //     navigate(`/profile/${profileInfo.username}`)
             // }
 
-            solaExtensionLogin.login(profileInfo!.id.toString(), profileInfo!.domain,props.authToken, profileInfo!.image_url || '')
+            if ((window.location.origin.includes('zumap') || window.location.origin.includes('localhost'))
+                && profileInfo.zugame_team) {
+                showRoleDialog(profileInfo.zugame_team)
+                window.localStorage.setItem('zugame_team', profileInfo.zugame_team)
+            }
+
         } catch (e: any) {
             console.error('[setProfile]: ', e)
             showToast('Login fail', 3000)

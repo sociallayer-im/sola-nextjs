@@ -17,7 +17,7 @@ export const genGoogleMapUrl = (marker: Marker) => {
     }
 }
 
-function CardMarker(props: { item: Marker, participants?: Participants[] }) {
+function CardMarker(props: { item: Marker, participants?: Participants[], isActive?: boolean}){
     const router = useRouter()
     const {defaultAvatar} = usePicture()
     const {user} = useContext(userContext)
@@ -27,6 +27,10 @@ function CardMarker(props: { item: Marker, participants?: Participants[] }) {
     const [_, showFollowGuide] = useEvent(EVENT.showFollowGuide)
     const {showToast, showLoading} = useContext(DialogsContext)
     const [groupHost, setGroupHost] = useState<Profile | null>(null)
+
+    const showBg = typeof window !== 'undefined'
+        && (window.location.hostname.includes('zumap') || window.location.hostname.includes('localhost'))
+        && props.isActive
 
     const handleJoin = async (e: any) => {
         e.stopPropagation()
@@ -69,7 +73,7 @@ function CardMarker(props: { item: Marker, participants?: Participants[] }) {
     }, [props.item.host_info])
 
 
-    return (<div className={styles['marker-card']} onClick={e => {
+    return (<div className={showBg ? styles['marker-card-bg'] : styles['marker-card']} onClick={e => {
         if (props.item.marker_type === 'event') {
             router.push(`/event/detail/${props.item.event_id}`)
         } else {

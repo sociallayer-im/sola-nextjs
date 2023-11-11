@@ -54,6 +54,7 @@ export interface Profile {
     banner_link_url: null | string
     group_location_details: null | string
     maodaoid?: number
+    zugame_team?: string | null
 }
 
 export interface ProfileSimple {
@@ -2675,6 +2676,8 @@ export interface Marker {
     checkin?: MarkerCheckinDetail | undefined,
     event_id: number | null,
     host_info: string | null
+    jubmoji_code?: string | null,
+    zugame_state?: string | null,
 }
 
 export interface CreateMarkerProps extends Partial<Marker> {
@@ -2683,6 +2686,11 @@ export interface CreateMarkerProps extends Partial<Marker> {
 
 export async function createMarker(props: CreateMarkerProps) {
     checkAuth(props)
+
+    if (props.category === 'Zugame') {
+        props.category = 'zugame'
+        props.marker_type = 'zugame'
+    }
 
     const res = await fetch.post({
         url: `${api}/marker/create`,
@@ -2712,6 +2720,11 @@ export async function markerDetail(markerid: number) {
 export async function saveMarker(props: CreateMarkerProps) {
     checkAuth(props)
 
+    if (props.category === 'Zugame') {
+        props.category = 'zugame'
+        props.marker_type = 'zugame'
+    }
+
     const res = await fetch.post({
         url: `${api}/marker/update`,
         data: props
@@ -2731,6 +2744,7 @@ export async function queryMarkers(props: {
     category?: string,
     with_checkins?: boolean,
     auth_token?: string,
+    jubmoji?: number
 }) {
 
     const res = await fetch.get({
@@ -2754,6 +2768,7 @@ export interface MarkerCheckinDetail {
     content: string | null,
     image_url: string | null,
     created_at: string,
+    zugame_team: string | null,
 }
 
 export async function markersCheckinList(props: {
@@ -2864,6 +2879,24 @@ export async function jubmojiCheckin(props: {
 
     if (res.data.result === 'error') {
         throw new Error(res.data.message)
+    }
+}
+
+export async function zugameInfo() {
+    const res = await fetch.get({
+        url: `${api}/marker/zugame_checkin_stats`,
+        data: {}
+    })
+
+    if (res.data.result === 'error') {
+        throw new Error(res.data.message)
+    }
+
+    return res.data.checkin_stats as {
+        a: any, b: any, c: any,
+        a_profiles: any
+        b_profiles: any
+        c_profiles: any
     }
 }
 

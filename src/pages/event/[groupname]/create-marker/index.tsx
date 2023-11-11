@@ -340,8 +340,8 @@ function ComponentName() {
                     {!markerId &&
                         <SelectorMarkerType
                             onChange={(typeInfo) => {
-                                setIcon(typeInfo[1])
                                 setCategory(typeInfo[0])
+                                setIcon(typeInfo[1])
                             }}
                             value={category}/>
                     }

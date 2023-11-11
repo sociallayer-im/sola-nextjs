@@ -2,7 +2,7 @@ import {createRef, useContext, useEffect, useRef, useState} from 'react'
 import styles from './map.module.scss'
 import MapContext from "@/components/provider/MapProvider/MapContext";
 import EventHomeContext from "@/components/provider/EventHomeProvider/EventHomeContext";
-import {Event, Marker, Participants, queryMarkers, queryMyEvent} from "@/service/solas";
+import {Event, Marker, markersCheckinList, Participants, queryMarkers, queryMyEvent} from "@/service/solas";
 import {Swiper, SwiperSlide} from 'swiper/react'
 import {Mousewheel, Virtual} from 'swiper'
 import CardMarker from "@/components/base/Cards/CardMarker/CardMarker";
@@ -10,6 +10,7 @@ import {useRouter, useSearchParams} from "next/navigation";
 import {markerTypeList} from "@/components/base/SelectorMarkerType/SelectorMarkerType";
 import userContext from "@/components/provider/UserProvider/UserContext";
 import DialogGuideFollow from "@/components/base/Dialog/DialogGuideFollow/DialogGuideFollow";
+import GameMenu from "@/components/zugame/GameMenu/GameMenu";
 
 const menuList = markerTypeList
 
@@ -57,6 +58,13 @@ function ComponentName() {
                 group_id: eventGroup?.id || undefined,
                 with_checkins: user.authToken ? true : undefined,
                 auth_token: user.authToken ? user.authToken : undefined
+            })
+        } else if (selectedType === 'Zugame') {
+            res = await queryMarkers({
+                group_id: eventGroup?.id || undefined,
+                with_checkins: user.authToken ? true : undefined,
+                auth_token: user.authToken ? user.authToken : undefined,
+                jubmoji: 1
             })
         } else {
             res = await queryMarkers({
@@ -133,7 +141,17 @@ function ComponentName() {
         markersGrouped.map((markersList, index) => {
             const category = markersList[0].category[0].toUpperCase() + markersList[0].category.slice(1)
             const content = document.createElement('img');
-            const iconUrl = markersList[0].checkin ? (markerTypeList as any)[category].split('#')[1] : (markerTypeList as any)[category].split('#')[0]
+            const iconUrl = markersList[0].jubmoji_code
+                ? markersList[0].zugame_state === 'a'
+                    ? (markerTypeList as any)['Zugame'].split('#')[2]
+                    : markersList[0].zugame_state === 'b'
+                        ? (markerTypeList as any)['Zugame'].split('#')[3]
+                        : markersList[0].zugame_state === 'c' ?
+                            (markerTypeList as any)['Zugame'].split('#')[3]
+                            : (markerTypeList as any)['Zugame'].split('#')[0]
+                : markersList[0].checkin
+                    ? (markerTypeList as any)[category].split('#')[1]
+                    : (markerTypeList as any)[category].split('#')[0]
             content.setAttribute('src', iconUrl)
             content.className = 'map-marker'
 
@@ -158,6 +176,27 @@ function ComponentName() {
                     position: {lat: Number(markerList[0].lat), lng: Number(markerList[0].lng)},
                     content: eventMarker,
                 })
+
+                if (markerList[0].jubmoji_code) {
+                    const checkLog = markersCheckinList({id: markerList[0].id, page: 1})
+                        .then(res => {
+                            const checkInList: any = {a: 0, b: 0, c: 0}
+                            if (res.length) {
+                                res.map(item => {
+                                    if (item.zugame_team) {
+                                        checkInList[item.zugame_team] = checkInList[item.zugame_team] + 1
+                                    }
+                                })
+                            }
+                            const panel = document.createElement('div');
+                            panel.className = 'marker-zugame-panel';
+                            panel.innerText = `🐦:${checkInList.a} 🧙🏻:${checkInList.b} 🐺:${checkInList.c}`
+                            const target = document.getElementById(`marker-event-${markerList[0].id}`)?.querySelector('.title')
+                            target?.classList.add('game')
+                            target?.appendChild(panel)
+
+                        })
+                }
 
                 MapEvent!.addListener(markerView, 'click', function (a: any) {
                     removeActive()
@@ -301,6 +340,8 @@ function ComponentName() {
             <DialogGuideFollow/>
         </div>
         <div id={'gmap'} className={styles['map-container']} ref={mapDomRef as any}/>
+        <GameMenu/>
+
         {(eventGroup?.id === 1984 || eventGroup?.id === 1516) &&
             <div className={styles['top-menu']}>
                 <div className={styles['menu-item']} onClick={() => {
@@ -349,7 +390,9 @@ function ComponentName() {
                     >
                         {markers.map((data, index) => {
                             return <SwiperSlide style={{width: `${itemWidth}px`}} key={index}>
-                                <CardMarker item={data} key={data.id} participants={participants}/>
+                                <CardMarker
+                                    isActive={currSwiperIndex === index}
+                                    item={data} key={data.id} participants={participants}/>
                             </SwiperSlide>
                         })
                         }
