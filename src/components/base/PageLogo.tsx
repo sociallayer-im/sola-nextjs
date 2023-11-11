@@ -4,7 +4,6 @@ import HomePageSwitcher from "../compose/HomePageSwitcher/HomePageSwitcher";
 import {ColorSchemeContext} from "@/components/provider/ColorSchemeProvider";
 import {useContext, useEffect, useState} from "react";
 import MapEntry from "@/components/base/MapEntry/MapEntry";
-import fa from "@walletconnect/legacy-modal/dist/cjs/browser/languages/fa";
 
 
 const isMaodao = process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'maodao'
@@ -58,19 +57,19 @@ function PageLogo() {
         {!isMaodao ?
             <>
                 <Link href={'/'}>
-                    { false ?
+                    {process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'zumap' ?
                         <img className={css(imgStyle)}
-                             src={theme === 'light' ? "/images/header_logo.svg" : "/images/head_logo_dark.svg"}
+                             src={"/images/zumage_logo.png"}
+                             style={{height: '20px', marginRight: '20px'}}
                              alt=""/>
-                        : <img className={css(imgStyle)}
-                               src={"/images/zumage_logo.png"}
-                               style={{height: '20px',marginRight: '20px'}}
-                               alt=""/>
+                        :<img className={css(imgStyle)}
+                              src={theme === 'light' ? "/images/header_logo.svg" : "/images/head_logo_dark.svg"}
+                              alt=""/>
                     }
 
                 </Link>
                 <HomePageSwitcher/>
-                <MapEntry />
+                <MapEntry/>
             </>
             : <Link href={'/'} className={'maodao-logo'}>
                 <img className={css(imgStyle)}
