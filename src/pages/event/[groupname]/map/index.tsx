@@ -2,7 +2,7 @@ import {createRef, useContext, useEffect, useRef, useState} from 'react'
 import styles from './map.module.scss'
 import MapContext from "@/components/provider/MapProvider/MapContext";
 import EventHomeContext from "@/components/provider/EventHomeProvider/EventHomeContext";
-import {Event, getProfile, Marker, markersCheckinList, Participants, queryMarkers, queryMyEvent} from "@/service/solas";
+import {Event, Marker, markersCheckinList, Participants, queryMarkers, queryMyEvent} from "@/service/solas";
 import {Swiper, SwiperSlide} from 'swiper/react'
 import {Mousewheel, Virtual} from 'swiper'
 import CardMarker from "@/components/base/Cards/CardMarker/CardMarker";
@@ -22,7 +22,7 @@ Object.keys(MarkerCache).forEach(item => {
 
 const defaultZoom = 17
 
-function ComponentName(props: {markerType: string | null}) {
+function ComponentName(props: { markerType: string | null }) {
     const {Map, MapEvent, Marker, MapError, MapReady} = useContext(MapContext)
     const {eventGroup, isManager} = useContext(EventHomeContext)
     const {user} = useContext(userContext)
@@ -59,12 +59,18 @@ function ComponentName(props: {markerType: string | null}) {
                 auth_token: user.authToken ? user.authToken : undefined
             })
         } else if (type === 'Zugame') {
-            console.log('===== Zugame')
             res = await queryMarkers({
                 group_id: eventGroup?.id || undefined,
                 with_checkins: user.authToken ? true : undefined,
                 auth_token: user.authToken ? user.authToken : undefined,
                 jubmoji: 1
+            })
+        } else if (type === 'Share') {
+            res = await queryMarkers({
+                category: 'share',
+                group_id: eventGroup?.id || undefined,
+                with_checkins: user.authToken ? true : undefined,
+                auth_token: user.authToken ? user.authToken : undefined,
             })
         } else {
             res = await queryMarkers({
@@ -308,7 +314,7 @@ function ComponentName(props: {markerType: string | null}) {
             if (typeof window !== 'undefined' && eventGroup?.id && Marker) {
                 calcWidth()
                 getMarker(selectedType)
-                setTimeout( () => {
+                setTimeout(() => {
                     setShowList(true)
                 }, 100)
                 window.addEventListener('resize', calcWidth, false)
@@ -339,7 +345,7 @@ function ComponentName(props: {markerType: string | null}) {
             <DialogGuideFollow/>
         </div>
         <div id={'gmap'} className={styles['map-container']} ref={mapDomRef as any}/>
-        { selectedType === 'Zugame' &&
+        {selectedType === 'Zugame' &&
             <GameMenu/>
         }
 
@@ -349,7 +355,7 @@ function ComponentName(props: {markerType: string | null}) {
                     router.push(`/event/${eventGroup?.username}/create-marker`)
                 }}>Create a Marker +
                 </div>
-                { process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'zumap' &&
+                {process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'zumap' &&
                     <div className={styles['menu-item']} onClick={() => {
                         router.push(`/event/${eventGroup?.username}/create-share-me`)
                     }}>Share me + </div>
@@ -442,6 +448,6 @@ export default ComponentName
 
 export const getServerSideProps: any = (async (context: any) => {
     const type = context.query?.type
-    return { props: { markerType: type || null} }
+    return {props: {markerType: type || null}}
 })
 

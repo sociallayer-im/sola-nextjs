@@ -5,6 +5,7 @@ import {useParams, useRouter} from "next/navigation";
 
 export const markerTypeList: any = {
     'Event': '/images/map_marker.png#/images/map_marker.png',
+    'Share': '/images/marker/Vision Spot.png#/images/marker/Vision Spot_checked.png',
     'Zugame': '/images/marker/Zugame.png#/images/marker/Zugame_checked.png#/images/marker/Zugame_checked_a.png#/images/marker/Zugame_checked_b.png#/images/marker/Zugame_checked_c.png',
     'Utility Table': '/images/marker/Utility Table.png#/images/marker/Utility Table_checked.png',
     'Merkle training ground': '/images/marker/Merkle training ground.png#/images/marker/Merkle training ground_checked.png',

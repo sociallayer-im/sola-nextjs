@@ -219,7 +219,7 @@ function ComponentName() {
             })
             unload()
             showToast('Save Success', 500)
-            router.push(`/event/detail-marker/${markerId}`)
+            router.push(`/event/istanbul2023/map?type=Share`)
         } catch (e: any) {
             console.error(e)
             unload()
@@ -256,7 +256,7 @@ function ComponentName() {
     useEffect(() => {
         if (typeof  navigator !== 'undefined') {
             navigator.geolocation.getCurrentPosition((data) => {
-                console.log('=========', data)
+                // console.log('=========', data)
                 const location = {
                     geometry: {
                         location: {
