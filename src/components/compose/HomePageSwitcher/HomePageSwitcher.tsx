@@ -5,7 +5,7 @@ import {Profile} from "@/service/solas";
 import {usePathname, useRouter, useParams} from "next/navigation";
 import EventHomeContext from "../../provider/EventHomeProvider/EventHomeContext";
 
-function HomePageSwitcher() {
+function HomePageSwitcher(props: {show?: boolean}) {
     const {lang} = useContext(langContext)
     const [showList, setShowList] = useState(false)
     const params = useParams()
@@ -60,48 +60,52 @@ function HomePageSwitcher() {
         router.push(`/event/${group.username}`)
     }
 
-    return (<div className={'home-page-switcher'}>
-        <div className={'group-page active'}>
-            <div onClick={
-                e => {
-                    if (eventGroup) {
-                        setSelect(eventGroup)
-                    }
-                }
-            }>
-                {eventGroup ?
-                    leadingEvent?.id === eventGroup.id ?
-                        leadingEvent.logo ? <img src={leadingEvent.logo} alt={''}/>
-                            : (eventGroup.nickname || eventGroup.username)
-                        : (eventGroup.nickname || eventGroup.username)
-                    : lang['Nav_Event_Page']
-                }
-            </div>
-            <TriangleDown className={'toggle'} onClick={switchList} size={18} />
-        </div>
-        {showList &&
-            <div className={'group-list'}>
-                <div className={'shell'} onClick={switchList}/>
-                <div className={'list-content'}>
-                    {
-                        availableList.map((group, index) => {
-                            return <div className={group.id === eventGroup?.id ? 'list-item active' : 'list-item'}
-                                        key={index}
-                                        onClick={() => {
-                                            setSelect(group)
-                                            switchList()
-                                        }}>
-                                {leadingEvent?.id === group.id ?
-                                    leadingEvent.logo ? <img src={leadingEvent.logo} alt={''}/>
-                                        : (group.nickname || group.username)
-                                    : (group.nickname || group.username)}
-                            </div>
-                        })
-                    }
+    return (<>
+        { props.show &&
+            <div className={'home-page-switcher'}>
+                <div className={'group-page active'}>
+                    <div onClick={
+                        e => {
+                            if (eventGroup) {
+                                setSelect(eventGroup)
+                            }
+                        }
+                    }>
+                        {eventGroup ?
+                            leadingEvent?.id === eventGroup.id ?
+                                leadingEvent.logo ? <img src={leadingEvent.logo} alt={''}/>
+                                    : (eventGroup.nickname || eventGroup.username)
+                                : (eventGroup.nickname || eventGroup.username)
+                            : lang['Nav_Event_Page']
+                        }
+                    </div>
+                    <TriangleDown className={'toggle'} onClick={switchList} size={18} />
                 </div>
+                {showList &&
+                    <div className={'group-list'}>
+                        <div className={'shell'} onClick={switchList}/>
+                        <div className={'list-content'}>
+                            {
+                                availableList.map((group, index) => {
+                                    return <div className={group.id === eventGroup?.id ? 'list-item active' : 'list-item'}
+                                                key={index}
+                                                onClick={() => {
+                                                    setSelect(group)
+                                                    switchList()
+                                                }}>
+                                        {leadingEvent?.id === group.id ?
+                                            leadingEvent.logo ? <img src={leadingEvent.logo} alt={''}/>
+                                                : (group.nickname || group.username)
+                                            : (group.nickname || group.username)}
+                                    </div>
+                                })
+                            }
+                        </div>
+                    </div>
+                }
             </div>
         }
-    </div>)
+    </>)
 }
 
 export default HomePageSwitcher

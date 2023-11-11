@@ -4,6 +4,7 @@ import HomePageSwitcher from "../compose/HomePageSwitcher/HomePageSwitcher";
 import {ColorSchemeContext} from "@/components/provider/ColorSchemeProvider";
 import {useContext, useEffect, useState} from "react";
 import MapEntry from "@/components/base/MapEntry/MapEntry";
+import fa from "@walletconnect/legacy-modal/dist/cjs/browser/languages/fa";
 
 
 const isMaodao = process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'maodao'
@@ -21,8 +22,6 @@ function PageLogo() {
     const [css] = useStyletron()
     const {theme} = useContext(ColorSchemeContext)
     const [isMobile, setIsMobile] = useState(false)
-    const [isZugame, setIsZugame] = useState(false)
-    const [ready, setReady] = useState(false)
 
     const imgStyle = {
         height: '32px',
@@ -47,9 +46,6 @@ function PageLogo() {
 
     useEffect(() => {
         if (typeof window !== 'undefined') {
-            setIsZugame(window.location.host.includes('zugame.org'))
-            setReady(true)
-
             setMobile()
             window.addEventListener('resize', setMobile, false)
             return () => {
@@ -58,24 +54,23 @@ function PageLogo() {
         }
     }, [])
 
-
     return (<Logo>
         {!isMaodao ?
             <>
                 <Link href={'/'}>
-                    {isZugame && ready ?
+                    { false ?
                         <img className={css(imgStyle)}
-                             src={"/images/zumage_logo.png"}
-                             style={{height: '24px'}}
+                             src={theme === 'light' ? "/images/header_logo.svg" : "/images/head_logo_dark.svg"}
                              alt=""/>
                         : <img className={css(imgStyle)}
-                               src={theme === 'light' ? "/images/header_logo.svg" : "/images/head_logo_dark.svg"}
+                               src={"/images/zumage_logo.png"}
+                               style={{height: '20px',marginRight: '20px'}}
                                alt=""/>
                     }
 
                 </Link>
-                {!isZugame && <HomePageSwitcher/>}
-                <MapEntry/>
+                <HomePageSwitcher/>
+                <MapEntry />
             </>
             : <Link href={'/'} className={'maodao-logo'}>
                 <img className={css(imgStyle)}
