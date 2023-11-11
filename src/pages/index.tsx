@@ -19,6 +19,7 @@ export default function HomePage (props: {domain: string}) {
 
 export const getServerSideProps: any = (async (context: any) => {
     const domain = context.req.rawHeaders[1]
+    console.log('visit domain: ', domain)
     return { props: { domain } }
 })
 
