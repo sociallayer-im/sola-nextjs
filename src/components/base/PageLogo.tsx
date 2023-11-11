@@ -59,7 +59,7 @@ function PageLogo() {
                 <Link href={'/'}>
                     {process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'zumap' ?
                         <img className={css(imgStyle)}
-                             src={"/images/zumage_logo.png"}
+                             src={"/images/zumap_logo.svg"}
                              style={{height: '20px', marginRight: '20px'}}
                              alt=""/>
                         :<img className={css(imgStyle)}
