@@ -253,7 +253,7 @@ function ComponentName() {
         })
     }
 
-    useEffect(() => {
+    const getLocation = () => {
         if (typeof  navigator !== 'undefined') {
             navigator.geolocation.getCurrentPosition((data) => {
                 // console.log('=========', data)
@@ -270,6 +270,10 @@ function ComponentName() {
                 setLocation(JSON.stringify(location))
             })
         }
+    }
+
+    useEffect(() => {
+        getLocation()
     }, [])
 
     useEffect(() => {
@@ -376,7 +380,15 @@ function ComponentName() {
                         }}/>
                     </div>
 
-                    <div className='input-area'></div>
+                    <div className='input-area'>
+                        <div className='input-area-title'>
+                            {'Custom location'}
+                            <span className={'get-location-btn'} onClick={getLocation}>Get location</span>
+                        </div>
+                        <AppInput
+                            readOnly
+                            value={location? `lat: ${JSON.parse(location).geometry.location.lat} lng: ${JSON.parse(location).geometry.location.lng}` : ''}/>
+                    </div>
 
                     {!markerId ?
                         <>

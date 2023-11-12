@@ -276,6 +276,14 @@
       color: var(--color-text-main);
       margin-bottom: 10px;
       margin-left: 10px;
+
+      .get-location-btn {
+        color: #58a7ff;
+        margin-left: 12px;
+        font-weight: normal;
+        font-size: 13px;
+        cursor: pointer;
+      }
     }
 
     .input-area-sub-title {
