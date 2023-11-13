@@ -509,7 +509,7 @@ function EventDetail() {
                                         <AppButton disabled>{lang['Activity_Detail_Btn_End']}</AppButton>
                                     }
 
-                                    {isHoster && !canceled &&
+                                    {(isHoster || isManager) && !canceled &&
                                         <AppButton
                                             special
                                             onClick={e => {

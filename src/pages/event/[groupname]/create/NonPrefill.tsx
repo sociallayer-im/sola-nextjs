@@ -135,7 +135,6 @@ function CreateEvent(props: CreateEventPageProps) {
     const [enableGuest, setEnableGuest] = useState(false)
     const [hasDuration, setHasDuration] = useState(true)
     const [badgeDetail, setBadgeDetail] = useState<Badge | null>(null)
-    const [labels, setLabels] = useState<string[]>([])
     const [startTimeError, setStartTimeError] = useState('')
     const [isEditMode, setIsEditMode] = useState(!!props?.eventId)
     const [siteOccupied, setSiteOccupied] = useState(false)
@@ -476,13 +475,6 @@ function CreateEvent(props: CreateEventPageProps) {
                 prefillDraft()
             }
         }
-
-        async function fetchTags() {
-            const tags = await getHotTags()
-            setLabels(tags)
-        }
-
-        fetchTags()
         fetchEventDetail()
     }, [isEditMode])
 

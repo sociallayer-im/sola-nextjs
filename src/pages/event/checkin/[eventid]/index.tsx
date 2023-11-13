@@ -18,6 +18,7 @@ import AppButton from "@/components/base/AppButton/AppButton";
 import ListCheckinUser from "@/components/compose/ListCheckinUser/ListCheckinUser";
 import ListCheckLog from "@/components/compose/ListCheckLog/ListCheckLog";
 import useEvent, {EVENT} from "@/hooks/globalEvent";
+import EventHomeContext from "@/components/provider/EventHomeProvider/EventHomeContext";
 
 function EventCheckIn() {
     const router = useRouter()
@@ -30,6 +31,7 @@ function EventCheckIn() {
     const [hasCheckin, setHasCheckin] = useState<string[]>([])
     const [isCheckLog, setIsCheckLog] = useState(false)
     const [needUpdate, _] = useEvent(EVENT.eventCheckin)
+    const {isManager} = useContext(EventHomeContext)
 
     const {user} = useContext(userContext)
     const {showLoading, showEventCheckIn, showToast} = useContext(DialogsContext)
@@ -209,7 +211,7 @@ function EventCheckIn() {
                                 } <span>({hasCheckin.length} / {participants.length})</span>
                                 </div>
                                 <ListCheckinUser
-                                    isHost={isHoster}
+                                    isHost={isHoster || isManager}
                                     eventId={Number(params?.eventid || 0)}
                                     participants={participants}
                                 />
@@ -218,7 +220,7 @@ function EventCheckIn() {
                     </div>
                 </div>
 
-                {isHoster && event.badge_id && hasCheckin.length && <div className={'actions'}>
+                {(isHoster || isManager) && event.badge_id && hasCheckin.length && <div className={'actions'}>
                     <div className={'center'}>
                         <AppButton special onClick={e => {
                             handleSendBadge()

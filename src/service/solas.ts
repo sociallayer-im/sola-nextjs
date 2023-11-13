@@ -2196,6 +2196,7 @@ export async function inviteGuest(props: InviteGuestProp) {
     checkAuth(props)
 
     const task = props.domains.map(item => {
+        const domain = item.endsWith(process.env.NEXT_PUBLIC_SOLAS_DOMAIN) ? item : item + process.env.NEXT_PUBLIC_SOLAS_DOMAIN
         return getProfile({domain: item})
     })
 
