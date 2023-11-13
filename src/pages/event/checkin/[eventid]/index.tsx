@@ -220,7 +220,8 @@ function EventCheckIn() {
                     </div>
                 </div>
 
-                {(isHoster || isManager) && event.badge_id && hasCheckin.length && <div className={'actions'}>
+                {(isHoster || isManager) && event.badge_id && !!hasCheckin.length &&
+                    <div className={'actions'}>
                     <div className={'center'}>
                         <AppButton special onClick={e => {
                             handleSendBadge()
