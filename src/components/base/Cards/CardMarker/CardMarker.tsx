@@ -29,7 +29,7 @@ function CardMarker(props: { item: Marker, participants?: Participants[], isActi
     const [groupHost, setGroupHost] = useState<Profile | null>(null)
 
     const showBg = typeof window !== 'undefined'
-        && (window.location.hostname.includes('zumap') || window.location.hostname.includes('localhost'))
+        && process.env.NEXT_PUBLIC_SPECIAL_VERSION==='zumap'
         && props.isActive
 
     const handleJoin = async (e: any) => {
