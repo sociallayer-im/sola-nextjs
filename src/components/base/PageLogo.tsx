@@ -71,15 +71,18 @@ function PageLogo() {
                 <HomePageSwitcher/>
                 <MapEntry/>
             </>
-            : <Link href={'/'} className={'maodao-logo'}>
-                <img className={css(imgStyle)}
-                     src={theme === 'light' ? "/images/header_logo.svg" : "/images/head_logo_dark.svg"}
-                     alt=""/>
-                <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10" fill="none">
-                    <path d="M1 1L5 5M9 9L5 5M5 5L9 1M5 5L1 9" stroke="#D6D8D7" strokeWidth="0.7"/>
-                </svg>
-                <img src="/images/maodao/maodao_logo.png" alt="" width={32} height={22}/>
-            </Link>
+            : <>
+                <Link href={'/'} className={'maodao-logo'}>
+                    <img className={css(imgStyle)}
+                         src={theme === 'light' ? "/images/header_logo.svg" : "/images/head_logo_dark.svg"}
+                         alt=""/>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10" fill="none">
+                        <path d="M1 1L5 5M9 9L5 5M5 5L9 1M5 5L1 9" stroke="#D6D8D7" strokeWidth="0.7"/>
+                    </svg>
+                    <img src="/images/maodao/maodao_logo.png" alt="" width={32} height={22}/>
+                </Link>
+                <HomePageSwitcher/>
+            </>
         }
     </Logo>)
 }
