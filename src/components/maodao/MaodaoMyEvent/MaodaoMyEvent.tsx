@@ -18,7 +18,7 @@ function MaodaoMyEvent({profile, isGroup}: { profile: Profile, isGroup?: boolean
                 const res = await queryEvent({group_id: profile.id, page})
                 return  res
             } else {
-                const res = await queryMyEvent({auth_token: user.authToken!, group_id: profile.id, page})
+                const res = await queryMyEvent({auth_token: user.authToken!, group_id: 2040, page})
                 const list = res.map((item: Participants) => item.event)
                 return list
             }

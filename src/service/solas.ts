@@ -1915,6 +1915,7 @@ export async function myProfile(props: { auth_token: string }) {
             }) as any
             res.data.profile.nickname = maodaoProfile?.data.info.owner
             res.data.profile.image_url = maodaoProfile?.data.image
+            res.data.profile.maodaoid = maodaonft[0].id
         }
     }
 

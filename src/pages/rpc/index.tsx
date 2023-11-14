@@ -19,7 +19,7 @@ import fetch from '@/utils/fetch'
 import MaodaoNftList from "@/components/maodao/MaodaoNftList/MaodaoNftList";
 
 function GroupPage(props: any) {
-    const groupname = 'maodao'
+    const groupname = 'readyplayerclub'
     const [profile, setProfile] = useState<Profile | null>(null)
     const {showLoading, openConnectWalletDialog} = useContext(DialogsContext)
     const {lang} = useContext(LangContext)
