@@ -22,9 +22,10 @@ function HomePageSwitcher() {
     } = useContext(EventHomeContext)
 
     useEffect(() => {
-        if (ready && location === '/event' || ready && location === '/') {
+        if (ready && (location === '/event' || ready && location === '/')) {
             if (process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'zumap') {
-                router.push(`/event/${groupList[0].username}/map`)
+                const group = findGroup('istanbul2023')
+                setEventGroup(group)
             } else {
                 router.push(`/event/${groupList[0].username}`)
             }

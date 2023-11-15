@@ -82,7 +82,6 @@ function ComponentName(props: { markerType: string | null }) {
         }
 
         setMarkers(res)
-        console.log('============', type)
     }
 
     const findParent = (element: HTMLElement, className: string): null | HTMLElement => {
