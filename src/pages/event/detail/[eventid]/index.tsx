@@ -32,7 +32,7 @@ import EventHomeContext from "@/components/provider/EventHomeProvider/EventHomeC
 import useGetMeetingName from "@/hooks/getMeetingName";
 import Head from "next/head";
 
-function EventDetail(props: {event: Event | null}) {
+function EventDetail(props: {event: Event | null, appName: string, host: string}) {
     const router = useRouter()
     const [event, setEvent] = useState<Event | null>(props.event || null)
     const [hoster, setHoster] = useState<Profile | null>(null)
@@ -253,14 +253,14 @@ function EventDetail(props: {event: Event | null}) {
 
     return (<>
         <Head>
-            <meta property="og:title" content={`${event?.title} | ${process.env.NEXT_APP_NAME}`} />
+            <meta property="og:title" content={`${event?.title} | ${props.appName}`} />
             <meta property="og:type" content="website" />
-            <meta property="og:url" content={`${process.env.NEXT_HOST}/event/detail/${event?.id}`} />
+            <meta property="og:url" content={`${props.host}/event/detail/${event?.id}`} />
             <meta property="og:image" content={event?.cover} />
             { event?.content &&
                 <meta property="og:description" content={event?.content.slice(0, 300) + '...'} />
             }
-            <title>{`${event?.title} | ${process.env.NEXT_APP_NAME}`}</title>
+            <title>{`${event?.title} | ${props.appName}`}</title>
         </Head>
         {
             !!event &&
@@ -572,8 +572,8 @@ export const getServerSideProps: any = (async (context: any) => {
     const eventid = context.params?.eventid
     if (eventid) {
         const detail = await queryEventDetail({id: eventid})
-        return { props: { event:  detail || null} }
+        return { props: { event:  detail || null, host: process.env.NEXT_HOST, appName:  process.env.NEXT_APP_NAME},  }
     } else {
-        return { props: { event: null} }
+        return { props: { event: null, host: process.env.NEXT_HOST, appName:  process.env.NEXT_APP_NAME}}
     }
 })
