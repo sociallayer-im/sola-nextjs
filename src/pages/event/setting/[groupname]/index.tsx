@@ -38,7 +38,7 @@ function Dashboard() {
 
 
     useEffect(() => {
-        if (showEventSiteList || showSetBanner || showPermission || typeof window !== 'undefined') {
+        if ((showEventSiteList || showSetBanner || showPermission) && typeof window !== 'undefined') {
             (document.querySelector('#PageContent') as any).style.overflow = 'hidden'
         } else {
             (document.querySelector('#PageContent') as any).style.overflow = 'auto'
