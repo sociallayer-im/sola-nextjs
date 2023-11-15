@@ -253,12 +253,12 @@ function EventDetail(props: {event: Event | null, appName: string, host: string}
 
     return (<>
         <Head>
-            <meta property="og:title" content={`${event?.title} | ${props.appName}`} />
+            <meta property="og:title" itemprop="name" content={`${event?.title} | ${props.appName}`} />
             <meta property="og:type" content="website" />
             <meta property="og:url" content={`${props.host}/event/detail/${event?.id}`} />
-            <meta property="og:image" content={event?.cover} />
+            <meta property="og:image" itemprop="image" content={event?.cover} />
             { event?.content &&
-                <meta name="description" property="og:description" content={event?.content.slice(0, 300) + '...'} />
+                <meta name="description" itemprop="description" property="og:description" content={event?.content.slice(0, 300) + '...'} />
             }
             <title>{`${event?.title} | ${props.appName}`}</title>
         </Head>
