@@ -36,14 +36,13 @@ function Dashboard() {
 
     const [ready, setReady] = useState(false)
 
-
-    useEffect(() => {
-        if ((showEventSiteList || showSetBanner || showPermission) && typeof window !== 'undefined') {
+    const switchOverflow = (hidden: boolean) => {
+        if (hidden) {
             (document.querySelector('#PageContent') as any).style.overflow = 'hidden'
         } else {
             (document.querySelector('#PageContent') as any).style.overflow = 'auto'
         }
-    }, [showEventSiteList, showSetBanner, showPermission])
+    }
 
     useEffect(() => {
         if (availableList.length && params?.groupname) {
@@ -152,6 +151,7 @@ function Dashboard() {
                 <div className={'setting-form'}>
                     <div className={'setting-form-item'} onClick={e => {
                         setShowEventSiteList(true)
+                        switchOverflow(true)
                     }}>
                         <div className={'label'}>{lang['Setting_Event_site']}</div>
                         <div className={'value'}>
@@ -167,6 +167,7 @@ function Dashboard() {
 
                     <div className={'setting-form-item'} onClick={e => {
                         setShowSetBanner(true)
+                        switchOverflow(true)
                     }}>
                         <div className={'label'}>{lang['Setting_Banner']}</div>
                         <div className={'value'}>
@@ -181,6 +182,7 @@ function Dashboard() {
 
                     <div className={'setting-form-item'} onClick={e => {
                         setShowDefaultLocation(true)
+                        switchOverflow(true)
                     }}>
                         <div className={'label'}>{lang['Setting_Location']}</div>
                         <div className={'value'}>
@@ -222,6 +224,7 @@ function Dashboard() {
                         <div className={'dashboard-dialog-head'}>
                             <PageBack title={lang['Event_Site_Title']} onClose={() => {
                                 setShowEventSiteList(false)
+                                switchOverflow(false)
                             }}/>
                         </div>
                         <div className={'dialog-inner'}>
@@ -269,6 +272,7 @@ function Dashboard() {
                         <div className={'dashboard-dialog-head'}>
                             <PageBack title={lang['Setting_Banner']} onClose={() => {
                                 setShowSetBanner(false)
+                                switchOverflow(false)
                             }}/>
                         </div>
                         <div className={'dialog-inner'}>
@@ -301,6 +305,7 @@ function Dashboard() {
                         <div className={'dashboard-dialog-head'}>
                             <PageBack title={lang['Setting_Permission']} onClose={() => {
                                 setShowPermission(false)
+                                switchOverflow(false)
                             }}/>
                         </div>
                         <div className={'dialog-inner'}>
@@ -319,6 +324,7 @@ function Dashboard() {
                         <div className={'dashboard-dialog-head'}>
                             <PageBack title={lang['Setting_Location']} onClose={() => {
                                 setShowDefaultLocation(false)
+                                switchOverflow(false)
                             }}/>
                         </div>
                         <div className={'dialog-inner'}>
