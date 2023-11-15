@@ -30,10 +30,11 @@ import useShowImage from "@/hooks/showImage/showImage";
 import useCopy from "@/hooks/copy";
 import EventHomeContext from "@/components/provider/EventHomeProvider/EventHomeContext";
 import useGetMeetingName from "@/hooks/getMeetingName";
+import Head from "next/head";
 
-function EventDetail() {
+function EventDetail(props: {event: Event | null}) {
     const router = useRouter()
-    const [event, setEvent] = useState<Event | null>(null)
+    const [event, setEvent] = useState<Event | null>(props.event || null)
     const [hoster, setHoster] = useState<Profile | null>(null)
     const params = useParams()
     const {lang} = useContext(LangContext)
@@ -251,6 +252,16 @@ function EventDetail() {
     }
 
     return (<>
+        <Head>
+            <meta property="og:title" content={`${event?.title} | ${process.env.NEXT_APP_NAME}`} />
+            <meta property="og:type" content="website" />
+            <meta property="og:url" content={`${process.env.NEXT_HOST}/event/detail/${event?.id}`} />
+            <meta property="og:image" content={event?.cover} />
+            { event?.content &&
+                <meta property="og:description" content={event?.content.slice(0, 300) + '...'} />
+            }
+            <title>{`${event?.title} | ${process.env.NEXT_APP_NAME}`}</title>
+        </Head>
         {
             !!event &&
             <div className={'event-detail'}>
@@ -319,7 +330,7 @@ function EventDetail() {
                             <div className={'center'}>
                                 <div className={'host-item'}
                                      onClick={e => {
-                                         !!hoster.username && goToProfile(hoster.username, hoster.is_group || undefined)
+                                         !!hoster?.username && goToProfile(hoster.username, hoster.is_group || undefined)
                                      }}>
                                     <img src={hoster.image_url || defaultAvatar(hoster.id)} alt=""/>
                                     <div>
@@ -393,7 +404,7 @@ function EventDetail() {
                                                     !!event.wechat_contact_person &&
                                                     <div className={'wechat-account'}>{lang['Activity_Detail_Account']}
                                                         <span onClick={e => {
-                                                            copy(event.wechat_contact_person!);
+                                                            copy(event?.wechat_contact_person!);
                                                             showToast('Copied!')
                                                         }}>
                                                         {event.wechat_contact_person}
@@ -401,7 +412,7 @@ function EventDetail() {
                                                     </div>
                                                 }
                                                 <div className={'wechat-contact-group'} onClick={e => {
-                                                    showImage(event.wechat_contact_group!)
+                                                    showImage(event?.wechat_contact_group!)
                                                 }}>
                                                     <img src={event.wechat_contact_group} alt=""/>
                                                 </div>
@@ -556,3 +567,13 @@ function EventDetail() {
 }
 
 export default EventDetail
+
+export const getServerSideProps: any = (async (context: any) => {
+    const eventid = context.params?.eventid
+    if (eventid) {
+        const detail = await queryEventDetail({id: eventid})
+        return { props: { event:  detail || null} }
+    } else {
+        return { props: { event: null} }
+    }
+})
