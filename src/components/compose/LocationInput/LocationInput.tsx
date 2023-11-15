@@ -136,11 +136,17 @@ function LocationInput({arrowAlias = true, cleanable = true, ...props}: Location
     ])
 
     useEffect(() => {
+        // 285 -338
         if (showSearchRes) {
-            document.body.style.overflow = 'hidden';
-            (document.querySelector('.search-res input') as HTMLInputElement).focus()
-        } else {
-            document.body.style.overflow = 'auto'
+            // document.body.style.overflow = 'hidden';
+            const target = document.querySelector('.search-res') as HTMLElement
+            target.querySelector('input')?.focus()
+            const position = target.getBoundingClientRect()
+            if (window.innerHeight - position.top < 285) {
+               target.style.marginTop = `-338px`
+            } else {
+                // target.style.top = '0px'
+            }
         }
     }, [showSearchRes])
 
@@ -282,6 +288,11 @@ function LocationInput({arrowAlias = true, cleanable = true, ...props}: Location
                                                     </div>
                                                 })
                                             }
+                                        </div>
+                                    }
+                                    {!GmapSearchResult.length &&
+                                        <div className={'empty-list'}>
+                                            No result
                                         </div>
                                     }
                                 </div>
