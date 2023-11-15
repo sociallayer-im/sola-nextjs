@@ -173,7 +173,7 @@ function Page(props: any) {
         <ShowDomain onClick={() => {
             copyWithDialog(profile?.domain || '', lang['Dialog_Copy_Message'])
         }}>{profile?.domain}</ShowDomain>
-        {user.id === profile?.id &&
+        {!!profile?.id && user.id === profile?.id &&
             <div className='profile-setting-btn' onClick={() => {
                 goToEditProfile()
             }}><i className='icon-setting'></i></div>
