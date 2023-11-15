@@ -204,7 +204,7 @@ function MaodaoCardMembers(props: CardNftProps) {
 
 
     const showDialog = (id: string) => {
-        router.push(`/maodao/${id}`, {scroll: false})
+        router.push(`/rpc/${id}`, {scroll: false})
     }
 
     return (<div className={css(style.wrapper)} onClick={() => {
