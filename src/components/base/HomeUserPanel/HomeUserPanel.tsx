@@ -1,11 +1,13 @@
 import {useRouter} from 'next/navigation'
-import {useContext} from 'react'
+import Link from 'next/link'
+import {useContext, useEffect, useState} from 'react'
 import LangContext from '@/components/provider/LangProvider/LangContext'
 import UserContext from "@/components/provider/UserProvider/UserContext";
 import usePicture from "@/hooks/pictrue";
 import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
 import AppButton from "@/components/base/AppButton/AppButton";
 import EventHomeContext from "@/components/provider/EventHomeProvider/EventHomeContext";
+import {getGroupMembers, Profile} from "@/service/solas";
 
 function HomeUserPanel() {
     const router = useRouter()
@@ -13,61 +15,39 @@ function HomeUserPanel() {
     const {user} = useContext(UserContext)
     const {defaultAvatar} = usePicture()
     const {openConnectWalletDialog} = useContext(DialogsContext)
-    const {eventGroup} = useContext(EventHomeContext)
-
-    const date = new Date().getDate()
-    const day = new Date().getDay()
-    const mouth = new Date().getMonth()
-    const year = new Date().getFullYear()
-    const dayName = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
-    const monthName = langType === 'cn'
-        ? ['一月', '二月', '三月', '四月', '五月', '六月', '七月', "八月", '九月', '十月', '十一月', '十二月'][mouth]
-        : ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][mouth]
-
-    // 根据时间显示不同问候语
-    const greet = () => {
-        const hour = new Date().getHours()
-        if (hour >= 0 && hour < 12) {
-            return 'Good morning'
-        } else if (hour >= 12 && hour < 18) {
-            return 'Good afternoon'
-        } else {
-            return 'Good evening'
-        }
-    }
+    const {eventGroup, findGroup} = useContext(EventHomeContext)
+    const [eventGroupMembers, setEventGroupMembers] = useState<Profile[]>([])
 
     const toCalendar = () => {
         eventGroup ? router.push(`/event/${eventGroup.username}/calendar`) : router.push('/event')
     }
 
+    useEffect(() => {
+        if (eventGroup) {
+            getGroupMembers({group_id: eventGroup.id}).then(res => {
+                setEventGroupMembers(res)
+            })
+        }
+    }, [eventGroup])
+
     return <div className={'home-user-panel'}>
-        <div className={'greet'}>
-            <div className={'center'}>
-                <div className={'left-side'}>
-                    {user.userName ?
-                        <img src={user.avatar || defaultAvatar(user.id)} alt=""/>
-                        : <img src='/images/event.png' alt=""/>
-                    }
-                    <div>
-                        {user.userName ?
-                            <>
-                                <div className={'greet-text'}>{greet()}</div>
-                                <div className={'name'}>{user.nickname || user.userName}</div>
-                            </>
-                            : <div className={'main-greet'}>{greet()}</div>
-                        }
-                    </div>
-                </div>
-                <div className={'right-size'}>
-                    <div className={'date'}>{date}</div>
-                    <div>
-                        <div className={'day'}>{dayName[day]}</div>
-                        <div className={'day'}>{monthName} {year}</div>
-                    </div>
+        {!!eventGroup &&
+            <div className={'group-card'}>
+                <div className={'center'}>
+                    <Link href={`/group/${eventGroup.username}`}  className={'left'}>
+                        <img className={'avatar'} src={eventGroup?.image_url || defaultAvatar(eventGroup?.id)} alt=""/>
+                        <span>{eventGroup?.nickname || eventGroup?.username || '--'}</span>
+                    </Link>
+                    <Link href={`/group/${eventGroup.username}?tab=4`} className={'right'}>
+                        {eventGroupMembers.length} {lang['Group_detail_tabs_member'].toLowerCase()}
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                            <path d="M11.9467 7.74664C11.9149 7.6648 11.8674 7.59004 11.8067 7.52664L8.47333 4.1933C8.41117 4.13114 8.33738 4.08184 8.25617 4.0482C8.17495 4.01456 8.08791 3.99724 8 3.99724C7.82247 3.99724 7.6522 4.06777 7.52667 4.1933C7.46451 4.25546 7.4152 4.32926 7.38156 4.41047C7.34792 4.49168 7.33061 4.57873 7.33061 4.66664C7.33061 4.84417 7.40113 5.01443 7.52667 5.13997L9.72667 7.3333H4.66667C4.48986 7.3333 4.32029 7.40354 4.19526 7.52857C4.07024 7.65359 4 7.82316 4 7.99997C4 8.17678 4.07024 8.34635 4.19526 8.47137C4.32029 8.5964 4.48986 8.66664 4.66667 8.66664H9.72667L7.52667 10.86C7.46418 10.9219 7.41459 10.9957 7.38074 11.0769C7.34689 11.1582 7.32947 11.2453 7.32947 11.3333C7.32947 11.4213 7.34689 11.5084 7.38074 11.5897C7.41459 11.6709 7.46418 11.7447 7.52667 11.8066C7.58864 11.8691 7.66238 11.9187 7.74362 11.9526C7.82486 11.9864 7.91199 12.0038 8 12.0038C8.08801 12.0038 8.17515 11.9864 8.25638 11.9526C8.33762 11.9187 8.41136 11.8691 8.47333 11.8066L11.8067 8.4733C11.8674 8.4099 11.9149 8.33514 11.9467 8.2533C12.0133 8.091 12.0133 7.90894 11.9467 7.74664Z" fill="#7B7C7B"/>
+                        </svg>
+                    </Link>
                 </div>
             </div>
-        </div>
-        {  eventGroup?.banner_image_url &&
+        }
+        {eventGroup?.banner_image_url &&
             <a href={eventGroup?.banner_link_url || undefined} className={'beast-banner'} target={'_blank'}>
                 <img src={eventGroup.banner_image_url} alt=""/>
             </a>
