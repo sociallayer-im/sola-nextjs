@@ -17,7 +17,22 @@ function PageBacProvider(props: PageBacProviderProps) {
     const router = useRouter()
     const routerPathname = usePathname()
     const searchParams = useSearchParams()
-    const history = useRef<string[]>([])
+
+    const readHistory = () => {
+        if (typeof window === 'undefined') return []
+        try {
+            const history = window.localStorage.getItem('history')
+            if (history) {
+                return JSON.parse(history)
+            } else {
+                return []
+            }
+        } catch (e) {
+            window.localStorage.setItem('history', '[]')
+            return []
+        }
+    }
+    const history = useRef<string[]>(readHistory())
 
     // 监听路由，获得浏览历史
     useEffect(() => {
@@ -35,6 +50,7 @@ function PageBacProvider(props: PageBacProviderProps) {
         } else {
             // console.log('same page=====>', currPathname, history.current)
         }
+        window.localStorage.setItem('history', JSON.stringify(history.current))
     }, [routerPathname, searchParams])
 
     // 返回上一页

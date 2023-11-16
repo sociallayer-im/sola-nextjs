@@ -42,7 +42,7 @@ function MaodaoMyEvent({profile, isGroup}: { profile: Profile, isGroup?: boolean
             color: 'var(--color-text-main)',
             marginTop: '15px',
             marginBottom: '15px'
-        }}>{isGroup ? "Events" : 'Applied Events'}</div>
+        }}>{isGroup ? "Created Events" : 'Applied Events'}</div>
         {!list.length ? <Empty/> :
             <div className={'list'}>
                 {

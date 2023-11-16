@@ -57,6 +57,12 @@ function GroupPage(props: any) {
     useEffect(() => {
         const getProfile = async function () {
             if (!groupname) return
+
+            if (groupname === 'readyplayerclub' && process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'maodao') {
+                router.push('/rpc')
+                return
+            }
+
             const unload = showLoading()
             try {
                 const profile = await solas.getProfile({username: groupname as string})

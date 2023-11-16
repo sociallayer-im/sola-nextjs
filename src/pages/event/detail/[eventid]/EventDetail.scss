@@ -65,10 +65,11 @@
       font-weight: 400;
       text-decoration: none;
 
-
-
-      > div {
+      > div, > a {
         max-width: 90%;
+        display: block;
+        text-decoration: none;
+        color: var(--color-text-main)!important;
       }
 
       i {
@@ -160,6 +161,7 @@
       font-weight: 400;
       line-height: 24px;
       white-space: pre-wrap;
+      word-break: break-all;
     }
 
     .event-tab {

@@ -16,6 +16,7 @@ import Alchemy from "@/service/alchemy/alchemy";
 import fetch from "@/utils/fetch";
 import {toChecksumAddress} from 'web3-utils'
 import MaodaoMyEvent from "@/components/maodao/MaodaoMyEvent/MaodaoMyEvent";
+import MaodaoUserTab from "@/components/maodao/MaodaoUserTab/MaodaoUserTab";
 
 function Page(props: any) {
     const params = useParams()
@@ -201,22 +202,7 @@ function Page(props: any) {
                     </div>
                 </div>
                 <div className='down-side' style={{margin: '0 0 30px 0'}}>
-                    <div className='maodao-nft'>
-                        <ListNftAsset profile={profile} type={'maodao'} title={'RPC'}/>
-                    </div>
-                    {!profile?.id && profile?.id === user.id &&
-                        <MaodaoMyEvent profile={profile}/>
-                    }
-
-                    {!user.authToken &&
-                        <div className={'home-login-panel'} style={{margin: '0 12px'}}>
-                            <img src="/images/balloon.png" alt=""/>
-                            <div className={'text'}>{lang['Activity_login_des']}</div>
-                            <AppButton onClick={e => {
-                                openConnectWalletDialog()
-                            }} special size={'compact'}>{lang['Activity_login_btn']}</AppButton>
-                        </div>
-                    }
+                    <MaodaoUserTab profile={profile} />
                 </div>
             </div>
         }

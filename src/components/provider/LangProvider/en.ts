@@ -173,7 +173,7 @@ const langEN = {
         ' It is recommended to use metamask or imToken browser to access the website.',
     Activity_Calendar: 'Event Calendar',
     Activity_Page_type: 'Activity',
-    Activity_State_Registered: 'Registered',
+    Activity_State_Registered: 'Applied',
     Activity_State_Created: 'Created',
     Activity_Online_Event: 'Online Event',
     Activity_Max_Participations: 'Up to #1 participations',

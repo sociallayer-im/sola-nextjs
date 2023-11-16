@@ -21,12 +21,7 @@ function defaultAvatar (seed?: string | number | null) {
     const lastNum16 = hash[hash.length - 1]
     const lastNum10 = Number('0x' + lastNum16)
     const avatarIndex = lastNum10 % 6
-    if (typeof window !== 'undefined') {
-        return window.location.protocol + '//' + window.location.host + defAvatars[avatarIndex]
-
-    } else {
-        return defAvatars[avatarIndex]
-    }
+    return defAvatars[avatarIndex]
 }
 
 

@@ -1,5 +1,5 @@
 import PageBack from '@/components/base/PageBack'
-import {useContext, useEffect, useState} from 'react'
+import React, {useContext, useEffect, useState} from 'react'
 import solas, {Profile} from '@/service/solas'
 import DialogsContext from '@/components/provider/DialogProvider/DialogsContext'
 import ProfilePanel from '@/components/base/ProfilePanel/ProfilePanel'
@@ -11,8 +11,9 @@ import BgProfile from '@/components/base/BgProfile/BgProfile'
 import useEvent, {EVENT} from '@/hooks/globalEvent'
 import {styled} from 'baseui'
 import useCopy from '@/hooks/copy'
-import {useRouter, useParams } from "next/navigation";
+import {useParams, useRouter} from "next/navigation";
 import dynamic from 'next/dynamic'
+import MaodaoUserTab from "@/components/maodao/MaodaoUserTab/MaodaoUserTab";
 
 const UserTabs = dynamic(() => import('@/components/compose/ProfileTabs/ProfileTabs'), {
     loading: () => <p>Loading...</p>,
@@ -83,7 +84,7 @@ function Page(props: any) {
             : startIssue({badges, to: profile?.domain || ''})
     }
 
-    const ShowDomain = styled('div', ({$theme} : any) => {
+    const ShowDomain = styled('div', ({$theme}: any) => {
         return {
             color: 'var(--color-text-main)'
         }
@@ -116,7 +117,7 @@ function Page(props: any) {
                         <div className='slot_1'>
                             <ProfilePanel profile={profile}/>
                         </div>
-                        { !isMaodao &&
+                        {!isMaodao &&
                             <div className='slot_2'>
                                 <AppButton
                                     special kind={BTN_KIND.primary}
@@ -132,9 +133,15 @@ function Page(props: any) {
                         }
                     </div>
                 </div>
-                <div className='down-side'>
-                    <UserTabs profile={profile}/>
-                </div>
+                { process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'maodao' ?
+                        <div className='down-side' style={{margin: '0 0 30px 0'}}>
+                            <MaodaoUserTab profile={profile}/>
+                        </div>
+                        :
+                        <div className='down-side'>
+                            <UserTabs profile={profile}/>
+                        </div>
+                }
             </div>
         }
     </>

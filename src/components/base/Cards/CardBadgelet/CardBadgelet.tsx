@@ -40,7 +40,8 @@ const style = {
         whiteSpace: 'nowrap' as const,
         overflow: 'hidden' as const,
         textOverflow: 'ellipsis' as const,
-        fontSize: '14px'
+        fontSize: '14px',
+        color:'var(--color-text-main)'
     },
     pendingMark: {
         position: 'absolute' as const,
