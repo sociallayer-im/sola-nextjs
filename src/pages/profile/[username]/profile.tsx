@@ -78,7 +78,6 @@ function Page(props: any) {
                             url: `https://metadata.readyplayerclub.com/api/rpc-fam/${maodaonft[0].id}`,
                             data: {}
                         })
-                        alert('ok')
                         setMaodaoprofile(maodaoProfile.data.info)
                     } catch (e){}
                 }

@@ -1,4 +1,4 @@
-import {Participants, Profile, queryEvent, queryMyEvent} from "@/service/solas";
+import {Participants, Profile, queryEvent, queryMyEvent, userAppliedEvent} from "@/service/solas";
 import Empty from "@/components/base/Empty";
 import CardEvent from "@/components/base/Cards/CardEvent/CardEvent";
 import scrollToLoad from "@/hooks/scrollToLoad";
@@ -18,8 +18,10 @@ function MaodaoMyEvent({profile, isGroup}: { profile: Profile, isGroup?: boolean
                 const res = await queryEvent({group_id: profile.id, page})
                 return  res
             } else {
-                const res = await queryMyEvent({auth_token: user.authToken!, group_id: 2040, page})
-                const list = res.map((item: Participants) => item.event)
+                const res = await userAppliedEvent({id: profile.id, page})
+                const list = res.map((item) => {
+                    return item.event
+                })
                 return list
             }
 
@@ -44,10 +46,10 @@ function MaodaoMyEvent({profile, isGroup}: { profile: Profile, isGroup?: boolean
             marginBottom: '15px'
         }}>{isGroup ? "Created Events" : 'Applied Events'}</div>
         {!list.length ? <Empty/> :
-            <div className={'list'}>
+            <div className={'list maodao-event'}>
                 {
                     list.map((item, index) => {
-                        return <CardEvent attend={true} participants={[]} fixed={false} key={item.id} event={item}/>
+                        return <CardEvent participants={[]} fixed={false} key={item.id} event={item}/>
                     })
                 }
                 {!loading && <div ref={ref}></div>}

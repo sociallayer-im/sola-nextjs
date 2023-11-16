@@ -68,7 +68,7 @@ function MaodaoUserTab({profile}: {profile: Profile}) {
         }
 
 
-        {!profile?.id && profile?.id === user.id &&
+        {profile?.id !== 0 &&
             <MaodaoMyEvent profile={profile}/>
         }
     </div>)

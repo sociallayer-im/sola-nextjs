@@ -2919,6 +2919,20 @@ export async function zugameInfo() {
     }
 }
 
+export async function userAppliedEvent(props: {id: number, page: number, group_id?: number}) {
+    const res = await fetch.get({
+        url: `${api}/event/for_user`,
+        data: props
+    })
+
+    if (res.data.result === 'error') {
+        throw new Error(res.data.message)
+    }
+
+    return res.data.participants as Participants[]
+}
+
+
 export default {
     removeMarker,
     queryMarkers,
