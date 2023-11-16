@@ -27,7 +27,7 @@ const style = {
     },
     name: {
         fontWeight: 400,
-        color: '#272928',
+        color: 'var(--color-text-main)',
         fontSize: '14px'
     },
     leftSide: {
