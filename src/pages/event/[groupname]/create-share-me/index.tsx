@@ -160,7 +160,7 @@ function ComponentName() {
             })
             unload()
             showToast('Create Success', 500)
-            router.push(`/event/detail-marker/${create.id}`)
+            router.push(`/event/istanbul2023/map?type=Share`)
         } catch (e: any) {
             setBusy(false)
             console.error(e)
