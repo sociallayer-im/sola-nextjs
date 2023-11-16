@@ -44,19 +44,24 @@ function ComponentName(props: { markerType: string | null }) {
 
     const getMarker = async (type?: any) => {
         let res: Marker[] = []
+        const now = new Date()
+        const todayZero = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0).getTime() / 1000
         if (!type) {
             // All
-            res = await queryMarkers({
-                group_id: eventGroup?.id || undefined,
-                with_checkins: user.authToken ? true : undefined,
-                auth_token: user.authToken ? user.authToken : undefined
-            })
+            // res = await queryMarkers({
+            //     group_id: eventGroup?.id || undefined,
+            //     with_checkins: user.authToken ? true : undefined,
+            //     auth_token: user.authToken ? user.authToken : undefined
+            // })
+            setSelectedType('Event')
+            return
         } else if (type === 'Event') {
             res = await queryMarkers({
                 marker_type: 'event',
                 group_id: eventGroup?.id || undefined,
                 with_checkins: user.authToken ? true : undefined,
-                auth_token: user.authToken ? user.authToken : undefined
+                auth_token: user.authToken ? user.authToken : undefined,
+                start_time_from: todayZero,
             })
         } else if (type === 'Zugame') {
             res = await queryMarkers({
@@ -146,27 +151,29 @@ function ComponentName(props: { markerType: string | null }) {
         // 绘制marker
         markersGrouped.map((markersList, index) => {
             const category = markersList[0].category[0].toUpperCase() + markersList[0].category.slice(1)
-            const content = document.createElement('img');
-            const iconUrl = markersList[0].jubmoji_code
-                ? markersList[0].zugame_state === 'a'
-                    ? (markerTypeList as any)['Zugame'].split('#')[2]
-                    : markersList[0].zugame_state === 'b'
-                        ? (markerTypeList as any)['Zugame'].split('#')[3]
-                        : markersList[0].zugame_state === 'c' ?
-                            (markerTypeList as any)['Zugame'].split('#')[3]
-                            : (markerTypeList as any)['Zugame'].split('#')[0]
-                : markersList[0].checkin
-                    ? (markerTypeList as any)[category]?.split('#')[1] || (markerTypeList as any)['Vision Spot'].split('#')[0]
-                    : (markerTypeList as any)[category]?.split('#')[0] || (markerTypeList as any)['Vision Spot'].split('#')[0]
-            content.setAttribute('src', iconUrl)
-            content.className = 'map-marker'
+            if (!!(markerTypeList as any)[category]) {
+                const content = document.createElement('img');
+                const iconUrl = markersList[0].jubmoji_code
+                    ? markersList[0].zugame_state === 'a'
+                        ? (markerTypeList as any)['Zugame'].split('#')[2]
+                        : markersList[0].zugame_state === 'b'
+                            ? (markerTypeList as any)['Zugame'].split('#')[3]
+                            : markersList[0].zugame_state === 'c' ?
+                                (markerTypeList as any)['Zugame'].split('#')[3]
+                                : (markerTypeList as any)['Zugame'].split('#')[0]
+                    : markersList[0].checkin
+                        ? (markerTypeList as any)[category]?.split('#')[1] || (markerTypeList as any)['Vision Spot'].split('#')[0]
+                        : (markerTypeList as any)[category]?.split('#')[0] || (markerTypeList as any)['Vision Spot'].split('#')[0]
+                content.setAttribute('src', iconUrl)
+                content.className = 'map-marker'
 
-            const markerView = new Marker!({
-                map: GoogleMapRef.current,
-                position: {lat: Number(markersList[0].lat), lng: Number(markersList[0].lng)},
-                content: content,
-            })
-            markersRef.current.push(markerView)
+                const markerView = new Marker!({
+                    map: GoogleMapRef.current,
+                    position: {lat: Number(markersList[0].lat), lng: Number(markersList[0].lng)},
+                    content: content,
+                })
+                markersRef.current.push(markerView)
+            }
         })
 
         // 绘制详情
@@ -348,7 +355,7 @@ function ComponentName(props: { markerType: string | null }) {
             <GameMenu/>
         }
 
-        {(eventGroup?.id === 1984 || eventGroup?.id === 1516) &&
+        {(process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'zumap') &&
             <div className={styles['top-menu']}>
                 <div className={styles['menu-item']} onClick={() => {
                     router.push(`/event/${eventGroup?.username}/create-marker`)
@@ -359,12 +366,12 @@ function ComponentName(props: { markerType: string | null }) {
                         router.push(`/event/${eventGroup?.username}/create-share-me`)
                     }}>Share me + </div>
                 }
-                <div className={`${styles['menu-item']} ${!selectedType ? styles['menu-item-active'] : ''}`}
-                     onClick={() => {
-                         setSelectedType('')
-                         router.push(`/event/${eventGroup?.username}/map`)
-                     }}>All
-                </div>
+                {/*<div className={`${styles['menu-item']} ${!selectedType ? styles['menu-item-active'] : ''}`}*/}
+                {/*     onClick={() => {*/}
+                {/*         setSelectedType('')*/}
+                {/*         router.push(`/event/${eventGroup?.username}/map`)*/}
+                {/*     }}>All*/}
+                {/*</div>*/}
                 {
                     Object.keys(menuList).map((item, index) => {
                         const isSelected = selectedType === item

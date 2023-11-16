@@ -6,12 +6,12 @@ import {useParams, useRouter} from "next/navigation";
 export const markerTypeList: any = {
     'Event': '/images/map_marker.png#/images/map_marker.png',
     'Share': '/images/marker/Vision Spot.png#/images/marker/Vision Spot_checked.png',
-    'Zugame': '/images/marker/Zugame.png#/images/marker/Zugame_checked.png#/images/marker/Zugame_checked_a.png#/images/marker/Zugame_checked_b.png#/images/marker/Zugame_checked_c.png',
-    'Utility Table': '/images/marker/Utility Table.png#/images/marker/Utility Table_checked.png',
-    'Merkle training ground': '/images/marker/Merkle training ground.png#/images/marker/Merkle training ground_checked.png',
-    'Hacker House': '/images/marker/Hacker House.png#/images/marker/Hacker House_checked.png',
-    'Vision Spot': '/images/marker/Vision Spot.png#/images/marker/Vision Spot_checked.png',
-    'Mempool Bottle': '/images/marker/Mempool Bottle.png#/images/marker/Mempool Bottle_checked.png',
+    // 'Zugame': '/images/marker/Zugame.png#/images/marker/Zugame_checked.png#/images/marker/Zugame_checked_a.png#/images/marker/Zugame_checked_b.png#/images/marker/Zugame_checked_c.png',
+    // 'Utility Table': '/images/marker/Utility Table.png#/images/marker/Utility Table_checked.png',
+    // 'Merkle training ground': '/images/marker/Merkle training ground.png#/images/marker/Merkle training ground_checked.png',
+    // 'Hacker House': '/images/marker/Hacker House.png#/images/marker/Hacker House_checked.png',
+    // 'Vision Spot': '/images/marker/Vision Spot.png#/images/marker/Vision Spot_checked.png',
+    // 'Mempool Bottle': '/images/marker/Mempool Bottle.png#/images/marker/Mempool Bottle_checked.png',
     }
 
     function SelectorMarkerType(props: { value?: string, onChange?: (value: string[]) => any }) {

@@ -2760,7 +2760,9 @@ export async function queryMarkers(props: {
     category?: string,
     with_checkins?: boolean,
     auth_token?: string,
-    jubmoji?: number
+    jubmoji?: number,
+    start_time_from?: number,
+    start_time_to?: number,
 }) {
 
     const res = await fetch.get({

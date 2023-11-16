@@ -102,10 +102,12 @@ function UserProvider (props: UserProviderProps) {
             //     navigate(`/profile/${profileInfo.username}`)
             // }
 
-            if (process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'zumap' && profileInfo.zugame_team) {
-                showRoleDialog(profileInfo.zugame_team)
-                window.localStorage.setItem('zugame_team', profileInfo.zugame_team)
-            }
+            window.localStorage.setItem('zugame_team', '')
+
+            // if (process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'zumap' && profileInfo.zugame_team) {
+            //     showRoleDialog(profileInfo.zugame_team)
+            //     window.localStorage.setItem('zugame_team', profileInfo.zugame_team)
+            // }
 
         } catch (e: any) {
             console.error('[setProfile]: ', e)
