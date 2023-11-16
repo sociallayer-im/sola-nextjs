@@ -20,7 +20,7 @@ function MaodaoUserTab({profile}: {profile: Profile}) {
     const {user} = useContext(userContext)
     const {lang} = useContext(langContext)
     const {openConnectWalletDialog} = useContext(DialogsContext)
-    const [isEmptyBadge, setIsEmptyBadge] = useState(true)
+    const [isEmptyBadge, setIsEmptyBadge] = useState(false)
 
 
     const getBadgelet = async (page: number) => {
@@ -47,8 +47,8 @@ function MaodaoUserTab({profile}: {profile: Profile}) {
 
     const listWrapperRefBadgeLet = React.createRef<ListUserAssetsMethods>()
     useEffect(() => {
-        !!listWrapperRefBadgeLet.current && listWrapperRefBadgeLet.current!.refresh()
-    }, [profile])
+       !isEmptyBadge && !!listWrapperRefBadgeLet.current && listWrapperRefBadgeLet.current!.refresh()
+    }, [profile, isEmptyBadge])
 
     return (<div>
         <div className='maodao-nft'>
@@ -67,18 +67,9 @@ function MaodaoUserTab({profile}: {profile: Profile}) {
             </div>
         }
 
+
         {!profile?.id && profile?.id === user.id &&
             <MaodaoMyEvent profile={profile}/>
-        }
-
-        {!user.authToken &&
-            <div className={'home-login-panel'} style={{margin: '0 12px'}}>
-                <img src="/images/balloon.png" alt=""/>
-                <div className={'text'}>{lang['Activity_login_des']}</div>
-                <AppButton onClick={e => {
-                    openConnectWalletDialog()
-                }} special size={'compact'}>{lang['Activity_login_btn']}</AppButton>
-            </div>
         }
     </div>)
 }

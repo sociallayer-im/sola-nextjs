@@ -59,7 +59,7 @@ function GroupPage(props: any) {
             if (!groupname) return
 
             if (groupname === 'readyplayerclub' && process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'maodao') {
-                router.push('/rpc')
+                router.replace('/rpc')
                 return
             }
 

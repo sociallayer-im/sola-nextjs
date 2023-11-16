@@ -55,6 +55,20 @@ export interface Profile {
     group_location_details: null | string
     maodaoid?: number
     zugame_team?: string | null
+    maodao_profile?: {
+        "name": string,
+        "description": string,
+        "external_url": string,
+        "image": string,
+        "info": {
+            "cat": string,
+            "owner": string,
+            "company": string,
+            "position": string,
+            "tag": string,
+            "industry": string
+        }
+    }
 }
 
 export interface ProfileSimple {
@@ -2856,7 +2870,8 @@ export async function zupassLogin(props: {
     zupass_event_id: string,
     zupass_product_id: string,
     email: string,
-    next_token: string}) {
+    next_token: string
+}) {
     const res = await fetch.post({
         url: `${api}/profile/signin_with_zupass`,
         data: props

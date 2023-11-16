@@ -14,6 +14,7 @@ import ProfileBio from '../ProfileBio/ProfileBio'
 import ProfileSocialMediaList from '../ProfileSocialMediaList/ProfileSocialMediaList'
 import useCopy from "../../../hooks/copy";
 import useEvent, {EVENT} from '@/hooks/globalEvent'
+import fetch from "@/utils/fetch";
 
 interface ProfilePanelProps {
     profile: Profile

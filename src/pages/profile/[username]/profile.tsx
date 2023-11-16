@@ -14,6 +14,8 @@ import useCopy from '@/hooks/copy'
 import {useParams, useRouter} from "next/navigation";
 import dynamic from 'next/dynamic'
 import MaodaoUserTab from "@/components/maodao/MaodaoUserTab/MaodaoUserTab";
+import fetch from "@/utils/fetch";
+import alchemy from "@/service/alchemy/alchemy";
 
 const UserTabs = dynamic(() => import('@/components/compose/ProfileTabs/ProfileTabs'), {
     loading: () => <p>Loading...</p>,
@@ -32,6 +34,14 @@ function Page(props: any) {
     const startIssue = useIssueBadge()
     const [newProfile, _] = useEvent(EVENT.profileUpdate)
     const {copyWithDialog} = useCopy()
+    const [maodaoprofile, setMaodaoprofile] = useState<{
+        cat: string,
+        company: string,
+        industry: string,
+        owner: string,
+        position: string,
+        tag: string,
+    } | null>(null)
 
     useEffect(() => {
         if (newProfile && newProfile.id === profile?.id) {
@@ -54,8 +64,29 @@ function Page(props: any) {
                 unload()
             }
         }
+
         getProfile()
     }, [username])
+
+    useEffect(() => {
+        async function getMaodaoProfile () {
+            if (profile?.address) {
+                const maodaonft = await alchemy.getMaodaoNft(profile?.address)
+                if (maodaonft.length) {
+                    try {
+                        const maodaoProfile = await fetch.get({
+                            url: `https://metadata.readyplayerclub.com/api/rpc-fam/${maodaonft[0].id}`,
+                            data: {}
+                        })
+                        alert('ok')
+                        setMaodaoprofile(maodaoProfile.data.info)
+                    } catch (e){}
+                }
+            }
+        }
+
+        getMaodaoProfile()
+    }, [profile])
 
     useEffect(() => {
         if (params?.username) {
@@ -116,6 +147,12 @@ function Page(props: any) {
                         </div>
                         <div className='slot_1'>
                             <ProfilePanel profile={profile}/>
+                            {!!maodaoprofile && maodaoprofile.company &&
+                                <div className={'maodao-tag'}>{maodaoprofile.company}</div>
+                            }
+                            {!!maodaoprofile && maodaoprofile.tag &&
+                                <div className={'maodao-tag'}>{maodaoprofile.tag}</div>
+                            }
                         </div>
                         {!isMaodao &&
                             <div className='slot_2'>

@@ -3,7 +3,7 @@
   padding-bottom: 20px;
 
   .group-card {
-    padding: 16px 12px 0 12px;
+    padding: 16px 20px 0 20px;
 
     .center {
       display: flex;
@@ -13,6 +13,7 @@
       border-radius: 8px;
       background: var(--color-card-bg);
       padding: 12px;
+      text-decoration: none;
     }
 
     .left {

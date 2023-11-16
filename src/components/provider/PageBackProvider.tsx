@@ -76,6 +76,7 @@ function PageBacProvider(props: PageBacProviderProps) {
                     && !item.includes('login')
                     && !item.includes('checkin')
                     && !item.includes('success')
+                    && !(process.env.NEXT_PUBLIC_SPECIAL_VERSION !== 'madao' && item.includes('/group/readyplayerclub'))
             })
 
             if (index === -1) {
