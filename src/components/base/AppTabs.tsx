@@ -13,7 +13,7 @@ function AppTabs (props:AppTabsProps) {
 
     const tabStyle = ({$active, $disabled, $theme}: any) => {
         const defaultStyle = {
-            color: $active ? '#272928' : '#7b7c7b',
+            color: $active ? 'var(--color-text-main)' : '#7b7c7b',
             fontWeight: $active ? 600 : 'normal',
             fontSize: '14px',
             paddingTop: '0',
