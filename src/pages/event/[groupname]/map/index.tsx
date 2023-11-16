@@ -11,6 +11,7 @@ import {markerTypeList} from "@/components/base/SelectorMarkerType/SelectorMarke
 import userContext from "@/components/provider/UserProvider/UserContext";
 import DialogGuideFollow from "@/components/base/Dialog/DialogGuideFollow/DialogGuideFollow";
 import GameMenu from "@/components/zugame/GameMenu/GameMenu";
+import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
 
 const menuList = markerTypeList
 
@@ -25,6 +26,7 @@ const defaultZoom = 17
 function ComponentName(props: { markerType: string | null }) {
     const {Map, MapEvent, Marker, MapError, MapReady} = useContext(MapContext)
     const {eventGroup, isManager} = useContext(EventHomeContext)
+    const {openConnectWalletDialog} = useContext(DialogsContext)
     const {user} = useContext(userContext)
     const router = useRouter()
     const searchParams = useSearchParams()
@@ -358,11 +360,19 @@ function ComponentName(props: { markerType: string | null }) {
         {(process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'zumap') &&
             <div className={styles['top-menu']}>
                 <div className={styles['menu-item']} onClick={() => {
+                    if (!user.id) {
+                        openConnectWalletDialog()
+                        return
+                    }
                     router.push(`/event/${eventGroup?.username}/create-marker`)
                 }}>Create a Marker +
                 </div>
                 {process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'zumap' &&
                     <div className={styles['menu-item']} onClick={() => {
+                        if (!user.id) {
+                            openConnectWalletDialog()
+                            return
+                        }
                         router.push(`/event/${eventGroup?.username}/create-share-me`)
                     }}>Share me + </div>
                 }
