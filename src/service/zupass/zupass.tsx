@@ -8,10 +8,11 @@ import {
 } from "@pcd/zk-eddsa-event-ticket-pcd";
 import {useContext, useEffect, useState} from "react";
 import {constructZupassPcdGetRequestUrl} from "./PassportInterface";
-import {openZupassPopup, useZupassPopupMessages} from "./PassportPopup";
+import {openZupassPopup} from "./PassportPopup";
 import {supportedEvents} from "./zupass-config";
 import {setAuth} from "@/utils/authStorage";
 import userContext from "@/components/provider/UserProvider/UserContext";
+import {useRouter} from "next/navigation";
 
 const ZUPASS_URL = "https://zupass.org";
 
@@ -78,6 +79,7 @@ function openZKEdDSAEventTicketPopup(
 type PartialTicketData = Partial<ITicketData>;
 
 async function login() {
+    window.localStorage.setItem('zupass_return', window.location.href)
     const nonce = await (
         await fetch("/api/zupass/nonce", {credentials: "include"})
     ).text();
@@ -96,38 +98,45 @@ async function login() {
 export function useZupass(): {
     login: () => Promise<void>;
     ticketData: PartialTicketData | undefined;
+    zupassAuth: (pcdStr: string) => Promise<void>;
 } {
-    const [pcdStr] = useZupassPopupMessages();
     const [ticketData, setTicketData] = useState<PartialTicketData | undefined>(
         undefined
     );
 
+    const router = useRouter()
+
     const {zupassLogin} = useContext(userContext)
 
-    useEffect(() => {
-        (async () => {
-            if (pcdStr) {
-                const response = await fetch("/api/zupass/authenticate", {
-                    method: "POST",
-                    mode: "cors",
-                    credentials: "include",
-                    headers: {
-                        "Access-Control-Allow-Origin": "*",
-                        "Content-Type": "application/json"
-                    },
-                    body: pcdStr
-                });
+    const zupassAuth = async function (pcdStr: string) {
+        if (pcdStr) {
+            const response = await fetch("/api/zupass/authenticate", {
+                method: "POST",
+                mode: "cors",
+                credentials: "include",
+                headers: {
+                    "Access-Control-Allow-Origin": "*",
+                    "Content-Type": "application/json"
+                },
+                body: pcdStr
+            });
 
-                if (response.status === 200) {
-                    // setTicketData(await response.json());
-                    const res = await response.json()
-                    window.localStorage.setItem('lastLoginType', 'zupass');
-                    setAuth(res.email, res.auth_token)
-                    zupassLogin()
+            if (response.status === 200) {
+                // setTicketData(await response.json());
+                const res = await response.json()
+                window.localStorage.setItem('lastLoginType', 'zupass');
+                setAuth(res.email, res.auth_token)
+                zupassLogin()
+                const return_url = window.localStorage.getItem('zupass_return')
+                if (return_url) {
+                    window.localStorage.removeItem('zupass_return')
+                    router.push(return_url.replace(window.location.origin, ''))
+                } else {
+                    router.push('/')
                 }
             }
-        })();
-    }, [pcdStr]);
+        }
+    }
 
-    return {login, ticketData};
+    return {login, zupassAuth, ticketData};
 }

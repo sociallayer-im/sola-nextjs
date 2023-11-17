@@ -4,7 +4,7 @@ import {useEffect, useState} from "react";
  * React hook that listens for PCDs and PendingPCDs from a Zupass popup window
  * using message passing and event listeners.
  */
-export function useZupassPopupMessages() {
+/*export function useZupassPopupMessages() {
     const [pcdStr, setPCDStr] = useState("");
     const [pendingPCDStr, setPendingPCDStr] = useState("");
 
@@ -26,7 +26,7 @@ export function useZupassPopupMessages() {
     }, []);
 
     return [pcdStr, pendingPCDStr];
-}
+}*/
 
 /**
  * A react hook that sets up necessary Zupass popup logic on a specific route.
@@ -39,14 +39,15 @@ export function useZupassPopupMessages() {
 export function useZupassPopupSetup() {
     // Usually this page redirects immediately. If not, show an error.
     const [error, setError] = useState("");
+    const [pcdStr, setPcdStr] = useState("");
 
     useEffect(() => {
-        if (window.opener == null) {
-          setError("Not a popup window");
-          setTimeout(()=> {
-              window.location.href = "/";
-          }, 2000)
-        }
+        // if (window.opener == null) {
+        //   setError("Not a popup window");
+        //   setTimeout(()=> {
+        //       window.location.href = "/";
+        //   }, 2000)
+        // }
 
         let params;
 
@@ -73,14 +74,7 @@ export function useZupassPopupSetup() {
             window.location.href = paramsProofUrl;
         } else if (finished) {
             // Later, Zupass redirects back with a result. Send it to our parent.
-            if (paramsProof != null) {
-                window.opener.postMessage({encodedPCD: paramsProof}, "*");
-            }
-
-            window.close();
-            setTimeout(() => {
-                setError("Finished. Please close this window.");
-            }, 1000 * 3);
+            setPcdStr(paramsProof!);
         } else if (paramsEncodingPendingPCD != null) {
             // Later, Zupass redirects back with a encodedPendingPCD. Send it to our parent.
             window.opener.postMessage(
@@ -94,7 +88,7 @@ export function useZupassPopupSetup() {
         }
     }, []);
 
-    return error;
+    return {error, pcdStr};
 }
 
 /**
@@ -104,5 +98,5 @@ export function useZupassPopupSetup() {
  */
 export function openZupassPopup(popupUrl: string, proofUrl: string) {
     const url = `${popupUrl}?proofUrl=${encodeURIComponent(proofUrl)}`;
-    window.open(url, "_blank", "width=450,height=600,top=100,popup");
+    location.href = url;
 }
