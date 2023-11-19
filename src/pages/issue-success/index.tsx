@@ -1,6 +1,6 @@
 import {useSearchParams} from 'next/navigation'
 import {useContext, useEffect, useState} from 'react'
-import solas, {ProfileSimple, Group} from '../../service/solas'
+import solas, {ProfileSimple, Group, getVoucherCode} from '../../service/solas'
 import LangContext from '../../components/provider/LangProvider/LangContext'
 import UserContext from '../../components/provider/UserProvider/UserContext'
 import copy from '../../utils/copy'
@@ -59,13 +59,22 @@ function IssueSuccessPage() {
 
             if (presendId) {
                 const presendDetail = await solas.queryPresendDetail({ id: Number(presendId), auth_token: user.authToken || '' })
+                let code: string | undefined = undefined
+                if (user.id) {
+                    try {
+                        code = await solas.getVoucherCode({ id: Number(presendId), auth_token: user.authToken || '' })
+                    } catch (e) {
+                        console.log(e)
+                    }
+                }
+
                 const sender = presendDetail.badge.sender
                 setInfo({
                     name: presendDetail.badge.name,
                     cover: presendDetail.badge.image_url,
                     limit: presendDetail.badgelets.length + presendDetail.counter,
                     expires: presendDetail.expires_at,
-                    link: genShareLink(presendDetail.code || undefined),
+                    link: genShareLink(code || undefined),
                     sender: sender as ProfileSimple
                 })
 

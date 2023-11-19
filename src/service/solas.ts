@@ -3011,5 +3011,6 @@ export default {
     badgeTransfer,
     queryUserActivity,
     removeManager,
-    addManager
+    addManager,
+    getVoucherCode
 }
