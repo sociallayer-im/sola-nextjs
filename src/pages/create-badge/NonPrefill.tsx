@@ -2,7 +2,7 @@ import {useRouter, useSearchParams} from "next/navigation";
 import { useState, useContext, useEffect } from 'react'
 import PageBack from '../../components/base/PageBack'
 import LangContext from '../../components/provider/LangProvider/LangContext'
-import UploadImage from '../../components/compose/UploadImage/UploadImage'
+import UploadImage from '../../components/compose/UploadBadgeImage/UploadBadgeImage'
 import AppInput from '../../components/base/AppInput'
 import UserContext from '../../components/provider/UserProvider/UserContext'
 import AppButton, { BTN_KIND } from '../../components/base/AppButton/AppButton'
