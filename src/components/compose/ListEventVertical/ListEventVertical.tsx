@@ -19,7 +19,7 @@ function ListEventVertical(props: { participants: Participants[] }) {
     const searchParams = useSearchParams()
     const params = useParams()
     const pathname = usePathname()
-    const [tab2Index, setTab2Index] = useState<'latest' | 'soon' | 'past'>(searchParams?.get('tab') as any || 'soon')
+    const [tab2Index, setTab2Index] = useState<'latest' | 'coming' | 'past'>(searchParams?.get('tab') as any || 'coming')
     const {lang} = useContext(LangContext)
     const {showLoading} = useContext(DialogsContext)
     const {eventGroup, availableList, setEventGroup} = useContext(EventHomeContext)
@@ -348,10 +348,10 @@ function ListEventVertical(props: { participants: Participants[] }) {
             <div className={mode === 'map' ? 'tab-titles fixed' : 'tab-titles'}>
                 <div className={'center'}>
                     <div onClick={() => {
-                        setTab2Index('soon')
-                        router.push(`/event/${eventGroup?.username}?tab=soon`)
+                        setTab2Index('coming')
+                        router.push(`/event/${eventGroup?.username}?tab=coming`)
                     }}
-                         className={tab2Index === 'soon' ? 'module-title' : 'tab-title'}>
+                         className={tab2Index === 'coming' ? 'module-title' : 'tab-title'}>
                         {lang['Activity_Coming']}
                     </div>
                     <div onClick={() => {
@@ -366,7 +366,7 @@ function ListEventVertical(props: { participants: Participants[] }) {
                         <div className={'mode-switch'}>
                             <div className={'switcher'}>
                                 <div onClick={() => {
-                                    setTab2Index('soon');
+                                    setTab2Index('coming');
                                     setMode('map')
                                 }}
                                      className={mode === 'map' ? 'switcher-item active' : 'switcher-item'}>
