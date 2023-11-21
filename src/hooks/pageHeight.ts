@@ -1,26 +1,30 @@
 import {useEffect, useState} from 'react'
 
+const windowObj:any = typeof window !== 'undefined' ? window : undefined
+
 export const usePageHeight = () => {
-    const height = typeof window !== 'undefined' ? window.innerHeight : 667
-    const [windowHeight, setWindowHeight] = useState(height)
-    const [heightWithoutNav, setHeightWithoutNav] = useState(height - 48)
+    //const height = typeof window !== 'undefined' ? window.innerHeight : 667
+    const [windowHeight, setWindowHeight] = useState(2000)
+    const [heightWithoutNav, setHeightWithoutNav] = useState(2000 - 48)
 
     useEffect(() => {
-       if (typeof window !== 'undefined') {
-           const listener = () => {
-               setWindowHeight(window.innerHeight)
-               setHeightWithoutNav(window.innerHeight - 48)
-           }
+        const listener = () => {
+            setWindowHeight(windowObj.innerHeight)
+            setHeightWithoutNav(windowObj.innerHeight - 48)
+        }
 
-           window.addEventListener('resize', listener, false)
-           window.addEventListener('orientationchange', listener, false)
+        if (windowObj) {
+            listener()
+
+            windowObj.addEventListener('resize', listener, false)
+            windowObj.addEventListener('orientationchange', listener, false)
 
            return () => {
-               window.removeEventListener('resize', listener, false)
-               window.removeEventListener('orientationchange', listener, false)
+               windowObj.removeEventListener('resize', listener, false)
+               windowObj.removeEventListener('orientationchange', listener, false)
            }
        }
-    }, [])
+    }, [windowObj])
 
 
     return { windowHeight, heightWithoutNav }

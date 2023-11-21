@@ -142,7 +142,6 @@ function DialogIssuePrefill(props: DialogIssuePrefillProps) {
                             if (user?.id && user.permissions.length > 0) {
                                 setShowCreateOption(true)
                             } else {
-                                alert('zfd2222222222222222222 + length' + 2)
                                 gotoCreateBadge('badge')
                             }
                         }}>

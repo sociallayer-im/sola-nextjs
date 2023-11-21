@@ -1,6 +1,6 @@
 import {useSearchParams} from 'next/navigation'
 import {useContext, useEffect, useState} from 'react'
-import solas, {ProfileSimple, Group, getVoucherCode} from '../../service/solas'
+import solas, {Group, ProfileSimple} from '../../service/solas'
 import LangContext from '../../components/provider/LangProvider/LangContext'
 import UserContext from '../../components/provider/UserProvider/UserContext'
 import copy from '../../utils/copy'
@@ -10,7 +10,7 @@ import usePageHeight from '../../hooks/pageHeight'
 import DialogsContext from "../../components/provider/DialogProvider/DialogsContext";
 import ShareQrcode, {ShareQrcodeProp} from "../../components/compose/ShareQrcode/ShareQrcode";
 
-function IssueSuccessPage() {
+function IssueSuccessPage(props: any) {
     const searchParams = useSearchParams()
     const [info, setInfo] = useState<ShareQrcodeProp | null>(null)
     const {lang} = useContext(LangContext)
@@ -22,25 +22,24 @@ function IssueSuccessPage() {
     const [group, setGroup] = useState<Group | null>(null)
 
     // presend成功传参
-    const presendId = searchParams.get('presend')
+    const presendId = props.presend || searchParams.get('presend')
 
     // 颁发成功传参
-    const badgeletId = searchParams.get('badgelet')
+    const badgeletId = props.badgelet || searchParams.get('badgelet')
 
     // 邀请成功传参
-    const inviteId = searchParams.get('invite')
-    const groupId = searchParams.get('group')
+    const inviteId = props.invite || searchParams.get('invite')
+    const groupId = props.group || searchParams.get('group')
 
     // nftpass 颁发成功传参
-    const nftpassletId = searchParams.get('nftpasslet')
+    const nftpassletId = props.nftpasslet || searchParams.get('nftpasslet')
 
     // presend成功传参
-    const pointId = searchParams.get('point')
-    const pointitemId = searchParams.get('pointitem')
+    const pointId = props.point || searchParams.get('point')
+    const pointitemId = props.pointitem || searchParams.get('pointitem')
 
     // gift成功传参
-    const giftItemId = searchParams.get('giftitem')
-
+    const giftItemId = props.giftitem || searchParams.get('giftitem')
 
     useEffect(() => {
         async function fetchInfo() {
@@ -58,11 +57,14 @@ function IssueSuccessPage() {
             }
 
             if (presendId) {
-                const presendDetail = await solas.queryPresendDetail({ id: Number(presendId), auth_token: user.authToken || '' })
+                const presendDetail = await solas.queryPresendDetail({
+                    id: Number(presendId),
+                    auth_token: user.authToken || ''
+                })
                 let code: string | undefined = undefined
                 if (user.id) {
                     try {
-                        code = await solas.getVoucherCode({ id: Number(presendId), auth_token: user.authToken || '' })
+                        code = await solas.getVoucherCode({id: Number(presendId), auth_token: user.authToken || ''})
                     } catch (e) {
                         console.log(e)
                     }
@@ -225,7 +227,7 @@ function IssueSuccessPage() {
                 </div>
                 <div className='cards'>
                     <div className={'title'}>{lang['IssueFinish_Share_By_Qrcode']}</div>
-                    {!!info && <ShareQrcode {...info} isGroup={group || undefined} />}
+                    {!!info && <ShareQrcode {...info} isGroup={group || undefined}/>}
                 </div>
                 <div className='cards'>
                     <div className={'title'}>{lang['IssueFinish_Share_By_Link']}</div>
@@ -243,3 +245,27 @@ function IssueSuccessPage() {
 }
 
 export default IssueSuccessPage
+
+export const getServerSideProps: any = (async (context: any) => {
+    const presend = context.query?.presend || null
+    const badgelet = context.query?.badgelet  || null
+    const invite = context.query?.invite  || null
+    const group = context.query?.group  || null
+    const nftpasslet = context.query?.nftpasslet  || null
+    const point = context.query?.point || null
+    const giftitem = context.query?.giftitem || null
+
+
+    return {
+        props: {
+            presend,
+            badgelet,
+            invite,
+            group,
+            nftpasslet,
+            point,
+            giftitem
+        }
+    }
+})
+
