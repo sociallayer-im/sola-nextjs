@@ -1,4 +1,4 @@
-import {useParams, usePathname, useSearchParams} from "next/navigation";
+import {useParams, usePathname, useSearchParams, useRouter} from "next/navigation";
 import {useContext, useEffect, useRef, useState} from 'react'
 import LangContext from "../../provider/LangProvider/LangContext";
 import Empty from "../../base/Empty";
@@ -15,6 +15,7 @@ import {Swiper, SwiperSlide} from 'swiper/react'
 import {Virtual} from 'swiper'
 
 function ListEventVertical(props: { participants: Participants[] }) {
+    const router = useRouter()
     const searchParams = useSearchParams()
     const params = useParams()
     const pathname = usePathname()
@@ -348,12 +349,14 @@ function ListEventVertical(props: { participants: Participants[] }) {
                 <div className={'center'}>
                     <div onClick={() => {
                         setTab2Index('soon')
+                        router.push(`/event/${eventGroup?.username}?tab=soon`)
                     }}
                          className={tab2Index === 'soon' ? 'module-title' : 'tab-title'}>
                         {lang['Activity_Coming']}
                     </div>
                     <div onClick={() => {
                         setTab2Index('past')
+                        router.push(`/event/${eventGroup?.username}?tab=past`)
                     }}
                          className={tab2Index === 'past' ? 'module-title' : 'tab-title'}>
                         {lang['Activity_Past']}
