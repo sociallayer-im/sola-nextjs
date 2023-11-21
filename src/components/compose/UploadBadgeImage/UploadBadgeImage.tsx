@@ -47,7 +47,7 @@ function UploadBadgeImage(props: UploadImageProps) {
         })
     }
 
-    return (<Wrapper>
+    return (<Wrapper data-testid={'upload-badge-image'}>
         <Pic onClick={() => {
             showPublicImageDialog()
         }} src={imageSelect || defaultImg} alt=""/>

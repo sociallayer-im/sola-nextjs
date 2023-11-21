@@ -10,11 +10,15 @@
     "lint": "next lint",
     "analyze": "cross-env ANALYZE=true next build",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "cypress:open": "cypress open"
   },
   "resolutions": {
     "qrcode": "1.5.1",
     "query-string": "6.13.5"
+  },
+  "overrides": {
+    "webpack": "^5.52.0"
   },
   "dependencies": {
     "@noble/secp256k1": "1.6.0",
@@ -32,6 +36,7 @@
     "baseui": "^12.2.0",
     "circomlibjs": "^0.1.7",
     "copy-to-clipboard": "^3.3.3",
+    "cypress": "^13.5.1",
     "dayjs": "^1.11.10",
     "dotbit": "^0.4.26",
     "dplayer": "^1.27.1",
@@ -65,17 +70,20 @@
   "devDependencies": {
     "@next/bundle-analyzer": "^13.5.5",
     "@storybook/addon-actions": "^6.5.16",
-    "@storybook/addon-essentials": "^6.5.16",
-    "@storybook/addon-interactions": "^6.5.16",
+    "@storybook/addon-controls": "^7.5.3",
+    "@storybook/addon-essentials": "^7.5.3",
+    "@storybook/addon-interactions": "^7.5.3",
     "@storybook/addon-links": "^6.5.16",
     "@storybook/addon-onboarding": "1.0.8",
+    "@storybook/addons": "^7.5.3",
     "@storybook/blocks": "7.5.3",
     "@storybook/builder-vite": "^0.4.2",
-    "@storybook/jest": "^0.0.10",
+    "@storybook/components": "^7.5.3",
+    "@storybook/jest": "^0.2.3",
     "@storybook/nextjs": "7.5.3",
     "@storybook/react": "^6.5.16",
     "@storybook/test-runner": "^0.9.4",
-    "@storybook/testing-library": "^0.0.13",
+    "@storybook/testing-library": "^0.2.2",
     "@testing-library/react": "^14.0.0",
     "@types/circomlibjs": "^0.1.6",
     "@types/dplayer": "^1.25.2",
@@ -90,6 +98,7 @@
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "cross-env": "^7.0.3",
+    "css-loader": "^6.8.1",
     "eslint": "^8",
     "eslint-config-next": "13.5.4",
     "eslint-plugin-storybook": "^0.6.15",
@@ -98,6 +107,7 @@
     "next-plugin-antd-less": "^1.8.0",
     "storybook": "^7.5.3",
     "typescript": "^5",
+    "webpack": "^5.89.0",
     "yarn": "^1.22.19"
   }
 }
