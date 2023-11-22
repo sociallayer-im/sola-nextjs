@@ -1,4 +1,5 @@
-import { walletLogin } from './mock'
+import { walletLogin } from '@/stories/mock'
+
 
 describe('Home Page', () => {
     it('successfully loads', () => {

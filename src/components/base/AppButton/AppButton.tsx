@@ -1,6 +1,6 @@
-import { Button, SHAPE, StyledBaseButton, KIND, SIZE } from 'baseui/button'
-import { withStyle } from 'baseui'
-import { ReactNode } from 'react'
+import {Button, KIND, SHAPE, SIZE, StyledBaseButton} from 'baseui/button'
+import {withStyle} from 'baseui'
+import {ReactNode} from 'react'
 
 export const BTN_KIND = KIND
 export const BTN_SIZE = {
@@ -9,7 +9,7 @@ export const BTN_SIZE = {
 
 export interface AppButtonProps {
     children?: ReactNode,
-    inline?:boolean,
+    inline?: boolean,
     kind?: keyof typeof BTN_KIND,
     onClick?: (...rest: any[]) => any
     disabled?: boolean
@@ -19,24 +19,24 @@ export interface AppButtonProps {
     special?: boolean
 }
 
-export default function AppButton (props: AppButtonProps) {
+export default function AppButton(props: AppButtonProps) {
     const RootOverrides = withStyle(StyledBaseButton, (rootProps) => {
         const {
             $disabled,
             $isLoading,
             $size,
-            $theme: { colors, typography },
+            $theme: {colors, typography},
         } = rootProps
 
         let style: any = {
             color: colors.primaryA,
             display: 'flex',
-            'flex-direction': 'row',
+            'flex-direction': $isLoading ? 'column' : 'row',
             'flexWrap': 'nowrap',
             width: props.inline ? 'auto' : '100%',
             fontSize: '14px',
             fontWeight: 600,
-            background: '#ECF2EE'
+            background: props.kind === BTN_KIND.primary ? '#9efedd' : '#ECF2EE',
         }
 
 
@@ -60,15 +60,25 @@ export default function AppButton (props: AppButtonProps) {
     return (
         <Button
             data-testid='AppButton'
-            disabled={ props.disabled || false }
-            isLoading={ props.isLoading || false }
-            onClick={ props.onClick }
-            kind={ props.kind ? props.kind : KIND.secondary }
-            size={ props.size ? props.size : SIZE.default }
-            shape={ SHAPE.pill }
-            overrides={{Root: {component: RootOverrides }, LoadingSpinner: { style: { borderTopColor: '#1dad7b' }} }}
+            disabled={props.disabled || false}
+            isLoading={props.isLoading || false}
+            onClick={props.onClick}
+            kind={props.kind ? props.kind : KIND.secondary}
+            size={props.size ? props.size : SIZE.default}
+            shape={SHAPE.pill}
+            overrides={{
+                Root: {component: RootOverrides},
+                LoadingSpinner: {
+                    style: {
+                        borderTopColor: '#CBCBCB',
+                        borderLeftColor: '#fff',
+                        borderRightColor: '#fff',
+                        borderBottomColor: '#fff'
+                    },
+                }
+            }}
         >
-        { props.children }
+            {props.children}
         </Button>
     )
 }

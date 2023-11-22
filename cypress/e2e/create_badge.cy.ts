@@ -1,4 +1,4 @@
-import { walletLogin } from './mock'
+import { walletLogin } from '@/stories/mock'
 
 describe('发送徽章', () => {
     beforeEach(() => {
