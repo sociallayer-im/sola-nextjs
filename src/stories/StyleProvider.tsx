@@ -6,7 +6,9 @@ import theme from "@/theme"
 function StyleProvider(props: { children: any }) {
     return (<StyletronProvider value={styletron}>
                 <BaseProvider theme={theme}>
-                    {props.children}
+                    <div className={'light'} style={{background: '#fff'}}>
+                        {props.children}
+                    </div>
                 </BaseProvider>
     </StyletronProvider>)
 }
