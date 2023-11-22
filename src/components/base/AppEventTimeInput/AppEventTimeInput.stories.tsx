@@ -12,7 +12,7 @@ const meta: Meta<typeof Component> = {
         from: new Date().toISOString(),
         to: new Date(new Date().getTime() + 1000 * 60 * 60 * 60).toISOString(),
         timezone: 'Asia/Shanghai',
-        onChange: (from, to) => {
+        onChange: (from: string, to: string) => {
         }
     }
 };
@@ -22,7 +22,7 @@ type Story = StoryObj<typeof Component>;
 export default meta;
 
 export const Basic: Story = {
-    render: function Test(args, context) {
+    render: function Test(args: any, context) {
         return <StyleProvider>
             <LangProvider>
                 <Component {...args} />
@@ -32,7 +32,7 @@ export const Basic: Story = {
 }
 
 export const OnChange: Story = {
-    render: function Test(args, context) {
+    render: function Test(args: any, context) {
         const [res, setRes] = useState<any>(null)
         return <StyleProvider>
             <LangProvider>
@@ -48,7 +48,7 @@ export const OnChange: Story = {
 }
 
 export const NotArrowRepeat: Story = {
-    render: function Test(args, context) {
+    render: function Test(args: any, context) {
         const [res, setRes] = useState<any>(null)
         return <StyleProvider>
             <LangProvider>
@@ -66,7 +66,7 @@ export const NotArrowRepeat: Story = {
 }
 
 export const AllDay: Story = {
-    render: function Test(args, context) {
+    render: function Test(args: any, context) {
         const [res, setRes] = useState<any>(null)
         return <StyleProvider>
             <LangProvider>

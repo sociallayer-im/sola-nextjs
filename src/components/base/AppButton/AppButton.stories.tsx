@@ -16,7 +16,7 @@ type Story = StoryObj<typeof Component>;
 export default meta;
 
 export const Basic: Story = {
-    render: function Test(args, context) {
+    render: function Test(args: any, context) {
         return <StyleProvider>
             <Component {...args} />
         </StyleProvider>
@@ -24,7 +24,7 @@ export const Basic: Story = {
 }
 
 export const Inline: Story = {
-    render: function Test(args, context) {
+    render: function Test(args: any, context) {
         return <StyleProvider>
             <Component {...args} inline={true}/>
         </StyleProvider>
@@ -32,7 +32,7 @@ export const Inline: Story = {
 }
 
 export const Primary: Story = {
-    render: function Test(args, context) {
+    render: function Test(args: any, context) {
         return <StyleProvider>
             <Component {...args} kind={'primary'}/>
         </StyleProvider>
@@ -40,7 +40,7 @@ export const Primary: Story = {
 }
 
 export const Special: Story = {
-    render: function Test(args, context) {
+    render: function Test(args: any, context) {
         return <StyleProvider>
             <Component {...args} special={true} />
         </StyleProvider>
@@ -48,7 +48,7 @@ export const Special: Story = {
 }
 
 export const Loading: Story = {
-    render: function Test(args, context) {
+    render: function Test(args: any, context) {
         return <StyleProvider>
             <Component {...args} isLoading={true}/>
         </StyleProvider>
@@ -56,7 +56,7 @@ export const Loading: Story = {
 }
 
 export const Disable: Story = {
-    render: function Test(args, context) {
+    render: function Test(args: any, context) {
         return <StyleProvider>
             <Component {...args} disabled={true}/>
         </StyleProvider>
