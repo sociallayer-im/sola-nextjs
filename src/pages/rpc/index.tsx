@@ -18,7 +18,7 @@ import MaodaoCardMembers from "@/components/maodao/MaodaoCardMembers/MaodaoCardM
 import fetch from '@/utils/fetch'
 import MaodaoNftList from "@/components/maodao/MaodaoNftList/MaodaoNftList";
 
-function GroupPage(props: any) {
+function GroupPage() {
     const groupname = 'readyplayerclub'
     const [profile, setProfile] = useState<Profile | null>(null)
     const {showLoading, openConnectWalletDialog} = useContext(DialogsContext)

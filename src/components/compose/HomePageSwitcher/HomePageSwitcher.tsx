@@ -26,9 +26,13 @@ function HomePageSwitcher() {
             if (process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'zumap') {
                 const group = findGroup('istanbul2023')
                 setEventGroup(group)
+            } else if (process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'maodao') {
+                const group = findGroup('readyplayerclub')
+                setEventGroup(group)
             } else {
                 router.push(`/event/${groupList[0].username}`)
             }
+
             return
         }
 
