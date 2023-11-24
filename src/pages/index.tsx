@@ -1,7 +1,7 @@
 import Page from "@/pages/event/index"
 import MapPage from '@/pages/event/[groupname]/map'
 import MaodaoHome from '@/pages/rpc'
-import {getEventGroup, Group, queryEvent} from "@/service/solas";
+import {getEventGroup, Group, queryEvent, Event} from "@/service/solas";
 
 export default function HomePage(props: { initEvent: Group, initList?: Event[] }) {
     return <>
@@ -10,7 +10,7 @@ export default function HomePage(props: { initEvent: Group, initList?: Event[] }
                 <MapPage markerType={null}/> :
                 process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'maodao' ?
                     <MaodaoHome/>
-                    : <Page initEvent={props.initEvent || undefined} initList={props.initList}/>
+                    : <Page initEvent={props.initEvent || undefined} initList={props.initList || []}/>
         }
     </>
 }

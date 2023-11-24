@@ -5,7 +5,7 @@ import LangContext from '@/components/provider/LangProvider/LangContext'
 import HomeUserPanel from "@/components/base/HomeUserPanel/HomeUserPanel";
 import AppSubTabs from "@/components/base/AppSubTabs";
 import {Tab} from "baseui/tabs";
-import {Group, Participants, queryEvent, queryMyEvent} from "@/service/solas";
+import {Group, Participants, queryEvent, queryMyEvent, Event} from "@/service/solas";
 import ListMyAttentedEvent from "@/components/compose/ListMyAttentedEvent/ListMyAttentedEvent";
 import ListMyCreatedEvent from "@/components/compose/ListMyCreatedEvent/ListMyCreatedEvent";
 import ListEventVertical from "@/components/compose/ListEventVertical/ListEventVertical";
@@ -116,7 +116,7 @@ function Home(props: {initEvent?:Group, initList?: Event[]}) {
 
             <div className={'center'}>
                 { !isMaodao || pathname?.includes('event-home') ?
-                    <ListEventVertical participants={myRegistered} initData={props.initList} />
+                    <ListEventVertical participants={myRegistered} initData={props.initList || []} />
                     : <MaodaoListEventVertical participants={myRegistered}/>
                 }
             </div>
