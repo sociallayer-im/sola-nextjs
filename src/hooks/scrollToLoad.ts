@@ -3,11 +3,12 @@ import { useInView } from 'react-intersection-observer'
 
 interface useScrollToLoadProps<T> {
     queryFunction: (page: number) => T[] | Promise<T[]>
-    immediate?: boolean
+    immediate?: boolean,
+    initData?: T[]
 }
 
 function useScrollToLoad<T> (props: useScrollToLoadProps<T>) {
-    const [list, setList] = useState<any[]>([])
+    const [list, setList] = useState<any[]>(props.initData || [])
     const [page, setPage] = useState(0)
     const [loading, setLoading] = useState(false)
     const [isEmpty, setIsEmpty] = useState(false)

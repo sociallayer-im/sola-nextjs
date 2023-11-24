@@ -5,6 +5,7 @@ import useTime from "../../../../hooks/formatTime";
 import langContext from "../../../provider/LangProvider/LangContext";
 import userContext from "../../../provider/UserProvider/UserContext";
 import DialogsContext from "../../../provider/DialogProvider/DialogsContext";
+import Link from "next/link";
 
 export interface CardEventProps {
     event: Event,
@@ -80,9 +81,7 @@ function CardEvent({fixed=true, ...props}: CardEventProps) {
 
     const largeCard = fixed || (hasMarker && !fixed)
 
-    return (<div className={largeCard ? 'event-card large': 'event-card'} onClick={e => {
-        gotoDetail()
-    }}>
+    return (<Link href={`/event/detail/${props.event.id}`} className={largeCard ? 'event-card large': 'event-card'}>
         {largeCard &&
             <div className={'markers'}>
                 {isExpired && <div className={'marker expired'}>{lang['Activity_Detail_Expired']}</div>}
@@ -133,7 +132,7 @@ function CardEvent({fixed=true, ...props}: CardEventProps) {
                 <img src={props.event.cover} alt=""/>
             </div>
         </div>
-    </div>)
+    </Link>)
 }
 
 export default CardEvent

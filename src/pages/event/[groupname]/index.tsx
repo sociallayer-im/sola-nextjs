@@ -5,7 +5,7 @@ import LangContext from '@/components/provider/LangProvider/LangContext'
 import HomeUserPanel from "@/components/base/HomeUserPanel/HomeUserPanel";
 import AppSubTabs from "@/components/base/AppSubTabs";
 import {Tab} from "baseui/tabs";
-import {Participants, queryEvent, queryMyEvent} from "@/service/solas";
+import {Group, Participants, queryEvent, queryMyEvent} from "@/service/solas";
 import ListMyAttentedEvent from "@/components/compose/ListMyAttentedEvent/ListMyAttentedEvent";
 import ListMyCreatedEvent from "@/components/compose/ListMyCreatedEvent/ListMyCreatedEvent";
 import ListEventVertical from "@/components/compose/ListEventVertical/ListEventVertical";
@@ -14,13 +14,14 @@ import DialogsContext from "@/components/provider/DialogProvider/DialogsContext"
 import EventHomeContext from "@/components/provider/EventHomeProvider/EventHomeContext";
 import MaodaoListEventVertical from "@/components/maodao/MaodaoListEventVertical/ListEventVertical";
 
-function Home() {
+function Home(props: {initEvent?:Group, initList?: Event[]}) {
     const {user} = useContext(UserContext)
     const router = useRouter()
     const pathname = usePathname()
     const {lang} = useContext(LangContext)
     const {showToast} = useContext(DialogsContext)
-    const {eventGroup, ready, joined, isManager} = useContext(EventHomeContext)
+    const {ready, joined, isManager} = useContext(EventHomeContext)
+    const eventGroup = useContext(EventHomeContext).eventGroup || props.initEvent || undefined
 
     const [tabIndex, setTabIndex] = useState('0')
     const [showMyCreate, setShowMyCreate] = useState(true)
@@ -115,7 +116,7 @@ function Home() {
 
             <div className={'center'}>
                 { !isMaodao || pathname?.includes('event-home') ?
-                    <ListEventVertical participants={myRegistered} />
+                    <ListEventVertical participants={myRegistered} initData={props.initList} />
                     : <MaodaoListEventVertical participants={myRegistered}/>
                 }
             </div>

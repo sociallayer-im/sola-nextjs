@@ -1,5 +1,5 @@
 import { createContext } from 'react'
-import {Profile} from "@/service/solas";
+import {Profile, Group} from "@/service/solas";
 
 interface EventHomeContextType {
     eventGroups: Profile[],
@@ -10,6 +10,8 @@ interface EventHomeContextType {
     leadingEvent: null | {id: number, username: string, logo: string | null}
     eventGroup: Profile | null,
     setEventGroup: (group: Profile) => any,
+    setList: (groups: Group[]) => any,
+    setReady: (ready: boolean) => any,
     findGroup: (username: string) => any,
     reload: any,
     isManager: boolean,
@@ -24,6 +26,8 @@ const EventHomeContext = createContext<EventHomeContextType>({
     joined: false,
     eventGroup: null,
     setEventGroup: (group: Profile) => {},
+    setList: (groups: Group[]) => {},
+    setReady: (ready: boolean) => {},
     findGroup: (username: string) => {},
     isManager: false,
     reload: () => {} ,

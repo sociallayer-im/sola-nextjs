@@ -17,6 +17,7 @@ function PageBacProvider(props: PageBacProviderProps) {
     const router = useRouter()
     const routerPathname = usePathname()
     const searchParams = useSearchParams()
+    const currPathnameRef = useRef('')
 
     const readHistory = () => {
         if (typeof window === 'undefined') return []
@@ -51,6 +52,13 @@ function PageBacProvider(props: PageBacProviderProps) {
             // console.log('same page=====>', currPathname, history.current)
         }
         window.localStorage.setItem('history', JSON.stringify(history.current))
+
+        if (routerPathname !== currPathnameRef.current) {
+            currPathnameRef.current = routerPathname
+            const pageContent = document.querySelector('#PageContent')
+            pageContent?.scrollTo(0, 0)
+        }
+
     }, [routerPathname, searchParams])
 
     // 返回上一页

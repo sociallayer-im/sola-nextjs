@@ -50,8 +50,12 @@ function EventHomeProvider(props: { children: any }) {
     }
 
     useEffect(() => {
-        getEventGroupList()
-    }, [])
+        if (!eventGroups.length) {
+            getEventGroupList()
+        } else {
+            setReady(true)
+        }
+    }, [eventGroups.length])
 
     useEffect(() => {
         async function getAvailableList() {
@@ -107,6 +111,8 @@ function EventHomeProvider(props: { children: any }) {
             eventGroups,
             eventGroup: selectedEventGroup,
             setEventGroup: setSelectedEventGroup,
+            setList: setAvailableList,
+            setReady,
             findGroup,
             availableList,
             ready,
