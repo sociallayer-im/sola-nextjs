@@ -30,7 +30,7 @@ function HomePageSwitcher() {
                 const group = findGroup('readyplayerclub')
                 setEventGroup(group)
             } else {
-                router.push(`/event/${groupList[0].username}`)
+                setEventGroup(groupList[0])
             }
 
             return
