@@ -19,7 +19,8 @@ export interface LocationInputProps {
     index?: number,
     initValue: EventSites,
     onChange?: (value: EventSites) => any
-    error?: boolean
+    error?: boolean,
+    onDelete?: (index: number) => any
 }
 
 function EventSiteInput(props: LocationInputProps) {
@@ -158,7 +159,14 @@ function EventSiteInput(props: LocationInputProps) {
 
     return (<div className={'input-area event-site-input'}>
         <input type="text" id={'map'}/>
-        <div className={'input-area-sub-title'}>{lang['Event_Site_Title']}{props.index || null}</div>
+        <div className={'input-area-sub-title'}>
+            <div>{lang['Event_Site_Title']}{props.index || null}</div>
+            <div className={'remove-btn'} onClick={e => {
+                props.onDelete && props.onDelete(props.index || 0)
+            }}>
+                {lang['Event_Site_Remove']}
+            </div>
+        </div>
         <AppInput
             startEnhancer={() => <i className={'icon-edit'}/>}
             endEnhancer={() => <Delete size={24} onClick={reset} className={'delete'}/>}

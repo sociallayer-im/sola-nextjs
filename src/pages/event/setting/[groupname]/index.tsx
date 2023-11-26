@@ -52,6 +52,12 @@ function Dashboard() {
     }, [availableList, params])
 
     useEffect(() => {
+        return () => {
+            switchOverflow(false)
+        }
+    }, [])
+
+    useEffect(() => {
         if (eventGroup) {
             getEventSideBar(eventGroup.id)
             setBanner(eventGroup.banner_image_url || '')
@@ -117,7 +123,6 @@ function Dashboard() {
     }
 
     const setBannerImage = async function () {
-        console.log('eventGroupeventGroupeventGroup', eventGroup)
         const unload = showLoading()
         const update = await updateGroup({
             ...eventGroup,
@@ -235,10 +240,21 @@ function Dashboard() {
                             {
                                 eventSite.map((item, index) => {
                                     return <EventSiteInput
-                                        key={index}
+                                        key={item.id}
                                         index={index + 1}
                                         initValue={item}
                                         error={errorInputItem.includes(index)}
+                                        onDelete={(index) => {
+                                            const newEventSiteList = [...eventSite]
+                                            const res = newEventSiteList.filter((item, index1) => {
+                                                return index1 !== index - 1
+                                            })
+
+                                            console.log('res', res)
+
+                                            setEventSite(res)
+                                        }}
+
                                         onChange={newEventSite => {
                                             const newEventSiteList = [...eventSite]
                                             newEventSiteList[index] = newEventSite

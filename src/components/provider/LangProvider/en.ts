@@ -449,6 +449,7 @@ const langEN = {
     Login_Phone_input_Code_title: 'Verification code',
     Login_Phone_input_Code_des: slotLang('Enter the code we sent to {phone} to complete your account set-up.'),
     Event_Site_Title: 'Event Site',
+    Event_Site_Remove: 'Remove',
     Event_Site_Location_title: slotLang(' Location of Event site {1}'),
     Setting_Title: 'Organization Settings',
     Setting_Event_site: 'Event site',

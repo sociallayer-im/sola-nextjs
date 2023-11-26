@@ -445,6 +445,7 @@ const langCN: LangConfig = {
   Login_Phone_input_Code_title: '验证码',
   Login_Phone_input_Code_des: slotLang('输入你的手机 {phone} 接收到的验证码完成登录操作'),
   Event_Site_Title: '活动空间',
+  Event_Site_Remove: '移除',
   Event_Site_Location_title: slotLang('空间{1}的地点'),
   Setting_Title: '组织设置',
   Setting_Event_site: '活动空间',

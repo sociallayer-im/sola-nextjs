@@ -16,6 +16,18 @@
     line-height: 22px;
     margin-top: 12px;
     margin-bottom: 4px;
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-between;
+    align-items: center;
+
+    .remove-btn {
+      font-size: 12px;
+      padding-right: 12px;
+      font-weight: normal;
+      color: #dc5f5f;
+      cursor: pointer;
+    }
   }
 
   .title {
