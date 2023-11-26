@@ -2,6 +2,26 @@
   min-height: 100%;
   background: var(--color-page-bg-1);
 
+  .add-to-calendar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 16px;
+    background: var(--fill-2-medium, #F5F8F6);
+    color: var(--text-4-headline, #272928);
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 28px;
+    text-decoration: none;
+    margin-top: 30px;
+    height: 56px;
+
+    svg {
+      margin-right: 8px;
+    }
+  }
+
 
   .center {
     max-width: 375px;
