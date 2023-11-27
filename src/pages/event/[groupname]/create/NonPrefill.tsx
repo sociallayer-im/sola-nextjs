@@ -97,6 +97,7 @@ const repeatEventEditOptions = [
 ]
 
 function CreateEvent(props: CreateEventPageProps) {
+    const initTime = getNearestTime()
     const router = useRouter()
     const {user} = useContext(UserContext)
     const {showLoading, showToast, openDialog, openConfirmDialog} = useContext(DialogsContext)
@@ -1034,7 +1035,7 @@ function CreateEvent(props: CreateEventPageProps) {
                         </div>
 
                         {eventType === 'event' &&
-                            <div className={'input-area'}>
+                            <div className={'input-area'} data-testid={'input-event-participants'}>
                                 <div className={'toggle'}>
                                     <div className={'item-title'}>{lang['Activity_Form_participants']}</div>
                                     <div className={'item-value'}>

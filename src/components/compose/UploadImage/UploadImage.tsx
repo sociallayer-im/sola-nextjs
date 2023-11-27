@@ -105,9 +105,9 @@ function UploadImage ({cropper=true, ...props}: UploadImageProps) {
 
     return (<Wrapper>
         { cropper ?
-            <Pic onClick={ () => { selectFile() } } src={ imageSelect || defaultImg } alt=""/>
-            : imageSelect ? <Pic2 onClick={ () => { selectFile() } } src={ imageSelect  } alt=""/>
-                : <Pic onClick={ () => { selectFile() } } src={ defaultImg } alt=""/>
+            <Pic data-testid='upload-image' onClick={ () => { selectFile() } } src={ imageSelect || defaultImg } alt=""/>
+            : imageSelect ? <Pic2 data-testid='upload-image-uploaded' onClick={ () => { selectFile() } } src={ imageSelect  } alt=""/>
+                : <Pic data-testid='upload-image' onClick={ () => { selectFile() } } src={ defaultImg } alt=""/>
         }
     </Wrapper>)
 }
