@@ -1,5 +1,19 @@
 import { walletLogin } from '../../src/stories/mock'
 
+// 生成随机1-5的数字
+function randomNum() {
+    return Math.floor(Math.random() * 5) + 1
+}
+
+const eventSite = [
+    '广轻',
+    '深圳大学',
+    '北京大学',
+    '华南理工大学',
+    '中大1',
+    'beijjing1'
+]
+
 describe('创建Event', () => {
     beforeEach(() => {
         walletLogin()
@@ -24,10 +38,22 @@ describe('创建Event', () => {
         cy.get('input[placeholder="Event Name"]')
             .type('handle test event ' + new Date().toLocaleString())
 
+        cy.get('.time-input-start div[data-baseweb="select"]')
+            .click()
+
+        cy.contains('14:00')
+            .click()
+
+        cy.get('.time-input-ending div[data-baseweb="select"]')
+            .click()
+
+        cy.contains('14:15')
+            .click()
+
         cy.get('.event-location-input div[data-baseweb="select"]')
             .click()
 
-        cy.contains('广轻')
+        cy.contains(eventSite[randomNum()])
             .click()
 
         cy.get('.edit-box')
@@ -66,5 +92,7 @@ describe('创建Event', () => {
             .click()
 
         cy.contains('create success')
+
+        cy.contains('Share')
     })
 })

@@ -216,7 +216,7 @@ function AppDateInput({arrowRepeat = true, ...props}: AppDateInputProps) {
             </div>
 
             {!allDay &&
-                <div className={'time-input'}>
+                <div className={'time-input time-input-start'}>
                     <TimePicker
                         step={60 * 15}
                         value={from}
