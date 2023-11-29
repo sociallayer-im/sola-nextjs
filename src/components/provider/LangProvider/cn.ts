@@ -19,7 +19,7 @@ const langCN: LangConfig = {
   Wallet_Intro_MetaMask: '连接你的 MetaMask 钱包',
   Wallet_Title_WalletConnect: 'WalletConnect',
   Wallet_Intro_WalletConnect: '连接你的 WalletConnect 钱包',
-  Wallet_Intro: '连接你的钱包',
+  Wallet_Intro:  slotLang('连接 {0} '),
   UserAction_MyProfile: '查看主页',
   UserAction_Disconnect: '登出',
   Regist_Step_One_Title: '设置一个用户名',

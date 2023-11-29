@@ -87,7 +87,7 @@ function DialogConnectWallet (props: DialogConnectWalletProps) {
                     <img src={ `/images/${connector.name.toLowerCase()}.png` } alt={connector.name} />
                     <div className='connect-name'>{connector.name}</div>
                     <div className='connect-des'>
-                        {lang['Wallet_Intro']}
+                        {lang['Wallet_Intro']([connector.name])}
                     </div>
                 </div>
             ))}

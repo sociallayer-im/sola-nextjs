@@ -2,7 +2,7 @@ import React from 'react';
 import '@/styles/index.sass'
 import NextNProgress from 'nextjs-progressbar';
 import Script from 'next/script'
-import { Analytics } from '@vercel/analytics/react';
+import {Analytics} from '@vercel/analytics/react';
 import Layout from "@/components/Layout/Layout";
 
 // providers
@@ -23,10 +23,19 @@ import MapProvider from "@/components/provider/MapProvider/MapProvider";
 import EventHomeProvider from "@/components/provider/EventHomeProvider/EventHomeProvider";
 import ColorSchemeProvider from "@/components/provider/ColorSchemeProvider";
 import Subscriber from '@/components/base/Subscriber'
+import {JoyIdConnector} from '@joyid/wagmi'
+import { WalletConnectConnector } from '@wagmi/core/connectors/walletConnect'
 
 const inject = new InjectedConnector({
     chains: [mainnet, moonbeam],
 } as any)
+
+// const walletConnectConnect = new WalletConnectConnector({
+//     chains: [mainnet, moonbeam],
+//     options: {
+//         projectId: '291f8dbc68b408d4552ec4e7193c1b47'
+//     }
+// })
 
 const {chains, publicClient, webSocketPublicClient} = configureChains(
     [mainnet, moonbeam],
@@ -37,6 +46,15 @@ const config = createConfig({
     autoConnect: true,
     publicClient,
     webSocketPublicClient,
+    connectors: [
+        //  walletConnectConnect,
+        inject,
+        new JoyIdConnector(
+        {
+            chains: [mainnet, moonbeam],
+            options: {}
+        })
+    ],
 })
 
 function MyApp({Component, pageProps}: any) {
@@ -44,13 +62,14 @@ function MyApp({Component, pageProps}: any) {
         <PageBacProvider>
             <Head>
                 <link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
-                <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+                <meta name="viewport"
+                      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
                 <script src="/jslib/pusher.min.js"></script>
                 <title>{process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'maodao' ? 'Ready Player Club' : 'Social Layer'}</title>
             </Head>
             <Script src={'/jslib/google.map.js'} async></Script>
 
-            { process.env.NODE_ENV === 'production' &&
+            {process.env.NODE_ENV === 'production' &&
                 <Script src="/jslib/trackjs.min.js" async></Script>
             }
             <WagmiConfig config={config as any}>
@@ -66,8 +85,8 @@ function MyApp({Component, pageProps}: any) {
                                                     <Layout>
                                                         <NextNProgress options={{showSpinner: false}}/>
                                                         <Component {...pageProps} />
-                                                        <Subscriber />
-                                                        <Analytics />
+                                                        <Subscriber/>
+                                                        <Analytics/>
                                                     </Layout>
                                                 </EventHomeProvider>
                                             </MapProvider>

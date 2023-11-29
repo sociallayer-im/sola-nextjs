@@ -17,7 +17,7 @@ const langEN = {
     Wallet_Intro_MetaMask: 'Connect to your MetaMask Wallet Or injected explorer wallet',
     Wallet_Title_WalletConnect: 'WalletConnect',
     Wallet_Intro_WalletConnect: 'Connect to your WalletConnect Wallet',
-    Wallet_Intro: 'Connect to explorer wallet',
+    Wallet_Intro: slotLang('Connect to {wallet}'),
     UserAction_MyProfile: 'My profile',
     UserAction_Disconnect: 'Sign Out',
     Regist_Step_One_Title: 'Set a username',
