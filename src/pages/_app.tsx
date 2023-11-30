@@ -52,7 +52,9 @@ const config = createConfig({
         new JoyIdConnector(
         {
             chains: [mainnet, moonbeam],
-            options: {}
+            options: {
+                joyidAppURL: 'https://app.joy.id'
+            }
         })
     ],
 })
