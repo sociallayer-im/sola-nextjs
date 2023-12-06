@@ -14,9 +14,7 @@ function ListGroupInvite(props: ListUserBadgeletProps) {
 
     const getInvite = async (page: number) => {
         return await solas.queryGroupInvites({
-            group_id: props.group.id,
-            page,
-            auth_token: user.authToken || ''
+            group_id: props.group.id
         })
     }
 

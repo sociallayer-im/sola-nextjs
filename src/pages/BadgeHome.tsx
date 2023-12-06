@@ -3,7 +3,7 @@ import AppButton, {BTN_KIND} from "@/components/base/AppButton/AppButton";
 import {useContext, useEffect} from 'react'
 import UserContext from '@/components/provider/UserProvider/UserContext'
 import DialogsContext from '@/components/provider/DialogProvider/DialogsContext'
-import solas from '@/service/solas'
+import solas, {queryVoucherDetail} from '@/service/solas'
 import useIssueBadge from '@/hooks/useIssueBadge'
 import LangContext from '@/components/provider/LangProvider/LangContext'
 import {useRouter, useParams} from "next/navigation";
@@ -22,7 +22,8 @@ function Home() {
         showPoint,
         showPointItem,
         showGift,
-        showGiftItem
+        showGiftItem,
+        showVoucher
     } = useContext(DialogsContext)
     const router = useRouter()
     const params = useParams()
@@ -38,8 +39,8 @@ function Home() {
         async function showPresendDetail() {
             const id = (params!.presendId as string)?.split('_')[0]
             const code = (params!.presendId as string)?.split('_')[1]
-            const newBadgelet = await solas.queryPresendDetail({id: Number(id)})
-            showPresend(newBadgelet, code)
+            const vourcher = await solas.queryVoucherDetail(Number(id))
+            showPresend(vourcher, code)
         }
 
         async function showInviteDetail() {
@@ -132,6 +133,19 @@ function Home() {
             setTimeout(() => {
                 showGiftItemDetail()
             }, 500)
+        }
+
+        if (params?.voucherId) {
+            const unload = showLoading()
+            const voucher = queryVoucherDetail(Number(params!.voucherId))
+                .then(res => {
+                    if (res!.badge.badge_type === 'badge') {
+                        showVoucher(res)
+                    }
+                })
+                .finally(() => {
+                    unload()
+                })
         }
     }, [params])
 

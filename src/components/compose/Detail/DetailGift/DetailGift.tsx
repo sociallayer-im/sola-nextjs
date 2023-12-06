@@ -45,18 +45,20 @@ function DetailGift(props: DetailBadgeProps) {
     const swiperIndex = useRef(0)
     const [needUpdate, _] = useEvent(EVENT.badgeDetailUpdate)
     const [isGroupManager, setIsGroupManager] = useState(false)
-    const loginUserIsSender = user.id === props.badge.sender.id || user.id === props.badge.group?.id
+    const loginUserIsSender = user.id === props.badge.creator.id || user.id === props.badge.group?.id
 
     useEffect(() => {
         async function getBadgelet() {
             const badgeWithBadgelets = await solas.queryBadgeDetail({id: props.badge.id})
-            let badgelets = badgeWithBadgelets.badgelets.filter(item => {
+            let badgelets = badgeWithBadgelets!.badgelets.filter(item => {
                 return item.status === 'accepted'
             })
+
             badgelets = badgelets.map(item => {
                 item.badge = props.badge
                 return item
             })
+
             setBadgelets(badgelets)
         }
 
@@ -110,7 +112,7 @@ function DetailGift(props: DetailBadgeProps) {
             <DetailName> {props.badge.name} </DetailName>
             <DetailRow>
                 <DetailCreator isGroup={!!props.badge.group}
-                               profile={props.badge.group || props.badge.sender}/>
+                               profile={props.badge.group || props.badge.creator}/>
             </DetailRow>
 
             {
@@ -136,19 +138,14 @@ function DetailGift(props: DetailBadgeProps) {
                                             <DetailArea
                                                 onClose={props.handleClose}
                                                 title={lang['BadgeDialog_Label_Owner']}
-                                                content={badgelet.owner.domain
-                                                    ? badgelet.owner.domain.split('.')[0]
+                                                content={badgelet.owner.username
+                                                    ? badgelet.owner.username
                                                     : ''
                                                 }
-                                                navigate={badgelet.owner.domain
-                                                    ? `/profile/${badgelet.owner.domain?.split('.')[0]}`
+                                                navigate={badgelet.owner.username
+                                                    ? `/profile/${badgelet.owner.username}`
                                                     : '#'}
                                                 image={badgelet.owner.image_url || defaultAvatar(badgelet.owner.id)}/>
-
-                                            <DetailArea
-                                                title={lang['BadgeDialog_Label_Token']}
-                                                content={props.badge.domain}/>
-
 
                                             <DetailArea
                                                 title={lang['NFT_Detail_Expiration']}
@@ -174,10 +171,6 @@ function DetailGift(props: DetailBadgeProps) {
                                 <ReasonText text={props.badge.content}/>
                             </DetailDes>
                         }
-
-                        <DetailArea
-                            title={lang['BadgeDialog_Label_Token']}
-                            content={props.badge.domain}/>
 
                         <DetailArea
                             title={lang['BadgeDialog_Label_Creat_Time']}

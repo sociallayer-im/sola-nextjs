@@ -9,6 +9,8 @@ dayjs.extend(utc)
 dayjs.extend(timezone)
 
 export const formatTime = (dateString: string) => {
+    dateString = dateString.endsWith('Z') ? dateString : dateString + 'Z'
+
     const dateObject = new Date(dateString)
     const year = dateObject.getFullYear() + ''
     const mon = dateObject.getMonth() + 1 + ''
@@ -19,6 +21,7 @@ export const formatTime = (dateString: string) => {
 }
 
 export const formatTimeWithTimezone = (dateString: string, timezone: string) => {
+    dateString = dateString.endsWith('Z') ? dateString : dateString + 'Z'
     const diff = dayjs.tz('2023-01-01 00:00', timezone).diff(dayjs.tz('2023-01-01 00:00'), 'millisecond')
     return dayjs(new Date(new Date(dateString).getTime() - diff).toString()).format("YYYY.MM.DD HH:mm")
 }
@@ -27,6 +30,7 @@ function useTime () {
     const {lang} = useContext(LangContext)
 
     return (dateString: string, langType?: string) => {
+        dateString = dateString.endsWith('Z') ? dateString : dateString + 'Z'
         // format like:THU, SEP 26 AT 9 PM
         const dateObject = new Date(dateString)
         const isToday = new Date().toDateString() === dateObject.toDateString()

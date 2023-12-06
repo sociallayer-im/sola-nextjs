@@ -6,7 +6,6 @@ import ProfilePanel from '@/components/base/ProfilePanel/ProfilePanel'
 import AppButton from '@/components/base/AppButton/AppButton'
 import LangContext from '@/components/provider/LangProvider/LangContext'
 import UserContext from '@/components/provider/UserProvider/UserContext'
-import useIssueBadge from '@/hooks/useIssueBadge'
 import BgProfile from '@/components/base/BgProfile/BgProfile'
 import {styled} from 'baseui'
 import useCopy from '@/hooks/copy'
@@ -20,7 +19,7 @@ import MaodaoUserTab from "@/components/maodao/MaodaoUserTab/MaodaoUserTab";
 
 function Page(props: any) {
     const params = useParams()
-    const [tokenId, setTokenId] = useState<string>(props.tokenId || params?.tokenId)
+    const [tokenId, setTokenId] = useState<string>(props.tokenId || params?.tokenId as string || '')
     const [profile, setProfile] = useState<Profile | null>(props.profile || null)
     const [maodaoprofile, setMaodaoprofile] = useState<{
         cat: string,
@@ -34,7 +33,6 @@ function Page(props: any) {
     const {lang} = useContext(LangContext)
     const {user} = useContext(UserContext)
     const router = useRouter()
-    const startIssue = useIssueBadge()
     const {copyWithDialog} = useCopy()
 
 
@@ -50,12 +48,15 @@ function Page(props: any) {
     useEffect(() => {
         const getProfile = async function () {
             const emptyProfile: Profile = {
-                address: null,
-                domain: null,
-                group_owner_id: null,
                 id: 0,
-                image_url: null,
+                username: '--',
+                address: null,
                 email: null,
+                phone: null,
+                zupass: null,
+                address_type: 'wallet',
+                domain: null,
+                image_url: null,
                 twitter: null,
                 telegram: null,
                 github: null,
@@ -67,10 +68,8 @@ function Page(props: any) {
                 location: null,
                 about: null,
                 nickname: '--',
-                username: '--',
                 followers: 0,
                 following: 0,
-                is_group: false,
                 badge_count: 0,
                 status: 'active',
                 permissions: [],
@@ -79,7 +78,7 @@ function Page(props: any) {
                 group_map_enabled: false,
                 banner_image_url: null,
                 banner_link_url: null,
-                group_location_details: null
+                group_location_details: null,
             }
 
             if (!tokenId) {
@@ -138,27 +137,6 @@ function Page(props: any) {
             setTokenId(params?.username as string)
         }
     }, [params])
-
-    const handleMintOrIssue = async () => {
-        if (!user.id) {
-            openConnectWalletDialog()
-            return
-        }
-
-        // 处理用户登录后但是未注册域名的情况，即有authToken和钱包地址,但是没有domain和username的情况
-        if (user.wallet && user.authToken && !user.domain) {
-            router.push('/regist')
-            return
-        }
-
-        const unload = showLoading()
-        const badges = await queryBadge({sender_id: user.id!, page: 1})
-        unload()
-
-        user.userName === profile?.username
-            ? startIssue({badges})
-            : startIssue({badges, to: profile?.domain || ''})
-    }
 
     const ShowDomain = styled('div', ({$theme}: any) => {
         return {

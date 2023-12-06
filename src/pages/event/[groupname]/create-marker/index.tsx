@@ -67,12 +67,12 @@ function ComponentName() {
         // owner 和 manager 可以使用 group badge
         // 1516 playgroup2
         // 1984 istanbul2023
-        setCanUserGroupBadge((isManager || eventGroup?.group_owner_id == user?.id)
+        setCanUserGroupBadge((isManager || (eventGroup as Group)?.creator.id == user?.id)
             && (eventGroup?.id === 1516 || eventGroup?.id === 1984))
     }, [isManager, eventGroup, user?.id])
 
     const showBadges = async (withGroup?: Group[]) => {
-        const props = creator?.is_group ? {
+        const props = !!(creator as Group)?.creator ? {
                 group_id: creator!.id,
                 page: 1
             } :
@@ -145,16 +145,16 @@ function ComponentName() {
                 auth_token: user.authToken || '',
                 group_id: eventGroup?.id,
                 owner_id: creator?.id,
-                icon_url: icon!,
-                cover_url: cover,
+                pin_image_url: icon!,
+                cover_image_url: cover,
                 title,
                 category,
                 about: content,
                 link,
                 location: JSON.parse(location).name,
-                location_detail: location,
-                lat: location ? JSON.parse(location).geometry.location.lat : null,
-                lng: location ? JSON.parse(location).geometry.location.lng : null,
+                formatted_address: location,
+                geo_lat: location ? JSON.parse(location).geometry.location.lat : null,
+                geo_lng: location ? JSON.parse(location).geometry.location.lng : null,
                 marker_type: 'site',
                 voucher_id: voucher ? voucher.id : undefined
             })
@@ -203,16 +203,16 @@ function ComponentName() {
                 auth_token: user.authToken || '',
                 group_id: eventGroup?.id,
                 owner_id: creator?.id,
-                icon_url: icon!,
-                cover_url: cover,
+                pin_image_url: icon!,
+                cover_image_url: cover,
                 title,
                 category,
                 about: content,
                 link,
                 location: JSON.parse(location).name,
-                location_detail: location,
-                lat: location ? JSON.parse(location).geometry.location.lat : null,
-                lng: location ? JSON.parse(location).geometry.location.lng : null,
+                formatted_address: location,
+                geo_lat: location ? JSON.parse(location).geometry.location.lat : null,
+                geo_lng: location ? JSON.parse(location).geometry.location.lng : null,
                 marker_type: 'site',
                 id: markerId!,
                 voucher_id: badgeId ? (newVoucherId || markerInfoRef.current?.voucher_id) : null
@@ -277,8 +277,8 @@ function ComponentName() {
         setMarkerId(Number(markerid))
         setTitle(detail.title)
         setLink(detail.link || '')
-        setCover(detail.cover_url || '')
-        setIcon(detail.icon_url)
+        setCover(detail?.cover_image_url || '')
+        setIcon(detail?.pin_image_url || '')
         setCategory(detail.category)
         setContent(detail.about || '')
         markerInfoRef.current = detail
@@ -289,7 +289,6 @@ function ComponentName() {
         if (detail.voucher_id) {
             const voucher = await queryPresendDetail({
                 id: detail.voucher_id,
-                auth_token: user.authToken || ''
             })
             setBadgeId(voucher.badge_id)
             badgeIdRef.current = voucher.badge_id
@@ -298,7 +297,7 @@ function ComponentName() {
         }
 
 
-        setLocation(detail.location_detail)
+        setLocation(detail?.formatted_address)
     }
 
     useEffect(() => {

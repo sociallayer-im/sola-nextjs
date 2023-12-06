@@ -82,22 +82,22 @@ function CardVote(props: { item: Vote }) {
     const {lang} = useContext(LangContext)
 
 
-    const [voteCount, setVoteCount] = useState<number[]>(Array(props.item.options.length).fill(0))
+    const [voteCount, setVoteCount] = useState<number[]>(Array(props.item.vote_options.length).fill(0))
     const [userVote, setUserVote] = useState<number[]>([])
     const [records, setRecords] = useState<VoteRecord[]>([])
     const [voteDetail, setVoteDetail] = useState<Vote>(props.item)
-    const [voters, setVoters] = useState<Profile[][]>(Array(props.item.options.length).fill([]))
+    const [voters, setVoters] = useState<Profile[][]>(Array(props.item.vote_options.length).fill([]))
     const [badge, setBadge] = useState<BadgeWithBadgelets | null>(null)
     const [canVote, setCanVote] = useState<boolean>(false)
 
-    const ending = voteDetail.ending_time ? new Date(voteDetail.ending_time).getTime() < Date.now() : false
+    const ending = voteDetail.end_time ? new Date(voteDetail.end_time).getTime() < Date.now() : false
 
-    async function init(options?: { id?: number, link: string | null, title: string , weight: number }[]) {
+    async function init(options?: { id?: number, link: string | null, title: string , voted_weight: number }[]) {
         const records = await getRecord()
         setRecords(records)
 
-        const voterList = Array(voteDetail.options.length).fill([]);
-        (options || voteDetail.options)
+        const voterList = Array(voteDetail.vote_options.length).fill([]);
+        (options || voteDetail.vote_options)
             .sort((a, b) => {
                 return a.id! - b.id!
             })
@@ -108,13 +108,13 @@ function CardVote(props: { item: Vote }) {
 
         setVoters(voterList)
 
-        console.log('voteDetail.options', voteDetail.options);
-        const voteCounter = (options || voteDetail.options)
+        console.log('voteDetail.options', voteDetail.vote_options);
+        const voteCounter = (options || voteDetail.vote_options)
             .sort((a, b) => {
                 return a.id! - b.id!
             })
             .map((item, index) => {
-                return item.weight
+                return item.voted_weight
             })
 
         if (!badge && voteDetail.eligibile_badge_id) {
@@ -134,14 +134,14 @@ function CardVote(props: { item: Vote }) {
             return
         }
 
-        if (props.item.eligibility_strategy === 'has_group_membership') {
+        if (props.item.eligibility === 'has_group_membership') {
             const userGroup = await queryUserGroup({profile_id: user.id})
             const joinedGroup = userGroup.filter((group) => group.id === props.item.group_id)
             setCanVote(!!joinedGroup.length)
             return
         }
 
-        if (props.item.eligibility_strategy === 'has_badge' || props.item.eligibility_strategy === 'badge_count') {
+        if (props.item.eligibility=== 'has_badge' || props.item.eligibility === 'badge_count') {
             if (badge) {
                 const hasBadge = badge.badgelets.find((badgelet) => badgelet.owner.id === user.id)
                 setCanVote(!!hasBadge)
@@ -166,7 +166,7 @@ function CardVote(props: { item: Vote }) {
         const vote = await getVoteDetail(props.item.id)
         setVoteDetail(vote!)
         setTimeout(() => {
-            init(vote!.options)
+            init(vote!.vote_options)
         }, 600)
     }
 
@@ -231,11 +231,11 @@ function CardVote(props: { item: Vote }) {
         }
 
         if (!canVote) {
-            if (props.item.eligibility_strategy === 'has_group_membership') {
+            if (props.item.eligibility === 'has_group_membership') {
                 showToast(lang['Vote_Eligibility_Member'])
                 return
             }
-            if (props.item.eligibility_strategy === 'has_badge') {
+            if (props.item.eligibility === 'has_badge') {
                 showToast(lang['Vote_Eligibility_Badge']([badge?.name]))
                 return
             }
@@ -275,7 +275,7 @@ function CardVote(props: { item: Vote }) {
         </div>
         <ProfileBio text={props.item.content}></ProfileBio>
         <div className={'options'}>
-            {voteDetail.options
+            {voteDetail.vote_options
                 .sort((a, b) => {
                     return a.id - b.id
                 })
@@ -300,14 +300,14 @@ function CardVote(props: { item: Vote }) {
             { props.item.max_choice === 1 &&
                 <div>· {lang['Vote_Close_Once']}</div>
             }
-            {props.item.eligibility_strategy === 'has_group_membership' &&
+            {props.item.eligibility === 'has_group_membership' &&
                 <div>· {lang['Vote_Eligibility_Member']}</div>
             }
-            {(props.item.eligibility_strategy === 'has_badge' || props.item.eligibility_strategy === 'badge_count') &&
+            {(props.item.eligibility === 'has_badge' || props.item.eligibility === 'badge_count') &&
                 <div>· {lang['Vote_Eligibility_Badge']([badge?.name])}</div>
             }
-            {!!props.item.ending_time &&
-                <div>· {lang['Vote_Close_Time']}{formatTime(props.item.ending_time)}</div>
+            {!!props.item.end_time &&
+                <div>· {lang['Vote_Close_Time']}{formatTime(props.item.end_time)}</div>
             }
             {new Date(props.item.start_time).getTime() > new Date().getTime() &&
                 <div>· {lang['Vote_Start_Time']}{formatTime(props.item.start_time)}</div>

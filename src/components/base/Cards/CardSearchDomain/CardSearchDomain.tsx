@@ -1,5 +1,5 @@
 import {useStyletron} from 'baseui'
-import {Profile} from '../../../../service/solas'
+import {Profile, Group} from '../../../../service/solas'
 import usePicture from '../../../../hooks/pictrue'
 import {useRouter} from "next/navigation";
 
@@ -49,7 +49,7 @@ function CardSearchDomain(props: CardSearchDomainProps) {
     const {defaultAvatar} = usePicture()
 
     const navigateToProfile = () => {
-        if (props.profile.is_group) {
+        if (!!(props.profile as Group).creator) {
             router.push(`/group/${props.profile?.username}`)
         } else {
             router.push(`/profile/${props.profile?.username}`)

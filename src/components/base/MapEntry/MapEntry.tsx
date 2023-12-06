@@ -4,6 +4,7 @@ import Link from 'next/link'
 import {usePathname, useRouter} from "next/navigation";
 import styles from './MapEntry.module.scss'
 import MapContext from "@/components/provider/MapProvider/MapContext";
+import {Group} from "@/service/solas"
 
 function MapEntry() {
     const [isMobile, setIsMobile] = useState(false)
@@ -35,9 +36,9 @@ function MapEntry() {
         <>
             {MapReady
                 && process.env.NEXT_PUBLIC_SPECIAL_VERSION !== 'maodao'
-                && eventGroup?.group_map_enabled
+                && (eventGroup as Group)?.map_enabled
                 && (pathname?.includes('map') || pathname?.includes('event')) &&
-                <Link href={`/event/${eventGroup.username}/map/`} className={`${styles['map-entry']} ${selected ? styles['map-entry-active'] : ''}`}>
+                <Link href={`/event/${eventGroup!.username}/map/`} className={`${styles['map-entry']} ${selected ? styles['map-entry-active'] : ''}`}>
                     <i className={`icon-location`}></i>
                    {isMobile ? '' : <span className={styles.text}>Map</span>}
                 </Link>

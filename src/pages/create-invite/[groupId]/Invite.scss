@@ -44,6 +44,12 @@
   .input-area {
     margin-bottom: 20px;
 
+    div[data-baseweb="select"] {
+      > div {
+        border: 0;
+      }
+    }
+
     .issues-des {
       font-size: 12px;
       color: #999;

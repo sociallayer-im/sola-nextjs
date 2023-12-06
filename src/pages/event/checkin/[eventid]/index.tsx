@@ -50,7 +50,7 @@ function EventCheckIn() {
             try {
                 const eventDetails = await queryEventDetail({id: Number(params?.eventid)})
                 setEvent(eventDetails)
-                setIsCheckLog(eventDetails.event_type === 'checklog')
+                setIsCheckLog(eventDetails!.event_type === 'checklog')
                 setParticipants(eventDetails?.participants?.sort((a, b) => {
                     if (b.status === 'checked') {
                         return 1
@@ -60,16 +60,16 @@ function EventCheckIn() {
                 }) || [])
                 setHasCheckin(eventDetails?.participants?.filter(item => item.status === 'checked').map(item => item.profile.domain!) || [])
 
-                if (eventDetails.host_info || eventDetails.group_id) {
-                    const isDomain = eventDetails.host_info && eventDetails.host_info.indexOf('.') > -1
+                if (eventDetails!.host_info || eventDetails!.group_id) {
+                    const isDomain = eventDetails!.host_info && eventDetails!.host_info.indexOf('.') > -1
                     const profile = await getProfile(isDomain
-                        ? {domain: eventDetails.host_info!}
-                        : {id: eventDetails.group_id || Number(eventDetails.host_info)})
+                        ? {username: eventDetails!.host_info!.replace(process.env.NEXT_PUBLIC_SOLAS_DOMAIN!, '')}
+                        : {id: eventDetails!.group_id || Number(eventDetails!.host_info)})
                     if (profile) {
                         setHoster(profile)
                     }
                 } else {
-                    const profile = await getProfile({id: Number(eventDetails.owner_id)})
+                    const profile = await getProfile({id: Number(eventDetails!.owner_id)})
                     if (profile) {
                         setHoster(profile)
                     }
@@ -79,10 +79,10 @@ function EventCheckIn() {
             } catch (e) {
                 unload()
                 console.error(e)
-                router.push('/error')
+                // router.push('/error')
             }
         } else {
-            router.push('/error')
+            // router.push('/error')
         }
     }
 
@@ -143,7 +143,7 @@ function EventCheckIn() {
                     <div className={'checkin-card'}>
                         <div className={'event-name'}>{event.title}</div>
                         <div className={'time'}>
-                            {formatTime(event.start_time!)} - {formatTime(event.ending_time!)}
+                            {formatTime(event.start_time!)} - {formatTime(event.end_time!)}
                         </div>
 
                         {!user.id &&
@@ -214,6 +214,9 @@ function EventCheckIn() {
                                     isHost={isHoster || isManager}
                                     eventId={Number(params?.eventid || 0)}
                                     participants={participants}
+                                    onChecked={(item) => {
+                                        init()
+                                    }}
                                 />
                             </>
                         }

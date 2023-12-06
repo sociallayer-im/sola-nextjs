@@ -44,10 +44,7 @@ function RegistForm (props: RegistFormProps) {
         setLoading(true)
         try {
             const create = await solas.regist({
-                domain: domain + domainEndEnhancer,
                 username: domain,
-                email: user.email || undefined,
-                address: user.wallet || undefined,
                 auth_token: user.authToken
             })
 

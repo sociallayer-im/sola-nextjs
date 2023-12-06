@@ -1,5 +1,5 @@
 import { useState, useContext, useEffect } from 'react'
-import solas, {leaveGroup, Profile} from '../../../service/solas'
+import solas, {leaveGroup, Profile, Group} from '../../../service/solas'
 import usePicture from '../../../hooks/pictrue'
 import LangContext from '../../provider/LangProvider/LangContext'
 import UserContext from '../../provider/UserProvider/UserContext'
@@ -82,7 +82,7 @@ function GroupPanel(props: GroupPanelProps) {
     }
 
     const showAvatarDialog = () => {
-        if (props.group.group_owner_id === user.id) {
+        if ((props.group as Group).creator.id === user.id) {
             showAvatar(group)
         }
     }

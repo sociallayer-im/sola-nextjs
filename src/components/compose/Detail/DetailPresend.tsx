@@ -2,7 +2,7 @@ import LangContext from '../../provider/LangProvider/LangContext'
 import UserContext from '../../provider/UserProvider/UserContext'
 import DialogsContext from '../../provider/DialogProvider/DialogsContext'
 import { useContext, useEffect, useState } from 'react'
-import { Presend, ProfileSimple } from '../../../service/solas'
+import {getVoucherCode, Presend, ProfileSimple, Voucher} from '../../../service/solas'
 import DetailWrapper from './atoms/DetailWrapper/DetailWrapper'
 import usePicture from '../../../hooks/pictrue'
 import DetailHeader from './atoms/DetailHeader'
@@ -24,7 +24,7 @@ import DetailRow from './atoms/DetailRow'
 import {useRouter} from 'next/navigation'
 
 export interface DetailPresendProps {
-    presend: Presend,
+    presend: Voucher,
     code?: string
     handleClose: () => void
 }
@@ -42,23 +42,20 @@ function DetailPresend (props: DetailPresendProps ) {
     const [acceptableAmount, setAcceptableAmount] = useState<number>(0)
     const formatTime = useTime()
     const [detail, setDetail] = useState(props.presend)
+    const [code, setCode] = useState(props.code)
 
     useEffect(() => {
-        async function getOwnerProfile () {
-            const profile = await solas.getProfile({ id: props.presend.sender_id })
-            setSender(profile)
-        }
+        setSender(props.presend.sender as Profile)
 
         async function getReceiver () {
             const presendWithBadgelets = await solas.queryPresendDetail({
-                id: props.presend.id,
-                auth_token: user.authToken || ''
+                id: props.presend.id
             })
 
             setDetail(presendWithBadgelets)
 
             const receiver = presendWithBadgelets.badgelets.map(item => {
-                return item.receiver
+                return item.owner
             })
 
             const claimed = receiver.some(item => item.id === user.id)
@@ -68,21 +65,27 @@ function DetailPresend (props: DetailPresendProps ) {
             setClaimed(claimed)
             setReceivers(receiver)
             setAcceptableAmount(Math.min(20, receiver.length + (props.presend.counter || 0)))
+
+            if (props.presend.sender.id === user.id) {
+                const code = await getVoucherCode({id: props.presend.id, auth_token: user.authToken || ''})
+                setCode(code)
+            }
         }
 
-        getOwnerProfile()
         getReceiver()
     },[])
 
     const loginUserIsSender = user.id === sender?.id
-    const canClaim = props.presend.counter > 0 || props.presend.counter === null
+    const canClaim = (!props.presend.receiver && (props.presend.counter > 0 || props.presend.counter === null))
+        || (!!props.presend.receiver && props.presend.receiver.id === user.id)
 
     const handleAccept= async () => {
         const unload = showLoading()
         try {
+
             const accept = await solas.acceptPresend({
-                id: props.presend.id,
-                code: props.code || '',
+                voucher_id: props.presend.id,
+                code: Number(code),
                 auth_token: user.authToken || ''
             })
             unload()
@@ -145,9 +148,8 @@ function DetailPresend (props: DetailPresendProps ) {
                 </DetailDes>
             }
 
-
             {
-                !!acceptableAmount &&
+                !!acceptableAmount && !props.presend.receiver &&
                 <DetailReceivers
                     length={ acceptableAmount }
                     placeholder={ true }
@@ -155,17 +157,30 @@ function DetailPresend (props: DetailPresendProps ) {
                     title={ lang['BadgeDialog_Label_Issuees']} />
             }
 
+            { props.presend.receiver &&
+                <DetailArea
+                    onClose={props.handleClose}
+                    title={lang['BadgeDialog_Label_Issuees']}
+                    content={props.presend.receiver.username
+                        ? props.presend.receiver.username
+                        : ''
+                    }
+                    navigate={props.presend.receiver.username
+                        ? `/profile/${props.presend.receiver.username}`
+                        : '#'}
+                    image={props.presend.receiver.image_url || defaultAvatar(props.presend.receiver.id)}/>
+            }
 
-            <DetailArea
-                title={ lang['BadgeDialog_Label_Token'] }
-                content={ props.presend.badge.domain } />
 
             <DetailArea
                 title={ lang['BadgeDialog_Label_Creat_Time'] }
                 content={ formatTime(props.presend.created_at ) } />
         </DetailScrollBox>
         <BtnGroup>
-            { user.domain ? ActionBtns : LoginBtn }
+            { user.userName ?
+                code ? ActionBtns
+                    : <></>
+                : LoginBtn }
         </BtnGroup>
     </DetailWrapper>
 }

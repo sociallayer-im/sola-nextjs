@@ -13,7 +13,7 @@ import DetailDes from './atoms/DetailDes/DetailDes'
 import DetailArea from './atoms/DetailArea'
 import AppButton, {BTN_KIND} from '../../base/AppButton/AppButton'
 import BtnGroup from '../../base/BtnGroup/BtnGroup'
-import solas, {Badgelet} from '../../../service/solas'
+import solas, {Badgelet, getVoucherCode, Voucher} from '../../../service/solas'
 import useEvent, {EVENT} from '../../../hooks/globalEvent'
 import ReasonText from '../../base/ReasonText/ReasonText'
 import DetailScrollBox from './atoms/DetailScrollBox/DetailScrollBox'
@@ -24,6 +24,7 @@ import DetailRow from "./atoms/DetailRow";
 
 export interface DetailBadgeletProps {
     badgelet: Badgelet,
+    voucher?: Voucher,
     handleClose: () => void
 }
 
@@ -35,7 +36,7 @@ function DetailBadgelet(props: DetailBadgeletProps) {
     const [_1, emitUpdate] = useEvent(EVENT.badgeletListUpdate)
     const [needUpdate, _2] = useEvent(EVENT.badgeletDetailUpdate)
     const [badgelet, setBadgelet] = useState(props.badgelet)
-    const isBadgeletOwner = user.id === props.badgelet.receiver.id
+    const isBadgeletOwner = user.id === props.badgelet.owner.id
     const formatTime = useTime()
 
     const [isGroupManager, setIsGroupManager] = useState(false)
@@ -59,7 +60,7 @@ function DetailBadgelet(props: DetailBadgeletProps) {
                     id: props.badgelet.owner.id
                 })
 
-                if (ownerDetail?.is_group) {
+                if (!!(ownerDetail as any)?.creator) {
                     const isManager = await solas.checkIsManager({
                         group_id: props.badgelet.owner.id,
                         profile_id: user.id
@@ -73,11 +74,15 @@ function DetailBadgelet(props: DetailBadgeletProps) {
     }, [user.id])
 
     const handleAccept = async () => {
+        if (!props.voucher) {
+            return
+        }
+
         const unload = showLoading()
         try {
             const accept = await solas.acceptBadgelet({
-                badgelet_id: badgelet.id,
-                auth_token: user.authToken || ''
+                voucher_id: props.voucher.id,
+                auth_token: user.authToken || '',
             })
 
             unload()
@@ -144,7 +149,7 @@ function DetailBadgelet(props: DetailBadgeletProps) {
         <DetailWrapper>
             <DetailHeader
                 title={lang['BadgeletDialog_title']}
-                slotLeft={badgelet.hide && <DetailBadgeletPrivateMark/>}
+                slotLeft={badgelet.display === 'hide' && <DetailBadgeletPrivateMark/>}
                 slotRight={
                     badgelet.status !== 'pending' &&
                     isBadgeletOwner &&
@@ -157,20 +162,17 @@ function DetailBadgelet(props: DetailBadgeletProps) {
                     <DetailCover src={'/images/badge_private.png'} />
                     <DetailName> 🔒 </DetailName>
                     <DetailRow>
-                        <DetailCreator isGroup={!!badgelet.badge.group} profile={badgelet.badge.group || badgelet.sender}/>
+                        <DetailCreator isGroup={!!badgelet.badge.group} profile={badgelet.badge.group || badgelet.creator}/>
                     </DetailRow>
                     <DetailScrollBox style={{maxHeight: swiperMaxHeight - 60 + 'px', marginLeft: 0}}>
                         <DetailArea
                             onClose={props.handleClose}
                             title={lang['BadgeDialog_Label_Issuees']}
-                            content={badgelet.receiver.domain
-                                ? badgelet.receiver.domain.split('.')[0]
-                                : ''
-                            }
-                            navigate={badgelet.receiver.domain
-                                ? `/profile/${badgelet.receiver.domain?.split('.')[0]}`
+                            content={badgelet.owner.username || ''}
+                            navigate={badgelet.owner.username
+                                ? `/profile/${badgelet.owner.username}`
                                 : '#'}
-                            image={badgelet.receiver.image_url || defaultAvatar(badgelet.receiver.id)}/>
+                            image={badgelet.owner.image_url || defaultAvatar(badgelet.owner.id)}/>
 
                         <DetailArea
                             title={lang['BadgeDialog_Label_Creat_Time']}
@@ -187,7 +189,7 @@ function DetailBadgelet(props: DetailBadgeletProps) {
                     <DetailCover src={metadata?.image || badgelet.badge.image_url}></DetailCover>
                     <DetailName> {metadata?.name || badgelet.badge.name} </DetailName>
                     <DetailRow>
-                        <DetailCreator isGroup={!!badgelet.badge.group} profile={badgelet.badge.group || badgelet.sender}/>
+                        <DetailCreator isGroup={!!badgelet.badge.group} profile={badgelet.badge.group || badgelet.creator}/>
                     </DetailRow>
                     <DetailScrollBox style={{maxHeight: swiperMaxHeight - 60 + 'px', marginLeft: 0}}>
                         {
@@ -200,19 +202,15 @@ function DetailBadgelet(props: DetailBadgeletProps) {
                         <DetailArea
                             onClose={props.handleClose}
                             title={lang['BadgeDialog_Label_Issuees']}
-                            content={badgelet.receiver.domain
-                                ? badgelet.receiver.domain.split('.')[0]
+                            content={badgelet.owner.username
+                                ? badgelet.owner.username
                                 : ''
                             }
-                            navigate={badgelet.receiver.domain
-                                ? `/profile/${badgelet.receiver.domain?.split('.')[0]}`
+                            navigate={badgelet.owner.username
+                                ? `/profile/${badgelet.owner.username}`
                                 : '#'}
-                            image={badgelet.receiver.image_url || defaultAvatar(badgelet.receiver.id)}/>
+                            image={badgelet.owner.image_url || defaultAvatar(badgelet.owner.id)}/>
 
-                        <DetailArea
-                            title={lang['BadgeDialog_Label_Token']}
-                            content={badgelet.domain}
-                            link={badgelet.chain_data ? `https://moonscan.io/tx/${badgelet.chain_data}` : undefined}/>
 
                         <DetailArea
                             title={lang['BadgeDialog_Label_Creat_Time']}
@@ -229,11 +227,11 @@ function DetailBadgelet(props: DetailBadgeletProps) {
             }
 
             <BtnGroup>
-                {!user.domain && LoginBtn}
-
-                {!!user.domain
+                {!user.userName && LoginBtn}
+                {!!user.userName
                     && (isGroupManager || isBadgeletOwner)
-                    && badgelet.status === 'pending'
+                    && props.voucher
+                    && props.voucher.counter !== 0
                     && ActionBtns}
             </BtnGroup>
         </DetailWrapper>

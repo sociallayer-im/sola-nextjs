@@ -90,9 +90,9 @@ function ComponentName() {
                 vote_options: modifyOptions,
                 show_voter: showVoter,
                 eligibile_group_id: Number(groupId),
-                eligibility_strategy: auth,
+                eligibility: auth,
                 start_time: startDate,
-                ending_time: expireAble ? expireDate : null,
+                end_time: expireAble ? expireDate : null,
                 auth_token: user.authToken || '',
                 group_id: Number(groupId),
                 eligibile_badge_id: selectedBadge?.id || undefined,
@@ -125,7 +125,7 @@ function ComponentName() {
         const unload = showLoading()
         try {
             let deletedOptions: any = []
-            const oldOptions = voteDetail?.options || []
+            const oldOptions = voteDetail?.vote_options || []
             const currentOptions = options.filter((item) => item.title || item.link)
 
             // 处理删除的选项
@@ -146,7 +146,6 @@ function ComponentName() {
                 return
             }
 
-
             const save = await updateVote({
                 id: Number(voteDetail?.id),
                 title,
@@ -154,9 +153,9 @@ function ComponentName() {
                 vote_options: modifyOptions,
                 show_voter: showVoter,
                 eligibile_group_id: Number(groupId),
-                eligibility_strategy: auth,
+                eligibility: auth,
                 start_time: startDate,
-                ending_time: expireAble ? expireDate : null,
+                end_time: expireAble ? expireDate : null,
                 auth_token: user.authToken || '',
                 group_id: Number(groupId),
                 eligibile_badge_id: selectedBadge?.id || undefined,
@@ -166,7 +165,7 @@ function ComponentName() {
             const groupName = await queryGroupDetail(Number(groupId))
             unload()
             showToast('Save Success')
-            router.push(`/group/${groupName.username}?tab=3`)
+            router.push(`/group/${groupName!.username}?tab=3`)
         } catch (e: any) {
             unload()
             console.error(e)
@@ -191,7 +190,7 @@ function ComponentName() {
 
                 setTitle(voteData.title)
                 setContent(voteData.content)
-                setOptions(voteData.options as VoteOption[])
+                setOptions(voteData.vote_options as VoteOption[])
                 setShowVoter(voteData.show_voter)
                 setStartDate(voteData.start_time)
 
@@ -199,19 +198,19 @@ function ComponentName() {
                     setMultipleChoice(true)
                 }
 
-                if (voteData.ending_time) {
+                if (voteData.end_time) {
                     setExpireAble(true)
-                    setExpireDate(voteData.ending_time)
+                    setExpireDate(voteData.end_time)
                 }
 
-                if (voteData.eligibile_badge_id && voteData.eligibility_strategy === 'has_badge') {
+                if (voteData.eligibile_badge_id && voteData.eligibility === 'has_badge') {
                     const badge = await queryBadgeDetail({id: voteData.eligibile_badge_id})
                     setSelectedBadge(badge)
                     setAuth('has_badge')
                     setEnableMembership(false)
                     setEnableBadge(true)
                     setEnableBadgeCount(false)
-                } else if (voteData.eligibile_badge_id && voteData.eligibility_strategy === 'badge_count') {
+                } else if (voteData.eligibile_badge_id && voteData.eligibility === 'badge_count') {
                     const badge = await queryBadgeDetail({id: voteData.eligibile_badge_id})
                     setSelectedBadge(badge)
                     setAuth('badge_count')
@@ -219,7 +218,7 @@ function ComponentName() {
                     setEnableBadge(true)
                     setEnableBadgeCount(true)
                 } else {
-                    setAuth(voteData.eligibility_strategy)
+                    setAuth(voteData.eligibility)
                     setEnableMembership(true)
                     setEnableBadge(false)
                     setEnableBadgeCount(false)

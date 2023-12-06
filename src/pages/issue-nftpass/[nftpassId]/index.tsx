@@ -51,7 +51,7 @@ function Issue() {
                 starts_at: data.starts_at || undefined,
             })
             unload()
-            router.push(`/issue-success?nftpasslet=${nftpasslet[0].id}`)
+            router.push(`/issue-success?voucher=${nftpasslet[0].id}`)
         } catch (e: any) {
             console.log('[handleCreateIssue]: ', e)
             unload()

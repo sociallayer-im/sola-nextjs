@@ -90,7 +90,7 @@ function CardPresend (props: CardPresendProps) {
 
     return (<div
         data-testid='CardPresend'
-        onClick={ () => { showPresend(props.presend, props.presend.code) } }
+        onClick={ () => { showPresend(props.presend) } }
         className={ css(style.wrapper) } >
                 <div className={ css(style.coverBg) }>
                     <img className={ css(style.img) } src={ props.presend.badge.image_url } alt=""/>

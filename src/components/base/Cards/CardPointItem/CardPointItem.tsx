@@ -1,5 +1,5 @@
 import {useStyletron} from 'baseui'
-import {checkIsManager, getProfile, PointItem} from '../../../../service/solas'
+import {checkIsManager, getProfile, Group, PointItem} from '../../../../service/solas'
 import DialogsContext from '../../../provider/DialogProvider/DialogsContext'
 import {useContext, useEffect, useState} from 'react'
 import UserContext from '../../../provider/UserProvider/UserContext'
@@ -99,7 +99,7 @@ function CardPointItem(props: CardBadgeletProps) {
             if(user.id && props.pointitem.status === 'sending') {
                 const receiverDetail = await getProfile({id:props.pointitem.owner.id})
 
-                if (receiverDetail?.is_group) {
+                if (!!(receiverDetail as Group)?.creator) {
                     const res = await checkIsManager({
                         group_id: props.pointitem.owner.id,
                         profile_id: user.id

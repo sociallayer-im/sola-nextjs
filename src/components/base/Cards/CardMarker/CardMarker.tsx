@@ -9,11 +9,11 @@ import useEvent, {EVENT} from "@/hooks/globalEvent";
 import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
 
 export const genGoogleMapUrl = (marker: Marker) => {
-    if (marker.location_detail && marker.location !== 'Custom location') {
-        const json = JSON.parse(marker.location_detail)
+    if (marker.formatted_address && marker.location !== 'Custom location') {
+        const json = JSON.parse(marker.formatted_address)
         return `https://www.google.com/maps/search/?api=1&query=${json.name.split('').join('+')}`
     } else {
-        return `https://www.google.com/maps/search/?api=1&query=${marker.lat}%2C${marker.lng}`
+        return `https://www.google.com/maps/search/?api=1&query=${marker.geo_lat}%2C${marker.geo_lng}`
     }
 }
 
@@ -123,8 +123,8 @@ function CardMarker(props: { item: Marker, participants?: Participants[], isActi
         </div>
         <div className={styles['right']}>
             <div className={styles['cover']}>
-                {!!props.item.cover_url &&
-                    <img className={styles['img']} src={props.item.cover_url} alt=""/>
+                {!!props.item.cover_image_url &&
+                    <img className={styles['img']} src={props.item.cover_image_url} alt=""/>
                 }
             </div>
             {props.item.marker_type !== 'event' &&

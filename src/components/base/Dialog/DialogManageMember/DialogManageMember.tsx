@@ -63,21 +63,11 @@ function DialogManageMember(props: AddressListProps) {
         }, 100)
     }
 
-    const addAddress = (domain: string) => {
-        // const index = selected.indexOf(domain)
-        // if (index === -1) {
-        //     const newData = [domain, ...selected]
-        //     setSelected(newData)
-        // } else {
-        //     const newData = [...selected]
-        //     newData.splice(index,1)
-        //     setSelected(newData)
-        // }
-
-        const target = groupsMember.find(item => item.domain === domain)
+    const addAddress = (username: string) => {
+        const target = groupsMember.find(item => item.username === username)
         if (!target) return
 
-        if (selected.length && target.domain === selected[0].domain) {
+        if (selected.length && target.username === selected[0].username) {
             setSelected([])
         } else {
             setSelected([target])
@@ -89,7 +79,7 @@ function DialogManageMember(props: AddressListProps) {
 
         const dialog = openConfirmDialog({
             confirmTextColor: '#fff',
-            confirmBtnColor: '#F64F4F!important',
+            confirmBtnColor: '#F64F4F',
             content: '',
             title: selected.length > 1
                 ? lang['Group_Member_Manage_Dialog_Confirm_Dialog_des']([selected[0].username])
@@ -123,7 +113,11 @@ function DialogManageMember(props: AddressListProps) {
            <div className='content'>
                <div className='center'>
                    { groupsMemberEmpty && <Empty text={'no data'} /> }
-                   <AddressList selected={ selected.length ?  [ selected[0].domain || '' ]: [] } data= { groupsMember } onClick={(profile) => { addAddress(profile.domain!)} } />
+                   <AddressList selected={ selected.length ?  [ selected[0].username || '' ]: [] }
+                                data= { groupsMember }
+                                onClick={(profile) => {
+                                    addAddress(profile.username!)}
+                   } />
                </div>
            </div>
            <div className='dialog-bottom center'>

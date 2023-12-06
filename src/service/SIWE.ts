@@ -1,7 +1,7 @@
 import fetch from '../utils/fetch'
 import {setAuth} from '@/utils/authStorage'
 
-const api = process.env.NEXT_PUBLIC_SOLAS_API
+const api = process.env.NEXT_PUBLIC_API
 
 export async function createSiweMessage (address: string, statement: string) {
   const domain = window.location.host

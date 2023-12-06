@@ -30,7 +30,7 @@ function Issue() {
             const badge = await solas.queryBadgeDetail({id: Number(params.badgeId)})
 
             // nftpass 和 private badge 只能 issue
-            if (badge.badge_type ==='nftpass' || badge.badge_type === 'private') {
+            if (badge!.badge_type ==='nftpass' || badge!.badge_type === 'private') {
                 setInitIssueType('issue')
             }
             setBadge(badge)
@@ -59,7 +59,7 @@ function Issue() {
                 auth_token: user.authToken || ''
             })
             unload()
-            router.push(`/issue-success?presend=${presend.id}`)
+            router.push(`/issue-success?voucher=${presend.id}`)
         } catch (e: any) {
             console.log('[handleCreatePresend]: ', e)
             unload()
@@ -78,14 +78,14 @@ function Issue() {
 
         const unload = showLoading()
         try {
-            const badgelets = await solas.issueBatch({
+            const vouchers = await solas.issueBatch({
                 badgeId: badge?.id!,
                 reason: SearchParams.get('reason') || '',
                 issues: checkedIssues,
                 auth_token: user.authToken || ''
             })
             unload()
-            router.push(`/issue-success?badgelet=${badgelets[0].id}&amount=${badgelets.length}`)
+            router.push(`/issue-success?voucher=${vouchers[0].id}`)
         } catch (e: any) {
             console.log('[handleCreateIssue]: ', e)
             unload()

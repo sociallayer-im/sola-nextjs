@@ -1,5 +1,5 @@
 import React, {useContext, useEffect, useState} from 'react'
-import solas, {checkIsManager, getGroupMembers, Profile} from '../../../service/solas'
+import solas, {checkIsManager, getGroupMembers, Profile, Group} from '../../../service/solas'
 import LangContext from '../../provider/LangProvider/LangContext'
 import UserContext from '../../provider/UserProvider/UserContext'
 import CardInviteMember from '../../base/Cards/CardInviteMember/CardInviteMember'
@@ -32,9 +32,10 @@ function ListGroupMember(props: ListGroupMemberProps) {
     const [owner, setOwner] = useState<Profile | null>(null)
     const {showToast, showLoading, openConfirmDialog, openDialog} = useContext(DialogsContext)
     const [currUserJoinedGroup, setCurrUserJoinedGroup] = useState(false)
-    const [groupOwnerId, setGroupOwnerId] = useState(props.group.group_owner_id!)
+    const [groupOwnerId, setGroupOwnerId] = useState((props.group as Group).creator.id!)
     const {defaultAvatar} = usePicture()
     const router = useRouter()
+
 
     async function init() {
         await getOwner()
@@ -100,12 +101,11 @@ function ListGroupMember(props: ListGroupMemberProps) {
             group_id: props.group.id
         })
 
-        const deleteOwner = members.filter((member) => member.id !== groupOwnerId)
-        setMembers(deleteOwner)
+        setMembers(members)
     }
 
     const getManager = async () => {
-        const managerlist = await solas.getGroupMembers({group_id: props.group.id, role: 'group_manager'})
+        const managerlist = await solas.getGroupMembers({group_id: props.group.id, role: 'manager'})
         setManagers(managerlist)
     }
 
@@ -174,7 +174,7 @@ function ListGroupMember(props: ListGroupMemberProps) {
 
     const showManagerDialog = async () => {
         const unload = showLoading()
-        const res2 = await getGroupMembers({group_id: props.group.id, role: 'group_manager'})
+        const res2 = await getGroupMembers({group_id: props.group.id, role: 'manager'})
         unload()
         const dialog = openDialog({
             content: (close: any) => <DialogGroupManagerEdit
@@ -203,7 +203,7 @@ function ListGroupMember(props: ListGroupMemberProps) {
                     <div className={'left'}>
                         <img className={'owner-marker'} src='/images/icon_owner.png'/>
                         <img src={owner.image_url || defaultAvatar(owner.id)} alt=""/>
-                        <span>{owner.nickname || owner.username || owner.domain?.split('.')[0]}</span>
+                        <span>{owner.nickname || owner.username }</span>
                         <span className={'role'}>{lang['Group_Role_Owner']}</span>
                     </div>
                 </div>

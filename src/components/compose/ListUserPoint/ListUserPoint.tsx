@@ -19,7 +19,7 @@ function ListUserPoint(props: ListUserPointProps) {
 
     const getPoint = async (page: number) => {
         if (page > 1) return []
-        const queryProps = props.profile.is_group
+        const queryProps = !!(props.profile as any).creator
             ? {group_id: props.profile.id}
             : {sender_id: props.profile.id}
 

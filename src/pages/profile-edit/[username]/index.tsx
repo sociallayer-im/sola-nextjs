@@ -58,7 +58,7 @@ function ProfileEdit() {
             //         auth_token: user.authToken || ''
             //     })
             // }
-
+            const a = {...form.current!.profile}
             const update = await solas.updateProfile({
                 data: form.current!.profile,
                 auth_token: user.authToken || ''
@@ -66,9 +66,9 @@ function ProfileEdit() {
 
             showToast('Save Successfully')
             setUser({
-                avatar: update.image_url,
-                twitter: update.twitter,
-                nickname: update.nickname,
+                avatar: a.image_url,
+                twitter: a.twitter,
+                nickname: a.nickname,
             })
             router.push(`/profile/${user.userName}`)
         } catch (e) {

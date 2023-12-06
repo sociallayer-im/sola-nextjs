@@ -1,13 +1,12 @@
 import {useRouter, useSearchParams} from 'next/navigation'
 import PageBack from '@/components/base/PageBack'
 import React, {useContext, useEffect, useRef, useState} from 'react'
-import solas, {Profile} from '@/service/solas'
+import solas, {Profile, Group} from '@/service/solas'
 import DialogsContext from '@/components/provider/DialogProvider/DialogsContext'
 import GroupPanel from '@/components/maodao/MaodaoGroupPanel/GroupPanel'
 import AppButton from '@/components/base/AppButton/AppButton'
 import LangContext from '@/components/provider/LangProvider/LangContext'
 import UserContext from '@/components/provider/UserProvider/UserContext'
-import useIssueBadge from '@/hooks/useIssueBadge'
 import BgProfile from '@/components/base/BgProfile/BgProfile'
 import {styled} from "baseui";
 import useCopy from '@/hooks/copy'
@@ -28,11 +27,10 @@ function GroupPage() {
     const [selectedTab, setSelectedTab] = useState(searchParams.get('tab') || '0')
     const [selectedSubtab, setSelectedSubtab] = useState(searchParams.get('subtab') || '0')
     const [isGroupManager, setIsGroupManager] = useState(false)
-    const startIssue = useIssueBadge({groupName: groupname as string})
     const {copyWithDialog} = useCopy()
     const router = useRouter()
 
-    const isGroupOwner = user.id === profile?.group_owner_id
+    const isGroupOwner = user.id === (profile as Group)?.creator.id
 
     // 为了实现切换tab时，url也跟着变化，而且浏览器的前进后退按钮也能切换tab
     useEffect(() => {
@@ -79,31 +77,6 @@ function GroupPage() {
         }
         check()
     }, [user.id, profile])
-
-    const handleMintOrIssue = async () => {
-        if (!user.id) {
-            openConnectWalletDialog()
-            return
-        }
-
-        // 处理用户登录后但是未注册域名的情况，即有authToken和钱包地址,但是没有domain和username的情况
-        if (user.wallet && user.authToken && !user.domain) {
-            router.push('/regist')
-            return
-        }
-
-        const unload = showLoading()
-        const badgeProps = isGroupOwner ?
-            {group_id: profile?.id || undefined, page: 1} :
-            {sender_id: user?.id || undefined, page: 1}
-
-        const badges = await solas.queryBadge(badgeProps)
-        unload()
-
-        user.id === profile?.group_owner_id
-            ? startIssue({badges})
-            : startIssue({badges, to: profile?.domain || ''})
-    }
 
     const ShowDomain = styled('div', ({$theme}: any) => {
         return {

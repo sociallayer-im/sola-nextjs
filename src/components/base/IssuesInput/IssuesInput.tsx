@@ -49,7 +49,6 @@ function IssuesInput (props: IssuesInputProps) {
             timeout.current = setTimeout(async () => {
                 const tast = [
                     searchDomain({username: newValue.split('.')[0], page: 1}),
-                    getProfile({domain: newValue.split('.')[0]}),
                     getProfile({username: newValue.split('.')[0]}),
                     getProfile({email: newValue})
                 ]
@@ -61,7 +60,7 @@ function IssuesInput (props: IssuesInputProps) {
                 // const res3 = await getProfile({username: newValue.split('.')[0]})
                 // const res4 = await getProfile({email: newValue})
                 let res:Profile[] = []
-                const deduplication = [fetch[1], fetch[2], fetch[3], ...fetch[0] as any].map(item => {
+                const deduplication = [fetch[1], fetch[2], ...fetch[0] as any].map(item => {
                     if (item && !res.find(i => i.id === item.id)) {
                         res.push(item)
                     }

@@ -1,6 +1,6 @@
 import React, {useContext, useEffect} from 'react'
 import ListUserAssets, {ListUserAssetsMethods} from "../../base/ListUserAssets/ListUserAssets";
-import solas, {Profile, QueryBadgeProps} from "../../../service/solas";
+import solas, {Group, Profile, QueryBadgeProps} from "../../../service/solas";
 import CardBadge from "../../base/Cards/CardBadge/CardBadge";
 import UserContext from "../../provider/UserProvider/UserContext";
 import CardBadgelet from "../../base/Cards/CardBadgelet/CardBadgelet";
@@ -16,7 +16,7 @@ function ListUserGift(props: ListUserRecognitionProps) {
     const {lang} = useContext(LangContext)
 
     const getBadge = async (page: number) => {
-        const queryProps: QueryBadgeProps = props.profile.is_group
+        const queryProps: QueryBadgeProps = !!(props.profile as Group).creator
             ? {group_id: props.profile.id, badge_type: 'gift', page}
             : {sender_id: props.profile.id, badge_type: 'gift', page}
 

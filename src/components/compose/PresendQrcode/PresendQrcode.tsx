@@ -8,6 +8,7 @@ import useTime from '../../../hooks/formatTime'
 
 interface PresendQrcodeProp {
     presend: Presend | PresendWithBadgelets
+    code?: string
 }
 
 function PresendQrcode(props: PresendQrcodeProp) {
@@ -23,10 +24,11 @@ function PresendQrcode(props: PresendQrcodeProp) {
 
     useEffect(() => {
         const getDetail = async function() {
-            console.log('getDetail')
             let presendInfo
             if (!(presend as any).badgelets) {
-                const presendWithBadgelets = await solas.queryPresendDetail({id: props.presend.id, auth_token: user.authToken || ''})
+                const presendWithBadgelets = await solas.queryPresendDetail({
+                    id: props.presend.id
+                })
                 setPresendWithBadgelets(presendWithBadgelets)
                 presendInfo = presendWithBadgelets
             } else {
@@ -35,14 +37,14 @@ function PresendQrcode(props: PresendQrcodeProp) {
             }
 
 
-            if (presendInfo.code) {
-                setLink(`${window.location.protocol}//${window.location.host}/presend/${presend.id}_${presend.code}`)
+            if (props.code) {
+                setLink(`${window.location.protocol}//${window.location.host}/presend/${presend.id}_${props.code}`)
             } else {
                 setLink(`${window.location.protocol}//${window.location.host}/presend/${presend.id}`)
             }
 
             const now = Date.parse(new Date().toString())
-            const expirationDate = Date.parse(new Date(presend.expires_at).toString())
+            const expirationDate = Date.parse(new Date(presend.expires_at!).toString())
             setExpired(now > expirationDate)
 
             if (!presendInfo.badge) {
@@ -94,7 +96,7 @@ function PresendQrcode(props: PresendQrcodeProp) {
                         }
                         <div className='time'>
                             <i className='icon-clock'></i>
-                            <span>{ lang['Presend_Qrcode_Time']([formatTime(presend.expires_at)]) }</span>
+                            <span>{ lang['Presend_Qrcode_Time']([formatTime(presend.expires_at!)]) }</span>
                         </div>
                     </div>
                     { expired  && <div className='expired-mask'>

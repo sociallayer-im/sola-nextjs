@@ -39,7 +39,7 @@ function DialogAddManager(props: AddressListProps) {
             const add = await addManager({
                 auth_token: user.authToken || '',
                 group_id: props.group.id,
-                member_profile_id: selectedProfileId[0]
+                profile_id: selectedProfileId[0]
             })
             unloading()
             showToast('Add manager success')

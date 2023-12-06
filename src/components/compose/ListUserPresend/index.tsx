@@ -1,6 +1,6 @@
 import React, {useContext, useEffect} from 'react'
 import CardPresend from '../../base/Cards/CardPresend/CardPresend'
-import solas, { Profile } from '../../../service/solas'
+import { Profile, Group, queryPresend } from '../../../service/solas'
 import ListWrapper from '../../base/ListWrapper'
 import Empty from '../../base/Empty'
 import LangContext from '../../provider/LangProvider/LangContext'
@@ -20,11 +20,11 @@ function ListUserPresend ({ userType = 'user',  ...props }: ListUserPresendProps
     const [newPresend, _] = useEvent(EVENT.presendListUpdate)
 
     const getPresend = async (page: number) => {
-        const queryProps = props.profile.is_group
-            ? { group_id: props.profile.id, page, auth_token: user.authToken || undefined }
-            : { sender_id: props.profile.id, page, auth_token: user.authToken || undefined }
+        const queryProps = !!(props.profile as Group).creator
+            ? { group_id: props.profile.id, page}
+            : { sender_id: props.profile.id, page}
 
-        return await solas.queryPresend(queryProps)
+        return await queryPresend(queryProps)
     }
 
     useEffect(() => {

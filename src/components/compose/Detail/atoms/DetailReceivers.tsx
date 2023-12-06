@@ -70,8 +70,8 @@ export default function DetailReceivers (props: DetailReceiversProps) {
                         ? <StatefulTooltip
                             placement={PLACEMENT.top}
                             key={ index.toString() }
-                            content={() => <span>{ item!.domain?.split('.')[0] }</span>} >
-                            <Link href={ `/profile/${item!.domain?.split('.')[0]}` } target='_blank'>
+                            content={() => <span>{ item!.username }</span>} >
+                            <Link href={ `/profile/${item!.username}` } target='_blank'>
                                 <Avatar src={ item!.image_url || defaultAvatar(item!.id) } />
                             </Link>
                           </StatefulTooltip>

@@ -19,10 +19,11 @@ function DetailFace2FaceQrcode(props: DetailFace2FaceQrcodeProps) {
     const { lang } = useContext(LangContext)
     const { showToast } = useContext(DialogsContext)
     const [presend, setPresend] = useState<PresendWithBadgelets | null>(null)
+    const [code, setCode] = useState('')
     const { user } = useContext(userContext)
 
     const handleCopy = () => {
-        const link = `https://${window.location.host}/presend/${presend?.id}_${presend?.code || ''}`
+        const link = `https://${window.location.host}/presend/${presend?.id}_${code || ''}`
         const description = lang['IssueFinish_share']
             .replace('#1',  user.domain!)
             .replace('#2', presend?.badge.name || '')
@@ -36,8 +37,12 @@ function DetailFace2FaceQrcode(props: DetailFace2FaceQrcodeProps) {
 
     useEffect(() => {
         const getDetail = async function() {
-            const presend = await solas.queryPresendDetail({ id: props.presendId, auth_token: user.authToken || '' })
+            const presend = await solas.queryPresendDetail({ id: props.presendId})
             setPresend(presend)
+            const code = await solas.getVoucherCode({ id: props.presendId, auth_token: user.authToken || '' })
+            if (code) {
+                setCode(code)
+            }
         }
         getDetail()
 
@@ -49,7 +54,7 @@ function DetailFace2FaceQrcode(props: DetailFace2FaceQrcodeProps) {
             <div style={ { height: '545px' } }>
                 { !!presend &&
                     <>
-                        <PresendQrcode presend={ presend }></PresendQrcode>
+                        <PresendQrcode presend={ presend } code={code}></PresendQrcode>
                         <BtnGroup style={ { marginTop: '16px'} } >
                             <AppButton special onClick={ () => { handleCopy() } }>
                                 <i className='icon-copy' style={{marginRight: '10px'}}></i>

@@ -31,7 +31,7 @@ function Home(props: {initEvent?:Group, initList?: Event[]}) {
     useEffect(() => {
         const myEvent = async () => {
             if (user.authToken) {
-                const res = await queryMyEvent({auth_token: user.authToken || ''})
+                const res = await queryMyEvent({profile_id: user.id!})
                 const myRegistered = res.map((item: Participants) => item.event)
                 const res2 = await queryEvent({owner_id: user.id!, page: 1})
                 setMyRegistered(res)
@@ -128,7 +128,7 @@ function Home(props: {initEvent?:Group, initList?: Event[]}) {
                         gotoCreateEvent()
                     }}>+ {lang['Activity_Create_Btn']}</div>
 
-                    { (user.id === eventGroup.group_owner_id || isManager) &&
+                    { (user.id === (eventGroup as Group).creator.id || isManager) &&
                         <div className={'setting-btn'} onClick={e => {
                             router.push(`/event/setting/${eventGroup!.username}`)
                         }}>{lang['Activity_Setting_Btn']}</div>

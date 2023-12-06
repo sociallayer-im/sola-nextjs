@@ -2,7 +2,7 @@ import {useContext, useEffect, useState} from 'react'
 import PageBack from '../../PageBack';
 import langContext from '../../../provider/LangProvider/LangContext'
 import UserContext from '../../../provider/UserProvider/UserContext'
-import solas, {Badge, badgeBurn, Badgelet, badgeRevoke, ProfileSimple} from '../../../../service/solas'
+import solas, {Badge, Badgelet, badgeRevoke, ProfileSimple} from '../../../../service/solas'
 import AddressList from '../../AddressList/AddressList'
 import Empty from '../../Empty'
 import AppButton, {BTN_KIND, BTN_SIZE} from '../../AppButton/AppButton'
@@ -118,7 +118,7 @@ function DialogBurn(props: AddressListProps) {
 
     const getBadgelet = async () => {
         const res = await solas.queryBadgeDetail({id: props.badge.id})
-        const list = res.badgelets.filter(item => {
+        const list = res!.badgelets.filter(item => {
             return item.status === 'accepted'
         })
 

@@ -47,7 +47,7 @@ function DialogMarkerCheckIn(props: DialogNftCheckInProps) {
             let badgeletId = 0
             if (resVoucherCode && resVoucherCode!== '0') {
                 const mintBadge = await acceptPresend({
-                    id: props.marker.voucher_id!,
+                    voucher_id: props.marker.voucher_id!,
                     code: Number(resVoucherCode),
                     auth_token: user.authToken || ''
                 })

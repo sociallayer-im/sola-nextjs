@@ -11,7 +11,7 @@ import {
     NftPass,
     Point,
     PointItem,
-    NftPasslet
+    NftPasslet, Voucher
 } from '@/service/solas'
 import DialogsContext, { DialogsContextType } from './DialogsContext'
 import DialogDomainConfirm, { DialogConfirmDomainProps } from '../../base/Dialog/DialogConfirmDomain/DialogConfirmDomain'
@@ -38,6 +38,7 @@ import DetailGiftItem from "../../compose/Detail/DetailGiftItem/DetailGiftItem";
 import DialogTransferAccept, {DialogTransferAcceptProps} from "../../base/Dialog/DialogTransferAccept/DialogTransferAccept";
 import DialogRevoke from "../../base/Dialog/DialogBurn/DialogBurn";
 import DialogEventCheckIn from "@/components/base/Dialog/DialogEventCheckIn/DialogEventCheckIn";
+import DetailVoucher from "@/components/compose/Detail/DetailVoucher";
 
 export interface DialogProviderProps {
     children: ReactNode
@@ -279,13 +280,13 @@ function DialogProvider (props: DialogProviderProps) {
         setDialogsGroup({ ...dialogsGroup })
     }
 
-    const showBadgelet = (props: Badgelet) => {
-        if (checkDuplicate('badgelet', props.id)) return
+    const showBadgelet = (badgelet: Badgelet, voucher?: Voucher) => {
+        if (checkDuplicate('badgelet', badgelet.id)) return
 
         const id = genID()
         dialogsGroup.dialogs.push({
             id,
-            itemId: props.id,
+            itemId: badgelet.id,
             type: 'badgelet',
             content: () => {
                 const close = () => {
@@ -301,7 +302,37 @@ function DialogProvider (props: DialogProviderProps) {
 
                 return (
                     <Dialog { ...dialogProps } >
-                        { (close) => <DetailBadgelet badgelet={ props } handleClose={ close } /> }
+                        { (close) => <DetailBadgelet badgelet={ badgelet } voucher={voucher} handleClose={ close } /> }
+                    </Dialog>
+                )
+            }
+        })
+        setDialogsGroup({ ...dialogsGroup })
+    }
+
+    const showVoucher = (voucher: Voucher, code?: string) => {
+        if (checkDuplicate('badgelet', voucher.id)) return
+
+        const id = genID()
+        dialogsGroup.dialogs.push({
+            id,
+            itemId: voucher.id,
+            type: 'badgelet',
+            content: () => {
+                const close = () => {
+                    closeDialogByID(id)
+                }
+
+                const dialogProps = {
+                    key: id.toString(),
+                    size: [460, 'auto'],
+                    handleClose: close,
+                    position: 'bottom' as const
+                }
+
+                return (
+                    <Dialog { ...dialogProps } >
+                        { (close) => <DetailVoucher voucher={voucher}  handleClose={ close } /> }
                     </Dialog>
                 )
             }
@@ -457,7 +488,7 @@ function DialogProvider (props: DialogProviderProps) {
         setDialogsGroup({ ...dialogsGroup })
     }
 
-    const showPresend = (props: Presend, code?: string) => {
+    const showPresend = (props: Voucher, code?: string) => {
         if (checkDuplicate('presend', props.id)) return
 
         const id = genID()
@@ -813,7 +844,8 @@ function DialogProvider (props: DialogProviderProps) {
         showGift,
         showGiftCheckIn,
         showGiftItem,
-        showTransferAccept
+        showTransferAccept,
+        showVoucher
     }
 
     return (

@@ -1,6 +1,15 @@
 import {useContext, useEffect, useState} from 'react'
 import langContext from "@/components/provider/LangProvider/LangContext";
-import {Event, getDateList, Profile, ProfileSimple, queryEvent, queryMyEvent, getProfile} from "@/service/solas";
+import {
+    Event,
+    getDateList,
+    Profile,
+    ProfileSimple,
+    queryEvent,
+    queryMyEvent,
+    getProfile,
+    queryGroupDetail
+} from "@/service/solas";
 import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
 import EventHomeContext from "@/components/provider/EventHomeProvider/EventHomeContext";
 import EventCalendar from "@/components/compose/EventCalendar/EventCalendar";
@@ -52,7 +61,7 @@ function Calendar() {
     useEffect(() => {
         async function fetchData2() {
             if (user.authToken) {
-                const res = await queryMyEvent({auth_token: user.authToken!})
+                const res = await queryMyEvent({profile_id: user.id!})
                 setMyEvent(res.map(item => item.event))
             } else {
                 setMyEvent([])
@@ -94,11 +103,11 @@ function Calendar() {
 
             let res = await queryEvent({
                 group_id: eventGroup!.id,
-                event_order: 'start_time_asc',
+                event_order: 'asc',
                 page: 1,
                 tag: selectedLabel[0] || undefined,
-                start_time_from: Math.floor(dateStart.getTime() / 1000),
-                start_time_to: Math.floor(dateEnd.getTime() / 1000),
+                start_time_from: dateStart.toISOString(),
+                start_time_to: dateEnd.toISOString(),
             })
             unload()
             return res
@@ -116,10 +125,10 @@ function Calendar() {
                 if (!event.host_info) {
                     return {
                         ...event,
-                        profile: event.event_owner
+                        profile: event.owner
                     }
                 } else {
-                    const profile = await getProfile({id: Number(event.host_info!)})
+                    const profile = await queryGroupDetail(Number(event.host_info!))
                     return {
                         ...event,
                         profile: profile
@@ -135,7 +144,7 @@ function Calendar() {
     useEffect(() => {
         if (eventGroup) {
             getEventList()
-            getDateHasEvent()
+            // getDateHasEvent()
         }
 
         return () => {
@@ -152,9 +161,12 @@ function Calendar() {
     let list = currMonthEventList.sort((a, b) => {
         return new Date(a.start_time!).getTime() - new Date(b.start_time!).getTime()
     })
+
     if (showJoined) {
         list = list.filter(item => {
-            return MyEvent.find(event => event.id === item.id)
+            return MyEvent.find(e => {
+                return e.id === item.id
+            })
         })
     }
 
@@ -179,7 +191,7 @@ function Calendar() {
         const mergedEvents: EventWithProfile[][] = []
         item.events.map(e => {
             const checkHasEvent = mergedEvents.find(events => {
-                return events[0].start_time === e.start_time && events[0].ending_time === e.ending_time
+                return events[0].start_time === e.start_time && events[0].end_time === e.end_time
             })
             if (checkHasEvent) {
                 checkHasEvent.push(e)
@@ -209,7 +221,7 @@ function Calendar() {
         const currMonth = selectedDate.getMonth()
         const currYear = selectedDate.getFullYear()
         if (year !== currYear || month !== currMonth && eventGroup) {
-            getDateHasEvent(date)
+            // getDateHasEvent(date)
         }
 
         const dateStart = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate() - selectedDate.getDay(), 0, 0, 0, 0)
@@ -255,7 +267,7 @@ function Calendar() {
                             <EventCalendar
                                 onMonthChange={async (date) =>{
                                     if (eventGroup) {
-                                        await getDateHasEvent(date)
+                                        // await getDateHasEvent(date)
                                     }
                                 }}
                                 hasEventDates={theDateHasEvent}
@@ -316,9 +328,9 @@ function Calendar() {
                                                     <div
                                                         className={'start'}>{(new Date(group[0].start_time!).getHours() + '').padStart(2, '0')} : {(new Date(group[0].start_time!).getMinutes() + '').padStart(2, '0')}</div>
                                                     {
-                                                        group[0].ending_time &&
+                                                        group[0].end_time &&
                                                         <div
-                                                            className={'ending'}>{(new Date(group[0].ending_time!).getHours() + '').padStart(2, '0')} : {(new Date(group[0].ending_time!).getMinutes() + '').padStart(2, '0')}</div>
+                                                            className={'ending'}>{(new Date(group[0].end_time!).getHours() + '').padStart(2, '0')} : {(new Date(group[0].end_time!).getMinutes() + '').padStart(2, '0')}</div>
                                                     }
                                                 </div>
                                                 <div className={'col2'}>

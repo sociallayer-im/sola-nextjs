@@ -17,7 +17,7 @@ function DashboardInfo(props: {groupid: number}) {
     const {lang} = useContext(LangContext)
 
     useEffect(() => {
-        getEventStats({id: props.groupid, days: days[0].id}).then((res) => {
+        getEventStats({group_id: props.groupid, days: days[0].id}).then((res) => {
             setInfo(res)
         })
     }, [props.groupid, days])

@@ -230,7 +230,7 @@ function Merge() {
                                         <img src="/images/merge/poap.png" alt=""/>
                                         <div>
                                             <div className={'name'}>{event.title}</div>
-                                            <div className={'detail'}>{formatTime(event.start_time!)} - {formatTime(event.ending_time!)}</div>
+                                            <div className={'detail'}>{formatTime(event.start_time!)} - {formatTime(event.end_time!)}</div>
                                             <div className={'detail'}>{event.event_site?.title || event.location || ''}</div>
                                         </div>
                                     </div>

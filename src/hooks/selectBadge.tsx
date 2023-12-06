@@ -45,6 +45,7 @@ function useSelectedBadge() {
                     badges={badge}
                     handleClose={close}
                     profileId={0}
+                    group_id={props.groupId!}
                     onSelect={
                         (res) => {
                             if (res.badge) {

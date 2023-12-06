@@ -30,12 +30,6 @@ function EmailLoginForm (props: EmailLoginFormProps) {
         if (props.inputType === 'binding') {
             const unload = showLoading()
             try {
-                const checkProfile = await getProfile({email: account.trim()})
-                if (checkProfile) {
-                    unload()
-                    setError('Email has been bound, Please use another email')
-                    return
-                }
                 const requestEmailLoginCode = await requestEmailCode(account.trim())
                 props.onConfirm(account)
                 unload()

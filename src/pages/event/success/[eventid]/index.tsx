@@ -69,7 +69,7 @@ function CreateEventSuccess() {
             {event &&
                 <>
                     <div className={'event-share-card'} ref={card}>
-                        <img src={event.cover} className={'cover'} alt=""/>
+                        <img src={event.cover_url} className={'cover'} alt=""/>
                         <div className={'name'}>{event.title}</div>
                         {!!event.start_time &&
                             <div className={'time'}>
@@ -81,13 +81,13 @@ function CreateEventSuccess() {
                                     }
                                 </div>
                                 {
-                                    event.ending_time &&
+                                    event.end_time &&
                                     <>
                                         <span>—</span>
                                         <div className={'end-time'}> {
                                             event.timezone ?
-                                                formatTimeWithTimezone(event.ending_time, event.timezone)
-                                                : formatTime(event.ending_time)
+                                                formatTimeWithTimezone(event.end_time, event.timezone)
+                                                : formatTime(event.end_time)
                                         }</div>
                                     </>
                                 }
@@ -104,18 +104,16 @@ function CreateEventSuccess() {
                                 <div>{event.event_site.title}</div>
                             </div>
                         }
-
                         {
                             !!event.location && <div className={'time'}>
                                 <i className={'icon-Outline'}/>
-                                <div>{event.location}{event.location_details? `(${JSON.parse(event.location_details).name})` : ''}</div>
+                                <div>{event.location}{event.formatted_address? `(${JSON.parse(event.formatted_address).name})` : ''}</div>
                             </div>
                         }
-
                         {
-                            !!event.online_location && <div className={'time'}>
+                            !!event.meeting_url && <div className={'time'}>
                                 <i className={'icon-link'}/>
-                                <div>{getMeetingName(event.online_location)}</div>
+                                <div>{getMeetingName(event.meeting_url)}</div>
                             </div>
                         }
 

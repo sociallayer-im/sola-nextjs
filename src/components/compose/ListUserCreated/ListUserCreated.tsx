@@ -4,7 +4,7 @@ import ListTitle from '../../base/ListTitle/ListTitle'
 import LangContext from '../../provider/LangProvider/LangContext'
 import AppSubTabs from '../../base/AppSubTabs'
 import {Tab} from 'baseui/tabs'
-import {Profile} from '../../../service/solas'
+import {Profile, Group} from '../../../service/solas'
 import ListUserMinted from '../ListUserMinted'
 import ListUserPresend from '../ListUserPresend'
 import ListGroupInvite from '../ListGroupInvite'
@@ -32,8 +32,8 @@ function ListUserCreated(props: ListUserCreatedProps) {
             title={lang['Created_List_Title']}
             count={props.profile.badge_count}
             uint={lang['Badgelet_List_Unit']}/>
-        {user.id === props.profile.id || user.id === props.profile.group_owner_id
-            ? props.profile.is_group
+        {user.id === props.profile.id || user.id === (props.profile as Group).creator.id
+            ? (props.profile as Group).creator.id
                 ? <AppSubTabs>
                     <Tab title={lang['Profile_Tab_Minted']} key='minted'>
                         <ListUserMinted userType={props.userType} profile={props.profile}/>

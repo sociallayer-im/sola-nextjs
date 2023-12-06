@@ -43,9 +43,7 @@ function DetailInvite(props: DetailInviteProps ) {
         async function getInfo () {
             const groupInfo = await solas.queryGroupDetail(props.invite.group_id)
             setGroup(groupInfo)
-
-            const receiver = await solas.getProfile({ id: props.invite.receiver_id})
-            setReceiver(receiver)
+            setReceiver(props.invite.receiver as any)
         }
         getInfo()
     }, [])
@@ -144,7 +142,7 @@ function DetailInvite(props: DetailInviteProps ) {
 
                 { !!user.id
                     && user.id === invite.receiver_id
-                    && invite.status === 'new'
+                    && invite.status === 'sending'
                     && ActionBtns }
             </BtnGroup>
         </DetailWrapper>

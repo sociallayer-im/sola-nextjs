@@ -22,7 +22,7 @@ export const Render: Story = {
         return <StyleProvider>
             <div style={{width: '345px'}}>
                 <Component {...args}
-                           handleClose={() => {alert('close')}}
+                           handleClose={() => {}}
                            handleConfirm={(data) => {
                                const a = new FileReader();
                                a.onload = function(e) {

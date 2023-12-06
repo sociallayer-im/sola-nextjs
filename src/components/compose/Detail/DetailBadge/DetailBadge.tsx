@@ -43,12 +43,12 @@ function DetailBadge(props: DetailBadgeProps) {
     const swiperIndex = useRef(0)
     const [needUpdate, _] = useEvent(EVENT.badgeDetailUpdate)
     const [isGroupManager, setIsGroupManager] = useState(false)
-    const loginUserIsSender = user.id === props.badge.sender.id || user.id === props.badge.group?.id
+    const loginUserIsSender = user.id === props.badge.creator.id || user.id === props.badge.group?.id
 
     useEffect(() => {
         async function getBadgelet() {
             const badgeWithBadgelets = await solas.queryBadgeDetail({id: props.badge.id})
-            let badgelets = badgeWithBadgelets.badgelets.filter(item => {
+            let badgelets = badgeWithBadgelets!.badgelets.filter(item => {
                 return item.status === 'accepted'
             })
             badgelets = badgelets.map(item => {
@@ -103,7 +103,7 @@ function DetailBadge(props: DetailBadgeProps) {
                     <DetailName> 🔒 </DetailName>
                     <DetailRow>
                         <DetailCreator isGroup={!!props.badge.group}
-                                       profile={props.badge.group || props.badge.sender}/>
+                                       profile={props.badge.group || props.badge.creator}/>
                     </DetailRow>
                     <DetailScrollBox style={{maxHeight: swiperMaxHeight - 40 + 'px'}}>
                         <DetailArea
@@ -120,7 +120,7 @@ function DetailBadge(props: DetailBadgeProps) {
                     <DetailName> {props.badge.name} </DetailName>
                     <DetailRow>
                         <DetailCreator isGroup={!!props.badge.group}
-                                       profile={props.badge.group || props.badge.sender}/>
+                                       profile={props.badge.group || props.badge.creator}/>
                     </DetailRow>
                     {
                         badgelets.length > 0 ?
@@ -145,18 +145,14 @@ function DetailBadge(props: DetailBadgeProps) {
                                                     <DetailArea
                                                         onClose={props.handleClose}
                                                         title={lang['BadgeDialog_Label_Issuees']}
-                                                        content={badgelet.receiver.domain
-                                                            ? badgelet.receiver.domain.split('.')[0]
+                                                        content={badgelet.owner.username
+                                                            ? badgelet.owner.username
                                                             : ''
                                                         }
-                                                        navigate={badgelet.receiver.domain
-                                                            ? `/profile/${badgelet.receiver.domain?.split('.')[0]}`
+                                                        navigate={badgelet.owner.username
+                                                            ? `/profile/${badgelet.owner.username}`
                                                             : '#'}
-                                                        image={badgelet.receiver.image_url || defaultAvatar(badgelet.receiver.id)}/>
-
-                                                    <DetailArea
-                                                        title={lang['BadgeDialog_Label_Token']}
-                                                        content={props.badge.domain}/>
+                                                        image={badgelet.owner.image_url || defaultAvatar(badgelet.owner.id)}/>
 
                                                     <DetailArea
                                                         title={lang['BadgeDialog_Label_Creat_Time']}
@@ -180,10 +176,6 @@ function DetailBadge(props: DetailBadgeProps) {
                                         <ReasonText text={props.badge.content}/>
                                     </DetailDes>
                                 }
-
-                                <DetailArea
-                                    title={lang['BadgeDialog_Label_Token']}
-                                    content={props.badge.domain}/>
 
                                 <DetailArea
                                     title={lang['BadgeDialog_Label_Creat_Time']}

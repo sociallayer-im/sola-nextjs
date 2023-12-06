@@ -28,20 +28,20 @@ function GroupEdit() {
 
             const unload = showLoading()
             try {
-                const profile = await solas.getProfile({
+                const profile = await solas.getGroups({
                     username: params?.groupname as string
                 })
 
-                setNewProfile(profile)
-                setProfile(profile)
+                setNewProfile(profile[0])
+                setProfile(profile[0])
 
                 if (user.id) {
                     const isManager = await solas.checkIsManager({
-                        group_id: profile!.id,
+                        group_id: profile[0]!.id,
                         profile_id: user.id
                     })
 
-                    setIsGroupManager(isManager || profile!.group_owner_id === user.id)
+                    setIsGroupManager(isManager || profile[0]!.creator.id === user.id)
                 }
 
                 unload()
@@ -106,7 +106,7 @@ function GroupEdit() {
     const handleFreeze = () => {
         const props: DialogConfirmProps = {
             confirmLabel: lang['Group_freeze_Dialog_confirm'],
-            confirmBtnColor: '#F64F4F!important',
+            confirmBtnColor: '#F64F4F',
             confirmTextColor: '#fff',
             cancelLabel: lang['Group_freeze_Dialog_cancel'],
             title: lang['Group_freeze_dialog_title'],

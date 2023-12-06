@@ -59,7 +59,7 @@ function ListUserBadgelet (props: ListUserBadgeletProps) {
                     onRef={ listWrapperRef }
                     sortFunction={(list) => {
                         list.sort((a, b) => {
-                            return b.top ? 1 : -1
+                            return b.display === 'top' ? 1 : -1
                         })
                         return list
                     }}

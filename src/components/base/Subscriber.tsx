@@ -1,7 +1,7 @@
 import {useContext, useEffect, useRef} from 'react'
 import UserContext from '../provider/UserProvider/UserContext'
 import DialogsContext from '../provider/DialogProvider/DialogsContext'
-import solas from '../../service/solas'
+import solas, {getPendingBadges} from '../../service/solas'
 
 const Pusher = typeof window !== 'undefined' ? (window as any).Pusher : null
 let pusher: any = null
@@ -12,7 +12,7 @@ if (Pusher) {
 
 function Subscriber() {
     const {user} = useContext(UserContext)
-    const {showBadgelet, showInvite, showNftpasslet, showGiftItem} = useContext(DialogsContext)
+    const {showBadgelet, showInvite, showNftpasslet, showGiftItem , showVoucher} = useContext(DialogsContext)
     const SubscriptionDomain = useRef('')
 
     // 实时接受badgelet
@@ -40,7 +40,6 @@ function Subscriber() {
             const badgelet = await solas.queryInviteDetail({
                 group_id: groupId,
                 invite_id: inviteId,
-                auth_token: user.authToken || ''
             })
             showInvite(badgelet)
         })
@@ -51,31 +50,38 @@ function Subscriber() {
         if (!user.id || !user.domain) return
 
         async function showPendingBadgelets() {
-            const badgelets = await solas.queryAllTypeBadgelet({owner_id: user.id!, page: 1})
-            const pendingBadgelets = badgelets.filter((item) => item.status === 'pending')
+            const vouchers = await solas.getPendingBadges( user.id!, 1)
+            const pendingBadgelets = vouchers.filter((item) => !item.claimed_at)
+
             pendingBadgelets.forEach((item) => {
-                if (!item.badge.badge_type || item.badge.badge_type === 'badge') {
-                    showBadgelet(item)
-                }
-
-                if (item.badge.badge_type === 'gift') {
-                    showGiftItem(item)
-                }
-
-                if (item.badge.badge_type === 'nftpass') {
-                    showNftpasslet(item)
-                }
-
-                if (item.badge.badge_type === 'private') {
-                    showBadgelet(item)
-                }
+                // if (!item.badge.badge_type || item.badge.badge_type === 'badge') {
+                //     showBadgelet({...item, owner: item.receiver}, item)
+                // }
+                //
+                // if (item.badge.badge_type === 'gift') {
+                //     showGiftItem(item)
+                // }
+                //
+                // if (item.badge.badge_type === 'nftpass') {
+                //     showNftpasslet(item)
+                // }
+                //
+                // if (item.badge.badge_type === 'private') {
+                //     showBadgelet(item)
+                // }
+                showVoucher(item)
             })
         }
 
         showPendingBadgelets()
 
         async function showPendingInvite() {
-            const invites = await solas.queryPendingInvite(user.id!)
+            if (!user.id) return
+
+            const invites = await solas.queryInvites({
+                receiverId: user.id!,
+                onlyPending: true
+            })
             invites.forEach((item) => {
                 showInvite(item)
             })

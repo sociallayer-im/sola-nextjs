@@ -1,6 +1,6 @@
 import {useSearchParams} from 'next/navigation'
 import {useContext, useEffect, useState} from 'react'
-import solas, {Group, ProfileSimple} from '../../service/solas'
+import solas, {Group, ProfileSimple, queryVoucherDetail} from '../../service/solas'
 import LangContext from '../../components/provider/LangProvider/LangContext'
 import UserContext from '../../components/provider/UserProvider/UserContext'
 import copy from '../../utils/copy'
@@ -22,174 +22,141 @@ function IssueSuccessPage(props: any) {
     const [group, setGroup] = useState<Group | null>(null)
 
     // presend成功传参
-    const presendId = props.presend || searchParams.get('presend')
+    const voucher_id = props.voucher || searchParams.get('voucher')
+    const code = props.code || searchParams.get('code')
 
-    // 颁发成功传参
-    const badgeletId = props.badgelet || searchParams.get('badgelet')
-
-    // 邀请成功传参
     const inviteId = props.invite || searchParams.get('invite')
-    const groupId = props.group || searchParams.get('group')
-
-    // nftpass 颁发成功传参
-    const nftpassletId = props.nftpasslet || searchParams.get('nftpasslet')
-
-    // presend成功传参
-    const pointId = props.point || searchParams.get('point')
-    const pointitemId = props.pointitem || searchParams.get('pointitem')
-
-    // gift成功传参
-    const giftItemId = props.giftitem || searchParams.get('giftitem')
 
     useEffect(() => {
         async function fetchInfo() {
-            if (badgeletId) {
-                const badgeletDetail = await solas.queryBadgeletDetail({id: Number(badgeletId)})
+            if (voucher_id) {
+                const voucher = await solas.queryVoucherDetail(Number(voucher_id))
 
                 setInfo({
-                    sender: badgeletDetail.sender,
-                    name: badgeletDetail.badge.name,
-                    cover: badgeletDetail.badge.image_url,
-                    link: genShareLink()
+                    sender: voucher!.sender,
+                    name: voucher!.badge.name,
+                    cover: voucher!.badge.image_url,
+                    link: genShareLink(voucher!.id, code || undefined),
                 })
 
-                setGroup(badgeletDetail.badge.group || null)
+                setGroup(voucher!.badge.group || null)
             }
 
-            if (presendId) {
-                const presendDetail = await solas.queryPresendDetail({
-                    id: Number(presendId),
-                    auth_token: user.authToken || ''
-                })
-                let code: string | undefined = undefined
-                if (user.id) {
-                    try {
-                        code = await solas.getVoucherCode({id: Number(presendId), auth_token: user.authToken || ''})
-                    } catch (e) {
-                        console.log(e)
-                    }
-                }
-
-                const sender = presendDetail.badge.sender
-                setInfo({
-                    name: presendDetail.badge.name,
-                    cover: presendDetail.badge.image_url,
-                    limit: presendDetail.badgelets.length + presendDetail.counter,
-                    expires: presendDetail.expires_at,
-                    link: genShareLink(code || undefined),
-                    sender: sender as ProfileSimple
-                })
-
-                setGroup(presendDetail.group)
-            }
-
-            if (inviteId && groupId) {
+            // if (presendId) {
+            //     const presendDetail = await solas.queryPresendDetail({
+            //         id: Number(presendId),
+            //         auth_token: user.authToken || ''
+            //     })
+            //     let code: string | undefined = undefined
+            //     if (user.id) {
+            //         try {
+            //             code = await solas.getVoucherCode({id: Number(presendId), auth_token: user.authToken || ''})
+            //         } catch (e) {
+            //             console.log(e)
+            //         }
+            //     }
+            //
+            //     const sender = presendDetail.badge.sender
+            //     setInfo({
+            //         name: presendDetail.badge.name,
+            //         cover: presendDetail.badge.image_url,
+            //         limit: presendDetail.badgelets.length + presendDetail.counter,
+            //         expires: presendDetail.expires_at,
+            //         link: genShareLink(code || undefined),
+            //         sender: sender as ProfileSimple
+            //     })
+            //
+            //     setGroup(presendDetail.group)
+            // }
+            //
+            if (inviteId) {
                 const inviteDetail = await solas.queryInviteDetail({
                     invite_id: Number(inviteId),
-                    group_id: Number(groupId),
-                    auth_token: user?.authToken || ''
                 })
                 if (!inviteDetail) return
 
-                const receiver = await solas.getProfile({id: inviteDetail?.receiver_id})
-                if (!receiver) return
-
-                const group = await solas.queryGroupDetail(Number(groupId))
+                const group = await solas.queryGroupDetail(Number(inviteDetail.group_id))
                 if (!group) return
 
                 setInfo({
                     sender: group as any,
                     name: group.username,
                     cover: group.image_url || defaultAvatar(group.id),
-                    link: genShareLink(),
+                    link: genInviteShareLink(inviteId),
                 })
 
                 setGroup(group)
             }
-
-            if (nftpassletId) {
-                const badgeletDetail = await solas.queryBadgeletDetail({id: Number(nftpassletId)})
-
-                setInfo({
-                    sender: badgeletDetail.sender,
-                    name: badgeletDetail.badge.name,
-                    cover: badgeletDetail.badge.image_url,
-                    link: genShareLink(),
-                    start: badgeletDetail.starts_at || undefined,
-                    expires: badgeletDetail.expires_at || undefined,
-                    title: lang['Badgebook_Dialog_NFT_Pass']
-                })
-
-                setGroup(badgeletDetail.group)
-            }
-
-            if (pointId && pointitemId) {
-                const point = await solas.queryPointDetail({id: Number(pointId)})
-                const pointItem = await solas.queryPointItemDetail({id: Number(pointitemId)})
-
-                setInfo({
-                    sender: point.sender,
-                    name: point.title,
-                    cover: point.image_url,
-                    link: genShareLink(),
-                    points: pointItem.value,
-                    title: lang['Badgebook_Dialog_Points']
-                })
-
-                setGroup(point.group)
-            }
-
-            if (giftItemId) {
-                const badgeletDetail = await solas.queryBadgeletDetail({id: Number(giftItemId)})
-
-                setInfo({
-                    sender: badgeletDetail.sender,
-                    name: badgeletDetail.badge.name,
-                    cover: badgeletDetail.badge.image_url,
-                    link: genShareLink(),
-                    start: badgeletDetail.starts_at || undefined,
-                    expires: badgeletDetail.expires_at || undefined,
-                    title: lang['Badgebook_Dialog_Gift'],
-                })
-
-                setGroup(badgeletDetail.badge.group || null)
-            }
+            //
+            // if (nftpassletId) {
+            //     const badgeletDetail = await solas.queryBadgeletDetail({id: Number(nftpassletId)})
+            //
+            //     setInfo({
+            //         sender: badgeletDetail.sender,
+            //         name: badgeletDetail.badge.name,
+            //         cover: badgeletDetail.badge.image_url,
+            //         link: genShareLink(),
+            //         start: badgeletDetail.starts_at || undefined,
+            //         expires: badgeletDetail.expires_at || undefined,
+            //         title: lang['Badgebook_Dialog_NFT_Pass']
+            //     })
+            //
+            //     setGroup(badgeletDetail.group)
+            // }
+            //
+            // if (pointId && pointitemId) {
+            //     const point = await solas.queryPointDetail({id: Number(pointId)})
+            //     const pointItem = await solas.queryPointItemDetail({id: Number(pointitemId)})
+            //
+            //     setInfo({
+            //         sender: point.sender,
+            //         name: point.title,
+            //         cover: point.image_url,
+            //         link: genShareLink(),
+            //         points: pointItem.value,
+            //         title: lang['Badgebook_Dialog_Points']
+            //     })
+            //
+            //     setGroup(point.group)
+            // }
+            //
+            // if (giftItemId) {
+            //     const badgeletDetail = await solas.queryBadgeletDetail({id: Number(giftItemId)})
+            //
+            //     setInfo({
+            //         sender: badgeletDetail.sender,
+            //         name: badgeletDetail.badge.name,
+            //         cover: badgeletDetail.badge.image_url,
+            //         link: genShareLink(),
+            //         start: badgeletDetail.starts_at || undefined,
+            //         expires: badgeletDetail.expires_at || undefined,
+            //         title: lang['Badgebook_Dialog_Gift'],
+            //     })
+            //
+            //     setGroup(badgeletDetail.badge.group || null)
+            // }
         }
 
         fetchInfo()
     }, [user.authToken])
 
-    const genShareLink = (presendCode?: string) => {
+    const genShareLink = (id: number, code?: string) => {
         const base = `${window.location.protocol}//${window.location.host}`
         let path = ''
 
-        if (badgeletId) {
-            path = `${base}/badgelet/${badgeletId}`
+        path = `${base}/voucher/${id}`
+        if (code) {
+            path = path + '_' + code
         }
 
-        if (presendId) {
-            path = `${base}/presend/${presendId}`
-            if (presendCode) {
-                path = path + '_' + presendCode
-            }
-        }
+        return path
+    }
 
-        if (inviteId && groupId) {
-            path = `${base}/invite/${groupId}/${inviteId}`
-        }
+    const genInviteShareLink = (id: string) => {
+        const base = `${window.location.protocol}//${window.location.host}`
+        let path = ''
 
-        if (nftpassletId) {
-            path = `${base}/nftpasslet/${nftpassletId}`
-        }
-
-        if (pointId && pointitemId) {
-            path = `${base}/pointitem/${pointitemId}`
-        }
-
-        if (giftItemId) {
-            path = `${base}/giftitem/${giftItemId}`
-        }
-
+        path = `${base}/invite/${id}`
         return path
     }
 
@@ -247,24 +214,16 @@ function IssueSuccessPage(props: any) {
 export default IssueSuccessPage
 
 export const getServerSideProps: any = (async (context: any) => {
-    const presend = context.query?.presend || null
-    const badgelet = context.query?.badgelet  || null
-    const invite = context.query?.invite  || null
-    const group = context.query?.group  || null
-    const nftpasslet = context.query?.nftpasslet  || null
-    const point = context.query?.point || null
-    const giftitem = context.query?.giftitem || null
+    const voucher = context.query?.voucher || null
+    const invite = context.query?.invite || null
+    const code = context.query?.code  || null
 
 
     return {
         props: {
-            presend,
-            badgelet,
             invite,
-            group,
-            nftpasslet,
-            point,
-            giftitem
+            voucher,
+            code,
         }
     }
 })

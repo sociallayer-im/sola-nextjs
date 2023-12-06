@@ -94,33 +94,14 @@ function CardInvite(props: CardInviteProps) {
     const { defaultAvatar } = usePicture()
     const { user } = useContext(UserContext)
     const { lang } = useContext(LangContext)
-    const [isGroupManager, setIsGroupManager] = useState(false)
 
     const isOwner = user.id === props.invite.receiver_id
-
-    useEffect(() => {
-        async function checkManager() {
-            if(user.id && props.invite.status === 'new') {
-                const receiverDetail = await getProfile({id:props.invite.group_id})
-
-                if (receiverDetail?.is_group) {
-                    const res = await checkIsManager({
-                        group_id: props.invite.group_id,
-                        profile_id: user.id
-                    })
-                    setIsGroupManager(res)
-                }
-            }
-        }
-
-        checkManager()
-    }, [user.id])
 
     return (<div data-testid='CardInvite' className={ css(style.wrapper) } onClick={ () => { showInvite(props.invite) }}>
                 <div className={ css(style.coverBg) }>
                     <img className={ css(style.img) } src={ props.groupCover || defaultAvatar(props.invite.group_id) } alt=""/>
                 </div>
-                <div className={ css(style.name) }>{ lang['Group_invite_badge_name']([props.groupName]) || '' }</div>
+                <div className={ css(style.name) }>{ lang['Group_invite_badge_name']([props.groupName, props.invite.role]) || '' }</div>
                 { isOwner && props.invite.status === 'new' && <div className={ css(style.pendingMark) }>Pending</div> }
             </div>)
 }

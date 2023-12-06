@@ -10,6 +10,7 @@ import UserContext from '@/components/provider/UserProvider/UserContext'
 import ReasonInput from '@/components/base/ReasonInput/ReasonInput'
 import IssuesInput from '@/components/base/IssuesInput/IssuesInput'
 import usePicture from '@/hooks/pictrue'
+import { Select, StyledControlContainer } from 'baseui/select'
 
 function Invite() {
     const { lang } = useContext(LangContext)
@@ -19,23 +20,22 @@ function Invite() {
     const { showToast, showLoading } = useContext(DialogsContext)
     const params = useParams()
     const [issues, setIssues] = useState<string[]>([''])
+    const [role, setRole] = useState<any>([{id: 'member', label: 'Member'}])
     const router = useRouter()
     const { defaultAvatar } = usePicture()
-
-
 
     useEffect(() => {
         async function getGroupDetail () {
             const group = await solas.queryGroupDetail(Number(params.groupId))
-            const prefill = lang['Group_invite_default_reason']([group.username])
+            const prefill = lang['Group_invite_default_reason']([group!.username, role[0].id])
             setReason(prefill)
             setGroup(group)
         }
 
-        if (params.groupId) {
+        if (params?.groupId) {
             getGroupDetail()
         }
-    }, [params])
+    }, [params, role])
 
     const handleInvite = async () => {
         if (!reason) {
@@ -55,7 +55,8 @@ function Invite() {
                 group_id: group?.id!,
                 auth_token: user.authToken || '',
                 receivers: checkedIssues,
-                message: reason
+                message: reason,
+                role: role[0].id
             })
 
             unload()
@@ -63,8 +64,7 @@ function Invite() {
                 showToast('The user(s) you invited has already joined the group')
                 return
             }
-
-            router.push(`/issue-success?invite=${invites[0].id}&amount=${invites.length}&group=${group?.id}`)
+            router.push(`/issue-success?invite=${invites[0].id}`)
         } catch (e: any) {
             unload()
             console.log('[handleInvite]: ', e)
@@ -80,17 +80,29 @@ function Invite() {
                     <div className='issue-title'>{ lang['Group_invite_title'] }</div>
                     <div className='info'>
                         <img src={ group?.image_url || defaultAvatar(group?.id) } alt=""/>
-                        <div className='name'>{ lang['Group_invite_badge_name']([group?.username]) }</div>
-                    </div>
-
-                    <div className='input-area'>
-                        <div className='input-area-title'>{ lang['IssueBadge_Domain'] }</div>
-                        <AppInput readOnly value={ 'member.' + group?.domain || '' } />
+                        <div className='name'>{ lang['Group_invite_badge_name']([group?.username, role[0].label]) }</div>
                     </div>
 
                     <div className='input-area'>
                         <div className='input-area-title'>{ lang['IssueBadge_Reason'] }</div>
                         <ReasonInput value={ reason }  onChange={ (value) => { setReason(value) }} />
+                    </div>
+
+                    <div className='input-area'>
+                        <div className='input-area-title'>{ 'Role' }</div>
+                        <Select
+                            searchable={false}
+                            clearable={false}
+                            creatable={false}
+                            options={[
+                                {id: 'member', label: 'Member'},
+                                {id: 'issuer', label: 'Issuer'},
+                                {id: 'manager', label: 'Manager'}
+                            ]}
+                            onChange={({value}) => {
+                                setRole(value)
+                            }}
+                            value={role} />
                     </div>
 
                     <div className='input-area'>

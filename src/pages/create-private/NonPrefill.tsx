@@ -63,18 +63,19 @@ function CreateBadgeNonPrefill() {
         try {
             let groupId = 0
             if (searchParams.get('group')) {
-                const group = await solas.getProfile({ domain: searchParams.get('group')! })
-                groupId = group!.id
+                const group = await solas.getGroups({ id: Number(searchParams.get('group')) })
+                if (group[0]) {
+                    groupId = group[0].id
+                }
             }
 
-            if (creator?.group_owner_id) {
-                groupId = creator.id
+            if ((creator as Group)?.creator) {
+                groupId = (creator as Group).creator.id
             }
 
             const newBadge = await solas.createBadge({
                 name: badgeName,
                 title: badgeName,
-                domain: domain + enhancer,
                 image_url: cover,
                 auth_token: user.authToken || '',
                 content: reason || '',
@@ -149,10 +150,13 @@ function CreateBadgeNonPrefill() {
                             <ReasonInput value={reason}  onChange={ (value) => { setReason(value) }} />
                         </div>
 
-                        <div className='input-area'>
-                            <div className='input-area-title'>{ lang['BadgeDialog_Label_Creator'] }</div>
-                            <SelectCreator value={ creator } onChange={(res) => { console.log('resres', res);setCreator(res) }}/>
-                        </div>
+                        {
+                            searchParams.get('group') &&
+                            <div className='input-area'>
+                                <div className='input-area-title'>{ lang['BadgeDialog_Label_Creator'] }</div>
+                                <SelectCreator value={ creator } onChange={(res) => { console.log('resres', res);setCreator(res) }}/>
+                            </div>
+                        }
 
                         <AppButton kind={ BTN_KIND.primary }
                                    special

@@ -45,7 +45,7 @@ function DetailNftpass(props: DetailBadgeProps) {
     const swiperIndex = useRef(0)
     const [needUpdate, _] = useEvent(EVENT.badgeDetailUpdate)
     const [isGroupManager, setIsGroupManager] = useState(false)
-    const loginUserIsSender = user.id === props.nftpass.sender.id || user.id === props.nftpass.group?.id
+    const loginUserIsSender = user.id === props.nftpass.creator.id || user.id === props.nftpass.group?.id
 
 
     useEffect(() => {
@@ -91,7 +91,7 @@ function DetailNftpass(props: DetailBadgeProps) {
 
             <DetailRow>
                <DetailCreator isGroup={!!props.nftpass.group}
-                              profile={props.nftpass.group || props.nftpass.sender}></DetailCreator>
+                              profile={props.nftpass.group || props.nftpass.creator}></DetailCreator>
             </DetailRow>
             {nftPasslets.length > 0 ?
                 <div style={{width: '100%', overflow: 'hidden', maxHeight: swiperMaxHeight + 'px'}}>
@@ -125,10 +125,6 @@ function DetailNftpass(props: DetailBadgeProps) {
                                             image={nft.owner.image_url || defaultAvatar(nft.owner.id)}/>
 
                                         <DetailArea
-                                            title={lang['BadgeDialog_Label_Token']}
-                                            content={props.nftpass.domain}/>
-
-                                        <DetailArea
                                             title={lang['BadgeDialog_Label_Creat_Time']}
                                             content={formatTime(nft.created_at)}/>
                                     </DetailScrollBox>
@@ -144,10 +140,6 @@ function DetailNftpass(props: DetailBadgeProps) {
                             <ReasonText text={props.nftpass.content}/>
                         </DetailDes>
                     }
-
-                    <DetailArea
-                        title={lang['BadgeDialog_Label_Token']}
-                        content={props.nftpass.domain}/>
 
                     <DetailArea
                         title={lang['BadgeDialog_Label_Creat_Time']}

@@ -47,7 +47,7 @@ function ComponentName(props: { markerType: string | null }) {
     const getMarker = async (type?: any) => {
         let res: Marker[] = []
         const now = new Date()
-        const todayZero = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0).getTime() / 1000
+        const todayZero = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0).toISOString()
         if (!type) {
             // All
             // res = await queryMarkers({
@@ -112,7 +112,7 @@ function ComponentName(props: { markerType: string | null }) {
 
     const showMarkerInMapCenter = (marker: Marker, zoom?: boolean) => {
         if (GoogleMapRef.current) {
-            const location = {lat: Number(marker.lat), lng: Number(marker.lng)}
+            const location = {lat: Number(marker.geo_lat), lng: Number(marker.geo_lng)}
             GoogleMapRef.current!.setCenter(location)
             if (zoom) {
                 GoogleMapRef.current!.setZoom(defaultZoom)
@@ -136,10 +136,10 @@ function ComponentName(props: { markerType: string | null }) {
 
         // 将相同location的event合并
         let markersGrouped: Marker[][] = []
-        markers.filter((item) => item.lng && item.lat).forEach(event => {
+        markers.filter((item) => item.geo_lng && item.geo_lat).forEach(event => {
 
             const index = markersGrouped.findIndex(target => {
-                return target[0].lat === event.lat && target[0].lng === event.lng
+                return target[0].geo_lat === event.geo_lat && target[0].geo_lng === event.geo_lng
             })
 
             if (index > -1) {
@@ -151,6 +151,7 @@ function ComponentName(props: { markerType: string | null }) {
 
         // 为了保证marker不会遮住详情，先绘制marker
         // 绘制marker
+        // todo checkin marker
         markersGrouped.map((markersList, index) => {
             const category = markersList[0].category[0].toUpperCase() + markersList[0].category.slice(1)
             if (!!(markerTypeList as any)[category]) {
@@ -171,7 +172,7 @@ function ComponentName(props: { markerType: string | null }) {
 
                 const markerView = new Marker!({
                     map: GoogleMapRef.current,
-                    position: {lat: Number(markersList[0].lat), lng: Number(markersList[0].lng)},
+                    position: {lat: Number(markersList[0].geo_lat), lng: Number(markersList[0].geo_lng)},
                     content: content,
                 })
                 markersRef.current.push(markerView)
@@ -180,6 +181,7 @@ function ComponentName(props: { markerType: string | null }) {
 
         // 绘制详情
         markersGrouped.map((markerList, index) => {
+            console.log('markerList====', markerList)
             if (markerList.length === 1) {
                 const eventMarker = document.createElement('div');
                 eventMarker.className = index === 0 ? 'event-map-marker active' : 'event-map-marker'
@@ -188,7 +190,7 @@ function ComponentName(props: { markerType: string | null }) {
 
                 const markerView = new Marker!({
                     map: GoogleMapRef.current,
-                    position: {lat: Number(markerList[0].lat), lng: Number(markerList[0].lng)},
+                    position: {lat: Number(markerList[0].geo_lat), lng: Number(markerList[0].geo_lng)},
                     content: eventMarker,
                 })
 
@@ -250,7 +252,7 @@ function ComponentName(props: { markerType: string | null }) {
 
                 const markerView = new Marker!({
                     map: GoogleMapRef.current,
-                    position: {lat: Number(markerList[0].lat), lng: Number(markerList[0].lng)},
+                    position: {lat: Number(markerList[0].geo_lat), lng: Number(markerList[0].geo_lng)},
                     content: eventGroupMarker,
                 })
 
@@ -298,7 +300,7 @@ function ComponentName(props: { markerType: string | null }) {
 
     useEffect(() => {
         if (user.id) {
-            queryMyEvent({auth_token: user.authToken || '', page: 1}).then(res => {
+            queryMyEvent({profile_id: user.id || 0, page: 1}).then(res => {
                 setParticipants(res)
             })
         }

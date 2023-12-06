@@ -6,14 +6,6 @@ import { withStyle, styled } from 'baseui'
 import { Select, StyledControlContainer } from 'baseui/select'
 import usePicture from '../../../hooks/pictrue'
 
-interface SelectCreatorProp {
-    groupFirst?: boolean
-    value: Profile | Group | null
-    onChange: (res: (Profile | Group)) => any
-    autoSet?: boolean,
-    data?: (Profile | Group)[]
-}
-
 const WithStyledControlContainer = withStyle(StyledControlContainer, (props) => {
     const { $isFocused, $theme: { colors } } = props
     const borderColor = $isFocused ? 'var(--color-theme)' : 'var(--color-input-bg)'
@@ -66,6 +58,14 @@ const GroupMark = styled('div', ({$theme} : any) => ({
     color: ' #7B7C7B'
 }))
 
+interface SelectCreatorProp {
+    groupFirst?: boolean
+    value: Profile | Group | null
+    onChange: (res: (Profile | Group), isGroup?: boolean) => any
+    autoSet?: boolean,
+    data?: (Profile | Group)[]
+}
+
 function SelectCreator({autoSet=true, ...props}: SelectCreatorProp) {
     const [list, setList] = useState<(Profile | Group)[]>(props.data || [])
     const { user } = useContext(UserContext)
@@ -80,7 +80,7 @@ function SelectCreator({autoSet=true, ...props}: SelectCreatorProp) {
                 return <ListItem onClick={ props.onClick }>
                     <Avatar src={ props.item.image_url || defaultAvatar(props.item.id)} alt=""/>
                     <Label>{ props.item.username }</Label>
-                    { props.item.is_group && <GroupMark>Group</GroupMark> }
+                    { !!(props.item as Group).creator && <GroupMark>Group</GroupMark> }
                 </ListItem>
             })
         },

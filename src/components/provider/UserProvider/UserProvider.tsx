@@ -74,8 +74,8 @@ function UserProvider (props: UserProviderProps) {
                 wallet: profileInfo?.address,
                 id: profileInfo?.id! || null,
                 twitter: profileInfo?.twitter || null,
-                domain: profileInfo?.domain || null,
-                userName: profileInfo?.domain ? profileInfo?.domain.split('.')[0]: null,
+                domain: profileInfo?.username ? profileInfo?.username + process.env.NEXT_PUBLIC_SOLAS_DOMAIN : null,
+                userName: profileInfo?.username || null,
                 email:  profileInfo?.email || null,
                 avatar: profileInfo?.image_url || null,
                 authToken: props.authToken,
@@ -154,7 +154,7 @@ function UserProvider (props: UserProviderProps) {
         console.log('Login email: ', email)
         console.log('Storage token: ', authToken)
 
-        await setProfile({ authToken })
+        await setProfile({authToken})
         setAuth(email, authToken)
     }
 
@@ -174,7 +174,7 @@ function UserProvider (props: UserProviderProps) {
         console.log('Login email: ', email)
         console.log('Storage token: ', authToken)
 
-        await setProfile({ authToken })
+        await setProfile({authToken})
         setAuth(email, authToken)
     }
 
@@ -211,7 +211,7 @@ function UserProvider (props: UserProviderProps) {
         }
 
         console.log('Storage token: ', authToken)
-        await setProfile({ authToken: authToken })
+        await setProfile({authToken: authToken})
         setAuth(address, authToken)
     }
 
@@ -230,7 +230,7 @@ function UserProvider (props: UserProviderProps) {
         const phone = emailAuthInfo.phone
         console.log('Login phone: ', phone)
         console.log('Storage token: ', authToken)
-        await setProfile({ authToken })
+        await setProfile({authToken})
         setAuth(phone, authToken)
     }
 
@@ -253,13 +253,13 @@ function UserProvider (props: UserProviderProps) {
         console.log('Storage token: ', authToken)
 
         if (loginType === 'wallet') {
-            await setProfile({ authToken })
+            await setProfile({authToken})
         } else if (loginType === 'email') {
-            await setProfile({ authToken })
+            await setProfile({authToken})
         } else if (loginType === 'phone') {
-            await setProfile({ authToken })
+            await setProfile({authToken})
         } else if (loginType == 'zupass') {
-            setProfile({ authToken })
+            setProfile({authToken})
         }
     }
 

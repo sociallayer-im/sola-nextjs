@@ -30,7 +30,7 @@ function CreateBadgeWithPrefill(props: CreateBadgeWithPrefillProp) {
            try {
                const badge = await solas.queryBadgeDetail({ id: props.nftPassId })
                setPreFillBadge(badge)
-               setReason(badge.content || '')
+               setReason(badge?.content || '')
            } finally {
                unload()
            }
@@ -49,7 +49,7 @@ function CreateBadgeWithPrefill(props: CreateBadgeWithPrefillProp) {
                 auth_token: user.authToken || ''
             })
             unload()
-            router.push(`/issue-success?nftpass=${nftPass[0].id}`)
+            router.push(`/issue-success?voucher=${nftPass[0].id}`)
         } catch (e: any) {
             console.log('[handleCreateIssue]: ', e)
             unload()

@@ -1,6 +1,6 @@
 import {useStyletron} from 'baseui'
 import {useContext, useState} from 'react'
-import solas, {Profile} from '../../../service/solas'
+import solas, {Group, Profile} from '../../../service/solas'
 import usePicture from '../../../hooks/pictrue'
 import {Delete} from 'baseui/icon'
 import langContext from '../../provider/LangProvider/LangContext'
@@ -111,21 +111,23 @@ function DialogAvatar(props: DialogAvatarProps) {
                                 auth_token: user.authToken || ''
                             })
 
-                            let newProfile: Profile
-                            if (props.profile.is_group) {
+                            let newProfile: Profile | null = null
+                            if (!!(props.profile as Group).creator) {
                                 newProfile = await solas.updateGroup({
                                     ...props.profile,
                                     auth_token: user.authToken || ''
                                 })
                                 emitGroupUpdate(newProfile)
                             } else {
-                                newProfile = await solas.setAvatar({
+                                await solas.setAvatar({
                                     image_url: newImage,
                                     auth_token: user.authToken || ''
                                 })
+                                newProfile = await solas.getProfile({id: props.profile.id})
                                 emitProfileUpdate(newProfile)
                             }
-                            setCurrProfile(newProfile)
+
+                            setCurrProfile(newProfile!)
                             unload()
                             clean()
                         } catch (e: any) {

@@ -17,8 +17,6 @@ import AppTips from "../../components/base/AppTips/AppTips";
 function CreateBadgeNonPrefill() {
     const router = useRouter()
     const [cover, setCover] = useState('')
-    const [domain, setDomain,] = useState('')
-    const [domainError, setDomainError,] = useState('')
     const [badgeName, setBadgeName] = useState('')
     const [reason, setReason] = useState('')
     const [creator, setCreator] = useState<Group | Profile | null>(null)
@@ -32,27 +30,11 @@ function CreateBadgeNonPrefill() {
 
     const { lang } = useContext(LangContext)
 
-    useEffect(() => {
-        if (!domain.length) {
-            setDomainError('')
-            return
-        }
-
-        const errorMsg = verifyDomain(domain, [4, 16])
-        setDomainError(errorMsg || '')
-    }, [domain])
-
     const handleCreate = async () => {
-        setDomainError('')
         setBadgeNameError('')
 
         if (!badgeName) {
             setBadgeNameError('badge name must not empty')
-            return
-        }
-
-        if (!domain) {
-            setDomainError('badge domain must not empty')
             return
         }
 
@@ -65,23 +47,24 @@ function CreateBadgeNonPrefill() {
         try {
             let groupId = 0
             if (searchParams.get('group')) {
-                const group = await solas.getProfile({ domain: searchParams.get('group')! })
-                groupId = group!.id
+                const group = await solas.getGroups({ id: Number(searchParams.get('group')) })
+                if (group[0]) {
+                    groupId = group[0].id
+                }
             }
 
-            if (creator?.group_owner_id) {
-                groupId = creator.id
+            if ((creator as Group)?.creator) {
+                groupId = (creator as Group).creator.id
             }
 
             const newNftPass = await solas.createBadge({
                 name: badgeName,
                 title: badgeName,
-                domain: domain + enhancer,
                 image_url: cover,
                 auth_token: user.authToken || '',
                 content: reason || '',
                 group_id:  groupId || undefined,
-                badge_type: 'nftpass'
+                badge_type: 'nftpass',
             })
 
             if (presetAcceptor) {
@@ -92,7 +75,7 @@ function CreateBadgeNonPrefill() {
                     auth_token: user.authToken || ''
                 })
                 unload()
-                router.push(`/issue-success?nftpass=${badgelets[0].id}`)
+                router.push(`/issue-success?voucher=${badgelets[0].id}`)
             } else {
                 router.push(`/issue-nftpass/${newNftPass.id}?reason=${encodeURI(reason)}`)
             }
@@ -134,26 +117,17 @@ function CreateBadgeNonPrefill() {
                         </div>
 
                         <div className='input-area'>
-                            <div className='input-area-title'>{ lang['Create_NFT_Name_Domain'] }</div>
-                            <AppInput
-                                clearable
-                                value={ domain }
-                                errorMsg={ domainError }
-                                placeholder={ lang['MintBadge_Domain_Placeholder'] }
-                                endEnhancer={() => <span style={{ fontSize: '13px' }}>.{user.userName}{ enhancer }</span>}
-                                onChange={ (e) => { setDomain(e.target.value.toLowerCase()) } } />
-                            <div className='input-area-des' dangerouslySetInnerHTML={{__html: lang['MintBadge_Domain_Rule']}} />
-                        </div>
-
-                        <div className='input-area'>
                             <div className='input-area-title'>{ lang['Create_NFT_Name_Des'] }</div>
                             <ReasonInput value={reason}  onChange={ (value) => { setReason(value) }} />
                         </div>
 
-                        <div className='input-area'>
-                            <div className='input-area-title'>{ lang['BadgeDialog_Label_Creator'] }</div>
-                            <SelectCreator value={ creator } onChange={(res) => { console.log('resres', res);setCreator(res) }}/>
-                        </div>
+                        {
+                            !searchParams.get('group') &&
+                            <div className='input-area'>
+                                <div className='input-area-title'>{ lang['BadgeDialog_Label_Creator'] }</div>
+                                <SelectCreator value={ creator } onChange={(res) => { console.log('resres', res);setCreator(res) }}/>
+                            </div>
+                        }
 
                         <AppButton kind={ BTN_KIND.primary }
                                    special

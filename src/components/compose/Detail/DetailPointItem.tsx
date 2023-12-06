@@ -76,7 +76,7 @@ function DetailPointItem(props: DetailBadgeletProps) {
                     id: props.pointItem.owner.id
                 })
 
-                if (ownerDetail?.is_group) {
+                if (!!(ownerDetail as any)?.creator) { //group
                     const isManager = await solas.checkIsManager({
                         group_id: props.pointItem.owner.id,
                         profile_id: user.id

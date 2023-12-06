@@ -86,7 +86,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         nullifiers.add(pcd.claim.nullifierHash);
 
         const user = pcd.claim.partialTicket;
-        console.log('=======,pcd.claim.partialTicket.attendeeEmail', user.attendeeEmail as string)
 
         // eventId: '91312aa1-5f74-4264-bdeb-f4a3ddb8670c',
         // productId: 'cc9e3650-c29b-4629-b275-6b34fc70b2f9',

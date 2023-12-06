@@ -12,7 +12,7 @@ import DetailDes from '../atoms/DetailDes/DetailDes'
 import DetailArea from '../atoms/DetailArea'
 import AppButton, {BTN_KIND} from '../../../base/AppButton/AppButton'
 import BtnGroup from '../../../base/BtnGroup/BtnGroup'
-import solas, {Badgelet, NftPasslet, queryBadgeletDetail} from '../../../../service/solas'
+import solas, {Badgelet, NftPasslet, queryBadgeletDetail, Group} from '../../../../service/solas'
 import useEvent, {EVENT} from '../../../../hooks/globalEvent'
 import ReasonText from '../../../base/ReasonText/ReasonText'
 import DetailScrollBox from '../atoms/DetailScrollBox/DetailScrollBox'
@@ -121,7 +121,7 @@ function DetailGiftItem(props: DetailNftpassletProps) {
                     id: props.giftItem.owner.id
                 })
 
-                if (ownerDetail?.is_group) {
+                if (!!(ownerDetail as Group)?.creator) {
                     const isManager = await solas.checkIsManager({
                         group_id: props.giftItem.owner.id,
                         profile_id: user.id
@@ -138,7 +138,7 @@ function DetailGiftItem(props: DetailNftpassletProps) {
         const unload = showLoading()
         try {
             const accept = await solas.acceptBadgelet({
-                badgelet_id: nftpasslet.id,
+                voucher_id: nftpasslet.id,
                 auth_token: user.authToken || ''
             })
 
@@ -227,7 +227,7 @@ function DetailGiftItem(props: DetailNftpassletProps) {
         <DetailWrapper>
             <DetailHeader
                 title={lang['BadgeletDialog_gift_title']}
-                slotLeft={nftpasslet.hide && <DetailBadgeletPrivateMark/>}
+                slotLeft={nftpasslet.display=== 'hide' && <DetailBadgeletPrivateMark/>}
                 slotRight={
                     nftpasslet.status !== 'pending' &&
                     isOwner &&
@@ -250,7 +250,7 @@ function DetailGiftItem(props: DetailNftpassletProps) {
             <DetailRow>
                 {!showQrcode && !showChecked
                     && <DetailCreator isGroup={!!nftpasslet.badge.group}
-                                      profile={nftpasslet.badge.group || nftpasslet.sender}/>
+                                      profile={nftpasslet.badge.group || nftpasslet.creator}/>
                 }
                 <DetailTransferable onClick={() => {
                     transfer({badgelet: nftpasslet})
@@ -260,7 +260,7 @@ function DetailGiftItem(props: DetailNftpassletProps) {
             {showQrcode && !showChecked && <div className={'use-gift'}>
                 <NftpassQrcode nftpasslet={props.giftItem}/>
                 <div
-                    className={'owner'}>{lang['Gift_Checked_show_receiver']}: {props.giftItem.receiver.domain?.split('.')[0]}</div>
+                    className={'owner'}>{lang['Gift_Checked_show_receiver']}: {props.giftItem.owner.username}</div>
                 <div className={'profit'}>{props.giftItem.content}</div>
                 <div className='time'>
                     <i className='icon-clock'></i>
@@ -297,19 +297,14 @@ function DetailGiftItem(props: DetailNftpassletProps) {
                     <DetailArea
                         onClose={props.handleClose}
                         title={lang['BadgeDialog_Label_Sender']}
-                        content={nftpasslet.sender.domain
-                            ? nftpasslet.sender.domain.split('.')[0]
+                        content={nftpasslet.creator.username
+                            ? nftpasslet.creator.username
                             : ''
                         }
-                        navigate={nftpasslet.sender.domain
-                            ? `/profile/${nftpasslet.sender.domain?.split('.')[0]}`
+                        navigate={nftpasslet.creator.username
+                            ? `/profile/${nftpasslet.creator.username}`
                             : '#'}
-                        image={nftpasslet.sender.image_url || defaultAvatar(nftpasslet.sender.id)}/>
-
-                    <DetailArea
-                        title={lang['BadgeDialog_Label_Token']}
-                        content={nftpasslet.domain}
-                        link={nftpasslet.chain_data ? `https://moonscan.io/tx/${nftpasslet.chain_data}` : undefined}/>
+                        image={nftpasslet.creator.image_url || defaultAvatar(nftpasslet.creator.id)}/>
 
                     <DetailArea
                         title={lang['Gift_Detail_amount']}

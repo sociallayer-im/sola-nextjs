@@ -72,7 +72,7 @@ function CreateBadge() {
                 content: reason,
                 image_url: cover,
                 auth_token: user.authToken || '',
-                group_id: creator?.is_group ? creator.id : undefined,
+                group_id: !!(creator as any)?.creator ? creator!.id : undefined,
                 sym: symbol
             })
             router.push(`/issue-point/${newPoint.id}`)

@@ -1,7 +1,7 @@
 import {useRouter, useParams, useSearchParams} from 'next/navigation'
 import PageBack from '@/components/base/PageBack'
 import {useContext, useEffect, useState} from 'react'
-import solas, {Profile} from '@/service/solas'
+import {getGroups, Profile, checkIsManager, queryBadge, Group} from '@/service/solas'
 import DialogsContext from '@/components/provider/DialogProvider/DialogsContext'
 import GroupPanel from '@/components/base/GroupPanel/GroupPanel'
 import AppButton, {BTN_SIZE} from '@/components/base/AppButton/AppButton'
@@ -33,11 +33,11 @@ function GroupPage(props: any) {
     const [selectedTab, setSelectedTab] = useState(searchParams.get('tab') || '0')
     const [selectedSubtab, setSelectedSubtab] = useState(searchParams.get('subtab') || '0')
     const [isGroupManager, setIsGroupManager] = useState(false)
-    const startIssue = useIssueBadge({groupName: groupname as string})
+    const startIssue = useIssueBadge()
     const {copyWithDialog} = useCopy()
     const router = useRouter()
 
-    const isGroupOwner = user.id === profile?.group_owner_id
+    const isGroupOwner = user.id === (profile as Group)?.creator.id
 
     // 为了实现切换tab时，url也跟着变化，而且浏览器的前进后退按钮也能切换tab
     useEffect(() => {
@@ -65,8 +65,10 @@ function GroupPage(props: any) {
 
             const unload = showLoading()
             try {
-                const profile = await solas.getProfile({username: groupname as string})
-                setProfile(profile)
+                const profile = await getGroups({username: groupname as string})
+                if (profile[0]) {
+                    setProfile(profile[0])
+                }
             } catch (e) {
                 console.log('[getProfile]: ', e)
             } finally {
@@ -80,7 +82,7 @@ function GroupPage(props: any) {
     useEffect(() => {
         const check = async () => {
             if (profile && user.id) {
-                const isGroupManager = await solas.checkIsManager({
+                const isGroupManager = await checkIsManager({
                         group_id: profile.id!,
                         profile_id: user.id
                     }
@@ -108,12 +110,12 @@ function GroupPage(props: any) {
             {group_id: profile?.id || undefined, page: 1} :
             {sender_id: user?.id || undefined, page: 1}
 
-        const badges = await solas.queryBadge(badgeProps)
+        const badges = await queryBadge(badgeProps)
         unload()
 
-        user.id === profile?.group_owner_id
-            ? startIssue({badges})
-            : startIssue({badges, to: profile?.domain || ''})
+        user.id === (profile as Group)?.creator.id
+            ? startIssue({badges, group_id: profile?.id})
+            : startIssue({badges, to: profile?.domain || '', group_id: profile?.id})
     }
 
     const ShowDomain = styled('div', ({$theme} : any) => {
@@ -152,7 +154,7 @@ function GroupPage(props: any) {
                         <div className='slot_2'>
                             <AppButton special size={BTN_SIZE.compact} onClick={handleMintOrIssue}>
                                 <span className='icon-sendfasong'></span>
-                                {user.id === profile.group_owner_id
+                                {user.id === (profile as Group)?.creator.id
                                     ? lang['Follow_detail_btn_mint']
                                     : lang['Profile_User_IssueBadge'] + profile.username
                                 }

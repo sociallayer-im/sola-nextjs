@@ -36,7 +36,7 @@ function EventSiteInput(props: LocationInputProps) {
     const [showSearchRes, setShowSearchRes] = useState(false)
 
     const [newEventSite, setNewEventSite] = useState<EventSites | undefined>(props?.initValue)
-    const [customLocationDetail, setCustomLocationDetail] = useState<any>(props?.initValue.location_details ? JSON.parse(props.initValue.location_details) : null)
+    const [customLocationDetail, setCustomLocationDetail] = useState<any>(props?.initValue.formatted_address ? JSON.parse(props.initValue.formatted_address) : null)
 
 
 
@@ -147,7 +147,7 @@ function EventSiteInput(props: LocationInputProps) {
                 setSearchKeyword('')
                 props.onChange && props.onChange({
                     ...newEventSite!,
-                    location_details: JSON.stringify(place),
+                    formatted_address: JSON.stringify(place),
                 })
                 unload()
             })

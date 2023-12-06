@@ -198,8 +198,8 @@ function EventDetail() {
                     }}><img src="/images/icon_share.svg" alt=""/></div>}/>
 
                 <div className={'cover'}>
-                    {!!marker.cover_url &&
-                        <img src={marker.cover_url} alt=""/>
+                    {!!marker.cover_image_url &&
+                        <img src={marker.cover_image_url} alt=""/>
                     }
                 </div>
 
@@ -223,7 +223,7 @@ function EventDetail() {
                             <a className={'detail-item'} href={genGoogleMapUrl(marker)} target={'_blank'}>
                                 <i className={'icon-Outline'}/>
                                 <div>{
-                                    marker.location_detail ? marker.location + `(${JSON.parse(marker.location_detail).name})` : ''
+                                    marker.formatted_address ? marker.location + `(${JSON.parse(marker.formatted_address).name})` : ''
                                 } <svg className={styles['link-icon']} xmlns="http://www.w3.org/2000/svg" width="8" height="8"
                                        viewBox="0 0 8 8" fill="none">
                                     <path
@@ -240,7 +240,7 @@ function EventDetail() {
                             <div className={'center'}>
                                 <div className={'host-item'}
                                      onClick={e => {
-                                         !!hoster.username && goToProfile(hoster.username, hoster.is_group || undefined)
+                                         !!hoster.username && goToProfile(hoster.username, !!(hoster as Group).creator || undefined)
                                      }}>
                                     <img src={hoster.image_url || defaultAvatar(hoster.id)} alt=""/>
                                     <div>
@@ -292,13 +292,13 @@ function EventDetail() {
                                                 checkins.map((item, index) => {
                                                     return <div key={index} className={'user-list-item'}
                                                                 onClick={e => {
-                                                                    goToProfile(item.creator.domain?.split('.')[0]!)
+                                                                    goToProfile(item.creator.username!)
                                                                 }}>
                                                         <div className={'left'}>
                                                             <img
                                                                 src={item.creator.image_url || defaultAvatar(item.creator.id)}
                                                                 alt=""/>
-                                                            {item.creator.domain?.split('.')[0]}
+                                                            {item.creator.username}
                                                         </div>
                                                         <div className={'right'}>
                                                             {formatTime(item.created_at)}

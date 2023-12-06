@@ -23,7 +23,7 @@ function ListEventVertical(props: { participants: Participants[] }) {
     const getEvent = async (page: number) => {
         const unload = showLoading()
         const now = new Date()
-        const todayZero = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0).getTime() / 1000
+        const todayZero = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0).toISOString()
         if (!eventGroup?.id) {
             return []
         }
@@ -33,12 +33,12 @@ function ListEventVertical(props: { participants: Participants[] }) {
                 let res = await queryEvent({
                     page,
                     start_time_from: todayZero,
-                    event_order: 'start_time_asc',
+                    event_order: 'asc',
                     group_id: eventGroup?.id || undefined
                 })
 
                 res = res.filter(item => {
-                    const endTime = new Date(item.ending_time!).getTime()
+                    const endTime = new Date(item.end_time!).getTime()
                     return endTime >= new Date().getTime()
                 })
                 return res
@@ -46,12 +46,12 @@ function ListEventVertical(props: { participants: Participants[] }) {
                 let res = await queryEvent({
                     page,
                     start_time_to: todayZero,
-                    event_order: 'start_time_desc',
+                    event_order: 'desc',
                     group_id: eventGroup?.id || undefined
                 })
 
                 res = res.filter(item => {
-                    const endTime = new Date(item.ending_time!).getTime()
+                    const endTime = new Date(item.end_time!).getTime()
                     return endTime < new Date().getTime()
                 })
 

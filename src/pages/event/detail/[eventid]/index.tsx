@@ -4,6 +4,7 @@ import {
     Badge,
     Event,
     getProfile,
+    queryGroupDetail,
     Group,
     joinEvent,
     Participants,
@@ -53,17 +54,16 @@ function EventDetail(props: {event: Event | null, appName: string, host: string}
     const [tab, setTab] = useState(1)
     const [isHoster, setIsHoster] = useState(false)
     const [isJoined, setIsJoined] = useState(false)
-    const [isGuest, setIsGuest] = useState(false)
     const [canceled, setCanceled] = useState(false)
     const [outOfDate, setOutOfDate] = useState(false)
     const [inProgress, setInProgress] = useState(false)
     const [inCheckinTime, setIsCheckTime] = useState(false)
     const [notStart, setNotStart] = useState(false)
     const [participants, setParticipants] = useState<Participants[]>([])
-    const [guests, setGuests] = useState<ProfileSimple[]>([])
     const [badge, setBadge] = useState<Badge | null>(null)
     const [isChecklog, setIsChecklog] = useState(false)
     const [canAccess, setCanAccess] = useState(false)
+    const [eventSite, setEventSite] = useState<any | null>(null)
 
     async function fetchData() {
         if (params?.eventid) {
@@ -81,8 +81,9 @@ function EventDetail(props: {event: Event | null, appName: string, host: string}
             }
 
             setEvent(res)
+            setEventSite(res.event_site)
+            setParticipants(res.participants || [])
 
-            setParticipants(res.participants?.filter(item => item.status !== 'cancel')!)
             setCanceled(res.status === 'cancel')
             // setCanceled(false)
 
@@ -90,9 +91,9 @@ function EventDetail(props: {event: Event | null, appName: string, host: string}
             setIsChecklog(isCheckLogEvent)
 
             const now = new Date().getTime()
-            if (res.start_time && res.ending_time) {
+            if (res.start_time && res.end_time) {
                 const start = new Date(res.start_time).getTime()
-                const end = new Date(res.ending_time).getTime()
+                const end = new Date(res.end_time).getTime()
                 if (now < start) {
                     setNotStart(true)
                 }
@@ -111,7 +112,7 @@ function EventDetail(props: {event: Event | null, appName: string, host: string}
                 }
             }
 
-            if (res.start_time && !res.ending_time) {
+            if (res.start_time && !res.end_time) {
                 const start = new Date(res.start_time).getTime()
                 if (now < start) {
                     setNotStart(true)
@@ -121,31 +122,24 @@ function EventDetail(props: {event: Event | null, appName: string, host: string}
                 }
             }
 
-            let profile: Profile | Group | null
+            let profile: Profile | Group | null = null
             if (res.host_info) {
                 const isDomain = res.host_info && res.host_info.indexOf('.') > -1
-                profile = await getProfile(isDomain
-                    ? {domain: res.host_info!}
-                    : {id: Number(res.host_info)})
+
+                if(!isDomain) {
+                    profile = await queryGroupDetail(Number(res.host_info))
+                }
 
                 if (profile) {
                     setHoster(profile)
                 }
             } else {
-                profile = await getProfile({id: Number(res.owner_id)})
-                if (profile) {
-                    setHoster(profile)
-                }
+                setHoster(res.owner as Profile)
             }
 
             if (res?.badge_id) {
                 const badge = await queryBadgeDetail({id: res.badge_id})
                 setBadge(badge)
-            }
-
-            if (res.participants) {
-                const guests = res.participants.filter((item: Participants) => item.role === 'guest')
-                setGuests(guests.map((item: Participants) => item.profile))
             }
         } else {
             router.push('/error')
@@ -156,7 +150,6 @@ function EventDetail(props: {event: Event | null, appName: string, host: string}
         if (hoster && user.id) {
             const eventParticipants = event?.participants || []
             const joined = eventParticipants.find((item: Participants) => item.profile.id === user.id && item.status !== 'cancel')
-            setIsGuest(joined?.role === 'guest')
             setIsJoined(!!joined)
         }
     }
@@ -198,7 +191,8 @@ function EventDetail(props: {event: Event | null, appName: string, host: string}
     }, [event, ready, user.id])
 
     useEffect(() => {
-        setIsHoster(hoster?.id === user.id || hoster?.group_owner_id === user.id)
+        setIsHoster(hoster?.id === user.id ||
+            (!!(hoster as Group)?.creator && (hoster as Group)?.creator.id === user.id))
         checkJoined()
     }, [hoster, user.id])
 
@@ -266,7 +260,7 @@ function EventDetail(props: {event: Event | null, appName: string, host: string}
             <meta property="og:title"  content={`${event?.title} | ${props.appName}`} />
             <meta property="og:type" content="website" />
             <meta property="og:url" content={`${props.host}/event/detail/${event?.id}`} />
-            <meta property="og:image"  content={event?.cover} />
+            <meta property="og:image"  content={event?.cover_url} />
             { event?.content &&
                 <meta name="description" property="og:description" content={event?.content.slice(0, 300) + '...'} />
             }
@@ -281,7 +275,7 @@ function EventDetail(props: {event: Event | null, appName: string, host: string}
                     }}><img src="/images/icon_share.svg" alt=""/></div>}/>
 
                 <div className={'cover'}>
-                    <img src={event.cover} alt=""/>
+                    <img src={event.cover_url} alt=""/>
                 </div>
 
                 <div className={'detail'}>
@@ -292,21 +286,21 @@ function EventDetail(props: {event: Event | null, appName: string, host: string}
                                 <i className={'icon-calendar'}/>
                                 <div>{formatTime(event.start_time)}</div>
                                 {
-                                    !!event.ending_time && <>
+                                    !!event.end_time && <>
                                         <span>--</span>
-                                        <div>{formatTime(event.ending_time)}</div>
+                                        <div>{formatTime(event.end_time)}</div>
                                     </>
                                 }
                             </div>
                         }
 
-                        {event.event_site &&
+                        {!!eventSite &&
                             <div className={'detail-item'}>
                                 <i className={'icon-Outline'}/>
                                 {
-                                    event.event_site.location_details ?
-                                        <a href={genGoogleMapUrl(event.event_site.location_details)} target={'_blank'}>
-                                            {event.event_site.title + `(${JSON.parse(event.event_site.location_details).name})`}
+                                    eventSite.formatted_address ?
+                                        <a href={genGoogleMapUrl(eventSite.formatted_address)} target={'_blank'}>
+                                            {eventSite.title + `(${JSON.parse(eventSite.formatted_address).name})`}
                                             <svg className={styles['link-icon']} xmlns="http://www.w3.org/2000/svg" width="8" height="8"
                                                  viewBox="0 0 8 8" fill="none">
                                                 <path
@@ -314,18 +308,18 @@ function EventDetail(props: {event: Event | null, appName: string, host: string}
                                                     fill="#272928"/>
                                             </svg>
                                         </a>
-                                        : <div>{event.event_site.title + (event.event_site.location ? `(${event.event_site.location})` : '')}</div>
+                                        : <div>{eventSite.title + (eventSite.location ? `(${eventSite.location})` : '')}</div>
                                 }
                             </div>
                         }
 
-                        {event.location &&
+                        {event.location && !eventSite &&
                             <div className={'detail-item'}>
                                 <i className={'icon-Outline'}/>
                                 {
-                                    event.location_details ?
-                                        <a href={genGoogleMapUrl(event.location_details)} target={'_blank'}>
-                                            {event.location === JSON.parse(event.location_details).name ? event.location:  event.location + `(${JSON.parse(event.location_details).name})`}
+                                    event.formatted_address ?
+                                        <a href={genGoogleMapUrl(event.formatted_address)} target={'_blank'}>
+                                            {event.location === JSON.parse(event.formatted_address).name ? event.location:  event.location + `(${JSON.parse(event.formatted_address).name})`}
                                             <svg className={styles['link-icon']} xmlns="http://www.w3.org/2000/svg" width="8" height="8"
                                                  viewBox="0 0 8 8" fill="none">
                                                 <path
@@ -338,15 +332,15 @@ function EventDetail(props: {event: Event | null, appName: string, host: string}
                             </div>
                         }
 
-                        {event.online_location &&
+                        {event.meeting_url &&
                             <div className={'detail-item'} onClick={e => {
                                 if (isJoined) {
-                                    copy(event!.online_location!)
+                                    copy(event!.meeting_url!)
                                     showToast('Online location has been copied!')
                                 }
                             }}>
                                 <i className={'icon-link'}/>
-                                <div>{isJoined ? event.online_location : getMeetingName(event.online_location)}</div>
+                                <div>{isJoined ? event.meeting_url : getMeetingName(event.meeting_url)}</div>
                             </div>
                         }
 
@@ -362,7 +356,7 @@ function EventDetail(props: {event: Event | null, appName: string, host: string}
                             <div className={'center'}>
                                 <div className={'host-item'}
                                      onClick={e => {
-                                         !!hoster?.username && goToProfile(hoster.username, hoster.is_group || undefined)
+                                         !!hoster?.username && goToProfile(hoster.username, !!(hoster as Group).creator || undefined)
                                      }}>
                                     <img src={hoster.image_url || defaultAvatar(hoster.id)} alt=""/>
                                     <div>
@@ -370,24 +364,6 @@ function EventDetail(props: {event: Event | null, appName: string, host: string}
                                         <div>{lang['Activity_Form_Hoster']}</div>
                                     </div>
                                 </div>
-                                {!!guests && !!guests.length &&
-                                    <>
-                                        {
-                                            guests.map((item: ProfileSimple) => {
-                                                return <div className={'host-item'} key={item.domain}
-                                                            onClick={e => {
-                                                                goToProfile(item.domain!.split('.')[0])
-                                                            }}>
-                                                    <img src={item.image_url || defaultAvatar(item.id)} alt=""/>
-                                                    <div>
-                                                        <div className={'host-name'}>{item.domain?.split('.')[0]}</div>
-                                                        <div>{lang['Activity_Detail_Guest']}</div>
-                                                    </div>
-                                                </div>
-                                            })
-                                        }
-                                    </>
-                                }
                             </div>
                             {
                                 !!badge && <div className={'center'}>
@@ -528,8 +504,8 @@ function EventDetail(props: {event: Event | null, appName: string, host: string}
                                                 addToCalender({
                                                     name: event!.title,
                                                     startTime: event!.start_time!,
-                                                    endTime: event!.ending_time!,
-                                                    location: event!.event_site?.title || event!.location || '',
+                                                    endTime: event!.end_time!,
+                                                    location: eventSite?.title || event!.location || '',
                                                     details: event!.content,
                                                     url: window.location.href
                                                 })
@@ -572,10 +548,10 @@ function EventDetail(props: {event: Event | null, appName: string, host: string}
                                             }}>{lang['Activity_Detail_Btn_Checkin']}</AppButton>
                                     }
 
-                                    {!canceled && isJoined && inProgress && !!event.online_location &&
+                                    {!canceled && isJoined && inProgress && !!event.meeting_url &&
                                         <AppButton
                                             onClick={e => {
-                                                copy(event!.online_location!);
+                                                copy(event!.meeting_url!);
                                                 showToast('Online location has been copied!')
                                                 // window.open(getUrl(event!.online_location!) || '#', '_blank')
                                             }}
@@ -604,8 +580,8 @@ export const getServerSideProps: any = (async (context: any) => {
     const eventid = context.params?.eventid
     if (eventid) {
         const detail = await queryEventDetail({id: eventid})
-        return { props: { event:  detail || null, host: process.env.NEXT_HOST, appName:  process.env.NEXT_APP_NAME},  }
+        return { props: { event:  detail || null, host: process.env.NEXT_PUBLIC_HOST, appName:  process.env.NEXT_PUBLIC_APP_NAME},  }
     } else {
-        return { props: { event: null, host: process.env.NEXT_HOST, appName:  process.env.NEXT_APP_NAME}}
+        return { props: { event: null, host: process.env.NEXT_PUBLIC_HOST, appName:  process.env.NEXT_PUBLIC_APP_NAME}}
     }
 })

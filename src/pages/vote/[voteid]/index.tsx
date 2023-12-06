@@ -55,11 +55,11 @@ function VoteDetail() {
             return
         }
 
-        const group = await getProfile({id: vote.group_id})
-        const owner = await getProfile({id: vote.creator_id})
+        const group = vote.group
+        const owner = vote.creator
         setVote(vote)
-        setGroup(group)
-        setOwner(owner)
+        setGroup(group as Profile)
+        setOwner(owner as Profile)
         unload()
     }
 

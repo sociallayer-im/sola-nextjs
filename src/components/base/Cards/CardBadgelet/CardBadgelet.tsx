@@ -1,9 +1,9 @@
 import {useStyletron} from 'baseui'
-import {Badgelet} from '../../../../service/solas'
+import {Badgelet, Group} from '@/service/solas'
 import DialogsContext from '../../../provider/DialogProvider/DialogsContext'
 import {useContext, useEffect, useState} from 'react'
 import UserContext from '../../../provider/UserProvider/UserContext'
-import {checkIsManager, getProfile} from "../../../../service/solas";
+import {checkIsManager, getProfile} from "@/service/solas";
 
 const style = {
     wrapper: {
@@ -93,7 +93,7 @@ function CardBadgelet(props: CardBadgeletProps) {
     const {user} = useContext(UserContext)
     const [isGroupManager, setIsGroupManager] = useState(false)
 
-    const isOwner = user.id === props.badgelet.receiver.id
+    const isOwner = user.id === props.badgelet.owner.id
 
     const showDialog = () => {
         if (props.badgelet.badge.badge_type === 'gift') {
@@ -108,7 +108,7 @@ function CardBadgelet(props: CardBadgeletProps) {
             if(user.id && props.badgelet.status === 'pending') {
                 const receiverDetail = await getProfile({id:props.badgelet.owner.id})
 
-                if (receiverDetail?.is_group) {
+                if (!!(receiverDetail as Group)?.creator) {
                     const res = await checkIsManager({
                         group_id: props.badgelet.owner.id,
                         profile_id: user.id
@@ -132,15 +132,15 @@ function CardBadgelet(props: CardBadgeletProps) {
                     <div className={css(style.coverBg)}>
                         <img className={css(style.img)} src={'/images/badge_private.png'} alt=""/>
                     </div>
-                    {props.badgelet.hide && <div className={css(style.hideMark)}><i className='icon-lock'></i></div>}
+                    {props.badgelet.display === 'hide' && <div className={css(style.hideMark)}><i className='icon-lock'></i></div>}
                     <div className={css(style.name)}>🔒</div>
                 </>
                 : <>
                     <div className={css(style.coverBg)}>
                         <img className={css(style.img)} src={metadata?.image || props.badgelet.badge.image_url} alt=""/>
                     </div>
-                    {props.badgelet.hide && <div className={css(style.hideMark)}><i className='icon-lock'></i></div>}
-                    <div className={css(style.name)}>{metadata?.name || props.badgelet.badge.name}</div>
+                    {props.badgelet.display === 'hide' && <div className={css(style.hideMark)}><i className='icon-lock'></i></div>}
+                    <div className={css(style.name)}>{metadata?.name || props.badgelet.badge.title}</div>
 
                     {(isOwner || isGroupManager) && props.badgelet.status === 'pending' &&
                         <div className={css(style.pendingMark)}>Pending</div>

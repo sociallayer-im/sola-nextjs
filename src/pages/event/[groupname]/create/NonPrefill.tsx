@@ -19,7 +19,6 @@ import {
     getHotTags,
     getProfile,
     Group,
-    inviteGuest,
     Profile,
     queryBadge,
     queryBadgeDetail,
@@ -57,8 +56,6 @@ interface Draft {
     min_participants: number,
     enable_min_participants: boolean,
     enable_max_participants: boolean,
-    enable_guest: boolean,
-    guests: string[],
     tags: string[],
     badge_id: number | null,
     creator: Group | Profile | null,
@@ -110,12 +107,10 @@ function CreateEvent(props: CreateEventPageProps) {
     const [cover, setCover] = useState('')
     const [title, setTitle] = useState('')
     const [content, setContent] = useState('')
-    const [locationType, setLocationType] = useState<'online' | 'offline' | 'both'>('offline')
     const [onlineUrl, setOnlineUrl] = useState('')
     const [eventSite, setEventSite] = useState<EventSites | null>(null)
     const [maxParticipants, setMaxParticipants] = useState<number>(10) // default 10
     const [minParticipants, setMinParticipants] = useState<number>(3) // default 3
-    const [guests, setGuests] = useState<string[]>([''])
     const [label, setLabel] = useState<string[]>([])
     const [badgeId, setBadgeId] = useState<null | number>(null)
     const [wechatImage, setWechatImage] = useState('')
@@ -133,7 +128,6 @@ function CreateEvent(props: CreateEventPageProps) {
 
     const [enableMaxParticipants, setEnableMaxParticipants] = useState(false)
     const [enableMinParticipants, setEnableMinParticipants] = useState(false)
-    const [enableGuest, setEnableGuest] = useState(false)
     const [hasDuration, setHasDuration] = useState(true)
     const [badgeDetail, setBadgeDetail] = useState<Badge | null>(null)
     const [startTimeError, setStartTimeError] = useState('')
@@ -158,7 +152,7 @@ function CreateEvent(props: CreateEventPageProps) {
     }
 
     const cancel = async () => {
-        if (!currEvent?.repeat_event_id) {
+        if (!currEvent?.recurring_event_id) {
             await cancelOne()
         } else {
             const dialog = openConfirmDialog({
@@ -243,7 +237,7 @@ function CreateEvent(props: CreateEventPageProps) {
                 try {
                     const cancel = await cancelRepeatEvent({
                         auth_token: user.authToken || '',
-                        repeat_event_id: currEvent?.repeat_event_id!,
+                        repeat_event_id: currEvent?.recurring_event_id!,
                         event_id: props.eventId!,
                         selector: repeatEventSelectorRef.current,
                     })
@@ -272,10 +266,8 @@ function CreateEvent(props: CreateEventPageProps) {
                 tags: label,
                 badge_id: badgeId,
                 creator: creator,
-                guests: guests,
                 enable_min_participants: enableMinParticipants,
                 enable_max_participants: enableMaxParticipants,
-                enable_guest: enableGuest,
                 start_time: start,
                 end_time: ending,
                 event_type: eventType,
@@ -309,12 +301,6 @@ function CreateEvent(props: CreateEventPageProps) {
 
                 setEnableMinParticipants(draft.enable_min_participants)
                 setEnableMaxParticipants(draft.enable_max_participants)
-
-                if (draft.guests) {
-                    setGuests(draft.guests)
-                }
-
-                setEnableGuest(draft.enable_guest)
 
                 setLabel(draft.tags ? draft.tags : [])
                 setBadgeId(draft.badge_id)
@@ -388,20 +374,21 @@ function CreateEvent(props: CreateEventPageProps) {
     useEffect(() => {
         async function prefillEventDetail(event: Event) {
             setCurrEvent(event)
-            setCover(event.cover)
+            setCover(event.cover_url)
             setTitle(event.title)
             setContent(event.content)
             if (event.start_time) {
                 setStart(event.start_time)
             }
 
-            if (event.ending_time) {
-                setEnding(event.ending_time)
+            if (event.end_time) {
+                setEnding(event.end_time)
                 setHasDuration(true)
             }
-            setLocationType(event.location_type)
-            setOnlineUrl(event.online_location || '')
-            setEventSite(event.event_site ? event.event_site : null)
+            setOnlineUrl(event.meeting_url || '')
+
+            setEventSite(event.event_site || null)
+
             if (event.max_participant) {
                 setMaxParticipants(event.max_participant)
                 setEnableMaxParticipants(true)
@@ -418,14 +405,6 @@ function CreateEvent(props: CreateEventPageProps) {
 
             setTelegram(event.telegram_contact_group || '')
             setCustomLocation(event.location || '')
-
-            if (event.participants) {
-                const gustList = event.participants
-                    .filter(p => p.role === 'guest')
-                    .map((p) => p.profile.domain!)
-                setEnableGuest(true)
-                setGuests([...gustList, ''])
-            }
 
             setLabel(event.tags ? event.tags : [])
             setBadgeId(event.badge_id)
@@ -447,8 +426,8 @@ function CreateEvent(props: CreateEventPageProps) {
                 setWechatAccount(event.wechat_contact_person)
             }
 
-            if (event.location_details) {
-                setLocationDetail(event.location_details)
+            if (event.formatted_address) {
+                setLocationDetail(event.formatted_address)
             }
 
             if (event.timezone) {
@@ -488,13 +467,11 @@ function CreateEvent(props: CreateEventPageProps) {
         onlineUrl,
         maxParticipants,
         minParticipants,
-        guests,
         label,
         badgeId,
         start,
         ending,
         creator,
-        enableGuest,
         enableMinParticipants,
         enableMaxParticipants,
         formReady,
@@ -507,42 +484,43 @@ function CreateEvent(props: CreateEventPageProps) {
     // 检查event_site在设置的event.start_time和event.ending_time否可用
     useEffect(() => {
         async function getEventBySiteAndDate() {
-            if (eventSite && start && ending) {
-                const startDate = new Date(new Date(start).getFullYear(), new Date(start).getMonth(), new Date(start).getDate(), 0, 0, 0)
-                const endDate = new Date(new Date(ending).getFullYear(), new Date(ending).getMonth(), new Date(ending).getDate(), 23, 59, 59)
-                let events = await queryEvent({
-                    event_site_id: eventSite.id,
-                    start_time_from: startDate.getTime() / 1000,
-                    start_time_to: endDate.getTime() / 1000,
-                    page: 1
-                })
-                console.log('eventseventsevents', events)
-
-                // 排除自己
-                events = events.filter((e) => e.id !== props.eventId && e.status !== 'cancel')
-
-                const occupied = events.some((e) => {
-                    const eventStartTime = new Date(e.start_time!).getTime()
-                    const eventEndTime = new Date(e.ending_time!).getTime()
-                    const selectedStartTime = new Date(start).getTime()
-                    const selectedEndTime = new Date(ending).getTime()
-                    return (selectedStartTime < eventStartTime && selectedEndTime > eventStartTime) ||
-                        (selectedStartTime >= eventStartTime && selectedEndTime <= eventEndTime) ||
-                        (selectedStartTime < eventEndTime && selectedEndTime > eventEndTime)
-
-                })
-
-                setSiteOccupied(occupied)
-            } else {
-                setSiteOccupied(false)
-            }
+            // todo check occupied
+            // if (eventSite && start && ending) {
+            //     const startDate = new Date(new Date(start).getFullYear(), new Date(start).getMonth(), new Date(start).getDate(), 0, 0, 0)
+            //     const endDate = new Date(new Date(ending).getFullYear(), new Date(ending).getMonth(), new Date(ending).getDate(), 23, 59, 59)
+            //     let events = await queryEvent({
+            //         event_site_id: eventSite.id,
+            //         start_time_from: startDate.toISOString(),
+            //         start_time_to: endDate.toISOString(),
+            //         page: 1
+            //     })
+            //     console.log('eventseventsevents', events)
+            //
+            //     // 排除自己
+            //     events = events.filter((e) => e.id !== props.eventId && e.status !== 'cancel')
+            //
+            //     const occupied = events.some((e) => {
+            //         const eventStartTime = new Date(e.start_time!).getTime()
+            //         const eventEndTime = new Date(e.end_time!).getTime()
+            //         const selectedStartTime = new Date(start).getTime()
+            //         const selectedEndTime = new Date(ending).getTime()
+            //         return (selectedStartTime < eventStartTime && selectedEndTime > eventStartTime) ||
+            //             (selectedStartTime >= eventStartTime && selectedEndTime <= eventEndTime) ||
+            //             (selectedStartTime < eventEndTime && selectedEndTime > eventEndTime)
+            //
+            //     })
+            //
+            //     setSiteOccupied(occupied)
+            // } else {
+            //     setSiteOccupied(false)
+            // }
         }
 
         getEventBySiteAndDate()
     }, [start, ending, eventSite])
 
     const showBadges = async () => {
-        const props = creator?.is_group ? {
+        const props = !!(creator as Group)?.creator ? {
                 group_id: creator!.id,
                 page: 1
             } :
@@ -614,9 +592,9 @@ function CreateEvent(props: CreateEventPageProps) {
         let lng: string | null = null
         let lat: string | null = null
 
-        if (eventSite && eventSite.location_details) {
-            lng = JSON.parse(eventSite!.location_details!).geometry.location.lng
-            lat = JSON.parse(eventSite!.location_details!).geometry.location.lat
+        if (eventSite && eventSite.formatted_address) {
+            lng = JSON.parse(eventSite!.formatted_address!).geometry.location.lng
+            lat = JSON.parse(eventSite!.formatted_address!).geometry.location.lat
         } else if (locationDetail) {
             lng = JSON.parse(locationDetail).geometry.location.lng
             lat = JSON.parse(locationDetail).geometry.location.lat
@@ -624,31 +602,27 @@ function CreateEvent(props: CreateEventPageProps) {
 
         const props: CreateRepeatEventProps = {
             title: title.trim(),
-            cover,
+            cover_url: cover,
             content,
             tags: label,
             start_time: start,
-            ending_time: hasDuration ? ending : null,
-            location_type: 'both',
+            end_time: hasDuration ? ending : null,
             max_participant: enableMaxParticipants ? maxParticipants : null,
             min_participant: enableMinParticipants ? minParticipants : null,
             badge_id: badgeId,
             group_id: eventGroup.id,
-            online_location: onlineUrl || null,
+            meeting_url: onlineUrl || null,
             event_site_id: eventSite?.id || null,
             event_type: eventType,
-            wechat_contact_group: wechatImage || undefined,
-            wechat_contact_person: wechatAccount || undefined,
             auth_token: user.authToken || '',
-            location: customLocation,
-            telegram_contact_group: telegram || null,
-            location_details: locationDetail,
-            host_info: creator && creator.is_group ? creator.id + '' : undefined,
+            location: customLocation || eventSite?.title || '',
+            formatted_address: locationDetail || eventSite?.formatted_address || '',
+            host_info: creator && !!(creator as Group).creator ? creator.id + '' : undefined,
             interval: repeat || undefined,
             repeat_ending_time: repeatEnd || undefined,
             timezone,
-            lng,
-            lat
+            geo_lng: lng,
+            geo_lat: lat
         }
 
         setCreating(true)
@@ -657,20 +631,9 @@ function CreateEvent(props: CreateEventPageProps) {
             if (props.interval) {
                 const newEvents = await createRepeatEvent(props)
 
-                if (guests.length) {
-                    const domains = guests.filter((g) => !!g)
-                    if (domains.length) {
-                        const invite = await RepeatEventInvite({
-                            repeat_event_id: newEvents[0].repeat_event_id!,
-                            domains,
-                            auth_token: user.authToken || ''
-                        })
-                    }
-                }
-
                 if (badgeId) {
                     const setBadge = await RepeatEventSetBadge({
-                        repeat_event_id: newEvents[0].repeat_event_id!,
+                        repeat_event_id: newEvents[0].recurring_event_id!,
                         badge_id: badgeId,
                         auth_token: user.authToken || ''
                     })
@@ -683,16 +646,7 @@ function CreateEvent(props: CreateEventPageProps) {
                 setCreating(false)
             } else {
                 const newEvent = await createEvent(props)
-                if (guests.length) {
-                    const domains = guests.filter((g) => !!g)
-                    if (domains.length) {
-                        const invite = await inviteGuest({
-                            id: newEvent.id,
-                            domains,
-                            auth_token: user.authToken || ''
-                        })
-                    }
-                }
+
                 if (badgeId) {
                     const setBadge = await setEventBadge({
                         id: newEvent.id,
@@ -754,9 +708,9 @@ function CreateEvent(props: CreateEventPageProps) {
         let lng: string | null = null
         let lat: string | null = null
 
-        if (eventSite && eventSite.location_details) {
-            lng = JSON.parse(eventSite!.location_details!).geometry.location.lng
-            lat = JSON.parse(eventSite!.location_details!).geometry.location.lat
+        if (eventSite && eventSite.formatted_address) {
+            lng = JSON.parse(eventSite!.formatted_address!).geometry.location.lng
+            lat = JSON.parse(eventSite!.formatted_address!).geometry.location.lat
         } else if (locationDetail) {
             lng = JSON.parse(locationDetail).geometry.location.lng
             lat = JSON.parse(locationDetail).geometry.location.lat
@@ -765,32 +719,28 @@ function CreateEvent(props: CreateEventPageProps) {
         const saveProps: CreateEventProps = {
             id: props.eventId!,
             title: title.trim(),
-            cover,
+            cover_url: cover,
             content,
             tags: label,
             start_time: start,
-            location_type: 'both',
-            ending_time: hasDuration ? ending : null,
+            end_time: hasDuration ? ending : null,
             event_site_id: eventSite?.id || null,
             max_participant: enableMaxParticipants ? maxParticipants : null,
             min_participant: enableMinParticipants ? minParticipants : null,
             badge_id: badgeId,
-            online_location: onlineUrl || null,
+            meeting_url: onlineUrl || null,
             auth_token: user.authToken || '',
             event_type: eventType,
-            host_info: creator && creator.is_group ? creator.id + '' : undefined,
-            wechat_contact_group: wechatImage || undefined,
-            wechat_contact_person: wechatAccount || undefined,
-            location: customLocation,
-            telegram_contact_group: telegram || null,
-            location_details: locationDetail,
-            repeat_event_id: currEvent!.repeat_event_id || undefined,
+            host_info: creator && !!(creator as Group).creator ? creator.id + '' : undefined,
+            location: customLocation || eventSite?.title || '',
+            formatted_address: locationDetail || eventSite?.formatted_address || '',
+            recurring_event_id: currEvent!.recurring_event_id || undefined,
             timezone,
-            lng,
-            lat
+            geo_lng: lng,
+            geo_lat: lat
         }
 
-        if (currEvent?.repeat_event_id) {
+        if (currEvent?.recurring_event_id) {
             const dialog = openConfirmDialog({
                 confirmLabel: 'Save',
                 cancelLabel: 'Cancel',
@@ -852,16 +802,6 @@ function CreateEvent(props: CreateEventPageProps) {
             const unloading = showLoading(true)
             try {
                 const newEvent = await updateEvent(saveProps)
-                if (guests.length) {
-                    const domains = guests.filter((g) => !!g)
-                    if (domains.length) {
-                        const invite = await inviteGuest({
-                            id: newEvent.id,
-                            domains,
-                            auth_token: user.authToken || ''
-                        })
-                    }
-                }
                 unloading()
                 if (redirect) {
                     showToast('update success')
@@ -887,18 +827,6 @@ function CreateEvent(props: CreateEventPageProps) {
                         event_id: currEvent!.id,
                         selector: repeatEventSelectorRef.current
                     })
-
-                    if (guests.length) {
-                        const domains = guests.filter((g) => !!g)
-                        if (domains.length) {
-                            const invite = await RepeatEventInvite({
-                                repeat_event_id: currEvent!.repeat_event_id!,
-                                domains,
-                                selector: repeatEventSelectorRef.current,
-                                auth_token: user.authToken || ''
-                            })
-                        }
-                    }
 
                     unloading()
                     showToast('update success')
@@ -955,7 +883,7 @@ function CreateEvent(props: CreateEventPageProps) {
                             </div>
                         }
 
-                        {(!isEditMode || (!!currEvent && !currEvent.repeat_event_id)) &&
+                        {(!isEditMode || (!!currEvent && !currEvent.recurring_event_id)) &&
                             <div className='input-area'>
                                 <div className='input-area-title'>{lang['Activity_Form_Starttime']}</div>
                                 <AppEventTimeInput
@@ -973,7 +901,7 @@ function CreateEvent(props: CreateEventPageProps) {
                             </div>
                         }
 
-                        { false &&
+                        {
                             <div className='input-area'>
                                 <div className='input-area-title'>{lang['Activity_Form_Starttime']}</div>
                                 <AppDateInput value={start} onChange={(data) => {
@@ -983,7 +911,7 @@ function CreateEvent(props: CreateEventPageProps) {
                             </div>
                         }
 
-                        {false && hasDuration &&
+                        {
                             <div className='input-area'>
                                 <div className='input-area-title'>{lang['Activity_Form_Ending']}</div>
                                 <AppDateInput value={ending} onChange={(data) => {
@@ -996,7 +924,6 @@ function CreateEvent(props: CreateEventPageProps) {
                         {startTimeError && <div className={'start-time-error'}>
                             {lang['Activity_Form_Ending_Time_Error']}
                         </div>}
-
 
                         {!!eventGroup && ((isEditMode && formReady) || !isEditMode) &&
                             <LocationInput
@@ -1084,27 +1011,6 @@ function CreateEvent(props: CreateEventPageProps) {
                             </div>
                         }
 
-                        <div className={'input-area'}>
-                            <div className={'toggle'}>
-                                <div className={'item-title'}>{lang['Activity_Form_Guest']}</div>
-                                <div className={'item-value'}>
-
-                                    <Toggle checked={enableGuest} onChange={e => {
-                                        setEnableGuest(!enableGuest)
-                                    }}/>
-                                </div>
-                            </div>
-
-                            {enableGuest &&
-                                <IssuesInput
-                                    value={guests}
-                                    placeholder={lang['Activity_Detail_Guest']}
-                                    onChange={(newIssues) => {
-                                        setGuests(newIssues)
-                                    }}/>
-                            }
-                        </div>
-
                         {
                             formReady &&
                             <div className='input-area'>
@@ -1155,7 +1061,7 @@ function CreateEvent(props: CreateEventPageProps) {
                             </div>}
 
 
-                        {langType === 'cn' &&
+                        {langType === 'cn' && false &&
                             <div className={'input-area'}>
                                 <div className={'input-area-title'}>{lang['Activity_Form_Wechat']}</div>
                                 <div className={'input-area-des'}>{lang['Activity_Form_Wechat_Des']}</div>
@@ -1180,19 +1086,21 @@ function CreateEvent(props: CreateEventPageProps) {
                             </div>
                         }
 
-                        <div className='input-area'>
-                            <div className='input-area-title'>{lang['Activity_Detail_Offline_Tg']}</div>
-                            <div className='input-area-des'>{lang['Activity_Detail_Offline_Tg_des']}</div>
-                            <AppInput
-                                startEnhancer={() => <i className={'icon icon-link'}/>}
-                                clearable
-                                value={telegram}
-                                errorMsg={telegramError}
-                                placeholder={'Url...'}
-                                onChange={(e) => {
-                                    setTelegram(e.target.value)
-                                }}/>
-                        </div>
+                        { false &&
+                            <div className='input-area'>
+                                <div className='input-area-title'>{lang['Activity_Detail_Offline_Tg']}</div>
+                                <div className='input-area-des'>{lang['Activity_Detail_Offline_Tg_des']}</div>
+                                <AppInput
+                                    startEnhancer={() => <i className={'icon icon-link'}/>}
+                                    clearable
+                                    value={telegram}
+                                    errorMsg={telegramError}
+                                    placeholder={'Url...'}
+                                    onChange={(e) => {
+                                        setTelegram(e.target.value)
+                                    }}/>
+                            </div>
+                        }
 
                         {isEditMode ?
                             <AppButton kind={BTN_KIND.primary}

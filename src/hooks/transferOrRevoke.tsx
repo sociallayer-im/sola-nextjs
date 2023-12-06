@@ -3,7 +3,7 @@ import {useContext} from "react";
 import DialogAddressList from "../components/base/Dialog/DialogAddressList/DialogAddressList";
 import userContext from "../components/provider/UserProvider/UserContext";
 import langContext from "../components/provider/LangProvider/LangContext";
-import {Badge, badgeBurn, Badgelet, badgeRevoke, badgeTransfer} from "../service/solas";
+import {Badge, Badgelet, badgeletBurn, badgeRevoke, badgeTransfer} from "../service/solas";
 import useEvent, {EVENT} from "./globalEvent";
 
 export interface BadgeTransferProps {
@@ -43,12 +43,12 @@ const useTransferOrRevoke = () => {
                     // showTransferAccept({badgelet: props.badgelet, pointItem: props.pointItem})
                     try {
                         const transfer = await badgeTransfer({
-                            badgelet_id: props.badgelet?.id,
+                            badgelet_id: props.badgelet?.id!,
                             target_id: selected[0],
                             auth_token: user.authToken || '',
                         })
-                        updateNftpass()
-                        updateGiftList()
+                        updateNftpass('0')
+                        updateGiftList('0')
                         unloading()
                         showToast('Transfer Success')
                         setTimeout(() => {
@@ -62,13 +62,13 @@ const useTransferOrRevoke = () => {
                 }
 
                 return <DialogAddressList
-                    value={[] as number[]}
+                    value={[] as any}
                     title={lang['Dialog_Transfer_Title']}
                     confirmText={lang['Dialog_Transfer_Confirm']}
                     single
                     valueType={'id'}
                     handleConfirm={(selected) => {
-                        handleTransfer(selected)
+                        handleTransfer(selected as number[])
                     }}
                     handleClose={close}/>
             },
@@ -91,13 +91,13 @@ const useTransferOrRevoke = () => {
             onConfirm: async (close: any) => {
                 const unloading = showLoading()
                 try {
-                    const res = await badgeBurn({
-                        badgelet_id: props.badgelet?.id,
+                    const res = await badgeletBurn({
+                        badgelet_id: props.badgelet?.id || 0,
                         auth_token: user.authToken || '',
                     })
-                    updateNftpass()
-                    updateGiftList()
-                    updateBadgeletList()
+                    updateNftpass(res)
+                    updateGiftList(res)
+                    updateBadgeletList(res)
                     unloading()
                     showToast('Burn Success')
                     close()

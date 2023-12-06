@@ -44,7 +44,7 @@ function DetailBadgeMenu (props: DetalBadgeMenuProps) {
 
     return (
         <>
-            { (user.id === props.badge.sender.id || props.isGroupManager ) &&
+            { (user.id === props.badge.creator.id || props.isGroupManager ) &&
                 <StatefulPopover
                     overrides={ overridesStyle }
                     placement={ PLACEMENT.bottomRight }

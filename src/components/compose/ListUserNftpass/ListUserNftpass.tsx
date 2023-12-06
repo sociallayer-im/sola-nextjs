@@ -17,7 +17,7 @@ function ListUserNftpass(props: ListUserNftpassProps) {
     const [needUpdate, _] = useEvent(EVENT.nftpassItemUpdate)
 
     const getNftpass = async (page: number) => {
-        const queryProps = props.profile.is_group
+        const queryProps = !!(props.profile as any).creator
             ? {group_id: props.profile.id, page}
             : {sender_id: props.profile.id, page}
 

@@ -8,28 +8,24 @@ import {useRouter} from 'next/navigation'
 
 export interface StartIssueBadgeProps {
     badges: Badge[]
-    to?: string
+    to?: string,
+    group_id?: number
 }
 
-interface UseIssueBadgeProp {
-    groupName?: string
-}
-
-function useIssueBadge (useIssueBadgeProps?: UseIssueBadgeProp) {
+function useIssueBadge () {
     const { user } = useContext(UserContext)
     const { openDialog } = useContext(DialogsContext)
     const router = useRouter()
 
-    function toIssuePage (props: BadgeBookDialogRes, to?: string) {
+    function toIssuePage (props: BadgeBookDialogRes, to?: string, group_id?: number) {
         let path = `/create-${props.type}`
 
         const split = (path: string) => {
             return  path.includes('?') ? '&' : '?'
         }
 
-        if (useIssueBadgeProps && useIssueBadgeProps.groupName) {
-            const groupDomain = useIssueBadgeProps.groupName + process.env.NEXT_PUBLIC_SOLAS_DOMAIN
-            path = path + split(path) + `group=${groupDomain}`
+        if (group_id) {
+            path = path + split(path) + `group=${group_id}`
         }
 
         if (to) {
@@ -52,13 +48,12 @@ function useIssueBadge (useIssueBadgeProps?: UseIssueBadgeProp) {
         // if (!user.id) { toIssuePage({type:'badge'}, props.to); return }
         // if (!props.badges.length) {toIssuePage({type:'badge'}, props.to); return;}
 
-
         openDialog({
             content: (close: any) => <DialogIssuePrefill
                 badges={ props.badges }
                 profileId={ user.id! }
-                groupName={useIssueBadgeProps?.groupName}
-                onSelect= { (res) => { toIssuePage(res, props.to) } }
+                group_id={props?.group_id}
+                onSelect= { (res) => { toIssuePage(res, props.to, props.group_id) } }
                 handleClose={ close } />,
             position: 'bottom',
             size: [360, 'auto']

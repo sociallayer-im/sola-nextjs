@@ -81,9 +81,9 @@ function GroupPanel(props: GroupPanelProps) {
     }
 
     const showAvatarDialog = () => {
-        if (props.group.group_owner_id === user.id) {
-            showAvatar(group)
-        }
+        // if (props.group.group_owner_id === user.id) {
+        //     showAvatar(group)
+        // }
     }
 
     const showProfileQRcode = () => {

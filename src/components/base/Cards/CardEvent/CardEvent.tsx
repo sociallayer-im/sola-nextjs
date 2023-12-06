@@ -6,6 +6,7 @@ import langContext from "../../../provider/LangProvider/LangContext";
 import userContext from "../../../provider/UserProvider/UserContext";
 import DialogsContext from "../../../provider/DialogProvider/DialogsContext";
 import Link from "next/link";
+import fa from "@walletconnect/legacy-modal/dist/cjs/browser/languages/fa";
 
 export interface CardEventProps {
     event: Event,
@@ -22,15 +23,18 @@ function CardEvent({fixed=true, ...props}: CardEventProps) {
     const [isCreated, setIsCreated] = useState(false)
     const {user} = useContext(userContext)
     const {showToast, showLoading} = useContext(DialogsContext)
-    const [hasRegistered, setHasRegistered] = useState(props.participants?.some(item => item.event.id === props.event.id))
+    const [hasRegistered, setHasRegistered] = useState(false)
 
     const now = new Date().getTime()
-    const endTime = new Date(eventDetail.ending_time!).getTime()
+    const endTime = new Date(eventDetail.end_time!).getTime()
     const isExpired = endTime < now
 
     useEffect(() => {
         if (user.id) {
             setIsCreated(props.event.owner_id === user.id)
+            setHasRegistered(!!props.event.participants?.some(item => {
+                return item.profile_id === user.id
+            }))
         } else {
             setHasRegistered(false)
             setIsCreated(false)
@@ -40,14 +44,6 @@ function CardEvent({fixed=true, ...props}: CardEventProps) {
     useEffect(() => {
         setEventDetail(props.event)
     }, [props.event])
-
-    useEffect(() => {
-        if (props.participants) {
-            setHasRegistered(props.participants?.some(item => item.event.id === props.event.id))
-        } else {
-            setHasRegistered(false)
-        }
-    }, [props.participants])
 
     const handleJoin = async (e: any) => {
         e.stopPropagation()
@@ -116,20 +112,21 @@ function CardEvent({fixed=true, ...props}: CardEventProps) {
                         </div>
                     }
 
-                    {!!eventDetail.online_location &&
+                    {!!eventDetail.meeting_url &&
                         <div className={'detail'}>
                             <i className={'icon-link'}/>
-                            <span>{eventDetail.online_location}</span>
+                            <span>{eventDetail.meeting_url}</span>
                         </div>
                     }
                 </div>
+
 
                 { !!user.id && !hasRegistered && !isExpired && !fixed &&
                     <div className={'card-apply-btn'} onClick={handleJoin}>{lang['Event_Card_Apply_Btn']}</div>
                 }
             </div>
             <div className={(fixed || hasMarker && !fixed) ? 'post marker': 'post'}>
-                <img src={props.event.cover} alt=""/>
+                <img src={props.event.cover_url} alt=""/>
             </div>
         </div>
     </Link>)

@@ -6,11 +6,10 @@ export const walletLogin = () => {
     window.localStorage.setItem('lang', 'en')
 }
 
-export const profiles: Profile[] = [
+export const profiles: any = [
     {
         address: '0x0b23E3588c906C3F723C58Ef4d6baEe7840A977c',
         domain: 'zfd.sociallayer.im',
-        group_owner_id: null,
         id: 1,
         image_url: 'https://ik.imagekit.io/soladata/tr:n-ik_ml_thumbnail/fc6d67ml_E3AOMgk66',
         email: null,
@@ -30,7 +29,6 @@ export const profiles: Profile[] = [
         username: 'zfd',
         followers: 0,
         following: 0,
-        is_group: false,
         badge_count: 95,
         status: 'active',
         permissions: [
@@ -49,7 +47,6 @@ export const profiles: Profile[] = [
     {
         address: '0x0b23E3588c906C3F723C58Ef4d6baEe7840A977c',
         domain: 'zfd2.sociallayer.im',
-        group_owner_id: null,
         id: 2,
         image_url: null,
         email: null,
@@ -69,7 +66,6 @@ export const profiles: Profile[] = [
         username: 'zfd2',
         followers: 0,
         following: 0,
-        is_group: false,
         badge_count: 95,
         status: 'active',
         permissions: [

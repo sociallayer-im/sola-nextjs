@@ -1,8 +1,11 @@
 import {signInWithEthereum} from './SIWE'
 import fetch from '../utils/fetch'
 import Alchemy from "@/service/alchemy/alchemy";
+import {gql, request} from 'graphql-request'
 
-const api = process.env.NEXT_PUBLIC_SOLAS_API
+const api = process.env.NEXT_PUBLIC_SOLAS_API!
+const apiUrl = process.env.NEXT_PUBLIC_API!
+const graphUrl = process.env.NEXT_PUBLIC_GRAPH!
 
 export type BadgeType = 'badge' | 'nftpass' | 'nft' | 'private' | 'gift'
 
@@ -21,12 +24,17 @@ export async function login(signer: any) {
 }
 
 export interface Profile {
-    address: string | null,
-    domain: string | null,
-    group_owner_id: number | null,
     id: number,
-    image_url: string | null,
+    username: string | null,
+    address: string | null,
     email: string | null,
+    phone: string | null,
+    zupass: string | null,
+    address_type: string,
+    status: 'active' | 'freezed',
+    image_url: string | null,
+
+    domain: string | null,
 
     twitter: string | null,
     telegram: string | null,
@@ -40,12 +48,9 @@ export interface Profile {
     about: string | null,
     nickname: string | null,
 
-    username: string | null,
     followers: number,
     following: number,
-    is_group: boolean | null,
     badge_count: number,
-    status: 'active' | 'freezed',
     permissions: string[],
     group_event_visibility: 'public' | 'private' | 'protected',
     group_event_tags: string[] | null,
@@ -53,7 +58,7 @@ export interface Profile {
     banner_image_url: null | string
     banner_link_url: null | string
     group_location_details: null | string
-    maodaoid?: number
+    maodaoid?: string
     zugame_team?: string | null
     maodao_profile?: {
         "name": string,
@@ -81,56 +86,228 @@ export interface ProfileSimple {
     username: string | null,
 }
 
+export async function queryProfileByGraph(props: { type: keyof GetProfileProps, address: string | number }) {
+    const condition = `where: {${props.type}: {_eq: ${props.type === 'id' ? props.address : `"${props.address}"`}}}`
+
+    const doc = gql`query MyQuery {
+      profiles(${condition}) {
+        id
+        created_at
+        discord
+        ens
+        about
+        address
+        address_type
+        github
+        group_id
+        image_url
+        lens
+        location
+        nickname
+        status
+        telegram
+        twitter
+        username
+        website
+        zupass
+        permissions
+      }
+    }`
+
+    const resp: any = await request(graphUrl, doc)
+
+    if (!resp.profiles.length) {
+        return null
+    }
+
+    const isMaodao = process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'maodao'
+    if (isMaodao && resp.profiles[0].address) {
+        const profile = await getMaodaoProfile(resp.profiles[0])
+        return {
+            ...profile,
+            domain: profile.username ? profile.username + process.env.NEXT_PUBLIC_SOLAS_DOMAIN : null
+        } as any
+
+    } else {
+        return {
+            ...resp.profiles[0],
+            domain: resp.profiles[0].username ? resp.profiles[0].username + process.env.NEXT_PUBLIC_SOLAS_DOMAIN : null,
+        } as any
+    }
+}
+
+export async function queryProfileByEmail(email: string) {
+    const res = await fetch.post({
+        url: `${apiUrl}/profile/get_by_email`,
+        data: {email}
+    })
+        .catch(e => {
+    })
+
+    return res?.data.profile as Profile || null
+}
+
 interface GetProfileProps {
     address?: string
     email?: string
     id?: number,
-    domain?: string
     username?: string
+    phone?: string
 }
 
 export async function getProfile(props: GetProfileProps): Promise<Profile | null> {
+    const type = Object.keys(props)[0] as keyof GetProfileProps
+    const address = props[type] as number | string
+
+    let profile: null | Profile = null
+
+    if (type === 'email') {
+        profile = await queryProfileByEmail(props.email!)
+    } else {
+        profile = await queryProfileByGraph({type, address})
+    }
+
+    if (process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'maodao' && profile?.address) {
+        const maodaoProfile = await getMaodaoProfile({profile})
+        return {
+            ...maodaoProfile,
+            followers: 0,
+            following: 0
+        } as Profile
+    } else {
+        return profile ? {
+            ...profile,
+            followers: 0,
+            following: 0
+        } as Profile
+            : null
+    }
+}
+
+export async function myProfile(props: { auth_token: string }): Promise<Profile> {
+    checkAuth(props)
+
     const res: any = await fetch.get({
-        url: `${api}/profile/get`,
+        url: `${apiUrl}/profile/me`,
         data: props
     })
-
-    if (!res.data.profile) return null
-
-    const isMaodao = process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'maodao'
-    let maodaoProfile: any = null
-    if (isMaodao && res.data.profile?.address) {
-        const maodaonft = await Alchemy.getMaodaoNft(res.data.profile?.address)
-        if (maodaonft.length) {
-            try {
-                maodaoProfile = await fetch.get({
-                    url: `https://metadata.readyplayerclub.com/api/rpc-fam/${maodaonft[0].id}`,
-                    data: {}
-                }) as any
-                res.data.profile.nickname = maodaoProfile?.data.info.owner
-                res.data.profile.image_url = maodaoProfile?.data.image
-            } catch (e) {
-                const zeroPad = (num: string) => {
-                    // 使用正则匹配出第一个数字，然后补0
-                    const numStr = num.split('（')[0]
-                    return String(numStr).padStart(4, '0')
-                }
-                res.data.profile.nickname = maodaonft[0].id
-                res.data.profile.image_url = `https://asset.maonft.com/rpc/${zeroPad(maodaonft[0].id)}.png`
-            }
-        }
+    if (res.data.result === 'error') {
+        throw new Error(res.data.message || 'Request fail')
     }
 
     return {
         ...res.data.profile,
-        followers: res.data.followers_count,
-        following: res.data.followings_count
+        domain: res.data.profile.username!
     } as Profile
+}
+
+async function getMaodaoProfile(props: { profile: Profile }) {
+    const maodaonft = await Alchemy.getMaodaoNft(props.profile.address!)
+
+    if (maodaonft.length) {
+        try {
+            const maodaoProfile = await fetch.get({
+                url: `https://metadata.readyplayerclub.com/api/rpc-fam/${maodaonft[0].id}`,
+                data: {}
+            }) as any
+            props.profile.nickname = maodaoProfile?.data.info.owner
+            props.profile.image_url = maodaoProfile?.data.image
+            props.profile.maodaoid = maodaonft[0].id
+        } catch (e) {
+            const zeroPad = (num: string) => {
+                // 使用正则匹配出第一个数字，然后补0
+                const numStr = num.split('（')[0]
+                return String(numStr).padStart(4, '0')
+            }
+            props.profile.maodaoid = maodaonft[0].id
+            props.profile.nickname = maodaonft[0].id
+            props.profile.image_url = `https://asset.maonft.com/rpc/${zeroPad(maodaonft[0].id)}.png`
+        }
+    }
+
+    return props.profile
+}
+
+interface GetGroupProps {
+    id?: number,
+    username?: string
+}
+
+export async function getGroups(props: GetGroupProps): Promise<Group[]> {
+    const type = Object.keys(props)[0] as keyof GetGroupProps
+    const value = props[type] as number | string
+
+    const condition = `where: {${type}: {_eq: ${type === 'id' ? value : `"${value}"`}}}`
+
+    const doc = gql`query MyQuery {
+      groups(${condition}) {
+        about
+        banner_image_url
+        banner_link_url
+        banner_text
+        can_join_event
+        can_publish_event
+        can_view_event
+        discord
+        ens
+        event_enabled
+        event_tags
+        id
+        image_url
+        lens
+        location
+        map_enabled
+        nickname
+        nostr
+        permissions
+        status
+        telegram
+        twitter
+        username
+        memberships (where: {role: {_eq: "owner"}}){
+          id
+          profile {
+            id
+            image_url
+            username
+            nickname
+          }
+          role
+          profile_id
+        }
+      }
+    }`
+
+    const resp: any = await request(graphUrl, doc)
+    const res = resp.groups.map((group: any) => {
+        const profile = group.memberships.length ? group.memberships?.[0].profile : null
+        return {
+            domain: group.username + process.env.NEXT_PUBLIC_SOLAS_DOMAIN,
+            ...group,
+            creator: profile!,
+            followers: 0,
+            following: 0
+        }
+    })
+
+    return res as Group[]
+}
+
+export async function queryGroupDetail(id: number): Promise<Group | null> {
+    const res = await getGroups({id})
+    return res[0] ?
+        {
+            ...res[0],
+            domain: res[0].username + process.env.NEXT_PUBLIC_SOLAS_DOMAIN,
+            followers: 0,
+            following: 0
+        }
+        :null
 }
 
 export async function requestEmailCode(email: string): Promise<void> {
     const res: any = await fetch.post({
-        url: `${api}/profile/send_email`,
+        url: `${apiUrl}/service/send_email`,
         data: {email}
     })
     if (res.data.result === 'error') {
@@ -147,7 +324,7 @@ export interface LoginRes {
 
 export async function emailLogin(email: string, code: string): Promise<LoginRes> {
     const res = await fetch.post({
-        url: `${api}/profile/signin_with_email`,
+        url: `${apiUrl}/profile/signin_with_email`,
         data: {email, code}
     })
     if (res.data.result === 'error') {
@@ -158,9 +335,6 @@ export async function emailLogin(email: string, code: string): Promise<LoginRes>
 }
 
 interface SolasRegistProps {
-    domain: string
-    email?: string
-    address?: string
     auth_token: string
     username: string
 }
@@ -168,7 +342,7 @@ interface SolasRegistProps {
 export async function regist(props: SolasRegistProps): Promise<{ result: 'ok' }> {
     checkAuth(props)
     const res = await fetch.post({
-        url: `${api}/profile/create`,
+        url: `${apiUrl}/profile/create`,
         data: props
     })
 
@@ -182,13 +356,13 @@ export async function regist(props: SolasRegistProps): Promise<{ result: 'ok' }>
 export interface AddManagerProps {
     auth_token: string
     group_id: number,
-    member_profile_id: number
+    profile_id: number
 }
 
 export async function addManager(props: AddManagerProps): Promise<void> {
     checkAuth(props)
     const res = await fetch.post({
-        url: `${api}/group/add-manager`,
+        url: `${apiUrl}/group/add-manager`,
         data: props
     })
 
@@ -200,7 +374,7 @@ export async function addManager(props: AddManagerProps): Promise<void> {
 export async function removeManager(props: AddManagerProps): Promise<void> {
     checkAuth(props)
     const res = await fetch.post({
-        url: `${api}/group/remove-manager`,
+        url: `${apiUrl}/group/remove-manager`,
         data: props
     })
 
@@ -209,22 +383,14 @@ export async function removeManager(props: AddManagerProps): Promise<void> {
     }
 }
 
-export interface QueryBadgeProps {
-    sender_id?: number,
-    group_id?: number,
-    badge_type?: BadgeType,
-    page: number
-}
-
 export interface Badge {
     id: number,
-    domain: string,
     created_at: string
     name: string,
     title: string,
     token_id: string,
     image_url: string,
-    sender: Profile,
+    creator: Profile,
     group?: Group | null,
     content: string | null,
     counter: number,
@@ -236,23 +402,82 @@ export interface Badge {
 export type NftPass = Badge
 export type NftPassWithBadgelets = BadgeWithBadgelets
 
-export interface NftPasslet extends Badgelet {
+export interface NftPasslet extends Badgelet {}
 
+export interface QueryBadgeProps {
+    id?: number,
+    sender_id?: number,
+    group_id?: number,
+    badge_type?: BadgeType,
+    page: number
 }
 
 export async function queryBadge(props: QueryBadgeProps): Promise<Badge[]> {
-    props.badge_type = props.badge_type || 'badge'
+    // props.badge_type = props.badge_type || 'badge'
+    //
+    // const res = await fetch.get({
+    //     url: `${api}/badge/list`,
+    //     data: props,
+    // })
+    //
+    // if (res.data.result === 'error') {
+    //     throw new Error(res.data.message)
+    // }
+    //
+    // return res.data.badges as Badge[]
 
-    const res = await fetch.get({
-        url: `${api}/badge/list`,
-        data: props,
-    })
+    let variables = ''
 
-    if (res.data.result === 'error') {
-        throw new Error(res.data.message)
+    if (props.id) {
+        variables += `id: {_eq: "${props.id}"},`
     }
 
-    return res.data.badges as Badge[]
+    if (props.sender_id) {
+        variables += `creator_id: {_eq: "${props.sender_id}"},`
+    }
+
+    if (props.group_id) {
+        variables += `group_id: {_eq: "${props.group_id}"},`
+    }
+
+    if (props.badge_type) {
+        variables += `badge_type: {_eq: "${props.badge_type}"},`
+    } else {
+        variables += `badge_type: {_eq: "badge"},`
+    }
+
+    variables = variables.replace(/,$/, '')
+
+    const doc = gql`query MyQuery {
+      badges(where:{${variables}}, limit: 20, offset: ${props.page * 20 - 20}, order_by: {id: desc}) {
+        content
+        counter
+        creator {
+          nickname
+          id
+          image_url
+          username
+        }
+        creator_id
+        group {
+          id
+          image_url
+          nickname
+          username
+        }
+        group_id
+        id
+        image_url
+        name
+        title
+        badge_type
+        created_at
+      }
+    }`
+
+    const res: any = await request(graphUrl, doc)
+
+    return res.badges as Badge[]
 }
 
 export async function queryPrivateBadge(props: QueryBadgeProps): Promise<Badge[]> {
@@ -289,60 +514,170 @@ export interface BadgeWithBadgelets extends Badge {
     badgelets: Badgelet[]
 }
 
-export async function queryBadgeDetail(props: QueryBadgeDetailProps): Promise<BadgeWithBadgelets> {
-    const res = await fetch.get({
-        url: `${api}/badge/get`,
-        data: {...props, with_badgelets: 1}
-    })
+export async function queryBadgeDetail(props: QueryBadgeDetailProps): Promise<BadgeWithBadgelets | null> {
+    const doc = gql`query MyQuery {
+      badges(where: {id: {_eq: "${props.id}"}}) {
+        badge_type
+        content
+        counter
+        created_at
+        creator {
+          id
+          image_url
+          nickname
+          username
+        }
+        id
+        image_url
+        name
+        title
+        transferable
+        permissions
+        badgelets(where: {status: {_neq: "rejected"}}) {
+          created_at
+          id
+          image_url
+          title
+          status
+          badge {
+            badge_type
+            content
+            counter
+            created_at
+            group_id
+            name
+            title
+            image_url
+            id
+          }
+          badge_id
+          content
+          creator {
+            id
+            nickname
+            image_url
+            username
+          }
+          owner_id
+          owner {
+            id
+            nickname
+            image_url
+            username
+          }
+        }
+      }
+    }`
 
-    if (res.data.result === 'error') {
-        throw new Error(res.data.message)
-    }
-
-    res.data.badge.badgelets = res.data.badge.badgelets.filter((item: Badgelet) => {
-        return !item.hide && item.status !== 'rejected'
-    })
-
-    res.data.badge.badgelets.forEach((item: Badgelet) => {
-        item.sender = res.data.badge.sender
-    })
-
-    return res.data.badge
+    const resb: any = await request(graphUrl, doc)
+    return resb.badges[0] || null
 }
 
 interface QueryPresendProps {
     sender_id?: number,
     page: number,
-    auth_token?: string,
-    group_id?: number
-    all?: 1
+    group_id?: number,
+    id?: number
 }
 
-export interface Presend {
-    id: number,
-    message: string,
-    sender_id: number,
-    group: Group | null,
-    code: string | null,
-    badge: Badge,
-    counter: number
-    badge_id: number
-    expires_at: string
-    created_at: string
-
-}
+export interface Presend extends Voucher {}
 
 export async function queryPresend(props: QueryPresendProps): Promise<Presend[]> {
-    const res = await fetch.get({
-        url: `${api}/voucher/list`,
-        data: {...props}
-    })
+    let variables = ''
 
-    if (res.data.result === 'error') {
-        throw new Error(res.data.message)
+    if (props.sender_id) {
+        variables += `sender_id: {_eq: ${props.sender_id}},`
     }
 
-    return res.data.vouchers as Presend[]
+    if (props.group_id) {
+        variables += `badge: {group_id: {_eq: ${props.group_id}}},`
+    }
+
+    if (props.id) {
+        variables += `id: {_eq: ${props.id}},`
+    }
+
+    const doc = gql`query MyQuery {
+      vouchers(where: {counter: {_neq: 0}, ${variables}} limit: 20, offset: ${props.page * 20 - 20}) {
+        id
+        badgelets {
+          badge_id
+          content
+          id
+          image_url
+          owner {
+            id
+            image_url
+            nickname
+            username
+          }
+          owner_id
+          title
+          value
+          badge {
+            creator {
+              id
+              image_url
+              nickname
+              username
+            }
+            group_id
+            id
+            title
+            image_url
+            name
+            creator_id
+            badge_type
+            content
+          }
+        }
+        badge {
+          badge_type
+          content
+          counter
+          creator_id
+          group {
+            id
+            username
+            nickname
+            image_url
+          }
+          group_id
+          id
+          hashtags
+          image_url
+          name
+          permissions
+          title
+          transferable
+        }
+        badge_id
+        badge_title
+        created_at
+        expires_at
+        counter
+        claimed_at
+        claimed_by_server
+        message
+        receiver {
+          id
+          nickname
+          username
+          image_url
+        }
+        receiver_id
+        sender {
+          id
+          image_url
+          nickname
+          username
+        }
+        sender_id
+      }
+    }`
+
+    const res: any = await request(graphUrl, doc)
+    return res.vouchers as Voucher[]
 }
 
 export interface PresendWithBadgelets extends Presend {
@@ -350,32 +685,12 @@ export interface PresendWithBadgelets extends Presend {
 }
 
 export interface QueryPresendDetailProps {
-    id: number,
-    auth_token?: string
+    id: number
 }
 
 export async function queryPresendDetail(props: QueryPresendDetailProps): Promise<PresendWithBadgelets> {
-    const res = await fetch.get({
-        url: `${api}/voucher/get`,
-        data: props
-    })
-
-    if (res.data.result === 'error') {
-        throw new Error(res.data.message)
-    }
-
-    return res.data.voucher as PresendWithBadgelets
-}
-
-export interface QueryBadgeletProps {
-    id?: number,
-    receiver_id?: number,
-    owner_id?: number,
-    page: number,
-    show_hidden?: number,
-    badge_id?: number,
-    badge_type?: BadgeType,
-    status?: 'accepted' | 'pending' | 'new' | 'rejected' | 'burnt' | 'revoked',
+    const presend  = await queryPresend({page: 1, id: props.id})
+    return presend[0] as PresendWithBadgelets
 }
 
 export interface Badgelet {
@@ -383,11 +698,9 @@ export interface Badgelet {
     badge_id: number,
     content: string,
     domain: string,
-    hide: boolean,
-    top: boolean,
+    display: 'normal' | 'hide' | 'top',
     owner: ProfileSimple,
-    receiver: ProfileSimple,
-    sender: ProfileSimple,
+    creator: ProfileSimple,
     status: 'accepted' | 'pending' | 'new' | 'rejected' | 'burnt' | 'revoked',
     token_id: string | null,
     badge: Badge,
@@ -414,29 +727,126 @@ export async function queryAllTypeBadgelet(props: QueryBadgeletProps): Promise<B
 
     const list: Badgelet[] = res.data.badgelets
 
-    return list.filter(item => {
+    return list.filter((item : any) => {
         return item.status !== 'rejected'
     })
 }
 
+export interface QueryBadgeletProps {
+    page: number,
+    id?: number,
+    receiver_id?: number,
+    owner_id?: number,
+    group_id?: number,
+    show_hidden?: number,
+    badge_id?: number,
+    badge_type?: BadgeType,
+    status?: 'accepted' | 'pending' | 'new' | 'rejected' | 'burnt' | 'revoked',
+}
 
 export async function queryBadgelet(props: QueryBadgeletProps): Promise<Badgelet[]> {
-    props.badge_type = props.badge_type || 'badge'
+    let variables = ''
 
-    const res = await fetch.get({
-        url: `${api}/badgelet/list`,
-        data: props
-    })
-
-    if (res.data.result === 'error') {
-        throw new Error(res.data.message)
+    if (props.id) {
+        variables += `id: {_eq: "${props.id}"},`
     }
 
-    const list: Badgelet[] = res.data.badgelets
+    if (props.receiver_id || props.owner_id) {
+        variables += `owner_id: {_eq: "${props.receiver_id || props.owner_id}"},`
+    }
 
-    return list.filter(item => {
-        return item.status !== 'rejected' && item.status !== 'revoked' && item.status !== 'burnt'
-    })
+    if (props.badge_id) {
+        variables += `badge_id: {_eq: "${props.badge_id}"},`
+    }
+
+    if (props.status) {
+        variables += `status: {_eq: "${props.status}"},`
+    }
+
+    if (props.badge_type) {
+        if (props.group_id) {
+            variables += `badge: {badge_type: {_eq: "${props.badge_type}", group_id: {_eq: "${props.group_id}"}}},`
+        } else {
+            variables += `badge: {badge_type: {_eq: "${props.badge_type}"}},`
+        }
+    } else {
+        if (props.group_id) {
+            variables += `badge: {badge_type: {_eq: "badge"}, group_id: {_eq: "${props.group_id}"}},`
+        } else {
+            variables += `badge: {badge_type: {_eq: "badge"}},`
+        }
+
+    }
+
+    if (variables.endsWith(',')) {
+        variables = variables.slice(0, -1)
+    }
+
+    const doc = gql`query MyQuery {
+      badgelets(where: {${variables}, status: {_neq: "burned"}}, limit: 20, offset: ${props.page * 20-20 }, order_by: {id: asc}) {
+        badge_id
+        content
+        created_at
+        badge {
+          image_url
+          title
+          content
+          badge_type
+          group_id
+          group {
+            id
+            nickname
+            username
+            image_url
+          }
+        }
+        id
+        status
+        title
+        value
+        voucher_id
+        content
+        creator_id
+        creator {
+          id
+          nickname
+          image_url
+          username
+        }
+        owner_id
+        owner {
+          image_url
+          id
+          nickname
+          username
+        }
+      }
+    }`
+
+    const res: any = await request(graphUrl, doc)
+
+    console.log(res)
+
+    return res.badgelets.sort((a: Badgelet, b: Badgelet) => {
+        return b.display === 'top' ? 1 : -1
+    }) as Badgelet[]
+
+    // props.badge_type = props.badge_type || 'badge'
+    //
+    // const res = await fetch.get({
+    //     url: `${api}/badgelet/list`,
+    //     data: props
+    // })
+    //
+    // if (res.data.result === 'error') {
+    //     throw new Error(res.data.message)
+    // }
+    //
+    // const list: Badgelet[] = res.data.badgelets
+    //
+    // return list.filter(item => {
+    //     return item.status !== 'rejected' && item.status !== 'revoked' && item.status !== 'burnt'
+    // })
 }
 
 export async function queryPrivacyBadgelet(props: QueryBadgeletProps): Promise<Badgelet[]> {
@@ -451,7 +861,7 @@ export async function queryPrivacyBadgelet(props: QueryBadgeletProps): Promise<B
 
     const list: Badgelet[] = res.data.badgelets
 
-    return list.filter(item => {
+    return list.filter((item : any) => {
         return item.status !== 'rejected'
     })
 }
@@ -468,16 +878,19 @@ export async function queryNftPasslet(props: QueryBadgeletProps): Promise<NftPas
 
     const list: NftPasslet[] = res.data.badgelets
 
-    return list.filter(item => {
+    return list.filter((item : any) => {
         return item.status !== 'rejected' && item.status !== 'revoked' && item.status !== 'burnt'
     })
 }
 
+export interface Membership {
+    "id": number,
+    "profile": ProfileSimple
+}
+
 export interface Group extends Profile {
     id: number,
-    group_owner_id: number
     image_url: string | null,
-    is_group: boolean,
     status: 'active' | 'freezed',
     token_id: string,
     twitter: string | null
@@ -487,6 +900,10 @@ export interface Group extends Profile {
     nickname: string,
     group_event_tags: string[] | null,
     group_map_enabled: boolean,
+    creator: ProfileSimple,
+    memberships: Membership[],
+    event_enabled: boolean
+    map_enabled: boolean
 }
 
 export interface QueryUserGroupProps {
@@ -494,33 +911,92 @@ export interface QueryUserGroupProps {
 }
 
 export async function queryGroupsUserJoined(props: QueryUserGroupProps): Promise<Group[]> {
-    const res1 = await fetch.get({
-        url: `${api}/group/my-groups`,
-        data: props
-    })
+    const doc = gql`query MyQuery {
+      groups(where: {status: {_neq: "freezed"}, memberships: {role: {_neq: "owner"}, profile: {id: {_eq: "${props.profile_id}"}}}}) {
+        about
+        banner_image_url
+        banner_link_url
+        banner_text
+        can_join_event
+        can_publish_event
+        can_view_event
+        created_at
+        event_enabled
+        map_enabled
+        event_tags
+        id
+        image_url
+        lens
+        location
+        nickname
+        status
+        telegram
+        twitter
+        username
+        discord
+        ens
+        memberships(where: {role: {_eq: "owner"}}) {
+          id
+          role
+          profile {
+            id
+            nickname
+            username
+            image_url
+          }
+        }
+      }
+    }`
 
-    if (res1.data.result === 'error') {
-        throw new Error(res1.data.message)
-    }
-
-    return res1.data.groups.filter((item: Group) => {
-        return item.status !== 'freezed'
+    const res: any = await request(graphUrl, doc)
+    return res.groups.map((item: any) => {
+        item.creator = item.memberships[0].profile
+        return item
     })
 }
 
 export async function queryGroupsUserCreated(props: QueryUserGroupProps): Promise<Group[]> {
+    const doc = gql`query MyQuery {
+      groups(where: {status: {_neq: "freezed"}, memberships: {role: {_eq: "owner"}, profile: {id: {_eq: "${props.profile_id}"}}}}) {
+        about
+        banner_image_url
+        banner_link_url
+        banner_text
+        can_join_event
+        can_publish_event
+        can_view_event
+        created_at
+        event_tags
+        event_enabled
+        map_enabled
+        id
+        image_url
+        lens
+        location
+        nickname
+        status
+        telegram
+        twitter
+        username
+        discord
+        ens
+        memberships(where: {role: {_eq: "owner"}}) {
+          id
+          role
+          profile {
+            id
+            nickname
+            username
+            image_url
+          }
+        }
+      }
+    }`
 
-    const res2 = await fetch.get({
-        url: `${api}/group/list`,
-        data: {group_owner_id: props.profile_id}
-    })
-
-    if (res2.data.result === 'error') {
-        throw new Error(res2.data.message)
-    }
-
-    return res2.data.groups.filter((item: Group) => {
-        return item.status !== 'freezed'
+    const res: any = await request(graphUrl, doc)
+    return res.groups.map((item : any) => {
+        item.creator = item.memberships[0].profile
+        return item
     })
 }
 
@@ -536,31 +1012,42 @@ export async function queryUserGroup(props: QueryUserGroupProps): Promise<Group[
     })
 
     const groupsDuplicateObj: any = {}
-    groups.map(item => {
+    groups.map((item : any) => {
         groupsDuplicateObj[item.id] = item
     })
 
     return Object.values(groupsDuplicateObj) as Group[]
 }
 
-export async function queryGroupDetail(groupId: number): Promise<Group> {
-    const res = await fetch.get({
-        url: `${api}/group/get`,
-        data: {id: groupId}
-    })
-
-    return res.data.group
-}
-
 export interface AcceptBadgeletProp {
-    badgelet_id: number,
+    voucher_id: number,
+    code?: number,
     auth_token: string
 }
 
-export async function acceptBadgelet(props: AcceptBadgeletProp): Promise<void> {
+export async function acceptBadgelet(props: AcceptBadgeletProp): Promise<Badgelet> {
     checkAuth(props)
     const res = await fetch.post({
-        url: `${api}/badge/accept`,
+        url: `${apiUrl}/voucher/use`,
+        data: {id: props.voucher_id, code: props.code, auth_token: props.auth_token}
+    })
+
+    if (res.data.result === 'error') {
+        throw new Error(res.data.message)
+    }
+
+    return res.data.badgelet
+}
+
+export interface RejectVoucherProp {
+    id: number,
+    auth_token: string
+}
+
+export async function rejectVoucher(props: RejectVoucherProp): Promise<void> {
+    checkAuth(props)
+    const res = await fetch.post({
+        url: `${apiUrl}/voucher/reject_badge`,
         data: props
     })
 
@@ -586,24 +1073,12 @@ export async function rejectBadgelet(props: RejectBadgeletProp): Promise<void> {
     }
 }
 
-export interface AcceptPresendProps {
-    id: number,
-    code: string | number,
-    auth_token: string
-}
-
-export async function acceptPresend(props: AcceptPresendProps) {
-    checkAuth(props)
-    const res = await fetch.post({
-        url: `${api}/voucher/use`,
-        data: props
+export async function acceptPresend(props: AcceptBadgeletProp) {
+    return await acceptBadgelet({
+        voucher_id: props.voucher_id,
+        code: props.code,
+        auth_token: props.auth_token
     })
-
-    if (res.data.result === 'error') {
-        throw new Error(res.data.message)
-    }
-
-    return res.data.badgelet
 }
 
 export type SetBadgeletStatusType = 'untop' | 'top' | 'hide' | 'unhide'
@@ -680,7 +1155,7 @@ export async function uploadImage(props: UploadImageProps): Promise<string> {
     formData.append('uploader', props.uploader)
     formData.append('resource', randomName)
     const res = await fetch.post({
-        url: `${api}/upload/image`,
+        url: `${apiUrl}/service/upload_image`,
         data: formData,
         header: {'Content-Type': 'multipart/form-data'}
     })
@@ -697,24 +1172,21 @@ export interface SetAvatarProps {
     auth_token: string
 }
 
-export async function setAvatar(props: SetAvatarProps): Promise<Profile> {
+export async function setAvatar(props: SetAvatarProps) {
     checkAuth(props)
     const res = await fetch.post({
-        url: `${api}/profile/update`,
+        url: `${apiUrl}/profile/update`,
         data: props
     })
 
     if (res.data.result === 'error') {
         throw new Error(res.data.message)
     }
-
-    return res.data.profile
 }
 
 export interface CreateBadgeProps {
     name: string,
     title: string,
-    domain: string,
     image_url: string,
     auth_token: string,
     content?: string,
@@ -722,6 +1194,7 @@ export interface CreateBadgeProps {
     badge_type?: string,
     value?: number,
     transferable?: boolean,
+    weighted?: boolean,
 }
 
 export async function createBadge(props: CreateBadgeProps): Promise<Badge> {
@@ -729,7 +1202,7 @@ export async function createBadge(props: CreateBadgeProps): Promise<Badge> {
     props.badge_type = props.badge_type || 'badge'
 
     const res = await fetch.post({
-        url: `${api}/badge/create`,
+        url: `${apiUrl}/badge/create`,
         data: props
     })
 
@@ -751,7 +1224,7 @@ export async function createPresend(props: CreatePresendProps) {
     checkAuth(props)
     props.counter = props.counter === 'Unlimited' ? 65535 : props.counter
     const res = await fetch.post({
-        url: `${api}/voucher/create`,
+        url: `${apiUrl}/voucher/create`,
         data: props
     })
 
@@ -764,50 +1237,68 @@ export async function createPresend(props: CreatePresendProps) {
 
 export interface GetGroupMembersProps {
     group_id: number,
-    role?: string,
+    role?: 'manager' | 'member' | 'owner',
 }
 
 export async function getGroupMembers(props: GetGroupMembersProps): Promise<Profile[]> {
-    const res = await fetch.get({
-        url: `${api}/group/members`,
-        data: props
-    })
+    const condition = props.role
+       ? `where: {group: {id: {_eq: "${props.group_id}"}}, role: {_eq: "${props.role}"}}`
+       : `where: {group: {id: {_eq: "${props.group_id}"}}, role: {_neq: "owner"}}`
 
-    if (res.data.result === 'error') {
-        throw new Error(res.data.message)
-    }
+    const doc = gql`query MyQuery {
+      memberships(${condition}) {
+        id
+        role
+        profile {
+          id
+          image_url
+          nickname
+          username
+          about
+          address
+          address_type
+          status
+        }
+      }
+    }`
 
-    return res.data.members
+    const resp: any = await request(graphUrl, doc)
+
+    return resp.memberships.map((item : any) => item.profile) as Profile[]
 }
 
 export async function getFollowers(userId: number): Promise<Profile[]> {
-    const res = await fetch.get({
-        url: `${api}/profile/followers`,
-        data: {
-            id: userId
-        }
-    })
+    // const res = await fetch.get({
+    //     url: `${api}/profile/followers`,
+    //     data: {
+    //         id: userId
+    //     }
+    // })
+    //
+    // if (res.data.result === 'error') {
+    //     throw new Error(res.data.message)
+    // }
+    //
+    // return res.data.profiles
 
-    if (res.data.result === 'error') {
-        throw new Error(res.data.message)
-    }
-
-    return res.data.profiles
+    return []
 }
 
 export async function getFollowings(userId: number): Promise<Profile[]> {
-    const res = await fetch.get({
-        url: `${api}/profile/followings`,
-        data: {
-            id: userId
-        }
-    })
+    // const res = await fetch.get({
+    //     url: `${api}/profile/followings`,
+    //     data: {
+    //         id: userId
+    //     }
+    // })
+    //
+    // if (res.data.result === 'error') {
+    //     throw new Error(res.data.message)
+    // }
+    //
+    // return res.data.profiles
 
-    if (res.data.result === 'error') {
-        throw new Error(res.data.message)
-    }
-
-    return res.data.profiles
+    return []
 }
 
 export interface IssueBatchProps {
@@ -820,15 +1311,15 @@ export interface IssueBatchProps {
     value?: number | null
 }
 
-export async function issueBatch(props: IssueBatchProps): Promise<Badgelet[]> {
+export async function issueBatch(props: IssueBatchProps): Promise<Voucher[]> {
     checkAuth(props)
     const walletAddress: string[] = []
     const socialLayerUsers: string[] = []
     const domains: string[] = []
     const emails: string[] = []
-    const socialLayerDomain = process.env.NEXT_PUBLIC_SOLAS_DOMAIN
+    const socialLayerDomain = process.env.NEXT_PUBLIC_SOLAS_DOMAIN!
 
-    props.issues.forEach(item => {
+    props.issues.forEach((item : any) => {
         if (item.endsWith('.eth') || item.endsWith('.dot')) {
             domains.push(item)
         } else if (item.startsWith('0x')) {
@@ -868,7 +1359,7 @@ export async function issueBatch(props: IssueBatchProps): Promise<Badgelet[]> {
         }))
     })
     socialLayerUsers.map((item) => {
-        task.push(getProfile({domain: item}).catch(e => {
+        task.push(getProfile({username: item.replace(process.env.NEXT_PUBLIC_SOLAS_DOMAIN!, '')}).catch(e => {
             handleError(item)
         }))
     })
@@ -901,17 +1392,19 @@ export async function issueBatch(props: IssueBatchProps): Promise<Badgelet[]> {
         subjectUrl = subjectUrls[0].replace('@', '')
     }
 
+    const usernames = profiles.map((item : any) => item.username)
+
     const res = await fetch.post({
-        url: `${api}/badge/send`,
+        url: `${apiUrl}/voucher/send_badge`,
         data: {
             badge_id: props.badgeId,
-            receivers: link,
-            content: props.reason,
+            receivers: usernames,
             subject_url: subjectUrl,
             auth_token: props.auth_token,
             starts_at: props.starts_at || null,
             expires_at: props.expires_at || null,
-            value: props.value
+            value: props.value,
+            message: props.reason
         }
     })
 
@@ -919,7 +1412,7 @@ export async function issueBatch(props: IssueBatchProps): Promise<Badgelet[]> {
         throw new Error(res.data.message)
     }
 
-    return res.data.badgelets
+    return res.data.vouchers as Voucher[]
 }
 
 export async function DDNSServer(domain: string): Promise<string | null> {
@@ -967,34 +1460,22 @@ export interface Invite {
     id: number,
     message: string,
     receiver_id: number
-    sender_id: number,
-    status: 'accepted' | 'cancelled' | 'new'
+    status: string
+    role: string
     expires_at: string
-    group_id: number
     created_at: string
+    group_id: number,
+    receiver: ProfileSimple,
 }
 
 export interface QueryGroupInvitesProps {
     group_id: number,
-    page: number,
-    auth_token: string
 }
 
 export async function queryGroupInvites(props: QueryGroupInvitesProps): Promise<Invite[]> {
-    if (!props.auth_token) return []
-
-    const res = await fetch.get({
-        url: `${api}/group/group-invites`,
-        data: props
-    })
-
-    if (res.data.result === 'error') {
-        throw new Error(res.data.message)
-    }
-
-    return res.data.group_invites.filter((item: Invite) => {
-        const now = Date.parse(new Date().toString())
-        return Date.parse(new Date(item.expires_at).toString()) - now >= 0
+    return await queryInvites({
+        onlyPending: true,
+        groupId: props.group_id
     })
 }
 
@@ -1006,7 +1487,7 @@ export interface CreateGroupProps {
 export async function createGroup(props: CreateGroupProps): Promise<Group> {
     checkAuth(props)
     const res = await fetch.post({
-        url: `${api}/group/create`,
+        url: `${apiUrl}/group/create`,
         data: props
     })
 
@@ -1021,7 +1502,8 @@ export interface SendInviteProps {
     group_id: number,
     receivers: string[],
     message: string,
-    auth_token: string
+    auth_token: string,
+    role: string
 }
 
 export async function sendInvite(props: SendInviteProps): Promise<Invite[]> {
@@ -1030,9 +1512,9 @@ export async function sendInvite(props: SendInviteProps): Promise<Invite[]> {
     const socialLayerUsers: string[] = []
     const domains: string[] = []
     const emails: string[] = []
-    const socialLayerDomain = process.env.NEXT_PUBLIC_SOLAS_DOMAIN
+    const socialLayerDomain = process.env.NEXT_PUBLIC_SOLAS_DOMAIN!
 
-    props.receivers.forEach(item => {
+    props.receivers.forEach((item : any) => {
         if (item.endsWith('.eth') || item.endsWith('.dot')) {
             domains.push(item)
         } else if (item.startsWith('0x')) {
@@ -1046,6 +1528,9 @@ export async function sendInvite(props: SendInviteProps): Promise<Invite[]> {
         }
     })
 
+    console.log('walletAddress', walletAddress)
+    console.log('socialLayerUsers', socialLayerUsers)
+    console.log('domains', domains)
     const domainToWalletAddress: any = []
     domains.map((item) => {
         return domainToWalletAddress.push(DDNSServer(item))
@@ -1062,13 +1547,14 @@ export async function sendInvite(props: SendInviteProps): Promise<Invite[]> {
     }
 
     const task: any = []
+    const link = [...walletAddress, ...socialLayerUsers, ...domainOwnerAddress, ...emails]
     walletAddress.forEach((item) => {
         task.push(getProfile({address: item}).catch(e => {
             handleError(item)
         }))
     })
     socialLayerUsers.map((item) => {
-        task.push(getProfile({domain: item}).catch(e => {
+        task.push(getProfile({username: item.replace(process.env.NEXT_PUBLIC_SOLAS_DOMAIN!, '')}).catch(e => {
             handleError(item)
         }))
     })
@@ -1086,15 +1572,22 @@ export async function sendInvite(props: SendInviteProps): Promise<Invite[]> {
     const profiles = await Promise.all(task)
     profiles.forEach((item, index) => {
         if (!item) {
-            handleError(domains[index])
+            handleError(link[index])
+        }
+
+        console.log('item.status', item.status)
+        if (item.status === 'freezed') {
+            handleError(link[index])
         }
     })
 
+    const usernames = profiles.map((item : any) => item.username)
+
     const res = await fetch.post({
-        url: `${api}/group/send-invite`,
+        url: `${apiUrl}/group/send_invite`,
         data: {
             ...props,
-            receivers: [...walletAddress, ...socialLayerUsers, ...domainOwnerAddress, ...emails]
+            receivers: usernames
         }
     })
 
@@ -1106,28 +1599,23 @@ export async function sendInvite(props: SendInviteProps): Promise<Invite[]> {
         throw new Error('Can not invite')
     }
 
+    res.data.group_invites.forEach((item: any) => {
+        if (item.result === 'error') {
+            throw new Error(item.message)
+        }
+    })
+
     return res.data.group_invites
 }
 
 export interface QueryInviteDetailProps {
-    group_id: number
-    invite_id: number,
-    auth_token?: string
+    invite_id?: number
+    group_id?: number
 }
 
 export async function queryInviteDetail(props: QueryInviteDetailProps): Promise<Invite | null> {
-    const res = await fetch.get({
-        url: `${api}/group/group-invites`,
-        data: {group_id: props.group_id, auth_token: props.auth_token}
-    })
-
-    if (res.data.result === 'error') {
-        throw new Error(res.data.message)
-    }
-
-    return res.data.group_invites.find((item: Invite) => {
-        return item.id === props.invite_id
-    }) || null
+    const res = await queryInvites({inviteId: props.invite_id, groupId: props.group_id})
+    return res[0] || null
 }
 
 export interface AcceptInviteProps {
@@ -1138,7 +1626,7 @@ export interface AcceptInviteProps {
 export async function acceptInvite(props: AcceptInviteProps) {
     checkAuth(props)
     const res = await fetch.post({
-        url: `${api}/group/accept-invite`,
+        url: `${apiUrl}/group/accept_invite`,
         data: props
     })
 
@@ -1150,7 +1638,7 @@ export async function acceptInvite(props: AcceptInviteProps) {
 export async function cancelInvite(props: AcceptInviteProps) {
     checkAuth(props)
     const res = await fetch.post({
-        url: `${api}/group/cancel-invite`,
+        url: `${apiUrl}/group/cancel_invite`,
         data: props
     })
 
@@ -1159,17 +1647,53 @@ export async function cancelInvite(props: AcceptInviteProps) {
     }
 }
 
-export async function queryPendingInvite(receiverId: number, auth_token?: string): Promise<Invite[]> {
-    const res = await fetch.get({
-        url: `${api}/group/group-invites`,
-        data: {receiver_id: receiverId, status: 'new', auth_token}
-    })
+export async function queryInvites(props: {
+    inviteId?: number,
+    receiverId?: number,
+    groupId?: number,
+    onlyPending?: boolean}): Promise<Invite[]> {
 
-    if (res.data.result === 'error') {
-        throw new Error(res.data.message)
+    let variables = ''
+
+    if (props.inviteId) {
+        variables += `id: {_eq: "${props.inviteId}"},`
     }
 
-    return res.data.group_invites
+    if (props.receiverId) {
+        variables += `receiver_id: {_eq: "${props.receiverId}"},`
+    }
+
+    if (props.groupId) {
+        variables += `group_id: {_eq: "${props.groupId}"},`
+    }
+
+    if (props.onlyPending) {
+        variables += `status: {_eq: "sending"},`
+    }
+
+    variables = variables.replace(/,$/, '')
+
+    const doc = gql`query MyQuery {
+      group_invites(where: {${variables}}) {
+        message
+        id
+        group_id
+        role
+        receiver_id
+        created_at
+        status
+        receiver {
+          id
+          image_url
+          nickname
+          username
+        }
+      }
+    }`
+
+   const res: any = await request(graphUrl, doc)
+
+   return res.group_invites as Invite[]
 }
 
 export interface UpdateGroupProps extends Partial<Profile> {
@@ -1180,7 +1704,7 @@ export interface UpdateGroupProps extends Partial<Profile> {
 export async function updateGroup(props: UpdateGroupProps) {
     checkAuth(props)
     const res = await fetch.post({
-        url: `${api}/group/update`,
+        url: `${apiUrl}/group/update`,
         data: {...props}
     })
 
@@ -1200,7 +1724,7 @@ export interface LeaveGroupProps {
 export async function leaveGroup(props: LeaveGroupProps) {
     checkAuth(props)
     const res = await fetch.post({
-        url: `${api}/group/remove-member`,
+        url: `${apiUrl}/group/remove-member`,
         data: props
     })
 
@@ -1215,12 +1739,21 @@ export interface SearchDomainProps {
 }
 
 export async function searchDomain(props: SearchDomainProps): Promise<Profile[]> {
-    const res = await fetch.get({
-        url: `${api}/profile/search`,
-        data: props
-    })
+    const doc = gql`query MyQuery {
+      profiles(where: {username: {_gt: "${props.username}"}}, limit: 20, offset: ${(props.page - 1) * 20}) {
+        id
+        username
+        nickname
+        image_url
+      }
+    }`
 
-    return res.data.profiles
+    const res: any = await request(graphUrl, doc)
+
+    return res.profiles.map((item : any) => {
+        item.domain = item.username + process.env.NEXT_PUBLIC_SOLAS_DOMAIN!
+        return item
+    }) as Profile[]
 }
 
 export interface SearchBadgeProps {
@@ -1270,8 +1803,11 @@ export interface freezeGroupProps {
 export async function freezeGroup(props: freezeGroupProps) {
     checkAuth(props)
     const res = await fetch.post({
-        url: `${api}/group/freeze`,
-        data: props
+        url: `${apiUrl}/group/freeze`,
+        data: {
+            id: props.group_id,
+            auth_token: props.auth_token
+        }
     })
 
     if (res.data.result === 'error') {
@@ -1281,8 +1817,9 @@ export async function freezeGroup(props: freezeGroupProps) {
 
 export async function updateProfile(props: { data: Partial<Profile>, auth_token: string }) {
     checkAuth(props)
+    console.log('=====', props.data)
     const res = await fetch.post({
-        url: `${api}/profile/update`,
+        url: `${apiUrl}/profile/update`,
         data: {...props.data, auth_token: props.auth_token}
     })
 
@@ -1580,7 +2117,7 @@ export async function setEmail(props: SetEmailProps) {
     checkAuth(props)
 
     const res: any = await fetch.post({
-        url: `${api}/profile/set_verified_email`,
+        url: `${apiUrl}/profile/set_verified_email`,
         data: props
     })
 
@@ -1639,11 +2176,11 @@ interface BadgeBurnProps {
     auth_token: string
 }
 
-export async function badgeBurn(props: BadgeBurnProps): Promise<Badgelet> {
+export async function badgeletBurn(props: BadgeBurnProps): Promise<Badgelet> {
     checkAuth(props)
 
     const res = await fetch.post({
-        url: `${api}/badge/burn`,
+        url: `${apiUrl}/badgelet/burn`,
         data: {
             ...props,
         }
@@ -1706,14 +2243,16 @@ export interface Vote {
     eligibile_badge_id: number | null,
     eligibile_point_id: number | null,
     max_choice: number,
-    eligibility_strategy: 'has_group_membership' | 'has_badge' | 'badge_count',
+    eligibility: 'has_group_membership' | 'has_badge' | 'badge_count',
     status: string | null,
     result: string | null,
     voter_count: number,
     weight_count: number,
     start_time: string,
-    ending_time: string | null,
-    options: { title: string, link: string | null, id: number, weight: number }[],
+    end_time: string | null,
+    vote_options: { title: string, link: string | null, id: number, voted_weight: number }[],
+    creator: ProfileSimple,
+    group: ProfileSimple
 }
 
 export interface CreateVoteProps {
@@ -1727,9 +2266,9 @@ export interface CreateVoteProps {
     eligibile_group_id?: number | null,
     eligibile_badge_id?: number | null,
     eligibile_point_id?: number | null,
-    eligibility_strategy: 'has_group_membership' | 'has_badge' | 'badge_count',
+    eligibility: 'has_group_membership' | 'has_badge' | 'badge_count',
     start_time: string | null,
-    ending_time?: string | null,
+    end_time?: string | null,
     status?: string | null,
 }
 
@@ -1737,7 +2276,7 @@ export async function createVote(props: CreateVoteProps) {
     checkAuth(props)
 
     const res: any = await fetch.post({
-        url: `${api}/vote/create`,
+        url: `${apiUrl}/vote/create`,
         data: props
     }).catch(e => {
         throw new Error(e.response.data.message)
@@ -1759,7 +2298,7 @@ export async function updateVote(props: UpdateVoteProps) {
     checkAuth(props)
 
     const res: any = await fetch.post({
-        url: `${api}/vote/update`,
+        url: `${apiUrl}/vote/update`,
         data: props
     }).catch(e => {
         throw new Error(e.response.data.message)
@@ -1773,37 +2312,79 @@ export async function updateVote(props: UpdateVoteProps) {
 }
 
 export async function getVoteDetail(voteid: number) {
-    const res: any = await fetch.get({
-        url: `${api}/vote/get`,
-        data: {id: voteid}
-    })
-
-    if (res.data.result === 'error') {
-        throw new Error(res.data.message || 'Check in fail')
-    }
-
-    return res.data.proposal ? res.data.proposal as Vote : null
+    const res = await queryVotes({ vote_id: voteid, page: 1 })
+    return res[0] as Vote || null
 }
 
 export interface QueryVotesProps {
     group_id?: number,
     creator_id?: number,
+    vote_id?: number,
     page: number,
 }
 
 export async function queryVotes(props: QueryVotesProps) {
-    const res: any = await fetch.get({
-        url: `${api}/vote/list`,
-        data: props
-    })
+    let variables = ''
 
-    if (res.data.result === 'error') {
-        throw new Error(res.data.message || 'bind fail')
+    if (props.group_id) {
+        variables += `group_id: {_eq: "${props.group_id}"},`
     }
 
-    return res.data.proposals.filter((i: Vote) => {
-        return i.status !== 'cancelled'
-    }) as Vote[]
+    if (props.creator_id) {
+        variables += `creator_id: {_eq: "${props.creator_id}"},`
+    }
+
+    if (props.vote_id) {
+        variables += `id: {_eq: "${props.vote_id}"},`
+    }
+
+    variables = variables.slice(0, -1)
+
+
+    const doc = gql`query MyQuery {
+          vote_proposals(where: {${variables}, status: {_neq: "cancel"}}, limit: 10, offset: ${props.page * 10 - 10}, order_by: {created_at: desc}) {
+            can_update_vote
+            content
+            voter_count
+            weight_count
+            created_at
+            creator {
+              id
+              image_url
+              nickname
+              username
+            }
+            creator_id
+            eligibile_badge_id
+            eligibile_group_id
+            eligibile_point_id
+            eligibility
+            end_time
+            group {
+              id
+              image_url
+              nickname
+              username
+            }
+            group_id
+            id
+            max_choice
+            show_voters
+            start_time
+            status
+            title
+            vote_options {
+              id
+              title
+              link
+              voted_weight
+            }
+          }
+        }`
+
+    const res: any = await request(graphUrl, doc)
+
+    return res.vote_proposals as Vote[]
 }
 
 export interface VoteRecord {
@@ -1814,7 +2395,6 @@ export interface VoteRecord {
     vote_option_id: number | null,
     vote_time: string,
     vote_options: number[] | null
-    deactivated: null,
     voter: Profile,
 }
 
@@ -1825,16 +2405,39 @@ export interface QueryVoteRecordsProps {
 }
 
 export async function queryVoteRecords(props: QueryVoteRecordsProps) {
-    const res: any = await fetch.get({
-        url: `${api}/vote/records`,
-        data: props
-    })
+    let variables = ''
 
-    if (res.data.result === 'error') {
-        throw new Error(res.data.message || 'Check in fail')
+    if (props.voter_id) {
+        variables += `voter_id: {_eq: "${props.voter_id}"},`
     }
 
-    return res.data.voter_records
+    if (props.proposal_id) {
+        variables += `vote_proposal_id: {_eq: "${props.proposal_id}"},`
+    }
+
+    variables = variables.slice(0, -1)
+
+    const doc = gql`query MyQuery {
+      vote_records(
+        where: {${variables}}) {
+        created_at
+        id
+        voter {
+          id
+          image_url
+          nickname
+          username
+        }
+        voter_id
+        vote_options,
+        group_id
+        vote_proposal_id
+      }
+    }`
+
+    const res: any = await request(graphUrl, doc)
+
+    return res.vote_records as VoteRecord[]
 }
 
 export interface CastVoteProps {
@@ -1847,7 +2450,7 @@ export async function castVote(props: CastVoteProps) {
     checkAuth(props)
 
     const res: any = await fetch.post({
-        url: `${api}/vote/cast_vote`,
+        url: `${apiUrl}/vote/cast_vote`,
         data: props
     }).catch(e => {
         throw new Error(e.response.data.message)
@@ -1864,7 +2467,7 @@ export async function cancelVote(props: { id: number, auth_token: string }) {
     checkAuth(props)
 
     const res: any = await fetch.post({
-        url: `${api}/vote/cancel`,
+        url: `${apiUrl}/vote/cancel`,
         data: props
     }).catch(e => {
         throw new Error(e.response.data.message)
@@ -1881,59 +2484,36 @@ export interface CheckIsManagerProps {
 }
 
 export async function checkIsManager(props: CheckIsManagerProps): Promise<boolean> {
-    const res = await fetch.get({
-        url: `${api}/group/is-member`,
-        data: props
+    const res = await getGroupMembers({
+        group_id: props.group_id,
+        role: 'manager',
     })
 
-    if (res.data.result === 'error') {
-        throw new Error(res.data.message || 'query user activity fail')
+    if (!res) {
+        return false
     }
 
-    return res.data.is_member && res.data.role === 'group_manager'
+    return res.some((item) => {
+        return item.id === props.profile_id
+    })
 }
 
 export async function isMember(props: { profile_id: number, group_id: number }) {
-    const res = await fetch.get({
-        url: `${api}/group/is-member`,
-        data: props
-    })
-
-    if (res.data.result === 'error') {
-        throw new Error(res.data.message)
-    }
-
-    return res.data.is_member
-}
-
-export async function myProfile(props: { auth_token: string }) {
-    checkAuth(props)
-
-    const res = await fetch.get({
-        url: `${api}/profile/my_profile`,
-        data: props
-    })
-
-    if (res.data.result === 'error') {
-        throw new Error(res.data.message)
-    }
-
-    const isMaodao = process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'maodao'
-    let maodaoProfile: any = null
-    if (isMaodao && res.data.profile?.address) {
-        const maodaonft = await Alchemy.getMaodaoNft(res.data.profile?.address)
-        if (maodaonft.length) {
-            maodaoProfile = await fetch.get({
-                url: `https://metadata.readyplayerclub.com/api/rpc-fam/${maodaonft[0].id}`,
-                data: {}
-            }) as any
-            res.data.profile.nickname = maodaoProfile?.data.info.owner
-            res.data.profile.image_url = maodaoProfile?.data.image
-            res.data.profile.maodaoid = maodaonft[0].id
+    const doc = gql`query MyQuery {
+      memberships(where: {group: {id: {_eq: "${props.group_id}"}}, profile_id: {_eq: ${props.profile_id}}}) {
+        id
+        role
+        profile {
+          id
+          image_url
+          nickname
+          username
         }
-    }
+      }
+    }`
 
-    return res.data.profile as Profile
+    const resp: any = await request(graphUrl, doc)
+    return resp.memberships.length > 0
 }
 
 export interface EventSites {
@@ -1944,7 +2524,9 @@ export interface EventSites {
     "group_id": number,
     "owner_id": number,
     "created_at": string,
-    "location_details": null | string,
+    "formatted_address": null | string,
+    geo_lat: null | string,
+    geo_lng: null | string,
 }
 
 export interface Participants {
@@ -1953,46 +2535,54 @@ export interface Participants {
     created_at: string,
     message: string | null,
     profile: ProfileSimple,
+    profile_id: number,
     status: string,
     event: Event,
     role: string,
+    event_id: number,
 }
 
 export interface Event {
     id: number,
     title: string,
-    cover: string,
     content: string,
+    cover_url: string,
     tags: null | string[],
     start_time: null | string,
-    ending_time: null | string,
-    location_type: 'online' | 'offline' | 'both',
+    end_time: null | string,
     location: null | string,
     max_participant: null | number,
     min_participant: null | number,
     guests: null | string[],
     badge_id: null | number,
     host_info: null | string,
-    online_location: null | string,
+    meeting_url: null | string,
     event_site_id?: null | number,
-    event_site?: EventSites,
+    event_site : null | EventSites,
     event_type: 'event' | 'checklog',
     wechat_contact_group?: null | string,
     wechat_contact_person?: null | string,
     group_id?: null | number,
-    location_details: null | any,
-    event_owner: ProfileSimple,
+    formatted_address: null | any,
+    owner: ProfileSimple,
 
     owner_id: number,
     created_at: string,
     updated_at: string,
     category: null | string,
     status: string,
-    telegram_contact_group: null | string,
-    repeat_event_id: null | number,
+    telegram_contact_group?: null | string,
+    recurring_event_id: null | number,
+    recurring_event: null | {
+        id: number
+        interval: string
+        start_time: string
+        end_time: string
+        timezone: string
+    },
     timezone: null | string,
-    lng: null | string,
-    lat: null | string,
+    geo_lng: null | string,
+    geo_lat: null | string,
     participants: null | Participants[],
 }
 
@@ -2004,7 +2594,7 @@ export async function createEvent(props: CreateEventProps) {
     checkAuth(props)
 
     const res: any = await fetch.post({
-        url: `${api}/event/create`,
+        url: `${apiUrl}/event/create`,
         data: props
     })
 
@@ -2019,7 +2609,7 @@ export async function updateEvent(props: CreateEventProps) {
     checkAuth(props)
 
     const res: any = await fetch.post({
-        url: `${api}/event/update`,
+        url: `${apiUrl}/event/update`,
         data: props
     })
 
@@ -2031,29 +2621,134 @@ export async function updateEvent(props: CreateEventProps) {
 }
 
 export interface QueryEventProps {
+    id?: number,
     owner_id?: number,
     tag?: string,
-    date?: string,
     page: number,
     event_site_id?: number,
-    start_time_from?: number,
-    start_time_to?: number,
+    start_time_from?: string,
+    start_time_to?: string,
     group_id?: number,
-    event_order?: 'start_time_asc' | 'start_time_desc',
+    event_order?: 'asc' | 'desc',
 }
 
 
 export async function queryEvent(props: QueryEventProps): Promise<Event[]> {
-    const res: any = await fetch.get({
-        url: `${api}/event/list`,
-        data: {...props}
-    })
+    let variables = ''
 
-    if (res.data.result === 'error') {
-        throw new Error(res.data.message || 'Query event fail')
+    if (props.id) {
+        variables += `id: {_eq: ${props.id}},`
     }
 
-    return res.data.events.filter((item: any) => item.status !== 'cancel') as Event[]
+    if (props.owner_id) {
+        variables += `owner_id: {_eq: ${props.owner_id}},`
+    }
+
+    if (props.tag) {
+        variables += `tags: {_contains: "${props.tag}"}, `
+    }
+
+    if (props.event_site_id) {
+        variables += `event_site_id: {_eq: ${props.event_site_id}}, `
+    }
+
+    if (props.start_time_from && props.start_time_to) {
+        variables += `start_time: {_gte: "${props.start_time_from}"}, _and: {start_time: {_lte: "${props.start_time_to}"}}, `
+    } else if (props.start_time_from) {
+        variables += `start_time: {_gte: "${props.start_time_from}"}, `
+    } else if (props.start_time_to) {
+        variables += `start_time: {_lte: "${props.start_time_to}"}, `
+    }
+
+    if (props.group_id) {
+        variables += `group_id: {_eq: ${props.group_id}}, `
+    }
+
+    let order  = `order_by: {start_time: asc}, `
+
+    if (props.event_order) {
+        order = `order_by: {start_time: ${props.event_order}}, `
+    }
+
+
+    const doc = gql`query MyQuery {
+      events (where: {${variables}} ${order} limit: 50, offset: ${(props.page - 1) * 50}) {
+        badge_id
+        category
+        content
+        cover_url
+        created_at
+        display
+        end_time
+        event_site_id
+        event_site {
+            id
+            title
+            location
+            about
+            group_id
+            owner_id
+            created_at
+            formatted_address
+        }
+        event_type
+        formatted_address
+        location
+        owner_id
+        owner {
+            id
+            username
+            nickname
+            image_url
+        }
+        title
+        timezone
+        status
+        tags
+        start_time
+        require_approval
+        participants_count
+        max_participant
+        meeting_url
+        group_id
+        host_info
+        id
+        location_viewport
+        min_participant
+        recurring_event {
+          id
+        }
+        recurring_event_id
+        participants(where: {status: {_neq: "cancel"}}) {
+          id
+          profile_id
+          profile {
+            id
+            username
+            nickname
+            image_url
+          }
+          role
+          status
+          voucher_id
+          check_time
+          created_at
+          message
+          event {
+            id
+          }
+        }
+      }
+    }`
+
+    const resp: any = await request(graphUrl, doc)
+    return resp.events.map((item : any) => {
+        return {
+            ...item,
+            end_time: item.end_time && !item.end_time.endsWith('Z') ? item.end_time + 'Z' : item.end_time,
+            start_time: item.end_time && !item.start_time.endsWith('Z') ? item.start_time + 'Z' : item.start_time,
+        }
+    }) as Event[]
 }
 
 export interface QueryRecommendEventProps {
@@ -2075,7 +2770,7 @@ export async function queryRecommendEvent(props: QueryRecommendEventProps): Prom
     return res.data.events.filter((item: Event) => {
         const cancel = item.status === 'cancel'
         const now = new Date().getTime()
-        return new Date(item.ending_time!).getTime() >= now && !cancel
+        return new Date(item.end_time!).getTime() >= now && !cancel
     }) as Event[]
 }
 
@@ -2084,37 +2779,46 @@ export interface QueryEventDetailProps {
 }
 
 export async function queryEventDetail(props: QueryEventDetailProps) {
-    const res: any = await fetch.get({
-        url: `${api}/event/get`,
-        data: props
-    })
+   const res = await queryEvent({id: props.id, page: 1})
 
-    if (res.data.result === 'error') {
-        throw new Error(res.data.message || 'Query event fail')
-    }
-
-    return res.data.event as Event
+   return res[0] as Event || null
 }
 
 export interface QueryMyEventProps {
-    auth_token: string,
     page?: number,
-    group_id?: number,
+    profile_id?: number,
 }
 
 export async function queryMyEvent({page = 1, ...props}: QueryMyEventProps): Promise<Participants[]> {
-    checkAuth(props)
+    const doc = gql`query MyQuery {
+     participants(
+       where: {profile_id: {_eq: ${props.profile_id}}, status: {_neq: "cancel"}}
+       limit: 20
+       offset: ${page * 20 - 20}) {
+        id
+        event_id
+        status
+        message
+        check_time
+        created_at
+        role
+         event {
+          cover_url
+          content
+          end_time
+          id
+          location
+          title
+          timezone
+          owner_id
+          start_time
+          status
+        }
+      }
+    }`
 
-    const res: any = await fetch.get({
-        url: `${api}/event/my`,
-        data: {...props, page}
-    })
-
-    if (res.data.result === 'error') {
-        throw new Error(res.data.message || 'Query event fail')
-    }
-
-    return res.data.participants.filter((item: any) => item.status !== 'cancel') as Participants[]
+    const resp: any = await request(graphUrl, doc)
+    return resp.participants as Participants[]
 }
 
 export interface CancelEventProps {
@@ -2147,12 +2851,22 @@ export async function getHotTags(): Promise<string[]> {
 }
 
 export async function getEventSide(groupId?: number): Promise<EventSites[]> {
-    const res: any = await fetch.get({
-        url: `${api}/event/event_sites`,
-        data: {group_id: groupId}
-    })
+    const doc = gql`query MyQuery {
+      event_sites(where: {group_id: {_eq: ${groupId}}}) {
+        formatted_address
+        geo_lat
+        geo_lng
+        group_id
+        id
+        location
+        location_viewport
+        owner_id
+        title
+      }
+    }`
 
-    return res.data.event_sites as EventSites[]
+    const resp: any = await request(graphUrl, doc)
+    return resp.event_sites as EventSites[]
 }
 
 export interface JoinEventProps {
@@ -2163,7 +2877,7 @@ export interface JoinEventProps {
 export async function joinEvent(props: JoinEventProps) {
     checkAuth(props)
     const res: any = await fetch.post({
-        url: `${api}/event/join`,
+        url: `${apiUrl}/event/join`,
         data: props
     })
 
@@ -2177,7 +2891,7 @@ export async function joinEvent(props: JoinEventProps) {
 export async function unJoinEvent(props: JoinEventProps) {
     checkAuth(props)
     const res: any = await fetch.post({
-        url: `${api}/event/cancel`,
+        url: `${apiUrl}/event/cancel`,
         data: props
     })
 
@@ -2208,35 +2922,35 @@ interface InviteGuestProp {
 }
 
 export async function inviteGuest(props: InviteGuestProp) {
-    checkAuth(props)
-
-    const task = props.domains.map(item => {
-        const domain = item.endsWith(process.env.NEXT_PUBLIC_SOLAS_DOMAIN || '') ? item : item + (process.env.NEXT_PUBLIC_SOLAS_DOMAIN || '')
-        return getProfile({domain: item})
-    })
-
-    const profiles = await Promise.all(task).catch(e => {
-        throw e
-    })
-
-    const ids = profiles.map((item, index) => {
-        if (!item) throw new Error('Profile not found: ' + props.domains[index])
-
-        return item.id
-    })
-
-    const res = await fetch.post({
-        url: `${api}/event/invite_guest`,
-        data: {
-            target_id: ids.join(','),
-            auth_token: props.auth_token,
-            id: props.id
-        }
-    })
-
-    if (res.data.result === 'error') {
-        throw new Error(res.data.message || 'Invite fail')
-    }
+    // checkAuth(props)
+    //
+    // const task = props.domains.map((item : any) => {
+    //     const domain = item.endsWith(process.env.NEXT_PUBLIC_SOLAS_DOMAIN! || '') ? item : item + (process.env.NEXT_PUBLIC_SOLAS_DOMAIN || '')
+    //     return getProfile({username: item})
+    // })
+    //
+    // const profiles = await Promise.all(task).catch(e => {
+    //     throw e
+    // })
+    //
+    // const ids = profiles.map((item: Profile, index: number) => {
+    //     if (!item) throw new Error('Profile not found: ' + props.domains[index])
+    //
+    //     return item.id
+    // })
+    //
+    // const res = await fetch.post({
+    //     url: `${api}/event/invite_guest`,
+    //     data: {
+    //         target_id: ids.join(','),
+    //         auth_token: props.auth_token,
+    //         id: props.id
+    //     }
+    // })
+    //
+    // if (res.data.result === 'error') {
+    //     throw new Error(res.data.message || 'Invite fail')
+    // }
 }
 
 export function createSite(authToken: string) {
@@ -2260,7 +2974,7 @@ export async function setEventBadge(props: SetEventBadgeProps) {
     checkAuth(props)
 
     const res = await fetch.post({
-        url: `${api}/event/set_badge`,
+        url: `${apiUrl}/event/set_badge`,
         data: props
     })
 
@@ -2278,8 +2992,11 @@ export async function sendEventBadge(props: SendEventBadgeProps) {
     checkAuth(props)
 
     const res = await fetch.post({
-        url: `${api}/badge/send_for_event`,
-        data: props
+        url: `${apiUrl}/event/send_badge`,
+        data: {
+            id: props.event_id,
+            auth_token: props.auth_token,
+        }
     })
 
     if (res.data.result === 'error') {
@@ -2414,22 +3131,48 @@ export async function divineBeastRemerge(props: DivineBeastRmergeProps) {
 }
 
 export async function getEventGroup() {
-    const specialVersion = process.env.NEXT_PUBLIC_SPECIAL_VERSION
-    console.log('[special version]: ', specialVersion)
-
-
-    const res = await fetch.get({
-        url: `${api}/event/group_list`,
-        data: {
-            group_seven_enabled: specialVersion === '706' ? 'group_list' : undefined,
+    const doc = gql`query MyQuery {
+      groups(where: {event_enabled: {_eq: true}, status: {_neq: "freezed"}, memberships: {role: {_neq: "owner"}}}) {
+        about
+        banner_image_url
+        banner_link_url
+        banner_text
+        can_join_event
+        can_publish_event
+        can_view_event
+        created_at
+        map_enabled
+        event_enabled
+        event_tags
+        id
+        image_url
+        lens
+        location
+        nickname
+        status
+        telegram
+        twitter
+        username
+        discord
+        ens
+        memberships(where: {role: {_eq: "owner"}}) {
+          id
+          role
+          profile {
+            id
+            nickname
+            username
+            image_url
+          }
         }
+      }
+    }`
+
+    const res: any = await request(graphUrl, doc)
+    return res.groups.map((item : any) => {
+        item.creator = item.memberships[0].profile
+        return item
     })
-
-    if (res.data.result === 'error') {
-        throw new Error(res.data.message)
-    }
-
-    return res.data.groups as Group[]
 }
 
 export interface GetDateListProps {
@@ -2464,7 +3207,7 @@ export async function createEventSite(props: EditEventProps) {
     checkAuth(props)
 
     const res = await fetch.post({
-        url: `${api}/event/create_event_site`,
+        url: `${apiUrl}/event_site/create`,
         data: props
     })
 
@@ -2479,7 +3222,7 @@ export async function updateEventSite(props: EditEventProps) {
     checkAuth(props)
 
     const res = await fetch.post({
-        url: `${api}/event/update_event_site`,
+        url: `${apiUrl}/event_site/update`,
         data: props
     })
 
@@ -2489,6 +3232,25 @@ export async function updateEventSite(props: EditEventProps) {
 
     return res.data.event_site as EventSites
 }
+
+export async function removeEventSite({auth_token, id}: { auth_token: string, id: number }) {
+    checkAuth({auth_token})
+
+    const res = await fetch.post({
+        url: `${apiUrl}/event_site/remove`,
+        data: {
+            auth_token,
+            id
+        }
+    })
+
+    if (res.data.result === 'error') {
+        throw new Error(res.data.message)
+    }
+
+    // return res.data.event_site as EventSites
+}
+
 
 export async function requestPhoneCode(phone: string): Promise<void> {
     const res: any = await fetch.post({
@@ -2519,9 +3281,9 @@ export interface EventStats {
     total_issued_badges: number,
 }
 
-export async function getEventStats(props: { id: number, days: number }) {
+export async function getEventStats(props: { group_id: number, days: number }) {
     const res = await fetch.get({
-        url: `${api}/event/stats`,
+        url: `${apiUrl}/event/stats`,
         data: props
     })
 
@@ -2541,7 +3303,7 @@ export interface EventCheckInProps {
 export async function eventCheckIn(props: EventCheckInProps) {
     checkAuth(props)
     const res: any = await fetch.post({
-        url: `${api}/event/check`,
+        url: `${apiUrl}/event/check`,
         data: props
     })
 
@@ -2600,32 +3362,33 @@ export interface RepeatEventInviteProps {
 }
 
 export async function RepeatEventInvite(props: RepeatEventInviteProps) {
-    checkAuth(props)
-
-    const task = props.domains.map(item => {
-        return getProfile({domain: item})
-    })
-
-    const profiles = await Promise.all(task).catch(e => {
-        throw e
-    })
-
-    const ids = profiles.map((item, index) => {
-        if (!item) throw new Error('Profile not found: ' + props.domains[index])
-
-        return item.id
-    })
-
-    const res = await fetch.post({
-        url: `${api}/repeat_event/invite_guest`,
-        data: {...props, target_id: ids.join(',')}
-    })
-
-    if (res.data.result === 'error') {
-        throw new Error(res.data.message)
-    }
-
-    return res.data.events as Event[]
+    // checkAuth(props)
+    //
+    // const task = props.domains.map((item : any) => {
+    //     return getProfile({domain: item})
+    // })
+    //
+    // const profiles = await Promise.all(task).catch(e => {
+    //     throw e
+    // })
+    //
+    // const ids = profiles.map((item, index) => {
+    //     if (!item) throw new Error('Profile not found: ' + props.domains[index])
+    //
+    //     return item.id
+    // })
+    //
+    // const res = await fetch.post({
+    //     url: `${api}/repeat_event/invite_guest`,
+    //     data: {...props, target_id: ids.join(',')}
+    // })
+    //
+    // if (res.data.result === 'error') {
+    //     throw new Error(res.data.message)
+    // }
+    //
+    // return res.data.events as Event[]
+    return []
 }
 
 export interface RepeatEventSetBadgeProps {
@@ -2672,8 +3435,9 @@ export interface Marker {
     group_id: number,
     owner_id: number,
     owner: ProfileSimple,
-    icon_url: string,
-    cover_url: string,
+    group: ProfileSimple,
+    pin_image_url: string,
+    cover_image_url: string,
     title: string,
     category: string,
     about: string | null,
@@ -2683,9 +3447,9 @@ export interface Marker {
     status: string
     marker_type: string,
     location: string
-    location_detail: string,
-    lat: number,
-    lng: number,
+    formatted_address: string,
+    geo_lat: number,
+    geo_lng: number,
     start_time: string | null,
     end_time: string | null,
     checkins_count: number,
@@ -2709,7 +3473,7 @@ export async function createMarker(props: CreateMarkerProps) {
     }
 
     const res = await fetch.post({
-        url: `${api}/marker/create`,
+        url: `${apiUrl}/marker/create`,
         data: props
     })
 
@@ -2721,16 +3485,11 @@ export async function createMarker(props: CreateMarkerProps) {
 }
 
 export async function markerDetail(markerid: number) {
-    const res = await fetch.get({
-        url: `${api}/marker/get`,
-        data: {id: markerid}
+    const res = await queryMarkers({
+        id: markerid
     })
 
-    if (res.data.result === 'error') {
-        throw new Error(res.data.message)
-    }
-
-    return res.data.marker as Marker
+    return res[0] || null
 }
 
 export async function saveMarker(props: CreateMarkerProps) {
@@ -2761,20 +3520,84 @@ export async function queryMarkers(props: {
     with_checkins?: boolean,
     auth_token?: string,
     jubmoji?: number,
-    start_time_from?: number,
-    start_time_to?: number,
+    start_time_from?: string,
+    start_time_to?: string,
+    id?: number,
 }) {
 
-    const res = await fetch.get({
-        url: `${api}/marker/list`,
-        data: props
-    })
+    let variables = ''
 
-    if (res.data.result === 'error') {
-        throw new Error(res.data.message)
+    if (props.id) {
+        variables += `id: {_eq: ${props.id}},`
     }
 
-    return res.data.markers.filter((item: Marker) => item.status !== 'cancel') as Marker[]
+    if (props.owner_id) {
+        variables += `owner_id: {_eq: ${props.owner_id}},`
+    }
+
+    if (props.group_id) {
+        variables += `group_id: {_eq: ${props.group_id}},`
+    }
+
+    if (props.marker_type) {
+        variables += `marker_type: {_eq: "${props.marker_type}"},`
+    }
+
+    if (props.category) {
+        variables += `category: {_eq: "${props.category}"},`
+    }
+
+    if (props.jubmoji) {
+        variables += `jubmoji_code: {_eq: "${props.jubmoji}"},`
+    }
+
+    if (props.start_time_from && props.start_time_to) {
+        variables += `start_time: {_gte: "${props.start_time_from}"}, _and: {start_time: {_lte: "${props.start_time_to}"}}, `
+    } else if (props.start_time_from) {
+        variables += `start_time: {_gte: "${props.start_time_from}"}, `
+    } else if (props.start_time_to) {
+        variables += `start_time: {_lte: "${props.start_time_to}"}, `
+    }
+
+    variables = variables.slice(0, -1)
+
+    const doc = gql`
+        query MyQuery {
+          markers(where: {${variables}}) {
+            id
+            about
+            badge_id
+            category
+            cover_image_url
+            created_at
+            end_time
+            event_id
+            formatted_address
+            geo_lat
+            geo_lng
+            group_id
+            link
+            location
+            location_viewport
+            message
+            marker_type
+            owner_id
+            owner {
+                id
+                nickname
+                image_url
+                username
+            }
+            start_time
+            status
+            title
+            pin_image_url
+          }
+        }`
+
+    const res: any = await request(graphUrl, doc)
+
+    return res.markers as Marker[]
 }
 
 export interface MarkerCheckinDetail {
@@ -2846,7 +3669,7 @@ export async function getVoucherCode(props: {
 }) {
     checkAuth(props)
     const res = await fetch.get({
-        url: `${api}/voucher/get_code`,
+        url: `${apiUrl}/voucher/get_code`,
         data: props
     })
 
@@ -2859,7 +3682,7 @@ export async function getVoucherCode(props: {
 
 export async function transferGroupOwner(props: { id: number, new_owner_username: string, auth_token: string }) {
     const res = await fetch.post({
-        url: `${api}/group/transfer_owner`,
+        url: `${apiUrl}/group/transfer_owner`,
         data: props
     })
 
@@ -2919,7 +3742,7 @@ export async function zugameInfo() {
     }
 }
 
-export async function userAppliedEvent(props: {id: number, page: number, group_id?: number}) {
+export async function userAppliedEvent(props: { id: number, page: number, group_id?: number }) {
     const res = await fetch.get({
         url: `${api}/event/for_user`,
         data: props
@@ -2932,6 +3755,132 @@ export async function userAppliedEvent(props: {id: number, page: number, group_i
     return res.data.participants as Participants[]
 }
 
+export interface Voucher {
+    id: number,
+    badge: Badge,
+    group: Group | null,
+    group_id: number | null,
+    badge_id: number,
+    badge_title: string,
+    created_at: string,
+    expires_at: string | null,
+    counter: number,
+    claimed_at: string | null,
+    claimed_by_server: boolean,
+    message: string | null,
+    receiver: ProfileSimple,
+    receiver_id: number,
+    sender: ProfileSimple,
+    sender_id: number,
+    badgelet: Badgelet[]
+}
+
+export async function getPendingBadges(profile_id: number, page=1) {
+    const doc = gql`query MyQuery {
+      vouchers(where: {counter: {_neq: 0}, receiver_id: {_eq: ${profile_id}}}, limit: 20, offset: ${page * 20 - 20}) {
+        id
+        badge {
+          badge_type
+          content
+          counter
+          creator_id
+          group {
+            id
+            username
+            nickname
+            image_url
+          }
+          group_id
+          id
+          hashtags
+          image_url
+          name
+          permissions
+          title
+          transferable
+        }
+        badge_id
+        badge_title
+        created_at
+        expires_at
+        counter
+        claimed_at
+        claimed_by_server
+        message
+        receiver {
+          id
+          nickname
+          username
+          image_url
+        }
+        receiver_id
+        sender {
+          id
+          image_url
+          nickname
+          username
+        }
+        sender_id
+      }
+    }`
+
+    const res: any = await request(graphUrl, doc)
+    return res.vouchers as Voucher[]
+}
+
+export async function queryVoucherDetail (id: number) {
+    const doc = gql`query MyQuery {
+      vouchers(where: {id: {_eq: "${id}"}}) {
+        id
+        badge {
+          badge_type
+          content
+          counter
+          creator_id
+          group {
+            id
+            username
+            nickname
+            image_url
+          }
+          group_id
+          id
+          hashtags
+          image_url
+          name
+          permissions
+          title
+          transferable
+        }
+        badge_id
+        badge_title
+        created_at
+        expires_at
+        counter
+        claimed_at
+        claimed_by_server
+        message
+        receiver {
+          id
+          nickname
+          username
+          image_url
+        }
+        receiver_id
+        sender {
+          id
+          image_url
+          nickname
+          username
+        }
+        sender_id
+      }
+    }`
+
+    const res: any = await request(graphUrl, doc)
+    return res.vouchers[0] as Voucher || null
+}
+
 
 export default {
     removeMarker,
@@ -2941,7 +3890,7 @@ export default {
     createMarker,
     myProfile,
     setEmail,
-    badgeBurn,
+    badgeletBurn,
     checkIsManager,
     cancelVote,
     castVote,
@@ -2983,7 +3932,7 @@ export default {
     queryInviteDetail,
     acceptInvite,
     cancelInvite,
-    queryPendingInvite,
+    queryInvites,
     updateGroup,
     leaveGroup,
     searchDomain,
@@ -3012,5 +3961,9 @@ export default {
     queryUserActivity,
     removeManager,
     addManager,
-    getVoucherCode
+    getVoucherCode,
+    getGroups,
+    getPendingBadges,
+    queryVoucherDetail,
+    rejectVoucher
 }

@@ -1,5 +1,5 @@
 import React, {useContext, useEffect, useState} from 'react'
-import { Profile,  queryVotes, isMember} from '../../../service/solas'
+import { Profile,  queryVotes, isMember, Group} from '../../../service/solas'
 import Empty from '../../base/Empty'
 import LangContext from '../../provider/LangProvider/LangContext'
 import UserContext from '../../provider/UserProvider/UserContext'
@@ -52,7 +52,7 @@ function ListUserVote (props: ListUserPresendProps) {
     return <div className='vote-tab-list' style={{marginTop: '16px'}}>
         <div className={'title-member'} style={{marginBottom: '12px'}}>
             <div>{lang['Group_detail_tabs_Vote']}</div>
-            { (member || props.profile.group_owner_id === user.id) &&
+            { (member || (props.profile as Group).creator.id === user.id) &&
                 <div className={'action'}>
                     <div className={'create-vote-btn'} onClick={e => {
                         router.push(`/create-vote?group=${props.profile.id}`)

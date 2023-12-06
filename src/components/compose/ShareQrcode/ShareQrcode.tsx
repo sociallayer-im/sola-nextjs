@@ -33,7 +33,7 @@ function ShareQrcode(props: ShareQrcodeProp) {
                         <div className='badge-name'>{props.title || lang['Presend_Qrcode_Badge']} : {props.name}</div>
                         <div className='des'>
                             {props.isGroup ? lang['Presend_Qrcode_isGroup'] : ''}
-                            {lang['Presend_Qrcode_Des']([props.isGroup?.username || props.sender.domain?.split('.')[0], props.title || lang['Presend_Qrcode_Badge']])}</div>
+                            {lang['Presend_Qrcode_Des']([props.isGroup?.username || props.sender.username, props.title || lang['Presend_Qrcode_Badge']])}</div>
                     </div>
                 </div>
                 <div className='card-title'> {lang['Presend_Qrcode_Scan']} </div>

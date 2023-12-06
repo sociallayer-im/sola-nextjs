@@ -2,7 +2,7 @@ import {ReactNode, useContext, useEffect, useState} from 'react'
 import AppSwiper from '../../AppSwiper/AppSwiper'
 import {Delete} from 'baseui/icon'
 import LangContext from '../../../provider/LangProvider/LangContext'
-import {getProfile, Profile, Badge} from "@/service/solas";
+import {getProfile, Profile, Badge, queryGroupDetail} from "@/service/solas";
 import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
 
 export type CreateType = 'badge' | 'point' | 'nftpass' | 'private' | 'gift'
@@ -18,7 +18,7 @@ interface DialogIssuePrefillProps {
     badges: Badge[]
     handleClose: () => any
     profileId: number
-    groupName?: string
+    group_id?: number
     onSelect?: (res: BadgeBookDialogRes) => any
 }
 
@@ -37,7 +37,9 @@ function DialogIssuePrefill(props: DialogIssuePrefillProps) {
 
     const getProfileDetail = async () => {
         const unload = showLoading()
-        const profile = await getProfile(props.groupName ? {username: props.groupName} : {id: props.profileId})
+        const profile = props.group_id
+            ? await queryGroupDetail(props.group_id)
+            : await getProfile({id: props.profileId})
         unload()
         setUser(profile)
     }

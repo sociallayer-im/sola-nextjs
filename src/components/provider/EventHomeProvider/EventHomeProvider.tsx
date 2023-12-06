@@ -1,6 +1,6 @@
 import {useContext, useEffect, useState} from 'react'
 import EventHomeContext from "./EventHomeContext";
-import {checkIsManager, getEventGroup, Profile, queryUserGroup} from "@/service/solas";
+import {checkIsManager, getEventGroup, Profile, queryUserGroup, Group} from "@/service/solas";
 import UserContext from "../UserProvider/UserContext";
 import {useParams} from "next/navigation";
 import DialogsContext from "../DialogProvider/DialogsContext";
@@ -27,7 +27,7 @@ function EventHomeProvider(props: { children: any }) {
         const leadingEventGroupLogo = process.env.NEXT_PUBLIC_LEADING_EVENT_GROUP_LOGO
         console.log('leadingEventGroupIdleadingEventGroupId', leadingEventGroupId)
         if (leadingEventGroupId) {
-            const leading = eventGroup.find(g => g.id === Number(leadingEventGroupId))
+            const leading = eventGroup.find((g : any) => g.id === Number(leadingEventGroupId))
             console.log('leadingleadingleading', leading)
             if (leading) {
                 setLeadingEvent({
@@ -35,7 +35,7 @@ function EventHomeProvider(props: { children: any }) {
                     username: leading.username || '',
                     logo: leadingEventGroupLogo || null
                 })
-                const listWithoutLeading = eventGroup.filter(g => g.id !== Number(leadingEventGroupId))
+                const listWithoutLeading = eventGroup.filter((g : any) => g.id !== Number(leadingEventGroupId))
                 eventGroup = [leading, ...listWithoutLeading]
                 setEventGroups(eventGroup as Profile[])
             } else {
@@ -81,7 +81,7 @@ function EventHomeProvider(props: { children: any }) {
         async function checkManager() {
             if (user.id && selectedEventGroup) {
                 const isManager = await checkIsManager({profile_id: user.id, group_id: selectedEventGroup.id})
-                setIsManager(isManager || user.id === selectedEventGroup.group_owner_id)
+                setIsManager(isManager || user.id === (selectedEventGroup as Group).creator.id)
             } else {
                 setIsManager(false)
             }

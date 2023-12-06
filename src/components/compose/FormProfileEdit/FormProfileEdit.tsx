@@ -1,5 +1,5 @@
 import React, {useContext, useEffect, useImperativeHandle, useState} from 'react'
-import {getGroupMembers, Profile} from '../../../service/solas'
+import {getGroupMembers, Profile, Group} from '../../../service/solas'
 import UploadAvatar from '../UploadAvatar/UploadAvatar'
 import usePicture from '../../../hooks/pictrue'
 import AppInput from '../../base/AppInput'
@@ -11,6 +11,7 @@ import DialogsContext from "../../provider/DialogProvider/DialogsContext";
 import DialogManageMember from "../../base/Dialog/DialogManageMember/DialogManageMember";
 import DialogGroupManagerEdit from "../../base/Dialog/DialogGroupManagerEdit/DialogGroupManagerEdit";
 import useEvent, {EVENT} from "../../../hooks/globalEvent";
+import Toggle from "@/components/base/Toggle/Toggle";
 
 export interface ProfileEditFormProps {
     profile: Profile
@@ -31,13 +32,12 @@ function FormProfileEdit(props: ProfileEditFormProps) {
     const [members, setMembers] = useState<Profile[]>([])
     const [manager, setManager] = useState<Profile[]>([])
     const [needUpdate] = useEvent(EVENT.managerListUpdate)
-    const isGroupOwner = props.profile.group_owner_id === props.profile.id
 
     const getMember = async () => {
         const res = await getGroupMembers({group_id: props.profile.id})
         setMembers(res)
 
-        const res2 = await getGroupMembers({group_id: props.profile.id, role: 'group_manager'})
+        const res2 = await getGroupMembers({group_id: props.profile.id, role: 'manager'})
         setManager(res2)
     }
 
@@ -63,7 +63,7 @@ function FormProfileEdit(props: ProfileEditFormProps) {
 
 
     useEffect(() => {
-        if (props.profile.group_owner_id) {
+        if ((props.profile as Group).memberships) {
             getMember()
         }
         console.log('newProfile', newProfile)
@@ -75,7 +75,7 @@ function FormProfileEdit(props: ProfileEditFormProps) {
         return a
     })
 
-    const update = (key: keyof Profile, value: any) => {
+    const update = (key: keyof Profile |  keyof Group, value: any) => {
         console.log(value)
         const profile: any = {...newProfile}
         profile[key] = value
@@ -214,6 +214,38 @@ function FormProfileEdit(props: ProfileEditFormProps) {
                     <div className={'btn-extra'}>
                         <span>{members.length}</span>
                         <ArrowRight size={24}/>
+                    </div>
+                </div>
+            </div>
+        }
+
+        {
+            props.isGroup &&
+           <div className={'create-event-page'}>
+               <div className='input-area'>
+                   <div className={'toggle'}>
+                       <div className={'item-title'}>{'Enable Event'}</div>
+                       <div className={'item-value'}>
+                           <Toggle checked={(newProfile as Group).event_enabled} onChange={e => {
+                               update('event_enabled', e.target.checked)
+                           }}/>
+                       </div>
+                   </div>
+               </div>
+           </div>
+        }
+
+        {
+            props.isGroup &&
+            <div className={'create-event-page'}>
+                <div className='input-area'>
+                    <div className={'toggle'}>
+                        <div className={'item-title'}>{'Enable Map'}</div>
+                        <div className={'item-value'}>
+                            <Toggle checked={(newProfile as Group).map_enabled} onChange={e => {
+                                update('map_enabled', e.target.checked)
+                            }}/>
+                        </div>
                     </div>
                 </div>
             </div>

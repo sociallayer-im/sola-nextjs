@@ -108,7 +108,7 @@ function DetailNftpasslet(props: DetailNftpassletProps) {
                     id: props.nftpasslet.owner.id
                 })
 
-                if (ownerDetail?.is_group) {
+                if (!!(ownerDetail as any)?.creator) {
                     const isManager = await solas.checkIsManager({
                         group_id: props.nftpasslet.owner.id,
                         profile_id: user.id
@@ -125,7 +125,7 @@ function DetailNftpasslet(props: DetailNftpassletProps) {
         const unload = showLoading()
         try {
             const accept = await solas.acceptBadgelet({
-                badgelet_id: nftpasslet.id,
+                voucher_id: nftpasslet.id,
                 auth_token: user.authToken || ''
             })
 
@@ -221,7 +221,7 @@ function DetailNftpasslet(props: DetailNftpassletProps) {
                     isOwner &&
                     <DetailBadgeletMenu badgelet={nftpasslet} closeFc={props.handleClose}/>
                 }
-                slotLeft={nftpasslet.hide && <DetailBadgeletPrivateMark/>}
+                slotLeft={nftpasslet.display === 'hide' && <DetailBadgeletPrivateMark/>}
                 onClose={props.handleClose}/>
 
             <DetailCover src={nftpasslet.badge.image_url}></DetailCover>
@@ -230,7 +230,7 @@ function DetailNftpasslet(props: DetailNftpassletProps) {
             <DetailRow>
                 {!showQrcode
                     && <DetailCreator isGroup={!!nftpasslet.badge.group}
-                                      profile={nftpasslet.badge.group || nftpasslet.sender}/>
+                                      profile={nftpasslet.badge.group || nftpasslet.creator}/>
                 }
                 <DetailTransferable onClick={(e) => {
                     transfer({badgelet: props.nftpasslet})
@@ -289,19 +289,12 @@ function DetailNftpasslet(props: DetailNftpassletProps) {
                     <DetailArea
                         onClose={props.handleClose}
                         title={lang['BadgeDialog_Label_Sender']}
-                        content={nftpasslet.sender.domain
-                            ? nftpasslet.sender.domain.split('.')[0]
-                            : ''
-                        }
-                        navigate={nftpasslet.sender.domain
-                            ? `/profile/${nftpasslet.sender.domain?.split('.')[0]}`
+                        content={nftpasslet.creator.username!}
+                        navigate={nftpasslet.creator.username
+                            ? `/profile/${nftpasslet.creator.username!}`
                             : '#'}
-                        image={nftpasslet.sender.image_url || defaultAvatar(nftpasslet.sender.id)}/>
+                        image={nftpasslet.creator.image_url || defaultAvatar(nftpasslet.creator.id)}/>
 
-                    <DetailArea
-                        title={lang['BadgeDialog_Label_Token']}
-                        content={nftpasslet.domain}
-                        link={nftpasslet.chain_data ? `https://moonscan.io/tx/${nftpasslet.chain_data}` : undefined}/>
 
                     <DetailArea
                         title={lang['BadgeDialog_Label_Creat_Time']}
@@ -313,15 +306,15 @@ function DetailNftpasslet(props: DetailNftpassletProps) {
 
                 </DetailScrollBox>
                 <BtnGroup>
-                    {!user.domain && LoginBtn}
+                    {!user.userName && LoginBtn}
 
-                    {!!user.domain
+                    {!!user.userName
                         && (isOwner || isGroupManager)
                         && nftpasslet.status === 'pending'
                         && ActionBtns}
 
-                    {!!user.domain
-                        && user.id === nftpasslet.receiver.id
+                    {!!user.userName
+                        && user.id === nftpasslet.creator.id
                         && nftpasslet.status === 'accepted'
                         && (
                             <>

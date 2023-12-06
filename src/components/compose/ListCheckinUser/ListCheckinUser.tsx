@@ -11,6 +11,7 @@ interface ListCheckinUserProps {
     isHost?: boolean
     eventId: number
     editable?: boolean
+    onChecked?: (participants: Participants) => any
 }
 
 function ListCheckinUser({editable=true, ...props}: ListCheckinUserProps) {
@@ -44,6 +45,7 @@ function ListCheckinUser({editable=true, ...props}: ListCheckinUserProps) {
                 return participant
             })
             setParticipants(newParticipants)
+            props.onChecked && props.onChecked(item)
             unload()
         } catch (e: any) {
             unload()
@@ -59,7 +61,7 @@ function ListCheckinUser({editable=true, ...props}: ListCheckinUserProps) {
     const handleUnJoin = async () => {
         const a = await openConfirmDialog({
             title: lang['Activity_Unjoin_Confirm_title'],
-            confirmBtnColor: '#F64F4F!important',
+            confirmBtnColor: '#F64F4F',
             confirmTextColor: '#fff',
             confirmText: lang['Group_Member_Manage_Dialog_Confirm_Dialog_Confirm'],
             cancelText: lang['Group_Member_Manage_Dialog_Confirm_Dialog_Cancel'],
@@ -87,9 +89,9 @@ function ListCheckinUser({editable=true, ...props}: ListCheckinUserProps) {
                 const checked = item.status === 'checked' || !editable
                 return <div className={!checked ? 'user-list-item uncheck' : 'user-list-item'} key={index}>
                     <div className={'left'}
-                         onClick={e => {goToProfile(item.profile.domain?.split('.')[0]!)}}>
+                         onClick={e => {goToProfile(item.profile.username!)}}>
                         <img src={item.profile.image_url || defaultAvatar(item.profile.id)} alt=""/>
-                        {item.profile.domain?.split('.')[0]}
+                        {item.profile.username!}
                     </div>
                     <div className={'right'}>
                         {props.isHost && !checked &&

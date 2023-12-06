@@ -10,7 +10,7 @@ function ListMyAttentedEvent(props: {emptyCallBack?: () => any}) {
 
     const getMyEvent = async (page: number) => {
         if (user.authToken) {
-            const res = await queryMyEvent({auth_token: user.authToken, page})
+            const res = await queryMyEvent({profile_id: user.id!, page})
             const list =  res.map((item: Participants) => item.event)
             if (page === 1 && list.length === 0) {
                 !!props.emptyCallBack && props.emptyCallBack()

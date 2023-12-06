@@ -28,7 +28,7 @@ const meta: Meta<typeof Component> = {
             "eligibile_badge_id": null,
             "eligibile_point_id": null,
             "verification_strategy": null,
-            "eligibility_strategy": "has_group_membership",
+            "eligibility": "has_group_membership",
             "status": null,
             "result": null,
             "can_update_vote": false,

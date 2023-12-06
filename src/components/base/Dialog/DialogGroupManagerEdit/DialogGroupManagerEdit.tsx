@@ -53,7 +53,7 @@ function DialogGroupManagerEdit(props: DialogGroupManagerEditProp) {
                     const remove = await removeManager({
                         auth_token: user.authToken || '',
                         group_id: props.group.id,
-                        member_profile_id: profile_id
+                        profile_id: profile_id
                     })
                     unload()
                     const index = managers.findIndex(item => item.id === profile_id)

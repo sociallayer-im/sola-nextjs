@@ -56,7 +56,7 @@ function Issue() {
                 expires_at: data.expires_at || undefined,
             })
             unload()
-            router.push(`/issue-success?giftitem=${badgelets[0].id}`)
+            router.push(`/issue-success?voucher=${badgelets[0].id}`)
         } catch (e: any) {
             console.log('[handleCreateIssue]: ', e)
             unload()
