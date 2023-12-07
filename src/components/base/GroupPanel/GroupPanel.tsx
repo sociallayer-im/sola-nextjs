@@ -143,7 +143,7 @@ function GroupPanel(props: GroupPanelProps) {
                         </div>
                     }
                 </div>
-                { process.env.NEXT_PUBLIC_SPECIAL_VERSION!=='maodao' &&
+                { process.env.NEXT_PUBLIC_SPECIAL_VERSION!=='maodao' && false &&
                     <div className='follow' onClick={ showFollowInfo }>
                         <div><b>{ group.followers }</b> { lang['Follow_detail_followed'] } </div>
                         {/*<div> { lang['Group_detail_Join_Time'] } <b>{ group.following }</b></div>*/}
@@ -179,7 +179,7 @@ function GroupPanel(props: GroupPanelProps) {
                     }
 
                     {
-                        showFollowBtn &&
+                        showFollowBtn && false &&
                         <AppButton
                             style={{ backgroundColor: '#272928!important', color: '#fff', width: '94px'}}
                             onClick={ () => { handleFollow() } }

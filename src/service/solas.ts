@@ -1321,37 +1321,45 @@ export async function getGroupMembers(props: GetGroupMembersProps): Promise<Prof
 }
 
 export async function getFollowers(userId: number): Promise<Profile[]> {
-    // const res = await fetch.get({
-    //     url: `${api}/profile/followers`,
-    //     data: {
-    //         id: userId
-    //     }
-    // })
-    //
-    // if (res.data.result === 'error') {
-    //     throw new Error(res.data.message)
-    // }
-    //
-    // return res.data.profiles
+    const doc = gql`query MyQuery {
+      followings(where: {target_id: {_eq: ${userId}}}) {
+        target_id
+        target {
+          id
+          image_url
+          nickname
+          username
+        }
+        role
+        id
+        profile_id
+        created_at
+      }
+    }`
 
-    return []
+    const resp: any = await request(graphUrl, doc)
+    return resp.followings.map((item: any) => item.target) as Profile[]
 }
 
 export async function getFollowings(userId: number): Promise<Profile[]> {
-    // const res = await fetch.get({
-    //     url: `${api}/profile/followings`,
-    //     data: {
-    //         id: userId
-    //     }
-    // })
-    //
-    // if (res.data.result === 'error') {
-    //     throw new Error(res.data.message)
-    // }
-    //
-    // return res.data.profiles
+    const doc = gql`query MyQuery {
+      followings(where: {profile_id: {_eq: ${userId}}}) {
+        target {
+          id
+          image_url
+          nickname
+          username
+        }
+        target_id
+        role
+        id
+        profile_id
+        created_at
+      }
+    }`
 
-    return []
+    const resp: any = await request(graphUrl, doc)
+    return resp.followings.map((item: any) => item.target) as Profile[]
 }
 
 export interface IssueBatchProps {
@@ -1488,7 +1496,7 @@ interface FollowProps {
 export async function follow(props: FollowProps) {
     checkAuth(props)
     const res = await fetch.post({
-        url: `${api}/profile/follow`,
+        url: `${apiUrl}/profile/follow`,
         data: props
     })
 
@@ -1500,7 +1508,7 @@ export async function follow(props: FollowProps) {
 export async function unfollow(props: FollowProps) {
     checkAuth(props)
     const res = await fetch.post({
-        url: `${api}/profile/unfollow`,
+        url: `${apiUrl}/profile/unfollow`,
         data: props
     })
 
@@ -1779,7 +1787,7 @@ export interface SearchDomainProps {
 
 export async function searchDomain(props: SearchDomainProps): Promise<Profile[]> {
     const doc = gql`query MyQuery {
-      profiles(where: {username: {_gt: "${props.username}"}}, limit: 20, offset: ${(props.page - 1) * 20}) {
+      profiles(where: {username: {_iregex: "${props.username}"}}, limit: 20, offset: ${(props.page - 1) * 20}) {
         id
         username
         nickname
@@ -1801,16 +1809,63 @@ export interface SearchBadgeProps {
 }
 
 export async function searchBadge(props: SearchBadgeProps): Promise<Badge[]> {
-    const res = await fetch.get({
-        url: `${api}/badge/search`,
-        data: props
-    })
+    const doc = gql`query MyQuery {
+      badges(where: {title: {_iregex: "${props.title}"}}, limit: 20, offset: ${(props.page - 1) * 20}) {
+       badge_type
+        content
+        counter
+        created_at
+        creator {
+          id
+          image_url
+          nickname
+          username
+        }
+        id
+        image_url
+        name
+        title
+        transferable
+        permissions
+        badgelets(where: {status: {_neq: "rejected"}}) {
+          created_at
+          id
+          image_url
+          title
+          status
+          badge {
+            badge_type
+            content
+            counter
+            created_at
+            group_id
+            name
+            title
+            image_url
+            id
+          }
+          badge_id
+          content
+          creator {
+            id
+            nickname
+            image_url
+            username
+          }
+          owner_id
+          owner {
+            id
+            nickname
+            image_url
+            username
+          }
+        }
+      }
+    }`
 
-    if (res.data.result === 'error') {
-        throw new Error(res.data.message)
-    }
+    const res: any = await request(graphUrl, doc)
 
-    return res.data.badges
+    return res.badges as Badge[]
 }
 
 export interface QueryBadgeByHashTagProps {
@@ -1819,19 +1874,20 @@ export interface QueryBadgeByHashTagProps {
 }
 
 export async function queryBadgeByHashTag(props: QueryBadgeByHashTagProps): Promise<Badgelet[]> {
-    const res = await fetch.get({
-        url: `${api}/badgelet/list`,
-        data: props
-    })
-
-    if (res.data.result === 'error') {
-        throw new Error(res.data.message)
-    }
-
-    return res.data.badgelets
-        .filter((item: Badgelet) => {
-            return item.status !== 'rejected'
-        })
+    // const res = await fetch.get({
+    //     url: `${api}/badgelet/list`,
+    //     data: props
+    // })
+    //
+    // if (res.data.result === 'error') {
+    //     throw new Error(res.data.message)
+    // }
+    //
+    // return res.data.badgelets
+    //     .filter((item: Badgelet) => {
+    //         return item.status !== 'rejected'
+    //     })
+    return []
 }
 
 export interface freezeGroupProps {
@@ -2941,16 +2997,84 @@ export async function unJoinEvent(props: JoinEventProps) {
 }
 
 export async function searchEvent(keyword: string) {
-    const res: any = await fetch.get({
-        url: `${api}/event/search`,
-        data: {title: keyword}
-    })
+    const doc = gql`query MyQuery {
+      events (where: {title: {_iregex: "${keyword}"}}, limit: 50) {
+        badge_id
+        category
+        content
+        cover_url
+        created_at
+        display
+        end_time
+        event_site_id
+        event_site {
+            id
+            title
+            location
+            about
+            group_id
+            owner_id
+            created_at
+            formatted_address
+        }
+        event_type
+        formatted_address
+        location
+        owner_id
+        owner {
+            id
+            username
+            nickname
+            image_url
+        }
+        title
+        timezone
+        status
+        tags
+        start_time
+        require_approval
+        participants_count
+        max_participant
+        meeting_url
+        group_id
+        host_info
+        id
+        location_viewport
+        min_participant
+        recurring_event {
+          id
+        }
+        recurring_event_id
+        participants(where: {status: {_neq: "cancel"}}) {
+          id
+          profile_id
+          profile {
+            id
+            username
+            nickname
+            image_url
+          }
+          role
+          status
+          voucher_id
+          check_time
+          created_at
+          message
+          event {
+            id
+          }
+        }
+      }
+    }`
 
-    if (res.data.result === 'error') {
-        throw new Error(res.data.message || 'Join event fail')
-    }
-
-    return res.data.events.filter((item: any) => item.status !== 'cancel') as Event[]
+    const resp: any = await request(graphUrl, doc)
+    return resp.events.map((item : any) => {
+        return {
+            ...item,
+            end_time: item.end_time && !item.end_time.endsWith('Z') ? item.end_time + 'Z' : item.end_time,
+            start_time: item.end_time && !item.start_time.endsWith('Z') ? item.start_time + 'Z' : item.start_time,
+        }
+    }) as Event[]
 }
 
 interface InviteGuestProp {

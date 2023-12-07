@@ -9,12 +9,14 @@ import useEvent, {EVENT} from "@/hooks/globalEvent";
 import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
 
 export const genGoogleMapUrl = (marker: Marker) => {
-    if (marker.formatted_address && marker.location !== 'Custom location') {
-        const json = JSON.parse(marker.formatted_address)
-        return `https://www.google.com/maps/search/?api=1&query=${json.name.split('').join('+')}`
-    } else {
-        return `https://www.google.com/maps/search/?api=1&query=${marker.geo_lat}%2C${marker.geo_lng}`
-    }
+    // if (marker.formatted_address && marker.location !== 'Custom location') {
+    //     const json = JSON.parse(marker.formatted_address)
+    //     return `https://www.google.com/maps/search/?api=1&query=${json.name.split('').join('+')}`
+    // } else {
+    //     return `https://www.google.com/maps/search/?api=1&query=${marker.geo_lat}%2C${marker.geo_lng}`
+    // }
+
+    return `https://www.google.com/maps/search/?api=1&query=${marker.geo_lat}%2C${marker.geo_lng}`
 }
 
 function CardMarker(props: { item: Marker, participants?: Participants[], isActive?: boolean}){

@@ -252,7 +252,7 @@ function EventDetail(props: {event: Event | null, appName: string, host: string}
 
     const genGoogleMapUrl = (location_detail: string) => {
         const json = JSON.parse(location_detail)
-        return `https://www.google.com/maps/search/?api=1&query=${json.name.split('').join('+')}`
+        return `https://www.google.com/maps/search/?api=1&query=${json.geometry.location.lat}%2C${json.geometry.location.lng}`
     }
 
     return (<>

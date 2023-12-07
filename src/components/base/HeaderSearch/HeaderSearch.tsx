@@ -43,6 +43,7 @@ function HeaderSearch(props: HeaderSearchProps) {
         <AppInput
             autoFocus={ true }
             value={ keyword }
+            onKeyUp={ (e) => { if (e.keyCode === 13) { onConfirm() } } }
             endEnhancer={ () => ConfirmBtn }
             onChange={ (e) => { setKeyword(e.target.value) } }
         />

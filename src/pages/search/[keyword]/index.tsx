@@ -25,9 +25,6 @@ function SearchPage() {
             <Tab key='badge' title={ lang['Search_Tab_Badge'] }>
                 <ListSearchResultBadge keyword={ keyword as string}/>
             </Tab>
-            <Tab key='hashtag' title={ lang['Search_Tab_Tag'] }>
-                <ListSearchResultBadgelet keyword={ params?.keyword as string } />
-            </Tab>
             <Tab key='event' title={ lang['Search_Tab_Event'] }>
                 <ListSearchResultEvent keyword={ params?.keyword as string } />
             </Tab>

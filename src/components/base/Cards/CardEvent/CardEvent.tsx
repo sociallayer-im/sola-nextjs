@@ -98,7 +98,7 @@ function CardEvent({fixed=true, ...props}: CardEventProps) {
                         </div>
                     }
 
-                    {!!eventDetail.location &&
+                    {!!eventDetail.location && !eventDetail.event_site &&
                         <div className={'detail'}>
                             <i className={'icon-Outline'}/>
                             <span>{eventDetail.location}</span>

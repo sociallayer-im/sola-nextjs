@@ -3,6 +3,7 @@ import en from "./en"
 
 export enum LangType {
     cn='cn',
+    th='th',
     en='en'
 }
 

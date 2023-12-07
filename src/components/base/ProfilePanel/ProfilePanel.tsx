@@ -32,6 +32,8 @@ function ProfilePanel(props: ProfilePanelProps) {
     const [showFollowBtn, setShowFollowBtn] = useState(false)
     const [showUnFollowBtn, setShowUnFollowBtn] = useState(false)
     const { copyWithDialog } = useCopy()
+    const [followers, setFollower] = useState<Profile[]>([])
+    const [following, setFollowing] = useState<Profile[]>([])
 
     useEffect(() => {
         if (newProfile && newProfile.id === profile.id) {
@@ -59,10 +61,17 @@ function ProfilePanel(props: ProfilePanelProps) {
 
             setShowFollowBtn(!isFollower && user.id !== props.profile.id)
             setShowUnFollowBtn(!!isFollower)
+            setFollower(follower)
             return !!isFollower
         }
 
+        async function getFollowing () {
+            const followings = await solas.getFollowings(props.profile.id)
+            setFollowing(followings)
+        }
+
         checkFollow()
+        getFollowing()
     }, [user.id, profile.id])
 
     const DialogContent= styled('div', () => {
@@ -181,8 +190,8 @@ function ProfilePanel(props: ProfilePanelProps) {
                 </div>
                 {!isMaodao &&
                         <div className='follow' onClick={ showFollowInfo }>
-                        <div><b>{ profile.followers }</b> { lang['Follow_detail_followed'] } </div>
-                        <div><b>{ profile.following }</b> { lang['Follow_detail_following'] } </div>
+                        <div><b>{ followers.length }</b> { lang['Follow_detail_followed'] } </div>
+                        <div><b>{ following.length }</b> { lang['Follow_detail_following'] } </div>
                     </div>
                 }
                 { !!props.profile.location &&
