@@ -802,6 +802,13 @@ function CreateEvent(props: CreateEventPageProps) {
             const unloading = showLoading(true)
             try {
                 const newEvent = await updateEvent(saveProps)
+                if (saveProps.badge_id) {
+                    const setBadge = await setEventBadge({
+                        id: saveProps.id,
+                        badge_id: saveProps.badge_id,
+                        auth_token: user.authToken || ''
+                    })
+                }
                 unloading()
                 if (redirect) {
                     showToast('update success')
