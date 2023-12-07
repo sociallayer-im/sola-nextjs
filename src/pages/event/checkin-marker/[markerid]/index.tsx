@@ -54,7 +54,7 @@ function MarkerCheckIn() {
                 setHoster(profile)
                 const records = await markersCheckinList({id: Number(params?.markerid)})
                 setCheckins(records)
-                const checkin = records.find(item => item.creator.id === user.id)
+                const checkin = records.find(item => item.profile.id === user.id)
                 setIsJoin(!!checkin)
 
                 unload()
@@ -133,8 +133,8 @@ function MarkerCheckIn() {
                                                     goToProfile(item.creator.domain!.split('.')[0]!)
                                                 }}>
                                         <div className={'left'}>
-                                            <img src={item.creator.image_url || defaultAvatar(item.creator.id)} alt=""/>
-                                            {item.creator.domain!.split('.')[0]}
+                                            <img src={item.profile.image_url || defaultAvatar(item.creator.id)} alt=""/>
+                                            {item.profile.username}
                                         </div>
                                         <div className={'right'}>
                                             {formatTime(item.created_at)}

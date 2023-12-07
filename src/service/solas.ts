@@ -1856,7 +1856,6 @@ export async function freezeGroup(props: freezeGroupProps) {
 
 export async function updateProfile(props: { data: Partial<Profile>, auth_token: string }) {
     checkAuth(props)
-    console.log('=====', props.data)
     const res = await fetch.post({
         url: `${apiUrl}/profile/update`,
         data: {...props.data, auth_token: props.auth_token}
@@ -3491,8 +3490,8 @@ export interface Marker {
     geo_lng: number,
     start_time: string | null,
     end_time: string | null,
-    checkins_count: number,
-    checkin?: MarkerCheckinDetail | undefined,
+    map_checkins_count: number,
+    map_checkins?: MarkerCheckinDetail[] | undefined,
     event_id: number | null,
     host_info: string | null
     jubmoji_code?: string | null,
@@ -3631,52 +3630,103 @@ export async function queryMarkers(props: {
             status
             title
             pin_image_url
+            map_checkins_count
+            map_checkins {
+              profile_id
+               badgelet_id
+               check_type
+               content
+               created_at
+               id
+               image_url
+               marker_id
+           }
           }
         }`
 
     const res: any = await request(graphUrl, doc)
-
     return res.markers as Marker[]
 }
 
 export interface MarkerCheckinDetail {
     creator: ProfileSimple,
     profile_id: number
+    profile: ProfileSimple,
     marker: Marker,
     badgelet_id: number | null,
-    reaction_type: string,
+    check_type: string,
     content: string | null,
     image_url: string | null,
     created_at: string,
     zugame_team: string | null,
 }
 
-export async function markersCheckinList(props: {
+export async function markersCheckinList({page=1, ...props}: {
     id?: number,
     page?: number,
 }) {
-    const res = await fetch.get({
-        url: `${api}/marker/list_checkins`,
-        data: props
-    })
+    const doc = gql`query MyQuery {
+      map_checkins(where: {marker_id: {_eq: ${props.id}}}, limit: 50, offset: ${(page - 1) * 50}, order_by: {created_at: desc}){
+        profile {
+          id
+          image_url
+          nickname
+          username
+        }
+        profile_id
+        badgelet_id
+        check_type
+        content
+        created_at
+        id
+        image_url
+        marker_id
+        marker {
+          about
+          geo_lat
+          geo_lng
+          formatted_address
+          event_id
+          end_time
+          created_at
+          cover_image_url
+          category
+          badge_id
+          group_id
+          highlight
+          id
+          link
+          location
+          location_viewport
+          marker_state
+          marker_type
+          message
+          map_checkins_count
+          owner_id
+          pin_image_url
+          start_time
+          status
+          title
+          voucher_id
+        }
+      }
+    }`
 
-    if (res.data.result === 'error') {
-        throw new Error(res.data.message)
-    }
+    const res: any = await request(graphUrl, doc)
 
-    return res.data.map_checkins as MarkerCheckinDetail[]
+    return res.map_checkins as MarkerCheckinDetail[]
 }
 
 export async function markerCheckin(props: {
     auth_token: string,
     id?: number,
-    reaction_type: string
+    check_type: string
     badgelet_id?: number,
 }) {
 
     checkAuth(props)
     const res = await fetch.post({
-        url: `${api}/marker/check`,
+        url: `${apiUrl}/marker/check`,
         data: props
     })
 

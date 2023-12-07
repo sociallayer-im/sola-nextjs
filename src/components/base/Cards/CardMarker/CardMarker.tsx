@@ -22,7 +22,7 @@ function CardMarker(props: { item: Marker, participants?: Participants[], isActi
     const {defaultAvatar} = usePicture()
     const {user} = useContext(userContext)
     const {scanQrcode} = useMarkerCheckIn()
-    const [hasCheckin, setHasCheckin] = useState(!!props.item.checkin)
+    const [hasCheckin, setHasCheckin] = useState(!!props.item.map_checkins?.some(item => item.profile_id === user.id))
     const [hasJoin, setHasJoin] = useState(false)
     const [_, showFollowGuide] = useEvent(EVENT.showFollowGuide)
     const {showToast, showLoading} = useContext(DialogsContext)
@@ -114,9 +114,9 @@ function CardMarker(props: { item: Marker, participants?: Participants[], isActi
                     </a>
                 }
                 {
-                    props.item.checkins_count > 0 &&
+                    props.item.map_checkins_count > 0 &&
                     <div className={styles['detail']}>
-                        <span>{` ${props.item.checkins_count} people checked in`}</span>
+                        <span>{` ${props.item.map_checkins_count} people checked in`}</span>
                     </div>
                 }
             </div>

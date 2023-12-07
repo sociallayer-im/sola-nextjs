@@ -2,7 +2,15 @@ import {createRef, useContext, useEffect, useRef, useState} from 'react'
 import styles from './map.module.scss'
 import MapContext from "@/components/provider/MapProvider/MapContext";
 import EventHomeContext from "@/components/provider/EventHomeProvider/EventHomeContext";
-import {Event, Marker, markersCheckinList, Participants, queryMarkers, queryMyEvent} from "@/service/solas";
+import {
+    Event,
+    Marker,
+    MarkerCheckinDetail,
+    markersCheckinList,
+    Participants,
+    queryMarkers,
+    queryMyEvent
+} from "@/service/solas";
 import {Swiper, SwiperSlide} from 'swiper/react'
 import {Mousewheel, Virtual} from 'swiper'
 import CardMarker from "@/components/base/Cards/CardMarker/CardMarker";
@@ -79,6 +87,7 @@ function ComponentName(props: { markerType: string | null }) {
                 with_checkins: user.authToken ? true : undefined,
                 auth_token: user.authToken ? user.authToken : undefined,
             })
+
         } else {
             res = await queryMarkers({
                 category: selectedType!,
@@ -164,7 +173,7 @@ function ComponentName(props: { markerType: string | null }) {
                             : markersList[0].zugame_state === 'c' ?
                                 (markerTypeList as any)['Zugame'].split('#')[3]
                                 : (markerTypeList as any)['Zugame'].split('#')[0]
-                    : markersList[0].checkin
+                    : markersList[0].map_checkins?.some((checkin : MarkerCheckinDetail) => checkin.profile_id === user.id)
                         ? (markerTypeList as any)[category]?.split('#')[1] || (markerTypeList as any)['Vision Spot'].split('#')[0]
                         : (markerTypeList as any)[category]?.split('#')[0] || (markerTypeList as any)['Vision Spot'].split('#')[0]
                 content.setAttribute('src', iconUrl)
@@ -181,7 +190,6 @@ function ComponentName(props: { markerType: string | null }) {
 
         // 绘制详情
         markersGrouped.map((markerList, index) => {
-            console.log('markerList====', markerList)
             if (markerList.length === 1) {
                 const eventMarker = document.createElement('div');
                 eventMarker.className = index === 0 ? 'event-map-marker active' : 'event-map-marker'
@@ -359,7 +367,7 @@ function ComponentName(props: { markerType: string | null }) {
             <GameMenu/>
         }
 
-        {(process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'zumap') &&
+        {true &&
             <div className={styles['top-menu']}>
                 <div className={styles['menu-item']} onClick={() => {
                     if (!user.id) {

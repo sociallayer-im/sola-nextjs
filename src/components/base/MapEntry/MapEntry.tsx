@@ -36,8 +36,7 @@ function MapEntry() {
         <>
             {MapReady
                 && process.env.NEXT_PUBLIC_SPECIAL_VERSION !== 'maodao'
-                && (eventGroup as Group)?.map_enabled
-                && (pathname?.includes('map') || pathname?.includes('event')) &&
+                && (eventGroup as Group)?.map_enabled &&
                 <Link href={`/event/${eventGroup!.username}/map/`} className={`${styles['map-entry']} ${selected ? styles['map-entry-active'] : ''}`}>
                     <i className={`icon-location`}></i>
                    {isMobile ? '' : <span className={styles.text}>Map</span>}
