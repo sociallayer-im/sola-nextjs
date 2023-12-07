@@ -53,7 +53,7 @@ function Subscriber() {
             });
 
             subscriptionInvite = wsClient.subscribe({
-                    query: `subscription { ${inviteSchema({receiverId: user.id!})} }`,
+                    query: `subscription { ${inviteSchema({receiverId: user.id!, onlyPending: true})} }`,
                 },
                 {
                     next: (event: any) => {
