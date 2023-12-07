@@ -43,6 +43,7 @@
     "dplayer": "^1.27.1",
     "ethers": "^5",
     "graphql-request": "^6.1.0",
+    "graphql-ws": "^5.14.2",
     "hls.js": "^1.4.8",
     "html2canvas": "^1.4.1",
     "js-sha256": "^0.10.1",

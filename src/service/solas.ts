@@ -9,6 +9,149 @@ const graphUrl = process.env.NEXT_PUBLIC_GRAPH!
 
 export type BadgeType = 'badge' | 'nftpass' | 'nft' | 'private' | 'gift'
 
+export const voucherSchema = (props: QueryPresendProps) => {
+    let variables = ''
+
+    if (props.sender_id) {
+        variables += `sender_id: {_eq: ${props.sender_id}},`
+    }
+
+    if (props.group_id) {
+        variables += `badge: {group_id: {_eq: ${props.group_id}}},`
+    }
+
+    if (props.id) {
+        variables += `id: {_eq: ${props.id}},`
+    }
+
+    if (props.receiver_id) {
+        variables += `receiver_id: {_eq: ${props.receiver_id}},`
+    }
+
+    return gql`vouchers(where: {counter: {_neq: 0}, ${variables}} limit: 20, offset: ${props.page * 20 - 20}, order_by: {created_at: desc}) {
+        id
+        badgelets {
+          badge_id
+          content
+          id
+          image_url
+          owner {
+            id
+            image_url
+            nickname
+            username
+          }
+          owner_id
+          title
+          value
+          badge {
+            creator {
+              id
+              image_url
+              nickname
+              username
+            }
+            group_id
+            id
+            title
+            image_url
+            name
+            creator_id
+            badge_type
+            content
+          }
+        }
+        badge {
+          badge_type
+          content
+          counter
+          creator_id
+          group {
+            id
+            username
+            nickname
+            image_url
+          }
+          group_id
+          id
+          hashtags
+          image_url
+          name
+          permissions
+          title
+          transferable
+        }
+        badge_id
+        badge_title
+        created_at
+        expires_at
+        counter
+        claimed_at
+        claimed_by_server
+        message
+        receiver {
+          id
+          nickname
+          username
+          image_url
+        }
+        receiver_id
+        sender {
+          id
+          image_url
+          nickname
+          username
+        }
+        sender_id
+      }`
+}
+
+export const inviteSchema = (props: {
+    inviteId?: number,
+    receiverId?: number,
+    groupId?: number,
+    onlyPending?: boolean}) => {
+
+    let variables = ''
+
+    if (props.inviteId) {
+        variables += `id: {_eq: "${props.inviteId}"},`
+    }
+
+    if (props.receiverId) {
+        variables += `receiver_id: {_eq: "${props.receiverId}"},`
+    }
+
+    if (props.groupId) {
+        variables += `group_id: {_eq: "${props.groupId}"},`
+    }
+
+    if (props.onlyPending) {
+        variables += `status: {_eq: "sending"},`
+    }
+
+    variables = variables.replace(/,$/, '')
+
+
+    return `group_invites(where: {${variables}}) {
+        message
+        id
+        group_id
+        role
+        receiver_id
+        created_at
+        status
+        receiver {
+            id
+            image_url
+            nickname
+            username
+        }
+    }`
+}
+
+
+
 interface AuthProp {
     auth_token: string
 }
@@ -578,103 +721,13 @@ interface QueryPresendProps {
     page: number,
     group_id?: number,
     id?: number
+    receiver_id?: number
 }
 
 export interface Presend extends Voucher {}
 
 export async function queryPresend(props: QueryPresendProps): Promise<Presend[]> {
-    let variables = ''
-
-    if (props.sender_id) {
-        variables += `sender_id: {_eq: ${props.sender_id}},`
-    }
-
-    if (props.group_id) {
-        variables += `badge: {group_id: {_eq: ${props.group_id}}},`
-    }
-
-    if (props.id) {
-        variables += `id: {_eq: ${props.id}},`
-    }
-
-    const doc = gql`query MyQuery {
-      vouchers(where: {counter: {_neq: 0}, ${variables}} limit: 20, offset: ${props.page * 20 - 20}) {
-        id
-        badgelets {
-          badge_id
-          content
-          id
-          image_url
-          owner {
-            id
-            image_url
-            nickname
-            username
-          }
-          owner_id
-          title
-          value
-          badge {
-            creator {
-              id
-              image_url
-              nickname
-              username
-            }
-            group_id
-            id
-            title
-            image_url
-            name
-            creator_id
-            badge_type
-            content
-          }
-        }
-        badge {
-          badge_type
-          content
-          counter
-          creator_id
-          group {
-            id
-            username
-            nickname
-            image_url
-          }
-          group_id
-          id
-          hashtags
-          image_url
-          name
-          permissions
-          title
-          transferable
-        }
-        badge_id
-        badge_title
-        created_at
-        expires_at
-        counter
-        claimed_at
-        claimed_by_server
-        message
-        receiver {
-          id
-          nickname
-          username
-          image_url
-        }
-        receiver_id
-        sender {
-          id
-          image_url
-          nickname
-          username
-        }
-        sender_id
-      }
-    }`
+    const doc = `query MyQuery {${voucherSchema(props)}}`
 
     const res: any = await request(graphUrl, doc)
     return res.vouchers as Voucher[]
@@ -1674,21 +1727,7 @@ export async function queryInvites(props: {
     variables = variables.replace(/,$/, '')
 
     const doc = gql`query MyQuery {
-      group_invites(where: {${variables}}) {
-        message
-        id
-        group_id
-        role
-        receiver_id
-        created_at
-        status
-        receiver {
-          id
-          image_url
-          nickname
-          username
-        }
-      }
+        ${inviteSchema(props)}
     }`
 
    const res: any = await request(graphUrl, doc)
@@ -3776,53 +3815,7 @@ export interface Voucher {
 }
 
 export async function getPendingBadges(profile_id: number, page=1) {
-    const doc = gql`query MyQuery {
-      vouchers(where: {counter: {_neq: 0}, receiver_id: {_eq: ${profile_id}}}, limit: 20, offset: ${page * 20 - 20}) {
-        id
-        badge {
-          badge_type
-          content
-          counter
-          creator_id
-          group {
-            id
-            username
-            nickname
-            image_url
-          }
-          group_id
-          id
-          hashtags
-          image_url
-          name
-          permissions
-          title
-          transferable
-        }
-        badge_id
-        badge_title
-        created_at
-        expires_at
-        counter
-        claimed_at
-        claimed_by_server
-        message
-        receiver {
-          id
-          nickname
-          username
-          image_url
-        }
-        receiver_id
-        sender {
-          id
-          image_url
-          nickname
-          username
-        }
-        sender_id
-      }
-    }`
+    const doc = `query MyQuery {${voucherSchema({receiver_id: profile_id, page})}}`
 
     const res: any = await request(graphUrl, doc)
     return res.vouchers as Voucher[]
