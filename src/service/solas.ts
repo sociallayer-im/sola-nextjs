@@ -2768,6 +2768,8 @@ export async function queryEvent(props: QueryEventProps): Promise<Event[]> {
     const doc = gql`query MyQuery {
       events (where: {${variables}} ${order} limit: 50, offset: ${(props.page - 1) * 50}) {
         badge_id
+        geo_lat
+        geo_lng
         category
         content
         cover_url
@@ -3000,6 +3002,8 @@ export async function searchEvent(keyword: string) {
     const doc = gql`query MyQuery {
       events (where: {title: {_iregex: "${keyword}"}}, limit: 50) {
         badge_id
+        geo_lat
+        geo_lng
         category
         content
         cover_url
