@@ -59,7 +59,15 @@ const config = createConfig({
     ],
 })
 
-function MyApp({Component, pageProps}: any) {
+function MyApp({Component, pageProps, ...props}: any) {
+    console.log('contextcontext', props)
+
+    function DisplayLay  (params: {children: any}) {
+       return  props.router.pathname.includes('/wamao')
+            ? <div className={'light'} style={{width: '100vw', height: '100vh'}}>{params.children}</div>
+            : <Layout>{params.children}</Layout>
+    }
+
     return (
         <PageBacProvider>
             <Head>
@@ -84,12 +92,12 @@ function MyApp({Component, pageProps}: any) {
                                         <DialogProvider>
                                             <MapProvider>
                                                 <EventHomeProvider>
-                                                    <Layout>
+                                                    <DisplayLay>
                                                         <NextNProgress options={{showSpinner: false}}/>
                                                         <Component {...pageProps} />
                                                         <Subscriber/>
                                                         <Analytics/>
-                                                    </Layout>
+                                                    </DisplayLay>
                                                 </EventHomeProvider>
                                             </MapProvider>
                                         </DialogProvider>
