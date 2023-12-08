@@ -376,7 +376,7 @@ function ComponentName(props: { markerType: string | null, eventGroup: Group} ) 
                     const isSelected = selectedType === item
                     return <div key={index}
                                 onClick={() => {
-                                    router.push(`/wamao/map?type=${item}`)
+                                    router.push(`/wamo/map?type=${item}`)
                                 }}
                                 className={`${styles['menu-item']} ${isSelected ? styles['menu-item-active'] : ''}`}>{item}</div>
                 })
