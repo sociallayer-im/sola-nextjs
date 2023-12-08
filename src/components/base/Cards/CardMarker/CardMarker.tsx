@@ -19,7 +19,7 @@ export const genGoogleMapUrl = (marker: Marker) => {
     return `https://www.google.com/maps/search/?api=1&query=${marker.geo_lat}%2C${marker.geo_lng}`
 }
 
-function CardMarker(props: { item: Marker, participants?: Participants[], isActive?: boolean}){
+function CardMarker(props: { item: Marker, participants?: Participants[], isActive?: boolean, target?: string }) {
     const router = useRouter()
     const {defaultAvatar} = usePicture()
     const {user} = useContext(userContext)
@@ -31,7 +31,7 @@ function CardMarker(props: { item: Marker, participants?: Participants[], isActi
     const [groupHost, setGroupHost] = useState<Profile | null>(null)
 
     const showBg = typeof window !== 'undefined'
-        && process.env.NEXT_PUBLIC_SPECIAL_VERSION==='zumap'
+        && process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'zumap'
         && props.isActive
 
     const handleJoin = async (e: any) => {
@@ -74,14 +74,27 @@ function CardMarker(props: { item: Marker, participants?: Participants[], isActi
         }
     }, [props.item.host_info])
 
+   function CardWrapper (wrapperProps: { children: any}) {
+        const href = props.item.marker_type === 'event'
+            ? `/event/detail/${props.item.event_id}`
+            : `/event/detail-marker/${props.item.id}`
 
-    return (<div className={showBg ? styles['marker-card-bg'] : styles['marker-card']} onClick={e => {
-        if (props.item.marker_type === 'event') {
-            router.push(`/event/detail/${props.item.event_id}`)
-        } else {
-            router.push(`/event/detail-marker/${props.item.id}`)
-        }
-    }}>
+        return props.target === '_blank'
+            ? <a href={href}
+                 className={showBg ? styles['marker-card-bg'] : styles['marker-card']} target={'_blank'}
+            >{wrapperProps.children}
+            </a>
+            : <div
+                onClick={e => {
+                    router.push(href)
+                }}
+                className={showBg ? styles['marker-card-bg'] : styles['marker-card']}>
+                {wrapperProps.children}
+            </div>
+    }
+
+
+    return (<CardWrapper>
         <div className={styles['left']}>
             <div className={styles['title']}>{props.item.title}</div>
             <div className={styles['des']}>{props.item.about}</div>
@@ -103,7 +116,9 @@ function CardMarker(props: { item: Marker, participants?: Participants[], isActi
             <div className={styles['info']}>
                 {props.item.location &&
                     <a className={styles['detail']}
-                       onClick={e => {e.stopPropagation()}}
+                       onClick={e => {
+                           e.stopPropagation()
+                       }}
                        href={genGoogleMapUrl(props.item)} target={'_blank'}>
                         <i className={`icon-Outline ${styles.icon}`}/>
                         <span>{props.item.location}</span>
@@ -188,7 +203,7 @@ function CardMarker(props: { item: Marker, participants?: Participants[], isActi
                 </>
             }
         </div>
-    </div>)
+    </CardWrapper>)
 }
 
 export default CardMarker

@@ -407,6 +407,7 @@ function ComponentName(props: { markerType: string | null, eventGroup: Group} ) 
                         {markers.map((data, index) => {
                             return <SwiperSlide style={{width: `${itemWidth}px`}} key={index}>
                                 <CardMarker
+                                    target={'_blank'}
                                     isActive={currSwiperIndex === index}
                                     item={data} key={data.id} participants={participants}/>
                             </SwiperSlide>

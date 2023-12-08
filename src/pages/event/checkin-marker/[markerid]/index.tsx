@@ -130,10 +130,10 @@ function MarkerCheckIn() {
                                 checkins.map((item, index) => {
                                     return <div key={index} className={'user-list-item'}
                                                 onClick={e => {
-                                                    goToProfile(item.creator.domain!.split('.')[0]!)
+                                                    goToProfile(item.profile.username!)
                                                 }}>
                                         <div className={'left'}>
-                                            <img src={item.profile.image_url || defaultAvatar(item.creator.id)} alt=""/>
+                                            <img src={item.profile.image_url || defaultAvatar(item.profile.id)} alt=""/>
                                             {item.profile.username}
                                         </div>
                                         <div className={'right'}>

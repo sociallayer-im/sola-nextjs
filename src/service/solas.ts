@@ -3773,7 +3773,6 @@ export async function queryMarkers(props: {
 }
 
 export interface MarkerCheckinDetail {
-    creator: ProfileSimple,
     profile_id: number
     profile: ProfileSimple,
     marker: Marker,

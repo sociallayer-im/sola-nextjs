@@ -69,7 +69,7 @@ function EventDetail() {
 
             const records = await markersCheckinList({id: Number(params?.markerid)})
             setCheckins(records)
-            const checkin = records.find(item => item.creator.id === user.id)
+            const checkin = records.find(item => item.profile.id === user.id)
             setIsJoined(!!checkin)
 
             const now = new Date().getTime()
@@ -117,7 +117,7 @@ function EventDetail() {
 
     async function checkHasCheckin() {
         if (!user.id) return false
-        const target = checkins.find(item => item.creator.id === user.id)
+        const target = checkins.find(item => item.profile.id === user.id)
         setIsJoined(!!target)
     }
 
@@ -292,13 +292,13 @@ function EventDetail() {
                                                 checkins.map((item, index) => {
                                                     return <div key={index} className={'user-list-item'}
                                                                 onClick={e => {
-                                                                    goToProfile(item.creator.username!)
+                                                                    goToProfile(item.profile.username!)
                                                                 }}>
                                                         <div className={'left'}>
                                                             <img
-                                                                src={item.creator.image_url || defaultAvatar(item.creator.id)}
+                                                                src={item.profile.image_url || defaultAvatar(item.profile.id)}
                                                                 alt=""/>
-                                                            {item.creator.username}
+                                                            {item.profile.username}
                                                         </div>
                                                         <div className={'right'}>
                                                             {formatTime(item.created_at)}

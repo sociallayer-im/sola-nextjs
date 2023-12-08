@@ -60,7 +60,6 @@ const config = createConfig({
 })
 
 function MyApp({Component, pageProps, ...props}: any) {
-    console.log('contextcontext', props)
 
     function DisplayLay  (params: {children: any}) {
        return  props.router.pathname.includes('/wamo/')
