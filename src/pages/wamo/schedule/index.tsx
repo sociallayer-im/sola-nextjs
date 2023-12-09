@@ -137,12 +137,12 @@ function ComponentName(props: { group: Group }) {
                 target!.scrollLeft = offset
             }
 
-            const offsetTop = e.target.scrollTop
-            if (offsetTop > 0) {
-                (window.document.querySelector('.schedule-head') as any)!.style.height = '0'
-            } else {
-                (window.document.querySelector('.schedule-head') as any)!.style.height = '194px'
-            }
+            // const offsetTop = e.target.scrollTop
+            // if (offsetTop > 0) {
+            //     (window.document.querySelector('.schedule-head') as any)!.style.height = '0'
+            // } else {
+            //     (window.document.querySelector('.schedule-head') as any)!.style.height = '194px'
+            // }
         }
 
         if(scroll1Ref.current && scroll2Ref.current) {
