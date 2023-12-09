@@ -6,6 +6,11 @@
     pointer-events: none;
   }
 
+  &.nowrap {
+    flex-flow: row nowrap;
+    overflow: auto;
+  }
+
   .event-label-item {
     border-radius: 8px;
     border: 1px solid var(--color-item-border);

@@ -10,6 +10,7 @@ export interface EventLabelsProps {
     single?: boolean,
     showRecommend?: boolean,
     showAll?: boolean,
+    nowrap?: boolean,
 }
 
 function EventLabels({showAll=false, ...props}: EventLabelsProps) {
@@ -20,7 +21,9 @@ function EventLabels({showAll=false, ...props}: EventLabelsProps) {
         list = list.filter(item => item !== 'Recommended')
     }
 
-    return (<div className={props.disabled ? 'event-label-list disabled': 'event-label-list'}>
+    const className = props.nowrap ? 'event-label-list nowrap' : 'event-label-list'
+
+    return (<div className={props.disabled ? `${className} disabled`: className}>
         { showAll &&
             <div
                 onClick={() => {

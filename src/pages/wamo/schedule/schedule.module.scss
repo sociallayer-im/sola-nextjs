@@ -4,6 +4,7 @@
   background: #CED8FF;
   display: flex;
   flex-flow: column nowrap;
+  overflow: hidden;
 }
 
 .page-center {
@@ -15,17 +16,33 @@
   box-sizing: border-box;
 }
 
-.page-center-full {
+.schedule-menu-center {
   margin: 0 auto;
   overflow: visible;
+  max-width: 1028px;
   width: 100vw;
+  padding: 0 20px;
   box-sizing: border-box;
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.page-center-full {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-flow: column nowrap;
 }
 
 .schedule-head {
   background: #CED8FF;
-  padding-top: 36px;
-  padding-bottom: 20px;
+  height: 194px;
+  box-sizing: border-box;
+  transition: height 0.3s ease-in-out;
+  overflow: hidden;
 }
 
 .schedule-title {
@@ -33,6 +50,8 @@
   flex-flow: row nowrap;
   justify-content: space-between;
   align-items: flex-start;
+  padding-top: 36px;
+
 }
 
 .schedule-title-left {
@@ -45,6 +64,15 @@
   font-weight: 700;
   line-height: normal;
   position: relative;
+}
+
+.schedule-title-left:before {
+  content: url('/images/title.png');
+  position: absolute;
+  left: 0;
+  top: 0;
+  margin-left: -12px;
+  margin-top: -4px;
 }
 
 .schedule-title-left-name {
@@ -68,7 +96,7 @@
 }
 
 .schedule-title-day {
-  color: #212525;
+  color: #C1C3C0;
   font-size: 10px;
   font-style: normal;
   font-weight: 400;
@@ -76,19 +104,22 @@
 
 .create-btn {
   display: flex;
-  width: 160px;
   height: 32px;
   padding: 4px 8px;
   box-sizing: border-box;
   justify-content: center;
   align-items: center;
   border-radius: 30px;
-  border: 1px solid var(--fill-6-dark, #272928);
   text-decoration: none;
   color: var(--text-4-headline, #272928);
   font-size: 12px;
   font-style: normal;
   font-weight: 600;
+  background: #fff;
+}
+
+.create-btn-2 {
+  display: none;
 }
 
 .schedule-menu-1 {
@@ -104,7 +135,8 @@
   flex-flow: row wrap;
   align-items: center;
   justify-content: space-between;
-  margin-top: 20px;
+  background: #CED8FF;
+  padding-top: 20px;
 }
 
 .mouth {
@@ -154,27 +186,31 @@
 }
 
 .schedule-content {
-  flex: 1;
-  background: #8693F0;
+  background: #F8F9F8;
   overflow: auto;
+  flex: 1;
+  display: flex;
+  flex-flow: column nowrap;
 }
 
 .height100 {
-    height: 100%;
+  height: 100%;
 }
 
 .date-column {
-  width: 176px;
+  max-width: 176px;
+  min-width: 176px;
   display: flex;
   flex-flow: column nowrap;
-  height: 98%;
+  min-height: 100%;
   border-right: 1px solid #C2C2E1;
   cursor: move;
 }
 
 .events {
   width: 100%;
-  height: calc(100% - 66px);
+  padding: 0 2.5px;
+  box-sizing: border-box;
 }
 
 .date-day {
@@ -217,7 +253,7 @@
   align-items: center;
   border-radius: 4px;
   background: var(--primary-color-brand-16, #8693F0);
-  color: #fff;
+  color: var(--text-4-headline, #fff);
   text-align: center;
   font-size: 20px;
   font-style: normal;
@@ -232,7 +268,7 @@
   box-sizing: border-box;
   display: block;
   margin-top: 5px;
-  box-shadow: 0px 0px 3px 0 rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 3px 0 rgba(0, 0, 0, 0.1);
   text-decoration: none;
   height: 158px;
 }
@@ -326,8 +362,87 @@
   background: #f1f1f1;
 }
 
+.page-center-full-row {
+  display: flex;
+  flex-flow: row nowrap;
+}
+
+.page-center-full-list {
+  flex: 1;
+  overflow: auto;
+}
+
+.content {
+  flex: 1;
+  display: flex;
+  flex-flow: column nowrap;
+  overflow: auto;
+  background: #F8F9F8;
+}
+
+.date-bar {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  justify-content: space-between;
+  box-sizing: border-box;
+  max-height: 64px;
+  min-height: 64px;
+  background: #fff;
+}
+
+.event-wrapper {
+  flex: 1;
+  width: 100%;
+  overflow: scroll;
+  user-select: none;
+  background: #8693F0;
+}
+
+.event-wrapper::-webkit-scrollbar-track {
+  background: #8693F0;
+}
+
+
+
+.date-bar-wrapper {
+  max-height: 64px;
+  min-height: 64px;
+  background: #fff;
+  overflow: auto;
+  user-select: none;
+}
+.date-bar-wrapper::-webkit-scrollbar {
+  display: none;
+}
+
+.event-list {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: stretch;
+  min-height: 100%;
+}
+
 @media (max-width: 450px) {
+  .create-btn-2 {
+    display: flex;
+    width: 32px;
+    height: 32px;
+    padding: 4px 8px;
+    box-sizing: border-box;
+    justify-content: center;
+    align-items: center;
+    border-radius: 30px;
+    text-decoration: none;
+    color: var(--text-4-headline, #272928);
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 600;
+    background: #fff;
+  }
+
   .create-btn {
     display: none;
   }
 }
+

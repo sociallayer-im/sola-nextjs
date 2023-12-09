@@ -5,10 +5,8 @@ import EventLabels from "@/components/base/EventLabels/EventLabels";
 import Link from 'next/link'
 import UserContext from "@/components/provider/UserProvider/UserContext";
 import LangContext from "@/components/provider/LangProvider/LangContext";
-import {Swiper, SwiperSlide} from 'swiper/react'
+import {SwiperSlide} from 'swiper/react'
 import usePicture from "@/hooks/pictrue";
-import {FreeMode, Mousewheel} from 'swiper';
-import {covers} from "@/components/compose/SelectPointCover/SelectPointCover";
 import {getLabelColor} from "@/hooks/labelColor";
 
 const dayName = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
@@ -26,9 +24,9 @@ interface DateItem {
 
 const getCalendarData = () => {
     const now = new Date()
-    // 计算出今天前365天和后365天的日期时间戳数组
-    const from = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 182, 0, 0, 0, 0).getTime()
-    const to = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 182, 0, 0, 0, 0).getTime()
+    // 计算出今天前15天和后15天的日期时间戳数组 182
+    const from = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 30, 0, 0, 0, 0).getTime()
+    const to = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 30, 0, 0, 0, 0).getTime()
 
     // 获得 from 和 to  之间所以天0点的时间戳数组
     const dayArray = []
@@ -50,38 +48,48 @@ const getCalendarData = () => {
 function ComponentName(props: { group: Group }) {
     const eventGroup = props.group
     const now = new Date()
-    const [eventList, setEventList] = useState<Event[]>([])
-    const [showList, setShowList] = useState<DateItem[]>([])
-    const dayList = useRef(getCalendarData())
+    const scroll1Ref = useRef<any>(null)
+    const scroll2Ref = useRef<any>(null)
     const eventListRef = useRef<Event[]>([])
+    const dayList = useRef(getCalendarData())
 
     const {user} = useContext(UserContext)
     const [showJoined, setShowJoined] = useState(false)
     const {lang} = useContext(LangContext)
-    const swiperRef = useRef<any>(null)
+
+
+    const [eventList, setEventList] = useState<Event[]>([])
+    const [showList, setShowList] = useState<DateItem[]>([])
     const [ready, setReady] = useState(false)
     const [currMonth, setCurrMonth] = useState(new Date().getMonth())
     const [currYear, setCurrYear] = useState(new Date().getFullYear())
     const [currTag, setCurrTag] = useState<string[]>([])
-    const todayIndexRef = useRef(0)
 
-    const slideToToday = () => {
-        swiperRef.current.slideTo(todayIndexRef.current, 100)
+    const slideToToday = (init=false) => {
+        const scrollBar1 = scroll1Ref.current
+        const scrollBar2 = scroll2Ref.current
+
+        const targetColumnIndex = dayList.current.findIndex((item: DateItem) => {
+            return item.year === now.getFullYear() && item.month === now.getMonth() && item.date === now.getDate()
+        })
+
+        const offset = (targetColumnIndex - 1) * 176
+
+        if (scrollBar2.scrollLeft === 0 && init) {
+            scrollBar1.scrollLeft = offset
+            scrollBar2.scrollLeft = offset
+
+            if (init) {
+                setTimeout(() => {
+                    slideToToday(true)
+                }, 100)
+            }
+        } else {
+            scrollBar1.scrollLeft = offset
+            scrollBar2.scrollLeft = offset
+        }
     }
 
-    useEffect(() => {
-        if (swiperRef.current && ready) {
-            const now = new Date()
-            const todayIndex = dayList.current.findIndex(item => {
-                return item.date === now.getDate() && item.year === now.getFullYear() && item.month === now.getMonth()
-            })
-
-            const offset = Math.floor(window.innerWidth / 181 / 2)
-
-            todayIndexRef.current = todayIndex - offset
-            swiperRef.current.slideTo(todayIndexRef.current, 0)
-        }
-    }, [swiperRef, ready])
 
     useEffect(() => {
         const getEventList = async () => {
@@ -114,6 +122,46 @@ function ComponentName(props: { group: Group }) {
     }, [eventList])
 
     useEffect(() => {
+        const checkScroll = (e: any) => {
+            const offset = e.target.scrollLeft
+            const target = window.document.querySelector('.event-wrapper')
+            if (target?.scrollLeft !== offset) {
+                target!.scrollLeft = offset
+            }
+        }
+
+        const checkScroll2 = (e: any) => {
+            const offset = e.target.scrollLeft
+            const target = window.document.querySelector('.date-bar-wrapper')
+            if (target?.scrollLeft !== offset) {
+                target!.scrollLeft = offset
+            }
+
+            const offsetTop = e.target.scrollTop
+            if (offsetTop > 0) {
+                (window.document.querySelector('.schedule-head') as any)!.style.height = '0'
+            } else {
+                (window.document.querySelector('.schedule-head') as any)!.style.height = '194px'
+            }
+        }
+
+        if(scroll1Ref.current && scroll2Ref.current) {
+            const scrollBar1 = scroll1Ref.current
+            const scrollBar2 = scroll2Ref.current
+
+            scrollBar1.addEventListener('scroll', checkScroll)
+            scrollBar2.addEventListener('scroll', checkScroll2)
+
+            slideToToday(true)
+
+            return () => {
+                scrollBar1?.removeEventListener('scroll', checkScroll)
+                scrollBar2?.removeEventListener('scroll', checkScroll2)
+            }
+        }
+    }, [scroll1Ref, scroll2Ref])
+
+    useEffect(() => {
         let res: any = []
         if (showJoined) {
             res = eventListRef.current.filter(item => {
@@ -133,93 +181,82 @@ function ComponentName(props: { group: Group }) {
     }, [showJoined, currTag])
 
     return (<div className={styles['schedule-page']}>
-        <div className={styles['schedule-head']}>
+        <div className={`${styles['schedule-head']} schedule-head`}>
             <div className={styles['page-center']}>
                 <div className={styles['schedule-title']}>
                     <div className={styles['schedule-title-left']}>
                         <div className={'group-name'}>{lang['Activity_Calendar']}</div>
                     </div>
-                    <div className={styles['schedule-title-right']}>
-                        <div className={styles['schedule-title-date']}>{now.getDate()}</div>
-                        <div className={styles['schedule-title-day']}>
-                            <div>{dayName[now.getDay()]}</div>
-                            <div>{mouthName[now.getMonth()]} {now.getFullYear()}</div>
-                        </div>
-                    </div>
                 </div>
-                { eventGroup.event_tags?.length &&
-                    <div className={`${styles['schedule-menu-1']} wamo-tags`}>
-                        <EventLabels data={eventGroup.event_tags || []}
-                                     onChange={e => {
-                                         setCurrTag(e)
-                                     }}
-                                     single={true}
-                                     value={currTag}
-                                     showAll={true}/>
-                    </div>
-                }
+                <div className={`${styles['schedule-menu-1']} wamo-tags`}>
+                    <EventLabels data={eventGroup.event_tags || []}
+                                 nowrap={true}
+                                 onChange={e => {
+                                     setCurrTag(e)
+                                 }}
+                                 single={true}
+                                 value={currTag}
+                                 showAll={true}/>
+                </div>
             </div>
             <div className={styles['schedule-mouth']}>
-                <div className={styles['page-center']}>
-                    <div className={styles['schedule-menu-2']}>
+                <div className={styles['schedule-menu-2']}>
+                    <div className={styles['schedule-menu-center']}>
                         <div className={styles['mouth']}>
                             <div>{mouthName[currMonth]} {currYear}</div>
                             <div className={styles['to-today']} onClick={e => {
                                 slideToToday()
-                            }}>Today</div>
+                            }}>Today
+                            </div>
                         </div>
+                        <Link className={styles['create-btn-2']} href={`https://app.sola.day`} target={'_blank'}>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="17" height="16" viewBox="0 0 17 16" fill="none">
+                                <path
+                                    d="M13.1667 7.33335H9.16675V3.33335C9.16675 3.15654 9.09651 2.98697 8.97149 2.86195C8.84646 2.73693 8.67689 2.66669 8.50008 2.66669C8.32327 2.66669 8.1537 2.73693 8.02868 2.86195C7.90365 2.98697 7.83341 3.15654 7.83341 3.33335V7.33335H3.83341C3.6566 7.33335 3.48703 7.40359 3.36201 7.52862C3.23699 7.65364 3.16675 7.82321 3.16675 8.00002C3.16675 8.17683 3.23699 8.3464 3.36201 8.47142C3.48703 8.59645 3.6566 8.66669 3.83341 8.66669H7.83341V12.6667C7.83341 12.8435 7.90365 13.0131 8.02868 13.1381C8.1537 13.2631 8.32327 13.3334 8.50008 13.3334C8.67689 13.3334 8.84646 13.2631 8.97149 13.1381C9.09651 13.0131 9.16675 12.8435 9.16675 12.6667V8.66669H13.1667C13.3436 8.66669 13.5131 8.59645 13.6382 8.47142C13.7632 8.3464 13.8334 8.17683 13.8334 8.00002C13.8334 7.82321 13.7632 7.65364 13.6382 7.52862C13.5131 7.40359 13.3436 7.33335 13.1667 7.33335Z"
+                                    fill="#272928"/>
+                            </svg>
+                        </Link>
+                        <Link className={styles['create-btn']} href={`https://app.sola.day`} target={'_blank'}>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="17" height="16" viewBox="0 0 17 16" fill="none">
+                                <path
+                                    d="M13.1667 7.33335H9.16675V3.33335C9.16675 3.15654 9.09651 2.98697 8.97149 2.86195C8.84646 2.73693 8.67689 2.66669 8.50008 2.66669C8.32327 2.66669 8.1537 2.73693 8.02868 2.86195C7.90365 2.98697 7.83341 3.15654 7.83341 3.33335V7.33335H3.83341C3.6566 7.33335 3.48703 7.40359 3.36201 7.52862C3.23699 7.65364 3.16675 7.82321 3.16675 8.00002C3.16675 8.17683 3.23699 8.3464 3.36201 8.47142C3.48703 8.59645 3.6566 8.66669 3.83341 8.66669H7.83341V12.6667C7.83341 12.8435 7.90365 13.0131 8.02868 13.1381C8.1537 13.2631 8.32327 13.3334 8.50008 13.3334C8.67689 13.3334 8.84646 13.2631 8.97149 13.1381C9.09651 13.0131 9.16675 12.8435 9.16675 12.6667V8.66669H13.1667C13.3436 8.66669 13.5131 8.59645 13.6382 8.47142C13.7632 8.3464 13.8334 8.17683 13.8334 8.00002C13.8334 7.82321 13.7632 7.65364 13.6382 7.52862C13.5131 7.40359 13.3436 7.33335 13.1667 7.33335Z"
+                                    fill="#272928"/>
+                            </svg>
+                            {'Create an event at Social Layer'}
+                        </Link>
                     </div>
                 </div>
             </div>
         </div>
-        <div className={styles['schedule-content']}>
-            <div className={`${styles['page-center-full']} ${styles['height100']}`}>
-                { ready &&
-                    <Swiper
-                        slidesPerView={'auto'}
-                        className={styles['height100']}
-                        modules={[FreeMode]}
-                        freeMode={true}
-                        spaceBetween={0}
-                        onSwiper={(swiper) => {
-                            swiperRef.current = swiper
-                        }}
-                        onSlideChange={swiper => {
-                            setCurrMonth(dayList.current[swiper.activeIndex].month)
-                            setCurrYear(dayList.current[swiper.activeIndex].year)
-                        }}>
-                        {
-                            showList.map((item: any, index) => {
-                                return <SwiperSlide key={index + ''} style={{width: '176px'}}>
-                                    <div className={styles['date-column']}>
-                                        <div className={styles['date-day']}>
-                                            <span>{item.dayName}</span>
-                                            <span className={item.date === now.getDate() &&  item.year === now.getFullYear() && item.month === now.getMonth()
-                                                ? styles['date-active'] : styles['date']}>{item.date}</span>
-                                        </div>
-                                        <div className={`${styles['events']}`}>
-                                            {item.events.length > 0 &&
-                                                <Swiper
-                                                    style={{padding:'0 2.5px', width: '100%', height:'100%', paddingBottom: '10px', boxSizing: 'border-box'}}
-                                                    slidesPerView={'auto'}
-                                                    spaceBetween={5}
-                                                    freeMode={true}
-                                                    modules={[FreeMode]}
-                                                    direction={'vertical'}>
-                                                    { item.events.map((e: Event) => {
-                                                        return <SwiperSlide key={Math.random() + e.title} style={{height: '158px'}}>
-                                                            <EventCard event={e} blank={true} />
-                                                        </SwiperSlide>
-                                                    })}
-                                                </Swiper>
-                                            }
-                                        </div>
-                                    </div>
-                                </SwiperSlide>
-                            })
-                        }
-                    </Swiper>
-                }
+        <div className={`${styles['content']}`}>
+            <div className={`${styles['date-bar-wrapper']} date-bar-wrapper`} ref={scroll1Ref}>
+                <div className={`${styles['date-bar']}`}>
+                    {showList.map((item: any, index) => {
+                        return <div key={index + ''} className={styles['date-column']}>
+                            <div className={styles['date-day']}>
+                                <span>{item.dayName}</span>
+                                <span
+                                    className={item.date === now.getDate() && item.year === now.getFullYear() && item.month === now.getMonth()
+                                        ? styles['date-active'] : styles['date']}>{item.date}</span>
+                            </div>
+                        </div>
+                    })
+                    }
+                </div>
+            </div>
+            <div className={`${styles['event-wrapper']} event-wrapper`}  ref={scroll2Ref}>
+                <div className={`${styles['event-list']} event-list`}>
+                    {showList.map((item: any, index) => {
+                        return <div key={index + ''} className={`${styles['date-column']} date-column`}>
+                            <div className={`${styles['events']}`}>
+                                {item.events.map((e: Event) => {
+                                    return <EventCard key={Math.random() + e.title} event={e}/>
+                                })}
+                            </div>
+                        </div>
+                    })
+                    }
+                </div>
             </div>
         </div>
     </div>)
@@ -232,13 +269,14 @@ export const getServerSideProps: any = (async (context: any) => {
     return {props: {group: group[0]}}
 })
 
-function EventCard ({event, blank}: {event: Event, blank?: boolean}) {
+function EventCard({event, blank}: { event: Event, blank?: boolean }) {
     const isAllDay = (new Date(event.end_time!).getTime() - new Date(event.start_time!).getTime() + 60000) % 8640000 === 0
     const fromTime = `${new Date(event.start_time!).getHours().toString().padStart(2, '0')} : ${new Date(event.start_time!).getMinutes().toString().padStart(2, '0')}`
     const toTime = `${new Date(event.end_time!).getHours().toString().padStart(2, '0')} : ${new Date(event.end_time!).getMinutes().toString().padStart(2, '0')}`
 
     const {defaultAvatar} = usePicture()
-    return <Link  className={styles['schedule-event-card']} href={`/event/detail/${event.id}`} target={blank ? '_blank' : '_self'}>
+    return <Link className={styles['schedule-event-card']} href={`/event/detail/${event.id}`}
+                 target={blank ? '_blank' : '_self'}>
         <div className={styles['schedule-event-card-time']}>
             {isAllDay ? 'All Day' : `${fromTime}--${toTime}`}
         </div>
@@ -246,7 +284,8 @@ function EventCard ({event, blank}: {event: Event, blank?: boolean}) {
             {event.title}
         </div>
         <div className={styles['schedule-event-card-host']}>
-            <img className={styles['schedule-event-card-avatar']} src={event.owner.image_url || defaultAvatar(event.owner.id)} alt=""/>
+            <img className={styles['schedule-event-card-avatar']}
+                 src={event.owner.image_url || defaultAvatar(event.owner.id)} alt=""/>
             {event.owner.nickname || event.owner.username}
         </div>
         {!!event.location && !event.event_site &&
@@ -292,3 +331,4 @@ function EventCard ({event, blank}: {event: Event, blank?: boolean}) {
         }
     </Link>
 }
+
