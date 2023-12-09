@@ -19,7 +19,7 @@ function HomeUserPanel() {
     const [eventGroupMembers, setEventGroupMembers] = useState<Profile[]>([])
 
     const toCalendar = () => {
-        eventGroup ? router.push(`/event/${eventGroup.username}/calendar`) : router.push('/event')
+        eventGroup ? router.push(`/event/${eventGroup.username}/schedule`) : router.push('/event')
     }
 
     useEffect(() => {

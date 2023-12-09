@@ -540,7 +540,7 @@ function EventDetail(props: {event: Event | null, appName: string, host: string}
                                         }</AppButton>
                                     }
 
-                                    {!canceled && isJoined && !isHoster && inCheckinTime &&
+                                    {!canceled && isJoined && !isHoster && !isManager && inCheckinTime &&
                                         <AppButton
                                             special
                                             onClick={e => {

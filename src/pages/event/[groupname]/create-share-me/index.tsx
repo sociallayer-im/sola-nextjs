@@ -256,7 +256,6 @@ function ComponentName() {
     const getLocation = () => {
         if (typeof  navigator !== 'undefined') {
             navigator.geolocation.getCurrentPosition((data) => {
-                // console.log('=========', data)
                 const location = {
                     geometry: {
                         location: {

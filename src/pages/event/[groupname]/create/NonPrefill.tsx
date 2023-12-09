@@ -348,6 +348,7 @@ function CreateEvent(props: CreateEventPageProps) {
             router.replace('/event')
             return
         }
+
     }, [joined, eventGroup])
 
     useEffect(() => {
@@ -1032,11 +1033,12 @@ function CreateEvent(props: CreateEventPageProps) {
                             </div>
                         }
 
-                        {!!eventGroup && eventGroup.group_event_tags &&
+                        <div>{JSON.stringify((eventGroup as Group))}</div>
+                        {!!eventGroup && (eventGroup as Group).event_tags &&
                             <div className={'input-area'}>
                                 <div className={'input-area-title'}>{lang['Activity_Form_Label']}</div>
                                 <EventLabels
-                                    data={eventGroup.group_event_tags} onChange={e => {
+                                    data={(eventGroup as Group).event_tags!} onChange={e => {
                                     setLabel(e)
                                 }} value={label}/>
                             </div>

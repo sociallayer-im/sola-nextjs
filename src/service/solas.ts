@@ -951,7 +951,7 @@ export interface Group extends Profile {
     username: string
     domain: string,
     nickname: string,
-    group_event_tags: string[] | null,
+    event_tags: string[] | null,
     group_map_enabled: boolean,
     creator: ProfileSimple,
     memberships: Membership[],

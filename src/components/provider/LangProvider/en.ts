@@ -171,7 +171,7 @@ const langEN = {
     presend_share_link: '#1 has sent you an NFT badge: #2. Go and get it! \n' +
         ' #3 \n' +
         ' It is recommended to use metamask or imToken browser to access the website.',
-    Activity_Calendar: 'Event Calendar',
+    Activity_Calendar: 'Event Schedule',
     Activity_Page_type: 'Activity',
     Activity_State_Registered: 'Applied',
     Activity_State_Created: 'Created',
