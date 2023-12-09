@@ -369,20 +369,7 @@ function ComponentName(props: { markerType: string | null, eventGroup: Group} ) 
         {selectedType === 'Zugame' &&
             <GameMenu/>
         }
-
-        <div className={styles['top-menu']}>
-            {
-                Object.keys(menuList).map((item, index) => {
-                    const isSelected = selectedType === item
-                    return <div key={index}
-                                onClick={() => {
-                                    router.push(`/wamo/map?type=${item}`)
-                                }}
-                                className={`${styles['menu-item']} ${isSelected ? styles['menu-item-active'] : ''}`}>{item}</div>
-                })
-            }
-        </div>
-
+        
         {showList && !!eventGroup &&
             <div className={styles['marker-list']}>
                 {markers.length > 0 ?
