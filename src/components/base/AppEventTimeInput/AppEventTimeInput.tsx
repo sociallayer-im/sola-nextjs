@@ -45,7 +45,7 @@ interface AppDateInputProps {
     from: string
     to: string
     repeat?: string,
-    arrowRepeat?: boolean,
+    allowRepeat?: boolean,
     timezone: string,
     onChange: (value: {
         from: string,
@@ -55,7 +55,7 @@ interface AppDateInputProps {
         repeatEndingTime: string }) => any
 }
 
-function AppDateInput({arrowRepeat = true, ...props}: AppDateInputProps) {
+function AppDateInput({allowRepeat = true, ...props}: AppDateInputProps) {
     const {lang} = useContext(LangContext)
     const [from, setFrom] = useState(input(props.from, props.timezone))
     const [to, setTo] = useState(input(props.to, props.timezone))
@@ -309,7 +309,7 @@ function AppDateInput({arrowRepeat = true, ...props}: AppDateInputProps) {
                     target.click()
                 }}>{lang['Form_All_Day']}</span>
             </div>
-            {arrowRepeat &&
+            {allowRepeat &&
                 <Select
                     clearable={false}
                     searchable={false}

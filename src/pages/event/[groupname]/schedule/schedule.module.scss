@@ -118,6 +118,9 @@
   font-style: normal;
   font-weight: 600;
 }
+.create-btn-2 {
+  display: none;
+}
 
 .schedule-menu-1 {
   display: flex;
@@ -425,6 +428,24 @@
 }
 
 @media (max-width: 450px) {
+  .create-btn-2 {
+    display: flex;
+    width: 32px;
+    height: 32px;
+    padding: 4px 8px;
+    box-sizing: border-box;
+    justify-content: center;
+    align-items: center;
+    border-radius: 30px;
+    text-decoration: none;
+    border: 1px solid #272928;
+    color: var(--text-4-headline, #272928);
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 600;
+    background: #fff;
+  }
+
   .create-btn {
     display: none;
   }

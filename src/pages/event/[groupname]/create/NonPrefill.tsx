@@ -897,7 +897,7 @@ function CreateEvent(props: CreateEventPageProps) {
                                 <AppEventTimeInput
                                     from={start}
                                     to={ending}
-                                    arrowRepeat={!currEvent}
+                                    allowRepeat={false}
                                     timezone={timezone}
                                     onChange={e => {
                                         setStart(e.from)

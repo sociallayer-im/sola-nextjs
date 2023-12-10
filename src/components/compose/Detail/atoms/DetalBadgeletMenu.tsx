@@ -43,24 +43,29 @@ function DetailBadgeletMenu (props: DetalBadgeletMenuProps) {
     }
 
     const MenuContent = (handleClose: () => any) => <>
-        {/*{*/}
-        {/*    props.badgelet.hide*/}
-        {/*        ? <MenuItem onClick={ () => { setStatus('unhide', handleClose) } }>*/}
-        {/*            { lang['BadgeDialog_Label_action_public'] }*/}
-        {/*          </MenuItem>*/}
-        {/*        : <MenuItem onClick={ () => { setStatus('hide', handleClose) } }>*/}
-        {/*            { lang['BadgeDialog_Label_action_hide'] }*/}
-        {/*          </MenuItem>*/}
-        {/*}*/}
-        {/*{*/}
-        {/*    props.badgelet.top*/}
-        {/*        ? <MenuItem onClick={ () => { setStatus('untop', handleClose) } }>*/}
-        {/*            { lang['BadgeDialog_Label_action_untop'] }*/}
-        {/*          </MenuItem>*/}
-        {/*        : <MenuItem onClick={ () => { setStatus('top', handleClose) } }>*/}
-        {/*            { lang['BadgeDialog_Label_action_top'] }*/}
-        {/*          </MenuItem>*/}
-        {/*}*/}
+        {
+            props.badgelet.display === 'hide' &&
+                <MenuItem onClick={ () => { setStatus('normal', handleClose) } }>
+                    { lang['BadgeDialog_Label_action_public'] }
+                  </MenuItem>
+        }
+        {
+            props.badgelet.display === 'top' &&
+                <MenuItem onClick={ () => { setStatus('normal', handleClose) } }>
+                    { lang['BadgeDialog_Label_action_untop'] }
+                  </MenuItem>
+        }
+        {
+            props.badgelet.display === 'normal' &&
+                <>
+                    <MenuItem onClick={ () => { setStatus('top', handleClose) } }>
+                        { lang['BadgeDialog_Label_action_top'] }
+                    </MenuItem>
+                    <MenuItem onClick={ () => { setStatus('hide', handleClose) } }>
+                        { lang['BadgeDialog_Label_action_hide'] }
+                    </MenuItem>
+                </>
+        }
         { (props.badgelet.badge.badge_type === 'nftpass' || props.badgelet.badge.badge_type === 'gift') &&
             <MenuItem onClick={ () => { transfer({badgelet: props.badgelet}) } }>
                 { lang['Dialog_Transfer_Confirm'] }

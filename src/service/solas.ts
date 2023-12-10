@@ -681,6 +681,7 @@ export async function queryBadgeDetail(props: QueryBadgeDetailProps): Promise<Ba
           id
           image_url
           title
+          display
           status
           badge {
             badge_type
@@ -840,6 +841,7 @@ export async function queryBadgelet(props: QueryBadgeletProps): Promise<Badgelet
         badge_id
         content
         created_at
+        display
         badge {
           image_url
           title
@@ -1134,7 +1136,7 @@ export async function acceptPresend(props: AcceptBadgeletProp) {
     })
 }
 
-export type SetBadgeletStatusType = 'untop' | 'top' | 'hide' | 'unhide'
+export type SetBadgeletStatusType =  'top' | 'hide' | 'normal'
 
 export interface SetBadgeletStatusProps {
     type: SetBadgeletStatusType,
@@ -1145,10 +1147,11 @@ export interface SetBadgeletStatusProps {
 export async function setBadgeletStatus(props: SetBadgeletStatusProps) {
     checkAuth(props)
     const res = await fetch.post({
-        url: `${api}/badge/${props.type}`,
+        url: `${apiUrl}/badge/${props.type}`,
         data: {
             badgelet_id: props.id,
             auth_token: props.auth_token,
+            display: props.type
         }
     })
 
@@ -1831,6 +1834,7 @@ export async function searchBadge(props: SearchBadgeProps): Promise<Badge[]> {
           created_at
           id
           image_url
+          display
           title
           status
           badge {
