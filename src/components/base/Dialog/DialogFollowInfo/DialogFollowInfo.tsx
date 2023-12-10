@@ -62,8 +62,7 @@ function DialogFollowInfo(props: DialogFollowInfoProps) {
         getFollowInfo()
     },[])
 
-    const toProfile = (domain: string) => {
-        const username = domain.split('.')[0]
+    const toProfile = (username: string) => {
         router.push(`/profile/${username}`)
         props.handleClose()
     }
@@ -79,13 +78,13 @@ function DialogFollowInfo(props: DialogFollowInfoProps) {
                <Tab key='follower' title={lang['Follow_detail_followed']}>
                    <div className='center scroll-box'>
                        { followersEmpty && <Empty text={'no data'} /> }
-                       <AddressList selected={ [] } data= { followers }  onClick={(profile) => { toProfile(profile.domain!) }}/>
+                       <AddressList selected={ [] } data= { followers }  onClick={(profile) => { toProfile(profile.username!) }}/>
                    </div>
                </Tab>
                <Tab key='following' title={lang['Follow_detail_following']}>
                    <div className='center scroll-box'>
                        { followingsEmpty && <Empty text={'no data'} /> }
-                       <AddressList selected={ [] } data= { followings } onClick={(profile) => { toProfile(profile.domain!) }} />
+                       <AddressList selected={ [] } data= { followings } onClick={(profile) => { toProfile(profile.username!) }} />
                    </div>
                </Tab>
            </AppTabs>

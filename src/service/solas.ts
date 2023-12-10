@@ -1340,8 +1340,21 @@ export async function getFollowers(userId: number): Promise<Profile[]> {
       }
     }`
 
-    const resp: any = await request(graphUrl, doc)
-    return resp.followings.map((item: any) => item.target) as Profile[]
+    const resp1: any = await request(graphUrl, doc)
+
+    const ids = resp1.followings.map((item: any) => item.profile_id)
+
+    const resp2: any = await request(graphUrl, gql`query MyQuery {
+      profiles(where: {id: {_in: [${ids.join(',')}]}}) {
+        id
+        username
+        nickname
+        image_url
+      }
+    }
+    `)
+
+    return resp2.profiles as Profile[]
 }
 
 export async function getFollowings(userId: number): Promise<Profile[]> {
