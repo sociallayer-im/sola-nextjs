@@ -87,7 +87,7 @@ function Issue() {
                     }
                 })
             })
-            router.push(`/issue-success?point=${params.pointId}&pointitem=${pointItems[0].id}`)
+            // router.push(`/issue-success?point=${params.pointId}&pointitem=${pointItems[0].id}`)
         } catch (e: any) {
             console.error(e)
             showToast(e.message || 'Issue fail')

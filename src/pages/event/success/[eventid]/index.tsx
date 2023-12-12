@@ -99,15 +99,9 @@ function CreateEventSuccess() {
                             </div>
                         }
                         {
-                            !!event.event_site && <div className={'time'}>
-                                <i className={'icon-Outline'}/>
-                                <div>{event.event_site.title}</div>
-                            </div>
-                        }
-                        {
                             !!event.location && <div className={'time'}>
                                 <i className={'icon-Outline'}/>
-                                <div>{event.location}{event.formatted_address? `(${JSON.parse(event.formatted_address).name})` : ''}</div>
+                                <div>{event.location}{event.formatted_address ? `(${event.formatted_address})` : ''}</div>
                             </div>
                         }
                         {

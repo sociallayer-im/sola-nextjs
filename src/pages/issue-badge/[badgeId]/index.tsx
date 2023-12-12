@@ -58,8 +58,9 @@ function Issue() {
                 counter: data.presendAmount ? Number(data.presendAmount) : null,
                 auth_token: user.authToken || ''
             })
+            const code = await solas.getVoucherCode({id: presend.id, auth_token: user.authToken || ''})
             unload()
-            router.push(`/issue-success?voucher=${presend.id}`)
+            router.push(`/issue-success?voucher=${presend.id}&code=${code}`)
         } catch (e: any) {
             console.log('[handleCreatePresend]: ', e)
             unload()

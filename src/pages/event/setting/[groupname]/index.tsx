@@ -93,15 +93,12 @@ function Dashboard() {
                             return updateEventSite({...e,
                                 auth_token: user.authToken || '',
                                 event_site_id: e.id,
-                                geo_lat: JSON.parse(e.formatted_address!).geometry.location.lat,
-                                geo_lng: JSON.parse(e.formatted_address!).geometry.location.lng,
                             })
                         } else {
                             return createEventSite({...e,
                                 auth_token: user.authToken || '',
                                 owner_id: user.id || 0,
-                                geo_lat: JSON.parse(e.formatted_address!).geometry.location.lat,
-                                geo_lng: JSON.parse(e.formatted_address!).geometry.location.lng,
+                                group_id: eventGroup?.id || 0,
                             })
                         }
                     })
@@ -360,39 +357,6 @@ function Dashboard() {
                 </div>
             }
 
-            {showDefaultLocation &&
-                <div className={'dashboard-dialog dashboard-event-site-list'}>
-                    <div className={'center'}>
-                        <div className={'dashboard-dialog-head'}>
-                            <PageBack title={lang['Setting_Location']} onClose={() => {
-                                setShowDefaultLocation(false)
-                                switchOverflow(false)
-                            }}/>
-                        </div>
-                        <div className={'dialog-inner'}>
-                            <div className={'dialog-des'}>Default location on the Map</div>
-                            {!!eventGroup && ready &&
-                                <LocationInput
-                                    initValue={{
-                                        customLocation:'',
-                                        eventSite: null,
-                                        metaData: defaultLocation || null
-                                    }}
-                                    onChange={newLocation => {
-                                        if (newLocation.metaData) {
-                                            setDefaultLocation(newLocation.metaData)
-                                        }
-                                    }}
-                                    arrowAlias={false}
-                                    eventGroup={eventGroup} />
-                            }
-                        </div>
-                        <div className={'action-bar'}>
-                            <AppButton special onClick={setLocation}>Save</AppButton>
-                        </div>
-                    </div>
-                </div>
-            }
         </div>
     </>)
 }

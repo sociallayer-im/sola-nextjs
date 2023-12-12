@@ -137,10 +137,19 @@ function Home() {
 
         if (params?.voucherId) {
             const unload = showLoading()
-            const voucher = queryVoucherDetail(Number(params!.voucherId))
+            let code: undefined | string = undefined
+            let _voucherId = ''
+            if (params?.voucherId.includes('_')) {
+                code = (params?.voucherId as string).split('_')[1]
+                _voucherId = (params?.voucherId as string).split('_')[0]
+            } else {
+                _voucherId = params?.voucherId as string
+            }
+
+            const voucher = queryVoucherDetail(Number(_voucherId))
                 .then(res => {
                     if (res!.badge.badge_type === 'badge') {
-                        showVoucher(res)
+                        showVoucher(res, code)
                     }
                 })
                 .finally(() => {

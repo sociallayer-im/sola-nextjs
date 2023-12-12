@@ -3,7 +3,7 @@ import fetch from '../utils/fetch'
 import Alchemy from "@/service/alchemy/alchemy";
 import {gql, request} from 'graphql-request'
 
-const api = process.env.NEXT_PUBLIC_SOLAS_API!
+// const api = process.env.NEXT_PUBLIC_SOLAS_API!
 const apiUrl = process.env.NEXT_PUBLIC_API!
 const graphUrl = process.env.NEXT_PUBLIC_GRAPH!
 
@@ -30,6 +30,7 @@ export const voucherSchema = (props: QueryPresendProps) => {
 
     return gql`vouchers(where: {counter: {_neq: 0}, ${variables}} limit: 20, offset: ${props.page * 20 - 20}, order_by: {created_at: desc}) {
         id
+        strategy
         badgelets {
           badge_id
           content
@@ -287,7 +288,7 @@ export async function queryProfileByEmail(email: string) {
         .catch(e => {
     })
 
-    return res?.data.profile as Profile || null
+    return res ? res.data.profile as Profile : null
 }
 
 interface GetProfileProps {
@@ -624,29 +625,31 @@ export async function queryBadge(props: QueryBadgeProps): Promise<Badge[]> {
 }
 
 export async function queryPrivateBadge(props: QueryBadgeProps): Promise<Badge[]> {
-    const res = await fetch.get({
-        url: `${api}/badge/list`,
-        data: {...props, badge_type: 'private'},
-    })
-
-    if (res.data.result === 'error') {
-        throw new Error(res.data.message)
-    }
-
-    return res.data.badges as Badge[]
+    // const res = await fetch.get({
+    //     url: `${api}/badge/list`,
+    //     data: {...props, badge_type: 'private'},
+    // })
+    //
+    // if (res.data.result === 'error') {
+    //     throw new Error(res.data.message)
+    // }
+    //
+    // return res.data.badges as Badge[]
+    return  []
 }
 
 export async function queryNftpass(props: QueryBadgeProps): Promise<NftPass[]> {
-    const res = await fetch.get({
-        url: `${api}/badge/list`,
-        data: {...props, badge_type: 'nftpass'},
-    })
-
-    if (res.data.result === 'error') {
-        throw new Error(res.data.message)
-    }
-
-    return res.data.badges as Badge[]
+    // const res = await fetch.get({
+    //     url: `${api}/badge/list`,
+    //     data: {...props, badge_type: 'nftpass'},
+    // })
+    //
+    // if (res.data.result === 'error') {
+    //     throw new Error(res.data.message)
+    // }
+    //
+    // return res.data.badges as Badge[]
+    return []
 }
 
 export interface QueryBadgeDetailProps {
@@ -770,20 +773,22 @@ export interface Badgelet {
 
 export async function queryAllTypeBadgelet(props: QueryBadgeletProps): Promise<Badgelet[]> {
 
-    const res = await fetch.get({
-        url: `${api}/badgelet/list`,
-        data: {...props, badge_type: undefined}
-    })
+    // const res = await fetch.get({
+    //     url: `${api}/badgelet/list`,
+    //     data: {...props, badge_type: undefined}
+    // })
+    //
+    // if (res.data.result === 'error') {
+    //     throw new Error(res.data.message)
+    // }
+    //
+    // const list: Badgelet[] = res.data.badgelets
+    //
+    // return list.filter((item : any) => {
+    //     return item.status !== 'rejected'
+    // })
 
-    if (res.data.result === 'error') {
-        throw new Error(res.data.message)
-    }
-
-    const list: Badgelet[] = res.data.badgelets
-
-    return list.filter((item : any) => {
-        return item.status !== 'rejected'
-    })
+    return []
 }
 
 export interface QueryBadgeletProps {
@@ -837,7 +842,7 @@ export async function queryBadgelet(props: QueryBadgeletProps): Promise<Badgelet
     }
 
     const doc = gql`query MyQuery {
-      badgelets(where: {${variables}, status: {_neq: "burned"}}, limit: 20, offset: ${props.page * 20-20 }, order_by: {id: asc}) {
+      badgelets(where: {${variables}, status: {_neq: "burned"}}, limit: 20, offset: ${props.page * 20-20 }, order_by: {id: desc}) {
         badge_id
         content
         created_at
@@ -882,9 +887,11 @@ export async function queryBadgelet(props: QueryBadgeletProps): Promise<Badgelet
 
     console.log(res)
 
-    return res.badgelets.sort((a: Badgelet, b: Badgelet) => {
-        return b.display === 'top' ? 1 : -1
-    }) as Badgelet[]
+    return res.badgelets as Badgelet[]
+
+    // return res.badgelets.sort((a: Badgelet, b: Badgelet) => {
+    //     return b.display === 'top' ? 1 : -1
+    // }) as Badgelet[]
 
     // props.badge_type = props.badge_type || 'badge'
     //
@@ -905,37 +912,39 @@ export async function queryBadgelet(props: QueryBadgeletProps): Promise<Badgelet
 }
 
 export async function queryPrivacyBadgelet(props: QueryBadgeletProps): Promise<Badgelet[]> {
-    const res = await fetch.get({
-        url: `${api}/badgelet/list`,
-        data: {...props, badge_type: 'private'}
-    })
-
-    if (res.data.result === 'error') {
-        throw new Error(res.data.message)
-    }
-
-    const list: Badgelet[] = res.data.badgelets
-
-    return list.filter((item : any) => {
-        return item.status !== 'rejected'
-    })
+    // const res = await fetch.get({
+    //     url: `${api}/badgelet/list`,
+    //     data: {...props, badge_type: 'private'}
+    // })
+    //
+    // if (res.data.result === 'error') {
+    //     throw new Error(res.data.message)
+    // }
+    //
+    // const list: Badgelet[] = res.data.badgelets
+    //
+    // return list.filter((item : any) => {
+    //     return item.status !== 'rejected'
+    // })
+    return []
 }
 
 export async function queryNftPasslet(props: QueryBadgeletProps): Promise<NftPasslet[]> {
-    const res = await fetch.get({
-        url: `${api}/badgelet/list`,
-        data: {...props, badge_type: 'nftpass'}
-    })
-
-    if (res.data.result === 'error') {
-        throw new Error(res.data.message)
-    }
-
-    const list: NftPasslet[] = res.data.badgelets
-
-    return list.filter((item : any) => {
-        return item.status !== 'rejected' && item.status !== 'revoked' && item.status !== 'burnt'
-    })
+    // const res = await fetch.get({
+    //     url: `${api}/badgelet/list`,
+    //     data: {...props, badge_type: 'nftpass'}
+    // })
+    //
+    // if (res.data.result === 'error') {
+    //     throw new Error(res.data.message)
+    // }
+    //
+    // const list: NftPasslet[] = res.data.badgelets
+    //
+    // return list.filter((item : any) => {
+    //     return item.status !== 'rejected' && item.status !== 'revoked' && item.status !== 'burnt'
+    // })
+    return []
 }
 
 export interface Membership {
@@ -1005,7 +1014,7 @@ export async function queryGroupsUserJoined(props: QueryUserGroupProps): Promise
 
     const res: any = await request(graphUrl, doc)
     return res.groups.map((item: any) => {
-        item.creator = item.memberships[0].profile
+        item.creator = item.memberships[0]?.profile || null
         return item
     })
 }
@@ -1117,15 +1126,16 @@ export interface RejectBadgeletProp {
 }
 
 export async function rejectBadgelet(props: RejectBadgeletProp): Promise<void> {
-    checkAuth(props)
-    const res = await fetch.post({
-        url: `${api}/badge/reject`,
-        data: props
-    })
-
-    if (res.data.result === 'error') {
-        throw new Error(res.data.message)
-    }
+    // checkAuth(props)
+    // const res = await fetch.post({
+    //     url: `${api}/badge/reject`,
+    //     data: props
+    // })
+    //
+    // if (res.data.result === 'error') {
+    //     throw new Error(res.data.message)
+    // }
+    throw new Error('not implemented')
 }
 
 export async function acceptPresend(props: AcceptBadgeletProp) {
@@ -1166,34 +1176,17 @@ export interface QueryBadgeletDetailProps {
     id: number
 }
 
-export async function queryBadgeletDetail(props: QueryBadgeletDetailProps): Promise<Badgelet> {
-    const res = await fetch.get({
-        url: `${api}/badgelet/get`,
-        data: {
-            id: props.id,
-        }
+export async function queryBadgeletDetail(props: QueryBadgeletDetailProps): Promise<Badgelet | null> {
+    const res = await queryBadgelet({
+        id: props.id,
+        page: 1,
     })
 
-    if (res.data.result === 'error') {
-        throw new Error(res.data.message)
-    }
-
-    return res.data.badgelet
+    return res ? res[0] : null
 }
 
 export async function queryNftPassDetail(props: QueryBadgeletDetailProps): Promise<NftPass> {
-    const res = await fetch.get({
-        url: `${api}/badge/get`,
-        data: {
-            id: props.id,
-        }
-    })
-
-    if (res.data.result === 'error') {
-        throw new Error(res.data.message)
-    }
-
-    return res.data.badge as NftPass
+    return await queryBadgeletDetail(props) as any
 }
 
 export interface UploadImageProps {
@@ -1948,18 +1941,19 @@ export interface VerifyTwitterProps {
 }
 
 export async function verifyTwitter(props: VerifyTwitterProps) {
-    const res = await fetch.post(
-        {
-            url: `${api}/profile/submit_twitter_proof`,
-            data: props
-        }
-    )
-
-    if (res.data.result === 'error') {
-        throw new Error(res.data.message)
-    }
-
-    return res.data
+    // const res = await fetch.post(
+    //     {
+    //         url: `${api}/profile/submit_twitter_proof`,
+    //         data: props
+    //     }
+    // )
+    //
+    // if (res.data.result === 'error') {
+    //     throw new Error(res.data.message)
+    // }
+    //
+    // return res.data
+    throw new Error('not implemented')
 }
 
 export interface CreatePointProps {
@@ -1997,16 +1991,17 @@ export interface Point {
 }
 
 export async function createPoint(props: CreatePointProps) {
-    const res = await fetch.post({
-        url: `${api}/point/create`,
-        data: props
-    })
-
-    if (res.data.result === 'error') {
-        throw new Error(res.data.message)
-    }
-
-    return res.data.point
+    // const res = await fetch.post({
+    //     url: `${api}/point/create`,
+    //     data: props
+    // })
+    //
+    // if (res.data.result === 'error') {
+    //     throw new Error(res.data.message)
+    // }
+    //
+    // return res.data.point
+    throw new Error('not implemented')
 }
 
 export interface SendPointProps {
@@ -2027,16 +2022,17 @@ export interface PointItem {
 }
 
 export async function sendPoint(props: SendPointProps) {
-    const res = await fetch.post({
-        url: `${api}/point/send`,
-        data: props
-    })
-
-    if (res.data.result === 'error') {
-        throw new Error(res.data.message)
-    }
-
-    return res.data.point_items as PointItem[]
+    // const res = await fetch.post({
+    //     url: `${api}/point/send`,
+    //     data: props
+    // })
+    //
+    // if (res.data.result === 'error') {
+    //     throw new Error(res.data.message)
+    // }
+    //
+    // return res.data.point_items as PointItem[]
+    throw new Error('not implemented')
 }
 
 interface QueryPointProps {
@@ -2045,15 +2041,16 @@ interface QueryPointProps {
 }
 
 export async function queryPoint(props: QueryPointProps) {
-    const res = await fetch.get({
-        url: `${api}/point/list`,
-        data: props
-    })
-
-    if (res.data.result === 'error') {
-        throw new Error(res.data.message)
-    }
-    return res.data.points as Point[]
+    // const res = await fetch.get({
+    //     url: `${api}/point/list`,
+    //     data: props
+    // })
+    //
+    // if (res.data.result === 'error') {
+    //     throw new Error(res.data.message)
+    // }
+    // return res.data.points as Point[]
+    return []
 }
 
 interface QueryPointItemProps {
@@ -2064,15 +2061,16 @@ interface QueryPointItemProps {
 }
 
 export async function queryPointItems(props: QueryPointItemProps) {
-    const res = await fetch.get({
-        url: `${api}/point/list_item`,
-        data: props
-    })
-
-    if (res.data.result === 'error') {
-        throw new Error(res.data.message)
-    }
-    return res.data.point_items as PointItem[]
+    // const res = await fetch.get({
+    //     url: `${api}/point/list_item`,
+    //     data: props
+    // })
+    //
+    // if (res.data.result === 'error') {
+    //     throw new Error(res.data.message)
+    // }
+    // return res.data.point_items as PointItem[]
+    return []
 }
 
 interface QueryPointDetail {
@@ -2080,34 +2078,36 @@ interface QueryPointDetail {
 }
 
 export async function queryPointDetail(props: QueryPointDetail) {
-    const res = await fetch.get({
-        url: `${api}/point/get`,
-        data: {
-            ...props,
-            // with_point_items: 1
-        }
-    })
-
-    if (res.data.result === 'error') {
-        throw new Error(res.data.message)
-    }
-
-    return res.data.point as Point
+    // const res = await fetch.get({
+    //     url: `${api}/point/get`,
+    //     data: {
+    //         ...props,
+    //         // with_point_items: 1
+    //     }
+    // })
+    //
+    // if (res.data.result === 'error') {
+    //     throw new Error(res.data.message)
+    // }
+    //
+    // return res.data.point as Point
+    throw new Error('not implemented')
 }
 
 export async function queryPointItemDetail(props: QueryPointDetail) {
-    const res = await fetch.get({
-        url: `${api}/point/get_item`,
-        data: {
-            ...props,
-        }
-    })
-
-    if (res.data.result === 'error') {
-        throw new Error(res.data.message)
-    }
-
-    return res.data.point_item as PointItem
+    // const res = await fetch.get({
+    //     url: `${api}/point/get_item`,
+    //     data: {
+    //         ...props,
+    //     }
+    // })
+    //
+    // if (res.data.result === 'error') {
+    //     throw new Error(res.data.message)
+    // }
+    //
+    // return res.data.point_item as PointItem
+    throw new Error('not implemented')
 }
 
 export interface AcceptPointProp {
@@ -2116,33 +2116,35 @@ export interface AcceptPointProp {
 }
 
 export async function acceptPoint(props: AcceptPointProp) {
-    checkAuth(props)
-
-    const res: any = await fetch.post({
-        url: `${api}/point/accept`,
-        data: props
-    })
-
-    if (res.data.result === 'error') {
-        throw new Error(res.data.message || 'Accept fail')
-    }
-
-    return res.data.point_item as PointItem
+    // checkAuth(props)
+    //
+    // const res: any = await fetch.post({
+    //     url: `${api}/point/accept`,
+    //     data: props
+    // })
+    //
+    // if (res.data.result === 'error') {
+    //     throw new Error(res.data.message || 'Accept fail')
+    // }
+    //
+    // return res.data.point_item as PointItem
+    throw new Error('not implemented')
 }
 
 export async function rejectPoint(props: AcceptPointProp) {
-    checkAuth(props)
-
-    const res: any = await fetch.post({
-        url: `${api}/point/reject`,
-        data: props
-    })
-
-    if (res.data.result === 'error') {
-        throw new Error(res.data.message || 'Reject fail')
-    }
-
-    return res.data.point_item as PointItem
+    // checkAuth(props)
+    //
+    // const res: any = await fetch.post({
+    //     url: `${api}/point/reject`,
+    //     data: props
+    // })
+    //
+    // if (res.data.result === 'error') {
+    //     throw new Error(res.data.message || 'Reject fail')
+    // }
+    //
+    // return res.data.point_item as PointItem
+    throw new Error('not implemented')
 }
 
 export interface CheckInProps {
@@ -2159,33 +2161,35 @@ export interface CheckInSimple {
 }
 
 export async function checkIn(props: CheckInProps): Promise<CheckInSimple> {
-    checkAuth(props)
-
-    const res: any = await fetch.post({
-        url: `${api}/badgelet/checkin`,
-        data: props
-    })
-
-    if (res.data.result === 'error') {
-        throw new Error(res.data.message || 'Check in fail')
-    }
-
-    return res.data.checkin as CheckInSimple
+    // checkAuth(props)
+    //
+    // const res: any = await fetch.post({
+    //     url: `${api}/badgelet/checkin`,
+    //     data: props
+    // })
+    //
+    // if (res.data.result === 'error') {
+    //     throw new Error(res.data.message || 'Check in fail')
+    // }
+    //
+    // return res.data.checkin as CheckInSimple
+    throw new Error('not implemented')
 }
 
 export async function consume(props: CheckInProps): Promise<Badgelet> {
-    checkAuth(props)
-
-    const res: any = await fetch.post({
-        url: `${api}/badgelet/consume`,
-        data: {...props, delta: 1}
-    })
-
-    if (res.data.result === 'error') {
-        throw new Error(res.data.message || 'Check in fail')
-    }
-
-    return res.data.badgelet as Badgelet
+    // checkAuth(props)
+    //
+    // const res: any = await fetch.post({
+    //     url: `${api}/badgelet/consume`,
+    //     data: {...props, delta: 1}
+    // })
+    //
+    // if (res.data.result === 'error') {
+    //     throw new Error(res.data.message || 'Check in fail')
+    // }
+    //
+    // return res.data.badgelet as Badgelet
+    throw new Error('not implemented')
 }
 
 export interface QueryCheckInListProps {
@@ -2204,18 +2208,19 @@ export interface CheckIn {
 }
 
 export async function queryCheckInList(props: QueryCheckInListProps): Promise<CheckIn[]> {
-    const res: any = await fetch.get({
-        url: `${api}/badgelet/checkin_list`,
-        data: props
-    })
-
-    if (res.data.result === 'error') {
-        throw new Error(res.data.message || 'Check in fail')
-    }
-
-    return res.data.checkins.sort((a: any, b: any) => {
-        return b.id - a.id
-    }) as CheckIn[]
+    // const res: any = await fetch.get({
+    //     url: `${api}/badgelet/checkin_list`,
+    //     data: props
+    // })
+    //
+    // if (res.data.result === 'error') {
+    //     throw new Error(res.data.message || 'Check in fail')
+    // }
+    //
+    // return res.data.checkins.sort((a: any, b: any) => {
+    //     return b.id - a.id
+    // }) as CheckIn[]
+    return []
 }
 
 export interface SetEmailProps {
@@ -2244,20 +2249,21 @@ export interface BadgeTransferProps {
 }
 
 export async function badgeTransfer(props: BadgeTransferProps): Promise<Badgelet> {
-    checkAuth(props)
-
-    const res = await fetch.post({
-        url: `${api}/badge/transfer`,
-        data: {
-            ...props,
-        }
-    })
-
-    if (res.data.result === 'error') {
-        throw new Error(res.data.message || 'transfer fail')
-    }
-
-    return res.data.badgelet
+    // checkAuth(props)
+    //
+    // const res = await fetch.post({
+    //     url: `${api}/badge/transfer`,
+    //     data: {
+    //         ...props,
+    //     }
+    // })
+    //
+    // if (res.data.result === 'error') {
+    //     throw new Error(res.data.message || 'transfer fail')
+    // }
+    //
+    // return res.data.badgelet
+    throw new Error('not implemented')
 }
 
 export interface BadgeRevokeProps {
@@ -2269,7 +2275,7 @@ export async function badgeRevoke(props: BadgeRevokeProps): Promise<Badgelet> {
     checkAuth(props)
 
     const res = await fetch.post({
-        url: `${api}/badge/revoke`,
+        url: `${apiUrl}/badgelet/burn`,
         data: {
             ...props,
         }
@@ -2326,21 +2332,6 @@ export interface Activity {
     "data": any,
     "memo": any,
     "created_at": string
-}
-
-export async function queryUserActivity(props: QueryUserActivityProps): Promise<Activity[]> {
-    const res = await fetch.get({
-        url: `${api}/activity/list`,
-        data: {
-            ...props,
-        }
-    })
-
-    if (res.data.result === 'error') {
-        throw new Error(res.data.message || 'query user activity fail')
-    }
-
-    return res.data.activities
 }
 
 export interface Vote {
@@ -2803,6 +2794,8 @@ export async function queryEvent(props: QueryEventProps): Promise<Event[]> {
             owner_id
             created_at
             formatted_address
+            geo_lat
+            geo_lng
         }
         event_type
         formatted_address
@@ -2871,20 +2864,22 @@ export interface QueryRecommendEventProps {
 }
 
 export async function queryRecommendEvent(props: QueryRecommendEventProps): Promise<Event[]> {
-    const res: any = await fetch.get({
-        url: `${api}/event/recommended`,
-        data: {...props}
-    })
+    // const res: any = await fetch.get({
+    //     url: `${api}/event/recommended`,
+    //     data: {...props}
+    // })
+    //
+    // if (res.data.result === 'error') {
+    //     throw new Error(res.data.message || 'Query event fail')
+    // }
+    //
+    // return res.data.events.filter((item: Event) => {
+    //     const cancel = item.status === 'cancel'
+    //     const now = new Date().getTime()
+    //     return new Date(item.end_time!).getTime() >= now && !cancel
+    // }) as Event[]
 
-    if (res.data.result === 'error') {
-        throw new Error(res.data.message || 'Query event fail')
-    }
-
-    return res.data.events.filter((item: Event) => {
-        const cancel = item.status === 'cancel'
-        const now = new Date().getTime()
-        return new Date(item.end_time!).getTime() >= now && !cancel
-    }) as Event[]
+    return []
 }
 
 export interface QueryEventDetailProps {
@@ -2907,7 +2902,9 @@ export async function queryMyEvent({page = 1, ...props}: QueryMyEventProps): Pro
      participants(
        where: {profile_id: {_eq: ${props.profile_id}}, status: {_neq: "cancel"}}
        limit: 20
-       offset: ${page * 20 - 20}) {
+       offset: ${page * 20 - 20}
+       order_by: {id: desc}
+       ) {
         id
         event_id
         status
@@ -2943,7 +2940,7 @@ export async function cancelEvent(props: CancelEventProps): Promise<Participants
     checkAuth(props)
 
     const res: any = await fetch.post({
-        url: `${api}/event/cancel_event`,
+        url: `${apiUrl}/event/cancel_event`,
         data: {...props}
     })
 
@@ -2954,18 +2951,9 @@ export async function cancelEvent(props: CancelEventProps): Promise<Participants
     return res.data.participants as Participants[]
 }
 
-export async function getHotTags(): Promise<string[]> {
-    const res: any = await fetch.get({
-        url: `${api}/event/hot_tags`,
-        data: {}
-    })
-
-    return res.data.tags
-}
-
 export async function getEventSide(groupId?: number): Promise<EventSites[]> {
     const doc = gql`query MyQuery {
-      event_sites(where: {group_id: {_eq: ${groupId}}}) {
+      event_sites(where: {group_id: {_eq: ${groupId}}}, order_by: {id: desc}) {
         formatted_address
         geo_lat
         geo_lng
@@ -3037,6 +3025,8 @@ export async function searchEvent(keyword: string) {
             owner_id
             created_at
             formatted_address
+            geo_lat
+            geo_lng
         }
         event_type
         formatted_address
@@ -3136,17 +3126,6 @@ export async function inviteGuest(props: InviteGuestProp) {
     // }
 }
 
-export function createSite(authToken: string) {
-    return fetch.post({
-        url: `${api}/event/create_event_site`,
-        data: {
-            auth_token: authToken,
-            group_id: 1202,
-            title: '山海坞会议室_1',
-        }
-    })
-}
-
 export interface SetEventBadgeProps {
     id: number,
     badge_id: number,
@@ -3204,17 +3183,18 @@ export interface CheckLog {
 }
 
 export async function getEventCheckLog(props: GetEventCheckLogProps) {
-
-    const res = await fetch.get({
-        url: `${api}/event/list_checklogs`,
-        data: props
-    })
-
-    if (res.data.result === 'error') {
-        throw new Error(res.data.message)
-    }
-
-    return res.data.checklogs as CheckLog[]
+    //
+    // const res = await fetch.get({
+    //     url: `${api}/event/list_checklogs`,
+    //     data: props
+    // })
+    //
+    // if (res.data.result === 'error') {
+    //     throw new Error(res.data.message)
+    // }
+    //
+    // return res.data.checklogs as CheckLog[]
+    return []
 }
 
 export interface PunchInProps {
@@ -3225,47 +3205,50 @@ export interface PunchInProps {
 }
 
 export async function punchIn(props: PunchInProps) {
-    checkAuth(props)
-
-    const res = await fetch.post({
-        url: `${api}/event/add_checklog`,
-        data: props
-    })
-
-    if (res.data.result === 'error') {
-        throw new Error(res.data.message)
-    }
+    // checkAuth(props)
+    //
+    // const res = await fetch.post({
+    //     url: `${api}/event/add_checklog`,
+    //     data: props
+    // })
+    //
+    // if (res.data.result === 'error') {
+    //     throw new Error(res.data.message)
+    // }
+    throw new Error('not implement')
 }
 
 export async function getShanhaiwooResource(profile_id: number) {
-    const res = await fetch.get({
-        url: `${api}/profile/shanhaiwoo_resource_count`,
-        data: {profile_id}
-    })
-
-    if (res.data.result === 'error') {
-        throw new Error(res.data.message)
-    }
-
-    return res.data as {
-        poap_count: number,
-        host_count: number,
-        shanhaiwoo_poap_used_count: number,
-        shanhaiwoo_host_used_count: number,
-    }
+    // const res = await fetch.get({
+    //     url: `${api}/profile/shanhaiwoo_resource_count`,
+    //     data: {profile_id}
+    // })
+    //
+    // if (res.data.result === 'error') {
+    //     throw new Error(res.data.message)
+    // }
+    //
+    // return res.data as {
+    //     poap_count: number,
+    //     host_count: number,
+    //     shanhaiwoo_poap_used_count: number,
+    //     shanhaiwoo_host_used_count: number,
+    // }
+    throw new Error('not implement')
 }
 
 export async function getDivineBeast(profile_id: number) {
-    const res = await fetch.get({
-        url: `${api}/profile/shanhaiwoo_list`,
-        data: {profile_id}
-    })
-
-    if (res.data.result === 'error') {
-        throw new Error(res.data.message)
-    }
-
-    return res.data.badgelets as Badgelet[]
+    // const res = await fetch.get({
+    //     url: `${api}/profile/shanhaiwoo_list`,
+    //     data: {profile_id}
+    // })
+    //
+    // if (res.data.result === 'error') {
+    //     throw new Error(res.data.message)
+    // }
+    //
+    // return res.data.badgelets as Badgelet[]
+    throw new Error('not implement')
 }
 
 export interface DivineBeastMergeProps {
@@ -3276,18 +3259,19 @@ export interface DivineBeastMergeProps {
 }
 
 export async function divineBeastMerge(props: DivineBeastMergeProps) {
-    checkAuth(props)
-
-    const res = await fetch.post({
-        url: `${api}/profile/shanhaiwoo_merge`,
-        data: {...props, value: 1}
-    })
-
-    if (res.data.result === 'error') {
-        throw new Error(res.data.message)
-    }
-
-    return res.data.badgelet as Badgelet
+    // checkAuth(props)
+    //
+    // const res = await fetch.post({
+    //     url: `${api}/profile/shanhaiwoo_merge`,
+    //     data: {...props, value: 1}
+    // })
+    //
+    // if (res.data.result === 'error') {
+    //     throw new Error(res.data.message)
+    // }
+    //
+    // return res.data.badgelet as Badgelet
+    throw new Error('not implement')
 }
 
 export interface DivineBeastRmergeProps {
@@ -3299,18 +3283,19 @@ export interface DivineBeastRmergeProps {
 }
 
 export async function divineBeastRemerge(props: DivineBeastRmergeProps) {
-    checkAuth(props)
-
-    const res = await fetch.post({
-        url: `${api}/profile/shanhaiwoo_remerge`,
-        data: props
-    })
-
-    if (res.data.result === 'error') {
-        throw new Error(res.data.message)
-    }
-
-    return res.data.badgelets as Badgelet[]
+    // checkAuth(props)
+    //
+    // const res = await fetch.post({
+    //     url: `${api}/profile/shanhaiwoo_remerge`,
+    //     data: props
+    // })
+    //
+    // if (res.data.result === 'error') {
+    //     throw new Error(res.data.message)
+    // }
+    //
+    // return res.data.badgelets as Badgelet[]
+    throw new Error('not implement')
 }
 
 export async function getEventGroup() {
@@ -3353,7 +3338,7 @@ export async function getEventGroup() {
 
     const res: any = await request(graphUrl, doc)
     return res.groups.map((item : any) => {
-        item.creator = item.memberships[0].profile
+        item.creator = item.memberships[0]?.profile || null
         return item
     })
 }
@@ -3366,19 +3351,20 @@ export interface GetDateListProps {
 }
 
 export async function getDateList(props: GetDateListProps) {
-    const res = await fetch.get({
-        url: `${api}/event/daylist`,
-        data: {...props, page: props.page || 1, event_order: 'start_time_asc'}
-    })
-
-    if (res.data.result === 'error') {
-        throw new Error(res.data.message)
-    }
-
-    return res.data.map((dataStr: string) => {
-        const dateSplit = dataStr.split('-')
-        return new Date(Number(dateSplit[0]), Number(dateSplit[1]) - 1, Number(dateSplit[2]), 0, 0, 0)
-    }) as Date[]
+    // const res = await fetch.get({
+    //     url: `${api}/event/daylist`,
+    //     data: {...props, page: props.page || 1, event_order: 'start_time_asc'}
+    // })
+    //
+    // if (res.data.result === 'error') {
+    //     throw new Error(res.data.message)
+    // }
+    //
+    // return res.data.map((dataStr: string) => {
+    //     const dateSplit = dataStr.split('-')
+    //     return new Date(Number(dateSplit[0]), Number(dateSplit[1]) - 1, Number(dateSplit[2]), 0, 0, 0)
+    // }) as Date[]
+    return []
 }
 
 interface EditEventProps extends Partial<EventSites> {
@@ -3437,7 +3423,7 @@ export async function removeEventSite({auth_token, id}: { auth_token: string, id
 
 export async function requestPhoneCode(phone: string): Promise<void> {
     const res: any = await fetch.post({
-        url: `${api}/profile/send_msg`,
+        url: `${apiUrl}/profile/send_msg`,
         data: {phone}
     })
     if (res.data.result === 'error') {
@@ -3447,7 +3433,7 @@ export async function requestPhoneCode(phone: string): Promise<void> {
 
 export async function phoneLogin(phone: string, code: string): Promise<LoginRes> {
     const res = await fetch.post({
-        url: `${api}/profile/signin_with_phone`,
+        url: `${apiUrl}/profile/signin_with_phone`,
         data: {phone, code}
     })
     if (res.data.result === 'error') {
@@ -3503,18 +3489,19 @@ export interface CancelRepeatProps {
 }
 
 export async function cancelRepeatEvent(props: CancelRepeatProps) {
-    checkAuth(props)
-
-    const res = await fetch.post({
-        url: `${api}/repeat_event/cancel_event`,
-        data: props
-    })
-
-    if (res.data.result === 'error') {
-        throw new Error(res.data.message)
-    }
-
-    return res.data.events as Event[]
+    // checkAuth(props)
+    //
+    // const res = await fetch.post({
+    //     url: `${api}/repeat_event/cancel_event`,
+    //     data: props
+    // })
+    //
+    // if (res.data.result === 'error') {
+    //     throw new Error(res.data.message)
+    // }
+    //
+    // return res.data.events as Event[]
+    throw new Error('Not implement')
 }
 
 export interface CreateRepeatEventProps extends CreateEventProps {
@@ -3524,17 +3511,18 @@ export interface CreateRepeatEventProps extends CreateEventProps {
 }
 
 export async function createRepeatEvent(props: CreateRepeatEventProps) {
-    checkAuth(props)
-    const res = await fetch.post({
-        url: `${api}/repeat_event/create`,
-        data: props
-    })
-
-    if (res.data.result === 'error') {
-        throw new Error(res.data.message)
-    }
-
-    return res.data.events as Event[]
+    // checkAuth(props)
+    // const res = await fetch.post({
+    //     url: `${api}/repeat_event/create`,
+    //     data: props
+    // })
+    //
+    // if (res.data.result === 'error') {
+    //     throw new Error(res.data.message)
+    // }
+    //
+    // return res.data.events as Event[]
+    throw new Error('Not implement')
 }
 
 export interface RepeatEventInviteProps {
@@ -3581,16 +3569,17 @@ export interface RepeatEventSetBadgeProps {
 }
 
 export async function RepeatEventSetBadge(props: RepeatEventSetBadgeProps) {
-    checkAuth(props)
-    const res = await fetch.post({
-        url: `${api}/repeat_event/set_badge`,
-        data: props
-    })
-
-    if (res.data.result === 'error') {
-        throw new Error(res.data.message)
-    }
-    return res.data.events as Event[]
+    // checkAuth(props)
+    // const res = await fetch.post({
+    //     url: `${api}/repeat_event/set_badge`,
+    //     data: props
+    // })
+    //
+    // if (res.data.result === 'error') {
+    //     throw new Error(res.data.message)
+    // }
+    // return res.data.events as Event[]
+    throw new Error('Not implement')
 }
 
 export interface RepeatEventUpdateProps extends CreateEventProps {
@@ -3600,17 +3589,18 @@ export interface RepeatEventUpdateProps extends CreateEventProps {
 
 
 export async function RepeatEventUpdate(props: RepeatEventUpdateProps) {
-    checkAuth(props)
-    const res = await fetch.post({
-        url: `${api}/repeat_event/update`,
-        data: props
-    })
-
-    if (res.data.result === 'error') {
-        throw new Error(res.data.message)
-    }
-
-    return res.data.events as Event[]
+    // checkAuth(props)
+    // const res = await fetch.post({
+    //     url: `${api}/repeat_event/update`,
+    //     data: props
+    // })
+    //
+    // if (res.data.result === 'error') {
+    //     throw new Error(res.data.message)
+    // }
+    //
+    // return res.data.events as Event[]
+    throw new Error('Not implement')
 }
 
 export interface Marker {
@@ -3684,7 +3674,7 @@ export async function saveMarker(props: CreateMarkerProps) {
     }
 
     const res = await fetch.post({
-        url: `${api}/marker/update`,
+        url: `${apiUrl}/marker/update`,
         data: props
     })
 
@@ -3887,7 +3877,7 @@ export async function removeMarker(props: {
 }) {
     checkAuth(props)
     const res = await fetch.post({
-        url: `${api}/marker/cancel`,
+        url: `${apiUrl}/marker/cancel`,
         data: props
     })
 
@@ -3931,7 +3921,7 @@ export async function zupassLogin(props: {
     next_token: string
 }) {
     const res = await fetch.post({
-        url: `${api}/profile/signin_with_zupass`,
+        url: `${apiUrl}/profile/signin_with_zupass`,
         data: props
     })
 
@@ -3948,7 +3938,7 @@ export async function jubmojiCheckin(props: {
     reaction_type: string,
 }) {
     const res = await fetch.post({
-        url: `${api}/marker/check_jubmoji`,
+        url: `${apiUrl}/marker/check_jubmoji`,
         data: props
     })
 
@@ -3959,7 +3949,7 @@ export async function jubmojiCheckin(props: {
 
 export async function zugameInfo() {
     const res = await fetch.get({
-        url: `${api}/marker/zugame_checkin_stats`,
+        url: `${apiUrl}/marker/zugame_checkin_stats`,
         data: {}
     })
 
@@ -3976,16 +3966,12 @@ export async function zugameInfo() {
 }
 
 export async function userAppliedEvent(props: { id: number, page: number, group_id?: number }) {
-    const res = await fetch.get({
-        url: `${api}/event/for_user`,
-        data: props
+    const a = await queryMyEvent({
+        profile_id: props.id,
+        page: props.page,
     })
 
-    if (res.data.result === 'error') {
-        throw new Error(res.data.message)
-    }
-
-    return res.data.participants as Participants[]
+    return a as Participants[]
 }
 
 export interface Voucher {
@@ -4005,7 +3991,8 @@ export interface Voucher {
     receiver_id: number,
     sender: ProfileSimple,
     sender_id: number,
-    badgelet: Badgelet[]
+    badgelets: Badgelet[]
+    strategy: 'code' | 'account'
 }
 
 export async function getPendingBadges(profile_id: number, page=1) {
@@ -4019,6 +4006,7 @@ export async function queryVoucherDetail (id: number) {
     const doc = gql`query MyQuery {
       vouchers(where: {id: {_eq: "${id}"}}) {
         id
+        strategy
         badge {
           badge_type
           content
@@ -4046,6 +4034,37 @@ export async function queryVoucherDetail (id: number) {
         counter
         claimed_at
         claimed_by_server
+        badgelets {
+          badge_id
+          content
+          id
+          image_url
+          owner {
+            id
+            image_url
+            nickname
+            username
+          }
+          owner_id
+          title
+          value
+          badge {
+            creator {
+              id
+              image_url
+              nickname
+              username
+            }
+            group_id
+            id
+            title
+            image_url
+            name
+            creator_id
+            badge_type
+            content
+          }
+        }
         message
         receiver {
           id
@@ -4145,7 +4164,6 @@ export default {
     queryCheckInList,
     queryAllTypeBadgelet,
     badgeTransfer,
-    queryUserActivity,
     removeManager,
     addManager,
     getVoucherCode,

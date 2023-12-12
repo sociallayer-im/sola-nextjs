@@ -216,7 +216,7 @@ function DivineBeast(props: { badgelet?: Badgelet, hide?: number, poap?: number,
                     successAnimation.onload = () => {
                         unloading()
                         setLoading(false)
-                        setBadgelet(res)
+                        setBadgelet(res!)
                         setStatus('build')
                         setSuccessAnimation(true)
                         props.onMerge && props.onMerge()

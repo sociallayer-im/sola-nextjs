@@ -367,25 +367,25 @@ function ComponentName(props: { markerType: string | null }) {
             <GameMenu/>
         }
 
-        {true &&
+        {process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'zumap' &&
             <div className={styles['top-menu']}>
-                <div className={styles['menu-item']} onClick={() => {
-                    if (!user.id) {
-                        openConnectWalletDialog()
-                        return
-                    }
-                    router.push(`/event/${eventGroup?.username}/create-marker`)
-                }}>Create a Marker +
-                </div>
-                {process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'zumap' &&
+                { false &&
                     <div className={styles['menu-item']} onClick={() => {
                         if (!user.id) {
                             openConnectWalletDialog()
                             return
                         }
-                        router.push(`/event/${eventGroup?.username}/create-share-me`)
-                    }}>Share me + </div>
+                        router.push(`/event/${eventGroup?.username}/create-marker`)
+                    }}>Create a Marker +
+                    </div>
                 }
+                <div className={styles['menu-item']} onClick={() => {
+                    if (!user.id) {
+                        openConnectWalletDialog()
+                        return
+                    }
+                    router.push(`/event/${eventGroup?.username}/create-share-me`)
+                }}>Share me + </div>
                 {/*<div className={`${styles['menu-item']} ${!selectedType ? styles['menu-item-active'] : ''}`}*/}
                 {/*     onClick={() => {*/}
                 {/*         setSelectedType('')*/}

@@ -29,8 +29,8 @@ function CreateBadgeWithPrefill(props: CreateBadgeWithPrefillProp) {
             const unload = showLoading()
             try {
                 const pointItem = await solas.queryPointDetail({id: props.pointId})
-                setPreFillBadge(pointItem)
-                setReason(pointItem.content)
+                //setPreFillBadge(pointItem)
+                //setReason(pointItem.content)
             } finally {
                 unload()
             }

@@ -75,7 +75,7 @@ function CreateBadge() {
                 group_id: !!(creator as any)?.creator ? creator!.id : undefined,
                 sym: symbol
             })
-            router.push(`/issue-point/${newPoint.id}`)
+            // router.push(`/issue-point/${newPoint.id}`)
         } catch (e: any) {
             console.error(e)
             showToast(e.message)

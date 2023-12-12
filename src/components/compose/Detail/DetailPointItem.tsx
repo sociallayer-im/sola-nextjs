@@ -51,7 +51,7 @@ function DetailPointItem(props: DetailBadgeletProps) {
 
     const upDateBadgelet = async () => {
         const newPointItem = await solas.queryPointItemDetail({id: props.pointItem.id})
-        setPointItem(newPointItem)
+        setPointItem(newPointItem!)
     }
 
     const getItemsOfSamePoint = async () => {

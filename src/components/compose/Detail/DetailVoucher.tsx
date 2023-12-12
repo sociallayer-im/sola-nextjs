@@ -20,22 +20,29 @@ import DetailScrollBox from './atoms/DetailScrollBox/DetailScrollBox'
 import DetailCreator from './atoms/DetailCreator/DetailCreator'
 import useTime from '../../../hooks/formatTime'
 import DetailRow from "./atoms/DetailRow";
+import DetailReceivers from "@/components/compose/Detail/atoms/DetailReceivers";
+import DetailFace2FaceQrcode from "@/components/compose/Detail/DetailFace2FaceQrcode";
 
 
 export interface DetailBadgeletProps {
     voucher: Voucher,
+    code?: string,
     handleClose: () => void
 }
 
 function DetailVoucher(props: DetailBadgeletProps) {
     const {lang} = useContext(LangContext)
     const {user} = useContext(UserContext)
-    const {openConnectWalletDialog, showLoading, showToast} = useContext(DialogsContext)
+    const {openConnectWalletDialog, showLoading, showToast, openDialog} = useContext(DialogsContext)
     const {defaultAvatar} = usePicture()
     const [_1, emitUpdate] = useEvent(EVENT.badgeletListUpdate)
     const [needUpdate, _2] = useEvent(EVENT.badgeletDetailUpdate)
     const [voucher, setVoucher] = useState(props.voucher)
-    const isBadgeletOwner = (props.voucher.receiver && user.id === props.voucher.receiver.id)
+
+    const isCreator = user.id === props.voucher.sender.id
+    const isPresend = props.voucher.strategy === 'code'
+    const isBadgeletOwner = props.voucher.receiver && user.id === props.voucher.receiver.id
+
     const formatTime = useTime()
 
     const [isGroupManager, setIsGroupManager] = useState(false)
@@ -73,11 +80,24 @@ function DetailVoucher(props: DetailBadgeletProps) {
             return
         }
 
+        if (isPresend && !props.code && !isCreator) {
+            return
+        }
+
+        let _code = props.code
+        if (isPresend && isCreator && !props.code) {
+            _code = await getVoucherCode({
+                id: props.voucher.id,
+                auth_token: user.authToken || ''
+            })
+        }
+
         const unload = showLoading()
         try {
             const accept = await solas.acceptBadgelet({
                 voucher_id: props.voucher.id,
                 auth_token: user.authToken || '',
+                code: _code ? Number(_code) : undefined
             })
 
             unload()
@@ -120,20 +140,37 @@ function DetailVoucher(props: DetailBadgeletProps) {
         {lang['BadgeDialog_Btn_Login']}
     </AppButton>
 
+    const openQrCode = () => {
+        const dialog = openDialog({
+            content: (close: any) =>  <DetailFace2FaceQrcode presendId={ props.voucher.id } handleClose={ close }/>,
+            position: 'bottom',
+            size: [460, 'auto']
+        })
+    }
+
     const ActionBtns = <>
-        <AppButton
-            special
-            kind={BTN_KIND.primary}
-            onClick={() => {
-                handleAccept()
+            <AppButton
+                special
+                kind={BTN_KIND.primary}
+                onClick={() => {
+                    handleAccept()
+                }}>
+                {lang['BadgeDialog_Btn_Accept']}
+            </AppButton>
+        { !isPresend && !isBadgeletOwner &&
+            <AppButton onClick={() => {
+                handleReject()
             }}>
-            {lang['BadgeDialog_Btn_Accept']}
-        </AppButton>
-        <AppButton onClick={() => {
-            handleReject()
-        }}>
-            {lang['BadgeDialog_Btn_Reject']}
-        </AppButton>
+                {lang['BadgeDialog_Btn_Reject']}
+            </AppButton>
+        }
+        { (isGroupManager || isCreator) &&
+            <AppButton onClick={() => {
+                openQrCode()
+            }}>
+                {lang['BadgeDialog_Btn_Issue']}
+            </AppButton>
+        }
     </>
 
     const swiperMaxHeight = window.innerHeight - 320
@@ -158,14 +195,22 @@ function DetailVoucher(props: DetailBadgeletProps) {
                         </DetailDes>
                     }
 
-                    <DetailArea
-                        onClose={props.handleClose}
-                        title={lang['BadgeDialog_Label_Issuees']}
-                        content={voucher.receiver.username || ''}
-                        navigate={voucher.receiver.domain
-                            ? `/profile/${voucher.receiver.username}`
-                            : '#'}
-                        image={voucher.receiver.image_url || defaultAvatar(voucher.receiver.id)}/>
+                    { voucher.strategy === 'account' ?
+                            <DetailArea
+                                onClose={props.handleClose}
+                                title={lang['BadgeDialog_Label_Issuees']}
+                                content={voucher.receiver?.username || ''}
+                                navigate={voucher.receiver?.username
+                                    ? `/profile/${voucher.receiver?.username}`
+                                    : '#'}
+                                image={voucher.receiver?.image_url || defaultAvatar(voucher.receiver?.id)}/>
+                            : <DetailReceivers
+                        length={ voucher.counter + voucher.badgelets.length}
+                        placeholder={ true }
+                        receivers={ voucher.badgelets.map(i => i.owner) || [] as any }
+                        title={ lang['BadgeDialog_Label_Issuees']} />
+                    }
+
 
 
                     <DetailArea
@@ -177,9 +222,9 @@ function DetailVoucher(props: DetailBadgeletProps) {
             <BtnGroup>
                 {!user.userName && LoginBtn}
                 {!!user.userName
-                    && (isGroupManager || isBadgeletOwner)
-                    && !props.voucher?.claimed_at
-                    && ActionBtns}
+                    && (isBadgeletOwner || isCreator || isPresend)
+                    && props.voucher.counter !== 0
+                    && ActionBtns }
             </BtnGroup>
         </DetailWrapper>
     )

@@ -36,9 +36,7 @@ function EventSiteInput(props: LocationInputProps) {
     const [showSearchRes, setShowSearchRes] = useState(false)
 
     const [newEventSite, setNewEventSite] = useState<EventSites | undefined>(props?.initValue)
-    const [customLocationDetail, setCustomLocationDetail] = useState<any>(props?.initValue.formatted_address ? JSON.parse(props.initValue.formatted_address) : null)
-
-
+    const [customLocationDetail, setCustomLocationDetail] = useState<any>(props?.initValue.formatted_address || null)
 
 
     const mapService = useRef<any>(null)
@@ -143,11 +141,15 @@ function EventSiteInput(props: LocationInputProps) {
             }, (place: any, status: string) => {
                 console.log('placeplace detail', place)
                 setShowSearchRes(false)
-                setCustomLocationDetail(place)
+                setCustomLocationDetail(place.formatted_address)
                 setSearchKeyword('')
                 props.onChange && props.onChange({
                     ...newEventSite!,
-                    formatted_address: JSON.stringify(place),
+                    formatted_address: place.formatted_address,
+                    title: place.name,
+                    location: place.name,
+                    geo_lng: place.geometry.location.lng(),
+                    geo_lat: place.geometry.location.lat()
                 })
                 unload()
             })
@@ -176,7 +178,8 @@ function EventSiteInput(props: LocationInputProps) {
                 console.log('e.target.value===', e.target.value)
                 setNewEventSite({
                     ...newEventSite!,
-                    title: e.target.value
+                    title: e.target.value,
+                    location: e.target.value
                 })
             }
         }
@@ -195,13 +198,13 @@ function EventSiteInput(props: LocationInputProps) {
                         readOnly
                         errorMsg={props.error ? 'please select location' : undefined}
                         onFocus={(e) => {
-                            setSearchKeyword(e.target.value || newEventSite?.title || '');
+                            setSearchKeyword(newEventSite?.title || '');
                             setShowSearchRes(true)
                         }}
                         startEnhancer={() => <i className={'icon-Outline'}/>}
                         endEnhancer={() => <Delete size={24} onClick={resetSelect} className={'delete'}/>}
                         placeholder={'Select location'}
-                        value={customLocationDetail ? customLocationDetail.name : ''}
+                        value={customLocationDetail || ''}
                     />
                     {showSearchRes &&
                         <div className={'search-res'}>
