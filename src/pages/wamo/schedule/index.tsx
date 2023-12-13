@@ -94,6 +94,7 @@ function ComponentName(props: { group: Group }) {
     useEffect(() => {
         const getEventList = async () => {
             const events = await queryEvent({
+                group_id: eventGroup.id,
                 start_time_from: new Date(dayList.current[0].timestamp).toISOString(),
                 start_time_to: new Date(dayList.current[dayList.current.length - 1].timestamp).toISOString(),
                 page: 1
@@ -265,8 +266,8 @@ function ComponentName(props: { group: Group }) {
 export default ComponentName
 
 export const getServerSideProps: any = (async (context: any) => {
-    const groupname = context.params?.groupname
-    const group = await getGroups({username: groupname})
+    const group = await getGroups({username: 'wamotopia'})
+    console.log('wamotopia', group)
     return {props: {group: group[0]}}
 })
 

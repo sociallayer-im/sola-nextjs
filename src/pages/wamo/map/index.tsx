@@ -369,7 +369,7 @@ function ComponentName(props: { markerType: string | null, eventGroup: Group} ) 
         {selectedType === 'Zugame' &&
             <GameMenu/>
         }
-        
+
         {showList && !!eventGroup &&
             <div className={styles['marker-list']}>
                 {markers.length > 0 ?
@@ -440,7 +440,7 @@ export default ComponentName
 
 export const getServerSideProps: any = (async (context: any) => {
     const type = context.query?.type
-    const eventGroup = await queryGroupDetail(2)
+    const eventGroup = await queryGroupDetail(1925)
     return {props: {markerType: type || null, eventGroup}}
 })
 
