@@ -2,15 +2,18 @@ import Page from "@/pages/event/index"
 import MapPage from '@/pages/event/[groupname]/map'
 import MaodaoHome from '@/pages/rpc'
 import {getEventGroup, Group, queryEvent, Event} from "@/service/solas";
+import SeedaoHome from "@/pages/seedao";
 
-export default function HomePage(props: { initEvent: Group, initList?: Event[] }) {
+export default function HomePage(props: { initEventGroup: Group, initList?: Event[] }) {
     return <>
         {
             process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'zumap' ?
                 <MapPage markerType={null}/> :
                 process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'maodao' ?
-                    <MaodaoHome/>
-                    : <Page initEvent={props.initEvent || undefined} initList={props.initList || []}/>
+                    <MaodaoHome/> :
+                    process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'seedao' ?
+                        <SeedaoHome />
+                    : <Page initEventGroup={props.initEventGroup || undefined} initList={props.initList || []}/>
         }
     </>
 }
@@ -45,5 +48,5 @@ export const getServerSideProps: any = (async (context: any) => {
         return endTime >= new Date().getTime()
     })
 
-    return {props: {initEvent: targetGroup, initList: res}}
+    return {props: {initEventGroup: targetGroup, initList: res}}
 })

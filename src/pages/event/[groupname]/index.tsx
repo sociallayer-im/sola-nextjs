@@ -14,14 +14,14 @@ import DialogsContext from "@/components/provider/DialogProvider/DialogsContext"
 import EventHomeContext from "@/components/provider/EventHomeProvider/EventHomeContext";
 import MaodaoListEventVertical from "@/components/maodao/MaodaoListEventVertical/ListEventVertical";
 
-function Home(props: {initEvent?:Group, initList?: Event[]}) {
+function Home(props: {initEventGroup?:Group, initList?: Event[]}) {
     const {user} = useContext(UserContext)
     const router = useRouter()
     const pathname = usePathname()
     const {lang} = useContext(LangContext)
     const {showToast} = useContext(DialogsContext)
     const {ready, joined, isManager} = useContext(EventHomeContext)
-    const eventGroup = useContext(EventHomeContext).eventGroup || props.initEvent || undefined
+    const eventGroup = useContext(EventHomeContext).eventGroup || props.initEventGroup || undefined
 
     const [tabIndex, setTabIndex] = useState('0')
     const [showMyCreate, setShowMyCreate] = useState(true)

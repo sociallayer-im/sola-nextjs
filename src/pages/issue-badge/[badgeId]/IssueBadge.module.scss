@@ -84,6 +84,7 @@
   height: 30px;
   line-height: 30px;
   transition: background-color 0.2s ease-in-out;
+  cursor: pointer;
 }
 
 .tab2-item-active {
@@ -189,4 +190,25 @@
   margin-left: -20px;
   margin-right: -20px;
   padding: 20px;
+}
+
+.presend-amount {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  color: #000;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 22px;
+  margin-top: 20px;
+  justify-content: center;
+
+  > div {
+    margin: 0 6px;
+  }
+
+  input {
+    text-align: center;
+  }
 }
