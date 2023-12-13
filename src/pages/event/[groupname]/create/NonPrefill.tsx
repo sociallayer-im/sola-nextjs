@@ -342,7 +342,7 @@ function CreateEvent(props: CreateEventPageProps) {
     }, [telegram])
 
     useEffect(() => {
-        if (eventGroup && eventGroup.group_event_visibility !== 'public' && !joined) {
+        if (eventGroup && (eventGroup as Group).can_publish_event !== 'everyone' && !joined) {
             router.replace('/event')
             return
         }
@@ -908,7 +908,7 @@ function CreateEvent(props: CreateEventPageProps) {
                             </div>
                         }
 
-                        {
+                        { false &&
                             <div className='input-area'>
                                 <div className='input-area-title'>{lang['Activity_Form_Starttime']}</div>
                                 <AppDateInput value={start} onChange={(data) => {
@@ -918,7 +918,7 @@ function CreateEvent(props: CreateEventPageProps) {
                             </div>
                         }
 
-                        {
+                        {  false &&
                             <div className='input-area'>
                                 <div className='input-area-title'>{lang['Activity_Form_Ending']}</div>
                                 <AppDateInput value={ending} onChange={(data) => {

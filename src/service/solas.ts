@@ -968,6 +968,9 @@ export interface Group extends Profile {
     memberships: Membership[],
     event_enabled: boolean
     map_enabled: boolean
+    can_publish_event: string
+    can_join_event: string
+    can_view_event: string
 }
 
 export interface QueryUserGroupProps {
