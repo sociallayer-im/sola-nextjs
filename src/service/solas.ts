@@ -1067,6 +1067,51 @@ export async function queryGroupsUserCreated(props: QueryUserGroupProps): Promis
     })
 }
 
+export async function queryGroupsUserManager(props: QueryUserGroupProps): Promise<Group[]> {
+    const doc = gql`query MyQuery {
+      groups(where: {status: {_neq: "freezed"}, memberships: {role: {_eq: "manager"}, profile: {id: {_eq: "${props.profile_id}"}}}}) {
+        about
+        banner_image_url
+        banner_link_url
+        banner_text
+        can_join_event
+        can_publish_event
+        can_view_event
+        created_at
+        event_tags
+        event_enabled
+        map_enabled
+        id
+        image_url
+        lens
+        location
+        nickname
+        status
+        telegram
+        twitter
+        username
+        discord
+        ens
+        memberships(where: {role: {_eq: "owner"}}) {
+          id
+          role
+          profile {
+            id
+            nickname
+            username
+            image_url
+          }
+        }
+      }
+    }`
+
+    const res: any = await request(graphUrl, doc)
+    return res.groups.map((item : any) => {
+        item.creator = item.memberships[0].profile
+        return item
+    })
+}
+
 export async function queryUserGroup(props: QueryUserGroupProps): Promise<Group[]> {
 
     const res1 = await queryGroupsUserJoined(props)
