@@ -65,6 +65,13 @@ function ComponentName(props: { group: Group }) {
     const [currYear, setCurrYear] = useState(new Date().getFullYear())
     const [currTag, setCurrTag] = useState<string[]>([])
 
+    // touch on pc
+    const touchStart = useRef(false)
+    const touchStartX = useRef(0)
+    const touchStartY = useRef(0)
+    const touchStartScrollLeft = useRef(0)
+    const touchStartScrollTop = useRef(0)
+
     const slideToToday = (init=false) => {
         const scrollBar1 = scroll1Ref.current
         const scrollBar2 = scroll2Ref.current
@@ -94,6 +101,7 @@ function ComponentName(props: { group: Group }) {
     useEffect(() => {
         const getEventList = async () => {
             const events = await queryEvent({
+                group_id: eventGroup.id,
                 start_time_from: new Date(dayList.current[0].timestamp).toISOString(),
                 start_time_to: new Date(dayList.current[dayList.current.length - 1].timestamp).toISOString(),
                 page: 1
@@ -145,6 +153,42 @@ function ComponentName(props: { group: Group }) {
             // }
         }
 
+        const checkMousedown = (e: any) => {
+            e.preventDefault()
+            console.log('down')
+            touchStart.current = true
+            touchStartX.current = e.clientX
+            touchStartY.current = e.clientY
+            touchStartScrollLeft.current = scroll2Ref.current.scrollLeft
+            touchStartScrollTop.current = scroll2Ref.current.scrollTop
+        }
+
+        const checkMouseup = (e: any) => {
+            touchStart.current = false
+        }
+
+        const checkMousemove = (e: any) => {
+            if (touchStart.current) {
+                const offsetX =  e.clientX - touchStartX.current
+                const offsetY = e.clientY - touchStartY.current
+                    console.log('mousemove', offsetX, offsetY)
+                scroll2Ref.current.scrollLeft = touchStartScrollLeft.current - offsetX
+                scroll2Ref.current.scrollTop = touchStartScrollTop.current - offsetY
+            }
+        }
+
+        const checkTouch = () => {
+            scroll2Ref.current.addEventListener('mousedown', checkMousedown)
+
+            scroll2Ref.current.addEventListener('mouseup', checkMouseup)
+
+            scroll2Ref.current.addEventListener('mousemove', checkMousemove)
+
+            scroll2Ref.current.addEventListener('mouseleave', checkMouseup)
+        }
+
+        checkTouch()
+
         if(scroll1Ref.current && scroll2Ref.current) {
             const scrollBar1 = scroll1Ref.current
             const scrollBar2 = scroll2Ref.current
@@ -157,6 +201,10 @@ function ComponentName(props: { group: Group }) {
             return () => {
                 scrollBar1?.removeEventListener('scroll', checkScroll)
                 scrollBar2?.removeEventListener('scroll', checkScroll2)
+                scrollBar2?.removeEventListener('mousedown', checkMousedown)
+                scrollBar2?.removeEventListener('mouseup', checkMouseup)
+                scrollBar2?.removeEventListener('mousemove', checkMousemove)
+                scrollBar2?.removeEventListener('mouseleave', checkMouseup)
             }
         }
     }, [scroll1Ref, scroll2Ref])
@@ -265,8 +313,8 @@ function ComponentName(props: { group: Group }) {
 export default ComponentName
 
 export const getServerSideProps: any = (async (context: any) => {
-    const groupname = context.params?.groupname
-    const group = await getGroups({username: groupname})
+    const group = await getGroups({username: 'wamotopia'})
+    console.log('wamotopia', group)
     return {props: {group: group[0]}}
 })
 
