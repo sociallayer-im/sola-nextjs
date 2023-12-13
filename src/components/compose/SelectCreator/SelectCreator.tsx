@@ -109,7 +109,7 @@ function SelectCreator({autoSet=true, ...props}: SelectCreatorProp) {
             const groups = await queryGroupsUserCreated({ profile_id: user.id!})
             const groups2 = await queryGroupsUserManager({ profile_id: user.id!})
             if (props.groupFirst) {
-                setList([...groups, ...groups2, ...profile!])
+                setList([...groups, ...groups2, profile!])
             } else {
                 setList([profile!, ...groups, ...groups2])
             }
