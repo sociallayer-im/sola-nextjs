@@ -2820,9 +2820,11 @@ export async function queryEvent(props: QueryEventProps): Promise<Event[]> {
         order = `order_by: {start_time: ${props.event_order}}, `
     }
 
+    variables = variables.replace(/,$/, '')
+
 
     const doc = gql`query MyQuery {
-      events (where: {${variables}} ${order} limit: 50, offset: ${(props.page - 1) * 50}) {
+      events (where: {${variables}, status: {_neq: "closed"}} ${order} limit: 50, offset: ${(props.page - 1) * 50}) {
         badge_id
         geo_lat
         geo_lng
@@ -3053,7 +3055,7 @@ export async function unJoinEvent(props: JoinEventProps) {
 
 export async function searchEvent(keyword: string) {
     const doc = gql`query MyQuery {
-      events (where: {title: {_iregex: "${keyword}"}}, limit: 50) {
+      events (where: {title: {_iregex: "${keyword}"} , status: {_neq: "closed"}}, limit: 50) {
         badge_id
         geo_lat
         geo_lng
@@ -3676,9 +3678,9 @@ export interface Marker {
     map_checkins_count: number,
     map_checkins?: MarkerCheckinDetail[] | undefined,
     event_id: number | null,
-    host_info: string | null
     jubmoji_code?: string | null,
     zugame_state?: string | null,
+    event?: Event | null,
 }
 
 export interface CreateMarkerProps extends Partial<Marker> {
@@ -3793,6 +3795,10 @@ export async function queryMarkers(props: {
             created_at
             end_time
             event_id
+            event {
+                id
+                host_info
+            }
             formatted_address
             geo_lat
             geo_lng

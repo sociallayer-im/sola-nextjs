@@ -1,5 +1,14 @@
 import styles from './CardMarker.module.scss'
-import {getFollowings, getProfile, joinEvent, Marker, Participants, Profile, queryEventDetail} from '@/service/solas'
+import {
+    getFollowings,
+    getProfile,
+    joinEvent,
+    Marker,
+    Participants,
+    Profile,
+    queryEventDetail,
+    queryGroupDetail
+} from '@/service/solas'
 import {useRouter} from "next/navigation";
 import usePicture from "@/hooks/pictrue";
 import {useContext, useEffect, useState} from "react";
@@ -65,14 +74,15 @@ function CardMarker(props: { item: Marker, participants?: Participants[], isActi
     }, [props.participants])
 
     useEffect(() => {
-        if (props.item.host_info) {
-            getProfile({id: Number(props.item.host_info)}).then(res => {
+        if (props.item.event?.host_info) {
+
+            queryGroupDetail(Number(props.item.event?.host_info)).then(res => {
                 if (res) {
                     setGroupHost(res)
                 }
             })
         }
-    }, [props.item.host_info])
+    }, [props.item.event?.host_info])
 
    function CardWrapper (wrapperProps: { children: any}) {
         const href = props.item.marker_type === 'event'
@@ -105,7 +115,7 @@ function CardMarker(props: { item: Marker, participants?: Participants[], isActi
                     src={groupHost.image_url || defaultAvatar(groupHost.id)} height={16} width={16}/>
                 </div>
             }
-            {!props.item.host_info &&
+            {!props.item.event?.host_info &&
                 <div className={styles['creator']}>by <img
                     alt=""
                     className={styles['avatar']}
