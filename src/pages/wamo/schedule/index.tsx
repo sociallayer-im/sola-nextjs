@@ -327,11 +327,15 @@ function EventCard({event, blank, disable}: { event: Event, blank?: boolean, dis
     const toTime = `${new Date(event.end_time!).getHours().toString().padStart(2, '0')} : ${new Date(event.end_time!).getMinutes().toString().padStart(2, '0')}`
 
     const [groupHost, setGroupHost] = useState<Group | null>(null)
+    const [ready, setReady] = useState(false)
     useEffect(() => {
         if (event.host_info) {
             queryGroupDetail(Number(event.host_info)).then((res: any) => {
                 setGroupHost(res)
+                setReady(true)
             })
+        } else {
+            setReady(true)
         }
     }, [event.host_info])
 
@@ -347,18 +351,24 @@ function EventCard({event, blank, disable}: { event: Event, blank?: boolean, dis
             {event.title}
         </div>
 
-        { !!groupHost ? <div className={styles['schedule-event-card-host']}>
-                    <img className={styles['schedule-event-card-avatar']}
-                         src={groupHost.image_url || defaultAvatar(groupHost.id)} alt=""/>
-                    {groupHost.nickname || groupHost.username}
-                </div>
-                :
-                <div className={styles['schedule-event-card-host']}>
-                    <img className={styles['schedule-event-card-avatar']}
-                         src={event.owner.image_url || defaultAvatar(event.owner.id)} alt=""/>
-                    {event.owner.nickname || event.owner.username}
-                </div>
-        }
+        <div style={{height: '18px'}}>
+            { ready && <>
+                   { !!groupHost ? <div className={styles['schedule-event-card-host']}>
+                           <img className={styles['schedule-event-card-avatar']}
+                                src={groupHost.image_url || defaultAvatar(groupHost.id)} alt=""/>
+                           {groupHost.nickname || groupHost.username}
+                       </div>
+                       :
+                       <div className={styles['schedule-event-card-host']}>
+                           <img className={styles['schedule-event-card-avatar']}
+                                src={event.owner.image_url || defaultAvatar(event.owner.id)} alt=""/>
+                           {event.owner.nickname || event.owner.username}
+                       </div>
+                   }
+               </>
+            }
+        </div>
+
 
         {!!event.location && !event.event_site &&
             <div className={styles['schedule-event-card-position']}
