@@ -114,7 +114,7 @@ function EventCheckIn() {
             })
             setIsJoin(!!isJoin)
         }
-    }, [user.id, hoster])
+    }, [user.id, hoster, event])
 
 
     const handleSendBadge = async () => {
@@ -189,7 +189,6 @@ function EventCheckIn() {
                                 }}>{lang['Activity_Scan_checkin']}</AppButton>
                             </div>
                         }
-
 
                         {!!user.id && !isJoin && !isHoster && !isCheckLog &&
                             <div className={'checkin-checkin-btn'}>

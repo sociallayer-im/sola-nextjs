@@ -42,79 +42,79 @@ function DetailBadgelet(props: DetailBadgeletProps) {
     const [isGroupManager, setIsGroupManager] = useState(false)
     const isOwner = user.id === props.badgelet.owner.id
 
-    const upDateBadgelet = async () => {
-        const newBadgelet = await solas.queryBadgeletDetail({id: props.badgelet.id})
-        setBadgelet(newBadgelet)
-    }
-
-    useEffect(() => {
-        if (needUpdate) {
-            upDateBadgelet()
-        }
-    }, [needUpdate])
-
-    useEffect(() => {
-        async function checkGroupManager() {
-            if (user.id && !isOwner) {
-                const ownerDetail = await solas.getProfile({
-                    id: props.badgelet.owner.id
-                })
-
-                if (!!(ownerDetail as any)?.creator) {
-                    const isManager = await solas.checkIsManager({
-                        group_id: props.badgelet.owner.id,
-                        profile_id: user.id
-                    })
-                    setIsGroupManager(isManager)
-                }
-            }
-        }
-
-        checkGroupManager()
-    }, [user.id])
-
-    const handleAccept = async () => {
-        if (!props.voucher) {
-            return
-        }
-
-        const unload = showLoading()
-        try {
-            const accept = await solas.acceptBadgelet({
-                voucher_id: props.voucher.id,
-                auth_token: user.authToken || '',
-            })
-
-            unload()
-            emitUpdate(badgelet)
-            props.handleClose()
-            showToast('Accept success')
-            // navigate(`/profile/${user.userName}`)
-        } catch (e: any) {
-            unload()
-            console.log('[handleAccept]: ', e)
-            showToast(e.message || 'Accept fail')
-        }
-    }
-
-    const handleReject = async () => {
-        const unload = showLoading()
-        try {
-            const reject = await solas.rejectBadgelet({
-                badgelet_id: badgelet.id,
-                auth_token: user.authToken || ''
-            })
-
-            unload()
-            emitUpdate(badgelet)
-            props.handleClose()
-            showToast('rejected')
-        } catch (e: any) {
-            unload()
-            console.log('[handleAccept]: ', e)
-            showToast(e.message || 'Reject fail')
-        }
-    }
+    // const upDateBadgelet = async () => {
+    //     const newBadgelet = await solas.queryBadgeletDetail({id: props.badgelet.id})
+    //     setBadgelet(newBadgelet)
+    // }
+    //
+    // useEffect(() => {
+    //     if (needUpdate) {
+    //         upDateBadgelet()
+    //     }
+    // }, [needUpdate])
+    //
+    // useEffect(() => {
+    //     async function checkGroupManager() {
+    //         if (user.id && !isOwner) {
+    //             const ownerDetail = await solas.getProfile({
+    //                 id: props.badgelet.owner.id
+    //             })
+    //
+    //             if (!!(ownerDetail as any)?.creator) {
+    //                 const isManager = await solas.checkIsManager({
+    //                     group_id: props.badgelet.owner.id,
+    //                     profile_id: user.id
+    //                 })
+    //                 setIsGroupManager(isManager)
+    //             }
+    //         }
+    //     }
+    //
+    //     checkGroupManager()
+    // }, [user.id])
+    //
+    // const handleAccept = async () => {
+    //     if (!props.voucher) {
+    //         return
+    //     }
+    //
+    //     const unload = showLoading()
+    //     try {
+    //         const accept = await solas.acceptBadgelet({
+    //             voucher_id: props.voucher.id,
+    //             auth_token: user.authToken || '',
+    //         })
+    //
+    //         unload()
+    //         emitUpdate(badgelet)
+    //         props.handleClose()
+    //         showToast('Accept success')
+    //         // navigate(`/profile/${user.userName}`)
+    //     } catch (e: any) {
+    //         unload()
+    //         console.log('[handleAccept]: ', e)
+    //         showToast(e.message || 'Accept fail')
+    //     }
+    // }
+    //
+    // const handleReject = async () => {
+    //     const unload = showLoading()
+    //     try {
+    //         const reject = await solas.rejectBadgelet({
+    //             badgelet_id: badgelet.id,
+    //             auth_token: user.authToken || ''
+    //         })
+    //
+    //         unload()
+    //         emitUpdate(badgelet)
+    //         props.handleClose()
+    //         showToast('rejected')
+    //     } catch (e: any) {
+    //         unload()
+    //         console.log('[handleAccept]: ', e)
+    //         showToast(e.message || 'Reject fail')
+    //     }
+    // }
 
     const LoginBtn = <AppButton
         special
@@ -130,12 +130,12 @@ function DetailBadgelet(props: DetailBadgeletProps) {
             special
             kind={BTN_KIND.primary}
             onClick={() => {
-                handleAccept()
+                // handleAccept()
             }}>
             {lang['BadgeDialog_Btn_Accept']}
         </AppButton>
         <AppButton onClick={() => {
-            handleReject()
+            // handleReject()
         }}>
             {lang['BadgeDialog_Btn_Reject']}
         </AppButton>
@@ -226,14 +226,16 @@ function DetailBadgelet(props: DetailBadgeletProps) {
                 </>
             }
 
-            <BtnGroup>
-                {!user.userName && LoginBtn}
-                {!!user.userName
-                    && (isGroupManager || isBadgeletOwner)
-                    && props.voucher
-                    && props.voucher.counter !== 0
-                    && ActionBtns}
-            </BtnGroup>
+            { false &&
+                <BtnGroup>
+                    {!user.userName && LoginBtn}
+                    {!!user.userName
+                        && (isGroupManager || isBadgeletOwner)
+                        && props.voucher
+                        && props.voucher!.counter !== 0
+                        && ActionBtns}
+                </BtnGroup>
+            }
         </DetailWrapper>
     )
 }

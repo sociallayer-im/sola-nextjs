@@ -98,8 +98,8 @@ function DetailGiftItem(props: DetailNftpassletProps) {
                 const badgelet = await queryBadgeletDetail({
                     id: nftpasslet.id,
                 })
-                if (badgelet.value !== nftpasslet.value) {
-                    setNftpasslet(badgelet)
+                if (badgelet?.value !== nftpasslet.value) {
+                    setNftpasslet(badgelet!)
                     emitUpdate(badgelet)
                     setShowChecked(true)
                     setShowQrcode(false)

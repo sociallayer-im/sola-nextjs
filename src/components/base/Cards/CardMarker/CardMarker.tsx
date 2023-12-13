@@ -37,7 +37,7 @@ function CardMarker(props: { item: Marker, participants?: Participants[], isActi
     const handleJoin = async (e: any) => {
         e.stopPropagation()
         const eventDetail = await queryEventDetail({id: props.item.event_id!})
-        const participantsAll = eventDetail.participants || []
+        const participantsAll = eventDetail!.participants || []
         const participants = participantsAll.filter(item => item.status !== 'cancel')
 
         if (eventDetail?.max_participant !== null && eventDetail?.max_participant <= participants.length) {
@@ -47,7 +47,7 @@ function CardMarker(props: { item: Marker, participants?: Participants[], isActi
 
         const unload = showLoading()
         try {
-            const join = await joinEvent({id: Number(eventDetail.id), auth_token: user.authToken || ''})
+            const join = await joinEvent({id: Number(eventDetail!.id), auth_token: user.authToken || ''})
             unload()
             showToast('Apply success')
             setHasJoin(true)
@@ -59,8 +59,8 @@ function CardMarker(props: { item: Marker, participants?: Participants[], isActi
     }
 
     useEffect(() => {
-        if (props.participants?.length) {
-            setHasJoin(props.participants?.some(item => item.event.id === props.item.event_id))
+        if (props.item.event_id) {
+            setHasJoin(!!props.participants?.some(item => item.event_id === props.item.event_id))
         }
     }, [props.participants])
 

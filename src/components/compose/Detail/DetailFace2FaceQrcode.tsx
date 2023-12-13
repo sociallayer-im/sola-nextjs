@@ -23,7 +23,7 @@ function DetailFace2FaceQrcode(props: DetailFace2FaceQrcodeProps) {
     const { user } = useContext(userContext)
 
     const handleCopy = () => {
-        const link = `https://${window.location.host}/presend/${presend?.id}_${code || ''}`
+        const link = `https://${window.location.host}/voucher/${presend?.id}_${code || ''}`
         const description = lang['IssueFinish_share']
             .replace('#1',  user.domain!)
             .replace('#2', presend?.badge.name || '')

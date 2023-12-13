@@ -250,9 +250,8 @@ function EventDetail(props: {event: Event | null, appName: string, host: string}
         })
     }
 
-    const genGoogleMapUrl = (location_detail: string) => {
-        const json = JSON.parse(location_detail)
-        return `https://www.google.com/maps/search/?api=1&query=${json.geometry.location.lat}%2C${json.geometry.location.lng}`
+    const genGoogleMapUrl = (lng: string, lat: string) => {
+        return `https://www.google.com/maps/search/?api=1&query=${lat}%2C${lng}`
     }
 
     return (<>
@@ -294,32 +293,12 @@ function EventDetail(props: {event: Event | null, appName: string, host: string}
                             </div>
                         }
 
-                        {!!eventSite &&
+                        {!!event.location &&
                             <div className={'detail-item'}>
                                 <i className={'icon-Outline'}/>
-                                {
-                                    eventSite.formatted_address ?
-                                        <a href={genGoogleMapUrl(eventSite.formatted_address)} target={'_blank'}>
-                                            {eventSite.title + `(${JSON.parse(eventSite.formatted_address).name})`}
-                                            <svg className={styles['link-icon']} xmlns="http://www.w3.org/2000/svg" width="8" height="8"
-                                                 viewBox="0 0 8 8" fill="none">
-                                                <path
-                                                    d="M7.10418 0.861667C7.04498 0.71913 6.93171 0.60586 6.78918 0.546667C6.71905 0.516776 6.64374 0.500922 6.56751 0.5H0.734177C0.579467 0.5 0.431094 0.561458 0.321698 0.670854C0.212302 0.780251 0.150843 0.928624 0.150843 1.08333C0.150843 1.23804 0.212302 1.38642 0.321698 1.49581C0.431094 1.60521 0.579467 1.66667 0.734177 1.66667H5.16168L0.32001 6.5025C0.265335 6.55673 0.221939 6.62125 0.192323 6.69233C0.162708 6.76342 0.147461 6.83966 0.147461 6.91667C0.147461 6.99367 0.162708 7.06992 0.192323 7.141C0.221939 7.21209 0.265335 7.2766 0.32001 7.33083C0.374238 7.38551 0.438756 7.42891 0.50984 7.45852C0.580925 7.48814 0.65717 7.50338 0.734177 7.50338C0.811184 7.50338 0.887429 7.48814 0.958513 7.45852C1.0296 7.42891 1.09411 7.38551 1.14834 7.33083L5.98418 2.48917V6.91667C5.98418 7.07138 6.04563 7.21975 6.15503 7.32915C6.26443 7.43854 6.4128 7.5 6.56751 7.5C6.72222 7.5 6.87059 7.43854 6.97999 7.32915C7.08939 7.21975 7.15084 7.07138 7.15084 6.91667V1.08333C7.14992 1.0071 7.13407 0.931796 7.10418 0.861667Z"
-                                                    fill="#272928"/>
-                                            </svg>
-                                        </a>
-                                        : <div>{eventSite.title + (eventSite.location ? `(${eventSite.location})` : '')}</div>
-                                }
-                            </div>
-                        }
-
-                        {event.location && !eventSite &&
-                            <div className={'detail-item'}>
-                                <i className={'icon-Outline'}/>
-                                {
-                                    event.formatted_address ?
-                                        <a href={genGoogleMapUrl(event.formatted_address)} target={'_blank'}>
-                                            {event.location === JSON.parse(event.formatted_address).name ? event.location:  event.location + `(${JSON.parse(event.formatted_address).name})`}
+                                { event.formatted_address ?
+                                        <a href={genGoogleMapUrl(event.geo_lng!, event.geo_lat!)} target={'_blank'}>
+                                            {event.location + `(${event.formatted_address})`}
                                             <svg className={styles['link-icon']} xmlns="http://www.w3.org/2000/svg" width="8" height="8"
                                                  viewBox="0 0 8 8" fill="none">
                                                 <path
@@ -331,6 +310,22 @@ function EventDetail(props: {event: Event | null, appName: string, host: string}
                                 }
                             </div>
                         }
+
+                        {!event.location && event.event_site &&
+                            <div className={'detail-item'}>
+                                <i className={'icon-Outline'}/>
+                                <a href={genGoogleMapUrl(event.event_site.geo_lng!, event.event_site.geo_lat!)} target={'_blank'}>
+                                    {event.event_site.title + `(${event.event_site.formatted_address})`}
+                                    <svg className={styles['link-icon']} xmlns="http://www.w3.org/2000/svg" width="8" height="8"
+                                         viewBox="0 0 8 8" fill="none">
+                                        <path
+                                            d="M7.10418 0.861667C7.04498 0.71913 6.93171 0.60586 6.78918 0.546667C6.71905 0.516776 6.64374 0.500922 6.56751 0.5H0.734177C0.579467 0.5 0.431094 0.561458 0.321698 0.670854C0.212302 0.780251 0.150843 0.928624 0.150843 1.08333C0.150843 1.23804 0.212302 1.38642 0.321698 1.49581C0.431094 1.60521 0.579467 1.66667 0.734177 1.66667H5.16168L0.32001 6.5025C0.265335 6.55673 0.221939 6.62125 0.192323 6.69233C0.162708 6.76342 0.147461 6.83966 0.147461 6.91667C0.147461 6.99367 0.162708 7.06992 0.192323 7.141C0.221939 7.21209 0.265335 7.2766 0.32001 7.33083C0.374238 7.38551 0.438756 7.42891 0.50984 7.45852C0.580925 7.48814 0.65717 7.50338 0.734177 7.50338C0.811184 7.50338 0.887429 7.48814 0.958513 7.45852C1.0296 7.42891 1.09411 7.38551 1.14834 7.33083L5.98418 2.48917V6.91667C5.98418 7.07138 6.04563 7.21975 6.15503 7.32915C6.26443 7.43854 6.4128 7.5 6.56751 7.5C6.72222 7.5 6.87059 7.43854 6.97999 7.32915C7.08939 7.21975 7.15084 7.07138 7.15084 6.91667V1.08333C7.14992 1.0071 7.13407 0.931796 7.10418 0.861667Z"
+                                            fill="#272928"/>
+                                    </svg>
+                                </a>
+                            </div>
+                        }
+
 
                         {event.meeting_url &&
                             <div className={'detail-item'} onClick={e => {

@@ -332,7 +332,7 @@ function DialogProvider (props: DialogProviderProps) {
 
                 return (
                     <Dialog { ...dialogProps } >
-                        { (close) => <DetailVoucher voucher={voucher}  handleClose={ close } /> }
+                        { (close) => <DetailVoucher voucher={voucher}  code={code} handleClose={ close } /> }
                     </Dialog>
                 )
             }

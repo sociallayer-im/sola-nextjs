@@ -265,12 +265,13 @@ function ComponentName(props: { group: Group }) {
 export default ComponentName
 
 export const getServerSideProps: any = (async (context: any) => {
-    const group = await getGroups({username: 'zfdgroup2'})
+    const groupname = context.params?.groupname
+    const group = await getGroups({username: groupname})
     return {props: {group: group[0]}}
 })
 
 function EventCard({event, blank}: { event: Event, blank?: boolean }) {
-    const isAllDay = (new Date(event.end_time!).getTime() - new Date(event.start_time!).getTime() + 60000) % 8640000 === 0
+    const isAllDay = new Date(event.start_time!).getHours() === 0 && ( (new Date(event.end_time!).getTime() - new Date(event.start_time!).getTime() + 60000) % 8640000 === 0)
     const fromTime = `${new Date(event.start_time!).getHours().toString().padStart(2, '0')} : ${new Date(event.start_time!).getMinutes().toString().padStart(2, '0')}`
     const toTime = `${new Date(event.end_time!).getHours().toString().padStart(2, '0')} : ${new Date(event.end_time!).getMinutes().toString().padStart(2, '0')}`
 

@@ -48,26 +48,26 @@ function Merge() {
 
     async function getData () {
         if (user.id) {
-            setLoading(true)
-            await getResource()
-
-            const beast = await getDivineBeast(user.id)
-            const completeBeast = beast.filter((item) => {
-                const metadata = JSON.parse(item.metadata!)
-                return metadata.properties.status === 'complete'
-            })
-
-            const buildingBeast = beast.filter((item) => {
-                const metadata = JSON.parse(item.metadata!)
-                return metadata.properties.status !== 'complete'
-            })
-
-            setSwiperInitIndex(completeBeast.length)
-
-            setTimeout(() => {
-                setMyBeasts([...completeBeast, ...buildingBeast])
-                setLoading(false)
-            }, 100)
+            // setLoading(true)
+            // await getResource()
+            //
+            // const beast = await getDivineBeast(user.id)
+            // const completeBeast = beast.filter((item) => {
+            //     const metadata = JSON.parse(item.metadata!)
+            //     return metadata.properties.status === 'complete'
+            // })
+            //
+            // const buildingBeast = beast.filter((item) => {
+            //     const metadata = JSON.parse(item.metadata!)
+            //     return metadata.properties.status !== 'complete'
+            // })
+            //
+            // setSwiperInitIndex(completeBeast.length)
+            //
+            // setTimeout(() => {
+            //     setMyBeasts([...completeBeast, ...buildingBeast])
+            //     setLoading(false)
+            // }, 100)
         } else {
             setMyBeasts([])
             setLoading(false)

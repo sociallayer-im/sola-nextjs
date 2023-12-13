@@ -94,6 +94,7 @@ function ComponentName(props: { group: Group }) {
     useEffect(() => {
         const getEventList = async () => {
             const events = await queryEvent({
+                group_id: eventGroup.id,
                 start_time_from: new Date(dayList.current[0].timestamp).toISOString(),
                 start_time_to: new Date(dayList.current[dayList.current.length - 1].timestamp).toISOString(),
                 page: 1
@@ -280,7 +281,6 @@ export default ComponentName
 
 export const getServerSideProps: any = (async (context: any) => {
     const groupname = context.params?.groupname
-
     if (groupname) {
         const group = await getGroups({username: groupname})
         return {props: {group: group[0]}}
@@ -288,7 +288,7 @@ export const getServerSideProps: any = (async (context: any) => {
 })
 
 function EventCard({event, blank}: { event: Event, blank?: boolean }) {
-    const isAllDay = (new Date(event.end_time!).getTime() - new Date(event.start_time!).getTime() + 60000) % 8640000 === 0
+    const isAllDay = new Date(event.start_time!).getHours() === 0 && ( (new Date(event.end_time!).getTime() - new Date(event.start_time!).getTime() + 60000) % 8640000 === 0)
     const fromTime = `${new Date(event.start_time!).getHours().toString().padStart(2, '0')} : ${new Date(event.start_time!).getMinutes().toString().padStart(2, '0')}`
     const toTime = `${new Date(event.end_time!).getHours().toString().padStart(2, '0')} : ${new Date(event.end_time!).getMinutes().toString().padStart(2, '0')}`
 

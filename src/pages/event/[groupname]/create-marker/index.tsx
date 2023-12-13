@@ -394,9 +394,9 @@ function ComponentName() {
                                 cleanable={false}
                                 errorMsg={locationError}
                                 initValue={{
-                                    customLocation: '',
+                                    location: '',
                                     eventSite: null,
-                                    metaData: location || ''
+                                    formatted_address: ''
                                 }}
                                 arrowAlias={false}
                                 eventGroup={eventGroup} onChange={e => {
