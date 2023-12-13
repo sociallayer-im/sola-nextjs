@@ -3350,7 +3350,7 @@ export async function divineBeastRemerge(props: DivineBeastRmergeProps) {
 
 export async function getEventGroup() {
     const doc = gql`query MyQuery {
-      groups(where: {event_enabled: {_eq: true}, status: {_neq: "freezed"}, memberships: {role: {_neq: "owner"}}}) {
+      groups(where: {event_enabled: {_eq: true}, status: {_neq: "freezed"}}) {
         about
         banner_image_url
         banner_link_url
