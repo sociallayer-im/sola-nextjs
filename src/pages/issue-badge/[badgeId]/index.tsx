@@ -19,6 +19,10 @@ export function IssueBadge() {
     const [selectedProfiles, setSelectedProfiles] = useState<Profile[]>([])
     const [searchRes, setSearchRes] = useState<Profile[]>([])
     const [reason, setReason] = useState('')
+    const [csvRow, setCsvRow] = useState<string[]>([])
+    const [selectedCsvRow, setSelectedCsvRow] = useState<string[]>([])
+    const [presendAmount, setPresendAmount] = useState(1)
+
     const {showToast, showLoading} = useContext(DialogsContext)
     const {user} = useContext(userContext)
     const params = useParams()
@@ -69,6 +73,46 @@ export function IssueBadge() {
             unload()
             showToast(e.message || 'Issue fail')
         }
+    }
+
+    const uploadFile = async () => {
+        const input = document.createElement('input')
+        input.type = 'file'
+        input.accept = '.csv'
+        input.onchange = async (e: any) => {
+            const file = e.target.files[0]
+            if (!file) return
+
+            return new Promise((resolve, reject) => {
+                const selectedFile = file
+                const nameArry = selectedFile.name.split('.')
+                const name = nameArry[nameArry.length - 1].toLowerCase()
+
+                if (name !== 'csv') {
+                    reject(new Error('Invalid file type'))
+                }
+
+                const reader = new FileReader()
+                reader.readAsText(selectedFile)
+
+                reader.onload = () => {
+                    const str: string = reader.result as string
+                    let rows = str.split('\n')
+                    rows = rows.map(item => {
+                        return item.replace('\r', '')
+                    })
+
+                    rows = rows.filter(item => {
+                        return !!item
+                    })
+
+                    setCsvRow(rows)
+                    resolve(rows)
+                }
+            })
+        }
+
+        input.click()
     }
 
     return (
@@ -184,14 +228,81 @@ export function IssueBadge() {
 
                             {
                                 inputIssuesType === 1 &&
-                                <div className={styles['sub-content']}>s 2</div>
+                                <div className={styles['sub-content']}>
+                                    <div className={styles['csv-upload']}>
+                                        <div className={styles['csv-res']}>
+                                            {
+                                                csvRow.map((item, index) => {
+                                                    return <div key={item}>{item}</div>
+                                                })
+                                            }
+                                        </div>
+                                        <div className={styles['csv-action']}>
+                                            <div className={styles['csv-count']}>{csvRow.length} lines entered</div>
+                                            <AppButton special size={'compact'} onClick={() => {
+                                                uploadFile()
+                                            }}>{'Selected CSV'}</AppButton>
+                                            <AppButton special size={'compact'}
+                                                       onClick={e => {
+                                                           setSelectedCsvRow([...csvRow, ...selectedCsvRow])
+                                                           setCsvRow([])
+                                                       }}>
+                                                {'Confirm'
+                                                }</AppButton>
+                                        </div>
+                                    </div>
+
+                                    <div className={styles['selected']}>
+                                        <div className={styles['selected-title']}>
+                                            <div>{'Send to:'}</div>
+                                            <div>{selectedCsvRow.length} {lang['Group_invite_receiver']}</div>
+                                        </div>
+                                    </div>
+
+                                    <div className={styles['csv-selected']}>
+                                        {
+                                            selectedCsvRow.map((item, index) => {
+                                                return <div className={styles['csv-row']} key={item}>
+                                                    <div>{item}</div>
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="15" viewBox="0 0 14 15" fill="none">
+                                                        <rect x="0.933594" y="0.311035" width="18.479" height="1.31993" rx="0.659966" transform="rotate(45 0.933594 0.311035)" fill="#272928"/>
+                                                        <rect x="14" y="0.933105" width="18.479" height="1.31993" rx="0.659966" transform="rotate(135 14 0.933105)" fill="#272928"/>
+                                                    </svg>
+                                                </div>
+                                            })
+                                        }
+                                    </div>
+
+                                    <div className={styles['action']}>
+                                        <AppButton special onClick={e => {
+                                            handleSend()
+                                        }}>{lang['Send_The_Badge']}</AppButton>
+                                        <div className={styles['later']} onClick={e => {
+                                            user.userName ? router.push(`/user/${user.userName}`)
+                                                : router.push(`/`)
+                                        }}>
+                                            {lang['MintFinish_Button_Later']}
+                                        </div>
+                                    </div>
+                                </div>
                             }
                         </div>
                     }
 
                     {
                         sendType === 1 &&
-                        <div className={'content'}>2</div>
+                        <div className={'content'}>
+                            <div className={'presend-amount'}>
+                                send
+                                <AppInput value={presendAmount.toString()} onChange={e => {
+                                    const inputValue = e.target.value
+                                    const onlyNumbers = /^[0-9]*$/; // 正则表达式匹配数字
+
+                                    if (inputValue === '' || onlyNumbers.test(inputValue)) {
+                                        setPresendAmount(inputValue)}}
+                                }></AppInput>
+                            </div>
+                        </div>
                     }
                 </div>
             </div>
