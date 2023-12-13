@@ -1,5 +1,5 @@
 import { useState, useContext, useEffect, forwardRef } from 'react'
-import {Group, Profile, getProfile, queryGroupsUserCreated} from '@/service/solas'
+import {Group, Profile, getProfile, queryGroupsUserCreated, queryGroupsUserManager} from '@/service/solas'
 import { useSearchParams } from 'next/navigation'
 import UserContext from '../../provider/UserProvider/UserContext'
 import { withStyle, styled } from 'baseui'
@@ -107,10 +107,11 @@ function SelectCreator({autoSet=true, ...props}: SelectCreatorProp) {
             if (!profile) return
 
             const groups = await queryGroupsUserCreated({ profile_id: user.id!})
+            const groups2 = await queryGroupsUserManager({ profile_id: user.id!})
             if (props.groupFirst) {
-                setList([...groups, profile!])
-            } else  {
-                setList([profile!, ...groups])
+                setList([...groups, ...groups2, profile!])
+            } else {
+                setList([profile!, ...groups, ...groups2])
             }
 
             const groupSenderDomain = searchParams?.get('group')

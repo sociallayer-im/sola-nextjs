@@ -1,11 +1,10 @@
 import {useContext, useEffect, useRef, useState} from 'react'
-import {Event, getGroups, Group, queryEvent} from "@/service/solas";
+import {Event, getGroups, Group, queryEvent, queryGroupDetail} from "@/service/solas";
 import styles from './schedule.module.scss'
 import EventLabels from "@/components/base/EventLabels/EventLabels";
 import Link from 'next/link'
 import UserContext from "@/components/provider/UserProvider/UserContext";
 import LangContext from "@/components/provider/LangProvider/LangContext";
-import {SwiperSlide} from 'swiper/react'
 import usePicture from "@/hooks/pictrue";
 import {getLabelColor} from "@/hooks/labelColor";
 
@@ -72,7 +71,7 @@ function ComponentName(props: { group: Group }) {
     const touchStartScrollLeft = useRef(0)
     const touchStartScrollTop = useRef(0)
 
-    const slideToToday = (init=false) => {
+    const slideToToday = (init = false) => {
         const scrollBar1 = scroll1Ref.current
         const scrollBar2 = scroll2Ref.current
 
@@ -164,14 +163,16 @@ function ComponentName(props: { group: Group }) {
         }
 
         const checkMouseup = (e: any) => {
+            e.preventDefault()
             touchStart.current = false
         }
 
         const checkMousemove = (e: any) => {
+            e.preventDefault()
             if (touchStart.current) {
-                const offsetX =  e.clientX - touchStartX.current
+                const offsetX = e.clientX - touchStartX.current
                 const offsetY = e.clientY - touchStartY.current
-                    console.log('mousemove', offsetX, offsetY)
+                console.log('mousemove', offsetX, offsetY)
                 scroll2Ref.current.scrollLeft = touchStartScrollLeft.current - offsetX
                 scroll2Ref.current.scrollTop = touchStartScrollTop.current - offsetY
             }
@@ -189,7 +190,7 @@ function ComponentName(props: { group: Group }) {
 
         checkTouch()
 
-        if(scroll1Ref.current && scroll2Ref.current) {
+        if (scroll1Ref.current && scroll2Ref.current) {
             const scrollBar1 = scroll1Ref.current
             const scrollBar2 = scroll2Ref.current
 
@@ -258,14 +259,16 @@ function ComponentName(props: { group: Group }) {
                             </div>
                         </div>
                         <Link className={styles['create-btn-2']} href={`https://app.sola.day`} target={'_blank'}>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="17" height="16" viewBox="0 0 17 16" fill="none">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="17" height="16" viewBox="0 0 17 16"
+                                 fill="none">
                                 <path
                                     d="M13.1667 7.33335H9.16675V3.33335C9.16675 3.15654 9.09651 2.98697 8.97149 2.86195C8.84646 2.73693 8.67689 2.66669 8.50008 2.66669C8.32327 2.66669 8.1537 2.73693 8.02868 2.86195C7.90365 2.98697 7.83341 3.15654 7.83341 3.33335V7.33335H3.83341C3.6566 7.33335 3.48703 7.40359 3.36201 7.52862C3.23699 7.65364 3.16675 7.82321 3.16675 8.00002C3.16675 8.17683 3.23699 8.3464 3.36201 8.47142C3.48703 8.59645 3.6566 8.66669 3.83341 8.66669H7.83341V12.6667C7.83341 12.8435 7.90365 13.0131 8.02868 13.1381C8.1537 13.2631 8.32327 13.3334 8.50008 13.3334C8.67689 13.3334 8.84646 13.2631 8.97149 13.1381C9.09651 13.0131 9.16675 12.8435 9.16675 12.6667V8.66669H13.1667C13.3436 8.66669 13.5131 8.59645 13.6382 8.47142C13.7632 8.3464 13.8334 8.17683 13.8334 8.00002C13.8334 7.82321 13.7632 7.65364 13.6382 7.52862C13.5131 7.40359 13.3436 7.33335 13.1667 7.33335Z"
                                     fill="#272928"/>
                             </svg>
                         </Link>
                         <Link className={styles['create-btn']} href={`https://app.sola.day`} target={'_blank'}>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="17" height="16" viewBox="0 0 17 16" fill="none">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="17" height="16" viewBox="0 0 17 16"
+                                 fill="none">
                                 <path
                                     d="M13.1667 7.33335H9.16675V3.33335C9.16675 3.15654 9.09651 2.98697 8.97149 2.86195C8.84646 2.73693 8.67689 2.66669 8.50008 2.66669C8.32327 2.66669 8.1537 2.73693 8.02868 2.86195C7.90365 2.98697 7.83341 3.15654 7.83341 3.33335V7.33335H3.83341C3.6566 7.33335 3.48703 7.40359 3.36201 7.52862C3.23699 7.65364 3.16675 7.82321 3.16675 8.00002C3.16675 8.17683 3.23699 8.3464 3.36201 8.47142C3.48703 8.59645 3.6566 8.66669 3.83341 8.66669H7.83341V12.6667C7.83341 12.8435 7.90365 13.0131 8.02868 13.1381C8.1537 13.2631 8.32327 13.3334 8.50008 13.3334C8.67689 13.3334 8.84646 13.2631 8.97149 13.1381C9.09651 13.0131 9.16675 12.8435 9.16675 12.6667V8.66669H13.1667C13.3436 8.66669 13.5131 8.59645 13.6382 8.47142C13.7632 8.3464 13.8334 8.17683 13.8334 8.00002C13.8334 7.82321 13.7632 7.65364 13.6382 7.52862C13.5131 7.40359 13.3436 7.33335 13.1667 7.33335Z"
                                     fill="#272928"/>
@@ -292,7 +295,7 @@ function ComponentName(props: { group: Group }) {
                     }
                 </div>
             </div>
-            <div className={`${styles['event-wrapper']} event-wrapper`}  ref={scroll2Ref}>
+            <div className={`${styles['event-wrapper']} event-wrapper`} ref={scroll2Ref}>
                 <div className={`${styles['event-list']} event-list`}>
                     {showList.map((item: any, index) => {
                         return <div key={index + ''} className={`${styles['date-column']} date-column`}>
@@ -318,13 +321,28 @@ export const getServerSideProps: any = (async (context: any) => {
     return {props: {group: group[0]}}
 })
 
-function EventCard({event, blank}: { event: Event, blank?: boolean }) {
-    const isAllDay = new Date(event.start_time!).getHours() === 0 && ( (new Date(event.end_time!).getTime() - new Date(event.start_time!).getTime() + 60000) % 8640000 === 0)
+function EventCard({event, blank, disable}: { event: Event, blank?: boolean, disable?: boolean }) {
+    const isAllDay = new Date(event.start_time!).getHours() === 0 && ((new Date(event.end_time!).getTime() - new Date(event.start_time!).getTime() + 60000) % 8640000 === 0)
     const fromTime = `${new Date(event.start_time!).getHours().toString().padStart(2, '0')} : ${new Date(event.start_time!).getMinutes().toString().padStart(2, '0')}`
     const toTime = `${new Date(event.end_time!).getHours().toString().padStart(2, '0')} : ${new Date(event.end_time!).getMinutes().toString().padStart(2, '0')}`
 
+    const [groupHost, setGroupHost] = useState<Group | null>(null)
+    const [ready, setReady] = useState(false)
+    useEffect(() => {
+        if (event.host_info) {
+            queryGroupDetail(Number(event.host_info)).then((res: any) => {
+                setGroupHost(res)
+                setReady(true)
+            })
+        } else {
+            setReady(true)
+        }
+    }, [event.host_info])
+
     const {defaultAvatar} = usePicture()
-    return <Link className={styles['schedule-event-card']} href={`/event/detail/${event.id}`}
+    return <Link className={styles['schedule-event-card']} href={`/event/detail/${event.id}`} onClick={e => {
+        disable && e.preventDefault()
+    }}
                  target={blank ? '_blank' : '_self'}>
         <div className={styles['schedule-event-card-time']}>
             {isAllDay ? 'All Day' : `${fromTime}--${toTime}`}
@@ -332,11 +350,26 @@ function EventCard({event, blank}: { event: Event, blank?: boolean }) {
         <div className={styles['schedule-event-card-name']}>
             {event.title}
         </div>
-        <div className={styles['schedule-event-card-host']}>
-            <img className={styles['schedule-event-card-avatar']}
-                 src={event.owner.image_url || defaultAvatar(event.owner.id)} alt=""/>
-            {event.owner.nickname || event.owner.username}
+
+        <div style={{height: '18px'}}>
+            { ready && <>
+                   { !!groupHost ? <div className={styles['schedule-event-card-host']}>
+                           <img className={styles['schedule-event-card-avatar']}
+                                src={groupHost.image_url || defaultAvatar(groupHost.id)} alt=""/>
+                           {groupHost.nickname || groupHost.username}
+                       </div>
+                       :
+                       <div className={styles['schedule-event-card-host']}>
+                           <img className={styles['schedule-event-card-avatar']}
+                                src={event.owner.image_url || defaultAvatar(event.owner.id)} alt=""/>
+                           {event.owner.nickname || event.owner.username}
+                       </div>
+                   }
+               </>
+            }
         </div>
+
+
         {!!event.location && !event.event_site &&
             <div className={styles['schedule-event-card-position']}
                  onClick={e => {

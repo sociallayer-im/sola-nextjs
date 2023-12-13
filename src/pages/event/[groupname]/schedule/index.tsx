@@ -1,5 +1,5 @@
 import {useContext, useEffect, useRef, useState} from 'react'
-import {Event, getGroups, Group, queryEvent} from "@/service/solas";
+import {Event, getGroups, Group, queryEvent, queryGroupDetail} from "@/service/solas";
 import styles from './schedule.module.scss'
 import EventLabels from "@/components/base/EventLabels/EventLabels";
 import Link from 'next/link'
@@ -287,13 +287,28 @@ export const getServerSideProps: any = (async (context: any) => {
     }
 })
 
-function EventCard({event, blank}: { event: Event, blank?: boolean }) {
-    const isAllDay = new Date(event.start_time!).getHours() === 0 && ( (new Date(event.end_time!).getTime() - new Date(event.start_time!).getTime() + 60000) % 8640000 === 0)
+function EventCard({event, blank, disable}: { event: Event, blank?: boolean, disable?: boolean }) {
+    const isAllDay = new Date(event.start_time!).getHours() === 0 && ((new Date(event.end_time!).getTime() - new Date(event.start_time!).getTime() + 60000) % 8640000 === 0)
     const fromTime = `${new Date(event.start_time!).getHours().toString().padStart(2, '0')} : ${new Date(event.start_time!).getMinutes().toString().padStart(2, '0')}`
     const toTime = `${new Date(event.end_time!).getHours().toString().padStart(2, '0')} : ${new Date(event.end_time!).getMinutes().toString().padStart(2, '0')}`
 
+    const [groupHost, setGroupHost] = useState<Group | null>(null)
+    const [ready, setReady] = useState(false)
+    useEffect(() => {
+        if (event.host_info) {
+            queryGroupDetail(Number(event.host_info)).then((res: any) => {
+                setGroupHost(res)
+                setReady(true)
+            })
+        } else {
+            setReady(true)
+        }
+    }, [event.host_info])
+
     const {defaultAvatar} = usePicture()
-    return <Link className={styles['schedule-event-card']} href={`/event/detail/${event.id}`}
+    return <Link className={styles['schedule-event-card']} href={`/event/detail/${event.id}`} onClick={e => {
+        disable && e.preventDefault()
+    }}
                  target={blank ? '_blank' : '_self'}>
         <div className={styles['schedule-event-card-time']}>
             {isAllDay ? 'All Day' : `${fromTime}--${toTime}`}
@@ -301,11 +316,26 @@ function EventCard({event, blank}: { event: Event, blank?: boolean }) {
         <div className={styles['schedule-event-card-name']}>
             {event.title}
         </div>
-        <div className={styles['schedule-event-card-host']}>
-            <img className={styles['schedule-event-card-avatar']}
-                 src={event.owner.image_url || defaultAvatar(event.owner.id)} alt=""/>
-            {event.owner.nickname || event.owner.username}
+
+        <div style={{height: '18px'}}>
+            { ready && <>
+                { !!groupHost ? <div className={styles['schedule-event-card-host']}>
+                        <img className={styles['schedule-event-card-avatar']}
+                             src={groupHost.image_url || defaultAvatar(groupHost.id)} alt=""/>
+                        {groupHost.nickname || groupHost.username}
+                    </div>
+                    :
+                    <div className={styles['schedule-event-card-host']}>
+                        <img className={styles['schedule-event-card-avatar']}
+                             src={event.owner.image_url || defaultAvatar(event.owner.id)} alt=""/>
+                        {event.owner.nickname || event.owner.username}
+                    </div>
+                }
+            </>
+            }
         </div>
+
+
         {!!event.location && !event.event_site &&
             <div className={styles['schedule-event-card-position']}
                  onClick={e => {

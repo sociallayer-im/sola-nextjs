@@ -324,7 +324,7 @@ function ComponentName(props: { markerType: string | null, eventGroup: Group} ) 
                     lng: 150.644
                 },
                 zoom: defaultZoom,
-                mapId: eventGroup.id === 1984 ? '2c7555ce0787c1b' : 'e2f9ddc0facd5a80',
+                mapId: '2c7555ce0787c1b',
             })
         }
     }, [MapReady, mapDomRef, eventGroup])

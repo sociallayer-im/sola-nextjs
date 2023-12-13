@@ -971,6 +971,9 @@ export interface Group extends Profile {
     memberships: Membership[],
     event_enabled: boolean
     map_enabled: boolean
+    can_publish_event: string
+    can_join_event: string
+    can_view_event: string
 }
 
 export interface QueryUserGroupProps {
@@ -1025,6 +1028,51 @@ export async function queryGroupsUserJoined(props: QueryUserGroupProps): Promise
 export async function queryGroupsUserCreated(props: QueryUserGroupProps): Promise<Group[]> {
     const doc = gql`query MyQuery {
       groups(where: {status: {_neq: "freezed"}, memberships: {role: {_eq: "owner"}, profile: {id: {_eq: "${props.profile_id}"}}}}) {
+        about
+        banner_image_url
+        banner_link_url
+        banner_text
+        can_join_event
+        can_publish_event
+        can_view_event
+        created_at
+        event_tags
+        event_enabled
+        map_enabled
+        id
+        image_url
+        lens
+        location
+        nickname
+        status
+        telegram
+        twitter
+        username
+        discord
+        ens
+        memberships(where: {role: {_eq: "owner"}}) {
+          id
+          role
+          profile {
+            id
+            nickname
+            username
+            image_url
+          }
+        }
+      }
+    }`
+
+    const res: any = await request(graphUrl, doc)
+    return res.groups.map((item : any) => {
+        item.creator = item.memberships[0].profile
+        return item
+    })
+}
+
+export async function queryGroupsUserManager(props: QueryUserGroupProps): Promise<Group[]> {
+    const doc = gql`query MyQuery {
+      groups(where: {status: {_neq: "freezed"}, memberships: {role: {_eq: "manager"}, profile: {id: {_eq: "${props.profile_id}"}}}}) {
         about
         banner_image_url
         banner_link_url
@@ -2809,9 +2857,11 @@ export async function queryEvent(props: QueryEventProps): Promise<Event[]> {
         order = `order_by: {start_time: ${props.event_order}}, `
     }
 
+    variables = variables.replace(/,$/, '')
+
 
     const doc = gql`query MyQuery {
-      events (where: {${variables}} ${order} limit: 50, offset: ${(props.page - 1) * 50}) {
+      events (where: {${variables}, status: {_eq: "open"}} ${order} limit: 50, offset: ${(props.page - 1) * 50}) {
         badge_id
         geo_lat
         geo_lng
@@ -3042,7 +3092,7 @@ export async function unJoinEvent(props: JoinEventProps) {
 
 export async function searchEvent(keyword: string) {
     const doc = gql`query MyQuery {
-      events (where: {title: {_iregex: "${keyword}"}}, limit: 50) {
+      events (where: {title: {_iregex: "${keyword}"} , status: {_neq: "closed"}}, limit: 50) {
         badge_id
         geo_lat
         geo_lng
@@ -3665,9 +3715,9 @@ export interface Marker {
     map_checkins_count: number,
     map_checkins?: MarkerCheckinDetail[] | undefined,
     event_id: number | null,
-    host_info: string | null
     jubmoji_code?: string | null,
     zugame_state?: string | null,
+    event?: Event | null,
 }
 
 export interface CreateMarkerProps extends Partial<Marker> {
@@ -3782,6 +3832,10 @@ export async function queryMarkers(props: {
             created_at
             end_time
             event_id
+            event {
+                id
+                host_info
+            }
             formatted_address
             geo_lat
             geo_lng

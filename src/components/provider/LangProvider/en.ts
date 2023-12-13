@@ -248,7 +248,7 @@ const langEN = {
     Activity_Detail_Btn_add_Calender: 'Add to calendar',
     Activity_Detail_Badge: 'Registration for the event, upon completion, will be rewarded with POAP*1',
     Activity_Detail_Guest: 'Guest',
-    Activity_Detail_Offline_location: 'In person',
+    Activity_Detail_Offline_location: 'Location',
     Activity_Detail_Offline_location_Custom: 'Select the location',
     Activity_Detail_Offline_Tg: 'Event Telegram group (Optional)',
     Activity_Detail_Offline_Tg_des: 'The group link will be displayed after participants have Applied.',
