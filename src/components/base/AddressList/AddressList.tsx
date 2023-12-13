@@ -4,6 +4,7 @@ import { Group, Profile } from "@/service/solas";
 interface AddressListProp<T> {
     data: Array<Group | Profile>,
     selected?: Array<T>
+    deletedOnly?: boolean
     onClick?: (target: Group | Profile, index: number) => any
 }
 function AddressList<T>({ selected = [], ...props }: AddressListProp<T>) {
@@ -21,6 +22,10 @@ function AddressList<T>({ selected = [], ...props }: AddressListProp<T>) {
                         <span>{item.nickname || item.username }</span>
                     </div>
                     { isSelected ? <i className='icon icon-selected' title='selected'></i> : false }
+                    { props.deletedOnly && <svg xmlns="http://www.w3.org/2000/svg" width="14" height="15" viewBox="0 0 14 15" fill="none">
+                        <rect x="0.933594" y="0.311035" width="18.479" height="1.31993" rx="0.659966" transform="rotate(45 0.933594 0.311035)" fill="#272928"/>
+                        <rect x="14" y="0.933105" width="18.479" height="1.31993" rx="0.659966" transform="rotate(135 14 0.933105)" fill="#272928"/>
+                    </svg>}
                 </div>
             })
         }

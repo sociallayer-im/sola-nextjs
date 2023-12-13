@@ -18,7 +18,7 @@ export default CreateBadge
 
 
 export async function getStaticProps() {
-    const group = await getGroups({username: 'zfdgroup2'})
+    const group = await getGroups({username: 'playground2'})
     return {props: {group: group[0]}}
 }
 

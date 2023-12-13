@@ -120,6 +120,7 @@ export default function AppInput(props: AppInputProps) {
     return (
         <>
             <Input
+                autoComplete={ 'off' }
                 onKeyUp={ (e) => { if (props.onKeyUp) { props.onKeyUp(e) } } }
                 value={ props.value }
                 maxLength={ props.maxLength }

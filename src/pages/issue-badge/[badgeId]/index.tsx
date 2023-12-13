@@ -1,89 +1,66 @@
-import {useRouter, useParams, useSearchParams } from "next/navigation";
-import {useContext, useEffect, useState} from 'react'
-import PageBack from '@/components/base/PageBack'
-import LangContext from '@/components/provider/LangProvider/LangContext'
-import solas, {Badge} from '@/service/solas'
-import DialogsContext from '@/components/provider/DialogProvider/DialogsContext'
-import UserContext from '@/components/provider/UserProvider/UserContext'
-import IssueTypeSelectorBadge, {
-    IssueType,
-    IssueTypeSelectorData
-} from "@/components/compose/IssueTypeSelectorBadge/IssueTypeSelectorBadge";
+import styles from './IssueBadge.module.scss'
+import PageBack from "@/components/base/PageBack";
+import LangContext from "@/components/provider/LangProvider/LangContext";
+import {useContext, useEffect, useState} from "react";
+import AppInput from "@/components/base/AppInput";
+import AddressList from "@/components/base/AddressList/AddressList";
+import {issueBatch, Profile, queryBadgeDetail, searchDomain} from "@/service/solas";
+import AppButton from "@/components/base/AppButton/AppButton";
+import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
+import {useParams, useRouter} from 'next/navigation'
+import userContext from "@/components/provider/UserProvider/UserContext";
 
-function Issue() {
-    const {user} = useContext(UserContext)
+
+export function IssueBadge() {
+    const {lang} = useContext(LangContext)
+    const [sendType, setSendType] = useState(0)
+    const [inputIssuesType, setInputIssuesType] = useState(0)
+    const [domainSearchKey, setDomainSearchKey] = useState('')
+    const [selectedProfiles, setSelectedProfiles] = useState<Profile[]>([])
+    const [searchRes, setSearchRes] = useState<Profile[]>([])
+    const [reason, setReason] = useState('')
     const {showToast, showLoading} = useContext(DialogsContext)
-    const [badge, setBadge] = useState<Badge | null>(null)
+    const {user} = useContext(userContext)
     const params = useParams()
-    const SearchParams = useSearchParams()
     const router = useRouter()
 
-    // 处理预填接受者
-    const presetAcceptor = SearchParams.get('to')
-    const [initIssueType, setInitIssueType] = useState<IssueType>(presetAcceptor ? 'issue' : 'unset')
-    const initIssues = presetAcceptor ? [presetAcceptor, ''] : ['']
-
-    const {lang} = useContext(LangContext)
+    useEffect(() => {
+        if (domainSearchKey) {
+            searchDomain({username: domainSearchKey, page: 1}).then(res => {
+                if (res) {
+                    setSearchRes(res)
+                }
+            })
+        }
+    }, [domainSearchKey])
 
     useEffect(() => {
-        async function getBadgeInfo() {
-            const badge = await solas.queryBadgeDetail({id: Number(params.badgeId)})
-
-            // nftpass 和 private badge 只能 issue
-            if (badge!.badge_type ==='nftpass' || badge!.badge_type === 'private') {
-                setInitIssueType('issue')
-            }
-            setBadge(badge)
-        }
-
         if (params?.badgeId) {
-            getBadgeInfo()
+            const badge = queryBadgeDetail({id: Number(params.badgeId)})
+                .then(res => {
+                    setReason(res?.content || '')
+                })
         }
-    }, [params])
+    }, [params?.badgeId])
 
-    const handleCreatePresend = async (data: IssueTypeSelectorData) => {
-        if (!data.presendAmount) {
-            data.presendAmount = null
-        }
-
-        if (data.presendAmount === '0') {
-            data.presendAmount = null
-        }
-
-        const unload = showLoading()
-        try {
-            const presend = await solas.createPresend({
-                badge_id: badge?.id!,
-                message: SearchParams.get('reason') || '',
-                counter: data.presendAmount ? Number(data.presendAmount) : null,
-                auth_token: user.authToken || ''
-            })
-            const code = await solas.getVoucherCode({id: presend.id, auth_token: user.authToken || ''})
-            unload()
-            router.push(`/issue-success?voucher=${presend.id}&code=${code}`)
-        } catch (e: any) {
-            console.log('[handleCreatePresend]: ', e)
-            unload()
-            showToast(e.message || 'Create presend fail')
-        }
-    }
-
-    const handleCreateIssue = async (data: IssueTypeSelectorData) => {
-        const checkedIssues = data.issues.filter(item => !!item)
-        if (!checkedIssues.length) {
-            showToast('Please type in issues')
+    const handleSend = async () => {
+        if (!selectedProfiles.length) {
+            showToast('Please select at least one receiver')
             return
         }
 
-        console.log('checkedIssues', checkedIssues)
+        if (!params.badgeId) {
+            showToast('Invalid badge id')
+            return
+        }
 
         const unload = showLoading()
         try {
-            const vouchers = await solas.issueBatch({
-                badgeId: badge?.id!,
-                reason: SearchParams.get('reason') || '',
-                issues: checkedIssues,
-                auth_token: user.authToken || ''
+            const vouchers = await issueBatch({
+                badgeId: Number(params.badgeId!),
+                issues: selectedProfiles.map(item => item.username!),
+                auth_token: user.authToken || '',
+                reason: reason
             })
             unload()
             router.push(`/issue-success?voucher=${vouchers[0].id}`)
@@ -94,50 +71,133 @@ function Issue() {
         }
     }
 
-    const handleCreate = async (data: IssueTypeSelectorData) => {
-        if (data.issueType === 'presend') {
-            handleCreatePresend(data)
-        }
-
-        if (data.issueType === 'issue') {
-            handleCreateIssue(data)
-        }
-
-        if (data.issueType === 'unset' && (badge?.badge_type === 'badge' || data.issueType === null)) {
-            const _data = {...data}
-            _data.presendAmount = null
-            handleCreatePresend(data)
-        }
-    }
-
-    const fallBackPath = badge?.group
-        ? `/group/${badge?.group.username}`
-        : user.userName
-            ? `/profile/${user.userName}`
-            : '/'
-
     return (
-        <>
-            <div className='issue-badge-page'>
-                <div className='issue-page-wrapper'>
-                    <PageBack historyReplace to={fallBackPath}/>
-                    <div className={'issue-text'}>
-                        <div className={'title'}>{lang['Create_Badge_Success_Title']}</div>
-                        <div className={'des'}>{lang['Create_Badge_Success_Des']}</div>
+        <div className={styles['page']}>
+            <div className={styles['center']}><PageBack/></div>
+            <div className={styles['center']}>
+                <div className={'column'}>
+                    <div className={styles['title']}>{lang['Send_The_Badge']}</div>
+                    <div className={styles['tab1']}>
+                        <div className={styles['tab1-item']} onClick={e => {
+                            setSendType(0)
+                        }}>
+                            <div
+                                className={sendType === 0 ? styles['tab1-item-text-active'] : styles['tab1-item-text']}>{lang['Select_Receivers']}</div>
+                        </div>
+                        <div className={styles['tab1-item']} onClick={e => {
+                            setSendType(1)
+                        }}>
+                            <div
+                                className={sendType === 1 ? styles['tab1-item-text-active'] : styles['tab1-item-text']}>
+                                {lang['Badge_Amount']}
+                            </div>
+                        </div>
                     </div>
-                    <IssueTypeSelectorBadge
-                        presendDisable={ badge?.badge_type && badge?.badge_type !== 'badge'}
-                        initIssueType={initIssueType}
-                        initIssues={initIssues}
-                        onConfirm={handleCreate}
-                        onCancel={() => {
-                            router.replace(fallBackPath)
-                        }}
-                    />
+
+                    {
+                        sendType === 0 &&
+                        <div className={styles['content']}>
+                            <div className={styles['tab2']}>
+                                <div
+                                    className={inputIssuesType === 0 ? styles['tab2-item-active'] : styles['tab2-item']}
+                                    onClick={e => {
+                                        setInputIssuesType(0)
+                                    }}>
+                                    {lang['From_Domain']}
+                                </div>
+                                <div
+                                    className={inputIssuesType === 1 ? styles['tab2-item-active'] : styles['tab2-item']}
+                                    onClick={e => {
+                                        setInputIssuesType(1)
+                                    }}>
+                                    {lang['From_Csv']}
+                                </div>
+                            </div>
+
+                            {
+                                inputIssuesType === 0 &&
+                                <div className={styles['sub-content']}>
+                                    <AppInput value={domainSearchKey}
+                                              onChange={e => {
+                                                  setDomainSearchKey(e.target.value)
+                                              }}
+                                              clearable={true}
+                                              placeholder={'Please input the domain/username/email to search'}/>
+                                    {!!searchRes.length && domainSearchKey &&
+                                        <div className={styles['search-res']}>
+                                            <AddressList data={searchRes}
+                                                         selected={selectedProfiles.map((item) => item.id) as any}
+                                                         onClick={(target) => {
+                                                             const targetIndex = selectedProfiles.findIndex(item => item.id === target.id)//
+                                                             // is selected, remove
+                                                             if (targetIndex > -1) {
+                                                                 const newSelectedProfiles = [...selectedProfiles]
+                                                                 newSelectedProfiles.splice(targetIndex, 1)
+                                                                 setSelectedProfiles(newSelectedProfiles)
+                                                             } else {
+                                                                 {
+                                                                     setSelectedProfiles([...selectedProfiles, target])
+                                                                 }
+                                                             }
+                                                         }
+                                                         }/>
+                                        </div>
+                                    }
+
+                                    {!!selectedProfiles.length &&
+                                        <div className={styles['selected']}>
+                                            <div className={styles['selected-title']}>
+                                                <div>{'Send to:'}</div>
+                                                <div>{selectedProfiles.length} {lang['Group_invite_receiver']}</div>
+                                            </div>
+                                            <AddressList deletedOnly data={selectedProfiles} selected={[] as any}
+                                                         onClick={(target) => {
+                                                                const targetIndex = selectedProfiles.findIndex(item => item.id === target.id)//
+                                                                // is selected, remove
+                                                                if (targetIndex > -1) {
+                                                                    const newSelectedProfiles = [...selectedProfiles]
+                                                                    newSelectedProfiles.splice(targetIndex, 1)
+                                                                    setSelectedProfiles(newSelectedProfiles)
+                                                                } else {
+                                                                    {
+                                                                        setSelectedProfiles([...selectedProfiles, target])
+                                                                    }
+                                                                }
+                                                         }}
+                                            />
+                                        </div>
+                                    }
+
+                                    <div className={styles['action']}>
+                                        <AppButton special onClick={e => {
+                                            handleSend()
+                                        }}>{lang['Send_The_Badge']}</AppButton>
+                                        <div className={styles['later']} onClick={e => {
+                                            user.userName ? router.push(`/user/${user.userName}`)
+                                                : router.push(`/`)
+                                        }}>
+                                            {lang['MintFinish_Button_Later']}
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+
+                            {
+                                inputIssuesType === 1 &&
+                                <div className={styles['sub-content']}>s 2</div>
+                            }
+                        </div>
+                    }
+
+                    {
+                        sendType === 1 &&
+                        <div className={'content'}>2</div>
+                    }
                 </div>
             </div>
-        </>
+
+        </div>
     )
 }
 
-export default Issue
+export default IssueBadge

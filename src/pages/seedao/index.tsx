@@ -11,9 +11,10 @@ import DialogsContext from "@/components/provider/DialogProvider/DialogsContext"
 import useIssueBadge from "@/hooks/useIssueBadge";
 import DialogRequestTobeIssuer from "@/components/base/Dialog/DialogRequestTobeIssuer/DialogRequestTobeIssuer";
 import NotificationsContext from "@/components/provider/NotificationsProvider/NotificationsContext";
+import {useRouter} from "next/navigation";
 
 function SeedaoHome({group, members} : {group: Group, members: Membership[]}) {
-    const [a, seta] = useState('')
+    const router = useRouter()
     const {eventGroup} = useContext(EventHomeContext)
     const {defaultAvatar} = usePicture()
     const {lang} = useContext(LangContext)
@@ -99,7 +100,7 @@ function SeedaoHome({group, members} : {group: Group, members: Membership[]}) {
                     }
 
                     { (role=== 'issuer' || role=== 'owner' || role=== 'manager') &&
-                        <div className={styles['btn']} onClick={e => {startIssueBadge()}}>
+                        <div className={styles['btn']} onClick={e => { router.push('/seedao/create-badge')}}>
                             {lang['Seedao_Send_Badges']}
                         </div>
                     }
@@ -130,7 +131,7 @@ function SeedaoHome({group, members} : {group: Group, members: Membership[]}) {
 export default SeedaoHome
 
 export const getServerSideProps: any = (async (context: any) => {
-    const group = await getGroups({username: 'zfdgroup2'})
+    const group = await getGroups({username: 'playground2'})
     const members = await getGroupMemberShips({group_id: group[0].id})
     return {props: {group: group[0], members}}
 })

@@ -6,7 +6,7 @@ import UploadImage from '@/components/compose/UploadBadgeImage/UploadBadgeImage'
 import AppInput from '@/components/base/AppInput'
 import UserContext from '@/components/provider/UserProvider/UserContext'
 import AppButton, {BTN_KIND} from '@/components/base/AppButton/AppButton'
-import {CreateBadgeProps, Group, uploadImage} from '@/service/solas'
+import {CreateBadgeProps, Group, uploadImage, createBadge} from '@/service/solas'
 import DialogsContext from '@/components/provider/DialogProvider/DialogsContext'
 import ReasonInput from '@/components/base/ReasonInput/ReasonInput'
 import {Select} from "baseui/select";
@@ -106,6 +106,8 @@ function CreateBadgeNonPrefill({group}: { group: Group }) {
             return
         }
 
+        const unload = showLoading()
+
         let coverUrl = ''
         if (coverType === 1) {
             coverUrl = await genCover()
@@ -113,7 +115,6 @@ function CreateBadgeNonPrefill({group}: { group: Group }) {
             coverUrl = cover
         }
 
-        alert(coverUrl)
         const createBadgeProps: CreateBadgeProps = {
             name: `${section[0].id}-${institution[0].id}-${role}`,
             title: `${section[0].id}-${institution[0].id}-${role}`,
@@ -147,16 +148,16 @@ function CreateBadgeNonPrefill({group}: { group: Group }) {
             })
         }
 
-        // const unload = showLoading()
-        // try {
-        //     const badge = await createBadge(createBadgeProps)
-        //     unload()
-        //     showToast('Create badge success')
-        // } catch (e) {
-        //     unload()
-        //     console.error(e)
-        //     showToast(e.message)
-        // }
+        try {
+            const badge = await createBadge(createBadgeProps)
+            unload()
+            showToast('Create badge success')
+            router.push(`/issue-badge/${badge.id}`)
+        } catch (e) {
+            unload()
+            console.error(e)
+            showToast(e.message)
+        }
     }
 
     useEffect(() => {

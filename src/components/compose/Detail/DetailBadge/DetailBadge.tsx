@@ -76,14 +76,15 @@ function DetailBadge(props: DetailBadgeProps) {
     }, [user.id])
 
     const handleIssue = async () => {
-        if (props.badge.badge_type === 'private') {
-            router.push(`/create-private?private=${props.badge.id}`)
-        } else if (props.badge.badge_type === 'gift') {
-            router.push(`/create-gift?gift=${props.badge.id}`)
-        } else {
-            router.push(`/create-badge?badge=${props.badge.id}`)
-        }
+        // if (props.badge.badge_type === 'private') {
+        //     router.push(`/create-private?private=${props.badge.id}`)
+        // } else if (props.badge.badge_type === 'gift') {
+        //     router.push(`/create-gift?gift=${props.badge.id}`)
+        // } else {
+        //     router.push(`/create-badge?badge=${props.badge.id}`)
+        // }
 
+        router.push(`/issue-badge/${props.badge.id}`)
         props.handleClose()
     }
 

@@ -569,6 +569,11 @@ const langEN = {
     Seedao_Issue_Badge_Role: 'Role',
     Seedao_Issue_Badge_Section: 'Section',
     Seedao_Issue_Badge_Institution: 'SBT issuing institution',
+    Send_The_Badge: 'Send the badge',
+    Select_Receivers: 'Select receivers',
+    Badge_Amount: 'Badge amount',
+    From_Domain: 'From domain',
+    From_Csv: 'From csv'
 }
 
 

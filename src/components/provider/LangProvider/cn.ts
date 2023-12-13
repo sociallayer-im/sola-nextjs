@@ -565,7 +565,11 @@ const langCN: LangConfig = {
   Seedao_Issue_Badge_Role: '身份或项目角色',
   Seedao_Issue_Badge_Section: '所属季度',
   Seedao_Issue_Badge_Institution: 'SBT 发放机构',
-
+  Send_The_Badge: '发送徽章',
+  Select_Receivers: '选择接收者',
+  Badge_Amount: '徽章数量',
+  From_Domain: '选择域名',
+  From_Csv: 'csv 导入'
 }
 
 
