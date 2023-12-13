@@ -21,6 +21,7 @@ interface ProfilePanelProps {
 }
 
 const isMaodao = process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'maodao'
+const isSeedao = process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'seedao'
 
 function ProfilePanel(props: ProfilePanelProps) {
     const { defaultAvatar } = usePicture()
@@ -188,24 +189,27 @@ function ProfilePanel(props: ProfilePanelProps) {
                         </div>
                     }
                 </div>
-                {!isMaodao &&
+                {!isMaodao && !isSeedao &&
                         <div className='follow' onClick={ showFollowInfo }>
                         <div><b>{ followers.length }</b> { lang['Follow_detail_followed'] } </div>
                         <div><b>{ following.length }</b> { lang['Follow_detail_following'] } </div>
                     </div>
                 }
-                { !!props.profile.location &&
+                { !!props.profile.location && !isMaodao && !isSeedao &&
                     <div className='profile-position'>
                         <i className='icon-Outline' />
                         <span>{props.profile.location}</span>
                     </div>
                 }
-                { !!props.profile.about &&
+                { !!props.profile.about && !isMaodao && !isSeedao &&
                     <ProfileBio text={ props.profile.about }/>
                 }
-                <ProfileSocialMediaList profile={ props.profile }/>
+
+                { !isSeedao &&
+                    <ProfileSocialMediaList profile={ props.profile }/>
+                }
             </div>
-            {!isMaodao &&
+            {!isMaodao && !isSeedao &&
                 <div className='right-size'>
                     {
                         showUnFollowBtn &&

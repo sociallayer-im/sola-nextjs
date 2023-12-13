@@ -192,7 +192,9 @@ function ListGroupMember(props: ListGroupMemberProps) {
     const PreEnhancer = () => {
         return <>
             {
-                (user.id === groupOwnerId || isManager) && <CardInviteMember groupId={props.group.id}/>
+                (user.id === groupOwnerId || isManager)
+                && process.env.NEXT_PUBLIC_SPECIAL_VERSION !== 'seedao'
+                && <CardInviteMember groupId={props.group.id}/>
             }
             {
                 !!owner &&
@@ -205,6 +207,10 @@ function ListGroupMember(props: ListGroupMemberProps) {
                         <img src={owner.image_url || defaultAvatar(owner.id)} alt=""/>
                         <span>{owner.nickname || owner.username }</span>
                         <span className={'role'}>{lang['Group_Role_Owner']}</span>
+                        { owner.id === user.id && <div className={'you-tag'}>
+                                You
+                            </div>
+                        }
                     </div>
                 </div>
             }
@@ -256,7 +262,7 @@ function ListGroupMember(props: ListGroupMemberProps) {
     return <div className='list-group-member'>
         <div className={'title-member'}>
             <div className={'action-left'}><span>{lang['Group_detail_tabs_member']}</span>
-                {Action}
+                { process.env.NEXT_PUBLIC_SPECIAL_VERSION !== 'seedao' && Action }
             </div>
             <div className={'action'}>
                 {members.length} <span> {lang['Group_detail_tabs_member']}</span>
@@ -276,6 +282,10 @@ function ListGroupMember(props: ListGroupMemberProps) {
                             <span>{member.nickname || member.username || member.domain?.split('.')[0]}</span>
                             {
                                 member.isManager && <span className={'role'}>{lang['Group_Role_Manager']}</span>
+                            }
+                            { member.id === user.id && <div className={'you-tag'}>
+                                You
+                            </div>
                             }
                         </div>
                     </div>

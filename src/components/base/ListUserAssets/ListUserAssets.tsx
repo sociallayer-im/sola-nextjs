@@ -21,6 +21,7 @@ export interface ListUserAssetsProps<T> {
     onload?: (data:T[]) => any
     previewCount?: number,
     manual?: boolean
+    onListChange?: (data: T[]) => any
 }
 
 function ListUserAssets<T>(props: ListUserAssetsProps<T>) {
@@ -42,7 +43,6 @@ function ListUserAssets<T>(props: ListUserAssetsProps<T>) {
         return {refresh}
     })
 
-
     useEffect(() => {
         // 处理排序
         const sortedList = props.sortFunction ? props.sortFunction(list) : list
@@ -50,6 +50,7 @@ function ListUserAssets<T>(props: ListUserAssetsProps<T>) {
         // 如果是preview，只显示前四个
         setListData(isPreview ? sortedList.slice(0, previewCount) : sortedList)
         props.onload && props.onload(sortedList)
+        props.onListChange && props.onListChange(sortedList)
     }, [list])
 
 

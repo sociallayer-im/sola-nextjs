@@ -44,14 +44,6 @@
       margin-bottom: 10px;
       margin-left: 10px;
     }
-
-    div[data-baseweb="select" ] {
-      > div {
-        border-color: #f8f8f8;
-        border-radius: 16px;
-        background: #f8f8f8;
-      }
-    }
   }
 
   .prefill-preview {
@@ -100,8 +92,4 @@
       }
     }
   }
-}
-
-.seeda0-create-badge-page div[data-baseweb="popover"] {
-  max-width: 100%!important;
 }

@@ -58,12 +58,13 @@
   }
 }
 
-div[data-baseweb="popover"]{
+.dash-board-popover div[data-baseweb="popover"]{
   white-space: nowrap;
   width: auto;
   >div {
    >div {
      width: auto;
+     min-width: 100%;
    }
   }
 

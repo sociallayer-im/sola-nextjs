@@ -100,155 +100,159 @@ function FormProfileEdit(props: ProfileEditFormProps) {
             }}/>
         </div>
 
-        <div className='input-area'>
-            <div className='input-area-title'>{lang['Profile_Edit_Location']}</div>
-            <AppInput value={newProfile.location || ''} onChange={(e) => {
-                update('location', e.target.value.trim())
-            }}/>
-        </div>
+        { process.env.NEXT_PUBLIC_SPECIAL_VERSION !== 'seedao' &&
+            <>
+                <div className='input-area'>
+                    <div className='input-area-title'>{lang['Profile_Edit_Location']}</div>
+                    <AppInput value={newProfile.location || ''} onChange={(e) => {
+                        update('location', e.target.value.trim())
+                    }}/>
+                </div>
 
-        <div className='input-area'>
-            <div className='input-area-title'>{lang['Profile_Edit_Bio']}</div>
-            <AppTextArea
-                maxLength={200}
-                value={newProfile.about || ''}
-                onChange={(e) => {
-                    update('about', e.target.value)
-                }}/>
-        </div>
-        <div className='input-area'>
-            <div className='input-area-title'>{lang['Profile_Edit_Social_Media']}</div>
-            <EditSocialMedia
-                title={'Twitter'}
-                icon={'icon-twitter'}
-                value={newProfile.twitter || ''}
-                type={'twitter'}
-                onChange={(value) => {
-                    update('twitter', value)
-                }}
-            />
-            <EditSocialMedia
-                title={'Telegram'}
-                icon={'icon-tg'}
-                value={newProfile.telegram || ''}
-                type={'telegram'}
-                onChange={(value) => {
-                    update('telegram', value)
-                }}
-            />
-            <EditSocialMedia
-                title={'Github'}
-                icon={'icon-github'}
-                type={'github'}
-                value={newProfile.github || ''}
-                onChange={(value) => {
-                    update('github', value)
-                }}
-            />
-            <EditSocialMedia
-                title={'Discord'}
-                icon={'icon-discord'}
-                type={'discord'}
-                value={newProfile.discord || ''}
-                onChange={(value) => {
-                    update('discord', value)
-                }}
-            />
-            <EditSocialMedia
-                title={'ENS'}
-                type={'ens'}
-                icon={'icon-ens'}
-                value={newProfile.ens || ''}
-                onChange={(value) => {
-                    update('ens', value)
-                }}
-            />
-            <EditSocialMedia
-                title={'Web'}
-                type={'web'}
-                icon={'icon-web2'}
-                value={newProfile.website || ''}
-                onChange={(value) => {
-                    update('website', value)
-                }}
-            />
-            <EditSocialMedia
-                title={'Nostr'}
-                type={'nostr'}
-                icon={'icon-web2'}
-                value={newProfile.nostr || ''}
-                onChange={(value) => {
-                    update('nostr', value)
-                }}
-            />
-            <EditSocialMedia
-                title={'Lens'}
-                type={'lens'}
-                icon={'icon-lens'}
-                value={newProfile.lens || ''}
-                onChange={(value) => {
-                    update('lens', value)
-                }}
-            />
-        </div>
-        {
-            props.isGroup &&
-            <div className={'input-area'}>
-                <div className='input-area-title'>{'Group member Setting'}</div>
-                { props.isGroupManager &&
-                    <div className={'input-area-btn'} role={'button'} onClick={event => {
-                        showManagerDialog()
-                    }}>
-                        <div className={'btn-label'}>{'Managers'}</div>
-                        <div className={'btn-extra'}>
-                            <span>{manager.length}</span>
-                            <ArrowRight size={24}/>
+                <div className='input-area'>
+                    <div className='input-area-title'>{lang['Profile_Edit_Bio']}</div>
+                    <AppTextArea
+                        maxLength={200}
+                        value={newProfile.about || ''}
+                        onChange={(e) => {
+                            update('about', e.target.value)
+                        }}/>
+                </div>
+                <div className='input-area'>
+                    <div className='input-area-title'>{lang['Profile_Edit_Social_Media']}</div>
+                    <EditSocialMedia
+                        title={'Twitter'}
+                        icon={'icon-twitter'}
+                        value={newProfile.twitter || ''}
+                        type={'twitter'}
+                        onChange={(value) => {
+                            update('twitter', value)
+                        }}
+                    />
+                    <EditSocialMedia
+                        title={'Telegram'}
+                        icon={'icon-tg'}
+                        value={newProfile.telegram || ''}
+                        type={'telegram'}
+                        onChange={(value) => {
+                            update('telegram', value)
+                        }}
+                    />
+                    <EditSocialMedia
+                        title={'Github'}
+                        icon={'icon-github'}
+                        type={'github'}
+                        value={newProfile.github || ''}
+                        onChange={(value) => {
+                            update('github', value)
+                        }}
+                    />
+                    <EditSocialMedia
+                        title={'Discord'}
+                        icon={'icon-discord'}
+                        type={'discord'}
+                        value={newProfile.discord || ''}
+                        onChange={(value) => {
+                            update('discord', value)
+                        }}
+                    />
+                    <EditSocialMedia
+                        title={'ENS'}
+                        type={'ens'}
+                        icon={'icon-ens'}
+                        value={newProfile.ens || ''}
+                        onChange={(value) => {
+                            update('ens', value)
+                        }}
+                    />
+                    <EditSocialMedia
+                        title={'Web'}
+                        type={'web'}
+                        icon={'icon-web2'}
+                        value={newProfile.website || ''}
+                        onChange={(value) => {
+                            update('website', value)
+                        }}
+                    />
+                    <EditSocialMedia
+                        title={'Nostr'}
+                        type={'nostr'}
+                        icon={'icon-web2'}
+                        value={newProfile.nostr || ''}
+                        onChange={(value) => {
+                            update('nostr', value)
+                        }}
+                    />
+                    <EditSocialMedia
+                        title={'Lens'}
+                        type={'lens'}
+                        icon={'icon-lens'}
+                        value={newProfile.lens || ''}
+                        onChange={(value) => {
+                            update('lens', value)
+                        }}
+                    />
+                </div>
+                {
+                    props.isGroup &&
+                    <div className={'input-area'}>
+                        <div className='input-area-title'>{'Group member Setting'}</div>
+                        { props.isGroupManager &&
+                            <div className={'input-area-btn'} role={'button'} onClick={event => {
+                                showManagerDialog()
+                            }}>
+                                <div className={'btn-label'}>{'Managers'}</div>
+                                <div className={'btn-extra'}>
+                                    <span>{manager.length}</span>
+                                    <ArrowRight size={24}/>
+                                </div>
+                            </div>
+                        }
+
+                        <div className={'input-area-btn'} role={'button'} onClick={e => {
+                            showMemberManageDialog()
+                        }}>
+                            <div className={'btn-label'}>{'Members'}</div>
+                            <div className={'btn-extra'}>
+                                <span>{members.length}</span>
+                                <ArrowRight size={24}/>
+                            </div>
                         </div>
                     </div>
                 }
 
-                <div className={'input-area-btn'} role={'button'} onClick={e => {
-                    showMemberManageDialog()
-                }}>
-                    <div className={'btn-label'}>{'Members'}</div>
-                    <div className={'btn-extra'}>
-                        <span>{members.length}</span>
-                        <ArrowRight size={24}/>
-                    </div>
-                </div>
-            </div>
-        }
-
-        {
-            props.isGroup &&
-           <div className={'create-event-page'}>
-               <div className='input-area'>
-                   <div className={'toggle'}>
-                       <div className={'item-title'}>{'Enable Event'}</div>
-                       <div className={'item-value'}>
-                           <Toggle checked={(newProfile as Group).event_enabled} onChange={e => {
-                               update('event_enabled', e.target.checked)
-                           }}/>
-                       </div>
-                   </div>
-               </div>
-           </div>
-        }
-
-        {
-            props.isGroup &&
-            <div className={'create-event-page'}>
-                <div className='input-area'>
-                    <div className={'toggle'}>
-                        <div className={'item-title'}>{'Enable Map'}</div>
-                        <div className={'item-value'}>
-                            <Toggle checked={(newProfile as Group).map_enabled} onChange={e => {
-                                update('map_enabled', e.target.checked)
-                            }}/>
+                {
+                    props.isGroup &&
+                    <div className={'create-event-page'}>
+                        <div className='input-area'>
+                            <div className={'toggle'}>
+                                <div className={'item-title'}>{'Enable Event'}</div>
+                                <div className={'item-value'}>
+                                    <Toggle checked={(newProfile as Group).event_enabled} onChange={e => {
+                                        update('event_enabled', e.target.checked)
+                                    }}/>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </div>
+                }
+
+                {
+                    props.isGroup &&
+                    <div className={'create-event-page'}>
+                        <div className='input-area'>
+                            <div className={'toggle'}>
+                                <div className={'item-title'}>{'Enable Map'}</div>
+                                <div className={'item-value'}>
+                                    <Toggle checked={(newProfile as Group).map_enabled} onChange={e => {
+                                        update('map_enabled', e.target.checked)
+                                    }}/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </>
         }
     </div>)
 }

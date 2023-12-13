@@ -552,6 +552,20 @@ const langCN: LangConfig = {
   Group_Change_Owner: '转移组织',
   Group_Role_Owner: '拥有者',
   Group_Role_Manager: '管理员',
+  Seedao_Role_Text: slotLang('你是 SeeDAO 的 {1}'),
+  Seedao_Role_Apply_Issuer: '申请成为发行者',
+  Seedao_Notification: '消息通知',
+  Seedao_Send_Badges: '发送徽章',
+  Seedao_Issuer_Whitelist: '(发行者白名单)',
+  Seedao_Issuer_Manager_Whitelist: '(发行者白名单, 管理员)',
+  Seedao_Request_Issuer_Dialog_Title: '确定要申请成为发行者吗？',
+  Seedao_Request_Issuer_Dialog_Message: '发送信息',
+  Seedao_Request_Issuer_Dialog_Apply: '申请',
+  Notification_Title: '消息通知',
+  Seedao_Issue_Badge_Role: '身份或项目角色',
+  Seedao_Issue_Badge_Section: '所属季度',
+  Seedao_Issue_Badge_Institution: 'SBT 发放机构',
+
 }
 
 

@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useRef} from 'react'
+import React, {useContext, useEffect, useRef, useState} from 'react'
 import ListUserAssets, {ListUserAssetsMethods} from "../../base/ListUserAssets/ListUserAssets";
 import solas, {Profile, Group} from "../../../service/solas";
 import CardBadge from "../../base/Cards/CardBadge/CardBadge";
@@ -14,6 +14,8 @@ interface ListUserRecognitionProps {
 function ListUserRecognition(props: ListUserRecognitionProps) {
     const {user} = useContext(UserContext)
     const {lang} = useContext(LangContext)
+
+    const [noBadge, setNoBadge] = useState(true)
 
     const getBadge = async (page: number) => {
         const queryProps = !!(props.profile as Group).creator
@@ -49,11 +51,16 @@ function ListUserRecognition(props: ListUserRecognitionProps) {
 
             </>
         }
-        <div className={'list-title margin'}>{lang['Created_List_Title']}</div>
-        <ListUserAssets
-            queryFcn={getBadge}
-            onRef={listWrapperRefBadge}
-            child={(item, key) => <CardBadge badge={item} key={key}/>}/>
+        <div className={`${noBadge ? 'hide-item' : ''}`}>
+            <div className={`list-title margin}`}>{lang['Created_List_Title']}</div>
+            <ListUserAssets
+                queryFcn={getBadge}
+                onListChange={(list: any) => {
+                    setNoBadge(!list.length)
+                }}
+                onRef={listWrapperRefBadge}
+                child={(item, key) => <CardBadge badge={item} key={key}/>}/>
+        </div>
     </div>)
 }
 

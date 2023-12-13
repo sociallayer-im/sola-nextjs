@@ -540,6 +540,7 @@ export interface Badge {
     badge_type: BadgeType,
     transferable?: boolean
     unlocking?: null | string
+    metadata?: string
 }
 
 export type NftPass = Badge
@@ -615,6 +616,7 @@ export async function queryBadge(props: QueryBadgeProps): Promise<Badge[]> {
         title
         badge_type
         created_at
+        metadata
       }
     }`
 
@@ -940,7 +942,8 @@ export async function queryNftPasslet(props: QueryBadgeletProps): Promise<NftPas
 
 export interface Membership {
     "id": number,
-    "profile": ProfileSimple
+    "profile": ProfileSimple,
+    role: string
 }
 
 export interface Group extends Profile {
@@ -1251,6 +1254,7 @@ export interface CreateBadgeProps {
     value?: number,
     transferable?: boolean,
     weighted?: boolean,
+    metadata?: string,
 }
 
 export async function createBadge(props: CreateBadgeProps): Promise<Badge> {
@@ -1321,6 +1325,39 @@ export async function getGroupMembers(props: GetGroupMembersProps): Promise<Prof
     const resp: any = await request(graphUrl, doc)
 
     return resp.memberships.map((item : any) => item.profile) as Profile[]
+}
+
+export interface Membership {
+    id: number,
+    role: string,
+    profile: ProfileSimple
+}
+
+export async function getGroupMemberShips(props: GetGroupMembersProps): Promise<Membership[]> {
+    const condition = props.role
+        ? `where: {group: {id: {_eq: "${props.group_id}"}}, role: {_eq: "${props.role}"}}`
+        : `where: {group: {id: {_eq: "${props.group_id}"}}, role: {_neq: "owner"}}`
+
+    const doc = gql`query MyQuery {
+      memberships(${condition}) {
+        id
+        role
+        profile {
+          id
+          image_url
+          nickname
+          username
+          about
+          address
+          address_type
+          status
+        }
+      }
+    }`
+
+    const resp: any = await request(graphUrl, doc)
+
+    return resp.memberships
 }
 
 export async function getFollowers(userId: number): Promise<Profile[]> {

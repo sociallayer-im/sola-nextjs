@@ -132,8 +132,9 @@ function GroupPage(props: any) {
         <ShowDomain onClick={() => {
             copyWithDialog(profile?.domain || '', lang['Dialog_Copy_Message'])
         }}>{profile?.domain}</ShowDomain>
-        {(isGroupOwner || isGroupManager) &&
-            <div className='profile-setting-btn' onClick={() => {
+        {(isGroupOwner || isGroupManager)
+            && process.env.NEXT_PUBLIC_SPECIAL_VERSION !== 'seedao'
+            && <div className='profile-setting-btn' onClick={() => {
                 goToEditGroup()
             }}><i className='icon-setting'></i></div>
         }

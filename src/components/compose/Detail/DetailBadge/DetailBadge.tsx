@@ -88,7 +88,7 @@ function DetailBadge(props: DetailBadgeProps) {
     }
 
     const swiperMaxHeight = window.innerHeight - 320
-
+    const metadata = props.badge.metadata ? JSON.parse(props.badge.metadata) : {}
     return (
         <DetailWrapper>
             <DetailHeader
@@ -137,11 +137,39 @@ function DetailBadge(props: DetailBadgeProps) {
                                         badgelets.map((badgelet, index) =>
                                             <SwiperSlide className='badge-detail-swiper-slide' key={badgelet.id}>
                                                 <DetailScrollBox style={{maxHeight: swiperMaxHeight - 40 + 'px'}}>
+
+                                                    {!!metadata && !!metadata.attributes && !!metadata.attributes.length &&
+                                                        <>
+                                                            {
+                                                                metadata.attributes.map((item: any) => {
+                                                                    const title = item.trait_type === 'section' ?
+                                                                        lang['Seedao_Issue_Badge_Section'] :
+                                                                        item.trait_type === 'role' ?
+                                                                            lang['Seedao_Issue_Badge_Role'] :
+                                                                            item.trait_type === 'institution' ?
+                                                                                lang['Seedao_Issue_Badge_Institution'] :
+                                                                                item.trait_type === 'type' ?
+                                                                                    lang['BadgeDialog_Label_Private'] :
+                                                                                    item.trait_type
+                                                                    item.trait_type
+
+
+                                                                    return (
+                                                                        <DetailArea key={item.trait_type}
+                                                                                    title={title}
+                                                                                    content={item.value}/>
+                                                                    )
+                                                                })
+                                                            }
+                                                        </>
+                                                    }
+
                                                     {!!badgelet.content &&
                                                         <DetailDes>
                                                             <ReasonText text={badgelet.content}/>
                                                         </DetailDes>
                                                     }
+
                                                     <DetailArea
                                                         onClose={props.handleClose}
                                                         title={lang['BadgeDialog_Label_Issuees']}
@@ -171,6 +199,32 @@ function DetailBadge(props: DetailBadgeProps) {
                             </div>
 
                             : <DetailScrollBox style={{maxHeight: swiperMaxHeight - 60 + 'px', marginLeft: 0}}>
+                                {!!metadata && !!metadata.attributes && !!metadata.attributes.length &&
+                                    <>
+                                        {
+                                            metadata.attributes.map((item: any) => {
+                                                const title = item.trait_type === 'section' ?
+                                                    lang['Seedao_Issue_Badge_Section'] :
+                                                    item.trait_type === 'role' ?
+                                                        lang['Seedao_Issue_Badge_Role'] :
+                                                        item.trait_type === 'institution' ?
+                                                            lang['Seedao_Issue_Badge_Institution'] :
+                                                            item.trait_type === 'type' ?
+                                                                lang['BadgeDialog_Label_Private'] :
+                                                                item.trait_type
+                                                item.trait_type
+
+
+                                                return (
+                                                    <DetailArea key={item.trait_type}
+                                                                title={title}
+                                                                content={item.value}/>
+                                                )
+                                            })
+                                        }
+                                    </>
+                                }
+
                                 {!!props.badge.content &&
                                     <DetailDes>
                                         <ReasonText text={props.badge.content}/>

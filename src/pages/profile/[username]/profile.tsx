@@ -21,6 +21,10 @@ const UserTabs = dynamic(() => import('@/components/compose/ProfileTabs/ProfileT
     loading: () => <p>Loading...</p>,
 })
 
+const SeedaoUserTabs = dynamic(() => import('@/components/seedao/ProfileTabs/ProfileTabs'), {
+    loading: () => <p>Loading...</p>,
+})
+
 const isMaodao = process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'maodao'
 
 function Page(props: any) {
@@ -173,9 +177,11 @@ function Page(props: any) {
                 { process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'maodao' ?
                         <div className='down-side' style={{margin: '0 0 30px 0'}}>
                             <MaodaoUserTab profile={profile}/>
+                        </div> : process.env.NEXT_PUBLIC_SPECIAL_VERSION == 'seedao' ?
+                        <div className='down-side' style={{margin: '0 12px 30px 12px'}}>
+                            <SeedaoUserTabs profile={profile} />
                         </div>
-                        :
-                        <div className='down-side'>
+                        : <div className='down-side'>
                             <UserTabs profile={profile}/>
                         </div>
                 }

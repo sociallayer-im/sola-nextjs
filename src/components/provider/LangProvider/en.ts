@@ -556,6 +556,19 @@ const langEN = {
     Group_Change_Owner: 'Change owner',
     Group_Role_Owner: 'Owner',
     Group_Role_Manager: 'Manager',
+    Seedao_Role_Text: slotLang('You are {1} in SeeDAO'),
+    Seedao_Role_Apply_Issuer: 'Apply to be a issuer',
+    Seedao_Notification: 'Notifications',
+    Seedao_Send_Badges: 'Send badges',
+    Seedao_Issuer_Whitelist: '(Issuer whitelist)',
+    Seedao_Issuer_Manager_Whitelist: '(Issuer whitelist, Manager lists)',
+    Seedao_Request_Issuer_Dialog_Title: 'Are you sure to apply to be an issuer？',
+    Seedao_Request_Issuer_Dialog_Message: 'Leave a message',
+    Seedao_Request_Issuer_Dialog_Apply: 'Apply',
+    Notification_Title: 'Seedao_Notification',
+    Seedao_Issue_Badge_Role: 'Role',
+    Seedao_Issue_Badge_Section: 'Section',
+    Seedao_Issue_Badge_Institution: 'SBT issuing institution',
 }
 
 

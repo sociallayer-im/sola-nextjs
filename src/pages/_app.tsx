@@ -25,6 +25,7 @@ import ColorSchemeProvider from "@/components/provider/ColorSchemeProvider";
 import Subscriber from '@/components/base/Subscriber'
 import {JoyIdConnector} from '@joyid/wagmi'
 import { WalletConnectConnector } from '@wagmi/core/connectors/walletConnect'
+import NotificationsProvider from "@/components/provider/NotificationsProvider/NotificationsProvider";
 
 const inject = new InjectedConnector({
     chains: [mainnet, moonbeam],
@@ -92,10 +93,12 @@ function MyApp({Component, pageProps, ...props}: any) {
                                             <MapProvider>
                                                 <EventHomeProvider>
                                                     <DisplayLay>
-                                                        <NextNProgress options={{showSpinner: false}}/>
-                                                        <Component {...pageProps} />
-                                                        <Subscriber/>
-                                                        <Analytics/>
+                                                        <NotificationsProvider>
+                                                            <NextNProgress options={{showSpinner: false}}/>
+                                                            <Component {...pageProps} />
+                                                            <Subscriber/>
+                                                            <Analytics/>
+                                                        </NotificationsProvider>
                                                     </DisplayLay>
                                                 </EventHomeProvider>
                                             </MapProvider>
