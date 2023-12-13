@@ -171,10 +171,10 @@ function EventDetail(props: {event: Event | null, appName: string, host: string}
             setEventGroup(group as Group)
 
             const selectedGroup = group as Group
-            if (selectedGroup.group_event_visibility === 'public') {
+            if ((selectedGroup as Group).can_join_event === 'everyone') {
                 setCanAccess(true)
                 return
-            } else if (user.id) {
+            } else if (user.id && (selectedGroup as Group).can_join_event === 'member') {
                 const myGroup = queryUserGroup({profile_id: user.id}).then(res => {
                     const joined = res.find(item => item.id === selectedGroup.id)
                     if (!joined && selectedGroup.group_event_visibility === 'private') {

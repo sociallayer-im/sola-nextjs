@@ -2692,7 +2692,7 @@ const timezoneList = [
 
     return {
         id: item[0],
-        label: item[1] + ' ' + `(${cmtStr})`,
+        label: item[0] + ' ' + `(${cmtStr})`,
     }
 })
 

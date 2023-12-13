@@ -6,7 +6,6 @@ import langContext from "../../../provider/LangProvider/LangContext";
 import userContext from "../../../provider/UserProvider/UserContext";
 import DialogsContext from "../../../provider/DialogProvider/DialogsContext";
 import Link from "next/link";
-import fa from "@walletconnect/legacy-modal/dist/cjs/browser/languages/fa";
 
 export interface CardEventProps {
     event: Event,
