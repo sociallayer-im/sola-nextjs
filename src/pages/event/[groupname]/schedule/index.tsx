@@ -97,7 +97,8 @@ function ComponentName(props: { group: Group }) {
                 group_id: eventGroup.id,
                 start_time_from: new Date(dayList.current[0].timestamp).toISOString(),
                 start_time_to: new Date(dayList.current[dayList.current.length - 1].timestamp).toISOString(),
-                page: 1
+                page: 1,
+                event_order: 'asc'
             })
 
             setEventList(events)
