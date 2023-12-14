@@ -65,6 +65,13 @@ function ComponentName(props: { group: Group }) {
     const [currYear, setCurrYear] = useState(new Date().getFullYear())
     const [currTag, setCurrTag] = useState<string[]>([])
 
+    // touch on pc
+    const touchStart = useRef(false)
+    const touchStartX = useRef(0)
+    const touchStartY = useRef(0)
+    const touchStartScrollLeft = useRef(0)
+    const touchStartScrollTop = useRef(0)
+
     const slideToToday = (init=false) => {
         const scrollBar1 = scroll1Ref.current
         const scrollBar2 = scroll2Ref.current
@@ -140,16 +147,103 @@ function ComponentName(props: { group: Group }) {
             }
 
             const offsetTop = e.target.scrollTop
-            if (offsetTop > 0) {
-                (window.document.querySelector('.schedule-head') as any)!.style.height = '0'
-            } else {
-                (window.document.querySelector('.schedule-head') as any)!.style.height = '188px'
+            if (window.innerWidth < 450) {
+                if (offsetTop > 0) {
+                    (window.document.querySelector('.schedule-head') as any)!.style.height = '0'
+                } else {
+                    (window.document.querySelector('.schedule-head') as any)!.style.height = '194px'
+                }
             }
         }
 
-        if(scroll1Ref.current && scroll2Ref.current) {
+        const checkMousedown = (e: any) => {
+            e.preventDefault()
+            console.log('down')
+            touchStart.current = true
+            touchStartX.current = e.clientX
+            touchStartY.current = e.clientY
+            touchStartScrollLeft.current = scroll2Ref.current.scrollLeft
+            touchStartScrollTop.current = scroll2Ref.current.scrollTop
+        }
+
+        const checkMouseup = (e: any) => {
+            e.preventDefault()
+            touchStart.current = false
+        }
+
+        const checkMousemove = (e: any) => {
+            e.preventDefault()
+            if (touchStart.current) {
+                const offsetX = e.clientX - touchStartX.current
+                const offsetY = e.clientY - touchStartY.current
+                console.log('mousemove', offsetX, offsetY)
+                scroll2Ref.current.scrollLeft = touchStartScrollLeft.current - offsetX
+                scroll2Ref.current.scrollTop = touchStartScrollTop.current - offsetY
+            }
+        }
+
+        const checkTouch = () => {
+            scroll2Ref.current.addEventListener('mousedown', checkMousedown)
+
+            scroll2Ref.current.addEventListener('mouseup', checkMouseup)
+
+            scroll2Ref.current.addEventListener('mousemove', checkMousemove)
+
+            scroll2Ref.current.addEventListener('mouseleave', checkMouseup)
+        }
+
+        checkTouch()
+
+        if (scroll1Ref.current && scroll2Ref.current) {
             const scrollBar1 = scroll1Ref.current
             const scrollBar2 = scroll2Ref.current
+
+            // check is ios
+            const isIos = () => {
+                const userAgent = window.navigator.userAgent.toLowerCase()
+                return /iphone|ipad|ipod/.test(userAgent)
+            }
+
+            let touchStar = false
+            let touchStartX = 0
+            let touchStartY = 0
+            let touchStartScrollLeft = 0
+            let touchStartScrollTop= 0
+
+            const touchstart = (e: any) => {
+                e.preventDefault()
+                touchStar = true
+                touchStartX = e.touches[0].clientX
+                touchStartY = e.touches[0].clientY
+                touchStartScrollLeft = scrollBar2.scrollLeft
+                touchStartScrollTop = scrollBar2.scrollTop
+            }
+
+            const touchmove = (e: any) => {
+                if (touchStar) {
+                    const offsetX = e.touches[0].clientX - touchStartX
+                    const offsetY = e.touches[0].clientY - touchStartY
+                    scrollBar1.scrollLeft = touchStartScrollLeft - offsetX
+                    scrollBar2.scrollLeft =  touchStartScrollLeft - offsetX
+                    scrollBar2.scrollTop =  touchStartScrollTop - offsetY
+                }
+            }
+
+            const touchend = (e: any) => {
+                touchStar = false
+            }
+
+
+            if (isIos()) {
+                scrollBar2.addEventListener('touchstart', touchstart)
+
+                scrollBar2.addEventListener('touchmove', touchmove)
+
+                scrollBar2.addEventListener('touchend', touchend)
+
+                scrollBar2.addEventListener('touchcancel', touchend)
+
+            }
 
             scrollBar1.addEventListener('scroll', checkScroll)
             scrollBar2.addEventListener('scroll', checkScroll2)
@@ -159,6 +253,15 @@ function ComponentName(props: { group: Group }) {
             return () => {
                 scrollBar1?.removeEventListener('scroll', checkScroll)
                 scrollBar2?.removeEventListener('scroll', checkScroll2)
+                scrollBar2?.removeEventListener('mousedown', checkMousedown)
+                scrollBar2?.removeEventListener('mouseup', checkMouseup)
+                scrollBar2?.removeEventListener('mousemove', checkMousemove)
+                scrollBar2?.removeEventListener('mouseleave', checkMouseup)
+
+                scrollBar2?.removeEventListener('touchstart', touchstart)
+                scrollBar2?.removeEventListener('touchmove', touchmove)
+                scrollBar2?.removeEventListener('touchend', touchend)
+                scrollBar2?.removeEventListener('touchcancel', touchend)
             }
         }
     }, [scroll1Ref, scroll2Ref])

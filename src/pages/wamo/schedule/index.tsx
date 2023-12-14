@@ -195,8 +195,55 @@ function ComponentName(props: { group: Group }) {
             const scrollBar1 = scroll1Ref.current
             const scrollBar2 = scroll2Ref.current
 
-            scrollBar1.addEventListener('scroll', checkScroll)
-            scrollBar2.addEventListener('scroll', checkScroll2)
+            // check is ios
+            const isIos = () => {
+                const userAgent = window.navigator.userAgent.toLowerCase()
+                return /iphone|ipad|ipod/.test(userAgent)
+            }
+
+            let touchStar = false
+            let touchStartX = 0
+            let touchStartY = 0
+            let touchStartScrollLeft = 0
+            let touchStartScrollTop= 0
+
+            const touchstart = (e: any) => {
+                e.preventDefault()
+                touchStar = true
+                touchStartX = e.touches[0].clientX
+                touchStartY = e.touches[0].clientY
+                touchStartScrollLeft = scrollBar2.scrollLeft
+                touchStartScrollTop = scrollBar2.scrollTop
+            }
+
+            const touchmove = (e: any) => {
+                if (touchStar) {
+                    const offsetX = e.touches[0].clientX - touchStartX
+                    const offsetY = e.touches[0].clientY - touchStartY
+                    scrollBar1.scrollLeft = touchStartScrollLeft - offsetX
+                    scrollBar2.scrollLeft =  touchStartScrollLeft - offsetX
+                    scrollBar2.scrollTop =  touchStartScrollTop - offsetY
+                }
+            }
+
+            const touchend = (e: any) => {
+                touchStar = false
+            }
+
+
+            if (isIos()) {
+                scrollBar2.addEventListener('touchstart', touchstart)
+
+                scrollBar2.addEventListener('touchmove', touchmove)
+
+                scrollBar2.addEventListener('touchend', touchend)
+
+                scrollBar2.addEventListener('touchcancel', touchend)
+
+            } else {
+                scrollBar1.addEventListener('scroll', checkScroll)
+                scrollBar2.addEventListener('scroll', checkScroll2)
+            }
 
             slideToToday(true)
 
@@ -207,6 +254,11 @@ function ComponentName(props: { group: Group }) {
                 scrollBar2?.removeEventListener('mouseup', checkMouseup)
                 scrollBar2?.removeEventListener('mousemove', checkMousemove)
                 scrollBar2?.removeEventListener('mouseleave', checkMouseup)
+
+                scrollBar2?.removeEventListener('touchstart', touchstart)
+                scrollBar2?.removeEventListener('touchmove', touchmove)
+                scrollBar2?.removeEventListener('touchend', touchend)
+                scrollBar2?.removeEventListener('touchcancel', touchend)
             }
         }
     }, [scroll1Ref, scroll2Ref])
@@ -318,7 +370,6 @@ export default ComponentName
 
 export const getServerSideProps: any = (async (context: any) => {
     const group = await getGroups({username: 'wamotopia'})
-    console.log('wamotopia', group)
     return {props: {group: group[0]}}
 })
 
