@@ -2824,7 +2824,7 @@ export async function queryEvent(props: QueryEventProps): Promise<Event[]> {
 
 
     const doc = gql`query MyQuery {
-      events (where: {${variables}, status: {_eq: "open"}} ${order} limit: 50, offset: ${(props.page - 1) * 50}) {
+      events (where: {${variables}, status: {_in: ["open", "new", "normal"]}} ${order} limit: 50, offset: ${(props.page - 1) * 50}) {
         badge_id
         geo_lat
         geo_lng
