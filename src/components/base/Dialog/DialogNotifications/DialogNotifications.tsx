@@ -33,7 +33,7 @@ function NotificationItem () {
                             <br /><a className={styles['link']} href="http://solas.event.day/SIP 101">http://solas.event.day/SIP 101</a>
                         </div>
                         <BtnGroup>
-                            <AppButton type={'primary'}>Reject</AppButton>
+                            <AppButton kind={'primary'}>Reject</AppButton>
                             <AppButton special>Agree</AppButton>
                         </BtnGroup>
                     </div>

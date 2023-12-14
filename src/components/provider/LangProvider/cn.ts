@@ -569,7 +569,14 @@ const langCN: LangConfig = {
   Select_Receivers: '选择接收者',
   Badge_Amount: '徽章数量',
   From_Domain: '选择域名',
-  From_Csv: 'csv 导入'
+  From_Csv: 'csv 导入',
+  Issuer: '发行者',
+  Setting: '设置',
+  Transfer_Owner: '转移所有权',
+  Add_Issuer: '增加发行者',
+  Set_As_Issuer: '设置为发行者',
+  Select_From_Members: '从成员中选择',
+  Remove_Issuer: '移除发行者',
 }
 
 

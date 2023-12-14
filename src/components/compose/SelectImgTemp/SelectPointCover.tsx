@@ -14,7 +14,7 @@ function SelectImgTemp(props: SelectPointCoverProps) {
 
     const initIndex = props.temps.findIndex(item => item === props.value)
     const [switchIndex, setSwitchIndex] = useState(initIndex < 0 ? 0 : initIndex)
-    const swiperRef = useRef<Swiper | null>(null)
+    const swiperRef = useRef<any>(null)
 
     useEffect(() => {
         if (!!swiperRef.current) {

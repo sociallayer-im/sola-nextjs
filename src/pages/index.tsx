@@ -1,10 +1,10 @@
 import Page from "@/pages/event/index"
 import MapPage from '@/pages/event/[groupname]/map'
 import MaodaoHome from '@/pages/rpc'
-import {getEventGroup, Group, queryEvent, Event} from "@/service/solas";
+import {getEventGroup, Group, queryEvent, Event, getGroupMemberShips, Membership} from "@/service/solas";
 import SeedaoHome from "@/pages/seedao";
 
-export default function HomePage(props: { initEventGroup: Group, initList?: Event[] }) {
+export default function HomePage(props: { initEventGroup: Group, initList?: Event[], members?: Membership[] }) {
     return <>
         {
             process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'zumap' ?
@@ -12,8 +12,8 @@ export default function HomePage(props: { initEventGroup: Group, initList?: Even
                 process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'maodao' ?
                     <MaodaoHome/> :
                     process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'seedao' ?
-                        <SeedaoHome />
-                    : <Page initEventGroup={props.initEventGroup || undefined} initList={props.initList || []}/>
+                        <SeedaoHome group={props.initEventGroup} members={props.members || []} />
+                    : <Page initEventGroup={props.initEventGroup || undefined} initList={props.initList || []} />
         }
     </>
 }
@@ -48,5 +48,10 @@ export const getServerSideProps: any = (async (context: any) => {
         return endTime >= new Date().getTime()
     })
 
-    return {props: {initEventGroup: targetGroup, initList: res}}
+    let members: Membership[] = []
+    if (process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'seedao') {
+        members = await getGroupMemberShips({group_id: targetGroup!.id})
+    }
+
+    return {props: {initEventGroup: targetGroup, initList: res, members}}
 })

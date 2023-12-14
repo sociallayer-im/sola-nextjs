@@ -515,10 +515,35 @@ export async function addManager(props: AddManagerProps): Promise<void> {
     }
 }
 
+export async function addIssuer(props: AddManagerProps): Promise<void> {
+    checkAuth(props)
+    const res = await fetch.post({
+        url: `${apiUrl}/group/add-issuer`,
+        data: props
+    })
+
+    if (res.data.result === 'error') {
+        throw new Error(res.data.message)
+    }
+}
+
+
 export async function removeManager(props: AddManagerProps): Promise<void> {
     checkAuth(props)
     const res = await fetch.post({
         url: `${apiUrl}/group/remove-manager`,
+        data: props
+    })
+
+    if (res.data.result === 'error') {
+        throw new Error(res.data.message)
+    }
+}
+
+export async function removeIssuer(props: AddManagerProps): Promise<void> {
+    checkAuth(props)
+    const res = await fetch.post({
+        url: `${apiUrl}/group/remove-issuer`,
         data: props
     })
 
@@ -4261,5 +4286,6 @@ export default {
     getGroups,
     getPendingBadges,
     queryVoucherDetail,
-    rejectVoucher
+    rejectVoucher,
+    getGroupMemberShips
 }

@@ -9,7 +9,7 @@ export default function NotificationsProvider(props: { children: any}) {
 
     const showNotification = () => {
         openDialog({
-            content: (close) => <DialogNotifications close={close}  notification={[]}/>,
+            content: (close: any) => <DialogNotifications close={close}  notification={[]}/>,
             size: ['100%', '100%'],
         })
     }

@@ -9,7 +9,7 @@ function CreateBadge(props: {group: any}) {
     return  <>
         { prefillBadgeId
             ? <CreateBadgeWithPrefill badgeId={ Number(prefillBadgeId) } />
-            : <CreateBadgeNonPrefill group={props.group}></CreateBadgeNonPrefill>
+            : <CreateBadgeNonPrefill group={props.group} />
         }
     </>
 }

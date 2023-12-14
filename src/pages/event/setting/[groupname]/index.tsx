@@ -53,11 +53,11 @@ function Dashboard() {
     }, [availableList, params])
 
     useEffect(() => {
-        document.querySelector('body').classList.add('dash-board-popover')
+        document.querySelector('body')!.classList.add('dash-board-popover')
 
         return () => {
             switchOverflow(false)
-            document.querySelector('body').classList.remove('dash-board-popover')
+            document.querySelector('body')!.classList.remove('dash-board-popover')
         }
     }, [])
 

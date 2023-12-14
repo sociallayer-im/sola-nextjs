@@ -153,7 +153,7 @@ function CreateBadgeNonPrefill({group}: { group: Group }) {
             unload()
             showToast('Create badge success')
             router.push(`/issue-badge/${badge.id}`)
-        } catch (e) {
+        } catch (e: any) {
             unload()
             console.error(e)
             showToast(e.message)
@@ -273,13 +273,14 @@ function CreateBadgeNonPrefill({group}: { group: Group }) {
                     </div>
 
 
-                    <div className='input-area'>
+                    {!!group &&
+                        <div className='input-area'>
                         <div className='input-area-title'>{lang['BadgeDialog_Label_Creator']}</div>
                         <div className={styles['creator']}>
-                            <img className={styles['avatar']} src={group.image_url || defaultAvatar(group.id)} alt=""/>
-                            {group.username}</div>
-                    </div>
-
+                        <img className={styles['avatar']} src={group.image_url || defaultAvatar(group.id)} alt=""/>
+                    {group.username}</div>
+                        </div>
+                    }
 
                     <AppButton kind={BTN_KIND.primary}
                                special

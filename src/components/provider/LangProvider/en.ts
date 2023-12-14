@@ -573,7 +573,14 @@ const langEN = {
     Select_Receivers: 'Select receivers',
     Badge_Amount: 'Badge amount',
     From_Domain: 'From domain',
-    From_Csv: 'From csv'
+    From_Csv: 'From csv',
+    Issuer: 'Issuer',
+    Setting: 'Setting',
+    Transfer_Owner: 'Transfer owner',
+    Add_Issuer: 'Add Issuer',
+    Set_As_Issuer: 'Set as an Issuer',
+    Select_From_Members: 'Select from members',
+    Remove_Issuer: 'Remove Issuer',
 }
 
 

@@ -1,5 +1,5 @@
 import React, {useContext, useEffect, useState} from 'react'
-import solas, {checkIsManager, getGroupMembers, Profile, Group} from '../../../service/solas'
+import solas, {checkIsManager, getGroupMembers, Profile, Group, getGroupMemberShips} from '../../../service/solas'
 import LangContext from '../../provider/LangProvider/LangContext'
 import UserContext from '../../provider/UserProvider/UserContext'
 import CardInviteMember from '../../base/Cards/CardInviteMember/CardInviteMember'
@@ -27,6 +27,7 @@ function ListGroupMember(props: ListGroupMemberProps) {
     const {user} = useContext(UserContext)
     const [members, setMembers] = useState<Profile[]>([])
     const [managers, setManagers] = useState<Profile[]>([])
+    const [issuer, setIssuer] = useState<Profile[]>([])
     const [isManager, setIsManager] = useState(false)
     const [listToShow, setListToShow] = useState<ProfileWithRole[]>([])
     const [owner, setOwner] = useState<Profile | null>(null)
@@ -39,74 +40,28 @@ function ListGroupMember(props: ListGroupMemberProps) {
 
     async function init() {
         await getOwner()
-        await getManager()
-        await getMember(1)
-
-        if (user.id) {
-            checkIsManager({group_id: props.group.id, profile_id: user.id})
-                .then(res => {
-                    setIsManager(res)
-                })
-        }
+        await getMemberShips()
     }
 
     useEffect(() => {
         init()
     }, [props.group, user.id])
 
-    useEffect(() => {
-            const listWithoutManager = members.filter((member) => {
-                return !managers.find((manager) => manager.id === member.id)
-            })
-
-            const MemberListWithRole = listWithoutManager.map((member) => {
-                return {
-                    ...member,
-                    isManager: false
-                }
-            })
-            const managerListWithRole = managers.map((manager) => {
-                return {
-                    ...manager,
-                    isManager: true
-                }
-            })
-        setListToShow([...managerListWithRole, ...MemberListWithRole])
-        }, [managers, members]
-    )
 
     const getOwner = async () => {
-        const owner = await solas.getProfile({id: groupOwnerId})
-        setOwner(owner)
-        await checkUserJoinedGroup()
+        setOwner((props.group as Group).creator as Profile)
     }
 
-    const checkUserJoinedGroup = async () => {
-        if (!user.id) return
-        const userJoinedGroups = await solas.queryGroupsUserJoined({
-            profile_id: user.id!,
-        })
-        if (userJoinedGroups && userJoinedGroups.length) {
-            const target = userJoinedGroups.find((group) => {
-                return group.id === props.group.id
-            })
-            setCurrUserJoinedGroup(!!target)
-        }
-    }
+    const getMemberShips = async () => {
+        const memberships = await solas.getGroupMemberShips({group_id: props.group.id})
+        const _members = memberships.filter((manager) => manager.role === 'member').map((manager) => manager.profile) as any
+        const _managers = memberships.filter((manager) => manager.role === 'manager').map((manager) => manager.profile) as any
+        const _issuer = memberships.filter((manager) => manager.role === 'issuer').map((manager) => manager.profile) as any
 
-    const getMember = async (page: number) => {
-        if (page > 1) return []
-
-        const members = await solas.getGroupMembers({
-            group_id: props.group.id
-        })
-
-        setMembers(members)
-    }
-
-    const getManager = async () => {
-        const managerlist = await solas.getGroupMembers({group_id: props.group.id, role: 'manager'})
-        setManagers(managerlist)
+        setManagers(_managers)
+        setMembers(_members)
+        setIssuer(_issuer)
+        setCurrUserJoinedGroup(memberships.some((member) => member.profile.id === user.id))
     }
 
     const leaveGroup = async () => {
@@ -173,14 +128,11 @@ function ListGroupMember(props: ListGroupMemberProps) {
     }
 
     const showManagerDialog = async () => {
-        const unload = showLoading()
-        const res2 = await getGroupMembers({group_id: props.group.id, role: 'manager'})
-        unload()
         const dialog = openDialog({
             content: (close: any) => <DialogGroupManagerEdit
                 group={props.group as any}
-                members={members}
-                managers={res2}
+                members={[...members, ...issuer]}
+                managers={managers}
                 handleClose={()=> {
                     close()
                     init()
@@ -217,25 +169,34 @@ function ListGroupMember(props: ListGroupMemberProps) {
         </>
     }
 
-    const MemberAction = <StatefulPopover
-        placement={PLACEMENT.bottom}
-        popoverMargin={0}
-        content={({close}) => <MenuItem onClick={() => {
-            showLeaveGroupConfirm();
-            close()
-        }}>{lang['Relation_Ship_Action_Leave']}</MenuItem>}>
-        <div className='member-list-joined-label'>Joined</div>
-    </StatefulPopover>
+    const MemberAction = <>
+        {
+            process.env.NEXT_PUBLIC_SPECIAL_VERSION !== 'seedao' ?
+            <StatefulPopover
+                placement={PLACEMENT.bottom}
+                popoverMargin={0}
+                content={({close}) => <MenuItem onClick={() => {
+                    showLeaveGroupConfirm();
+                    close()
+                }}>{lang['Relation_Ship_Action_Leave']}</MenuItem>}>
+                <div className='member-list-joined-label'>Joined</div>
+            </StatefulPopover>
+            : <div className='member-list-joined-label'>Joined</div>
+        }
+    </>
 
     const OwnerAction = <StatefulPopover
         placement={PLACEMENT.bottom}
         popoverMargin={0}
         content={({close}) => {
             return <div>
-                <MenuItem onClick={() => {
-                    showMemberManageDialog();
-                    close()
-                }}>{lang['Group_Member_Manage_Dialog_Title']}</MenuItem>
+                {
+                    process.env.NEXT_PUBLIC_SPECIAL_VERSION !== 'seedao' &&
+                    <MenuItem onClick={() => {
+                        showMemberManageDialog();
+                        close()
+                    }}>{lang['Group_Member_Manage_Dialog_Title']}</MenuItem>
+                }
                 <MenuItem onClick={() => {
                     showManagerDialog();
                     close()
@@ -262,16 +223,16 @@ function ListGroupMember(props: ListGroupMemberProps) {
     return <div className='list-group-member'>
         <div className={'title-member'}>
             <div className={'action-left'}><span>{lang['Group_detail_tabs_member']}</span>
-                { process.env.NEXT_PUBLIC_SPECIAL_VERSION !== 'seedao' && Action }
+                { Action  }
             </div>
             <div className={'action'}>
-                {members.length} <span> {lang['Group_detail_tabs_member']}</span>
+                {members.length + managers.length + issuer.length + 1} <span> {lang['Group_detail_tabs_member']}</span>
             </div>
         </div>
         <div className={'address-list'}>
             <PreEnhancer/>
             {
-                listToShow.map((member, index) => {
+                managers.map((member, index) => {
                     return <div className={'list-item'}
                                 key={index}
                                 onClick={(e) => {
@@ -280,9 +241,45 @@ function ListGroupMember(props: ListGroupMemberProps) {
                         <div className={'left'}>
                             <img src={member.image_url || defaultAvatar(member.id)} alt=""/>
                             <span>{member.nickname || member.username || member.domain?.split('.')[0]}</span>
-                            {
-                                member.isManager && <span className={'role'}>{lang['Group_Role_Manager']}</span>
+                            <span className={'role'}>{lang['Group_Role_Manager']}</span>
+                            { member.id === user.id && <div className={'you-tag'}>
+                                You
+                            </div>
                             }
+                        </div>
+                    </div>
+                })
+            }
+            {
+                issuer.map((member, index) => {
+                    return <div className={'list-item'}
+                                key={index}
+                                onClick={(e) => {
+                                    gotoProfile(member)
+                                }}>
+                        <div className={'left'}>
+                            <img src={member.image_url || defaultAvatar(member.id)} alt=""/>
+                            <span>{member.nickname || member.username || member.domain?.split('.')[0]}</span>
+                            <span className={'role'}>{lang['Issuer']}</span>
+                            { member.id === user.id && <div className={'you-tag'}>
+                                You
+                            </div>
+                            }
+                        </div>
+                    </div>
+                })
+            }
+
+            {
+                members.map((member, index) => {
+                    return <div className={'list-item'}
+                                key={index}
+                                onClick={(e) => {
+                                    gotoProfile(member)
+                                }}>
+                        <div className={'left'}>
+                            <img src={member.image_url || defaultAvatar(member.id)} alt=""/>
+                            <span>{member.nickname || member.username || member.domain?.split('.')[0]}</span>
                             { member.id === user.id && <div className={'you-tag'}>
                                 You
                             </div>
