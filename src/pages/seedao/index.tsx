@@ -129,7 +129,13 @@ function SeedaoHome({group, members} : {group: Group, members: Membership[]}) {
 export default SeedaoHome
 
 export const getServerSideProps: any = (async (context: any) => {
-    const group = await getGroups({username: 'playground2'})
-    const members = await getGroupMemberShips({group_id: group[0].id})
-    return {props: {group: group[0], members}}
+    if (process.env.NEXT_PUBLIC_LEADING_EVENT_GROUP_ID) {
+        const group = await getGroups({id: Number(process.env.NEXT_PUBLIC_LEADING_EVENT_GROUP_ID)})
+        const members = await getGroupMemberShips({group_id: group[0].id})
+        return {props: {group: group[0], members}}
+    } else {
+        const group = await getGroups({username: 'playground2'})
+        const members = await getGroupMemberShips({group_id: group[0].id})
+        return {props: {group: group[0], members}}
+    }
 })
