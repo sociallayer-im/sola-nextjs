@@ -122,8 +122,11 @@ function Home(props: {initEventGroup?:Group, initList?: Event[]}) {
             </div>
 
             {
-                !!user.id && eventGroup && ready && (joined || (eventGroup as Group).can_publish_event === 'everyone' || isManager) &&
-                <div className={'home-action-bar'}>
+                !!user.id
+                && eventGroup
+                && ready
+                && ((joined && (eventGroup as Group).can_publish_event === 'member') || (eventGroup as Group).can_publish_event === 'everyone' || isManager)
+                && <div className={'home-action-bar'}>
                     <div className={'create-event-btn'} onClick={e => {
                         gotoCreateEvent()
                     }}>+ {lang['Activity_Create_Btn']}</div>

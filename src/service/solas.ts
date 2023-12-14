@@ -2876,7 +2876,7 @@ export async function queryEvent(props: QueryEventProps): Promise<Event[]> {
         variables += `group_id: {_eq: ${props.group_id}}, `
     }
 
-    let order  = `order_by: {start_time: asc}, `
+    let order  = `order_by: {start_time: desc}, `
 
     if (props.event_order) {
         order = `order_by: {start_time: ${props.event_order}}, `
@@ -2886,7 +2886,7 @@ export async function queryEvent(props: QueryEventProps): Promise<Event[]> {
 
 
     const doc = gql`query MyQuery {
-      events (where: {${variables}, status: {_eq: "open"}} ${order} limit: 50, offset: ${(props.page - 1) * 50}) {
+      events (where: {${variables}, status: {_in: ["open", "new", "normal"]}} ${order} limit: 50, offset: ${(props.page - 1) * 50}) {
         badge_id
         geo_lat
         geo_lng
@@ -3412,7 +3412,7 @@ export async function divineBeastRemerge(props: DivineBeastRmergeProps) {
 
 export async function getEventGroup() {
     const doc = gql`query MyQuery {
-      groups(where: {event_enabled: {_eq: true}, status: {_neq: "freezed"}, memberships: {role: {_neq: "owner"}}}) {
+      groups(where: {event_enabled: {_eq: true}, status: {_neq: "freezed"}}) {
         about
         banner_image_url
         banner_link_url

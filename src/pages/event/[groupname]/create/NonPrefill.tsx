@@ -22,7 +22,7 @@ import {
     queryBadge,
     queryBadgeDetail,
     queryEvent,
-    queryEventDetail,
+    queryEventDetail, queryGroupDetail,
     RepeatEventInvite,
     RepeatEventSetBadge,
     RepeatEventUpdate,
@@ -411,7 +411,7 @@ function CreateEvent(props: CreateEventPageProps) {
             setEventType(event.event_type || 'event')
 
             if (event.host_info) {
-                const profile = await getProfile({id: Number(event.host_info)})
+                const profile = await queryGroupDetail(Number(event.host_info))
                 setCreator(profile)
             } else {
                 const profile = await getProfile({id: event.owner_id})
