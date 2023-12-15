@@ -39,6 +39,14 @@ function PageLogo() {
         marginRight: '8px',
     }
 
+    const seedaoLogo: any = {
+        width: '54px',
+        display: 'flex',
+        alignItems: 'center',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+    }
+
     const setMobile = () => {
         setIsMobile(window.innerWidth <= 450)
     }
@@ -66,9 +74,18 @@ function PageLogo() {
                                src={theme === 'light' ? "/images/header_logo.svg" : "/images/head_logo_dark.svg"}
                                alt=""/>
                     }
-
                 </Link>
-                <HomePageSwitcher/>
+                { process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'seedao' &&
+                    <Link className={css(seedaoLogo)} href={'/'}>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10" fill="none">
+                            <path d="M1 1L5 5M9 9L5 5M5 5L9 1M5 5L1 9" stroke="#272928" stroke-width="0.7"/>
+                        </svg>
+                        <img className={css(imgStyle)} src="/images/seedao.png" alt=""/>
+                    </Link>
+                }
+                { process.env.NEXT_PUBLIC_SPECIAL_VERSION !== 'seedao' &&
+                    <HomePageSwitcher/>
+                }
                 <MapEntry/>
             </>
             : <>
