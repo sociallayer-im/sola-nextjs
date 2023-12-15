@@ -1363,7 +1363,7 @@ export async function createPresend(props: CreatePresendProps) {
 
 export interface GetGroupMembersProps {
     group_id: number,
-    role?: 'manager' | 'member' | 'owner',
+    role?: 'manager' | 'member' | 'owner' | 'all',
 }
 
 export async function getGroupMembers(props: GetGroupMembersProps): Promise<Profile[]> {
@@ -1401,7 +1401,9 @@ export interface Membership {
 
 export async function getGroupMemberShips(props: GetGroupMembersProps): Promise<Membership[]> {
     const condition = props.role
-        ? `where: {group: {id: {_eq: "${props.group_id}"}}, role: {_eq: "${props.role}"}}`
+        ? props.role === 'all'
+            ? `where: {group: {id: {_eq: "${props.group_id}"}}}`
+                : `where: {group: {id: {_eq: "${props.group_id}"}}, role: {_eq: "${props.role}"}}`
         : `where: {group: {id: {_eq: "${props.group_id}"}}, role: {_neq: "owner"}}`
 
     const doc = gql`query MyQuery {
@@ -4201,6 +4203,25 @@ export async function queryVoucherDetail (id: number) {
 
     const res: any = await request(graphUrl, doc)
     return res.vouchers[0] as Voucher || null
+}
+
+export async function sendBadgeByWallet (props: {
+    receivers: string[],
+    auth_token: string,
+    reason: string,
+    badge_id: number,
+    starts_at?: string,
+    expires_at?: string,
+    value?: number | null
+}) {
+    checkAuth(props)
+
+   const res = await fetch.post({
+        url: `${apiUrl}/voucher/send_badge_by_address`,
+        data: props
+    })
+
+    return res.data.vouchers as Voucher[]
 }
 
 

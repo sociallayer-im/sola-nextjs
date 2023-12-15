@@ -4,7 +4,7 @@ import LangContext from "@/components/provider/LangProvider/LangContext";
 import {useContext, useEffect, useState} from "react";
 import AppInput from "@/components/base/AppInput";
 import AddressList from "@/components/base/AddressList/AddressList";
-import solas, {issueBatch, Profile, queryBadgeDetail, searchDomain} from "@/service/solas";
+import solas, {issueBatch, Profile, queryBadgeDetail, searchDomain, sendBadgeByWallet} from "@/service/solas";
 import AppButton from "@/components/base/AppButton/AppButton";
 import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
 import {useParams, useRouter} from 'next/navigation'
@@ -68,6 +68,7 @@ export function IssueBadge() {
                 reason: reason
             })
             unload()
+            showToast('Issue success')
             router.push(`/issue-success?voucher=${vouchers[0].id}`)
         } catch (e: any) {
             console.log('[handleCreateIssue]: ', e)
@@ -114,6 +115,35 @@ export function IssueBadge() {
         }
 
         input.click()
+    }
+
+    const handleCsvSend = async () => {
+        if (!selectedCsvRow.length) {
+            showToast('Please select at least one receiver')
+            return
+        }
+
+        if (!params.badgeId) {
+            showToast('Invalid badge id')
+            return
+        }
+
+        const unload = showLoading()
+        try {
+            const vouchers = await sendBadgeByWallet({
+                badge_id: Number(params.badgeId!),
+                receivers: selectedCsvRow,
+                auth_token: user.authToken || '',
+                reason: reason
+            })
+            unload()
+            showToast('Issue success')
+            router.push(`/issue-success?voucher=${vouchers[0].id}`)
+        } catch (e: any) {
+            console.log('[handleCreateIssue]: ', e)
+            unload()
+            showToast(e.message || 'Issue fail')
+        }
     }
 
     const handlePresend = async () => {
@@ -293,7 +323,16 @@ export function IssueBadge() {
                                     <div className={styles['csv-selected']}>
                                         {
                                             selectedCsvRow.map((item, index) => {
-                                                return <div className={styles['csv-row']} key={item}>
+                                                return <div className={styles['csv-row']}
+                                                            onClick={e => {
+                                                                const targetIndex = selectedCsvRow.findIndex(item => item === item)
+                                                                if (targetIndex > -1) {
+                                                                    const newSelectedCsvRow = [...selectedCsvRow]
+                                                                    newSelectedCsvRow.splice(targetIndex, 1)
+                                                                    setSelectedCsvRow(newSelectedCsvRow)
+                                                                }
+                                                            }}
+                                                            key={item}>
                                                     <div>{item}</div>
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="15" viewBox="0 0 14 15" fill="none">
                                                         <rect x="0.933594" y="0.311035" width="18.479" height="1.31993" rx="0.659966" transform="rotate(45 0.933594 0.311035)" fill="#272928"/>
@@ -306,7 +345,7 @@ export function IssueBadge() {
 
                                     <div className={styles['action']}>
                                         <AppButton special onClick={e => {
-                                            handleSend()
+                                            handleCsvSend()
                                         }}>{lang['Send_The_Badge']}</AppButton>
                                         <div className={styles['later']} onClick={e => {
                                             user.userName ? router.push(`/user/${user.userName}`)

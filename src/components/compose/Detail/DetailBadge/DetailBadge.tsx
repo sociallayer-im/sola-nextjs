@@ -4,7 +4,7 @@ import {useContext, useEffect, useRef, useState} from 'react'
 import DetailWrapper from '../atoms/DetailWrapper/DetailWrapper'
 import usePicture from '../../../../hooks/pictrue'
 import DetailHeader from '../atoms/DetailHeader'
-import solas, {Badge, Badgelet} from '../../../../service/solas'
+import solas, {Badge, Badgelet, getGroupMemberShips, Group} from '../../../../service/solas'
 import DetailCover from '../atoms/DetailCover'
 import DetailName from '../atoms/DetailName'
 import DetailArea from '../atoms/DetailArea'
@@ -43,7 +43,9 @@ function DetailBadge(props: DetailBadgeProps) {
     const swiperIndex = useRef(0)
     const [needUpdate, _] = useEvent(EVENT.badgeDetailUpdate)
     const [isGroupManager, setIsGroupManager] = useState(false)
-    const loginUserIsSender = user.id === props.badge.creator.id || user.id === props.badge.group?.id
+    const [isIssuer, setIssuer] = useState(false)
+    const [isGroupOwner, setIsGroupOwner] = useState(false)
+    const loginUserIsSender = user.id === props.badge.creator.id
 
     useEffect(() => {
         async function getBadgelet() {
@@ -62,17 +64,32 @@ function DetailBadge(props: DetailBadgeProps) {
     }, [needUpdate, user.id])
 
     useEffect(() => {
-        async function checkManager() {
-            if (props.badge.group && user.id) {
-                const isManager = await solas.checkIsManager({
-                    group_id: props.badge.group.id,
-                    profile_id: user.id
-                })
-                setIsGroupManager(isManager)
+        const check = async () => {
+            if (user.id) {
+                const memberships = await getGroupMemberShips({
+                        group_id: props.badge.group?.id!,
+                        role: 'all'
+                    }
+                )
+
+                const target = memberships.find((item) => item.profile.id === user.id)
+
+
+                if (target && target.role === 'manager') {
+                    setIsGroupManager(true)
+                }
+
+                if (target && target.role === 'issuer') {
+                    setIssuer(true)
+                }
+
+                if (target && target.role === 'owner') {
+                    setIsGroupOwner(true)
+                }
             }
         }
 
-        checkManager()
+        check()
     }, [user.id])
 
     const handleIssue = async () => {
@@ -242,7 +259,7 @@ function DetailBadge(props: DetailBadgeProps) {
             }
 
             <BtnGroup>
-                {(loginUserIsSender || isGroupManager) &&
+                {(loginUserIsSender || isGroupManager || isIssuer || isGroupOwner) &&
                     <AppButton size={BTN_SIZE.compact} onClick={() => {
                         handleIssue()
                     }} kind={BTN_KIND.primary}>
