@@ -45,7 +45,6 @@ function MyApp(props: {children: any}) {
             <Head>
                 <link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
                 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-                <script src="/jslib/pusher.min.js"></script>
                 <title>{process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'maodao' ? 'Ready Player Club' : 'Social Layer'}</title>
             </Head>
             <Script src={'/jslib/google.map.js'} async></Script>
