@@ -12,7 +12,7 @@ export default function HomePage(props: { initEventGroup: Group, initList?: Even
                 process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'maodao' ?
                     <MaodaoHome/> :
                     process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'seedao' ?
-                        <SeedaoHome group={props.initEventGroup} members={props.members || []} />
+                        <SeedaoHome group={props.initEventGroup} />
                     : <Page initEventGroup={props.initEventGroup || undefined} initList={props.initList || []} />
         }
     </>

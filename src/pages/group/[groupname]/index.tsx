@@ -1,7 +1,7 @@
-import {useRouter, useParams, useSearchParams} from 'next/navigation'
+import {useParams, useRouter, useSearchParams} from 'next/navigation'
 import PageBack from '@/components/base/PageBack'
 import {useContext, useEffect, useState} from 'react'
-import {getGroups, Profile, checkIsManager, queryBadge, Group} from '@/service/solas'
+import {getGroupMemberShips, getGroups, Group, Profile, queryBadge} from '@/service/solas'
 import DialogsContext from '@/components/provider/DialogProvider/DialogsContext'
 import GroupPanel from '@/components/base/GroupPanel/GroupPanel'
 import AppButton, {BTN_SIZE} from '@/components/base/AppButton/AppButton'
@@ -33,11 +33,11 @@ function GroupPage(props: any) {
     const [selectedTab, setSelectedTab] = useState(searchParams.get('tab') || '0')
     const [selectedSubtab, setSelectedSubtab] = useState(searchParams.get('subtab') || '0')
     const [isGroupManager, setIsGroupManager] = useState(false)
+    const [isIssuer, setIssuer] = useState(false)
+    const [isGroupOwner, setIsGroupOwner] = useState(false)
     const startIssue = useIssueBadge()
     const {copyWithDialog} = useCopy()
     const router = useRouter()
-
-    const isGroupOwner = user.id === (profile as Group)?.creator.id
 
     // 为了实现切换tab时，url也跟着变化，而且浏览器的前进后退按钮也能切换tab
     useEffect(() => {
@@ -82,12 +82,20 @@ function GroupPage(props: any) {
     useEffect(() => {
         const check = async () => {
             if (profile && user.id) {
-                const isGroupManager = await checkIsManager({
+                const memberships = await getGroupMemberShips({
                         group_id: profile.id!,
-                        profile_id: user.id
                     }
                 )
-                setIsGroupManager(isGroupManager)
+
+                const target = memberships.find((item) => item.profile.id === user.id)
+                if (target && target.role === 'manager') {
+                    setIsGroupManager(true)
+                }
+                if (target && target.role === 'issuer') {
+                    setIssuer(true)
+                }
+
+                setIsGroupOwner(user.id === (profile as Group)?.creator.id)
             }
         }
         check()
@@ -100,7 +108,7 @@ function GroupPage(props: any) {
         }
 
         // 处理用户登录后但是未注册域名的情况，即有authToken和钱包地址,但是没有domain和username的情况
-        if (user.wallet && user.authToken && !user.domain) {
+        if (!user.userName) {
             router.push('/regist')
             return
         }
@@ -113,19 +121,25 @@ function GroupPage(props: any) {
         const badges = await queryBadge(badgeProps)
         unload()
 
-        user.id === (profile as Group)?.creator.id
-            ? startIssue({badges, group_id: profile?.id})
-            : startIssue({badges, to: profile?.domain || '', group_id: profile?.id})
+        if (process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'seedao') {
+            router.push('/seedao/create-badge')
+        } else {
+            startIssue({badges, group_id: profile?.id})
+        }
     }
 
-    const ShowDomain = styled('div', ({$theme} : any) => {
+    const ShowDomain = styled('div', ({$theme}: any) => {
         return {
             color: 'var(--color-text-main)'
         }
     })
 
     const goToEditGroup = () => {
-        router.push(`/group-edit/${profile?.username}`)
+        if (process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'seedao') {
+            router.push(`/seedao/setting`)
+        } else {
+            router.push(`/group-edit/${profile?.username}`)
+        }
     }
 
     const ProfileMenu = () => <div className='profile-setting'>
@@ -133,7 +147,6 @@ function GroupPage(props: any) {
             copyWithDialog(profile?.domain || '', lang['Dialog_Copy_Message'])
         }}>{profile?.domain}</ShowDomain>
         {(isGroupOwner || isGroupManager)
-            && process.env.NEXT_PUBLIC_SPECIAL_VERSION !== 'seedao'
             && <div className='profile-setting-btn' onClick={() => {
                 goToEditGroup()
             }}><i className='icon-setting'></i></div>
@@ -153,13 +166,12 @@ function GroupPage(props: any) {
                             <GroupPanel group={profile}/>
                         </div>
                         <div className='slot_2'>
-                            <AppButton special size={BTN_SIZE.compact} onClick={handleMintOrIssue}>
-                                <span className='icon-sendfasong'></span>
-                                {user.id === (profile as Group)?.creator.id
-                                    ? lang['Follow_detail_btn_mint']
-                                    : lang['Profile_User_IssueBadge'] + profile.username
-                                }
-                            </AppButton>
+                            {(isGroupOwner || isGroupManager || isIssuer) &&
+                                <AppButton special size={BTN_SIZE.compact} onClick={handleMintOrIssue}>
+                                    <span className='icon-sendfasong'></span>
+                                    {lang['Follow_detail_btn_mint']}
+                                </AppButton>
+                            }
                         </div>
                     </div>
                 </div>
