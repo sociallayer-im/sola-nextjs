@@ -28,8 +28,6 @@ function DialogConnectWallet (props: DialogConnectWalletProps) {
     const { clean, showLoading } = useContext(DialogsContext)
     const { user, logOut, setUser } = useContext(UserContext)
 
-    const {login} = useZupass()
-
     useEffect(() => {
         if (user.id) {
             props.handleClose()
@@ -106,7 +104,10 @@ function DialogConnectWallet (props: DialogConnectWalletProps) {
                 </div>
             }
             {process.env.NEXT_PUBLIC_SPECIAL_VERSION==='zumap' &&
-                <div className='connect-item' onClick={ login }>
+                <div className='connect-item' onClick={async () => {
+                    const login = (await import('@/service/zupass/zupass')).login
+                    login()
+                } }>
                     <img src="/images/zupass.png" alt="email"/>
                     <div className='connect-name'>Zupass</div>
                     <div className='connect-des'>{ 'Login using Zupass' }</div>
