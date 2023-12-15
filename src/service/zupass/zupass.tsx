@@ -1,11 +1,11 @@
 import {EdDSATicketPCDPackage, ITicketData} from "@pcd/eddsa-ticket-pcd";
 import {ArgumentTypeName} from "@pcd/pcd-types";
 import {SemaphoreIdentityPCDPackage} from "@pcd/semaphore-identity-pcd";
-import {
-    EdDSATicketFieldsToReveal,
-    ZKEdDSAEventTicketPCDArgs,
-    ZKEdDSAEventTicketPCDPackage
-} from "@pcd/zk-eddsa-event-ticket-pcd";
+// import {
+//     EdDSATicketFieldsToReveal,
+//     ZKEdDSAEventTicketPCDArgs,
+//     ZKEdDSAEventTicketPCDPackage
+// } from "@pcd/zk-eddsa-event-ticket-pcd";
 import {useContext, useEffect, useState} from "react";
 import {constructZupassPcdGetRequestUrl} from "./PassportInterface";
 import {openZupassPopup} from "./PassportPopup";
@@ -16,15 +16,19 @@ import {useRouter} from "next/navigation";
 
 const ZUPASS_URL = "https://zupass.org";
 
+type  EdDSATicketFieldsToReveal = any
+type   ZKEdDSAEventTicketPCDArgs = any
+
 /**
  * Opens a Zupass popup to make a proof of a ZK EdDSA event ticket PCD.
  */
-function openZKEdDSAEventTicketPopup(
+async function openZKEdDSAEventTicketPopup(
     fieldsToReveal: EdDSATicketFieldsToReveal,
     watermark: bigint,
     validEventIds: string[],
     validProductIds: string[]
 ) {
+
     const args: ZKEdDSAEventTicketPCDArgs = {
         ticket: {
             argumentType: ArgumentTypeName.PCD,
@@ -67,6 +71,8 @@ function openZKEdDSAEventTicketPopup(
 
     const popupUrl = window.location.origin + "/zupass/popup";
 
+    const {ZKEdDSAEventTicketPCDPackage} = (await import('@pcd/zk-eddsa-event-ticket-pcd'))
+
     const proofUrl = constructZupassPcdGetRequestUrl<typeof ZKEdDSAEventTicketPCDPackage>(ZUPASS_URL, popupUrl, ZKEdDSAEventTicketPCDPackage.name, args, {
         genericProveScreen: true,
         title: "ZKEdDSA Ticket Proof",
@@ -78,7 +84,7 @@ function openZKEdDSAEventTicketPopup(
 
 type PartialTicketData = Partial<ITicketData>;
 
-async function login() {
+export async function login() {
     window.localStorage.setItem('zupass_return', window.location.href)
     const nonce = await (
         await fetch("/api/zupass/nonce", {credentials: "include"})
@@ -96,7 +102,6 @@ async function login() {
 }
 
 export function useZupass(): {
-    login: () => Promise<void>;
     ticketData: PartialTicketData | undefined;
     zupassAuth: (pcdStr: string) => Promise<void>;
 } {
@@ -138,5 +143,5 @@ export function useZupass(): {
         }
     }
 
-    return {login, zupassAuth, ticketData};
+    return {zupassAuth, ticketData};
 }

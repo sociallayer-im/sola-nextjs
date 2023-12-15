@@ -7,6 +7,14 @@ import UserContext from "@/components/provider/UserProvider/UserContext";
 import LangContext from "@/components/provider/LangProvider/LangContext";
 import usePicture from "@/hooks/pictrue";
 import {getLabelColor} from "@/hooks/labelColor";
+import * as dayjsLib from 'dayjs'
+import Head from 'next/head'
+
+const utc = require('dayjs/plugin/utc')
+const timezone = require('dayjs/plugin/timezone')
+const dayjs: any = dayjsLib
+dayjs.extend(utc)
+dayjs.extend(timezone)
 
 const dayName = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 const mouthName = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
@@ -21,22 +29,27 @@ interface DateItem {
     events: Event[]
 }
 
-const getCalendarData = () => {
+const getCalendarData = (timezone: string) => {
     const now = new Date()
-    // 计算出今天前15天和后15天的日期时间戳数组 182
-    const from = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 30, 0, 0, 0, 0).getTime()
-    const to = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 30, 0, 0, 0, 0).getTime()
+    const dayTaiLandTime = dayjs.tz(now, timezone)
+
+    // 计算出今天前15天和后15天的日期时间戳数组
+    const _now = dayjs.tz(dayTaiLandTime.format('YYYY-MM-DD') + ' 00:00', timezone)
+    const _from = _now.subtract(30, 'day').valueOf()
+    const _to = _now.add(30, 'day').valueOf()
 
     // 获得 from 和 to  之间所以天0点的时间戳数组
     const dayArray = []
-    for (let i = from; i <= to; i += 24 * 60 * 60 * 1000) {
+    for (let i = _from; i <= _to; i += 24 * 60 * 60 * 1000) {
+        // const date = new Date(i)
+        const date = dayjs.tz(i, timezone)
         dayArray.push({
-            date: new Date(i).getDate(),
+            date: dayjs.tz(i, timezone).date(),
             timestamp: i,
-            dayName: dayName[new Date(i).getDay()],
-            day: new Date(i).getDate(),
-            month: new Date(i).getMonth(),
-            year: new Date(i).getFullYear(),
+            dayName: dayName[date.day()],
+            day: date.day(),
+            month: date.month(),
+            year: date.year(),
             events: [] as Event[]
         })
     }
@@ -44,24 +57,19 @@ const getCalendarData = () => {
     return dayArray as DateItem[]
 }
 
-function ComponentName(props: { group: Group }) {
+function ComponentName(props: { group: Group, timezone: string , dateList: DateItem[]}) {
     const eventGroup = props.group
     const now = new Date()
     const scroll1Ref = useRef<any>(null)
     const scroll2Ref = useRef<any>(null)
-    const eventListRef = useRef<Event[]>([])
-    const dayList = useRef(getCalendarData())
 
     const {user} = useContext(UserContext)
     const [showJoined, setShowJoined] = useState(false)
     const {lang} = useContext(LangContext)
 
 
-    const [eventList, setEventList] = useState<Event[]>([])
-    const [showList, setShowList] = useState<DateItem[]>([])
-    const [ready, setReady] = useState(false)
-    const [currMonth, setCurrMonth] = useState(new Date().getMonth())
-    const [currYear, setCurrYear] = useState(new Date().getFullYear())
+    const [currMonth, setCurrMonth] = useState(dayjs.tz(now, props.timezone).month())
+    const [currYear, setCurrYear] = useState(dayjs.tz(now, props.timezone).year())
     const [currTag, setCurrTag] = useState<string[]>([])
 
     // touch on pc
@@ -75,7 +83,7 @@ function ComponentName(props: { group: Group }) {
         const scrollBar1 = scroll1Ref.current
         const scrollBar2 = scroll2Ref.current
 
-        const targetColumnIndex = dayList.current.findIndex((item: DateItem) => {
+        const targetColumnIndex = props.dateList.findIndex((item: DateItem) => {
             return item.year === now.getFullYear() && item.month === now.getMonth() && item.date === now.getDate()
         })
 
@@ -95,39 +103,6 @@ function ComponentName(props: { group: Group }) {
             scrollBar2.scrollLeft = offset
         }
     }
-
-
-    useEffect(() => {
-        const getEventList = async () => {
-            const events = await queryEvent({
-                group_id: eventGroup.id,
-                start_time_from: new Date(dayList.current[0].timestamp).toISOString(),
-                start_time_to: new Date(dayList.current[dayList.current.length - 1].timestamp).toISOString(),
-                page: 1,
-                event_order: 'asc'
-            })
-
-            setEventList(events)
-            eventListRef.current = events
-            setReady(true)
-        }
-        getEventList()
-    }, [])
-
-    useEffect(() => {
-        const list = JSON.parse(JSON.stringify(dayList.current))
-        eventList.forEach(item => {
-            const eventStarTime = new Date(item.start_time!)
-            const targetIndex = list.findIndex((i: DateItem) => {
-                return i.year === eventStarTime.getFullYear() && i.date === eventStarTime.getDate() && i.month === eventStarTime.getMonth()
-            })
-            if (targetIndex > 0) {
-                list[targetIndex].events.push(item)
-            }
-        })
-        setShowList(list)
-        setReady(true)
-    }, [eventList])
 
     useEffect(() => {
         const checkScroll = (e: any) => {
@@ -263,26 +238,10 @@ function ComponentName(props: { group: Group }) {
         }
     }, [scroll1Ref, scroll2Ref])
 
-    useEffect(() => {
-        let res: any = []
-        if (showJoined) {
-            res = eventListRef.current.filter(item => {
-                return item.participants?.some(i => i.profile_id === user.id && i.status !== 'cancel')
-            })
-        } else {
-            res = eventListRef.current
-        }
-
-        if (currTag[0]) {
-            res = res.filter((e: Event) => {
-                return e.tags?.includes(currTag[0])
-            })
-        }
-
-        setEventList(res)
-    }, [showJoined, currTag])
-
     return (<div className={styles['schedule-page']}>
+        <Head>
+            <title>{`${props.group.nickname || props.group.username} ${lang['Activity_Calendar']} | Social Layer`}</title>
+        </Head>
         <div className={`${styles['schedule-head']} schedule-head`}>
             <div className={styles['page-center']}>
                 <div className={styles['schedule-title']}>
@@ -335,7 +294,7 @@ function ComponentName(props: { group: Group }) {
         <div className={`${styles['content']}`}>
             <div className={`${styles['date-bar-wrapper']} date-bar-wrapper`} ref={scroll1Ref}>
                 <div className={`${styles['date-bar']}`}>
-                    {showList.map((item: any, index) => {
+                    {props.dateList.map((item: any, index) => {
                         return <div key={index + ''} className={styles['date-column']}>
                             <div className={styles['date-day']}>
                                 <span>{item.dayName}</span>
@@ -350,11 +309,27 @@ function ComponentName(props: { group: Group }) {
             </div>
             <div className={`${styles['event-wrapper']} event-wrapper`} ref={scroll2Ref}>
                 <div className={`${styles['event-list']} event-list`}>
-                    {showList.map((item: any, index) => {
+                    {props.dateList.map((item: any, index) => {
                         return <div key={index + ''} className={`${styles['date-column']} date-column`}>
                             <div className={`${styles['events']}`}>
                                 {item.events.map((e: Event) => {
-                                    return <EventCard key={Math.random() + e.title} event={e}/>
+                                    if (showJoined) {
+                                        const isJoined = e.participants?.some(i => i.profile_id === user.id && i.status !== 'cancel')
+                                        if (!isJoined) {
+                                            return  <></>
+                                        }
+                                    }
+
+                                    if (currTag[0]) {
+                                        if (!e.tags?.includes(currTag[0])) {
+                                            return  <></>
+                                        }
+                                    }
+                                    return <EventCard key={Math.random() + e.title}
+                                                      event={e}
+                                                      group={props.group}
+                                                      blank
+                                                      setTimezone={props.timezone}/>
                                 })}
                             </div>
                         </div>
@@ -369,23 +344,55 @@ function ComponentName(props: { group: Group }) {
 export default ComponentName
 
 export const getServerSideProps: any = (async (context: any) => {
-    const group = await getGroups({username: 'wamotopia'})
-    return {props: {group: group[0]}}
+
+    const timezone = context.params?.timezone || 'Asia/Bangkok'
+    let dateList = getCalendarData(timezone)
+
+    const [group, events] = await Promise.all([
+         getGroups({id: 1925}),
+         queryEvent({
+            group_id: 1925,
+            start_time_from: new Date(dateList[0].timestamp).toISOString(),
+            start_time_to: new Date(dateList[dateList.length - 1].timestamp).toISOString(),
+            page: 1,
+            event_order: 'asc'
+        })
+    ]);
+
+    (events as Event[]).forEach(item => {
+        const eventStarTime = dayjs.tz(new Date(item.start_time!).getTime(), timezone)
+        const targetIndex = dateList.findIndex((i: DateItem) => {
+            return i.year === eventStarTime.year() && i.date === eventStarTime.date() && i.month === eventStarTime.month()
+        })
+        if (targetIndex > 0) {
+            dateList[targetIndex].events.push(item)
+        }
+    })
+
+    return {props: {group: group[0], timezone, dateList}}
 })
 
-function EventCard({event, blank, disable}: { event: Event, blank?: boolean, disable?: boolean }) {
-    const isAllDay = new Date(event.start_time!).getHours() === 0 && ((new Date(event.end_time!).getTime() - new Date(event.start_time!).getTime() + 60000) % 8640000 === 0)
-    const fromTime = `${new Date(event.start_time!).getHours().toString().padStart(2, '0')} : ${new Date(event.start_time!).getMinutes().toString().padStart(2, '0')}`
-    const toTime = `${new Date(event.end_time!).getHours().toString().padStart(2, '0')} : ${new Date(event.end_time!).getMinutes().toString().padStart(2, '0')}`
+function EventCard({event, blank, disable, group, setTimezone}: { event: Event, blank?: boolean, disable?: boolean, group?: Group, setTimezone?: string}) {
+    const timezone = setTimezone || 'Asia/Bangkok'
+    const isAllDay = dayjs.tz(new Date(event.start_time!).getTime(), timezone).hour() === 0 && ((new Date(event.end_time!).getTime() - new Date(event.start_time!).getTime() + 60000) % 8640000 === 0)
+    const fromTime = dayjs.tz(new Date(event.start_time!).getTime(), timezone).format('HH:mm')
+    const toTime = dayjs.tz(new Date(event.end_time!).getTime(), timezone).format('HH:mm')
+
 
     const [groupHost, setGroupHost] = useState<Group | null>(null)
     const [ready, setReady] = useState(false)
+
     useEffect(() => {
         if (event.host_info) {
-            queryGroupDetail(Number(event.host_info)).then((res: any) => {
-                setGroupHost(res)
+            if (Number(event.host_info) === group?.id) {
+                setGroupHost(group)
                 setReady(true)
-            })
+            } else {
+                queryGroupDetail(Number(event.host_info)).then((res: any) => {
+                    setGroupHost(res)
+                    setReady(true)
+                })
+            }
         } else {
             setReady(true)
         }
