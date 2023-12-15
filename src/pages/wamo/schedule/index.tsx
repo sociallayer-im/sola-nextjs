@@ -325,7 +325,7 @@ function ComponentName(props: { group: Group, timezone: string , dateList: DateI
                                             return  <></>
                                         }
                                     }
-                                    return <EventCard key={Math.random() + e.title} event={e} timezone={props.timezone}/>
+                                    return <EventCard key={Math.random() + e.title} event={e} blank timezone={props.timezone}/>
                                 })}
                             </div>
                         </div>
