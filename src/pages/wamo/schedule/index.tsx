@@ -325,7 +325,11 @@ function ComponentName(props: { group: Group, timezone: string , dateList: DateI
                                             return  <></>
                                         }
                                     }
-                                    return <EventCard key={Math.random() + e.title} event={e} blank timezone={props.timezone}/>
+                                    return <EventCard key={Math.random() + e.title}
+                                                      event={e}
+                                                      group={props.group}
+                                                      blank
+                                                      setTimezone={props.timezone}/>
                                 })}
                             </div>
                         </div>
@@ -340,19 +344,22 @@ function ComponentName(props: { group: Group, timezone: string , dateList: DateI
 export default ComponentName
 
 export const getServerSideProps: any = (async (context: any) => {
-    const group = await getGroups({username: 'wamotopia'})
+
     const timezone = context.params?.timezone || 'Asia/Bangkok'
-
     let dateList = getCalendarData(timezone)
-    let events = await queryEvent({
-        group_id: group[0].id,
-        start_time_from: new Date(dateList[0].timestamp).toISOString(),
-        start_time_to: new Date(dateList[dateList.length - 1].timestamp).toISOString(),
-        page: 1,
-        event_order: 'asc'
-    })
 
-    events.forEach(item => {
+    const [group, events] = await Promise.all([
+         getGroups({id: 1925}),
+         queryEvent({
+            group_id: 1925,
+            start_time_from: new Date(dateList[0].timestamp).toISOString(),
+            start_time_to: new Date(dateList[dateList.length - 1].timestamp).toISOString(),
+            page: 1,
+            event_order: 'asc'
+        })
+    ]);
+
+    (events as Event[]).forEach(item => {
         const eventStarTime = dayjs.tz(new Date(item.start_time!).getTime(), timezone)
         const targetIndex = dateList.findIndex((i: DateItem) => {
             return i.year === eventStarTime.year() && i.date === eventStarTime.date() && i.month === eventStarTime.month()
@@ -365,8 +372,8 @@ export const getServerSideProps: any = (async (context: any) => {
     return {props: {group: group[0], timezone, dateList}}
 })
 
-function EventCard({event, blank, disable}: { event: Event, blank?: boolean, disable?: boolean, timezone?: string }) {
-    const timezone = event.timezone || 'Asia/Bangkok'
+function EventCard({event, blank, disable, group, setTimezone}: { event: Event, blank?: boolean, disable?: boolean, group?: Group, setTimezone?: string}) {
+    const timezone = setTimezone || 'Asia/Bangkok'
     const isAllDay = dayjs.tz(new Date(event.start_time!).getTime(), timezone).hour() === 0 && ((new Date(event.end_time!).getTime() - new Date(event.start_time!).getTime() + 60000) % 8640000 === 0)
     const fromTime = dayjs.tz(new Date(event.start_time!).getTime(), timezone).format('HH:mm')
     const toTime = dayjs.tz(new Date(event.end_time!).getTime(), timezone).format('HH:mm')
@@ -374,12 +381,18 @@ function EventCard({event, blank, disable}: { event: Event, blank?: boolean, dis
 
     const [groupHost, setGroupHost] = useState<Group | null>(null)
     const [ready, setReady] = useState(false)
+
     useEffect(() => {
         if (event.host_info) {
-            queryGroupDetail(Number(event.host_info)).then((res: any) => {
-                setGroupHost(res)
+            if (Number(event.host_info) === group?.id) {
+                setGroupHost(group)
                 setReady(true)
-            })
+            } else {
+                queryGroupDetail(Number(event.host_info)).then((res: any) => {
+                    setGroupHost(res)
+                    setReady(true)
+                })
+            }
         } else {
             setReady(true)
         }
