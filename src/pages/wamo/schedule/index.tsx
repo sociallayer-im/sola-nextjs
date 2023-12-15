@@ -62,8 +62,6 @@ function ComponentName(props: { group: Group, timezone: string , dateList: DateI
     const now = new Date()
     const scroll1Ref = useRef<any>(null)
     const scroll2Ref = useRef<any>(null)
-    const eventListRef = useRef<Event[]>([])
-    const dayList = useRef(getCalendarData())
 
     const {user} = useContext(UserContext)
     const [showJoined, setShowJoined] = useState(false)
@@ -85,7 +83,7 @@ function ComponentName(props: { group: Group, timezone: string , dateList: DateI
         const scrollBar1 = scroll1Ref.current
         const scrollBar2 = scroll2Ref.current
 
-        const targetColumnIndex = dayList.current.findIndex((item: DateItem) => {
+        const targetColumnIndex = props.dateList.findIndex((item: DateItem) => {
             return item.year === now.getFullYear() && item.month === now.getMonth() && item.date === now.getDate()
         })
 
