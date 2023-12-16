@@ -62,7 +62,7 @@ interface AppInputProps  {
     autoFocus?: boolean,
     onFocus?: (...rest: any[]) => any
     onBlur?: (...rest: any[]) => any
-    type: string
+    type?: string
 }
 
 /**
