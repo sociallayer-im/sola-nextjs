@@ -233,17 +233,9 @@ export function IssueBadge() {
                                             <AddressList data={searchRes}
                                                          selected={selectedProfiles.map((item) => item.id) as any}
                                                          onClick={(target) => {
-                                                             const targetIndex = selectedProfiles.findIndex(item => item.id === target.id)//
-                                                             // is selected, remove
-                                                             if (targetIndex > -1) {
-                                                                 const newSelectedProfiles = [...selectedProfiles]
-                                                                 newSelectedProfiles.splice(targetIndex, 1)
-                                                                 setSelectedProfiles(newSelectedProfiles)
-                                                             } else {
-                                                                 {
-                                                                     setSelectedProfiles([...selectedProfiles, target])
-                                                                 }
-                                                             }
+                                                             setSelectedProfiles([target, ...selectedProfiles])
+                                                             setSearchRes([])
+                                                             setDomainSearchKey('')
                                                          }
                                                          }/>
                                         </div>

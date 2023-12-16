@@ -237,13 +237,12 @@ function CreateBadgeNonPrefill({group}: { group: Group }) {
                         </div>
                     </div>
 
-                    <div className={'input-area'}>
+                    <div className={'input-area input-disable'}>
                         <div className='input-area-title'>{lang['Seedao_Issue_Badge_Section']}</div>
                         <Select
                             searchable={false}
                             clearable={false}
                             creatable={false}
-
                             options={sections}
                             onChange={({value}) => {
                                 setSection(value as any)
