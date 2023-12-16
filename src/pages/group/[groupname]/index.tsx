@@ -91,6 +91,7 @@ function GroupPage(props: any) {
                 if (target && target.role === 'manager') {
                     setIsGroupManager(true)
                 }
+
                 if (target && target.role === 'issuer') {
                     setIssuer(true)
                 }
@@ -169,7 +170,9 @@ function GroupPage(props: any) {
                             {(isGroupOwner || isGroupManager || isIssuer) &&
                                 <AppButton special size={BTN_SIZE.compact} onClick={handleMintOrIssue}>
                                     <span className='icon-sendfasong'></span>
-                                    {lang['Follow_detail_btn_mint']}
+                                    { process.env.NEXT_PUBLIC_SPECIAL_VERSION=== 'seedao' ?
+                                        lang['Send_SeeDAO_Badge']
+                                        : lang['Follow_detail_btn_mint']}
                                 </AppButton>
                             }
                         </div>

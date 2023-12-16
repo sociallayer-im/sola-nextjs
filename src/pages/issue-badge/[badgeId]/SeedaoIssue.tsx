@@ -227,7 +227,7 @@ export function IssueBadge() {
                                                   setDomainSearchKey(e.target.value)
                                               }}
                                               clearable={true}
-                                              placeholder={'Please input the domain/username/email to search'}/>
+                                              placeholder={'Please input the domain/username to search'}/>
                                     {!!searchRes.length && domainSearchKey &&
                                         <div className={styles['search-res']}>
                                             <AddressList data={searchRes}
@@ -356,7 +356,9 @@ export function IssueBadge() {
                         <div className={'content'}>
                             <div className={styles['presend-amount']}>
                                 <div>Send</div>
-                                <AppInput value={presendAmount.toString()} onChange={e => {
+                                <AppInput
+                                    type="number"
+                                    value={presendAmount.toString()} onChange={e => {
                                     const inputValue = e.target.value
                                     const onlyNumbers = /^[0-9]*$/; // 正则表达式匹配数字
 

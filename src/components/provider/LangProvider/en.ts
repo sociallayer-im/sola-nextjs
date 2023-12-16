@@ -581,6 +581,7 @@ const langEN = {
     Set_As_Issuer: 'Set as an Issuer',
     Select_From_Members: 'Select from members',
     Remove_Issuer: 'Remove Issuer',
+    Send_SeeDAO_Badge: 'Send SeeDAO badge',
 }
 
 

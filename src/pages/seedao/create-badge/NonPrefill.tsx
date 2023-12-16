@@ -6,7 +6,7 @@ import UploadImage from '@/components/compose/UploadBadgeImage/UploadBadgeImage'
 import AppInput from '@/components/base/AppInput'
 import UserContext from '@/components/provider/UserProvider/UserContext'
 import AppButton, {BTN_KIND} from '@/components/base/AppButton/AppButton'
-import {CreateBadgeProps, Group, uploadImage, createBadge} from '@/service/solas'
+import {createBadge, CreateBadgeProps, Group, uploadImage} from '@/service/solas'
 import DialogsContext from '@/components/provider/DialogProvider/DialogsContext'
 import ReasonInput from '@/components/base/ReasonInput/ReasonInput'
 import {Select} from "baseui/select";
@@ -67,7 +67,7 @@ function CreateBadgeNonPrefill({group}: { group: Group }) {
 
     const {lang} = useContext(LangContext)
 
-    const genCover = ():Promise<string> => {
+    const genCover = (): Promise<string> => {
         return new Promise((resolve, reject) => {
             const dom = document.createElement('div')
             dom.className = styles['seedao-text-img']
@@ -163,6 +163,10 @@ function CreateBadgeNonPrefill({group}: { group: Group }) {
     useEffect(() => {
         document.querySelector('body')?.classList.add('seeda0-create-badge-page')
 
+        document.querySelectorAll('.input-disable input').forEach((input) => {
+            input.setAttribute('readonly', 'readonly')
+        })
+
         return () => {
             document.querySelector('body')?.classList.remove('seeda0-create-badge-page')
         }
@@ -222,6 +226,7 @@ function CreateBadgeNonPrefill({group}: { group: Group }) {
                             clearable
                             value={role}
                             errorMsg={roleErr}
+                            placeholder={lang['Seedao_Issue_Badge_Role']}
                             onChange={(e) => {
                                 setRole(e.target.value)
                             }}/>
@@ -250,7 +255,7 @@ function CreateBadgeNonPrefill({group}: { group: Group }) {
                             value={section}/>
                     </div>
 
-                    <div className={'input-area'}>
+                    <div className={'input-area input-disable'}>
                         <div className='input-area-title'>{lang['Seedao_Issue_Badge_Institution']}</div>
                         <Select
                             searchable={false}
@@ -274,10 +279,11 @@ function CreateBadgeNonPrefill({group}: { group: Group }) {
 
                     {!!group &&
                         <div className='input-area'>
-                        <div className='input-area-title'>{lang['BadgeDialog_Label_Creator']}</div>
-                        <div className={styles['creator']}>
-                        <img className={styles['avatar']} src={group.image_url || defaultAvatar(group.id)} alt=""/>
-                    {group.username}</div>
+                            <div className='input-area-title'>{lang['BadgeDialog_Label_Creator']}</div>
+                            <div className={styles['creator']}>
+                                <img className={styles['avatar']} src={group.image_url || defaultAvatar(group.id)}
+                                     alt=""/>
+                                {group.username}</div>
                         </div>
                     }
 

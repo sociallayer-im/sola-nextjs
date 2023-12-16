@@ -62,6 +62,7 @@ interface AppInputProps  {
     autoFocus?: boolean,
     onFocus?: (...rest: any[]) => any
     onBlur?: (...rest: any[]) => any
+    type: string
 }
 
 /**
@@ -120,6 +121,7 @@ export default function AppInput(props: AppInputProps) {
     return (
         <>
             <Input
+                type={ props.type }
                 autoComplete={ 'off' }
                 onKeyUp={ (e) => { if (props.onKeyUp) { props.onKeyUp(e) } } }
                 value={ props.value }
