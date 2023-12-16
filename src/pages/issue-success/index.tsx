@@ -163,7 +163,7 @@ function IssueSuccessPage(props: any) {
     useEffect(() => {
         const shareUrl = info?.link || ''
         let text = lang['IssueFinish_share']
-            .replace('#1', user.domain!)
+            .replace('#1', group?.nickname || group?.username || user.nickname|| user.domain!)
             .replace('#2', info?.name || '')
             .replace('#3', shareUrl)
 
