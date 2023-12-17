@@ -1,6 +1,44 @@
 .home-user-panel {
   padding-bottom: 20px;
 
+  & .group-card {
+    display: none;
+  }
+
+  & .calendar-btn.a {
+    display: none;
+  }
+
+  & .pc {
+    .group-card {
+      display: block;
+    }
+
+    .calendar-btn.b {
+      display: flex;
+    }
+  }
+
+  @media (max-width: 650px) {
+    .group-card {
+      display: block;
+    }
+
+    .calendar-btn.a{
+      display: flex;
+    }
+
+    .calendar-btn.b {
+      display: none!important;
+    }
+
+    & .pc {
+      .group-card {
+        display: none;
+      }
+    }
+  }
+
   .group-card {
     padding: 16px 0 0 0;
 
@@ -45,20 +83,17 @@
     margin: 9px auto;
     display: block;
     width: 100%;
-    max-width: 450px;
     padding: 0 20px;
     box-sizing: border-box;
-    text-decoration: none!important;
+    text-decoration: none !important;
 
     img {
       width: 100%;
-      max-width: 450px;
       min-height: 120px;
     }
   }
 
   .center {
-    max-width: 450px;
     margin: 0 auto;
     box-sizing: border-box;
     padding: 0 20px;

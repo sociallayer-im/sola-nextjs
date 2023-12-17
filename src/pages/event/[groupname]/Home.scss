@@ -6,8 +6,69 @@
   padding-bottom: 100px;
   box-sizing: border-box;
 
+  .home-page-event-wrapper {
+    max-width: 1020px;
+    display: flex;
+    flex-flow: row nowrap;
+    margin: 0 auto;
+  }
+
+  .home-page-event-main {
+    max-width: 630px;
+    flex: 1;
+    overflow: auto;
+
+    & .home-user-panel{
+      display: none;
+    }
+
+    & .home-action-bar {
+      display: none;
+    }
+
+
+    @media (max-width: 650px) {
+     & .home-user-panel{
+        display: block;
+      }
+
+      & .home-action-bar {
+        display: flex;
+      }
+    }
+  }
+
+  .home-page-event-side {
+    min-width: 368px;
+    max-width: 318px;
+
+    .home-action-bar {
+      display: block;
+      position: relative!important;
+      padding: 20px;
+      width: 100%;
+      box-sizing: border-box;
+
+      .setting-btn {
+        max-width: initial;
+        margin-left: 0;
+        margin-top: 10px;
+      }
+    }
+
+    @media (max-width: 650px) {
+      & {
+        display: none;
+
+        .home-action-bar {
+          display: none;
+
+        }
+      }
+    }
+  }
+
   .center {
-    max-width: 450px;
     margin: 0 auto;
   }
 
@@ -183,6 +244,7 @@
   }
 
   .home-action-bar {
+    display: none;
     position: fixed;
     z-index: 1;
     bottom: 20px;
@@ -190,9 +252,6 @@
     width: 100vw;
     left: 50%;
     transform: translateX(-50%);
-    display: flex;
-    padding: 0 12px;
-    box-sizing: border-box;
   }
 
   .show-selected-event-in-map {

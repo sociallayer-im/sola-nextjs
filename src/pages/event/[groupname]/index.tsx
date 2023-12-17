@@ -79,65 +79,90 @@ function Home(props: {initEvent?:Group, initList?: Event[]}) {
 
     return <>
         <div className='home-page-event'>
-            <HomeUserPanel/>
-            {!!user.id &&
-                <>
-                    { (showMyAttend || showMyCreate) &&
-                        <>
-                            <div className={'center'}>
-                                <div className={'module-title'} style={{marginBottom: '20px'}}>
-                                    {lang['Activity_My_Event']}
-                                </div>
-                            </div>
-                            <div className={'center'}>
-                                <AppSubTabs activeKey={tabIndex} renderAll onChange={({activeKey}) => {
-                                    setTabIndex(activeKey + '')
-                                }}>
-                                    {showMyAttend ? <Tab title={lang['Activity_State_Registered']}>
-                                        <ListMyAttentedEvent />
-                                    </Tab>: <></>}
+           <div className={'home-page-event-wrapper'}>
+               <div className={'home-page-event-main'}>
+                   <HomeUserPanel/>
+                   {!!user.id &&
+                       <>
+                           { (showMyAttend || showMyCreate) &&
+                               <>
+                                   <div className={'center'}>
+                                       <div className={'module-title'} style={{marginBottom: '20px'}}>
+                                           {lang['Activity_My_Event']}
+                                       </div>
+                                   </div>
+                                   <div className={'center'}>
+                                       <AppSubTabs activeKey={tabIndex} renderAll onChange={({activeKey}) => {
+                                           setTabIndex(activeKey + '')
+                                       }}>
+                                           {showMyAttend ? <Tab title={lang['Activity_State_Registered']}>
+                                               <ListMyAttentedEvent />
+                                           </Tab>: <></>}
 
-                                    { showMyCreate  && !isMaodao ?
-                                        <Tab title={lang['Activity_State_Created']}>
-                                            <ListMyCreatedEvent participants={myRegistered} />
-                                        </Tab>: <></>
-                                    }
-                                </AppSubTabs>
-                            </div>
-                        </>
-                    }
-                </>
-            }
-            {!!user.id &&
-                <div className={'center'}>
-                    <ListRecommendedEvent />
-                </div>
-            }
+                                           { showMyCreate  && !isMaodao ?
+                                               <Tab title={lang['Activity_State_Created']}>
+                                                   <ListMyCreatedEvent participants={myRegistered} />
+                                               </Tab>: <></>
+                                           }
+                                       </AppSubTabs>
+                                   </div>
+                               </>
+                           }
+                       </>
+                   }
+                   {!!user.id &&
+                       <div className={'center'}>
+                           <ListRecommendedEvent />
+                       </div>
+                   }
 
-            <div className={'center'}>
-                { !isMaodao || pathname?.includes('event-home') ?
-                    <ListEventVertical participants={myRegistered} initData={props.initList || []} />
-                    : <MaodaoListEventVertical participants={myRegistered}/>
-                }
-            </div>
+                   <div className={'center'}>
+                       { !isMaodao || pathname?.includes('event-home') ?
+                           <ListEventVertical participants={myRegistered} initData={props.initList || []} />
+                           : <MaodaoListEventVertical participants={myRegistered}/>
+                       }
+                   </div>
 
-            {
-                !!user.id
-                && eventGroup
-                && ready
-                && ((joined && (eventGroup as Group).can_publish_event === 'member') || (eventGroup as Group).can_publish_event === 'everyone' || isManager)
-                && <div className={'home-action-bar'}>
-                    <div className={'create-event-btn'} onClick={e => {
-                        gotoCreateEvent()
-                    }}>+ {lang['Activity_Create_Btn']}</div>
+                   {
+                       !!user.id
+                       && eventGroup
+                       && ready
+                       && ((joined && (eventGroup as Group).can_publish_event === 'member') || (eventGroup as Group).can_publish_event === 'everyone' || isManager)
+                       && <div className={'home-action-bar'}>
+                           <div className={'create-event-btn'} onClick={e => {
+                               gotoCreateEvent()
+                           }}>+ {lang['Activity_Create_Btn']}</div>
 
-                    { (user.id === (eventGroup as Group).creator.id || isManager) &&
-                        <div className={'setting-btn'} onClick={e => {
-                            router.push(`/event/setting/${eventGroup!.username}`)
-                        }}>{lang['Activity_Setting_Btn']}</div>
-                    }
-                </div>
-            }
+                           { (user.id === (eventGroup as Group).creator.id || isManager) &&
+                               <div className={'setting-btn'} onClick={e => {
+                                   router.push(`/event/setting/${eventGroup!.username}`)
+                               }}>{lang['Activity_Setting_Btn']}</div>
+                           }
+                       </div>
+                   }
+               </div>
+
+               <div className={'home-page-event-side'}>
+                   <HomeUserPanel/>
+                   {
+                       !!user.id
+                       && eventGroup
+                       && ready
+                       && ((joined && (eventGroup as Group).can_publish_event === 'member') || (eventGroup as Group).can_publish_event === 'everyone' || isManager)
+                       && <div className={'home-action-bar'}>
+                           <div className={'create-event-btn'} onClick={e => {
+                               gotoCreateEvent()
+                           }}>+ {lang['Activity_Create_Btn']}</div>
+
+                           { (user.id === (eventGroup as Group).creator.id || isManager) &&
+                               <div className={'setting-btn'} onClick={e => {
+                                   router.push(`/event/setting/${eventGroup!.username}`)
+                               }}>{lang['Activity_Setting_Btn']}</div>
+                           }
+                       </div>
+                   }
+               </div>
+           </div>
         </div>
     </>
 }
