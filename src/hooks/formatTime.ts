@@ -29,7 +29,7 @@ export const formatTimeWithTimezone = (dateString: string, timezone: string) => 
 function useTime () {
     const {lang} = useContext(LangContext)
 
-    return (dateString: string, langType?: string) => {
+    return (dateString: string, timezone?: string) => {
         dateString = dateString.endsWith('Z') ? dateString : dateString + 'Z'
         // format like:THU, SEP 26 AT 9 PM
         const dateObject = new Date(dateString)
@@ -58,4 +58,43 @@ function useTime () {
     }
 }
 
-export default useTime
+function useTime2 () {
+    const {lang} = useContext(LangContext)
+
+    return (dateString: string, timezone?: string) => {
+        dateString = dateString.endsWith('Z') ? dateString : dateString + 'Z'
+        timezone = timezone || 'UTC'
+
+        // format like:THU, SEP 26 AT 9 PM
+        const target = dayjs.tz(new Date(dateString).getTime(), timezone)
+        const now = dayjs.tz(new Date().getTime(), timezone)
+        const isToday = target.date() === now.date()
+        const isTomorrow = target.date() - now.date() === 1
+
+        const week = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT']
+        const month = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL',
+            'AUG', 'SEP', 'OCT', 'NOV', 'DEC']
+        const mon = month[target.month()]
+        const date = target.date() + ''
+        const hour = target.hour() > 12 ? target.hour() - 12 + '' : target.hour() + ''
+        const min = target.minute() + ''
+        const amOrPm = target.hour() >= 12 ? 'PM' : 'AM'
+
+        const todayText = lang['Event_Today']
+        const tomorrowText = lang['Event_Tomorrow']
+
+        const utcOffset = target.utcOffset() > 0 ?
+            '+' + target.utcOffset() / 60 :
+            target.utcOffset() / 60
+
+        if (isToday) {
+            return `${todayText} ${hour.padStart(2, '0')}:${min.padStart(2, '0')} ` + amOrPm + ' UTC' + utcOffset
+        } else if (isTomorrow) {
+            return `${tomorrowText} ${hour.padStart(2, '0')}:${min.padStart(2, '0')} ` + amOrPm + ' UTC' + utcOffset
+        } else {
+            return `${week[target.day()]}, ${mon} ${date.padStart(2, '0')}, ${hour.padStart(2, '0')}:${min.padStart(2, '0')} `  + ' UTC' + utcOffset
+        }
+    }
+}
+
+export default useTime2
