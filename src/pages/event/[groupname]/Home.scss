@@ -105,7 +105,6 @@
 
         .home-action-bar {
           display: none;
-
         }
       }
     }
@@ -295,6 +294,8 @@
     max-width: 375px;
     width: 100vw;
     left: 50%;
+    padding: 0 20px;
+    box-sizing: border-box;
     transform: translateX(-50%);
   }
 

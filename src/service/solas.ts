@@ -2816,10 +2816,12 @@ export interface QueryEventProps {
     start_time_to?: string,
     group_id?: number,
     event_order?: 'asc' | 'desc',
+    page_size?: number,
 }
 
 
 export async function queryEvent(props: QueryEventProps): Promise<Event[]> {
+    const page_size = props.page_size || 10
     let variables = ''
 
     if (props.id) {
@@ -2860,7 +2862,7 @@ export async function queryEvent(props: QueryEventProps): Promise<Event[]> {
 
 
     const doc = gql`query MyQuery {
-      events (where: {${variables}, status: {_in: ["open", "new", "normal"]}} ${order} limit: 10, offset: ${(props.page - 1) * 10}) {
+      events (where: {${variables}, status: {_in: ["open", "new", "normal"]}} ${order} limit: ${page_size}, offset: ${(props.page - 1) * page_size}) {
         badge_id
         geo_lat
         geo_lng
