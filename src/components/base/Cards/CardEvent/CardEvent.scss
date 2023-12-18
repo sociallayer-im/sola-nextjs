@@ -82,8 +82,9 @@
   }
 
   .left {
-    width: 180px;
+    min-width: 180px;
     margin-left: 18px;
+    width: 60%;
 
     .details {
       height: 113px;
