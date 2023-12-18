@@ -6,9 +6,10 @@ import Link from 'next/link'
 import UserContext from "@/components/provider/UserProvider/UserContext";
 import LangContext from "@/components/provider/LangProvider/LangContext";
 import usePicture from "@/hooks/pictrue";
-import {getLabelColor} from "@/hooks/labelColor";
 import * as dayjsLib from 'dayjs'
 import Head from 'next/head'
+import {useRouter} from "next/navigation";
+import {getLabelColor} from "@/hooks/labelColor";
 
 const utc = require('dayjs/plugin/utc')
 const timezone = require('dayjs/plugin/timezone')
@@ -18,6 +19,8 @@ dayjs.extend(timezone)
 
 const dayName = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 const mouthName = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+let _offsetX = 0
+let _offsetY = 0
 
 interface DateItem {
     date: number,
@@ -28,6 +31,7 @@ interface DateItem {
     year: number,
     events: Event[]
 }
+
 
 const getCalendarData = (timezone: string) => {
     const now = new Date()
@@ -57,7 +61,7 @@ const getCalendarData = (timezone: string) => {
     return dayArray as DateItem[]
 }
 
-function ComponentName(props: { group: Group, timezone: string , dateList: DateItem[]}) {
+function ComponentName(props: { group: Group, timezone: string, dateList: DateItem[] }) {
     const eventGroup = props.group
     const now = new Date()
     const scroll1Ref = useRef<any>(null)
@@ -141,6 +145,11 @@ function ComponentName(props: { group: Group, timezone: string , dateList: DateI
         const checkMouseup = (e: any) => {
             e.preventDefault()
             touchStart.current = false
+
+            setTimeout(() => {
+                _offsetX = 0
+                _offsetY = 0
+            }, 300)
         }
 
         const checkMousemove = (e: any) => {
@@ -151,6 +160,9 @@ function ComponentName(props: { group: Group, timezone: string , dateList: DateI
                 console.log('mousemove', offsetX, offsetY)
                 scroll2Ref.current.scrollLeft = touchStartScrollLeft.current - offsetX
                 scroll2Ref.current.scrollTop = touchStartScrollTop.current - offsetY
+
+                _offsetX = offsetX
+                _offsetY = offsetY
             }
         }
 
@@ -180,7 +192,7 @@ function ComponentName(props: { group: Group, timezone: string , dateList: DateI
             let touchStartX = 0
             let touchStartY = 0
             let touchStartScrollLeft = 0
-            let touchStartScrollTop= 0
+            let touchStartScrollTop = 0
 
             const touchstart = (e: any) => {
                 e.preventDefault()
@@ -196,13 +208,20 @@ function ComponentName(props: { group: Group, timezone: string , dateList: DateI
                     const offsetX = e.touches[0].clientX - touchStartX
                     const offsetY = e.touches[0].clientY - touchStartY
                     scrollBar1.scrollLeft = touchStartScrollLeft - offsetX
-                    scrollBar2.scrollLeft =  touchStartScrollLeft - offsetX
-                    scrollBar2.scrollTop =  touchStartScrollTop - offsetY
+                    scrollBar2.scrollLeft = touchStartScrollLeft - offsetX
+                    scrollBar2.scrollTop = touchStartScrollTop - offsetY
+
+                    _offsetX = offsetX
+                    _offsetY = offsetY
                 }
             }
 
             const touchend = (e: any) => {
                 touchStar = false
+                setTimeout(() => {
+                    _offsetX = 0
+                    _offsetY = 0
+                }, 300)
             }
 
 
@@ -316,13 +335,13 @@ function ComponentName(props: { group: Group, timezone: string , dateList: DateI
                                     if (showJoined) {
                                         const isJoined = e.participants?.some(i => i.profile_id === user.id && i.status !== 'cancel')
                                         if (!isJoined) {
-                                            return  <></>
+                                            return <></>
                                         }
                                     }
 
                                     if (currTag[0]) {
                                         if (!e.tags?.includes(currTag[0])) {
-                                            return  <></>
+                                            return <></>
                                         }
                                     }
                                     return <EventCard key={Math.random() + e.title}
@@ -349,8 +368,8 @@ export const getServerSideProps: any = (async (context: any) => {
     let dateList = getCalendarData(timezone)
 
     const [group, events] = await Promise.all([
-         getGroups({id: 1925}),
-         queryEvent({
+        getGroups({id: 1925}),
+        queryEvent({
             group_id: 1925,
             start_time_from: new Date(dateList[0].timestamp).toISOString(),
             start_time_to: new Date(dateList[dateList.length - 1].timestamp).toISOString(),
@@ -373,7 +392,13 @@ export const getServerSideProps: any = (async (context: any) => {
     return {props: {group: group[0], timezone, dateList}}
 })
 
-function EventCard({event, blank, disable, group, setTimezone}: { event: Event, blank?: boolean, disable?: boolean, group?: Group, setTimezone?: string}) {
+function EventCard({
+                       event,
+                       blank,
+                       disable,
+                       group,
+                       setTimezone
+                   }: { event: Event, blank?: boolean, disable?: boolean, group?: Group, setTimezone?: string }) {
     const timezone = setTimezone || 'Asia/Bangkok'
     const isAllDay = dayjs.tz(new Date(event.start_time!).getTime(), timezone).hour() === 0 && ((new Date(event.end_time!).getTime() - new Date(event.start_time!).getTime() + 60000) % 8640000 === 0)
     const fromTime = dayjs.tz(new Date(event.start_time!).getTime(), timezone).format('HH:mm')
@@ -382,6 +407,8 @@ function EventCard({event, blank, disable, group, setTimezone}: { event: Event, 
 
     const [groupHost, setGroupHost] = useState<Group | null>(null)
     const [ready, setReady] = useState(false)
+
+    const router = useRouter()
 
     useEffect(() => {
         if (event.host_info) {
@@ -400,10 +427,18 @@ function EventCard({event, blank, disable, group, setTimezone}: { event: Event, 
     }, [event.host_info])
 
     const {defaultAvatar} = usePicture()
-    return <Link className={styles['schedule-event-card']} href={`/event/detail/${event.id}`} onClick={e => {
-        disable && e.preventDefault()
-    }}
-                 target={blank ? '_blank' : '_self'}>
+    return <Link className={styles['schedule-event-card']} href={`/event/detail/${event.id}`}
+                 target={blank ? '_blank' : '_self'}
+                 onClick={e => {
+                     if (Math.abs(_offsetX) > 10 || Math.abs(_offsetX) > 10) {
+                         e.preventDefault()
+                     }
+
+                 }}
+                 onTouchEnd={e => {
+                     Math.abs(_offsetX) < 10 && Math.abs(_offsetX) < 10 &&
+                     router.push(`/event/detail/${event.id}`)
+                 }} >
         <div className={styles['schedule-event-card-time']}>
             {isAllDay ? 'All Day' : `${fromTime}--${toTime}`}
         </div>
@@ -412,20 +447,20 @@ function EventCard({event, blank, disable, group, setTimezone}: { event: Event, 
         </div>
 
         <div style={{height: '18px'}}>
-            { ready && <>
-                   { !!groupHost ? <div className={styles['schedule-event-card-host']}>
-                           <img className={styles['schedule-event-card-avatar']}
-                                src={groupHost.image_url || defaultAvatar(groupHost.id)} alt=""/>
-                           {groupHost.nickname || groupHost.username}
-                       </div>
-                       :
-                       <div className={styles['schedule-event-card-host']}>
-                           <img className={styles['schedule-event-card-avatar']}
-                                src={event.owner.image_url || defaultAvatar(event.owner.id)} alt=""/>
-                           {event.owner.nickname || event.owner.username}
-                       </div>
-                   }
-               </>
+            {ready && <>
+                {!!groupHost ? <div className={styles['schedule-event-card-host']}>
+                        <img className={styles['schedule-event-card-avatar']}
+                             src={groupHost.image_url || defaultAvatar(groupHost.id)} alt=""/>
+                        {groupHost.nickname || groupHost.username}
+                    </div>
+                    :
+                    <div className={styles['schedule-event-card-host']}>
+                        <img className={styles['schedule-event-card-avatar']}
+                             src={event.owner.image_url || defaultAvatar(event.owner.id)} alt=""/>
+                        {event.owner.nickname || event.owner.username}
+                    </div>
+                }
+            </>
             }
         </div>
 

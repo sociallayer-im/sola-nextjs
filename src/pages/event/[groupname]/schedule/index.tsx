@@ -7,8 +7,10 @@ import UserContext from "@/components/provider/UserProvider/UserContext";
 import LangContext from "@/components/provider/LangProvider/LangContext";
 import usePicture from "@/hooks/pictrue";
 import {getLabelColor} from "@/hooks/labelColor";
+import {useRouter} from "next/navigation";
 
 import * as dayjsLib from "dayjs";
+
 const utc = require('dayjs/plugin/utc')
 const timezone = require('dayjs/plugin/timezone')
 const dayjs: any = dayjsLib
@@ -17,6 +19,9 @@ dayjs.extend(timezone)
 
 const dayName = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 const mouthName = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+
+let _offsetX = 0
+let _offsetY = 0
 
 interface DateItem {
     date: number,
@@ -78,7 +83,7 @@ function ComponentName(props: { group: Group }) {
     const touchStartScrollLeft = useRef(0)
     const touchStartScrollTop = useRef(0)
 
-    const slideToToday = (init=false) => {
+    const slideToToday = (init = false) => {
         const scrollBar1 = scroll1Ref.current
         const scrollBar2 = scroll2Ref.current
 
@@ -176,6 +181,11 @@ function ComponentName(props: { group: Group }) {
         const checkMouseup = (e: any) => {
             e.preventDefault()
             touchStart.current = false
+
+            setTimeout(() => {
+                _offsetX = 0
+                _offsetY = 0
+            }, 300)
         }
 
         const checkMousemove = (e: any) => {
@@ -183,9 +193,11 @@ function ComponentName(props: { group: Group }) {
             if (touchStart.current) {
                 const offsetX = e.clientX - touchStartX.current
                 const offsetY = e.clientY - touchStartY.current
-                console.log('mousemove', offsetX, offsetY)
                 scroll2Ref.current.scrollLeft = touchStartScrollLeft.current - offsetX
                 scroll2Ref.current.scrollTop = touchStartScrollTop.current - offsetY
+
+                _offsetX = offsetX
+                _offsetY = offsetY
             }
         }
 
@@ -215,7 +227,7 @@ function ComponentName(props: { group: Group }) {
             let touchStartX = 0
             let touchStartY = 0
             let touchStartScrollLeft = 0
-            let touchStartScrollTop= 0
+            let touchStartScrollTop = 0
 
             const touchstart = (e: any) => {
                 e.preventDefault()
@@ -231,13 +243,20 @@ function ComponentName(props: { group: Group }) {
                     const offsetX = e.touches[0].clientX - touchStartX
                     const offsetY = e.touches[0].clientY - touchStartY
                     scrollBar1.scrollLeft = touchStartScrollLeft - offsetX
-                    scrollBar2.scrollLeft =  touchStartScrollLeft - offsetX
-                    scrollBar2.scrollTop =  touchStartScrollTop - offsetY
+                    scrollBar2.scrollLeft = touchStartScrollLeft - offsetX
+                    scrollBar2.scrollTop = touchStartScrollTop - offsetY
+
+                    _offsetX = offsetX
+                    _offsetY = offsetY
                 }
             }
 
             const touchend = (e: any) => {
                 touchStar = false
+                setTimeout(() => {
+                    _offsetX = 0
+                    _offsetY = 0
+                }, 300)
             }
 
 
@@ -370,7 +389,7 @@ function ComponentName(props: { group: Group }) {
                     }
                 </div>
             </div>
-            <div className={`${styles['event-wrapper']} event-wrapper`}  ref={scroll2Ref}>
+            <div className={`${styles['event-wrapper']} event-wrapper`} ref={scroll2Ref}>
                 <div className={`${styles['event-list']} event-list`}>
                     {showList.map((item: any, index) => {
                         return <div key={index + ''} className={`${styles['date-column']} date-column`}>
@@ -398,7 +417,7 @@ export const getServerSideProps: any = (async (context: any) => {
     }
 })
 
-function EventCard({event, blank, disable}: { event: Event, blank?: boolean, disable?: boolean }) {
+function EventCard({event, blank}: { event: Event, blank?: boolean }) {
 
     const timezone = event.timezone || 'UTC'
     const isAllDay = dayjs.tz(new Date(event.start_time!).getTime(), timezone).hour() === 0 && ((new Date(event.end_time!).getTime() - new Date(event.start_time!).getTime() + 60000) % 8640000 === 0)
@@ -412,6 +431,9 @@ function EventCard({event, blank, disable}: { event: Event, blank?: boolean, dis
 
     const [groupHost, setGroupHost] = useState<Group | null>(null)
     const [ready, setReady] = useState(false)
+
+    const router = useRouter()
+
     useEffect(() => {
         if (event.host_info) {
             queryGroupDetail(Number(event.host_info)).then((res: any) => {
@@ -424,9 +446,18 @@ function EventCard({event, blank, disable}: { event: Event, blank?: boolean, dis
     }, [event.host_info])
 
     const {defaultAvatar} = usePicture()
-    return <Link className={styles['schedule-event-card']} href={`/event/detail/${event.id}`} onClick={e => {
-        disable && e.preventDefault()
-    }}
+    return <Link className={styles['schedule-event-card']}
+                 href={`/event/detail/${event.id}`}
+                 onClick={e => {
+                     if (Math.abs(_offsetX) > 10 || Math.abs(_offsetX) > 10) {
+                         e.preventDefault()
+                     }
+
+                 }}
+                 onTouchEnd={e => {
+                     Math.abs(_offsetX) < 10 && Math.abs(_offsetX) < 10 &&
+                     router.push(`/event/detail/${event.id}`)
+                 }}
                  target={blank ? '_blank' : '_self'}>
         <div className={styles['schedule-event-card-time']}>
             {isAllDay ? 'All Day' : `${fromTime}--${toTime} ${utcOffset}`}
@@ -436,8 +467,8 @@ function EventCard({event, blank, disable}: { event: Event, blank?: boolean, dis
         </div>
 
         <div style={{height: '18px'}}>
-            { ready && <>
-                { !!groupHost ? <div className={styles['schedule-event-card-host']}>
+            {ready && <>
+                {!!groupHost ? <div className={styles['schedule-event-card-host']}>
                         <img className={styles['schedule-event-card-avatar']}
                              src={groupHost.image_url || defaultAvatar(groupHost.id)} alt=""/>
                         {groupHost.nickname || groupHost.username}
