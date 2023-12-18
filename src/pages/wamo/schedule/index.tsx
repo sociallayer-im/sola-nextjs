@@ -355,7 +355,8 @@ export const getServerSideProps: any = (async (context: any) => {
             start_time_from: new Date(dateList[0].timestamp).toISOString(),
             start_time_to: new Date(dateList[dateList.length - 1].timestamp).toISOString(),
             page: 1,
-            event_order: 'asc'
+            event_order: 'asc',
+            page_size: 100
         })
     ]);
 

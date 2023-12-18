@@ -124,6 +124,20 @@
   background: var(--color-page-bg-1);
   border-radius: 8px;
   margin-bottom: 20px;
+  display: flex;
+  flex-flow: column nowrap;
+  width: 100%;
+
+  .beast-banner {
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+
+  >.center {
+    width: 100%;
+    order: 2;
+    margin-top: 20px;
+  }
 
   .beast-banner {
     padding: 0;
@@ -172,5 +186,10 @@
       height: 32px;
       margin-right: 8px;
     }
+  }
+
+  .home-action-bar {
+    margin-top: 20px;
+    bottom: 0;
   }
 }
