@@ -59,7 +59,7 @@ function CardEvent({fixed=true, ...props}: CardEventProps) {
         try {
             const join = await joinEvent({id: Number(props.event.id), auth_token: user.authToken || ''})
             unload()
-            showToast('Apply success')
+            showToast('Join success')
             setHasRegistered(true)
         } catch (e: any) {
             console.error(e)
