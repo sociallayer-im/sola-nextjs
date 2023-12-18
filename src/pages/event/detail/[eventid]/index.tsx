@@ -16,7 +16,7 @@ import {
     queryUserGroup
 } from "@/service/solas";
 import LangContext from "@/components/provider/LangProvider/LangContext";
-import useTime from "@/hooks/formatTime";
+import {useTime2} from "@/hooks/formatTime";
 import EventLabels from "@/components/base/EventLabels/EventLabels";
 import usePicture from "@/hooks/pictrue";
 import ReasonText from "@/components/base/EventDes/ReasonText";
@@ -40,7 +40,7 @@ function EventDetail(props: {event: Event | null, appName: string, host: string}
     const [hoster, setHoster] = useState<Profile | null>(null)
     const params = useParams()
     const {lang} = useContext(LangContext)
-    const formatTime = useTime()
+    const formatTime = useTime2()
     const {defaultAvatar} = usePicture()
     const {user} = useContext(userContext)
     const {showLoading, showToast, showEventCheckIn} = useContext(DialogsContext)
@@ -283,11 +283,11 @@ function EventDetail(props: {event: Event | null, appName: string, host: string}
                         {event.start_time &&
                             <div className={'detail-item'}>
                                 <i className={'icon-calendar'}/>
-                                <div>{formatTime(event.start_time)}</div>
+                                <div>{formatTime(event.start_time, event.timezone!)}</div>
                                 {
                                     !!event.end_time && <>
                                         <span>--</span>
-                                        <div>{formatTime(event.end_time)}</div>
+                                        <div>{formatTime(event.end_time, event.timezone!)}</div>
                                     </>
                                 }
                             </div>

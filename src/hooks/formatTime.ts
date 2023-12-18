@@ -58,7 +58,7 @@ function useTime () {
     }
 }
 
-function useTime2 () {
+export function useTime2 () {
     const {lang} = useContext(LangContext)
 
     return (dateString: string, timezone?: string) => {
@@ -83,18 +83,18 @@ function useTime2 () {
         const todayText = lang['Event_Today']
         const tomorrowText = lang['Event_Tomorrow']
 
-        const utcOffset = target.utcOffset() > 0 ?
+        const utcOffset = target.utcOffset() >= 0 ?
             '+' + target.utcOffset() / 60 :
             target.utcOffset() / 60
 
         if (isToday) {
-            return `${todayText} ${hour.padStart(2, '0')}:${min.padStart(2, '0')} ` + amOrPm + ' UTC' + utcOffset
+            return `${todayText} ${hour.padStart(2, '0')}:${min.padStart(2, '0')} ` + amOrPm + ' GMT' + utcOffset
         } else if (isTomorrow) {
-            return `${tomorrowText} ${hour.padStart(2, '0')}:${min.padStart(2, '0')} ` + amOrPm + ' UTC' + utcOffset
+            return `${tomorrowText} ${hour.padStart(2, '0')}:${min.padStart(2, '0')} ` + amOrPm + ' GMT' + utcOffset
         } else {
-            return `${week[target.day()]}, ${mon} ${date.padStart(2, '0')}, ${hour.padStart(2, '0')}:${min.padStart(2, '0')} `  + ' UTC' + utcOffset
+            return `${week[target.day()]}, ${mon} ${date.padStart(2, '0')}, ${hour.padStart(2, '0')}:${min.padStart(2, '0')} `  + ' GMT' + utcOffset
         }
     }
 }
 
-export default useTime2
+export default useTime

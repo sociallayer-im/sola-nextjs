@@ -134,7 +134,8 @@
       span {
         text-overflow: ellipsis;
         overflow: hidden;
-        width: 160px;
+        min-width: 160px;
+        max-width: 80%;
       }
 
       i {

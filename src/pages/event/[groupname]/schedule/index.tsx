@@ -5,9 +5,15 @@ import EventLabels from "@/components/base/EventLabels/EventLabels";
 import Link from 'next/link'
 import UserContext from "@/components/provider/UserProvider/UserContext";
 import LangContext from "@/components/provider/LangProvider/LangContext";
-import {SwiperSlide} from 'swiper/react'
 import usePicture from "@/hooks/pictrue";
 import {getLabelColor} from "@/hooks/labelColor";
+
+import * as dayjsLib from "dayjs";
+const utc = require('dayjs/plugin/utc')
+const timezone = require('dayjs/plugin/timezone')
+const dayjs: any = dayjsLib
+dayjs.extend(utc)
+dayjs.extend(timezone)
 
 const dayName = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 const mouthName = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
@@ -393,9 +399,16 @@ export const getServerSideProps: any = (async (context: any) => {
 })
 
 function EventCard({event, blank, disable}: { event: Event, blank?: boolean, disable?: boolean }) {
-    const isAllDay = new Date(event.start_time!).getHours() === 0 && ((new Date(event.end_time!).getTime() - new Date(event.start_time!).getTime() + 60000) % 8640000 === 0)
-    const fromTime = `${new Date(event.start_time!).getHours().toString().padStart(2, '0')} : ${new Date(event.start_time!).getMinutes().toString().padStart(2, '0')}`
-    const toTime = `${new Date(event.end_time!).getHours().toString().padStart(2, '0')} : ${new Date(event.end_time!).getMinutes().toString().padStart(2, '0')}`
+
+    const timezone = event.timezone || 'UTC'
+    const isAllDay = dayjs.tz(new Date(event.start_time!).getTime(), timezone).hour() === 0 && ((new Date(event.end_time!).getTime() - new Date(event.start_time!).getTime() + 60000) % 8640000 === 0)
+    const fromTime = dayjs.tz(new Date(event.start_time!).getTime(), timezone).format('HH:mm')
+    const toTime = dayjs.tz(new Date(event.end_time!).getTime(), timezone).format('HH:mm')
+
+    const offset = dayjs.tz(new Date(event.end_time!).getTime(), timezone).utcOffset()
+    const utcOffset = offset >= 0 ?
+        ' GMT +' + offset / 60 :
+        ' GMT ' + offset / 60
 
     const [groupHost, setGroupHost] = useState<Group | null>(null)
     const [ready, setReady] = useState(false)
@@ -416,7 +429,7 @@ function EventCard({event, blank, disable}: { event: Event, blank?: boolean, dis
     }}
                  target={blank ? '_blank' : '_self'}>
         <div className={styles['schedule-event-card-time']}>
-            {isAllDay ? 'All Day' : `${fromTime}--${toTime}`}
+            {isAllDay ? 'All Day' : `${fromTime}--${toTime} ${utcOffset}`}
         </div>
         <div className={styles['schedule-event-card-name']}>
             {event.title}
