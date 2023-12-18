@@ -121,26 +121,22 @@
 }
 
 .home-user-panel.side {
-  background: var(--color-page-bg-1);
   border-radius: 8px;
   margin-bottom: 20px;
   display: flex;
   flex-flow: column nowrap;
   width: 100%;
 
-  .beast-banner {
-    margin-top: 0;
-    margin-bottom: 0;
-  }
-
   >.center {
     width: 100%;
-    order: 2;
+    order: 4;
     margin-top: 20px;
   }
 
   .beast-banner {
     padding: 0;
+    margin-top: 0;
+    order: 2;
   }
 
     .group-card {
@@ -191,5 +187,12 @@
   .home-action-bar {
     margin-top: 20px;
     bottom: 0;
+    order: 2;
+  }
+
+  .calendar-btn {
+    margin-top: 5px;
+    margin-bottom: 20px;
+    order: 1;
   }
 }
