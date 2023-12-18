@@ -1,42 +1,8 @@
 .home-user-panel {
   padding-bottom: 20px;
 
-  & .group-card {
+  .group-card-member-list {
     display: none;
-  }
-
-  & .calendar-btn.a {
-    display: none;
-  }
-
-  & .pc {
-    .group-card {
-      display: block;
-    }
-
-    .calendar-btn.b {
-      display: flex;
-    }
-  }
-
-  @media (max-width: 650px) {
-    .group-card {
-      display: block;
-    }
-
-    .calendar-btn.a{
-      display: flex;
-    }
-
-    .calendar-btn.b {
-      display: none!important;
-    }
-
-    & .pc {
-      .group-card {
-        display: none;
-      }
-    }
   }
 
   .group-card {
@@ -151,5 +117,60 @@
     font-weight: 600;
     line-height: 22px;
     margin: 20px 0;
+  }
+}
+
+.home-user-panel.side {
+  background: var(--color-page-bg-1);
+  border-radius: 8px;
+  margin-bottom: 20px;
+
+  .beast-banner {
+    padding: 0;
+  }
+
+    .group-card {
+        .center {
+          padding: 0 12px;
+          margin-bottom: 12px;
+        }
+    }
+
+  .group-card-member-list {
+    display: flex;
+    flex-flow: row nowrap;
+    text-decoration: none;
+    padding: 8px 12px;
+    align-items: center;
+    color: var(--color-text-main);
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 400;
+
+    &:hover {
+      background: #f1f1f1;
+    }
+
+    .role {
+      display: inline-flex;
+      height: 22px;
+      padding: 4px 6px;
+      justify-content: center;
+      border-radius: 8px;
+      background: var(--Fill-3-Dark, #ECF2EE);
+      font-size: 12px;
+      font-style: normal;
+      font-weight: 400;
+      align-items: center;
+      margin-left: 8px;
+      box-sizing: border-box;
+      color: #4F5150;
+    }
+
+    img {
+      width: 32px;
+      height: 32px;
+      margin-right: 8px;
+    }
   }
 }

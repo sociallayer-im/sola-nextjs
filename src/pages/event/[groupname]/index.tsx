@@ -5,7 +5,16 @@ import LangContext from '@/components/provider/LangProvider/LangContext'
 import HomeUserPanel from "@/components/base/HomeUserPanel/HomeUserPanel";
 import AppSubTabs from "@/components/base/AppSubTabs";
 import {Tab} from "baseui/tabs";
-import {Group, Participants, queryEvent, queryMyEvent, Event} from "@/service/solas";
+import {
+    Group,
+    Participants,
+    queryEvent,
+    queryMyEvent,
+    Event,
+    getGroups,
+    Membership,
+    getGroupMembership
+} from "@/service/solas";
 import ListMyAttentedEvent from "@/components/compose/ListMyAttentedEvent/ListMyAttentedEvent";
 import ListMyCreatedEvent from "@/components/compose/ListMyCreatedEvent/ListMyCreatedEvent";
 import ListEventVertical from "@/components/compose/ListEventVertical/ListEventVertical";
@@ -14,7 +23,7 @@ import DialogsContext from "@/components/provider/DialogProvider/DialogsContext"
 import EventHomeContext from "@/components/provider/EventHomeProvider/EventHomeContext";
 import MaodaoListEventVertical from "@/components/maodao/MaodaoListEventVertical/ListEventVertical";
 
-function Home(props: {initEvent?:Group, initList?: Event[]}) {
+function Home(props: {initEvent?:Group, initList?: Event[], membership?: Membership[]}) {
     const {user} = useContext(UserContext)
     const router = useRouter()
     const pathname = usePathname()
@@ -81,7 +90,7 @@ function Home(props: {initEvent?:Group, initList?: Event[]}) {
         <div className='home-page-event'>
            <div className={'home-page-event-wrapper'}>
                <div className={'home-page-event-main'}>
-                   <HomeUserPanel/>
+                   <HomeUserPanel membership={props.membership || [] }/>
                    {!!user.id &&
                        <>
                            { (showMyAttend || showMyCreate) &&
@@ -143,7 +152,7 @@ function Home(props: {initEvent?:Group, initList?: Event[]}) {
                </div>
 
                <div className={'home-page-event-side'}>
-                   <HomeUserPanel/>
+                   <HomeUserPanel membership={props.membership || [] } isSide />
                    {
                        !!user.id
                        && eventGroup
@@ -168,3 +177,34 @@ function Home(props: {initEvent?:Group, initList?: Event[]}) {
 }
 
 export default Home
+
+export const getServerSideProps: any = (async (context: any) => {
+    const groupname = context.params?.groupname
+    const targetGroup= await getGroups({username: groupname})
+    const tab= context.query?.tab
+
+    let res: any = []
+    if (tab === 'past') {
+        res = await queryEvent({
+            page: 1,
+            start_time_to: new Date().toISOString(),
+            event_order: 'desc',
+            group_id: targetGroup[0]?.id
+        })
+    } else {
+       res = await queryEvent({
+            page: 1,
+            start_time_from: new Date().toISOString(),
+            event_order: 'asc',
+            group_id: targetGroup[0]?.id
+        })
+    }
+
+    const membership = await getGroupMembership({
+        group_id: targetGroup[0]?.id!,
+        role: 'all',
+    })
+
+
+    return {props: {initEvent: targetGroup, initList: res, membership}}
+})

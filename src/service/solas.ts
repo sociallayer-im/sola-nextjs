@@ -111,7 +111,8 @@ export const inviteSchema = (props: {
     inviteId?: number,
     receiverId?: number,
     groupId?: number,
-    onlyPending?: boolean}) => {
+    onlyPending?: boolean
+}) => {
 
     let variables = ''
 
@@ -150,7 +151,6 @@ export const inviteSchema = (props: {
         }
     }`
 }
-
 
 
 interface AuthProp {
@@ -286,7 +286,7 @@ export async function queryProfileByEmail(email: string) {
         data: {email}
     })
         .catch(e => {
-    })
+        })
 
     return res ? res.data.profile as Profile : null
 }
@@ -320,10 +320,10 @@ export async function getProfile(props: GetProfileProps): Promise<Profile | null
         } as Profile
     } else {
         return profile ? {
-            ...profile,
-            followers: 0,
-            following: 0
-        } as Profile
+                ...profile,
+                followers: 0,
+                following: 0
+            } as Profile
             : null
     }
 }
@@ -446,7 +446,7 @@ export async function queryGroupDetail(id: number): Promise<Group | null> {
             followers: 0,
             following: 0
         }
-        :null
+        : null
 }
 
 export async function requestEmailCode(email: string): Promise<void> {
@@ -546,7 +546,8 @@ export interface Badge {
 export type NftPass = Badge
 export type NftPassWithBadgelets = BadgeWithBadgelets
 
-export interface NftPasslet extends Badgelet {}
+export interface NftPasslet extends Badgelet {
+}
 
 export interface QueryBadgeProps {
     id?: number,
@@ -635,7 +636,7 @@ export async function queryPrivateBadge(props: QueryBadgeProps): Promise<Badge[]
     // }
     //
     // return res.data.badges as Badge[]
-    return  []
+    return []
 }
 
 export async function queryNftpass(props: QueryBadgeProps): Promise<NftPass[]> {
@@ -728,7 +729,8 @@ interface QueryPresendProps {
     receiver_id?: number
 }
 
-export interface Presend extends Voucher {}
+export interface Presend extends Voucher {
+}
 
 export async function queryPresend(props: QueryPresendProps): Promise<Presend[]> {
     const doc = `query MyQuery {${voucherSchema(props)}}`
@@ -746,7 +748,7 @@ export interface QueryPresendDetailProps {
 }
 
 export async function queryPresendDetail(props: QueryPresendDetailProps): Promise<PresendWithBadgelets> {
-    const presend  = await queryPresend({page: 1, id: props.id})
+    const presend = await queryPresend({page: 1, id: props.id})
     return presend[0] as PresendWithBadgelets
 }
 
@@ -842,7 +844,7 @@ export async function queryBadgelet(props: QueryBadgeletProps): Promise<Badgelet
     }
 
     const doc = gql`query MyQuery {
-      badgelets(where: {${variables}, status: {_neq: "burned"}}, limit: 20, offset: ${props.page * 20-20 }, order_by: {id: desc}) {
+      badgelets(where: {${variables}, status: {_neq: "burned"}}, limit: 20, offset: ${props.page * 20 - 20}, order_by: {id: desc}) {
         badge_id
         content
         created_at
@@ -950,6 +952,7 @@ export async function queryNftPasslet(props: QueryBadgeletProps): Promise<NftPas
 export interface Membership {
     "id": number,
     "profile": ProfileSimple
+    role: string
 }
 
 export interface Group extends Profile {
@@ -1061,7 +1064,7 @@ export async function queryGroupsUserCreated(props: QueryUserGroupProps): Promis
     }`
 
     const res: any = await request(graphUrl, doc)
-    return res.groups.map((item : any) => {
+    return res.groups.map((item: any) => {
         item.creator = item.memberships[0].profile
         return item
     })
@@ -1106,7 +1109,7 @@ export async function queryGroupsUserManager(props: QueryUserGroupProps): Promis
     }`
 
     const res: any = await request(graphUrl, doc)
-    return res.groups.map((item : any) => {
+    return res.groups.map((item: any) => {
         item.creator = item.memberships[0].profile
         return item
     })
@@ -1124,7 +1127,7 @@ export async function queryUserGroup(props: QueryUserGroupProps): Promise<Group[
     })
 
     const groupsDuplicateObj: any = {}
-    groups.map((item : any) => {
+    groups.map((item: any) => {
         groupsDuplicateObj[item.id] = item
     })
 
@@ -1194,7 +1197,7 @@ export async function acceptPresend(props: AcceptBadgeletProp) {
     })
 }
 
-export type SetBadgeletStatusType =  'top' | 'hide' | 'normal'
+export type SetBadgeletStatusType = 'top' | 'hide' | 'normal'
 
 export interface SetBadgeletStatusProps {
     type: SetBadgeletStatusType,
@@ -1334,13 +1337,15 @@ export async function createPresend(props: CreatePresendProps) {
 
 export interface GetGroupMembersProps {
     group_id: number,
-    role?: 'manager' | 'member' | 'owner',
+    role?: 'manager' | 'member' | 'owner' | 'all',
 }
 
 export async function getGroupMembers(props: GetGroupMembersProps): Promise<Profile[]> {
-    const condition = props.role
-       ? `where: {group: {id: {_eq: "${props.group_id}"}}, role: {_eq: "${props.role}"}}`
-       : `where: {group: {id: {_eq: "${props.group_id}"}}, role: {_neq: "owner"}}`
+    const condition = props.role ?
+        props.role === 'all'
+            ? `where: {group: {id: {_eq: "${props.group_id}"}}}`
+            : `where: {group: {id: {_eq: "${props.group_id}"}}, role: {_eq: "${props.role}"}}`
+        : `where: {group: {id: {_eq: "${props.group_id}"}}, role: {_neq: "owner"}}`
 
     const doc = gql`query MyQuery {
       memberships(${condition}) {
@@ -1361,7 +1366,37 @@ export async function getGroupMembers(props: GetGroupMembersProps): Promise<Prof
 
     const resp: any = await request(graphUrl, doc)
 
-    return resp.memberships.map((item : any) => item.profile) as Profile[]
+    return resp.memberships.map((item: any) => item.profile) as Profile[]
+}
+
+export async function getGroupMembership(props: GetGroupMembersProps): Promise<Membership[]> {
+    const condition = props.role ?
+        props.role === 'all'
+            ? `where: {group: {id: {_eq: "${props.group_id}"}}}`
+            : `where: {group: {id: {_eq: "${props.group_id}"}}, role: {_eq: "${props.role}"}}`
+        : `where: {group: {id: {_eq: "${props.group_id}"}}, role: {_neq: "owner"}}`
+
+
+    const doc = gql`query MyQuery {
+      memberships(${condition}) {
+        id
+        role
+        profile {
+          id
+          image_url
+          nickname
+          username
+          about
+          address
+          address_type
+          status
+        }
+      }
+    }`
+
+    const resp: any = await request(graphUrl, doc)
+
+    return resp.memberships as Membership[]
 }
 
 export async function getFollowers(userId: number): Promise<Profile[]> {
@@ -1437,7 +1472,7 @@ export async function issueBatch(props: IssueBatchProps): Promise<Voucher[]> {
     const emails: string[] = []
     const socialLayerDomain = process.env.NEXT_PUBLIC_SOLAS_DOMAIN!
 
-    props.issues.forEach((item : any) => {
+    props.issues.forEach((item: any) => {
         if (item.endsWith('.eth') || item.endsWith('.dot')) {
             domains.push(item)
         } else if (item.startsWith('0x')) {
@@ -1510,7 +1545,7 @@ export async function issueBatch(props: IssueBatchProps): Promise<Voucher[]> {
         subjectUrl = subjectUrls[0].replace('@', '')
     }
 
-    const usernames = profiles.map((item : any) => item.username)
+    const usernames = profiles.map((item: any) => item.username)
 
     const res = await fetch.post({
         url: `${apiUrl}/voucher/send_badge`,
@@ -1632,7 +1667,7 @@ export async function sendInvite(props: SendInviteProps): Promise<Invite[]> {
     const emails: string[] = []
     const socialLayerDomain = process.env.NEXT_PUBLIC_SOLAS_DOMAIN!
 
-    props.receivers.forEach((item : any) => {
+    props.receivers.forEach((item: any) => {
         if (item.endsWith('.eth') || item.endsWith('.dot')) {
             domains.push(item)
         } else if (item.startsWith('0x')) {
@@ -1699,7 +1734,7 @@ export async function sendInvite(props: SendInviteProps): Promise<Invite[]> {
         }
     })
 
-    const usernames = profiles.map((item : any) => item.username)
+    const usernames = profiles.map((item: any) => item.username)
 
     const res = await fetch.post({
         url: `${apiUrl}/group/send_invite`,
@@ -1769,7 +1804,8 @@ export async function queryInvites(props: {
     inviteId?: number,
     receiverId?: number,
     groupId?: number,
-    onlyPending?: boolean}): Promise<Invite[]> {
+    onlyPending?: boolean
+}): Promise<Invite[]> {
 
     let variables = ''
 
@@ -1795,9 +1831,9 @@ export async function queryInvites(props: {
         ${inviteSchema(props)}
     }`
 
-   const res: any = await request(graphUrl, doc)
+    const res: any = await request(graphUrl, doc)
 
-   return res.group_invites as Invite[]
+    return res.group_invites as Invite[]
 }
 
 export interface UpdateGroupProps extends Partial<Profile> {
@@ -1854,7 +1890,7 @@ export async function searchDomain(props: SearchDomainProps): Promise<Profile[]>
 
     const res: any = await request(graphUrl, doc)
 
-    return res.profiles.map((item : any) => {
+    return res.profiles.map((item: any) => {
         item.domain = item.username + process.env.NEXT_PUBLIC_SOLAS_DOMAIN!
         return item
     }) as Profile[]
@@ -2462,7 +2498,7 @@ export async function updateVote(props: UpdateVoteProps) {
 }
 
 export async function getVoteDetail(voteid: number) {
-    const res = await queryVotes({ vote_id: voteid, page: 1 })
+    const res = await queryVotes({vote_id: voteid, page: 1})
     return res[0] as Vote || null
 }
 
@@ -2708,7 +2744,7 @@ export interface Event {
     host_info: null | string,
     meeting_url: null | string,
     event_site_id?: null | number,
-    event_site : null | EventSites,
+    event_site: null | EventSites,
     event_type: 'event' | 'checklog',
     wechat_contact_group?: null | string,
     wechat_contact_person?: null | string,
@@ -2814,7 +2850,7 @@ export async function queryEvent(props: QueryEventProps): Promise<Event[]> {
         variables += `group_id: {_eq: ${props.group_id}}, `
     }
 
-    let order  = `order_by: {start_time: desc}, `
+    let order = `order_by: {start_time: desc}, `
 
     if (props.event_order) {
         order = `order_by: {start_time: ${props.event_order}}, `
@@ -2824,7 +2860,7 @@ export async function queryEvent(props: QueryEventProps): Promise<Event[]> {
 
 
     const doc = gql`query MyQuery {
-      events (where: {${variables}, status: {_in: ["open", "new", "normal"]}} ${order} limit: 50, offset: ${(props.page - 1) * 50}) {
+      events (where: {${variables}, status: {_in: ["open", "new", "normal"]}} ${order} limit: 10, offset: ${(props.page - 1) * 10}) {
         badge_id
         geo_lat
         geo_lng
@@ -2898,7 +2934,7 @@ export async function queryEvent(props: QueryEventProps): Promise<Event[]> {
     }`
 
     const resp: any = await request(graphUrl, doc)
-    return resp.events.map((item : any) => {
+    return resp.events.map((item: any) => {
         return {
             ...item,
             end_time: item.end_time && !item.end_time.endsWith('Z') ? item.end_time + 'Z' : item.end_time,
@@ -2937,9 +2973,9 @@ export interface QueryEventDetailProps {
 }
 
 export async function queryEventDetail(props: QueryEventDetailProps) {
-   const res = await queryEvent({id: props.id, page: 1})
+    const res = await queryEvent({id: props.id, page: 1})
 
-   return res[0] as Event || null
+    return res[0] as Event || null
 }
 
 export interface QueryMyEventProps {
@@ -3055,7 +3091,7 @@ export async function unJoinEvent(props: JoinEventProps) {
 
 export async function searchEvent(keyword: string) {
     const doc = gql`query MyQuery {
-      events (where: {title: {_iregex: "${keyword}"} , status: {_neq: "closed"}}, limit: 50) {
+      events (where: {title: {_iregex: "${keyword}"} , status: {_neq: "closed"}}, limit: 10) {
         badge_id
         geo_lat
         geo_lng
@@ -3129,7 +3165,7 @@ export async function searchEvent(keyword: string) {
     }`
 
     const resp: any = await request(graphUrl, doc)
-    return resp.events.map((item : any) => {
+    return resp.events.map((item: any) => {
         return {
             ...item,
             end_time: item.end_time && !item.end_time.endsWith('Z') ? item.end_time + 'Z' : item.end_time,
@@ -3387,7 +3423,7 @@ export async function getEventGroup() {
     }`
 
     const res: any = await request(graphUrl, doc)
-    return res.groups.map((item : any) => {
+    return res.groups.map((item: any) => {
         item.creator = item.memberships[0]?.profile || null
         return item
     })
@@ -3849,7 +3885,7 @@ export interface MarkerCheckinDetail {
     zugame_team: string | null,
 }
 
-export async function markersCheckinList({page=1, ...props}: {
+export async function markersCheckinList({page = 1, ...props}: {
     id?: number,
     page?: number,
 }) {
@@ -4049,14 +4085,14 @@ export interface Voucher {
     strategy: 'code' | 'account'
 }
 
-export async function getPendingBadges(profile_id: number, page=1) {
+export async function getPendingBadges(profile_id: number, page = 1) {
     const doc = `query MyQuery {${voucherSchema({receiver_id: profile_id, page})}}`
 
     const res: any = await request(graphUrl, doc)
     return res.vouchers as Voucher[]
 }
 
-export async function queryVoucherDetail (id: number) {
+export async function queryVoucherDetail(id: number) {
     const doc = gql`query MyQuery {
       vouchers(where: {id: {_eq: "${id}"}}) {
         id

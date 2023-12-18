@@ -1,16 +1,27 @@
 import Page from "@/pages/event/index"
 import MapPage from '@/pages/event/[groupname]/map'
 import MaodaoHome from '@/pages/rpc'
-import {getEventGroup, Group, queryEvent, Event} from "@/service/solas";
+import {
+    getEventGroup,
+    Group,
+    queryEvent,
+    Event,
+    getGroupMembers,
+    getGroupMembership,
+    Membership
+} from "@/service/solas";
 
-export default function HomePage(props: { initEvent: Group, initList?: Event[] }) {
+export default function HomePage(props: { initEvent: Group, initList?: Event[], membership?: Membership[] }) {
     return <>
         {
             process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'zumap' ?
                 <MapPage markerType={null}/> :
                 process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'maodao' ?
                     <MaodaoHome/>
-                    : <Page initEvent={props.initEvent || undefined} initList={props.initList || []}/>
+                    : <Page
+                        initEvent={props.initEvent || undefined}
+                        membership={props.membership || []}
+                        initList={props.initList || []}/>
         }
     </>
 }
@@ -30,20 +41,28 @@ export const getServerSideProps: any = (async (context: any) => {
         targetGroup = list[0]
     }
 
-    const now = new Date()
-    const todayZero = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0).toISOString()
+    const tab= context.query?.tab
+    let res: any = []
+    if (tab === 'past') {
+        res = await queryEvent({
+            page: 1,
+            start_time_to: new Date().toISOString(),
+            event_order: 'desc',
+            group_id: targetGroup?.id
+        })
+    } else {
+        res = await queryEvent({
+            page: 1,
+            start_time_from: new Date().toISOString(),
+            event_order: 'asc',
+            group_id: targetGroup?.id
+        })
+    }
 
-    let res = await queryEvent({
-        page: 1,
-        start_time_from: todayZero,
-        event_order: 'asc',
-        group_id: targetGroup?.id
+    const membership = await getGroupMembership({
+        group_id: targetGroup!.id,
+        role: 'all',
     })
 
-    res = res.filter(item => {
-        const endTime = new Date(item.end_time!).getTime()
-        return endTime >= new Date().getTime()
-    })
-
-    return {props: {initEvent: targetGroup, initList: res}}
+    return {props: {initEvent: targetGroup, initList: res, membership}}
 })
