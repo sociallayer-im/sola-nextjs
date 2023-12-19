@@ -2835,7 +2835,7 @@ export async function queryEvent(props: QueryEventProps): Promise<Event[]> {
     }
 
     if (props.tag) {
-        variables += `tags: {_eq: ["${props.tag}"]}, `
+        variables += `tags: {_contains:["${props.tag}"]}, `
     }
 
     if (props.event_site_id) {

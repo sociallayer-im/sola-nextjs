@@ -77,14 +77,8 @@ function ListEventVertical(props: { participants: Participants[], initData?: Eve
     }
 
     useEffect(() => {
-        if (selectTag[0]) {
-            setListToShow(list.filter(item => {
-                return item.tags?.includes(selectTag[0])
-            }))
-        } else {
-            setListToShow(list)
-        }
-    }, [list, selectTag])
+        setListToShow(list)
+    }, [list])
 
     const changeTab = (tab: 'latest' | 'coming' | 'past') => {
         setTab2Index(tab)
