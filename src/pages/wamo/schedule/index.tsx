@@ -270,7 +270,6 @@ function ComponentName(props: { group: Group, timezone: string, dateList: DateIt
                 </div>
                 <div className={`${styles['schedule-menu-1']} wamo-tags`}>
                     <EventLabels data={eventGroup.event_tags || []}
-                                 nowrap={true}
                                  onChange={e => {
                                      setCurrTag(e)
                                  }}

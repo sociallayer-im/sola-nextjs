@@ -163,7 +163,7 @@ function ComponentName(props: { group: Group }) {
                 if (offsetTop > 0) {
                     (window.document.querySelector('.schedule-head') as any)!.style.height = '0'
                 } else {
-                    (window.document.querySelector('.schedule-head') as any)!.style.height = '194px'
+                    (window.document.querySelector('.schedule-head') as any)!.style.height = 'auto'
                 }
             }
         }
@@ -336,7 +336,6 @@ function ComponentName(props: { group: Group }) {
                 </div>
                 <div className={styles['schedule-menu-1']}>
                     <EventLabels data={eventGroup.event_tags || []}
-                                 nowrap={true}
                                  onChange={e => {
                                      setCurrTag(e)
                                  }}
