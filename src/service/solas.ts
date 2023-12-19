@@ -197,7 +197,7 @@ export interface Profile {
     badge_count: number,
     permissions: string[],
     group_event_visibility: 'public' | 'private' | 'protected',
-    group_event_tags: string[] | null,
+    event_tags: string[] | null,
     group_map_enabled: boolean,
     banner_image_url: null | string
     banner_link_url: null | string

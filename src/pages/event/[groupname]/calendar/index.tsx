@@ -300,9 +300,9 @@ function Calendar() {
                         }
                     </div>
 
-                    {!!eventGroup && eventGroup.group_event_tags &&
+                    {!!eventGroup && eventGroup.event_tags &&
                         <div className={'label-bar'}>
-                            <EventLabels single data={eventGroup.group_event_tags} value={selectedLabel} onChange={
+                            <EventLabels single data={eventGroup.event_tags} value={selectedLabel} onChange={
                                 (value) => {
                                     setSelectedLabel(value)
                                 }

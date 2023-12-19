@@ -34,6 +34,7 @@ import Link from "next/link";
 import MapContext from "@/components/provider/MapProvider/MapContext";
 
 import * as dayjsLib from "dayjs";
+import Empty from "@/components/base/Empty";
 
 const utc = require('dayjs/plugin/utc')
 const timezone = require('dayjs/plugin/timezone')
@@ -277,12 +278,12 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                     <PageBack
                         menu={() =>
                             <div className={'event-top-btn'}>
-                                <Link href={`/event/success/${event?.id}`}>
-                                    <img src="/images/icon_share.svg" alt=""/>Share</Link>
                                 {(isHoster || isManager) && !canceled &&
                                     <Link href={`/event/${eventGroup?.username}/edit/${event?.id}`}>
                                         <i className={'icon-edit'}></i>{lang['Activity_Detail_Btn_Modify']}</Link>
                                 }
+                                <Link href={`/event/success/${event?.id}`}>
+                                    <img src="/images/icon_share.svg" alt=""/>{lang['IssueFinish_Title']}</Link>
                             </div>}
                     />
                 </div>
@@ -470,7 +471,6 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
 
                                                 {(isHoster || isManager) && !canceled &&
                                                     <AppButton
-                                                        special
                                                         onClick={e => {
                                                             handleHostCheckIn()
                                                         }}>{
@@ -530,20 +530,13 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                         <div className={tab === 1 ? 'tab-title active' : 'tab-title'}
                                              onClick={e => {
                                                  setTab(1)
-                                             }}>{lang['Activity_Des']}</div>
-                                        {event.event_type !== 'checklog' ?
-                                            <div className={tab === 2 ? 'tab-title active' : 'tab-title'}
-                                                 onClick={e => {
-                                                     setTab(2)
-                                                 }}>{lang['Activity_Participants']}({participants.length})
-                                            </div> :
-
-                                            <div className={tab === 3 ? 'tab-title active' : 'tab-title'}
-                                                 onClick={e => {
-                                                     setTab(3)
-                                                 }}>{lang['Activity_Punch_Log']}
-                                            </div>
-                                        }
+                                             }}><div>{lang['Activity_Des']}</div></div>
+                                        <div className={'split'} />
+                                        <div className={tab === 2 ? 'tab-title active' : 'tab-title'}
+                                             onClick={e => {
+                                                 setTab(2)
+                                             }}><div>{lang['Activity_Participants']}({participants.length})</div>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -613,6 +606,10 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                         eventId={Number(params?.eventid)}
                                                     />
                                                 }
+
+                                                {!participants.length &&
+                                                    <Empty />
+                                                }
                                             </div>
                                         </div>
                                     }
@@ -643,7 +640,6 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                     }
 
                                     <div className={'event-action'}>
-                                        <div className={'center'}>
                                             {canceled &&
                                                 <AppButton disabled>{lang['Activity_Detail_Btn_has_Cancel']}</AppButton>
                                             }
@@ -673,7 +669,6 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
 
                                             {(isHoster || isManager) && !canceled &&
                                                 <AppButton
-                                                    special
                                                     onClick={e => {
                                                         handleHostCheckIn()
                                                     }}>{
@@ -700,7 +695,6 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                     }}
                                                     special>{lang['Activity_Detail_Btn_AttendOnline']}</AppButton>
                                             }
-                                        </div>
                                     </div>
 
                                     {!canAccess &&

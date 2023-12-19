@@ -552,6 +552,7 @@ const langCN: LangConfig = {
   Group_Change_Owner: '转移组织',
   Group_Role_Owner: '拥有者',
   Group_Role_Manager: '管理员',
+  Event_Tag: '活动标签',
 }
 
 

@@ -34,6 +34,7 @@ function ProfilePanel(props: ProfilePanelProps) {
     const { copyWithDialog } = useCopy()
     const [followers, setFollower] = useState<Profile[]>([])
     const [following, setFollowing] = useState<Profile[]>([])
+    const [email, setEmail] = useState('')
 
     useEffect(() => {
         if (newProfile && newProfile.id === profile.id) {
@@ -70,6 +71,13 @@ function ProfilePanel(props: ProfilePanelProps) {
             setFollowing(followings)
         }
 
+        async function getEmail () {
+            if (user.id === props.profile.id) {
+                setEmail(user.email || '')
+            }
+        }
+
+        getEmail()
         checkFollow()
         getFollowing()
     }, [user.id, profile.id])
@@ -97,8 +105,8 @@ function ProfilePanel(props: ProfilePanelProps) {
             title: lang['Profile_Show_Email'],
             confirmLabel: lang['Profile_Show_Copy'],
             cancelLabel: lang['Profile_Show_Close'],
-            onConfirm: (close: any) => { copyWithDialog(profile.email!);close(); },
-            content: () => <DialogContent>{ profile.email }</DialogContent>
+            onConfirm: (close: any) => { copyWithDialog(email!);close(); },
+            content: () => <DialogContent>{ email }</DialogContent>
         })
     }
 
@@ -177,7 +185,7 @@ function ProfilePanel(props: ProfilePanelProps) {
                             <i className='icon icon-wallet'></i>
                         </div>
                     }
-                    { profile.email && isProfileOwner() &&
+                    { email && isProfileOwner() &&
                         <div className='show-email' onClick={ () => { showEmail() } }>
                             <i className='icon icon-email'></i>
                         </div>

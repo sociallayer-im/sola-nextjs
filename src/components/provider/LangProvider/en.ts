@@ -556,6 +556,7 @@ const langEN = {
     Group_Change_Owner: 'Change owner',
     Group_Role_Owner: 'Owner',
     Group_Role_Manager: 'Manager',
+    Event_Tag: 'Event tags',
 }
 
 
