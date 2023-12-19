@@ -29,7 +29,7 @@ export const formatTimeWithTimezone = (dateString: string, timezone: string) => 
 function useTime () {
     const {lang} = useContext(LangContext)
 
-    return (dateString: string, langType?: string) => {
+    return (dateString: string, timezone?: string) => {
         dateString = dateString.endsWith('Z') ? dateString : dateString + 'Z'
         // format like:THU, SEP 26 AT 9 PM
         const dateObject = new Date(dateString)

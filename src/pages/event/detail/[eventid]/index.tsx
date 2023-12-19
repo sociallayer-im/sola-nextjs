@@ -296,6 +296,12 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                             <div className={'center'}>
                                 <div className={'name'}>{event.title}</div>
 
+                                {event.tags && !!event.tags.length &&
+                                    <div className={'label'}>
+                                        <EventLabels data={event.tags} value={event.tags} disabled/>
+                                    </div>
+                                }
+
                                 {!!hoster &&
                                     <div className={'hoster'}>
                                         <div className={'center'}>
@@ -423,12 +429,6 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                             <div className={'main'}>{getMeetingName(event.meeting_url)}</div>
                                             <div className={'sub'}>{event.meeting_url}</div>
                                         </div>
-                                    </div>
-                                }
-
-                                {event.tags && !!event.tags.length &&
-                                    <div className={'label'}>
-                                        <EventLabels data={event.tags} value={event.tags} disabled/>
                                     </div>
                                 }
                             </div>

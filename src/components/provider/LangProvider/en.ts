@@ -440,7 +440,7 @@ const langEN = {
     Meeting_Google_Title: 'Google Meeting',
     Meeting_Tencent_Title: 'Tencent Meeting',
     Meeting_Others_Title: 'Online meeting',
-    Event_Card_Apply_Btn: 'Apply',
+    Event_Card_Apply_Btn: 'RSVP',
     Event_Card_Applied: 'Applied',
     Login_Phone_Title: 'Login with phone',
     Login_Phone_alert: 'Enter your phone number to receive a verification code',

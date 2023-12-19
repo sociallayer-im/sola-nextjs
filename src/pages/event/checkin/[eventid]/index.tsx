@@ -11,7 +11,7 @@ import {
 import userContext from "@/components/provider/UserProvider/UserContext";
 import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
 import PageBack from "@/components/base/PageBack";
-import useTime from "@/hooks/formatTime";
+import {useTime2} from "@/hooks/formatTime";
 import QRcode from "@/components/base/QRcode";
 import langContext from "@/components/provider/LangProvider/LangContext";
 import AppButton from "@/components/base/AppButton/AppButton";
@@ -35,7 +35,7 @@ function EventCheckIn() {
 
     const {user} = useContext(userContext)
     const {showLoading, showEventCheckIn, showToast} = useContext(DialogsContext)
-    const formatTime = useTime()
+    const formatTime = useTime2()
     const {lang} = useContext(langContext)
     const timeOut = useRef<any>(null)
 
@@ -143,7 +143,7 @@ function EventCheckIn() {
                     <div className={'checkin-card'}>
                         <div className={'event-name'}>{event.title}</div>
                         <div className={'time'}>
-                            {formatTime(event.start_time!)} - {formatTime(event.end_time!)}
+                            {formatTime(event.start_time!, event.timezone!)} - {formatTime(event.end_time!, event.timezone!)}
                         </div>
 
                         {!user.id &&

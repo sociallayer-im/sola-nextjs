@@ -203,7 +203,7 @@
 
       .event-label-list {
         display: flex;
-        flex-flow: row nowrap;
+        flex-flow: row wrap;
         overflow-x: auto;
 
         &::-webkit-scrollbar {

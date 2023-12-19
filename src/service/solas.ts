@@ -1138,6 +1138,7 @@ export interface AcceptBadgeletProp {
     voucher_id: number,
     code?: number,
     auth_token: string
+    index?: number
 }
 
 export async function acceptBadgelet(props: AcceptBadgeletProp): Promise<Badgelet> {
@@ -1193,7 +1194,8 @@ export async function acceptPresend(props: AcceptBadgeletProp) {
     return await acceptBadgelet({
         voucher_id: props.voucher_id,
         code: props.code,
-        auth_token: props.auth_token
+        auth_token: props.auth_token,
+        index: props.index
     })
 }
 
@@ -2833,7 +2835,7 @@ export async function queryEvent(props: QueryEventProps): Promise<Event[]> {
     }
 
     if (props.tag) {
-        variables += `tags: {_contains: "${props.tag}"}, `
+        variables += `tags: {_contains:["${props.tag}"]}, `
     }
 
     if (props.event_site_id) {
