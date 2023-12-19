@@ -317,15 +317,6 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                 </div>
                                             </div>
                                         </div>
-                                        {
-                                            !!badge && <div className={'center'}>
-                                                <div className={'event-badge'}>
-                                                    <div>{lang['Activity_Detail_Badge']}</div>
-                                                    <img src={badge.image_url} alt=""/>
-                                                </div>
-                                            </div>
-                                        }
-
                                     </div>
                                 }
 
@@ -560,6 +551,15 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                 <div className={'tab-contains'}>
                                     {tab === 1 &&
                                         <div className={'tab-contain'}>
+                                            {
+                                                !!badge && <div className={'center'}>
+                                                    <div className={'event-badge'}>
+                                                        <div>{lang['Activity_Detail_Badge']}</div>
+                                                        <img src={badge.image_url} alt=""/>
+                                                    </div>
+                                                </div>
+                                            }
+
                                             <div className={'center'}>
                                                 {!!event.wechat_contact_group &&
                                                     <>
