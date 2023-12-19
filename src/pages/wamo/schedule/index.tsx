@@ -124,12 +124,12 @@ function ComponentName(props: { group: Group, timezone: string, dateList: DateIt
                 target!.scrollLeft = offset
             }
 
-            // const offsetTop = e.target.scrollTop
-            // if (offsetTop > 0) {
-            //     (window.document.querySelector('.schedule-head') as any)!.style.height = '0'
-            // } else {
-            //     (window.document.querySelector('.schedule-head') as any)!.style.height = '194px'
-            // }
+            const offsetTop = e.target.scrollTop
+            if (offsetTop > 0) {
+                (window.document.querySelector('.schedule-head') as any)!.style.height = '0'
+            } else {
+                (window.document.querySelector('.schedule-head') as any)!.style.height = 'auto'
+            }
         }
 
         const checkMousedown = (e: any) => {
@@ -225,19 +225,13 @@ function ComponentName(props: { group: Group, timezone: string, dateList: DateIt
             }
 
 
-            if (isIos()) {
-                scrollBar2.addEventListener('touchstart', touchstart)
+            scrollBar2.addEventListener('touchstart', touchstart)
+            scrollBar2.addEventListener('touchmove', touchmove)
+            scrollBar2.addEventListener('touchend', touchend)
+            scrollBar2.addEventListener('touchcancel', touchend)
 
-                scrollBar2.addEventListener('touchmove', touchmove)
-
-                scrollBar2.addEventListener('touchend', touchend)
-
-                scrollBar2.addEventListener('touchcancel', touchend)
-
-            } else {
-                scrollBar1.addEventListener('scroll', checkScroll)
-                scrollBar2.addEventListener('scroll', checkScroll2)
-            }
+            scrollBar1.addEventListener('scroll', checkScroll)
+            scrollBar2.addEventListener('scroll', checkScroll2)
 
             slideToToday(true)
 
@@ -429,13 +423,13 @@ function EventCard({
     return <Link className={styles['schedule-event-card']} href={`/event/detail/${event.id}`}
                  target={blank ? '_blank' : '_self'}
                  onClick={e => {
-                     if (Math.abs(_offsetX) > 10 || Math.abs(_offsetX) > 10) {
+                     if (Math.abs(_offsetX) > 5 || Math.abs(_offsetY) > 5) {
                          e.preventDefault()
                      }
 
                  }}
                  onTouchEnd={e => {
-                     Math.abs(_offsetX) < 10 && Math.abs(_offsetX) < 10 &&
+                     Math.abs(_offsetX) < 5 && Math.abs(_offsetY) < 5 &&
                      router.push(`/event/detail/${event.id}`)
                  }} >
         <div className={styles['schedule-event-card-time']}>
@@ -500,10 +494,15 @@ function EventCard({
 
         {
             !!event.tags?.length &&
-            <div className={styles['schedule-event-card-tag']}>
-                <i className={styles['schedule-event-card-dot']} style={{background: getLabelColor(event.tags[0])}}/>
-                {event.tags[0]}
-            </div>
+            <>
+                {event.tags.map(tag => {
+                    return <div key={tag} className={styles['schedule-event-card-tag']}>
+                        <i className={styles['schedule-event-card-dot']} style={{background: getLabelColor(tag)}}/>
+                        {tag}
+                    </div>
+                })}
+            </>
+
         }
     </Link>
 }

@@ -260,16 +260,10 @@ function ComponentName(props: { group: Group }) {
             }
 
 
-            if (isIos()) {
-                scrollBar2.addEventListener('touchstart', touchstart)
-
-                scrollBar2.addEventListener('touchmove', touchmove)
-
-                scrollBar2.addEventListener('touchend', touchend)
-
-                scrollBar2.addEventListener('touchcancel', touchend)
-
-            }
+            scrollBar2.addEventListener('touchstart', touchstart)
+            scrollBar2.addEventListener('touchmove', touchmove)
+            scrollBar2.addEventListener('touchend', touchend)
+            scrollBar2.addEventListener('touchcancel', touchend)
 
             scrollBar1.addEventListener('scroll', checkScroll)
             scrollBar2.addEventListener('scroll', checkScroll2)
@@ -394,7 +388,7 @@ function ComponentName(props: { group: Group }) {
                         return <div key={index + ''} className={`${styles['date-column']} date-column`}>
                             <div className={`${styles['events']}`}>
                                 {item.events.map((e: Event) => {
-                                    return <EventCard key={Math.random() + e.title} event={e}/>
+                                    return <EventCard key={Math.random() + e.title} event={e} group={eventGroup}/>
                                 })}
                             </div>
                         </div>
@@ -416,8 +410,7 @@ export const getServerSideProps: any = (async (context: any) => {
     }
 })
 
-function EventCard({event, blank}: { event: Event, blank?: boolean }) {
-
+function EventCard({event, blank, group}: { event: Event, blank?: boolean, group?: Group }) {
     const timezone = event.timezone || 'UTC'
     const isAllDay = dayjs.tz(new Date(event.start_time!).getTime(), timezone).hour() === 0 && ((new Date(event.end_time!).getTime() - new Date(event.start_time!).getTime() + 60000) % 8640000 === 0)
     const fromTime = dayjs.tz(new Date(event.start_time!).getTime(), timezone).format('HH:mm')
@@ -435,10 +428,15 @@ function EventCard({event, blank}: { event: Event, blank?: boolean }) {
 
     useEffect(() => {
         if (event.host_info) {
-            queryGroupDetail(Number(event.host_info)).then((res: any) => {
-                setGroupHost(res)
+            if (group?.id === Number(event.host_info)) {
+                setGroupHost(group)
                 setReady(true)
-            })
+            } else {
+                queryGroupDetail(Number(event.host_info)).then((res: any) => {
+                    setGroupHost(res)
+                    setReady(true)
+                })
+            }
         } else {
             setReady(true)
         }
@@ -448,14 +446,16 @@ function EventCard({event, blank}: { event: Event, blank?: boolean }) {
     return <Link className={styles['schedule-event-card']}
                  href={`/event/detail/${event.id}`}
                  onClick={e => {
-                     if (Math.abs(_offsetX) > 10 || Math.abs(_offsetX) > 10) {
+                     if (Math.abs(_offsetX) > 5 || Math.abs(_offsetY) > 5) {
                          e.preventDefault()
                      }
 
                  }}
                  onTouchEnd={e => {
-                     Math.abs(_offsetX) < 10 && Math.abs(_offsetX) < 10 &&
-                     router.push(`/event/detail/${event.id}`)
+                     e.preventDefault()
+                     if (Math.abs(_offsetX) < 10 && Math.abs(_offsetY) < 10) {
+                         router.push(`/event/detail/${event.id}`)
+                     }
                  }}
                  target={blank ? '_blank' : '_self'}>
         <div className={styles['schedule-event-card-time']}>
@@ -520,10 +520,15 @@ function EventCard({event, blank}: { event: Event, blank?: boolean }) {
 
         {
             !!event.tags?.length &&
-            <div className={styles['schedule-event-card-tag']}>
-                <i className={styles['schedule-event-card-dot']} style={{background: getLabelColor(event.tags[0])}}/>
-                {event.tags[0]}
-            </div>
+            <>
+                {event.tags.map(tag => {
+                    return <div key={tag} className={styles['schedule-event-card-tag']}>
+                        <i className={styles['schedule-event-card-dot']} style={{background: getLabelColor(tag)}}/>
+                        {tag}
+                    </div>
+                })}
+            </>
+
         }
     </Link>
 }
