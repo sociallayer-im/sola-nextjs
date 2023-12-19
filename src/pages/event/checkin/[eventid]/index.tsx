@@ -77,14 +77,14 @@ function EventCheckIn() {
                     }
                 }
 
-                if (event?.group_id || user.id) {
-                    getGroups({id: event!.group_id!})
+                if (eventDetails?.group_id && user.id) {
+                    getGroups({id: eventDetails!.group_id!})
                         .then(groups => {
                             if (groups[0].creator.id === user.id) {
                                 setIsGroupOwner(true)
                             }
 
-                            checkIsManager({group_id: event!.group_id!, profile_id: user.id!}).then(res => {
+                            checkIsManager({group_id: eventDetails!.group_id!, profile_id: user.id!}).then(res => {
                                 setIsManager(res)
                             })
                         })
@@ -114,12 +114,12 @@ function EventCheckIn() {
                 clearInterval(timeOut.current)
             }
         }
-    }, [params])
+    }, [params, user.id])
 
 
     useEffect(() => {
         init()
-    }, [needUpdate, user.id])
+    }, [needUpdate])
 
     useEffect(() => {
         if (user.id && event) {
