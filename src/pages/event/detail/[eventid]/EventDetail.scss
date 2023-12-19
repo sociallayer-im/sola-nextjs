@@ -435,7 +435,7 @@
   flex: 1px;
   max-width: 100%;
 
-  .event-login-status {
+  .event-login-status , .home-login-panel {
     display: none;
   }
 
@@ -449,6 +449,11 @@
     .event-login-status {
       display: block;
     }
+
+    .home-login-panel {
+        display: flex;
+    }
+
   }
 }
 
