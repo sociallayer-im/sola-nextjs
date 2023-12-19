@@ -6,7 +6,7 @@ import DialogsContext from "../../../provider/DialogProvider/DialogsContext";
 import {acceptPresend, Marker, markerCheckin} from '@/service/solas'
 import UserContext from "@/components/provider/UserProvider/UserContext";
 import useEvent, {EVENT} from "@/hooks/globalEvent";
-import fa from "@walletconnect/legacy-modal/dist/cjs/browser/languages/fa";
+import {useSearchParams} from "next/navigation";
 
 export interface DialogNftCheckInProps {
     handleClose: (result: boolean) => any
@@ -14,7 +14,7 @@ export interface DialogNftCheckInProps {
 }
 
 function DialogMarkerCheckIn(props: DialogNftCheckInProps) {
-    const {lang} = useContext(LangContext)
+    const searchParams = useSearchParams()
     const [canScan, setCanScan] = useState(true)
     const [ifSuccess, setIfSuccess] = useState(false)
     const {showToast} = useContext(DialogsContext)
@@ -49,7 +49,8 @@ function DialogMarkerCheckIn(props: DialogNftCheckInProps) {
                 const mintBadge = await acceptPresend({
                     voucher_id: props.marker.voucher_id!,
                     code: Number(resVoucherCode),
-                    auth_token: user.authToken || ''
+                    auth_token: user.authToken || '',
+                    index: searchParams.get('index') ? Number(searchParams.get('index')) : undefined
                 })
                 badgeletId = mintBadge.id
             }

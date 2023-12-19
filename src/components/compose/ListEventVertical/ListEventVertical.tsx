@@ -3,7 +3,7 @@ import {useContext, useEffect, useRef, useState} from 'react'
 import LangContext from "../../provider/LangProvider/LangContext";
 import Empty from "../../base/Empty";
 import CardEvent from "../../base/Cards/CardEvent/CardEvent";
-import {Event, Participants, queryEvent} from "@/service/solas";
+import {Event, Participants, queryEvent, Group} from "@/service/solas";
 import EventLabels from "../../base/EventLabels/EventLabels";
 import DialogsContext from "../../provider/DialogProvider/DialogsContext";
 import EventHomeContext from "../../provider/EventHomeProvider/EventHomeContext";
@@ -28,27 +28,24 @@ function ListEventVertical(props: { participants: Participants[], initData?: Eve
     const [list, setList] = useState<Event[]>(props.initData || [])
     const [listToShow, setListToShow] = useState<Event[]>(props.initData || [])
 
-    const getEvent = async (init?: boolean, tab?: string) => {
+    const tagRef = useRef<string>('')
+    const tab2IndexRef = useRef<'latest' | 'coming' | 'past'>(tab2Index)
+
+    const getEvent = async (init?: boolean) => {
         if (!eventGroup?.id) {
             return []
         }
         setLoading(true)
         try {
-            if ((tab || tab2Index) !== 'past') {
+            if (tab2IndexRef.current !== 'past') {
                 pageRef.current = pageRef.current + 1
                 let res = await queryEvent({
                     page: pageRef.current,
                     start_time_from: new Date().toISOString(),
                     event_order: 'asc',
-                    group_id: eventGroup?.id || undefined
+                    group_id: eventGroup?.id || undefined,
+                    tag: tagRef.current || undefined
                 })
-
-
-                if (selectTag[0]) {
-                    res = res.filter(item => {
-                        return item.tags?.includes(selectTag[0])
-                    })
-                }
 
                 setList(init ? res : [...list, ...res])
                 setLoading(false)
@@ -61,7 +58,8 @@ function ListEventVertical(props: { participants: Participants[], initData?: Eve
                     page: pageRef.current,
                     start_time_to: new Date().toISOString(),
                     event_order: 'desc',
-                    group_id: eventGroup?.id || undefined
+                    group_id: eventGroup?.id || undefined,
+                    tag: tagRef.current || undefined
                 })
 
                 setList(init ? res : [...list, ...res])
@@ -86,17 +84,26 @@ function ListEventVertical(props: { participants: Participants[], initData?: Eve
         } else {
             setListToShow(list)
         }
-    }, [list])
+    }, [list, selectTag])
 
     const changeTab = (tab: 'latest' | 'coming' | 'past') => {
         setTab2Index(tab)
+        tab2IndexRef.current = tab
         pageRef.current = 0
         setIsLoadAll(false)
-        getEvent(true, tab)
+        getEvent(true)
         const href = params?.groupname ?
             `/event/${eventGroup?.username}?tab=${tab}`
             : `/?tab=${tab}`
         window?.history.pushState({}, '', href)
+    }
+
+    const changeTag = (tag?: string) => {
+        setSelectTag(tag ? [tag] : [])
+        tagRef.current = tag || ''
+        pageRef.current = 0
+        setIsLoadAll(false)
+        getEvent(true)
     }
 
 
@@ -127,7 +134,7 @@ function ListEventVertical(props: { participants: Participants[], initData?: Eve
                 </div>
             </div>
 
-            {!!eventGroup && eventGroup.group_event_tags &&
+            {!!eventGroup && (eventGroup as Group).event_tags &&
                 <div className={'tag-list'}>
                     <EventLabels
                         showAll={true}
@@ -136,12 +143,12 @@ function ListEventVertical(props: { participants: Participants[], initData?: Eve
                             if (value.length === 0 && selectTag.length === 0) {
                                 return
                             } else if (selectTag[0] === value[0]) {
-                                setSelectTag([])
+                                changeTag()
                             } else {
-                                setSelectTag(value)
+                                changeTag(value[0])
                             }
                         }}
-                        data={eventGroup.group_event_tags}
+                        data={(eventGroup as Group).event_tags || []}
                         value={selectTag}/>
                 </div>
             }

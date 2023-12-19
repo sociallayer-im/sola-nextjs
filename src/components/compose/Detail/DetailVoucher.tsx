@@ -5,8 +5,6 @@ import {useContext, useEffect, useState} from 'react'
 import DetailWrapper from './atoms/DetailWrapper/DetailWrapper'
 import usePicture from '../../../hooks/pictrue'
 import DetailHeader from './atoms/DetailHeader'
-import DetailBadgeletMenu from './atoms/DetalBadgeletMenu'
-import DetailBadgeletPrivateMark from './atoms/DetailBadgeletPriviateMark'
 import DetailCover from './atoms/DetailCover'
 import DetailName from './atoms/DetailName'
 import DetailDes from './atoms/DetailDes/DetailDes'
@@ -22,6 +20,7 @@ import useTime from '../../../hooks/formatTime'
 import DetailRow from "./atoms/DetailRow";
 import DetailReceivers from "@/components/compose/Detail/atoms/DetailReceivers";
 import DetailFace2FaceQrcode from "@/components/compose/Detail/DetailFace2FaceQrcode";
+import {useSearchParams} from "next/navigation";
 
 
 export interface DetailBadgeletProps {
@@ -35,6 +34,7 @@ function DetailVoucher(props: DetailBadgeletProps) {
     const {user} = useContext(UserContext)
     const {openConnectWalletDialog, showLoading, showToast, openDialog} = useContext(DialogsContext)
     const {defaultAvatar} = usePicture()
+    const searchParams = useSearchParams()
     const [_1, emitUpdate] = useEvent(EVENT.badgeletListUpdate)
     const [needUpdate, _2] = useEvent(EVENT.badgeletDetailUpdate)
     const [voucher, setVoucher] = useState(props.voucher)
@@ -97,7 +97,8 @@ function DetailVoucher(props: DetailBadgeletProps) {
             const accept = await solas.acceptBadgelet({
                 voucher_id: props.voucher.id,
                 auth_token: user.authToken || '',
-                code: _code ? Number(_code) : undefined
+                code: _code ? Number(_code) : undefined,
+                index: searchParams?.get('index') ? Number(searchParams?.get('index')) : undefined
             })
 
             unload()

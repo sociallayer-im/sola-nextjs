@@ -21,7 +21,7 @@ import DetailCreator from './atoms/DetailCreator/DetailCreator'
 import useTime from '../../../hooks/formatTime'
 import DetailFace2FaceQrcode from './DetailFace2FaceQrcode'
 import DetailRow from './atoms/DetailRow'
-import {useRouter} from 'next/navigation'
+import {useSearchParams} from 'next/navigation'
 
 export interface DetailPresendProps {
     presend: Voucher,
@@ -32,6 +32,7 @@ export interface DetailPresendProps {
 function DetailPresend (props: DetailPresendProps ) {
     const { lang } = useContext(LangContext)
     const { user } = useContext(UserContext)
+    const searchParams = useSearchParams()
     const { openConnectWalletDialog, showLoading, showToast, openDialog } = useContext(DialogsContext)
     const { defaultAvatar } = usePicture()
     const [_1, emitBadgeletListUpdate] = useEvent(EVENT.badgeletListUpdate)
@@ -86,7 +87,8 @@ function DetailPresend (props: DetailPresendProps ) {
             const accept = await solas.acceptPresend({
                 voucher_id: props.presend.id,
                 code: Number(code),
-                auth_token: user.authToken || ''
+                auth_token: user.authToken || '',
+                index: searchParams.get('index') ? Number(searchParams.get('index')) : undefined
             })
             unload()
             emitBadgeletListUpdate(props.presend)
