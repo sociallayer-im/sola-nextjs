@@ -241,7 +241,7 @@ const langEN = {
     Activity_Detail_Btn_unjoin: 'Cancel',
     Activity_Detail_Btn_Cancel: 'Cancel Event',
     Activity_Detail_Btn_Checkin: 'Check-in',
-    Activity_Detail_Btn_Attend: 'Attend-in',
+    Activity_Detail_Btn_Attend: 'RSVP',
     Activity_Detail_Btn_Joined: 'Joined',
     Activity_Detail_Btn_End: 'Event has ended',
     Activity_Detail_Btn_has_Cancel: 'Event has canceled',

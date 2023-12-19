@@ -26,7 +26,7 @@ export const formatTimeWithTimezone = (dateString: string, timezone: string) => 
     return dayjs(new Date(new Date(dateString).getTime() - diff).toString()).format("YYYY.MM.DD HH:mm")
 }
 
-function useTime () {
+function useTime() {
     const {lang} = useContext(LangContext)
 
     return (dateString: string, timezone?: string) => {
@@ -41,7 +41,7 @@ function useTime () {
             'AUG', 'SEP', 'OCT', 'NOV', 'DEC']
         const mon = month[dateObject.getMonth()]
         const date = dateObject.getDate() + ''
-        const hour = dateObject.getHours() >  12 ? dateObject.getHours() - 12 + '' : dateObject.getHours() + ''
+        const hour = dateObject.getHours() > 12 ? dateObject.getHours() - 12 + '' : dateObject.getHours() + ''
         const min = dateObject.getMinutes() + ''
         const amOrPm = dateObject.getHours() >= 12 ? 'PM' : 'AM'
 
@@ -53,12 +53,12 @@ function useTime () {
         } else if (isTomorrow) {
             return `${tomorrowText} ${hour.padStart(2, '0')}:${min.padStart(2, '0')} ` + amOrPm
         } else {
-            return `${week[dateObject.getDay()]}, ${mon} ${date.padStart(2, '0')}, ${hour.padStart(2, '0')}:${min.padStart(2, '0')} `  + amOrPm
+            return `${week[dateObject.getDay()]}, ${mon} ${date.padStart(2, '0')}, ${hour.padStart(2, '0')}:${min.padStart(2, '0')} ` + amOrPm
         }
     }
 }
 
-export function useTime2 () {
+export function useTime2() {
     const {lang} = useContext(LangContext)
 
     return (dateString: string, timezone?: string) => {
@@ -92,7 +92,52 @@ export function useTime2 () {
         } else if (isTomorrow) {
             return `${tomorrowText} ${hour.padStart(2, '0')}:${min.padStart(2, '0')} ` + amOrPm + ' GMT' + utcOffset
         } else {
-            return `${week[target.day()]}, ${mon} ${date.padStart(2, '0')}, ${hour.padStart(2, '0')}:${min.padStart(2, '0')} `  + ' GMT' + utcOffset
+            return `${week[target.day()]}, ${mon} ${date.padStart(2, '0')}, ${hour.padStart(2, '0')}:${min.padStart(2, '0')} ` + ' GMT' + utcOffset
+        }
+    }
+}
+
+export function useTime3() {
+    const {lang, langType} = useContext(LangContext)
+
+    return (from: string, to: string, timezone: string = 'UTC') => {
+        const fromStr = from.endsWith('Z') ? from : from + 'Z'
+        const toStr = to.endsWith('Z') ? to : to + 'Z'
+
+        const fromDate = dayjs.tz(new Date(fromStr).getTime(), timezone)
+        const toDate = dayjs.tz(new Date(toStr).getTime(), timezone)
+
+        const now = dayjs.tz(new Date().getTime(), timezone)
+        const isToday = fromDate.date() === now.date()
+        const isTomorrow = fromDate.date() - now.date() === 1
+
+
+        const f_mon = lang['Month_Name'][fromDate.month()].toUpperCase()
+        const f_date = fromDate.date() + ''
+        const f_hour = fromDate.hour() + ''
+        const f_min = fromDate.minute() + ''
+        const f_year = fromDate.year() + ''
+        const f_day = lang['Day_Name'][fromDate.day()]
+
+        const t_hour = toDate.hour() + ''
+        const t_min = toDate.minute() + ''
+
+        const utcOffset = fromDate.utcOffset() >= 0 ?
+            '+' + fromDate.utcOffset() / 60 :
+            fromDate.utcOffset() / 60
+
+        const todayOrTomorrow = isToday ?
+            lang['Event_Today'] + ' ' :
+            isTomorrow ?
+                lang['Event_Tomorrow'] + ' ':
+                ''
+
+        return {
+            data: langType === 'cn'
+                ? `${todayOrTomorrow}${f_mon}${f_date.padStart(2, '0')}日 ${f_day}`
+                : `${todayOrTomorrow}${f_day}, ${f_mon} ${f_date.padStart(2, '0')}, ${f_year}`,
+
+            time: `${f_hour.padStart(2, '0')}:${f_min.padStart(2, '0')} — ${t_hour.padStart(2, '0')}:${t_min.padStart(2, '0')}  GMT${utcOffset}`
         }
     }
 }
