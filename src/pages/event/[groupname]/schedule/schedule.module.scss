@@ -347,7 +347,6 @@
   margin-top: 4px;
   display: flex;
   flex-flow: row nowrap;
-  align-items: center;
 }
 
 .schedule-event-card-dot {
@@ -357,6 +356,7 @@
   margin-right: 8px;
   margin-left: 3px;
   background: #f1f1f1;
+  margin-top: 3px;
 }
 
 .page-center-full-row {
