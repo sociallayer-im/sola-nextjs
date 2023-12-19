@@ -367,7 +367,7 @@ function ComponentName(props: { markerType: string | null }) {
             <GameMenu/>
         }
 
-        {process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'zumap' &&
+        {true &&
             <div className={styles['top-menu']}>
                 { false &&
                     <div className={styles['menu-item']} onClick={() => {
