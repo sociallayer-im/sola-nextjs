@@ -1,7 +1,7 @@
 import {useContext, useEffect, useRef, useState} from 'react'
 import PageBack from "@/components/base/PageBack";
 import LangContext from "@/components/provider/LangProvider/LangContext";
-import SelectorMarkerType, {markerTypeList} from "@/components/base/SelectorMarkerType/SelectorMarkerType";
+import SelectorMarkerType, {markerTypeList2} from "@/components/base/SelectorMarkerType/SelectorMarkerType";
 import {useParams, useRouter, useSearchParams} from "next/navigation";
 import AppInput from "@/components/base/AppInput";
 import UploadImage from "@/components/compose/UploadImage/UploadImage";
@@ -47,8 +47,8 @@ function ComponentName() {
     const [titleError, setTitleError] = useState('')
     const [link, setLink] = useState('')
     const [cover, setCover] = useState('')
-    const [icon, setIcon] = useState<string | null>((markerTypeList as any)[Object.keys(markerTypeList)[1]])
-    const [category, setCategory] = useState<string>(Object.keys(markerTypeList)[1])
+    const [icon, setIcon] = useState<string | null>(markerTypeList2[0].pin)
+    const [category, setCategory] = useState<string>(markerTypeList2[0].category)
     const [content, setContent] = useState('')
     const [creator, setCreator] = useState<Profile | null>(null)
     const [badgeId, setBadgeId] = useState<number | null>(null)
@@ -327,13 +327,14 @@ function ComponentName() {
             setReady(true)
             if (searchParams?.get('type')) {
                 const key = searchParams.get('type') as string
-                if ((markerTypeList as any)[key]) {
-                    setIcon((markerTypeList as any)[key])
-                    setCategory(key)
+                const target = markerTypeList2.find((item) => item.category === key)
+                if (target) {
+                    setIcon(target.pin)
+                    setCategory(target.category)
                 }
             } else {
-                setIcon((markerTypeList as any)[Object.keys(markerTypeList)[1]])
-                setCategory(Object.keys(markerTypeList)[1])
+                setIcon(markerTypeList2[0].pin)
+                setCategory(markerTypeList2[0].category)
             }
         }
     }, [searchParams, params])
@@ -356,9 +357,9 @@ function ComponentName() {
                 <div className='create-badge-page-form'>
                     {!markerId &&
                         <SelectorMarkerType
-                            onChange={(typeInfo) => {
-                                setCategory(typeInfo[0])
-                                setIcon(typeInfo[1])
+                            onChange={(markerType) => {
+                                setCategory(markerType.category)
+                                setIcon(markerType.pin)
                             }}
                             value={category}/>
                     }

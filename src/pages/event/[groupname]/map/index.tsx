@@ -3,11 +3,12 @@ import styles from './map.module.scss'
 import MapContext from "@/components/provider/MapProvider/MapContext";
 import EventHomeContext from "@/components/provider/EventHomeProvider/EventHomeContext";
 import {
+    CheckIn,
     Event,
     Marker,
     MarkerCheckinDetail,
     markersCheckinList,
-    Participants,
+    Participants, queryCheckInList,
     queryMarkers,
     queryMyEvent
 } from "@/service/solas";
@@ -15,19 +16,13 @@ import {Swiper, SwiperSlide} from 'swiper/react'
 import {Mousewheel, Virtual} from 'swiper'
 import CardMarker from "@/components/base/Cards/CardMarker/CardMarker";
 import {useRouter, useSearchParams} from "next/navigation";
-import {markerTypeList} from "@/components/base/SelectorMarkerType/SelectorMarkerType";
+import {markerTypeList2, MarkerType} from "@/components/base/SelectorMarkerType/SelectorMarkerType";
 import userContext from "@/components/provider/UserProvider/UserContext";
 import DialogGuideFollow from "@/components/base/Dialog/DialogGuideFollow/DialogGuideFollow";
 import GameMenu from "@/components/zugame/GameMenu/GameMenu";
 import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
 
-const menuList = markerTypeList
-
-const MarkerCache: any = {...markerTypeList}
-const cacheGroupId: number = 0
-Object.keys(MarkerCache).forEach(item => {
-    MarkerCache[item] = []
-})
+const menuList = markerTypeList2
 
 const defaultZoom = 17
 
@@ -45,6 +40,7 @@ function ComponentName(props: { markerType: string | null }) {
     const markersRef = useRef<any[]>([])
 
     const [participants, setParticipants] = useState<Participants[]>([])
+    const [checkinList, setCheckList] = useState<CheckIn[]>([])
 
     const [markers, setMarkers] = useState<Marker[]>([])
     const [selectedType, setSelectedType] = useState<string | null>(props.markerType || null)
@@ -63,7 +59,7 @@ function ComponentName(props: { markerType: string | null }) {
             //     with_checkins: user.authToken ? true : undefined,
             //     auth_token: user.authToken ? user.authToken : undefined
             // })
-            setSelectedType('Event')
+            setSelectedType('event')
             return
         } else if (type === 'Event') {
             res = await queryMarkers({
@@ -162,21 +158,20 @@ function ComponentName(props: { markerType: string | null }) {
         // 绘制marker
         // todo checkin marker
         markersGrouped.map((markersList, index) => {
-            const category = markersList[0].category[0].toUpperCase() + markersList[0].category.slice(1)
-            if (!!(markerTypeList as any)[category]) {
+            const category = markersList[0].category
+            const markerType = menuList.find(item => item.category === category)
+            if (markerType) {
+                let ifcheckIn = false
+
+                if(category === 'event'){
+                    ifcheckIn = participants.some(item => item.event_id === markersList[0].id)
+                } else {
+                    ifcheckIn = checkinList.some(item => item.marker_id === markersList[0].id)
+                }
+
+                const markerIcon = ifcheckIn ? markerType.pin_checked : markerType.pin
                 const content = document.createElement('img');
-                const iconUrl = markersList[0].jubmoji_code
-                    ? markersList[0].zugame_state === 'a'
-                        ? (markerTypeList as any)['Zugame'].split('#')[2]
-                        : markersList[0].zugame_state === 'b'
-                            ? (markerTypeList as any)['Zugame'].split('#')[3]
-                            : markersList[0].zugame_state === 'c' ?
-                                (markerTypeList as any)['Zugame'].split('#')[3]
-                                : (markerTypeList as any)['Zugame'].split('#')[0]
-                    : markersList[0].map_checkins?.some((checkin : MarkerCheckinDetail) => checkin.profile_id === user.id)
-                        ? (markerTypeList as any)[category]?.split('#')[1] || (markerTypeList as any)['Vision Spot'].split('#')[0]
-                        : (markerTypeList as any)[category]?.split('#')[0] || (markerTypeList as any)['Vision Spot'].split('#')[0]
-                content.setAttribute('src', iconUrl)
+                content.setAttribute('src', markerIcon)
                 content.className = 'map-marker'
 
                 const markerView = new Marker!({
@@ -311,6 +306,9 @@ function ComponentName(props: { markerType: string | null }) {
             queryMyEvent({profile_id: user.id || 0, page: 1}).then(res => {
                 setParticipants(res)
             })
+            queryCheckInList({profile_id: user.id || 0}).then(res => {
+                setCheckList(res)
+            })
         }
     }, [user.id])
 
@@ -322,7 +320,9 @@ function ComponentName(props: { markerType: string | null }) {
                     lng: 150.644
                 },
                 zoom: defaultZoom,
-                mapId: eventGroup.id === 1984 ? '2c7555ce0787c1b' : 'e2f9ddc0facd5a80',
+                // 2c7555ce0787c1b 紫色
+                // e2f9ddc0facd5a80 普通
+                mapId: '2c7555ce0787c1b',
             })
         }
     }, [MapReady, mapDomRef, eventGroup])
@@ -356,7 +356,7 @@ function ComponentName(props: { markerType: string | null }) {
         if (Marker) {
             drawMarkers()
         }
-    }, [markers, Marker, selectedType])
+    }, [markers, Marker, selectedType, checkinList, participants])
 
     return (<div className={`${styles['map-page']} map-page`}>
         <div className={styles['follow-window']}>
@@ -368,7 +368,7 @@ function ComponentName(props: { markerType: string | null }) {
         }
 
         <div className={styles['top-menu']}>
-            <div className={styles['menu-item']} onClick={() => {
+            <div className={styles['menu-item-create']} onClick={() => {
                 if (!user.id) {
                     openConnectWalletDialog()
                     return
@@ -376,7 +376,7 @@ function ComponentName(props: { markerType: string | null }) {
                 router.push(`/event/${eventGroup?.username}/create-marker`)
             }}>Create a Marker +
             </div>
-            <div className={styles['menu-item']} onClick={() => {
+            <div className={styles['menu-item-create']} onClick={() => {
                 if (!user.id) {
                     openConnectWalletDialog()
                     return
@@ -390,13 +390,13 @@ function ComponentName(props: { markerType: string | null }) {
             {/*     }}>All*/}
             {/*</div>*/}
             {
-                Object.keys(menuList).map((item, index) => {
-                    const isSelected = selectedType === item
+                menuList.map((item, index) => {
+                    const isSelected = selectedType === item.category
                     return <div key={index}
                                 onClick={() => {
-                                    router.push(`/event/${eventGroup?.username}/map?type=${item}`)
+                                    router.push(`/event/${eventGroup?.username}/map?type=${item.category}`)
                                 }}
-                                className={`${styles['menu-item']} ${isSelected ? styles['menu-item-active'] : ''}`}>{item}</div>
+                                className={`${styles['menu-item']} ${isSelected ? styles['menu-item-active'] : ''}`}>{item.label}</div>
                 })
             }
         </div>
@@ -433,6 +433,7 @@ function ComponentName(props: { markerType: string | null }) {
                     </Swiper>
                     : <div className={styles['nodata']}>No marker</div>
                 }
+
                 {typeof window !== 'undefined'
                     && window.innerWidth > 750
                     && swiperRef.current
@@ -447,6 +448,7 @@ function ComponentName(props: { markerType: string | null }) {
                         className={window.innerWidth >= 1050 ? styles['slide-left-wide'] : styles['slide-left']}
                         src="/images/slide.png" alt=""/>
                 }
+
                 {typeof window !== 'undefined'
                     && window.innerWidth > 750
                     && swiperRef.current

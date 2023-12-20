@@ -59,12 +59,26 @@
   padding: 8px 12px;
   align-items: center;
   border-radius: 8px;
-  border: 1px solid #EDEDED;
   background: #FFF;
-  box-shadow: 0 1.9878px 18px 0 rgba(0, 0, 0, 0.10);
   color: var(--color-ui-2, #1B2028);
   font-size: 12px;
   margin: 0 8px;
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+}
+
+.menu-item-create {
+  display: flex;
+  padding: 8px 12px;
+  align-items: center;
+  border-radius: 8px;
+  background: #FFF;
+  color: var(--color-ui-2, #1B2028);
+  background: var(--color-theme);
+  font-size: 12px;
+  margin: 0 8px;
+  font-weight: 800;
   white-space: nowrap;
   cursor: pointer;
   user-select: none;

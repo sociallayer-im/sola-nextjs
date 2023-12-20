@@ -2352,26 +2352,57 @@ export interface QueryCheckInListProps {
 export interface CheckIn {
     id: number,
     badgelet: Badgelet,
-    badge: Badge,
     created_at: string,
     memo: null | string,
-    profile: ProfileSimple
+    profile: ProfileSimple,
+    marker_id: number,
 }
 
 export async function queryCheckInList(props: QueryCheckInListProps): Promise<CheckIn[]> {
-    // const res: any = await fetch.get({
-    //     url: `${api}/badgelet/checkin_list`,
-    //     data: props
-    // })
-    //
-    // if (res.data.result === 'error') {
-    //     throw new Error(res.data.message || 'Check in fail')
-    // }
-    //
-    // return res.data.checkins.sort((a: any, b: any) => {
-    //     return b.id - a.id
-    // }) as CheckIn[]
-    return []
+   let variables = ''
+
+    if (props.profile_id) {
+        variables += `profile_id: {_eq: ${props.profile_id}},`
+    }
+
+    if (props.badgelet_id) {
+        variables += `badgelet_id: {_eq: ${props.badgelet_id}},`
+    }
+
+    if (props.badge_id) {
+        variables += `badge_id: {_eq: ${props.badge_id}},`
+    }
+
+    variables = variables.replace(/,$/, '')
+
+    const doc = gql`query MyQuery {
+      map_checkins(where: {${variables}}) {
+        marker_id
+        content
+        created_at
+        id
+        profile_id
+        badgelet_id
+        check_type
+        image_url
+        badgelet {
+          badge_id
+          image_url
+          id
+          content
+          title
+        }
+        profile {
+          id
+          image_url
+          nickname
+          username
+        }
+          }
+    }`
+
+    const res  = await request(graphUrl, doc)
+    return  res.map_checkins as CheckIn[]
 }
 
 export interface SetEmailProps {

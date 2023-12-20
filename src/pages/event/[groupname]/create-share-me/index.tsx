@@ -1,10 +1,9 @@
 import {useContext, useEffect, useRef, useState} from 'react'
 import PageBack from "@/components/base/PageBack";
 import LangContext from "@/components/provider/LangProvider/LangContext";
-import SelectorMarkerType, {markerTypeList} from "@/components/base/SelectorMarkerType/SelectorMarkerType";
+import {markerTypeList} from "@/components/base/SelectorMarkerType/SelectorMarkerType";
 import {useParams, useRouter, useSearchParams} from "next/navigation";
 import AppInput from "@/components/base/AppInput";
-import UploadImage from "@/components/compose/UploadImage/UploadImage";
 import ReasonInput from "@/components/base/ReasonInput/ReasonInput";
 import {
     Badge,
@@ -13,24 +12,15 @@ import {
     getProfile,
     Group,
     Marker,
-    markerDetail,
-    Presend,
     Profile,
-    queryBadge,
     queryBadgeDetail,
-    queryPresendDetail,
     removeMarker,
     saveMarker
 } from "@/service/solas";
-import DialogIssuePrefill from "@/components/eventSpecial/DialogIssuePrefill/DialogIssuePrefill";
-import {OpenDialogProps} from "@/components/provider/DialogProvider/DialogProvider";
 import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
 import userContext from "@/components/provider/UserProvider/UserContext";
 import AppButton, {BTN_KIND} from "@/components/base/AppButton/AppButton";
-import LocationInput from "@/components/compose/LocationInput/LocationInput";
 import EventHomeContext from "@/components/provider/EventHomeProvider/EventHomeContext";
-import AppFlexTextArea from "@/components/base/AppFlexTextArea/AppFlexTextArea";
-import {Delete} from "baseui/icon";
 
 function ComponentName() {
     const {lang} = useContext(LangContext)
@@ -71,47 +61,6 @@ function ComponentName() {
             && (eventGroup?.id === 1516 || eventGroup?.id === 1984))
     }, [isManager, eventGroup, user?.id])
 
-    const showBadges = async (withGroup?: Group[]) => {
-        const props = (creator as Group)?.creator ? {
-                group_id: creator!.id,
-                page: 1
-            } :
-            {
-                sender_id: creator!.id,
-                page: 1
-            }
-
-        const unload = showLoading()
-        const badges = await queryBadge(props)
-        let groupBadges: any[] = []
-        if (withGroup) {
-            const tasks = withGroup.map(group => queryBadge({group_id: group.id, page: 1}))
-            const groupBadgesList = await Promise.all(tasks)
-            groupBadges = groupBadgesList.map((badges, index) => {
-                return {
-                    groupName: (withGroup as any)[index].nickname || (withGroup as any)[index].username,
-                    badges
-                }
-            })
-        }
-
-        unload()
-        openDialog({
-            content: (close: any) => <DialogIssuePrefill
-                groupBadges={groupBadges.length ? groupBadges : undefined}
-                badges={badges}
-                profileId={user.id!}
-                onSelect={(res) => {
-                    if (res.badgeId) {
-                        setBadgeId(res.badgeId)
-                    }
-                }}
-                handleClose={close} />,
-            position: 'bottom',
-            size: [360, 'auto']
-        } as OpenDialogProps)
-    }
-
     const handleCreate = async () => {
         setTitleError('')
         setLocationError('')
@@ -131,16 +80,6 @@ function ComponentName() {
         const unload = showLoading()
         setBusy(true)
         try {
-            let voucher: null | Presend = null
-            if (badgeId) {
-                voucher = await createPresend({
-                    message: badgeDetail?.content || '',
-                    auth_token: user.authToken || '',
-                    badge_id: badgeId || 990,
-                    counter: null
-                })
-            }
-
             const create = await createMarker({
                 auth_token: user.authToken || '',
                 group_id: eventGroup?.id,
@@ -156,7 +95,6 @@ function ComponentName() {
                 geo_lat: location ? JSON.parse(location).geometry.location.lat : null,
                 geo_lng: location ? JSON.parse(location).geometry.location.lng : null,
                 marker_type: 'zugame',
-                voucher_id: voucher ? voucher.id : undefined
             })
             unload()
             showToast('Create Success', 500)
@@ -215,7 +153,6 @@ function ComponentName() {
                 geo_lng: location ? JSON.parse(location).geometry.location.lng : null,
                 marker_type: 'site',
                 id: markerId!,
-                voucher_id: badgeId ? (newVoucherId || markerInfoRef.current?.voucher_id) : null
             })
             unload()
             showToast('Save Success', 500)
@@ -254,7 +191,7 @@ function ComponentName() {
     }
 
     const getLocation = () => {
-        if (typeof  navigator !== 'undefined') {
+        if (typeof navigator !== 'undefined') {
             navigator.geolocation.getCurrentPosition((data) => {
                 const location = {
                     geometry: {
@@ -294,66 +231,6 @@ function ComponentName() {
         }
     }, [user.id])
 
-    const prefill = async (markerid: string, merkerDetail?: Marker) => {
-        const detail = merkerDetail || await markerDetail(Number(markerid))
-        setMarkerId(Number(markerid))
-        setTitle(detail.title)
-        setLink(detail.link || '')
-        setCover(detail.cover_image_url || '')
-        setIcon(detail.pin_image_url || '')
-        setCategory(detail.category)
-        setContent(detail.about || '')
-        markerInfoRef.current = detail
-
-        const creator = await getProfile({id: detail.owner.id})
-        setCreator(creator!)
-
-        // if (detail.voucher_id) {
-        //     const voucher = await queryPresendDetail({
-        //         id: detail.voucher_id,
-        //         auth_token: user.authToken || ''
-        //     })
-        //     setBadgeId(voucher.badge_id)
-        //     badgeIdRef.current = voucher.badge_id
-        // } else {
-        //     setBadgeId(990)
-        // }
-
-
-        setLocation(detail.formatted_address)
-    }
-
-    useEffect(() => {
-        if (params?.markerid) {
-            prefill(params?.markerid as string)
-        } else {
-            if (canUserGroupBadge) {
-                setBadgeId(990)
-            }
-            if (searchParams?.get('type')) {
-                const key = searchParams.get('type') as string
-                if ((markerTypeList as any)[key]) {
-                    setIcon((markerTypeList as any)[key])
-                    setCategory(key)
-                }
-            } else {
-                setIcon((markerTypeList as any)[Object.keys(markerTypeList)[1]])
-                setCategory(Object.keys(markerTypeList)[1])
-            }
-        }
-    }, [searchParams, params, canUserGroupBadge])
-
-    useEffect(() => {
-        async function fetchBadgeDetail() {
-            if (badgeId) {
-                const badge = await queryBadgeDetail({id: badgeId})
-                setBadgeDetail(badge)
-            }
-        }
-
-        fetchBadgeDetail()
-    }, [badgeId])
-
     return (<div className='create-event-page'>
             <div className='create-badge-page-wrapper'>
                 <PageBack title={'Share me'}/>
@@ -386,7 +263,7 @@ function ComponentName() {
                         </div>
                         <AppInput
                             readOnly
-                            value={location? `lat: ${JSON.parse(location).geometry.location.lat} lng: ${JSON.parse(location).geometry.location.lng}` : ''}/>
+                            value={location ? `lat: ${JSON.parse(location).geometry.location.lat} lng: ${JSON.parse(location).geometry.location.lng}` : ''}/>
                     </div>
 
                     {!markerId ?
