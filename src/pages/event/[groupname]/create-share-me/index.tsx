@@ -8,12 +8,12 @@ import ReasonInput from "@/components/base/ReasonInput/ReasonInput";
 import {
     Badge,
     createMarker,
-    createPresend,
     getProfile,
     Group,
     Marker,
     Profile,
     queryBadgeDetail,
+    queryMarkers,
     removeMarker,
     saveMarker
 } from "@/service/solas";
@@ -21,6 +21,7 @@ import DialogsContext from "@/components/provider/DialogProvider/DialogsContext"
 import userContext from "@/components/provider/UserProvider/UserContext";
 import AppButton, {BTN_KIND} from "@/components/base/AppButton/AppButton";
 import EventHomeContext from "@/components/provider/EventHomeProvider/EventHomeContext";
+import Link from "next/link";
 
 function ComponentName() {
     const {lang} = useContext(LangContext)
@@ -91,14 +92,14 @@ function ComponentName() {
                 about: content,
                 link,
                 location: 'Custom location',
-                formatted_address: location,
+                formatted_address: '',
                 geo_lat: location ? JSON.parse(location).geometry.location.lat : null,
                 geo_lng: location ? JSON.parse(location).geometry.location.lng : null,
                 marker_type: 'zugame',
             })
             unload()
             showToast('Create Success', 500)
-            router.push(`/event/${eventGroup?.username}/map?type=Share`)
+            router.push(`/event/${eventGroup?.username}/map?type=share`)
         } catch (e: any) {
             setBusy(false)
             console.error(e)
@@ -126,29 +127,11 @@ function ComponentName() {
         const unload = showLoading()
         setBusy(true)
         try {
-            let newVoucherId: number = 0
-            if (badgeId && badgeId !== badgeIdRef.current) {
-                const voucher = await createPresend({
-                    message: badgeDetail?.content || '',
-                    auth_token: user.authToken || '',
-                    badge_id: badgeId || 990,
-                    counter: null
-                })
-                newVoucherId = voucher.id
-            }
-
             const save = await saveMarker({
-                auth_token: user.authToken || '',
-                group_id: eventGroup?.id,
-                owner_id: creator?.id,
-                pin_image_url: icon!,
-                cover_image_url: cover,
+                ...markerInfoRef.current,
                 title,
-                category,
                 about: content,
-                link,
-                location: JSON.parse(location).name,
-                formatted_address: location,
+                auth_token: user.authToken || '',
                 geo_lat: location ? JSON.parse(location).geometry.location.lat : null,
                 geo_lng: location ? JSON.parse(location).geometry.location.lng : null,
                 marker_type: 'site',
@@ -156,7 +139,7 @@ function ComponentName() {
             })
             unload()
             showToast('Save Success', 500)
-            router.push(`/event/${eventGroup?.username}/map?type=Share`)
+            router.push(`/event/${eventGroup?.username}/map?type=share`)
         } catch (e: any) {
             console.error(e)
             unload()
@@ -204,13 +187,27 @@ function ComponentName() {
                     name: 'Custom location'
                 }
                 setLocation(JSON.stringify(location))
+                showToast('Get location success', 1000)
             })
         }
     }
 
     useEffect(() => {
-        getLocation()
-    }, [])
+        if (!markerId) {
+            getLocation()
+        }
+
+        if (params?.markerid) {
+            setMarkerId(Number(params.markerid))
+            queryMarkers({id: Number(params.markerid)}).then(res => {
+                const marker = res[0]
+                markerInfoRef.current = marker
+                setTitle(marker.title)
+                setContent(marker.about || '')
+                setLocation(JSON.stringify({geometry: {location: {lat: marker.geo_lat, lng: marker.geo_lng}}}))
+            })
+        }
+    }, [params?.markerid])
 
     useEffect(() => {
         async function fetchBadgeDetail() {
@@ -265,6 +262,18 @@ function ComponentName() {
                             readOnly
                             value={location ? `lat: ${JSON.parse(location).geometry.location.lat} lng: ${JSON.parse(location).geometry.location.lng}` : ''}/>
                     </div>
+
+                    {location &&
+                        <Link
+                            href={`https://www.google.com/maps/search/?api=1&query=${JSON.parse(location).geometry.location.lat}%2C${JSON.parse(location).geometry.location.lng}`}
+                            target={'_blank'}
+                            className={`map-preview full`}>
+                            <img
+                                src={`https://maps.googleapis.com/maps/api/staticmap?center=${JSON.parse(location).geometry.location.lat},${JSON.parse(location).geometry.location.lng}&zoom=14&size=600x260&key=AIzaSyCNT9TndlC4dSd0oNR_L4vHYWafLDU1gbg`}
+                                alt=""/>
+                            <div>{title || 'here!'}</div>
+                        </Link>
+                    }
 
                     {!markerId ?
                         <>

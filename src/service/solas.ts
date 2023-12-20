@@ -2401,7 +2401,7 @@ export async function queryCheckInList(props: QueryCheckInListProps): Promise<Ch
           }
     }`
 
-    const res  = await request(graphUrl, doc)
+    const res: any  = await request(graphUrl, doc)
     return  res.map_checkins as CheckIn[]
 }
 
@@ -3922,7 +3922,7 @@ export async function queryMarkers(props: {
 
     const doc = gql`
         query MyQuery {
-          markers(where: {${variables}} order_by: {id: desc}) {
+          markers(where: {${variables}, status: {_neq: "removed"}} order_by: {id: desc}) {
           voucher_id
           voucher {
             id
@@ -4078,7 +4078,7 @@ export async function removeMarker(props: {
 }) {
     checkAuth(props)
     const res = await fetch.post({
-        url: `${apiUrl}/marker/cancel`,
+        url: `${apiUrl}/marker/remove`,
         data: props
     })
 

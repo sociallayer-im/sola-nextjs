@@ -163,7 +163,11 @@ function EventDetail() {
     }, [hoster, user.id, checkins.length])
 
     const gotoModify = () => {
-        router.push(`/event/${eventGroup?.username}/edit-marker/${marker?.id}`)
+        if (marker?.category !== 'share') {
+            router.push(`/event/${eventGroup?.username}/edit-marker/${marker?.id}`)
+        } else {
+            router.push(`/event/${eventGroup?.username}/edit-share/${marker?.id}`)
+        }
     }
 
     const goToProfile = (username: string, isGroup?: boolean) => {
@@ -322,7 +326,7 @@ function EventDetail() {
                                     <AppButton disabled>{lang['Activity_Detail_Btn_has_Cancel']}</AppButton>
                                 }
 
-                                {(isHoster || isManager) && !canceled && (marker.category !== 'share') &&
+                                {(isHoster || isManager) && !canceled &&
                                     <>
                                         <AppButton onClick={gotoModify}>{lang['Activity_Detail_Btn_Modify']}</AppButton>
                                     </>
