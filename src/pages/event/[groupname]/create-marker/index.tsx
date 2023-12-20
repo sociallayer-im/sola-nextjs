@@ -9,7 +9,7 @@ import ReasonInput from "@/components/base/ReasonInput/ReasonInput";
 import {
     Badge,
     createMarker,
-    createPresend,
+    createPresend, getGroupMembership,
     getProfile,
     Group,
     Marker,
@@ -18,7 +18,7 @@ import {
     Profile,
     queryBadge,
     queryBadgeDetail,
-    queryPresendDetail,
+    queryPresendDetail, queryVoucherDetail,
     removeMarker,
     saveMarker
 } from "@/service/solas";
@@ -39,7 +39,7 @@ function ComponentName() {
     const params = useParams()
     const {user} = useContext(userContext)
     const router = useRouter()
-    const {eventGroup, isManager} = useContext(EventHomeContext)
+    const {eventGroup} = useContext(EventHomeContext)
 
     const [busy, setBusy] = useState(false)
 
@@ -61,15 +61,38 @@ function ComponentName() {
     const badgeIdRef = useRef<number | null>(null)
     const markerInfoRef = useRef<Marker | null>(null)
 
-    const [canUserGroupBadge, setCanUserGroupBadge] = useState(false)
+    const [isManager, setIsManager] = useState(false)
+    const [isOwner, setIsOwner] = useState(false)
+    const [isIssuer, setIsIssuer] = useState(false)
+    const [formatAddress, setFormatAddress] = useState('')
+    const [metadata, setMetadata] = useState('')
+    const [ready, setReady] = useState(false)
 
     useEffect(() => {
         // owner 和 manager 可以使用 group badge
         // 1516 playgroup2
         // 1984 istanbul2023
-        setCanUserGroupBadge((isManager || (eventGroup as Group)?.creator.id == user?.id)
-            && (eventGroup?.id === 1516 || eventGroup?.id === 1984))
-    }, [isManager, eventGroup, user?.id])
+        if (eventGroup && user?.id) {
+            getGroupMembership({group_id: eventGroup.id})
+                .then(res => {
+                    const tagetUser = res.find(membership => membership.profile.id === user?.id)
+                    if (!tagetUser) {
+                        setIsManager(false)
+                        setIsOwner(false)
+                        setIsIssuer(false)
+                    } else {
+                        setIsManager(tagetUser.role === 'manager')
+                        setIsOwner(tagetUser.role === 'owner')
+                        setIsIssuer(tagetUser.role === 'issuer')
+                    }
+                })
+        } else {
+            setIsManager(false)
+            setIsOwner(false)
+            setIsIssuer(false)
+        }
+
+    }, [eventGroup, user?.id])
 
     const showBadges = async (withGroup?: Group[]) => {
         const props = !!(creator as Group)?.creator ? {
@@ -151,16 +174,16 @@ function ComponentName() {
                 category,
                 about: content,
                 link,
-                location: JSON.parse(location).name,
-                formatted_address: location,
-                geo_lat: location ? JSON.parse(location).geometry.location.lat : null,
-                geo_lng: location ? JSON.parse(location).geometry.location.lng : null,
+                location: location,
+                formatted_address: metadata ? JSON.parse(metadata).formatted_address : null,
+                geo_lat: metadata ? JSON.parse(metadata).geometry.location.lat : null,
+                geo_lng: metadata ? JSON.parse(metadata).geometry.location.lng : null,
                 marker_type: 'site',
                 voucher_id: voucher ? voucher.id : undefined
             })
             unload()
             showToast('Create Success', 500)
-            router.push(`/event/detail-marker/${create.id}`)
+            router.push(`/event/${eventGroup?.username}/map?type=${category}`)
         } catch (e: any) {
             setBusy(false)
             console.error(e)
@@ -209,10 +232,10 @@ function ComponentName() {
                 category,
                 about: content,
                 link,
-                location: JSON.parse(location).name,
-                formatted_address: location,
-                geo_lat: location ? JSON.parse(location).geometry.location.lat : null,
-                geo_lng: location ? JSON.parse(location).geometry.location.lng : null,
+                location: location,
+                formatted_address: metadata ? JSON.parse(metadata).formatted_address : (formatAddress || null),
+                geo_lat: metadata ? JSON.parse(metadata).geometry.location.lat : null,
+                geo_lng: metadata ? JSON.parse(metadata).geometry.location.lng : null,
                 marker_type: 'site',
                 id: markerId!,
                 voucher_id: badgeId ? (newVoucherId || markerInfoRef.current?.voucher_id) : null
@@ -286,27 +309,22 @@ function ComponentName() {
         const creator = await getProfile({id: detail.owner.id})
         setCreator(creator!)
 
-        if (detail.voucher_id) {
-            const voucher = await queryPresendDetail({
-                id: detail.voucher_id,
-            })
-            setBadgeId(voucher.badge_id)
-            badgeIdRef.current = voucher.badge_id
-        } else {
-            setBadgeId(990)
+        if (detail!.voucher_id) {
+            const voucher = await queryVoucherDetail(detail!.voucher_id!)
+            setBadgeId(voucher!.badge_id)
+            badgeIdRef.current = voucher!.badge_id
         }
 
-
-        setLocation(detail?.formatted_address)
+        setLocation(detail?.location || '')
+        setFormatAddress(detail?.formatted_address || '')
+        setReady(true)
     }
 
     useEffect(() => {
         if (params?.markerid) {
             prefill(params?.markerid as string)
         } else {
-            if (canUserGroupBadge) {
-                setBadgeId(990)
-            }
+            setReady(true)
             if (searchParams?.get('type')) {
                 const key = searchParams.get('type') as string
                 if ((markerTypeList as any)[key]) {
@@ -318,7 +336,7 @@ function ComponentName() {
                 setCategory(Object.keys(markerTypeList)[1])
             }
         }
-    }, [searchParams, params, canUserGroupBadge])
+    }, [searchParams, params])
 
     useEffect(() => {
         async function fetchBadgeDetail() {
@@ -387,21 +405,23 @@ function ComponentName() {
                             placeholder={'Url...'}/>
                     </div>
 
-                    {!!eventGroup && (!markerId || (markerId && location)) &&
+                    {!!eventGroup && (!markerId || (markerId && location)) && ready &&
                         <div className='input-area'>
                             <div className='input-area-title'>{lang['Form_Marker_Location']}</div>
                             <LocationInput
                                 cleanable={false}
                                 errorMsg={locationError}
-                                initValue={{
-                                    location: '',
+                                initValue={params?.markerid ? {
                                     eventSite: null,
-                                    formatted_address: ''
-                                }}
+                                    location: location,
+                                    formatted_address: formatAddress
+                                } as any : undefined}
                                 arrowAlias={false}
-                                eventGroup={eventGroup} onChange={e => {
-                                if (e.metaData !== location) {
-                                    setLocation(e.metaData!)
+                                eventGroup={eventGroup} onChange={values => {
+
+                                if (values.metaData) {
+                                    setMetadata(values.metaData)
+                                    setLocation(JSON.parse(values.metaData).name)
                                 }
                             }}/>
                         </div>
@@ -425,7 +445,7 @@ function ComponentName() {
                             }
 
                             <div className={'add-badge'} onClick={async () => {
-                                await showBadges((eventGroup && canUserGroupBadge) ? [eventGroup as any] : undefined)
+                                await showBadges((eventGroup && (isOwner || isIssuer || isManager)) ? [eventGroup as any] : undefined)
                             }}>{lang['Activity_Form_Badge_Select']}</div>
                         </div>}
 

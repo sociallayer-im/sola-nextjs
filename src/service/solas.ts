@@ -609,6 +609,8 @@ export async function queryBadge(props: QueryBadgeProps): Promise<Badge[]> {
 
     if (props.group_id) {
         variables += `group_id: {_eq: "${props.group_id}"},`
+    } else {
+        variables += `group_id: {_is_null: true},`
     }
 
     if (props.badge_type) {
@@ -3889,7 +3891,18 @@ export async function queryMarkers(props: {
 
     const doc = gql`
         query MyQuery {
-          markers(where: {${variables}}) {
+          markers(where: {${variables}} order_by: {id: desc}) {
+          voucher_id
+          voucher {
+            id
+                badge {
+                    content
+                    title
+                    name
+                    image_url
+                    id
+                }
+            }
             id
             about
             badge_id
@@ -4164,6 +4177,7 @@ export async function queryVoucherDetail(id: number) {
       vouchers(where: {id: {_eq: "${id}"}}) {
         id
         strategy
+        badge_id
         badge {
           badge_type
           content

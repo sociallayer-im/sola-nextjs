@@ -11,7 +11,7 @@ import {
     Profile,
     ProfileSimple,
     queryPresendDetail,
-    queryUserGroup
+    queryUserGroup, queryVoucherDetail
 } from "@/service/solas";
 import LangContext from "@/components/provider/LangProvider/LangContext";
 import useTime from "@/hooks/formatTime";
@@ -107,8 +107,8 @@ function EventDetail() {
             setHoster(profile)
 
             if (marker.voucher_id) {
-                const presend = await queryPresendDetail({id: marker.voucher_id})
-                setBadge(presend.badge)
+                const presend = await queryVoucherDetail(marker.voucher_id)
+                setBadge(presend!.badge)
             }
         } else {
             router.push('/error')
@@ -191,7 +191,7 @@ function EventDetail() {
     return (<>
         {
             !!marker &&
-            <div className={'event-detail'}>
+            <div className={'marker-detail'}>
                 <PageBack
                     menu={() => <div className={'event-share-btn'} onClick={e => {
                         copyLink()
@@ -223,7 +223,7 @@ function EventDetail() {
                             <a className={'detail-item'} href={genGoogleMapUrl(marker)} target={'_blank'}>
                                 <i className={'icon-Outline'}/>
                                 <div>{
-                                    marker.formatted_address ? marker.location + `(${JSON.parse(marker.formatted_address).name})` : ''
+                                    marker.location + (marker.formatted_address ? `(${marker.formatted_address})` : '')
                                 } <svg className={styles['link-icon']} xmlns="http://www.w3.org/2000/svg" width="8" height="8"
                                        viewBox="0 0 8 8" fill="none">
                                     <path

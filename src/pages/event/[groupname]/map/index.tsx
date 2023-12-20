@@ -367,43 +367,39 @@ function ComponentName(props: { markerType: string | null }) {
             <GameMenu/>
         }
 
-        {true &&
-            <div className={styles['top-menu']}>
-                { false &&
-                    <div className={styles['menu-item']} onClick={() => {
-                        if (!user.id) {
-                            openConnectWalletDialog()
-                            return
-                        }
-                        router.push(`/event/${eventGroup?.username}/create-marker`)
-                    }}>Create a Marker +
-                    </div>
+        <div className={styles['top-menu']}>
+            <div className={styles['menu-item']} onClick={() => {
+                if (!user.id) {
+                    openConnectWalletDialog()
+                    return
                 }
-                <div className={styles['menu-item']} onClick={() => {
-                    if (!user.id) {
-                        openConnectWalletDialog()
-                        return
-                    }
-                    router.push(`/event/${eventGroup?.username}/create-share-me`)
-                }}>Share me + </div>
-                {/*<div className={`${styles['menu-item']} ${!selectedType ? styles['menu-item-active'] : ''}`}*/}
-                {/*     onClick={() => {*/}
-                {/*         setSelectedType('')*/}
-                {/*         router.push(`/event/${eventGroup?.username}/map`)*/}
-                {/*     }}>All*/}
-                {/*</div>*/}
-                {
-                    Object.keys(menuList).map((item, index) => {
-                        const isSelected = selectedType === item
-                        return <div key={index}
-                                    onClick={() => {
-                                        router.push(`/event/${eventGroup?.username}/map?type=${item}`)
-                                    }}
-                                    className={`${styles['menu-item']} ${isSelected ? styles['menu-item-active'] : ''}`}>{item}</div>
-                    })
-                }
+                router.push(`/event/${eventGroup?.username}/create-marker`)
+            }}>Create a Marker +
             </div>
-        }
+            <div className={styles['menu-item']} onClick={() => {
+                if (!user.id) {
+                    openConnectWalletDialog()
+                    return
+                }
+                router.push(`/event/${eventGroup?.username}/create-share-me`)
+            }}>Share me + </div>
+            {/*<div className={`${styles['menu-item']} ${!selectedType ? styles['menu-item-active'] : ''}`}*/}
+            {/*     onClick={() => {*/}
+            {/*         setSelectedType('')*/}
+            {/*         router.push(`/event/${eventGroup?.username}/map`)*/}
+            {/*     }}>All*/}
+            {/*</div>*/}
+            {
+                Object.keys(menuList).map((item, index) => {
+                    const isSelected = selectedType === item
+                    return <div key={index}
+                                onClick={() => {
+                                    router.push(`/event/${eventGroup?.username}/map?type=${item}`)
+                                }}
+                                className={`${styles['menu-item']} ${isSelected ? styles['menu-item-active'] : ''}`}>{item}</div>
+                })
+            }
+        </div>
 
         {showList && !!eventGroup &&
             <div className={styles['marker-list']}>
