@@ -10,9 +10,9 @@ const saveCard = (target: HTMLDivElement, fileName: string, size: [number, numbe
         backgroundColor: null
     }).then((canvas: HTMLCanvasElement) => {
         canvas.style.background = 'transparent'
-        const imgData = canvas.toDataURL('image/png')
+        const imgData = canvas.toDataURL('image/jpeg')
         const link = document.createElement('a')
-        link.download = `${fileName}.png`
+        link.download = `${fileName}.jpg`
         link.href = imgData
         link.click()
     })
