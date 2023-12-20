@@ -38,9 +38,9 @@ function PresendQrcode(props: PresendQrcodeProp) {
 
 
             if (props.code) {
-                setLink(`${window.location.protocol}//${window.location.host}/presend/${presend.id}_${props.code}`)
+                setLink(`${window.location.protocol}//${window.location.host}/voucher/${presend.id}_${props.code}`)
             } else {
-                setLink(`${window.location.protocol}//${window.location.host}/presend/${presend.id}`)
+                setLink(`${window.location.protocol}//${window.location.host}/voucher/${presend.id}`)
             }
 
             const now = Date.parse(new Date().toString())

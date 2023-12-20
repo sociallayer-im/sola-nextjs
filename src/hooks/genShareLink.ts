@@ -6,8 +6,8 @@ function useGenShareLink () {
 
     function genPresendShareLink (preendId: number, code?: string) {
        return  code
-            ? `${window.location.protocol}//${window.location.host}/presend/${preendId}_${code}`
-            : `${window.location.protocol}//${window.location.host}/presend/${preendId}`
+            ? `${window.location.protocol}//${window.location.host}/voucher/${preendId}_${code}`
+            : `${window.location.protocol}//${window.location.host}/voucher/${preendId}`
     }
 
     function genBadgeShareLink (badgeId: number) {

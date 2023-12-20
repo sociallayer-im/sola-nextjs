@@ -65,7 +65,7 @@ function DetailBadge(props: DetailBadgeProps) {
 
     useEffect(() => {
         const check = async () => {
-            if (user.id) {
+            if (user.id && props.badge.group) {
                 const memberships = await getGroupMemberShips({
                         group_id: props.badge.group?.id!,
                         role: 'all'

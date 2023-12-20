@@ -28,7 +28,7 @@ export const voucherSchema = (props: QueryPresendProps) => {
         variables += `receiver_id: {_eq: ${props.receiver_id}},`
     }
 
-    return gql`vouchers(where: {counter: {_neq: 0}, ${variables}} limit: 20, offset: ${props.page * 20 - 20}, order_by: {created_at: desc}) {
+    return gql`vouchers(where: {counter: {_neq: 0}, ${variables}, expires_at: {_gt: "${new Date().toISOString()}"}} limit: 20, offset: ${props.page * 20 - 20}, order_by: {created_at: desc}) {
         id
         strategy
         badgelets {
