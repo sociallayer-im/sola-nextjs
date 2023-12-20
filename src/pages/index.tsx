@@ -1,15 +1,8 @@
 import Page from "@/pages/event/index"
 import MapPage from '@/pages/event/[groupname]/map'
 import MaodaoHome from '@/pages/rpc'
-import {
-    getEventGroup,
-    Group,
-    queryEvent,
-    Event,
-    getGroupMembers,
-    getGroupMembership,
-    Membership
-} from "@/service/solas";
+import {Event, getEventGroup, getGroupMembership, Group, Membership, queryEvent} from "@/service/solas";
+import SeedaoHome from "@/pages/seedao";
 
 export default function HomePage(props: { initEvent: Group, initList?: Event[], membership?: Membership[] }) {
     return <>
@@ -17,11 +10,13 @@ export default function HomePage(props: { initEvent: Group, initList?: Event[], 
             process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'zumap' ?
                 <MapPage markerType={null}/> :
                 process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'maodao' ?
-                    <MaodaoHome/>
-                    : <Page
-                        initEvent={props.initEvent || undefined}
-                        membership={props.membership || []}
-                        initList={props.initList || []}/>
+                    <MaodaoHome/> :
+                    process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'seedao' ?
+                        <SeedaoHome group={props.initEvent} /> :
+                        <Page
+                            initEvent={props.initEvent || undefined}
+                            membership={props.membership || []}
+                            initList={props.initList || []}/>
         }
     </>
 }
@@ -41,7 +36,7 @@ export const getServerSideProps: any = (async (context: any) => {
         targetGroup = list[0]
     }
 
-    const tab= context.query?.tab
+    const tab = context.query?.tab
     let res: any = []
     if (tab === 'past') {
         res = await queryEvent({
