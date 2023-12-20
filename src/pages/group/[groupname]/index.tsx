@@ -97,6 +97,10 @@ function GroupPage(props: any) {
                 }
 
                 setIsGroupOwner(user.id === (profile as Group)?.creator.id)
+            } else {
+                setIssuer(false)
+                setIsGroupManager(false)
+                setIsGroupOwner(false)
             }
         }
         check()

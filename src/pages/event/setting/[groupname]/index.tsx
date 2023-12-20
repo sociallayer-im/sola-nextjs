@@ -37,7 +37,7 @@ function Dashboard() {
     const [showDefaultLocation, setShowDefaultLocation] = useState(false)
 
     const [tags, setTags] = useState<string[]>([])
-    const [showEditTag, setShowEditTag] = useState(true)
+    const [showEditTag, setShowEditTag] = useState(false)
 
     const [ready, setReady] = useState(false)
 
