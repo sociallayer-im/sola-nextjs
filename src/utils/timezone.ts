@@ -2688,7 +2688,7 @@ const timezoneList = [
     })
 
     const offset = target ? target.utc : ''
-    const cmtStr = offset ? `CMT${offset}` : ''
+    const cmtStr = offset ? `GMT${offset}` : ''
 
     return {
         id: item[0],
