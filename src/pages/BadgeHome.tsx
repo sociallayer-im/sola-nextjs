@@ -171,11 +171,11 @@ function Home() {
         }
     }
 
-    useEffect(() => {
-        if (user.domain && user.userName && (!params?.badgeletId && !params?.presendId && !params?.inviteId)) {
-            router.replace(`/profile/${user.userName}`)
-        }
-    }, [user.userName, user.userName, params?.badgeletId, params?.presendId, params?.inviteId])
+    // useEffect(() => {
+    //     if (user.domain && user.userName && (!params?.badgeletId && !params?.presendId && !params?.inviteId)) {
+    //         router.replace(`/profile/${user.userName}`)
+    //     }
+    // }, [user.userName, user.userName, params?.badgeletId, params?.presendId, params?.inviteId])
 
     return <div className='home-page'>
         <div className='circle-1'></div>

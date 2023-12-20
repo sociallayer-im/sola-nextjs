@@ -1172,7 +1172,7 @@ export async function acceptBadgelet(props: AcceptBadgeletProp): Promise<Badgele
     checkAuth(props)
     const res = await fetch.post({
         url: `${apiUrl}/voucher/use`,
-        data: {id: props.voucher_id, code: props.code, auth_token: props.auth_token}
+        data: {id: props.voucher_id, code: props.code, auth_token: props.auth_token, index: props.index}
     })
 
     if (res.data.result === 'error') {
