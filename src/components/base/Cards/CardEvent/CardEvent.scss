@@ -82,8 +82,9 @@
   }
 
   .left {
-    width: 180px;
+    min-width: 180px;
     margin-left: 18px;
+    width: 60%;
 
     .details {
       height: 113px;
@@ -133,7 +134,8 @@
       span {
         text-overflow: ellipsis;
         overflow: hidden;
-        width: 160px;
+        min-width: 160px;
+        max-width: 80%;
       }
 
       i {

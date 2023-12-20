@@ -241,7 +241,7 @@ const langEN = {
     Activity_Detail_Btn_unjoin: 'Cancel',
     Activity_Detail_Btn_Cancel: 'Cancel Event',
     Activity_Detail_Btn_Checkin: 'Check-in',
-    Activity_Detail_Btn_Attend: 'Attend-in',
+    Activity_Detail_Btn_Attend: 'RSVP',
     Activity_Detail_Btn_Joined: 'Joined',
     Activity_Detail_Btn_End: 'Event has ended',
     Activity_Detail_Btn_has_Cancel: 'Event has canceled',
@@ -440,7 +440,7 @@ const langEN = {
     Meeting_Google_Title: 'Google Meeting',
     Meeting_Tencent_Title: 'Tencent Meeting',
     Meeting_Others_Title: 'Online meeting',
-    Event_Card_Apply_Btn: 'Apply',
+    Event_Card_Apply_Btn: 'RSVP',
     Event_Card_Applied: 'Applied',
     Login_Phone_Title: 'Login with phone',
     Login_Phone_alert: 'Enter your phone number to receive a verification code',
@@ -582,6 +582,7 @@ const langEN = {
     Select_From_Members: 'Select from members',
     Remove_Issuer: 'Remove Issuer',
     Send_SeeDAO_Badge: 'Send SeeDAO badge',
+    Event_Tag: 'Event tags',
 }
 
 

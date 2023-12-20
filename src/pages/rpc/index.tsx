@@ -27,10 +27,9 @@ function GroupPage() {
     const [selectedTab, setSelectedTab] = useState(searchParams.get('tab') || '0')
     const [selectedSubtab, setSelectedSubtab] = useState(searchParams.get('subtab') || '0')
     const [isGroupManager, setIsGroupManager] = useState(false)
+    const [isGroupOwner, setIsGroupOwner] = useState(false)
     const {copyWithDialog} = useCopy()
     const router = useRouter()
-
-    const isGroupOwner = user.id === (profile as Group)?.creator.id
 
     // 为了实现切换tab时，url也跟着变化，而且浏览器的前进后退按钮也能切换tab
     useEffect(() => {
@@ -52,8 +51,9 @@ function GroupPage() {
             if (!groupname) return
             const unload = showLoading()
             try {
-                const profile = await solas.getProfile({username: groupname as string})
-                setProfile(profile)
+                const profile = await solas.getGroups({username: groupname as string})
+                setProfile(profile[0] as Profile)
+                setIsGroupOwner(user.id === (profile[0] as Group)?.creator.id)
             } catch (e) {
                 console.log('[getProfile]: ', e)
             } finally {
@@ -126,7 +126,9 @@ function GroupPage() {
                             <PageBack menu={ProfileMenu}/>
                         </div>
                         <div className='slot_1'>
-                            <GroupPanel group={profile}/>
+                            { !!profile &&
+                                <GroupPanel group={profile}/>
+                            }
                         </div>
                     </div>
                 </div>

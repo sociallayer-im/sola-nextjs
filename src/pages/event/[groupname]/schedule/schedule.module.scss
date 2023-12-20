@@ -39,7 +39,6 @@
 
 .schedule-head {
   background: #fff;
-  height: 188px;
   box-sizing: border-box;
   transition: height 0.3s ease-in-out;
   overflow: hidden;
@@ -345,20 +344,19 @@
   color: var(--color-ui-2, #1B2028);
   font-size: 12px;
   font-style: normal;
-  font-weight: 500;
   margin-top: 4px;
   display: flex;
   flex-flow: row nowrap;
-  align-items: center;
 }
 
 .schedule-event-card-dot {
   height: 10px;
-  width: 10px;
+  min-width: 10px;
   border-radius: 50%;
   margin-right: 8px;
   margin-left: 3px;
   background: #f1f1f1;
+  margin-top: 3px;
 }
 
 .page-center-full-row {

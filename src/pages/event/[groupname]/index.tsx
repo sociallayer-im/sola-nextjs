@@ -1,11 +1,20 @@
 import {useContext, useEffect, useState} from 'react'
 import UserContext from '@/components/provider/UserProvider/UserContext'
-import {useRouter, usePathname} from 'next/navigation'
+import {usePathname, useRouter} from 'next/navigation'
 import LangContext from '@/components/provider/LangProvider/LangContext'
 import HomeUserPanel from "@/components/base/HomeUserPanel/HomeUserPanel";
 import AppSubTabs from "@/components/base/AppSubTabs";
 import {Tab} from "baseui/tabs";
-import {Group, Participants, queryEvent, queryMyEvent, Event} from "@/service/solas";
+import {
+    Event,
+    getGroupMembership,
+    getGroups,
+    Group,
+    Membership,
+    Participants,
+    queryEvent,
+    queryMyEvent
+} from "@/service/solas";
 import ListMyAttentedEvent from "@/components/compose/ListMyAttentedEvent/ListMyAttentedEvent";
 import ListMyCreatedEvent from "@/components/compose/ListMyCreatedEvent/ListMyCreatedEvent";
 import ListEventVertical from "@/components/compose/ListEventVertical/ListEventVertical";
@@ -14,14 +23,14 @@ import DialogsContext from "@/components/provider/DialogProvider/DialogsContext"
 import EventHomeContext from "@/components/provider/EventHomeProvider/EventHomeContext";
 import MaodaoListEventVertical from "@/components/maodao/MaodaoListEventVertical/ListEventVertical";
 
-function Home(props: {initEventGroup?:Group, initList?: Event[]}) {
+function Home(props: { initEvent?: Group, initList?: Event[], membership?: Membership[] }) {
     const {user} = useContext(UserContext)
     const router = useRouter()
     const pathname = usePathname()
     const {lang} = useContext(LangContext)
     const {showToast} = useContext(DialogsContext)
     const {ready, joined, isManager} = useContext(EventHomeContext)
-    const eventGroup = useContext(EventHomeContext).eventGroup || props.initEventGroup || undefined
+    const eventGroup = useContext(EventHomeContext).eventGroup || props.initEvent || undefined
 
     const [tabIndex, setTabIndex] = useState('0')
     const [showMyCreate, setShowMyCreate] = useState(true)
@@ -39,7 +48,7 @@ function Home(props: {initEventGroup?:Group, initList?: Event[]}) {
                 setShowMyCreate(res2.length > 0)
                 if (myRegistered.length > 0) {
                     setTabIndex('0')
-                }  else {
+                } else {
                     setTabIndex('1')
                 }
             } else {
@@ -79,67 +88,125 @@ function Home(props: {initEventGroup?:Group, initList?: Event[]}) {
 
     return <>
         <div className='home-page-event'>
-            <HomeUserPanel/>
-            {!!user.id &&
-                <>
-                    { (showMyAttend || showMyCreate) &&
+            <div className={'home-page-event-wrapper'}>
+                <div className={'home-page-event-main'}>
+                    <HomeUserPanel membership={props.membership || []}/>
+                    {!!user.id &&
                         <>
-                            <div className={'center'}>
-                                <div className={'module-title'} style={{marginBottom: '20px'}}>
-                                    {lang['Activity_My_Event']}
-                                </div>
-                            </div>
-                            <div className={'center'}>
-                                <AppSubTabs activeKey={tabIndex} renderAll onChange={({activeKey}) => {
-                                    setTabIndex(activeKey + '')
-                                }}>
-                                    {showMyAttend ? <Tab title={lang['Activity_State_Registered']}>
-                                        <ListMyAttentedEvent />
-                                    </Tab>: <></>}
+                            {(showMyAttend || showMyCreate) &&
+                                <>
+                                    <div className={'center'}>
+                                        <div className={'module-title'} style={{marginBottom: '20px'}}>
+                                            {lang['Activity_My_Event']}
+                                        </div>
+                                    </div>
+                                    <div className={'center'}>
+                                        <AppSubTabs activeKey={tabIndex} renderAll onChange={({activeKey}) => {
+                                            setTabIndex(activeKey + '')
+                                        }}>
+                                            {showMyAttend ? <Tab title={lang['Activity_State_Registered']}>
+                                                <ListMyAttentedEvent/>
+                                            </Tab> : <></>}
 
-                                    { showMyCreate  && !isMaodao ?
-                                        <Tab title={lang['Activity_State_Created']}>
-                                            <ListMyCreatedEvent participants={myRegistered} />
-                                        </Tab>: <></>
-                                    }
-                                </AppSubTabs>
-                            </div>
+                                            {showMyCreate && !isMaodao ?
+                                                <Tab title={lang['Activity_State_Created']}>
+                                                    <ListMyCreatedEvent participants={myRegistered}/>
+                                                </Tab> : <></>
+                                            }
+                                        </AppSubTabs>
+                                    </div>
+                                </>
+                            }
                         </>
                     }
-                </>
-            }
-            {!!user.id &&
-                <div className={'center'}>
-                    <ListRecommendedEvent />
-                </div>
-            }
+                    {!!user.id &&
+                        <div className={'center'}>
+                            <ListRecommendedEvent/>
+                        </div>
+                    }
 
-            <div className={'center'}>
-                { !isMaodao || pathname?.includes('event-home') ?
-                    <ListEventVertical participants={myRegistered} initData={props.initList || []} />
-                    : <MaodaoListEventVertical participants={myRegistered}/>
-                }
-            </div>
+                    <div className={'center'}>
+                        {!isMaodao || pathname?.includes('event-home') ?
+                            <ListEventVertical participants={myRegistered} initData={props.initList || []}/>
+                            : <MaodaoListEventVertical participants={myRegistered}/>
+                        }
+                    </div>
 
-            {
-                !!user.id
-                && eventGroup
-                && ready
-                && ((joined && (eventGroup as Group).can_publish_event === 'member') || (eventGroup as Group).can_publish_event === 'everyone' || isManager)
-                && <div className={'home-action-bar'}>
-                    <div className={'create-event-btn'} onClick={e => {
-                        gotoCreateEvent()
-                    }}>+ {lang['Activity_Create_Btn']}</div>
+                    {
+                        !!user.id
+                        && eventGroup
+                        && ready
+                        && ((joined && (eventGroup as Group).can_publish_event === 'member') || (eventGroup as Group).can_publish_event === 'everyone' || isManager)
+                        && <div className={'home-action-bar'}>
+                            <div className={'create-event-btn'} onClick={e => {
+                                gotoCreateEvent()
+                            }}>+ {lang['Activity_Create_Btn']}</div>
 
-                    { (user.id === (eventGroup as Group).creator.id || isManager) &&
-                        <div className={'setting-btn'} onClick={e => {
-                            router.push(`/event/setting/${eventGroup!.username}`)
-                        }}>{lang['Activity_Setting_Btn']}</div>
+                            {(user.id === (eventGroup as Group).creator.id || isManager) &&
+                                <div className={'setting-btn'} onClick={e => {
+                                    router.push(`/event/setting/${eventGroup!.username}`)
+                                }}>{lang['Activity_Setting_Btn']}</div>
+                            }
+                        </div>
                     }
                 </div>
-            }
+
+                <div className={'home-page-event-side'}>
+                    <HomeUserPanel membership={props.membership || []}
+                                   isSide
+                                   slot={() => {
+                                       return !!user.id
+                                       && eventGroup
+                                       && ready
+                                       && ((joined && (eventGroup as Group).can_publish_event === 'member') || (eventGroup as Group).can_publish_event === 'everyone' || isManager)
+                                           ? <div className={'home-action-bar'}>
+                                               <div className={'create-event-btn'} onClick={e => {
+                                                   gotoCreateEvent()
+                                               }}>+ {lang['Activity_Create_Btn']}</div>
+
+                                               {(user.id === (eventGroup as Group).creator.id || isManager) &&
+                                                   <div className={'setting-btn'} onClick={e => {
+                                                       router.push(`/event/setting/${eventGroup!.username}`)
+                                                   }}>{lang['Activity_Setting_Btn']}</div>
+                                               }
+                                           </div>
+                                           : <></>
+                                   }}/>
+                </div>
+            </div>
         </div>
     </>
 }
 
 export default Home
+
+export const getServerSideProps: any = (async (context: any) => {
+    const groupname = context.params?.groupname
+    const targetGroup = await getGroups({username: groupname})
+    const tab = context.query?.tab
+
+    let res: any = []
+    if (tab === 'past') {
+        res = await queryEvent({
+            page: 1,
+            start_time_to: new Date().toISOString(),
+            event_order: 'desc',
+            group_id: targetGroup[0]?.id
+        })
+    } else {
+        res = await queryEvent({
+            page: 1,
+            start_time_from: new Date().toISOString(),
+            event_order: 'asc',
+            group_id: targetGroup[0]?.id
+        })
+    }
+
+    const membership = await getGroupMembership({
+        group_id: targetGroup[0]?.id!,
+        role: 'all',
+    })
+
+
+    return {props: {initEvent: targetGroup, initList: res, membership}}
+})

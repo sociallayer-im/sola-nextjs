@@ -38,7 +38,7 @@ export const profiles: any = [
             "point"
         ],
         group_event_visibility: 'public',
-        group_event_tags: [],
+        event_tags: [],
         group_map_enabled: true,
         banner_image_url: null,
         banner_link_url: null,
@@ -75,7 +75,7 @@ export const profiles: any = [
             "point"
         ],
         group_event_visibility: 'public',
-        group_event_tags: [],
+        event_tags: [],
         group_map_enabled: true,
         banner_image_url: null,
         banner_link_url: null,

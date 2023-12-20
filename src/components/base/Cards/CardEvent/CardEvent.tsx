@@ -1,7 +1,7 @@
 import {useRouter} from "next/navigation";
 import {useContext, useEffect, useState} from 'react'
 import {Event, joinEvent, Participants, queryEventDetail} from "@/service/solas";
-import useTime from "../../../../hooks/formatTime";
+import {useTime2} from "@/hooks/formatTime";
 import langContext from "../../../provider/LangProvider/LangContext";
 import userContext from "../../../provider/UserProvider/UserContext";
 import DialogsContext from "../../../provider/DialogProvider/DialogsContext";
@@ -17,7 +17,7 @@ export interface CardEventProps {
 function CardEvent({fixed=true, ...props}: CardEventProps) {
     const router = useRouter()
     const [eventDetail, setEventDetail] = useState(props.event)
-    const formatTime = useTime()
+    const formatTime = useTime2()
     const {lang} = useContext(langContext)
     const [isCreated, setIsCreated] = useState(false)
     const {user} = useContext(userContext)
@@ -59,7 +59,7 @@ function CardEvent({fixed=true, ...props}: CardEventProps) {
         try {
             const join = await joinEvent({id: Number(props.event.id), auth_token: user.authToken || ''})
             unload()
-            showToast('Apply success')
+            showToast('Join success')
             setHasRegistered(true)
         } catch (e: any) {
             console.error(e)
@@ -93,7 +93,7 @@ function CardEvent({fixed=true, ...props}: CardEventProps) {
                     {!!eventDetail.start_time &&
                         <div className={'detail'}>
                             <i className={'icon-calendar'}/>
-                            <span>{formatTime(eventDetail.start_time)}</span>
+                            <span>{formatTime(eventDetail.start_time, eventDetail.timezone as any)}</span>
                         </div>
                     }
 

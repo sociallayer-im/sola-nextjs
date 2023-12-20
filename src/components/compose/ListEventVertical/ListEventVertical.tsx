@@ -3,11 +3,12 @@ import {useContext, useEffect, useRef, useState} from 'react'
 import LangContext from "../../provider/LangProvider/LangContext";
 import Empty from "../../base/Empty";
 import CardEvent from "../../base/Cards/CardEvent/CardEvent";
-import {Event, Participants, queryEvent} from "@/service/solas";
+import {Event, Participants, queryEvent, Group} from "@/service/solas";
 import EventLabels from "../../base/EventLabels/EventLabels";
 import DialogsContext from "../../provider/DialogProvider/DialogsContext";
-import scrollToLoad from "../../../hooks/scrollToLoad";
 import EventHomeContext from "../../provider/EventHomeProvider/EventHomeContext";
+import AppButton from "@/components/base/AppButton/AppButton";
+import Link from "next/link";
 
 function ListEventVertical(props: { participants: Participants[], initData?: Event[] }) {
     const router = useRouter()
@@ -20,108 +21,114 @@ function ListEventVertical(props: { participants: Participants[], initData?: Eve
     const {eventGroup, availableList, setEventGroup} = useContext(EventHomeContext)
 
     const [selectTag, setSelectTag] = useState<string[]>([])
-    const [compact, setCompact] = useState(true)
+    const [loadAll, setIsLoadAll] = useState(false)
+    const [loading, setLoading] = useState(false)
 
-    const getEvent = async (page: number) => {
-        const unload = showLoading()
-        const now = new Date()
-        const todayZero = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0).toISOString()
+    const pageRef = useRef(props.initData?.length ? 1 : 0)
+    const [list, setList] = useState<Event[]>(props.initData || [])
+    const [listToShow, setListToShow] = useState<Event[]>(props.initData || [])
+
+    const tagRef = useRef<string>('')
+    const tab2IndexRef = useRef<'latest' | 'coming' | 'past'>(tab2Index)
+
+    const getEvent = async (init?: boolean) => {
         if (!eventGroup?.id) {
-            unload()
             return []
         }
-
+        setLoading(true)
         try {
-            if (tab2Index !== 'past') {
+            if (tab2IndexRef.current !== 'past') {
+                pageRef.current = pageRef.current + 1
                 let res = await queryEvent({
-                    page,
+                    page: pageRef.current,
                     start_time_from: new Date().toISOString(),
                     event_order: 'asc',
-                    group_id: eventGroup?.id || undefined
+                    group_id: eventGroup?.id || undefined,
+                    tag: tagRef.current || undefined
                 })
 
-
-                if (selectTag[0]) {
-                    res = res.filter(item => {
-                        return item.tags?.includes(selectTag[0])
-                    })
+                setList(init ? res : [...list, ...res])
+                setLoading(false)
+                if (res.length === 0) {
+                   setIsLoadAll(true)
                 }
-
-                return res
             } else {
+                pageRef.current = pageRef.current + 1
                 let res = await queryEvent({
-                    page,
+                    page: pageRef.current,
                     start_time_to: new Date().toISOString(),
                     event_order: 'desc',
-                    group_id: eventGroup?.id || undefined
+                    group_id: eventGroup?.id || undefined,
+                    tag: tagRef.current || undefined
                 })
 
-                if (selectTag[0]) {
-                    res = res.filter(item => {
-                        return item.tags?.includes(selectTag[0])
-                    })
+                setList(init ? res : [...list, ...res])
+                if (res.length === 0) {
+                    setIsLoadAll(true)
                 }
-                return res
+                setLoading(false)
             }
         } catch (e: any) {
             console.error(e)
             // showToast(e.message)
+            setLoading(false)
             return []
-        } finally {
-            unload()
         }
     }
 
-    const {list, ref, refresh, loading} = scrollToLoad({
-        queryFunction: getEvent,
-        initData: props.initData,
-    })
-
     useEffect(() => {
-        if (searchParams?.get('tab')) {
-            setTab2Index(searchParams.get('tab') as any)
-        }
-    }, [searchParams])
+        setListToShow(list)
+    }, [list])
 
-    useEffect(() => {
-        if (eventGroup) {
-            if (params?.groupname
-                && params?.groupname !== eventGroup?.username
-                && availableList.length
-                && pathname?.includes('event-home')
-            ) {
-                setEventGroup(availableList.find(item => item.username === params?.groupname)!)
-                return () => {
-                    setEventGroup(availableList[0])
-                }
-            } else {
-                refresh()
-            }
-        }
-    }, [selectTag, tab2Index, eventGroup, availableList, params, pathname])
+    const changeTab = (tab: 'latest' | 'coming' | 'past') => {
+        setTab2Index(tab)
+        tab2IndexRef.current = tab
+        pageRef.current = 0
+        setIsLoadAll(false)
+        getEvent(true)
+        const href = params?.groupname ?
+            `/event/${eventGroup?.username}?tab=${tab}`
+            : `/?tab=${tab}`
+        window?.history.pushState({}, '', href)
+    }
+
+    const changeTag = (tag?: string) => {
+        setSelectTag(tag ? [tag] : [])
+        tagRef.current = tag || ''
+        pageRef.current = 0
+        setIsLoadAll(false)
+        getEvent(true)
+    }
+
 
     return (
         <div className={'module-tabs'}>
             <div className={'tab-titles'}>
                 <div className={'center'}>
-                    <div onClick={() => {
-                        setTab2Index('coming')
-                        router.push(`/event/${eventGroup?.username}?tab=coming`)
-                    }}
+                    <Link href={params?.groupname ?
+                        `/event/${eventGroup?.username}?tab=coming`
+                        : `/?tab=coming`} shallow
+                          onClick={e => {
+                              e.preventDefault()
+                              changeTab('coming')
+                          }}
                          className={tab2Index === 'coming' ? 'module-title' : 'tab-title'}>
                         {lang['Activity_Coming']}
-                    </div>
-                    <div onClick={() => {
-                        setTab2Index('past')
-                        router.push(`/event/${eventGroup?.username}?tab=past`)
-                    }}
+                    </Link>
+                    <Link href={params?.groupname ?
+                        `/event/${eventGroup?.username}?tab=past`
+                        : `/?tab=past`} shallow
+                          onClick={e => {
+                              e.preventDefault()
+                              changeTab('past')
+                          }}
                          className={tab2Index === 'past' ? 'module-title' : 'tab-title'}>
                         {lang['Activity_Past']}
-                    </div>
+                    </Link>
                 </div>
             </div>
 
-            {!!eventGroup && eventGroup.group_event_tags &&
+            {!!eventGroup && (eventGroup as Group).event_tags &&
                 <div className={'tag-list'}>
                     <EventLabels
                         showAll={true}
@@ -130,26 +137,33 @@ function ListEventVertical(props: { participants: Participants[], initData?: Eve
                             if (value.length === 0 && selectTag.length === 0) {
                                 return
                             } else if (selectTag[0] === value[0]) {
-                                setSelectTag([])
+                                changeTag()
                             } else {
-                                setSelectTag(value)
+                                changeTag(value[0])
                             }
                         }}
-                        data={eventGroup.group_event_tags}
+                        data={(eventGroup as Group).event_tags || []}
                         value={selectTag}/>
                 </div>
             }
             <div className={'tab-contains'}>
-                {!list.length ? <Empty/> :
+                {!listToShow.length ? <Empty/> :
                     <div className={'list'}>
                         {
-                            list.map((item, index) => {
+                            listToShow.map((item, index) => {
                                 return <CardEvent participants={props.participants || []} fixed={false} key={item.id}
                                                   event={item}/>
                             })
                         }
-                        {!loading && <div ref={ref}></div>}
                     </div>
+                }
+
+                {!loadAll &&
+                    <AppButton
+                        disabled={loading}
+                        onClick={e => {getEvent()}} style={{width: '200px', margin: '0 auto'}}>
+                        Load more
+                    </AppButton>
                 }
             </div>
         </div>

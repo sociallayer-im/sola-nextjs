@@ -1,6 +1,10 @@
 .home-user-panel {
   padding-bottom: 20px;
 
+  .group-card-member-list {
+    display: none;
+  }
+
   .group-card {
     padding: 16px 0 0 0;
 
@@ -45,27 +49,23 @@
     margin: 9px auto;
     display: block;
     width: 100%;
-    max-width: 450px;
     padding: 0 20px;
     box-sizing: border-box;
-    text-decoration: none!important;
+    text-decoration: none !important;
 
     img {
       width: 100%;
-      max-width: 450px;
       min-height: 120px;
     }
   }
 
   .center {
-    max-width: 450px;
     margin: 0 auto;
     box-sizing: border-box;
     padding: 0 20px;
   }
 
   .calendar-btn {
-    width: 100%;
     border-radius: 7px;
     background: var(--secondary-color-brand-51-light, #EEF2FE);
     height: 42px;
@@ -81,6 +81,8 @@
     cursor: pointer;
     margin-top: 20px;
     text-decoration: none;
+    margin-left: 20px;
+    margin-right: 20px;
 
     svg {
       margin-right: 8px;
@@ -116,5 +118,81 @@
     font-weight: 600;
     line-height: 22px;
     margin: 20px 0;
+  }
+}
+
+.home-user-panel.side {
+  border-radius: 8px;
+  margin-bottom: 20px;
+  display: flex;
+  flex-flow: column nowrap;
+  width: 100%;
+
+  >.center {
+    width: 100%;
+    order: 4;
+    margin-top: 20px;
+  }
+
+  .beast-banner {
+    padding: 0;
+    margin-top: 0;
+    order: 2;
+  }
+
+    .group-card {
+        .center {
+          padding: 0 12px;
+          margin-bottom: 12px;
+        }
+    }
+
+  .group-card-member-list {
+    display: flex;
+    flex-flow: row nowrap;
+    text-decoration: none;
+    padding: 8px 12px;
+    align-items: center;
+    color: var(--color-text-main);
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 400;
+
+    &:hover {
+      background: #f1f1f1;
+    }
+
+    .role {
+      display: inline-flex;
+      height: 22px;
+      padding: 4px 6px;
+      justify-content: center;
+      border-radius: 8px;
+      background: var(--Fill-3-Dark, #ECF2EE);
+      font-size: 12px;
+      font-style: normal;
+      font-weight: 400;
+      align-items: center;
+      margin-left: 8px;
+      box-sizing: border-box;
+      color: #4F5150;
+    }
+
+    img {
+      width: 32px;
+      height: 32px;
+      margin-right: 8px;
+    }
+  }
+
+  .home-action-bar {
+    margin-top: 20px;
+    bottom: 0;
+    order: 2;
+  }
+
+  .calendar-btn {
+    order: 1;
+    margin: 5px 0 10px;
   }
 }

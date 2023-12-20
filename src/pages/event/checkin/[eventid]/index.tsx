@@ -1,7 +1,9 @@
-import {useRouter, useParams} from 'next/navigation'
+import {useParams, useRouter} from 'next/navigation'
 import {useContext, useEffect, useRef, useState} from 'react'
 import {
+    checkIsManager,
     Event,
+    getGroups,
     getProfile,
     Participants,
     Profile,
@@ -11,14 +13,13 @@ import {
 import userContext from "@/components/provider/UserProvider/UserContext";
 import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
 import PageBack from "@/components/base/PageBack";
-import useTime from "@/hooks/formatTime";
+import {useTime2} from "@/hooks/formatTime";
 import QRcode from "@/components/base/QRcode";
 import langContext from "@/components/provider/LangProvider/LangContext";
 import AppButton from "@/components/base/AppButton/AppButton";
 import ListCheckinUser from "@/components/compose/ListCheckinUser/ListCheckinUser";
 import ListCheckLog from "@/components/compose/ListCheckLog/ListCheckLog";
 import useEvent, {EVENT} from "@/hooks/globalEvent";
-import EventHomeContext from "@/components/provider/EventHomeProvider/EventHomeContext";
 
 function EventCheckIn() {
     const router = useRouter()
@@ -31,11 +32,12 @@ function EventCheckIn() {
     const [hasCheckin, setHasCheckin] = useState<string[]>([])
     const [isCheckLog, setIsCheckLog] = useState(false)
     const [needUpdate, _] = useEvent(EVENT.eventCheckin)
-    const {isManager} = useContext(EventHomeContext)
+    const [isManager, setIsManager] = useState(false)
+    const [isGroupOwner, setIsGroupOwner] = useState(false)
 
     const {user} = useContext(userContext)
     const {showLoading, showEventCheckIn, showToast} = useContext(DialogsContext)
-    const formatTime = useTime()
+    const formatTime = useTime2()
     const {lang} = useContext(langContext)
     const timeOut = useRef<any>(null)
 
@@ -75,6 +77,19 @@ function EventCheckIn() {
                     }
                 }
 
+                if (eventDetails?.group_id && user.id) {
+                    getGroups({id: eventDetails!.group_id!})
+                        .then(groups => {
+                            if (groups[0].creator.id === user.id) {
+                                setIsGroupOwner(true)
+                            }
+
+                            checkIsManager({group_id: eventDetails!.group_id!, profile_id: user.id!}).then(res => {
+                                setIsManager(res)
+                            })
+                        })
+                }
+
                 unload()
             } catch (e) {
                 unload()
@@ -99,7 +114,7 @@ function EventCheckIn() {
                 clearInterval(timeOut.current)
             }
         }
-    }, [params])
+    }, [params, user.id])
 
 
     useEffect(() => {
@@ -143,7 +158,7 @@ function EventCheckIn() {
                     <div className={'checkin-card'}>
                         <div className={'event-name'}>{event.title}</div>
                         <div className={'time'}>
-                            {formatTime(event.start_time!)} - {formatTime(event.end_time!)}
+                            {formatTime(event.start_time!, event.timezone!)} - {formatTime(event.end_time!, event.timezone!)}
                         </div>
 
                         {!user.id &&
@@ -152,7 +167,7 @@ function EventCheckIn() {
                             </div>
                         }
 
-                        {!isCheckLog && isHoster &&
+                        {(isHoster || isManager || isGroupOwner) &&
                             <div className={'checkin-checkin-btn'}>
                                 <AppButton special onClick={e => {
                                     showEventCheckIn(event.id)
@@ -160,7 +175,7 @@ function EventCheckIn() {
                             </div>
                         }
 
-                        { !isCheckLog && isJoin && !isHoster &&
+                        {isJoin && !isHoster &&
                             <div className={'checkin-qrcode'}>
                                 <QRcode text={`${params?.eventid}#${user.id}` || ''} size={[155, 155]}/>
                                 {
@@ -171,26 +186,7 @@ function EventCheckIn() {
                             </div>
                         }
 
-                        { isCheckLog && isHoster &&
-                            <div className={'checkin-qrcode'}>
-                                <QRcode text={`${params?.eventid}#${user.id}` || ''} size={[155, 155]}/>
-                                {
-                                    isCheckLog ?
-                                        <div className={'text'}>{lang['Activity_Scan_punch_in']}</div>
-                                        : <div className={'text'}>{lang['Activity_Scan_checkin']}</div>
-                                }
-                            </div>
-                        }
-
-                        { isCheckLog && !isHoster &&
-                            <div className={'checkin-checkin-btn'}>
-                                <AppButton special onClick={e => {
-                                    showEventCheckIn(event.id, true)
-                                }}>{lang['Activity_Scan_checkin']}</AppButton>
-                            </div>
-                        }
-
-                        {!!user.id && !isJoin && !isHoster && !isCheckLog &&
+                        {!!user.id && !isJoin && !isHoster && !isCheckLog && !isManager &&
                             <div className={'checkin-checkin-btn'}>
                                 <AppButton disabled>{lang['Activity_Scan_checkin']}</AppButton>
                             </div>
@@ -202,7 +198,7 @@ function EventCheckIn() {
                         {isCheckLog ?
                             <>
                                 <div className={'title'}>{lang['Activity_Punch_Log']}</div>
-                                <ListCheckLog eventId={Number(params?.eventid)} />
+                                <ListCheckLog eventId={Number(params?.eventid)}/>
                             </>
                             : <>
                                 <div className={'title'}>{
@@ -224,12 +220,12 @@ function EventCheckIn() {
 
                 {(isHoster || isManager) && event.badge_id && !!hasCheckin.length &&
                     <div className={'actions'}>
-                    <div className={'center'}>
-                        <AppButton special onClick={e => {
-                            handleSendBadge()
-                        }}>{lang['Activity_Host_Send']}</AppButton>
+                        <div className={'center'}>
+                            <AppButton special onClick={e => {
+                                handleSendBadge()
+                            }}>{lang['Activity_Host_Send']}</AppButton>
+                        </div>
                     </div>
-                </div>
                 }
             </div>
         }
