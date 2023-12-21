@@ -13,7 +13,7 @@ function DialogCopy (props: DialogCopyProps) {
     return <div className='dialog-copy'>
         <svg width="36" height="35" viewBox="0 0 36 35" fill="none" xmlns="http://www.w3.org/2000/svg">
             <rect x="0.5" width="35" height="35" rx="17.5" fill="black"/>
-            <path d="M12 17.5L15.9677 21.5L25 12.5" stroke="url(#paint0_linear_4339_84760)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M12 17.5L15.9677 21.5L25 12.5" stroke="url(#paint0_linear_4339_84760)" stroke-width="2.5" strokeLinecap="round" strokeLinejoin="round"/>
             <defs>
                 <linearGradient id="paint0_linear_4339_84760" x1="12" y1="27.125" x2="25.3317" y2="26.4598" gradientUnits="userSpaceOnUse">
                     <stop stop-color="#BAFFAD"/>

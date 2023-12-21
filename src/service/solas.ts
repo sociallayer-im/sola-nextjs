@@ -4340,6 +4340,26 @@ export async function queryGroupEventCheckins (group_id: number) {
     return res.participants_aggregate.aggregate.count as number
 }
 
+export async function getSwapCode (props: {auth_token: string, badgelet_id: number}) {
+    checkAuth(props)
+
+    const res = await fetch.post({
+        url: `${apiUrl}/badgelet/swap_code`,
+        data: props
+    })
+
+    return res.data.token as string
+}
+
+export async function swapBadgelet (props: {auth_token: string, badgelet_id: number, swap_token: string}) {
+    checkAuth(props)
+
+    const res = await fetch.post({
+        url: `${apiUrl}/badgelet/swap`,
+        data: props
+    })
+}
+
 
 export default {
     removeMarker,
