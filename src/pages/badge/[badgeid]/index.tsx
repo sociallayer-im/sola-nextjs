@@ -50,9 +50,9 @@ function BadgeDetail(props: {badge: Badge, memberships: Membership[]}) {
 
         if (props.memberships.length > 0) {
             const target = props.memberships.find((item) => item.profile.id === user.id)
-            setIsGroupManager(target && target.role === 'manager')
-            setIsGroupOwner(target && target.role === 'owner')
-            setIssuer(target && target.role === 'issuer')
+            setIsGroupManager(!!target && target.role === 'manager')
+            setIsGroupOwner(!!target && target.role === 'owner')
+            setIssuer(!!target && target.role === 'issuer')
         }
     }, [user.id, props.memberships])
 
@@ -63,7 +63,7 @@ function BadgeDetail(props: {badge: Badge, memberships: Membership[]}) {
     const metadata = props.badge.metadata ? JSON.parse(props.badge.metadata) : {}
     return (<div className={styles['badge-detail-page']}>
         <Head>
-            <title>{badge.title} | Social Layer</title>
+            <title>{`${badge.title} | Social Layer`}</title>
         </Head>
         <div className={styles['center']}>
             <PageBack menu={() => <div className={styles['wap-menu']}><DetailBadgeMenu isGroupManager={isGroupManager} badge={props.badge}/></div>} />
@@ -226,13 +226,13 @@ function BadgeDetail(props: {badge: Badge, memberships: Membership[]}) {
 
 export default BadgeDetail
 
-export const getServerSideProps = async (context) => {
+export const getServerSideProps = async (context: any) => {
     const {params} = context
     const badgeId = params?.badgeid
 
     const badgeDetail = await queryBadgeDetail({id : Number(badgeId)})
 
-    let memberships = []
+    let memberships: Membership[] = []
     if (badgeDetail?.group) {
         memberships = await getGroupMemberShips({group_id: badgeDetail!.group!.id, role: "all"})
     }

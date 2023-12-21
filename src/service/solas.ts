@@ -927,8 +927,6 @@ export async function queryBadgelet(props: QueryBadgeletProps): Promise<Badgelet
 
     const res: any = await request(graphUrl, doc)
 
-    console.log(res)
-
     return res.badgelets as Badgelet[]
 
     // return res.badgelets.sort((a: Badgelet, b: Badgelet) => {

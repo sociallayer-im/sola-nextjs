@@ -1,17 +1,13 @@
-import {useEffect, useState, useContext, useRef} from 'react'
+import {useContext, useEffect, useRef, useState} from 'react'
 import styles from './BadgeletDetail.module.scss'
 import PageBack from "@/components/base/PageBack";
-import {queryBadgeDetail, Badgelet, Group, Membership, getGroupMemberShips, queryBadgeletDetail} from "@/service/solas";
+import {Badgelet, queryBadgeletDetail} from "@/service/solas";
 import DetailCover from "@/components/compose/Detail/atoms/DetailCover";
 import DetailRow from "@/components/compose/Detail/atoms/DetailRow";
 import DetailCreator from "@/components/compose/Detail/atoms/DetailCreator/DetailCreator";
-import ReceiverCount from "@/components/compose/Detail/atoms/ReceiverCount/ReceiverCount";
-import AppButton, {BTN_KIND, BTN_SIZE} from "@/components/base/AppButton/AppButton";
-import BtnGroup from "@/components/base/BtnGroup/BtnGroup";
 import {useRouter} from "next/navigation";
 import LangContext from "@/components/provider/LangProvider/LangContext";
 import userContext from "@/components/provider/UserProvider/UserContext";
-import SwiperPagination from "@/components/base/SwiperPagination/SwiperPagination";
 import DetailScrollBox from "@/components/compose/Detail/atoms/DetailScrollBox/DetailScrollBox";
 import DetailArea from "@/components/compose/Detail/atoms/DetailArea";
 import DetailDes from "@/components/compose/Detail/atoms/DetailDes/DetailDes";
@@ -21,16 +17,12 @@ import usePicture from "@/hooks/pictrue";
 import Head from 'next/head'
 
 //HorizontalList deps
-import {Swiper, SwiperSlide} from 'swiper/react'
-import {Pagination} from 'swiper'
 import 'swiper/css'
 import 'swiper/css/pagination'
-import DetailBadgeMenu from "@/components/compose/Detail/atoms/DetalBadgeMenu";
 import DetailName from "@/components/compose/Detail/atoms/DetailName";
-import DetailBadgeletPrivateMark from "@/components/compose/Detail/atoms/DetailBadgeletPriviateMark";
 import DetailBadgeletMenu from "@/components/compose/Detail/atoms/DetalBadgeletMenu";
 
-function BadgeDetail(props: {badgelet: Badgelet}) {
+function BadgeDetail(props: { badgelet: Badgelet }) {
     const router = useRouter()
     const {lang} = useContext(LangContext)
     const {user} = useContext(userContext)
@@ -52,27 +44,28 @@ function BadgeDetail(props: {badgelet: Badgelet}) {
     const metadata = badgelet.metadata ? JSON.parse(badgelet.metadata) : {}
     return (<div className={styles['badge-detail-page']}>
         <Head>
-            <title>{badgelet.badge.title} | Social Layer</title>
+            <title>{`${badgelet.badge.title} | Social Layer`}</title>
         </Head>
         <div className={styles['center']}>
             <PageBack menu={() => <div className={styles['wap-menu']}>
                 {
-                    isBadgeletOwner && <DetailBadgeletMenu badgelet={badgelet} />
+                    isBadgeletOwner && <DetailBadgeletMenu badgelet={badgelet}/>
                 }
-            </div>} />
+            </div>}/>
             <div className={styles['content']}>
                 <div className={styles['left']}>
-                    <DetailCover className={styles['cover']} src={badgelet.badge.image_url} />
+                    <DetailCover className={styles['cover']} src={badgelet.badge.image_url}/>
                     <DetailName className={styles['left-name']}> {badgelet.badge.title} </DetailName>
                     <DetailRow className={styles['action']}>
-                        <DetailCreator isGroup={!!badgelet.badge.group} profile={badgelet.badge.group || badgelet.creator}/>
+                        <DetailCreator isGroup={!!badgelet.badge.group}
+                                       profile={badgelet.badge.group || badgelet.creator}/>
                     </DetailRow>
                 </div>
                 <div className={styles['right']}>
                     <div className={styles['head']}>
                         <h1 className={styles['name']}>{badgelet.badge.title}</h1>
                         {
-                            isBadgeletOwner && <DetailBadgeletMenu badgelet={badgelet} />
+                            isBadgeletOwner && <DetailBadgeletMenu badgelet={badgelet}/>
                         }
                     </div>
                     <DetailScrollBox>
@@ -124,6 +117,8 @@ function BadgeDetail(props: {badgelet: Badgelet}) {
                             content={formatTime(props.badgelet.created_at)}/>
 
                     </DetailScrollBox>
+
+                    <div></div>
                 </div>
             </div>
         </div>
@@ -132,10 +127,10 @@ function BadgeDetail(props: {badgelet: Badgelet}) {
 
 export default BadgeDetail
 
-export const getServerSideProps = async (context) => {
+export const getServerSideProps = async (context: any) => {
     const {params} = context
     const badgeletid = params?.badgeletid
 
-    const badgeletDetail = await queryBadgeletDetail({id : Number(badgeletid)})
+    const badgeletDetail = await queryBadgeletDetail({id: Number(badgeletid)})
     return {props: {badgelet: badgeletDetail}}
 }
