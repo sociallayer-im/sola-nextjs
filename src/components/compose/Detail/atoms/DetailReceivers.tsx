@@ -1,9 +1,11 @@
 import { styled } from 'baseui'
-import { ProfileSimple } from '../../../../service/solas'
+import { ProfileSimple } from '@/service/solas'
 import usePicture from '../../../../hooks/pictrue'
 import { StatefulTooltip, PLACEMENT } from 'baseui/tooltip'
 import { Overflow } from 'baseui/icon'
 import Link from 'next/link'
+import { useContext } from 'react'
+import LangContext from "@/components/provider/LangProvider/LangContext";
 
 const Wrapper = styled('div', ()=> {
     return {
@@ -17,7 +19,17 @@ const Title = styled('div', ()=> {
         lineHeight: '22px',
         marginBottom: '6px',
         color: '#272928',
-        fontWeight: '600'
+        fontWeight: '600',
+        display: 'flex',
+        flexDirection: 'row' as const,
+        justifyContent: 'space-between',
+    }
+})
+
+const Count = styled('div', ()=> {
+    return {
+        fontSize: '12px',
+        fontWeight: '400',
     }
 })
 
@@ -53,6 +65,7 @@ export interface DetailReceiversProps {
 
 export default function DetailReceivers (props: DetailReceiversProps) {
     const { defaultAvatar } = usePicture()
+    const { lang } = useContext(LangContext)
 
     let receivers: Array<ProfileSimple | null> = props.receivers
     let placeholders: Array<null> = []
@@ -63,7 +76,10 @@ export default function DetailReceivers (props: DetailReceiversProps) {
     receivers = [...receivers, ...placeholders].slice(0, length)
 
     return (!!props.receivers.length || props.placeholder) ? <Wrapper>
-        <Title>{props.title}</Title>
+        <Title>
+            <div>{props.title}</div>
+            <Count><b>{props.receivers.length} </b>{`${lang['Received']}`}</Count>
+        </Title>
         <List>
             { receivers.map((item, index) => {
                     return item

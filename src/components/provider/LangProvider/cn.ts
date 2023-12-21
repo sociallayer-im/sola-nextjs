@@ -579,6 +579,9 @@ const langCN: LangConfig = {
   Remove_Issuer: '移除发行者',
   Send_SeeDAO_Badge: '发送SeeDAO徽章',
   Event_Tag: '活动标签',
+  Received: '已接受',
+  Profile_Setting: '个人设置',
+  Checkins: '签到数',
 }
 
 

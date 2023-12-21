@@ -1,0 +1,15 @@
+.tag {
+  display: inline-flex;
+  padding: 8px 16px;
+  background: #F8F9F8;
+  border-radius: 51px;
+  flex-flow: row nowrap;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.count {
+  font-weight: 800;
+  margin-right: 8px;
+}

@@ -20,6 +20,8 @@ import DetailRow from "../atoms/DetailRow";
 import DetailBadgeMenu from "../atoms/DetalBadgeMenu";
 import useEvent, {EVENT} from "../../../../hooks/globalEvent";
 import {useRouter} from "next/navigation";
+import ReceiverCount from "@/components/compose/Detail/atoms/ReceiverCount/ReceiverCount";
+
 
 //HorizontalList deps
 import {Swiper, SwiperSlide} from 'swiper/react'
@@ -139,6 +141,7 @@ function DetailBadge(props: DetailBadgeProps) {
                     <DetailRow>
                         <DetailCreator isGroup={!!props.badge.group}
                                        profile={props.badge.group || props.badge.creator}/>
+                        <ReceiverCount count={badgelets.length || 0} />
                     </DetailRow>
                     {
                         badgelets.length > 0 ?

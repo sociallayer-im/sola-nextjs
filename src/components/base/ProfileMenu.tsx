@@ -26,6 +26,10 @@ function ProfileMenu () {
         }
     }
 
+    const toSetting = () => {
+        router.push(`/profile-edit/${user.userName}`)
+    }
+
     const toBind = () => {
         router.push(`/bind-email`)
     }
@@ -34,6 +38,10 @@ function ProfileMenu () {
         { !!user.domain &&
             <>
                 <MenuItem onClick={ () => { toProfile(); close() } }>{ lang['UserAction_MyProfile'] }</MenuItem>
+                {
+                    !user?.maodaoid &&
+                    <MenuItem onClick={ () => { toSetting(); close() } }>{ lang['Profile_Setting']}</MenuItem>
+                }
                 { !user.email &&
                     <MenuItem onClick={ () => { toBind(); close() } }>{ lang['UserAction_Bind_Email'] }</MenuItem>
                 }

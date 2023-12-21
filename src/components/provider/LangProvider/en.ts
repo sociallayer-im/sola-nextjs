@@ -583,6 +583,9 @@ const langEN = {
     Remove_Issuer: 'Remove Issuer',
     Send_SeeDAO_Badge: 'Send SeeDAO badge',
     Event_Tag: 'Event tags',
+    Received: 'Received',
+    Profile_Setting: 'Profile setting',
+    Checkins: 'Checkins',
 }
 
 
