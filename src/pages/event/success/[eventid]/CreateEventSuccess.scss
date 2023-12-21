@@ -27,12 +27,18 @@
     line-height: 18px; /* 90% */
   }
 
+  .event-share-card-wrapper {
+    border-radius: 20px;
+    overflow: hidden;
+    width: 335px;
+    height: auto;
+    margin: 18px auto;
+  }
+
   .event-share-card {
     width: 335px;
     height: auto;
     flex-shrink: 0;
-    margin: 18px auto;
-    border-radius: 20px;
     background: #F1FCF8;
     padding: 20px;
     box-sizing: border-box;
