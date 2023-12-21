@@ -15,21 +15,17 @@ import ReasonText from "@/components/base/ReasonText/ReasonText";
 import useTime from "@/hooks/formatTime";
 import usePicture from "@/hooks/pictrue";
 import Head from 'next/head'
-
-//HorizontalList deps
-import 'swiper/css'
-import 'swiper/css/pagination'
+import AppButton from "@/components/base/AppButton/AppButton";
 import DetailName from "@/components/compose/Detail/atoms/DetailName";
 import DetailBadgeletMenu from "@/components/compose/Detail/atoms/DetalBadgeletMenu";
+import BtnGroup from "@/components/base/BtnGroup/BtnGroup";
 
 function BadgeDetail(props: { badgelet: Badgelet }) {
     const router = useRouter()
     const {lang} = useContext(LangContext)
     const {user} = useContext(userContext)
 
-    const swiper = useRef<any>(null)
     const formatTime = useTime()
-    const swiperIndex = useRef(0)
     const {defaultAvatar} = usePicture()
 
 
@@ -60,6 +56,19 @@ function BadgeDetail(props: { badgelet: Badgelet }) {
                         <DetailCreator isGroup={!!badgelet.badge.group}
                                        profile={badgelet.badge.group || badgelet.creator}/>
                     </DetailRow>
+                    { isBadgeletOwner &&
+                        <BtnGroup>
+                            <AppButton size={'compact'}>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="25" height="24" viewBox="0 0 25 24" fill="none">
+                                    <path d="M15 2.96875H18C19.1046 2.96875 20 3.86418 20 4.96875V7.96875M20 7.96875L18 6.4375M20 7.96875L22 6.4375" stroke="#333333" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                    <path d="M10 20.9688H7C5.89543 20.9688 5 20.0733 5 18.9688V15.9688M5 15.9688L7 17.4375M5 15.9688L3 17.4375" stroke="#333333" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                    <rect x="4" y="1.96875" width="6" height="9" rx="2" stroke="#333333" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                    <rect x="14" y="12.9688" width="6" height="9" rx="2" stroke="#333333" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                </svg>
+                                Swap
+                            </AppButton>
+                        </BtnGroup>
+                    }
                 </div>
                 <div className={styles['right']}>
                     <div className={styles['head']}>
@@ -117,10 +126,21 @@ function BadgeDetail(props: { badgelet: Badgelet }) {
                             content={formatTime(props.badgelet.created_at)}/>
 
                     </DetailScrollBox>
-
-                    <div></div>
                 </div>
             </div>
+            { isBadgeletOwner &&
+                <BtnGroup>
+                    <AppButton size={'compact'}>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="25" height="24" viewBox="0 0 25 24" fill="none">
+                            <path d="M15 2.96875H18C19.1046 2.96875 20 3.86418 20 4.96875V7.96875M20 7.96875L18 6.4375M20 7.96875L22 6.4375" stroke="#333333" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            <path d="M10 20.9688H7C5.89543 20.9688 5 20.0733 5 18.9688V15.9688M5 15.9688L7 17.4375M5 15.9688L3 17.4375" stroke="#333333" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            <rect x="4" y="1.96875" width="6" height="9" rx="2" stroke="#333333" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            <rect x="14" y="12.9688" width="6" height="9" rx="2" stroke="#333333" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                        Swap
+                    </AppButton>
+                </BtnGroup>
+            }
         </div>
     </div>)
 }

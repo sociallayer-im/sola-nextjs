@@ -43,6 +43,10 @@
   flex: 1;
   padding-top: 35px;
   margin-left: 15px;
+
+  :global(.badge-detail-swiper-slide) {
+    max-width: 500px;
+  }
 }
 
 .cover {

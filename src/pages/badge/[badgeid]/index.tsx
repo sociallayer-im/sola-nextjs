@@ -93,7 +93,7 @@ function BadgeDetail(props: {badge: Badge, memberships: Membership[]}) {
                     </div>
                     {
                         badge.badgelets!.length > 0 ?
-                            <div style={{width: '100%', overflow: 'hidden'}}>
+                            <div style={{maxWidth: '590px', width: '100%', overflow: 'hidden'}}>
                                 <Swiper
                                     ref={swiper}
                                     modules={[Pagination]}
