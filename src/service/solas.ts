@@ -4308,6 +4308,19 @@ export async function sendBadgeByWallet (props: {
     return res.data.vouchers as Voucher[]
 }
 
+export async function queryGroupEventCheckins (group_id: number) {
+    const doc = `query participants {
+      participants_aggregate(where: {event: {group_id: {_eq: ${group_id}}}, status: {_eq: "checked"}}) {
+        aggregate {
+          count
+        }
+      }
+    }`
+
+    const res: any = await request(graphUrl, doc)
+    return res.participants_aggregate.aggregate.count as number
+}
+
 
 export default {
     removeMarker,

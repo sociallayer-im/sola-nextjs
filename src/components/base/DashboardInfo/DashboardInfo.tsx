@@ -1,5 +1,5 @@
 import {useState, useContext, useEffect} from 'react'
-import {EventStats, getEventStats} from "@/service/solas";
+import {EventStats, getEventStats, queryGroupEventCheckins} from "@/service/solas";
 import {Select} from "baseui/select";
 import LangContext from "../../provider/LangProvider/LangContext";
 
@@ -14,12 +14,21 @@ const daysOptions = [
 function DashboardInfo(props: {groupid: number}) {
     const [days, setDays] = useState<{label: string, id: number}[]>([daysOptions[0]])
     const [info, setInfo] = useState<EventStats | null>(null)
+    const [checkins, setCheckins] = useState(0)
     const {lang} = useContext(LangContext)
 
     useEffect(() => {
-        getEventStats({group_id: props.groupid, days: days[0].id}).then((res) => {
-            setInfo(res)
+        const task = Promise.all([
+            getEventStats({group_id: props.groupid, days: days[0].id}),
+            queryGroupEventCheckins(props.groupid)
+        ])
+
+        task.then(([info, checkins]) => {
+            setInfo(info as EventStats)
+            setCheckins(checkins as number)
         })
+
+
     }, [props.groupid, days])
 
     return (<>
@@ -40,6 +49,10 @@ function DashboardInfo(props: {groupid: number}) {
                 <div className={'dashboard-info-item'}>
                     <div className={'label'}>{lang['Setting_Participants']}</div>
                     <div className={'value'}>{info.total_participants}</div>
+                </div>
+                <div className={'dashboard-info-item'}>
+                    <div className={'label'}>{lang['Checkins']}</div>
+                    <div className={'value'}>{checkins}</div>
                 </div>
                 <div className={'dashboard-info-item'}>
                     <div className={'label'}>{lang['Setting_Hosts']}</div>
