@@ -61,13 +61,15 @@ function ComponentName(props: { markerType: string | null }) {
             // })
             setSelectedType('event')
             return
-        } else if (type === 'Event') {
+        } else if (type === 'event') {
             res = await queryMarkers({
                 marker_type: 'event',
                 group_id: eventGroup?.id || undefined,
                 with_checkins: user.authToken ? true : undefined,
                 auth_token: user.authToken ? user.authToken : undefined,
                 start_time_from: todayZero,
+                sort_by: 'start_time',
+                sort: 'asc'
             })
         } else if (type === 'Zugame') {
             res = await queryMarkers({
@@ -76,7 +78,7 @@ function ComponentName(props: { markerType: string | null }) {
                 auth_token: user.authToken ? user.authToken : undefined,
                 jubmoji: 1
             })
-        } else if (type === 'Share') {
+        } else if (type === 'share') {
             res = await queryMarkers({
                 category: 'share',
                 group_id: eventGroup?.id || undefined,

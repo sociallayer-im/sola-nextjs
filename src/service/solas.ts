@@ -3882,6 +3882,8 @@ export async function queryMarkers(props: {
     start_time_from?: string,
     start_time_to?: string,
     id?: number,
+    sort?: 'asc' | 'desc',
+    sort_by?: 'start_time' | 'end_time' | 'map_checkins_count',
 }) {
 
     let variables = ''
@@ -3910,6 +3912,13 @@ export async function queryMarkers(props: {
         variables += `jubmoji_code: {_eq: "${props.jubmoji}"},`
     }
 
+    let sortStr = ''
+    if (props.sort_by) {
+        sortStr = `${props.sort_by}: ${props.sort || 'desc'}`
+    } else {
+        sortStr = `id: ${props.sort || 'desc'}`
+    }
+
     if (props.start_time_from && props.start_time_to) {
         variables += `start_time: {_gte: "${props.start_time_from}"}, _and: {start_time: {_lte: "${props.start_time_to}"}}, `
     } else if (props.start_time_from) {
@@ -3918,11 +3927,11 @@ export async function queryMarkers(props: {
         variables += `start_time: {_lte: "${props.start_time_to}"}, `
     }
 
-    variables = variables.slice(0, -1)
+    variables = variables.replace(/,$/, '')
 
     const doc = gql`
         query MyQuery {
-          markers(where: {${variables}, status: {_neq: "removed"}} order_by: {id: desc}) {
+          markers(where: {${variables}, status: {_neq: "removed"}} order_by: {${sortStr}}) {
           voucher_id
           voucher {
             id
