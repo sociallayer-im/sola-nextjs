@@ -32,10 +32,14 @@ const defaultLabels = [
     "山海讲堂"
 ]
 
-export const getLabelColor = (label: string) => {
-    if (defaultLabels.indexOf(label) !== -1) {
-        return labelColors[defaultLabels.indexOf(label)]
+export const getLabelColor = (label?: string) => {
+    if (label) {
+        if (defaultLabels.indexOf(label) !== -1) {
+            return labelColors[defaultLabels.indexOf(label)]
+        } else {
+            return labelColors[label[0].charCodeAt(0) % labelColors.length]
+        }
     } else {
-        return labelColors[label[0].charCodeAt(0) % labelColors.length]
+        return labelColors[0]
     }
 }
