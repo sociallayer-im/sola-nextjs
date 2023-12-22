@@ -161,8 +161,7 @@ function CardMarker(props: { item: Marker, participants?: Participants[], isActi
                         <span>{` ${props.item.map_checkins_count} people checked in`}</span>
                     </div>
                 }
-                {
-                    props.item.event?.participants?.length > 0 &&
+                { !!props.item.event?.participants && props.item.event?.participants?.length > 0 &&
                     <div className={styles['detail']}>
                         {props.item.event?.participants?.[0] &&
                             <img src={props.item.event?.participants?.[0].profile.image_url || defaultAvatar(props.item.event?.participants?.[0].profile.id)} alt=""/>
