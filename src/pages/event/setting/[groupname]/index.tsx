@@ -184,7 +184,7 @@ function Dashboard() {
             ...eventGroup,
             auth_token: user.authToken || '',
             id: eventGroup?.id || 1516,
-            event_tags: tags,
+            event_tags: tags.filter(e => !!e),
         })
         await reload()
         unload()
