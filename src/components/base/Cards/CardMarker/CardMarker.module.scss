@@ -4,7 +4,7 @@
   border-radius: 20px;
   box-shadow: 0 0 18px 0 rgba(0, 0, 0, 0.08);
   box-sizing: border-box;
-  padding: 20px;
+  padding: 20px 16px;
   display: flex;
   flex-flow: row nowrap;
   width: 100%;
@@ -12,6 +12,30 @@
   justify-content: space-between;
   text-decoration: none;
   color: var(--color-text-main);
+}
+
+.tags {
+  margin-top: 4px;
+  display: flex;
+  flex-flow: row nowrap;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 6px;
+}
+
+.tag {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  margin-right: 12px;
+  white-space: nowrap;
 }
 
 .left {
@@ -59,9 +83,9 @@
   overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
-  margin-top: 7px;
+  margin-top: 5px;
 }
 
 .detail {
@@ -71,7 +95,18 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  align-items: center;
+  display: flex;
+  flex-flow: row nowrap;
   text-decoration: none;
+  margin-top: 2px;
+
+  img {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    margin-right: 2px;
+  }
 }
 
 .link-icon {
@@ -114,6 +149,10 @@
   -webkit-box-orient: vertical;
   margin-top: 7px;
   align-items: center;
+
+  img {
+    margin-right: 4px;
+  }
 }
 
 .avatar {
@@ -134,7 +173,7 @@
   height: 180px;
   border-radius: 20px;
   box-sizing: border-box;
-  padding: 20px;
+  padding: 20px 14px;
   display: flex;
   flex-flow: row nowrap;
   width: 100%;

@@ -16,6 +16,7 @@ import userContext from "@/components/provider/UserProvider/UserContext";
 import useMarkerCheckIn from "@/hooks/markerCheckIn";
 import useEvent, {EVENT} from "@/hooks/globalEvent";
 import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
+import {getLabelColor} from "@/hooks/labelColor";
 
 export const genGoogleMapUrl = (marker: Marker) => {
     // if (marker.formatted_address && marker.location !== 'Custom location') {
@@ -107,12 +108,25 @@ function CardMarker(props: { item: Marker, participants?: Participants[], isActi
     return (<CardWrapper>
         <div className={styles['left']}>
             <div className={styles['title']}>{props.item.title}</div>
+            { !!props.item.event && !!props.item.event.tags && props.item.event.tags.length > 0 &&
+                <div className={styles['tags']}>
+                    {
+                        props.item.event.tags.map((item, index) => {
+                            return <div key={index} className={styles['tag']}>
+                                <i className={styles['dot']} style={{background: getLabelColor(item)}} />
+                                {item}
+                            </div>
+                        })
+                    }
+                </div>
+            }
             <div className={styles['des']}>{props.item.about}</div>
             {groupHost &&
                 <div className={styles['creator']}>by <img
                     alt=""
                     className={styles['avatar']}
                     src={groupHost.image_url || defaultAvatar(groupHost.id)} height={16} width={16}/>
+                    {groupHost.nickname || groupHost.username}
                 </div>
             }
             {!props.item.event?.host_info &&
@@ -120,6 +134,7 @@ function CardMarker(props: { item: Marker, participants?: Participants[], isActi
                     alt=""
                     className={styles['avatar']}
                     src={props.item.owner.image_url || defaultAvatar(props.item.owner.id)} height={16} width={16}/>
+                    {props.item.owner.nickname || props.item.owner.username }
                 </div>
             }
 
@@ -144,6 +159,22 @@ function CardMarker(props: { item: Marker, participants?: Participants[], isActi
                     props.item.map_checkins_count > 0 &&
                     <div className={styles['detail']}>
                         <span>{` ${props.item.map_checkins_count} people checked in`}</span>
+                    </div>
+                }
+                {
+                    props.item.event?.participants?.length > 0 &&
+                    <div className={styles['detail']}>
+                        {props.item.event?.participants?.[0] &&
+                            <img src={props.item.event?.participants?.[0].profile.image_url || defaultAvatar(props.item.event?.participants?.[0].profile.id)} alt=""/>
+                        }
+                        {props.item.event?.participants?.[1] &&
+                            <img src={props.item.event?.participants?.[1].profile.image_url || defaultAvatar(props.item.event?.participants?.[1].profile.id)} alt=""/>
+                        }
+                        {
+                            props.item.event?.participants?.length > 2 ?
+                            <span>{`and ${props.item.event?.participants?.length - 2} people applied`}</span>
+                            : <span>{`applied`}</span>
+                        }
                     </div>
                 }
             </div>

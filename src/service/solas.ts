@@ -3952,8 +3952,20 @@ export async function queryMarkers(props: {
             end_time
             event_id
             event {
-                id
-                host_info
+              end_time
+              start_time 
+              id
+              tags
+              location
+              formatted_address
+              participants {
+                profile {
+                  id
+                  image_url
+                  nickname
+                  username
+                }
+              }
             }
             formatted_address
             geo_lat
