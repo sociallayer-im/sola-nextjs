@@ -9,7 +9,6 @@ import {swapBadgelet} from "@/service/solas";
 export interface DialogNftCheckInProps {
     handleClose: () => any
     badgeletId: number
-    onSuccess?: () => any
 }
 
 function DialogSwapScan(props: DialogNftCheckInProps) {
@@ -33,11 +32,9 @@ function DialogSwapScan(props: DialogNftCheckInProps) {
                     badgelet_id: props.badgeletId,
                     swap_token: token
                 })
-                showToast('Swap Success !')
                 setTimeout(() => {
-                    props.onSuccess && props.onSuccess()
                     props.handleClose()
-                }, 1000)
+                }, 500)
             } catch (e: any) {
                 console.error(e)
                 showToast(e.message || 'Check in fail !')
