@@ -48,7 +48,7 @@ function DialogBadgeSwap(props: { badgelet: Badgelet, code: string, close?: () =
         <div className={styles['card']}>
             <div className={styles['user']}>
                 <img src={props.badgelet.owner.image_url || defaultAvatar(props.badgelet.owner.id)}/>
-                <div>{`${props.badgelet.owner.nickname || props.badgelet.owner.username} want to change a card with you`}</div>
+                <div>{`${props.badgelet.owner.nickname || props.badgelet.owner.username} want to swap a card with you`}</div>
             </div>
             <div className={styles['swap-pic']}>
                 <img src={props.badgelet.badge.image_url} alt=""/>
@@ -66,7 +66,7 @@ function DialogBadgeSwap(props: { badgelet: Badgelet, code: string, close?: () =
             <div className={styles['white']}>
                 <div className={styles['border']}>
                     <QRcode size={[114, 114]} text={props.code}/>
-                    <div className={styles['des']}>Please select a card to change with me</div>
+                    <div className={styles['des']}>Please select a card to swap with me</div>
                 </div>
             </div>
         </div>
