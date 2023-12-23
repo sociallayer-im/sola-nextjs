@@ -1,8 +1,9 @@
 import { useStyletron } from 'baseui'
 import { useContext } from 'react'
-import { Badge } from '../../../../service/solas'
+import { Badge } from '@/service/solas'
 import DialogsContext from '../../../provider/DialogProvider/DialogsContext'
 import UserContext from '../../../provider/UserProvider/UserContext'
+import {useRouter} from "next/navigation";
 
 const style = {
     wrapper: {
@@ -86,17 +87,19 @@ export interface CardBadgeProps {
 
 function CardBadge (props: CardBadgeProps) {
     const [css] = useStyletron()
-    const { showBadge, showGift, showNftpass } = useContext(DialogsContext)
     const {user} = useContext(UserContext)
+    const router = useRouter()
 
     const showDialog = () => {
-        if (props.badge.badge_type === 'nftpass') {
-            showNftpass(props.badge)
-        } else if (props.badge.badge_type === 'gift') {
-            showGift(props.badge)
-        } else {
-            showBadge(props.badge)
-        }
+        // if (props.badge.badge_type === 'nftpass') {
+        //     showNftpass(props.badge)
+        // } else if (props.badge.badge_type === 'gift') {
+        //     showGift(props.badge)
+        // } else {
+        //     showBadge(props.badge)
+        // }
+        //
+        router.push(`/badge/${props.badge.id}`)
     }
 
     return (<div data-testid='CardBadge' className={ css(style.wrapper) } onClick={() => { showDialog() }}>

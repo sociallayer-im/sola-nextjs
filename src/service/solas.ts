@@ -567,6 +567,7 @@ export interface Badge {
     transferable?: boolean
     unlocking?: null | string
     metadata?: string
+    badgelets?: Badgelet[]
 }
 
 export type NftPass = Badge
@@ -693,10 +694,18 @@ export interface BadgeWithBadgelets extends Badge {
 export async function queryBadgeDetail(props: QueryBadgeDetailProps): Promise<BadgeWithBadgelets | null> {
     const doc = gql`query MyQuery {
       badges(where: {id: {_eq: "${props.id}"}}) {
+        metadata
         badge_type
         content
         counter
         created_at
+        group {
+          id
+          image_url
+          nickname
+          username
+        }
+        group_id
         creator {
           id
           image_url
@@ -713,6 +722,7 @@ export async function queryBadgeDetail(props: QueryBadgeDetailProps): Promise<Ba
           created_at
           id
           image_url
+          metadata
           title
           display
           status
@@ -874,6 +884,7 @@ export async function queryBadgelet(props: QueryBadgeletProps): Promise<Badgelet
 
     const doc = gql`query MyQuery {
       badgelets(where: {${variables}, status: {_neq: "burned"}}, limit: 20, offset: ${props.page * 20 - 20}, order_by: {id: desc}) {
+        metadata
         badge_id
         content
         created_at
@@ -915,8 +926,6 @@ export async function queryBadgelet(props: QueryBadgeletProps): Promise<Badgelet
     }`
 
     const res: any = await request(graphUrl, doc)
-
-    console.log(res)
 
     return res.badgelets as Badgelet[]
 
@@ -1971,16 +1980,25 @@ export interface SearchBadgeProps {
 export async function searchBadge(props: SearchBadgeProps): Promise<Badge[]> {
     const doc = gql`query MyQuery {
       badges(where: {title: {_iregex: "${props.title}"}}, limit: 20, offset: ${(props.page - 1) * 20}) {
+       metadata
        badge_type
         content
         counter
         created_at
+        creator_id
         creator {
           id
           image_url
           nickname
           username
         }
+        group {
+          id
+          image_url
+          nickname
+          username
+        }
+        group_id
         id
         image_url
         name
@@ -1994,6 +2012,7 @@ export async function searchBadge(props: SearchBadgeProps): Promise<Badge[]> {
           display
           title
           status
+          metadata
           badge {
             badge_type
             content
@@ -4340,6 +4359,26 @@ export async function queryGroupEventCheckins (group_id: number) {
 
     const res: any = await request(graphUrl, doc)
     return res.participants_aggregate.aggregate.count as number
+}
+
+export async function getSwapCode (props: {auth_token: string, badgelet_id: number}) {
+    checkAuth(props)
+
+    const res = await fetch.post({
+        url: `${apiUrl}/badgelet/swap_code`,
+        data: props
+    })
+
+    return res.data.token as string
+}
+
+export async function swapBadgelet (props: {auth_token: string, badgelet_id: number, swap_token: string}) {
+    checkAuth(props)
+
+    const res = await fetch.post({
+        url: `${apiUrl}/badgelet/swap`,
+        data: props
+    })
 }
 
 

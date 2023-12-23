@@ -1,0 +1,146 @@
+.badge-detail-page {
+  background: var(--color-page-bg-1);
+  min-height: 100%;
+}
+
+.wap-menu {
+  display: none;
+}
+
+.left-name {
+  display: none;
+}
+
+.center {
+  max-width: 1020px;
+  margin: 0 auto;
+  padding: 0 20px;
+  width: 100%;
+  box-sizing: border-box;
+
+  :global(> .btn-group) {
+    display: none;
+  }
+}
+
+.content {
+  display: flex;
+  flex-flow: row nowrap;
+  width: 100%;
+}
+
+.left {
+  min-width: 375px;
+  max-width: 375px;
+  padding: 40px 24px;
+  box-sizing: border-box;
+  display: flex;
+  flex-flow: column nowrap;
+  align-items: center;
+}
+
+.right {
+  flex: 1;
+  padding-top: 35px;
+  margin-left: 15px;
+
+  :global(.detail-scroll-box) {
+    margin: 0;
+  }
+}
+
+.cover {
+  width: 224px;
+  height: 224px;
+  margin-bottom: 42px;
+}
+
+.action {
+  margin-bottom: 38px;
+}
+
+.name {
+  color: var(--Text-4-Headline, #272928);
+  font-size: 24px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 32px;
+  margin: 0;
+  padding-left: 12px;
+}
+
+.head {
+  display: flex;
+  flex-flow: row nowrap;
+  margin-bottom: 20px;
+  justify-content: space-between;
+}
+
+.pagination {
+  display: flex;
+  flex-flow: row nowrap;
+
+  :global .app-swiper-pagination {
+    margin-left: 20px;
+    transform: initial;
+  }
+}
+
+@media (max-width: 650px) {
+  .wap-menu {
+    display: block;
+  }
+
+  .left-name {
+    display: block;
+  }
+
+  .center {
+    padding: 0 12px;
+
+    :global(> .btn-group) {
+      display: flex;
+      position: fixed;
+      width: 100%;
+      bottom: 0;
+      left: 0;
+      z-index: 99;
+      padding: 20px 12px;
+      box-sizing: border-box;
+    }
+  }
+
+  .content {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .left {
+    padding: 0;
+    width: 100%;
+    max-width: initial;
+    min-width: initial;
+
+    :global .btn-group {
+      display: none;
+    }
+  }
+
+  .right {
+    padding-top: 0;
+    padding-bottom: 80px;
+    margin-left: 0;
+
+    .head {
+      display: none;
+    }
+
+    .pagination {
+
+      :global .app-swiper-pagination {
+        margin-left: 50%;
+        transform: translateX(-50%);
+      }
+    }
+  }
+}

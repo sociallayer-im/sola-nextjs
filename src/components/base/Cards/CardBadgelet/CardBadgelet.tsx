@@ -4,6 +4,7 @@ import DialogsContext from '../../../provider/DialogProvider/DialogsContext'
 import {useContext, useEffect, useState} from 'react'
 import UserContext from '../../../provider/UserProvider/UserContext'
 import {checkIsManager, getProfile} from "@/service/solas";
+import {useRouter} from "next/navigation";
 
 const style = {
     wrapper: {
@@ -92,15 +93,17 @@ function CardBadgelet(props: CardBadgeletProps) {
     const {showBadgelet, showGiftItem} = useContext(DialogsContext)
     const {user} = useContext(UserContext)
     const [isGroupManager, setIsGroupManager] = useState(false)
+    const router = useRouter()
 
     const isOwner = user.id === props.badgelet.owner.id
 
     const showDialog = () => {
-        if (props.badgelet.badge.badge_type === 'gift') {
-            showGiftItem(props.badgelet)
-        } else {
-            showBadgelet(props.badgelet)
-        }
+        // if (props.badgelet.badge.badge_type === 'gift') {
+        //     showGiftItem(props.badgelet)
+        // } else {
+        //     showBadgelet(props.badgelet)
+        // }
+        router.push(`/badgelet/${props.badgelet.id}`)
     }
 
     useEffect(() => {
