@@ -617,7 +617,8 @@ export async function queryBadge(props: QueryBadgeProps): Promise<Badge[]> {
     if (props.badge_type) {
         variables += `badge_type: {_eq: "${props.badge_type}"},`
     } else {
-        variables += `badge_type: {_eq: "badge"},`
+        // todo
+        // variables += `badge_type: {_eq: "badge"},`
     }
 
     variables = variables.replace(/,$/, '')
