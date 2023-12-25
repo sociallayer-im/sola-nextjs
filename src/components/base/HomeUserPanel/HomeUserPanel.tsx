@@ -21,12 +21,12 @@ function HomeUserPanel(props: {
     const {openConnectWalletDialog} = useContext(DialogsContext)
     const {eventGroup, findGroup} = useContext(EventHomeContext)
 
-    const [groupMembers, setGroupMembers] = useState<Profile[]>([])
+    const [groupMembers, setGroupMembers] = useState<Membership[]>([])
 
     useEffect(() => {
         const list: any = []
         props.membership.forEach((item: Membership) => {
-            if (!list.some(i => i.id === item.id)) {
+            if (!list.some((i : any) => i.id === item.id)) {
                 list.push(item)
             }
         })
