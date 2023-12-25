@@ -96,6 +96,7 @@ function CardBadgelet(props: CardBadgeletProps) {
     const router = useRouter()
 
     const isOwner = user.id === props.badgelet.owner.id
+    const isCreator = user.id === props.badgelet.creator.id
 
     const showDialog = () => {
         // if (props.badgelet.badge.badge_type === 'gift') {
@@ -130,7 +131,7 @@ function CardBadgelet(props: CardBadgeletProps) {
         showDialog()
     }}>
         {
-            (props.badgelet.badge.badge_type === 'private' && !isOwner) ?
+            (props.badgelet.badge.badge_type === 'private' && !isOwner && !isCreator) ?
                 <>
                     <div className={css(style.coverBg)}>
                         <img className={css(style.img)} src={'/images/badge_private.png'} alt=""/>

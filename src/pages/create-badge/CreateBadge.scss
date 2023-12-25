@@ -17,6 +17,17 @@
 
   .create-badge-page-form {
     margin-top: 30px;
+
+    .form-tips {
+      background: #7492EF;
+      padding: 4px 8px;
+      font-size: 12px;
+      line-height: 18px;
+      color: #7492EF;
+      border-radius: 4px;
+      background: var(--secondary-color-brand-51-light, #EEF2FE);
+      margin-bottom: 20px;
+    }
   }
 
   .create-badge-title {

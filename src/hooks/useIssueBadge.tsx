@@ -20,6 +20,10 @@ function useIssueBadge () {
     function toIssuePage (props: BadgeBookDialogRes, to?: string, group_id?: number) {
         let path = `/create-${props.type}`
 
+        if (props.type=== 'private') {
+            path = `/create-badge?type=private`
+        }
+
         const split = (path: string) => {
             return  path.includes('?') ? '&' : '?'
         }

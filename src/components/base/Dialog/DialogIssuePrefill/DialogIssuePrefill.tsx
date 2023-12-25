@@ -79,6 +79,15 @@ function DialogIssuePrefill(props: DialogIssuePrefillProps) {
                                 <div className={'des'}>{lang['Badgebook_Dialog_Recognition_Des']}</div>
                             </div>
                         </div>
+                        <div className='create-badge-btn' onClick={e => {
+                            gotoCreateBadge('private')
+                        }}>
+                            <img src="/images/badge_type/private.png" alt=""/>
+                            <div>
+                                <div>{lang['Badgebook_Dialog_Privacy']} <span className={'new-mark'}>NEW</span></div>
+                                <div className={'des'}>{lang['Badgebook_Dialog_Privacy_Des']}</div>
+                            </div>
+                        </div>
                         {
                             !!user?.id && user?.permissions.includes('nftpass') &&
                             <div className='create-badge-btn' onClick={e => {
@@ -100,18 +109,6 @@ function DialogIssuePrefill(props: DialogIssuePrefillProps) {
                                 <div>
                                     <div>{lang['Badgebook_Dialog_Points']} <span className={'new-mark'}>NEW</span></div>
                                     <div className={'des'}>{lang['Badgebook_Dialog_Points_Des']}</div>
-                                </div>
-                            </div>
-                        }
-                        {
-                            !!user?.id && user?.permissions.includes('private') &&
-                            <div className='create-badge-btn' onClick={e => {
-                                gotoCreateBadge('private')
-                            }}>
-                                <img src="/images/badge_type/private.png" alt=""/>
-                                <div>
-                                    <div>{lang['Badgebook_Dialog_Privacy']} <span className={'new-mark'}>NEW</span></div>
-                                    <div className={'des'}>{lang['Badgebook_Dialog_Privacy_Des']}</div>
                                 </div>
                             </div>
                         }
@@ -141,11 +138,7 @@ function DialogIssuePrefill(props: DialogIssuePrefillProps) {
                         <div className='create-badge-btn' onClick={event => {
                             console.log('user?.id  ' + user)
                             console.log('user.permissions.length  ' + user?.permissions.length)
-                            if (user?.id && user.permissions.length > 0) {
-                                setShowCreateOption(true)
-                            } else {
-                                gotoCreateBadge('badge')
-                            }
+                            setShowCreateOption(true)
                         }}>
                             <img src="/images/create_badge_icon.png" alt=""/>
                             <span>{lang['Badgebook_Dialog_Cetate_Badge']}</span>

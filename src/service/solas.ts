@@ -874,9 +874,8 @@ export async function queryBadgelet(props: QueryBadgeletProps): Promise<Badgelet
         if (props.group_id) {
             variables += `badge: {badge_type: {_eq: "badge"}, group_id: {_eq: "${props.group_id}"}},`
         } else {
-            variables += `badge: {badge_type: {_eq: "badge"}},`
+            variables += ``
         }
-
     }
 
     if (variables.endsWith(',')) {
