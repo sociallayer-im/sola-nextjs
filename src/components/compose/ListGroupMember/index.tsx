@@ -1,5 +1,5 @@
 import React, {useContext, useEffect, useState} from 'react'
-import solas, {checkIsManager, getGroupMembers, Profile, Group, getGroupMemberShips} from '../../../service/solas'
+import solas, {Group, Profile} from '../../../service/solas'
 import LangContext from '../../provider/LangProvider/LangContext'
 import UserContext from '../../provider/UserProvider/UserContext'
 import CardInviteMember from '../../base/Cards/CardInviteMember/CardInviteMember'
@@ -59,7 +59,13 @@ function ListGroupMember(props: ListGroupMemberProps) {
         const _issuer = memberships.filter((manager) => manager.role === 'issuer').map((manager) => manager.profile) as any
 
         setManagers(_managers)
-        setMembers(_members)
+        setMembers(_members.filter((member) => {
+                return !_managers.some((manager) => manager.id === member.id)
+            })
+                .filter((member) => {
+                    return !_issuer.some((issuer) => issuer.id === member.id)
+                })
+        )
         setIssuer(_issuer)
         setCurrUserJoinedGroup(memberships.some((member) => member.profile.id === user.id))
     }
@@ -133,10 +139,10 @@ function ListGroupMember(props: ListGroupMemberProps) {
                 group={props.group as any}
                 members={[...members, ...issuer]}
                 managers={managers}
-                handleClose={()=> {
+                handleClose={() => {
                     close()
                     init()
-                }} />,
+                }}/>,
             size: ['100%', '100%']
         })
     }
@@ -157,11 +163,11 @@ function ListGroupMember(props: ListGroupMemberProps) {
                     <div className={'left'}>
                         <img className={'owner-marker'} src='/images/icon_owner.png'/>
                         <img src={owner.image_url || defaultAvatar(owner.id)} alt=""/>
-                        <span>{owner.nickname || owner.username }</span>
+                        <span>{owner.nickname || owner.username}</span>
                         <span className={'role'}>{lang['Group_Role_Owner']}</span>
-                        { owner.id === user.id && <div className={'you-tag'}>
-                                You
-                            </div>
+                        {owner.id === user.id && <div className={'you-tag'}>
+                            You
+                        </div>
                         }
                     </div>
                 </div>
@@ -172,16 +178,16 @@ function ListGroupMember(props: ListGroupMemberProps) {
     const MemberAction = <>
         {
             process.env.NEXT_PUBLIC_SPECIAL_VERSION !== 'seedao' ?
-            <StatefulPopover
-                placement={PLACEMENT.bottom}
-                popoverMargin={0}
-                content={({close}) => <MenuItem onClick={() => {
-                    showLeaveGroupConfirm();
-                    close()
-                }}>{lang['Relation_Ship_Action_Leave']}</MenuItem>}>
-                <div className='member-list-joined-label'>Joined</div>
-            </StatefulPopover>
-            : <div className='member-list-joined-label'>Joined</div>
+                <StatefulPopover
+                    placement={PLACEMENT.bottom}
+                    popoverMargin={0}
+                    content={({close}) => <MenuItem onClick={() => {
+                        showLeaveGroupConfirm();
+                        close()
+                    }}>{lang['Relation_Ship_Action_Leave']}</MenuItem>}>
+                    <div className='member-list-joined-label'>Joined</div>
+                </StatefulPopover>
+                : <div className='member-list-joined-label'>Joined</div>
         }
     </>
 
@@ -223,7 +229,7 @@ function ListGroupMember(props: ListGroupMemberProps) {
     return <div className='list-group-member'>
         <div className={'title-member'}>
             <div className={'action-left'}><span>{lang['Group_detail_tabs_member']}</span>
-                { Action  }
+                {Action}
             </div>
             <div className={'action'}>
                 {members.length + managers.length + issuer.length + 1} <span> {lang['Group_detail_tabs_member']}</span>
@@ -242,7 +248,7 @@ function ListGroupMember(props: ListGroupMemberProps) {
                             <img src={member.image_url || defaultAvatar(member.id)} alt=""/>
                             <span>{member.nickname || member.username || member.domain?.split('.')[0]}</span>
                             <span className={'role'}>{lang['Group_Role_Manager']}</span>
-                            { member.id === user.id && <div className={'you-tag'}>
+                            {member.id === user.id && <div className={'you-tag'}>
                                 You
                             </div>
                             }
@@ -261,7 +267,7 @@ function ListGroupMember(props: ListGroupMemberProps) {
                             <img src={member.image_url || defaultAvatar(member.id)} alt=""/>
                             <span>{member.nickname || member.username || member.domain?.split('.')[0]}</span>
                             <span className={'role'}>{lang['Issuer']}</span>
-                            { member.id === user.id && <div className={'you-tag'}>
+                            {member.id === user.id && <div className={'you-tag'}>
                                 You
                             </div>
                             }
@@ -280,7 +286,7 @@ function ListGroupMember(props: ListGroupMemberProps) {
                         <div className={'left'}>
                             <img src={member.image_url || defaultAvatar(member.id)} alt=""/>
                             <span>{member.nickname || member.username || member.domain?.split('.')[0]}</span>
-                            { member.id === user.id && <div className={'you-tag'}>
+                            {member.id === user.id && <div className={'you-tag'}>
                                 You
                             </div>
                             }

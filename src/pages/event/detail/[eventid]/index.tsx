@@ -380,12 +380,6 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                 </div>
                                             </a>
                                         </div>
-                                        <div className={'switch-preview-map'}
-                                             onClick={() => {
-                                                 setShowMap(!showMap)
-                                             }
-                                             }
-                                        >{showMap ? 'Hide Map' : 'Show Map'}</div>
                                         {MapReady &&
                                             <>
                                                 <div className={'switch-preview-map'}
@@ -393,7 +387,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                          setShowMap(!showMap)
                                                      }
                                                      }
-                                                >{showMap ? 'Hide Map' : 'Show Map'}</div>
+                                                >{showMap ? 'Hide Map' : ' Show Map'}</div>
                                                 {showMap &&
                                                     <Link href={genGoogleMapUrl(event.geo_lng!, event.geo_lat!)}
                                                           target={'_blank'}
