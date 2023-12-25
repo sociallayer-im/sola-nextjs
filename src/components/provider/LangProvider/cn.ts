@@ -169,6 +169,7 @@ const langCN: LangConfig = {
   Quantity_Unlimited: '无限制',
   Presend_step: '输入徽章数量，徽章将作为链接发送。',
   presend_share_link: '#1 给你发送了NFT徽章：#2。 赶紧去获取吧！\n #3 \n 推荐使用MetaMask或者imToken的浏览器打开。',
+  Activity_Badge: '社区徽章列表',
   Activity_Calendar: '活动日程表',
   Activity_Page_type: '活动',
   Activity_State_Registered: '已报名',
