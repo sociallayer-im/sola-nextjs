@@ -20,7 +20,7 @@ import useTime from '../../../hooks/formatTime'
 import DetailRow from "./atoms/DetailRow";
 import DetailReceivers from "@/components/compose/Detail/atoms/DetailReceivers";
 import DetailFace2FaceQrcode from "@/components/compose/Detail/DetailFace2FaceQrcode";
-import {useSearchParams} from "next/navigation";
+import {useSearchParams, useRouter} from "next/navigation";
 
 
 export interface DetailBadgeletProps {
@@ -32,6 +32,7 @@ export interface DetailBadgeletProps {
 function DetailVoucher(props: DetailBadgeletProps) {
     const {lang} = useContext(LangContext)
     const {user} = useContext(UserContext)
+    const router = useRouter()
     const {openConnectWalletDialog, showLoading, showToast, openDialog} = useContext(DialogsContext)
     const {defaultAvatar} = usePicture()
     const searchParams = useSearchParams()
@@ -105,7 +106,7 @@ function DetailVoucher(props: DetailBadgeletProps) {
             // emitUpdate(badgelet)
             props.handleClose()
             showToast('Accept success')
-            // navigate(`/profile/${user.userName}`)
+            router.push(`/profile/${user.userName}`)
         } catch (e: any) {
             unload()
             console.log('[handleAccept]: ', e)

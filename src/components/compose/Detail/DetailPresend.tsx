@@ -21,7 +21,7 @@ import DetailCreator from './atoms/DetailCreator/DetailCreator'
 import useTime from '../../../hooks/formatTime'
 import DetailFace2FaceQrcode from './DetailFace2FaceQrcode'
 import DetailRow from './atoms/DetailRow'
-import {useSearchParams} from 'next/navigation'
+import {useSearchParams, useRouter} from 'next/navigation'
 
 export interface DetailPresendProps {
     presend: Voucher,
@@ -33,6 +33,7 @@ function DetailPresend (props: DetailPresendProps ) {
     const { lang } = useContext(LangContext)
     const { user } = useContext(UserContext)
     const searchParams = useSearchParams()
+    const router = useRouter()
     const { openConnectWalletDialog, showLoading, showToast, openDialog } = useContext(DialogsContext)
     const { defaultAvatar } = usePicture()
     const [_1, emitBadgeletListUpdate] = useEvent(EVENT.badgeletListUpdate)
@@ -95,7 +96,7 @@ function DetailPresend (props: DetailPresendProps ) {
             emitPresendListUpdate(props.presend)
             showToast('Accept success')
             props.handleClose()
-            // navigate(`/profile/${user.userName}`)
+            router.push(`/profile/${user.userName}`)
         } catch (e: any) {
             unload()
             console.log('[handleAccept]: ', e)
