@@ -237,11 +237,13 @@ function GroupPage(props: any) {
                                     </Tab> : <></>
                             }
 
-                            <Tab title={lang['Group_detail_tabs_Vote']}>
-                                <div className={'list-vote'}>
-                                    <ListUserVote profile={profile}/>
-                                </div>
-                            </Tab>
+                            { process.env.NEXT_PUBLIC_SPECIAL_VERSION !== 'seedao' ?
+                                <Tab title={lang['Group_detail_tabs_Vote']}>
+                                    <div className={'list-vote'}>
+                                        <ListUserVote profile={profile}/>
+                                    </div>
+                                </Tab> : <></>
+                            }
 
                             <Tab title={lang['Group_detail_tabs_member']}>
                                 <div>
