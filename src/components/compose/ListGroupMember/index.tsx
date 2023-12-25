@@ -1,5 +1,5 @@
 import React, {useContext, useEffect, useState} from 'react'
-import solas, {Group, Profile} from '../../../service/solas'
+import solas, {Group, Membership, Profile} from '../../../service/solas'
 import LangContext from '../../provider/LangProvider/LangContext'
 import UserContext from '../../provider/UserProvider/UserContext'
 import CardInviteMember from '../../base/Cards/CardInviteMember/CardInviteMember'
@@ -59,11 +59,11 @@ function ListGroupMember(props: ListGroupMemberProps) {
         const _issuer = memberships.filter((manager) => manager.role === 'issuer').map((manager) => manager.profile) as any
 
         setManagers(_managers)
-        setMembers(_members.filter((member) => {
-                return !_managers.some((manager) => manager.id === member.id)
+        setMembers(_members.filter((member: Profile) => {
+                return !_managers.some((manager: Profile) => manager.id === member.id)
             })
-                .filter((member) => {
-                    return !_issuer.some((issuer) => issuer.id === member.id)
+                .filter((member: Profile) => {
+                    return !_issuer.some((issuer:Profile) => issuer.id === member.id)
                 })
         )
         setIssuer(_issuer)
