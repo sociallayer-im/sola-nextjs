@@ -26,10 +26,11 @@ function HomeUserPanel(props: {
     useEffect(() => {
         const list: any = []
         props.membership.forEach((item: Membership) => {
-            if (!list.some((i : any) => i.id === item.id)) {
+            if (!list.some((i : any) => i.profile.id === item.profile.id)) {
                 list.push(item)
             }
         })
+
         setGroupMembers(list)
     }, [props.membership])
 
