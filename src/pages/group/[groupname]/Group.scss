@@ -35,6 +35,10 @@
     padding-top: 10px;
     min-height: calc(100vh - 300px + 30px);
 
+    .hide {
+      display: none;
+    }
+
     .profile-badge {
       .action {
         display: flex;
@@ -255,11 +259,6 @@
 
     .down-side {
       padding-bottom: 30px;
-
-      .hide {
-        display: none;
-      }
-
       .center {
         max-width: 100%;
 
