@@ -105,7 +105,7 @@ function ComponentName() {
             }
 
         const unload = showLoading()
-        const badges = await queryBadge(props)
+        const badges = (await queryBadge(props)).data
         let groupBadges: any[] = []
         if (withGroup) {
             const tasks = withGroup.map(group => queryBadge({group_id: group.id, page: 1}))
@@ -113,7 +113,7 @@ function ComponentName() {
             groupBadges = groupBadgesList.map((badges, index) => {
                 return {
                     groupName: (withGroup as any)[index].nickname || (withGroup as any)[index].username,
-                    badges
+                    badges: badges.data
                 }
             })
         }

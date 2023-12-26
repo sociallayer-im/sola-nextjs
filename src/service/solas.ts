@@ -9,6 +9,11 @@ const graphUrl = process.env.NEXT_PUBLIC_GRAPH!
 
 export type BadgeType = 'badge' | 'nftpass' | 'nft' | 'private' | 'gift'
 
+export interface ListData<T> {
+    data: T[],
+    total: number
+}
+
 export const voucherSchema = (props: QueryPresendProps) => {
     let variables = ''
 
@@ -584,7 +589,7 @@ export interface QueryBadgeProps {
     page: number
 }
 
-export async function queryBadge(props: QueryBadgeProps): Promise<Badge[]> {
+export async function queryBadge(props: QueryBadgeProps): Promise<ListData<Badge>> {
     // props.badge_type = props.badge_type || 'badge'
     //
     // const res = await fetch.get({
@@ -649,11 +654,19 @@ export async function queryBadge(props: QueryBadgeProps): Promise<Badge[]> {
         created_at
         metadata
       }
+      badges_aggregate (where:{${variables}}) {
+        aggregate {
+            count
+        }
+      }
     }`
 
     const res: any = await request(graphUrl, doc)
 
-    return res.badges as Badge[]
+    return {
+        data: res.badges as Badge[],
+        total: res.badges_aggregate.aggregate.count
+    }
 }
 
 export async function queryPrivateBadge(props: QueryBadgeProps): Promise<Badge[]> {

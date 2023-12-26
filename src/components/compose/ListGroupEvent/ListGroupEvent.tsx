@@ -5,7 +5,9 @@ import scrollToLoad from "@/hooks/scrollToLoad";
 import userContext from "@/components/provider/UserProvider/UserContext";
 import React, {useContext, useEffect} from "react";
 import styles from './ListGroupEvent.module.sass'
+import spinnerStyles from "@/components/compose/ListNftAsset/ListNftAsset.module.sass"
 import EventHomeContext from "@/components/provider/EventHomeProvider/EventHomeContext";
+import {Spinner} from "baseui/spinner";
 
 function ListGroupEvent({profile, isGroup}: { profile: Profile, isGroup?: boolean }) {
     const {user} = useContext(userContext)
@@ -59,6 +61,7 @@ function ListGroupEvent({profile, isGroup}: { profile: Profile, isGroup?: boolea
             marginTop: '15px',
             marginBottom: '15px'
         }}>{isGroup ? "Created Events" : 'Applied Events'}</div>
+        {!ready && <Spinner className={spinnerStyles.spinner} $color={'#98f6db'}/>}
         {!list.length && ready ? <Empty/> :
             <div className={'list maodao-event'}>
                 {

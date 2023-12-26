@@ -41,7 +41,7 @@ function SeedaoHome({group, members} : {group: Group, members: Membership[]}) {
     }, [user.id])
 
     const startIssueBadge = async () => {
-        const badges = await queryBadge({group_id: group.id, page: 1})
+        const badges = (await queryBadge({group_id: group.id, page: 1})).data
 
         issueBadge({
             badges: badges,

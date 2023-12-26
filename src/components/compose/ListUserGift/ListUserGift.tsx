@@ -20,7 +20,7 @@ function ListUserGift(props: ListUserRecognitionProps) {
             ? {group_id: props.profile.id, badge_type: 'gift', page}
             : {sender_id: props.profile.id, badge_type: 'gift', page}
 
-        return await solas.queryBadge(queryProps)
+        return (await solas.queryBadge(queryProps)).data
     }
 
     const getBadgelet = async (page: number) => {

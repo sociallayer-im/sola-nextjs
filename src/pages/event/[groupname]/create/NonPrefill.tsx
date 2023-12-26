@@ -530,7 +530,7 @@ function CreateEvent(props: CreateEventPageProps) {
             }
 
         const unload = showLoading()
-        const badges = await queryBadge(props)
+        const badges = (await queryBadge(props)).data
         unload()
 
         openDialog({

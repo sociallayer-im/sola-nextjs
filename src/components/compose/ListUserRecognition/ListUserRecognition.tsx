@@ -7,9 +7,12 @@ import CardBadgelet from "../../base/Cards/CardBadgelet/CardBadgelet";
 import LangContext from "../../provider/LangProvider/LangContext";
 import useEvent, {EVENT} from "../../../hooks/globalEvent";
 import AppButton from "@/components/base/AppButton/AppButton";
+import {Spinner} from "baseui/spinner";
+import spinnerStyles from "@/components/compose/ListNftAsset/ListNftAsset.module.sass";
 
 interface ListUserRecognitionProps {
     profile: Profile
+    onBadgeCount?: (total: number) => any
 }
 
 function ListUserRecognition(props: ListUserRecognitionProps) {
@@ -17,18 +20,24 @@ function ListUserRecognition(props: ListUserRecognitionProps) {
     const {lang} = useContext(LangContext)
 
     const [noBadge, setNoBadge] = useState(true)
+    const [badgeCount, setBadgeCount] = useState(0)
+    const [ready, setReady] = useState(false)
 
     const getBadge = async (page: number) => {
         const queryProps = !!(props.profile as Group).creator
             ? {group_id: props.profile.id, page}
             : {sender_id: props.profile.id, page}
 
-        return await solas.queryBadge(queryProps)
+        const res = await solas.queryBadge(queryProps)
+        setBadgeCount(res.total)
+        setReady(true)
+        props.onBadgeCount && props.onBadgeCount(res.total)
+        return res.data
     }
 
     const getBadgelet = async (page: number) => {
         const publicBadgelet = await solas.queryBadgelet({owner_id: props.profile.id, page})
-
+        setReady(true)
         return publicBadgelet
     }
 
@@ -42,6 +51,7 @@ function ListUserRecognition(props: ListUserRecognitionProps) {
     }, [props.profile, needUpdate])
 
     return (<div className={'list-user-recognition'}>
+        {!ready && <Spinner className={spinnerStyles.spinner} $color={'#98f6db'}/>}
         { !(props.profile as Group).creator &&
             <>
                 <div className={'list-title'}>{lang['Badgelet_List_Title']}</div>

@@ -1,4 +1,4 @@
-import {useContext, useEffect, useState} from 'react'
+import React, {useContext, useEffect, useState} from 'react'
 import {Comment, Group, queryComment, sendComment} from "@/service/solas";
 import styles from './GroupComment.module.scss'
 import userContext from "@/components/provider/UserProvider/UserContext";
@@ -8,6 +8,8 @@ import DialogsContext from "@/components/provider/DialogProvider/DialogsContext"
 import AppButton from "@/components/base/AppButton/AppButton";
 import Empty from "@/components/base/Empty";
 import useTime from "@/hooks/formatTime";
+import {Spinner} from "baseui/spinner";
+import spinnerStyles from "@/components/compose/ListNftAsset/ListNftAsset.module.sass";
 
 function GroupComment(props: { group: Group }) {
     const {user} = useContext(userContext)
@@ -39,6 +41,7 @@ function GroupComment(props: { group: Group }) {
 
         if (newComment) {
             setComments([newComment, ...comments])
+            setComment('')
             showToast('Comment sent')
         }
         setBusy(false)
@@ -66,7 +69,7 @@ function GroupComment(props: { group: Group }) {
                                   setComment(e.target.value)
                               }}></Textarea>
                     <div>
-                        <AppButton className={styles['send-btn']}
+                        <AppButton
                                    onClick={handleSendComment}
                                    disabled={busy}>
                             Send
@@ -75,6 +78,8 @@ function GroupComment(props: { group: Group }) {
                 </div>
             </div>
         }
+
+        {!ready && <Spinner className={spinnerStyles.spinner} $color={'#98f6db'}/>}
         {comments.length === 0 && ready && <Empty/>}
         <div className={styles['comment-list']}>
             {

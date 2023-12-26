@@ -163,7 +163,7 @@ function Home() {
             const unload = showLoading()
             const badges = await solas.queryBadge({sender_id: user.id!, page: 1})
             unload()
-            startIssueBadge({badges})
+            startIssueBadge({badges: badges.data})
         } else if (!user.userName && user.authToken) {
             router.push('/regist')
         } else {

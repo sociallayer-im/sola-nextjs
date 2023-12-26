@@ -17,7 +17,7 @@ function ListUserMinted ({ userType = 'user',  ...props }: ListUserMintedProps) 
             ? { sender_id: props.profile.id, page }
             : { group_id: props.profile.id, page }
 
-        return await solas.queryBadge(queryProps)
+        return (await solas.queryBadge(queryProps)).data
     }
 
 

@@ -110,7 +110,7 @@ function Page(props: any) {
         }
 
         const unload = showLoading()
-        const badges = await solas.queryBadge({sender_id: user.id!, page: 1})
+        const badges = (await solas.queryBadge({sender_id: user.id!, page: 1})).data
 
         unload()
 

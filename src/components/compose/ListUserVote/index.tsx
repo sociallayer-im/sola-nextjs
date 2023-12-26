@@ -7,6 +7,8 @@ import useEvent, { EVENT } from '../../../hooks/globalEvent'
 import ListUserAssets , {ListUserAssetsMethods} from "../../base/ListUserAssets/ListUserAssets";
 import CardVote from "../../base/Cards/CardVote/CardVote";
 import {useRouter} from "next/navigation";
+import {Spinner} from "baseui/spinner";
+import spinnerStyles from "@/components/compose/ListNftAsset/ListNftAsset.module.sass";
 
 interface ListUserPresendProps {
     profile: Profile,
@@ -20,10 +22,12 @@ function ListUserVote (props: ListUserPresendProps) {
     const router = useRouter()
     const [member, setMember] = useState(false)
     const [count, setCount] = useState(0)
+    const [ready, setReady] = React.useState(false)
 
     const getVotes = async (page: number) => {
         const res = await queryVotes({group_id: props.profile.id, page,})
         setCount(res.length)
+        setReady(true)
         return res
     }
 
@@ -63,7 +67,7 @@ function ListUserVote (props: ListUserPresendProps) {
                 </div>
             }
         </div>
-
+        {!ready && <Spinner className={spinnerStyles.spinner} $color={'#98f6db'}/>}
         <ListUserAssets
             child={ (itemData, key) => <CardVote key={key} item={itemData} /> }
             queryFcn={ getVotes }

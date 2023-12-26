@@ -1,6 +1,6 @@
 import {useParams, useRouter, useSearchParams} from 'next/navigation'
 import PageBack from '@/components/base/PageBack'
-import React, {useContext, useEffect, useState} from 'react'
+import React, {useContext, useEffect, useState, memo} from 'react'
 import {getGroupMemberShips, getGroups, Group, Profile, queryBadge} from '@/service/solas'
 import DialogsContext from '@/components/provider/DialogProvider/DialogsContext'
 import GroupPanel from '@/components/base/GroupPanel/GroupPanel'
@@ -24,9 +24,9 @@ import {Swiper, SwiperSlide} from 'swiper/react'
 import {Mousewheel} from "swiper";
 
 
-const ListUserPresend = dynamic(() => import('@/components/compose/ListUserPresend'), {
+const ListUserPresend = memo(dynamic(() => import('@/components/compose/ListUserPresend'), {
     loading: () => <p>Loading...</p>,
-})
+}))
 
 const ListUserNftpass = dynamic(() => import('@/components/compose/ListUserNftpass/ListUserNftpass'), {
     loading: () => <p>Loading...</p>,
@@ -54,6 +54,7 @@ function GroupPage(props: any) {
     const [isGroupManager, setIsGroupManager] = useState(false)
     const [isIssuer, setIssuer] = useState(false)
     const [isGroupOwner, setIsGroupOwner] = useState(false)
+    const [badgeCount, setBadgeCount] = useState(0)
     const startIssue = useIssueBadge()
     const {copyWithDialog} = useCopy()
     const router = useRouter()
@@ -142,7 +143,7 @@ function GroupPage(props: any) {
             {group_id: profile?.id || undefined, page: 1} :
             {sender_id: user?.id || undefined, page: 1}
 
-        const badges = await queryBadge(badgeProps)
+        const badges = (await queryBadge(badgeProps)).data
         unload()
 
         if (process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'seedao') {
@@ -264,7 +265,7 @@ function GroupPage(props: any) {
                                                  }}>{lang['Group_detail_tabs_Vote']}</div>
                                         </SwiperSlide>
                                     }
-                                    <SwiperSlide className={'tabs-wrapper'}>
+                                    <SwiperSlide className={'tabs-wrapper wap'}>
                                         <div className={selectedTab === '6' ? 'tabs-title active' : 'tabs-title'}
                                              key={6}
                                              onClick={e => {
@@ -282,7 +283,7 @@ function GroupPage(props: any) {
                                 <div className={'profile-badge'}>
                                     {!!user.userName &&
                                         <div className={'action'}>
-                                            <div></div>
+                                            <div><b>{badgeCount}</b> {lang['Badgelet_List_Unit']}</div>
                                             {(isGroupOwner || isGroupManager || isIssuer) &&
                                                 <AppButton special size={BTN_SIZE.compact} onClick={handleMintOrIssue}>
                                                     <span className='icon-sendfasong'></span>
@@ -301,7 +302,9 @@ function GroupPage(props: any) {
                                         }}
                                         renderAll>
                                         <Tab title={lang['Profile_Tab_Basic']}>
-                                            <ListUserRecognition profile={profile}/>
+                                            <ListUserRecognition onBadgeCount={(badgeCount) => {
+                                                setBadgeCount(badgeCount)}
+                                            } profile={profile}/>
                                         </Tab>
                                         {
                                             !!profile?.permissions.includes('nftpass') ?

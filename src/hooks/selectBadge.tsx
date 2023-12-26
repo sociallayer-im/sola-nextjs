@@ -20,16 +20,16 @@ function useSelectedBadge() {
         const getBadge = async () => {
             if (props.profileId) {
                 const res  = await queryBadge({sender_id: props.profileId, page})
-                badge = [...badge, ...res]
-                if (res.length === 20) {
+                badge = [...badge, ...res.data]
+                if (res.data.length === 20) {
                     page++
                     await getBadge()
                 }
             }
             if (props.groupId) {
                 const res  = await queryBadge({group_id: props.groupId, page})
-                badge = [...badge, ...res]
-                if (res.length === 20) {
+                badge = [...badge, ...res.data]
+                if (res.data.length === 20) {
                     page++
                     await getBadge()
                 }
