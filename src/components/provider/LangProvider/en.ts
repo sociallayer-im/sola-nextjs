@@ -587,6 +587,7 @@ const langEN = {
     Received: 'Received',
     Profile_Setting: 'Profile setting',
     Checkins: 'Checkins',
+    Comment: 'Comment',
 }
 
 

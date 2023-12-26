@@ -1,5 +1,5 @@
 import React, {useContext, useEffect, useState} from 'react'
-import solas, {Group, Membership, Profile} from '../../../service/solas'
+import solas, {Group, Profile} from '../../../service/solas'
 import LangContext from '../../provider/LangProvider/LangContext'
 import UserContext from '../../provider/UserProvider/UserContext'
 import CardInviteMember from '../../base/Cards/CardInviteMember/CardInviteMember'
@@ -16,6 +16,7 @@ import DialogTransferGroupOwner from "@/components/base/Dialog/DialogTransferGro
 
 interface ListGroupMemberProps {
     group: Profile
+    isSidebar?: boolean
 }
 
 interface ProfileWithRole extends Profile {
@@ -63,7 +64,7 @@ function ListGroupMember(props: ListGroupMemberProps) {
                 return !_managers.some((manager: Profile) => manager.id === member.id)
             })
                 .filter((member: Profile) => {
-                    return !_issuer.some((issuer:Profile) => issuer.id === member.id)
+                    return !_issuer.some((issuer: Profile) => issuer.id === member.id)
                 })
         )
         setIssuer(_issuer)
@@ -229,11 +230,17 @@ function ListGroupMember(props: ListGroupMemberProps) {
     return <div className='list-group-member'>
         <div className={'title-member'}>
             <div className={'action-left'}><span>{lang['Group_detail_tabs_member']}</span>
-                {Action}
+                {!props.isSidebar ? Action : <div></div>}
             </div>
-            <div className={'action'}>
-                {members.length + managers.length + issuer.length + 1} <span> {lang['Group_detail_tabs_member']}</span>
-            </div>
+            {!props.isSidebar ?
+                <div className={'action'}>
+                    {members.length + managers.length + issuer.length + 1}
+                    <span> {lang['Group_detail_tabs_member']}</span>
+                </div> :
+                <div className={'action'}>
+                    {Action}
+                </div>
+            }
         </div>
         <div className={'address-list'}>
             <PreEnhancer/>
@@ -276,7 +283,7 @@ function ListGroupMember(props: ListGroupMemberProps) {
                 })
             }
 
-            {
+            {!props.isSidebar && <>{
                 members.map((member, index) => {
                     return <div className={'list-item'}
                                 key={index}
@@ -293,6 +300,10 @@ function ListGroupMember(props: ListGroupMemberProps) {
                         </div>
                     </div>
                 })
+            }</>
+            }
+            {
+                props.isSidebar && <div className={'side-member-count'}>{`${members.length + managers.length + issuer.length + 1} ${lang['Group_detail_tabs_member']}`} </div>
             }
         </div>
     </div>

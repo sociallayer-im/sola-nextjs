@@ -1,5 +1,5 @@
-.profile-page {
-  background: var(--color-page-bg);
+.group-page {
+  background: var(--color-page-bg-1);
   min-height: 100%;
   position: relative;
 
@@ -9,23 +9,144 @@
     font-weight: 800;
     font-size: 48px;
     line-height: 56px;
-    color: #272928;
+    color: var(--color-text-main);
     margin-bottom: 32px;
   }
 
   .center {
-    max-width: var(--width-page-max);
+    max-width: 1020px;
+    width: 100%;
     margin: 0 auto;
     padding: 0 12px;
+    box-sizing: border-box;
   }
 
   .up-side {
-    background: var(--color-page-bg-1);
+    background: var(--color-page-bg);
     padding-bottom: 20px;
   }
 
   .down-side {
-    padding-top: 12px;
+    background: var(--color-page-bg-1);
+    padding-top: 10px;
+
+    .profile-badge {
+      .action {
+        display: flex;
+        justify-content: space-between;
+        flex-flow: row nowrap;
+        margin-bottom: 12px;
+
+        button {
+          width: 50%;
+          display: inline-flex;
+        }
+      }
+    }
+
+    .center {
+      display: flex;
+      flex-flow: row nowrap;
+      justify-content: space-between;
+
+      .profile-tab {
+        flex: 1;
+        max-width: 700px;
+        margin-right: 28px;
+
+        .list-group-member {
+          .title-member {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+
+            .action-left {
+              span {
+                display: none;
+              }
+            }
+          }
+        }
+
+        .group-event {
+          > div {
+            padding: 0;
+          }
+
+          .list-title {
+            display: none;
+          }
+
+          .event-card {
+            width: 100%;
+            margin-bottom: 12px;
+          }
+        }
+      }
+
+      .profile-side {
+        min-width: 320px;
+        width: 285px;
+        padding-top: 8px;
+
+        .list-group-member {
+          .title-member {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            .action-left {
+              span {
+                color: var(--color-text-main);
+                font-size: 16px;
+                font-style: normal;
+                font-weight: 600;
+                line-height: 24px;
+              }
+            }
+          }
+
+          .list-item {
+            padding: 0;
+            box-shadow: none;
+            margin-top: 16px;
+          }
+        }
+      }
+    }
+
+    .tabs {
+      display: flex;
+      flex-flow: row nowrap;
+      overflow: auto;
+      margin-bottom: 28px;
+
+      .swiper {
+        width: 100%;
+      }
+    }
+
+    .tabs-wrapper {
+      width: 100px;
+    }
+
+    .tabs-title {
+      color: var(--color-text-main);
+      font-size: 16px;
+      font-style: normal;
+      font-weight: 600;
+      line-height: 24px;
+      padding: 8px 0;
+      text-align: center;
+      border-radius: 8px;
+      cursor: pointer;
+
+      &.active {
+        color: #fff;
+        background: #272928;
+      }
+    }
   }
 
   .slot_1 {
@@ -38,6 +159,7 @@
 
   .slot_2 {
     margin-top: 20px;
+    display: none;
   }
 
   .icon-sendfasong {
@@ -62,8 +184,8 @@
     }
   }
 
-  >div[data-baseweb="tabs"] {
-    >div[role="tablist"] {
+  > div[data-baseweb="tabs"] {
+    > div[role="tablist"] {
       display: block;
       white-space: nowrap;
       overflow: auto;
@@ -89,48 +211,47 @@
       }
     }
 
-    >div[role="tabpanel"] {
+    > div[role="tabpanel"] {
       padding: 16px 12px;
 
       div[role="tablist"] {
-        padding: 0!important;
+        padding: 0 !important;
       }
     }
   }
 }
 
-@media (min-width: 450px) {
-  .profile-page {
-    display: flex;
-    flex-flow: row nowrap;
-    align-items: flex-start;
-    margin-top: 90px;
-    max-width: 942px;
-    padding: 0 20px;
-    margin-left: auto;
-    margin-right: auto;
-    background: var(--color-page-bg);
-
-    .profile-user-name {
+@media (max-width: 700px) {
+  .group-page {
+    .slot_2 {
       display: block;
     }
 
-    .up-side {
-      min-width: 375px;
-      max-width: 375px;
-      margin-right: 32px;
-      position: relative;
-      background: var(--color-page-bg-1);
-    }
-
-    .top-side {
-      margin-top: -50px;
+    .profile-side {
+      display: none;
     }
 
     .down-side {
-      flex: 1;
-      min-width: 0;
-      padding-top: 0;
+      padding-bottom: 30px;
+      .center {
+        max-width: 100%;
+
+        .profile-tab {
+          max-width: 100%;
+
+          .tabs {
+            margin-bottom: 12px;
+          }
+
+          .profile-badge {
+            .action {
+              button {
+               display: none;
+              }
+            }
+          }
+        }
+      }
     }
   }
 }

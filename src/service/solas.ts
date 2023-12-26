@@ -1450,7 +1450,7 @@ export async function getGroupMemberShips(props: GetGroupMembersProps): Promise<
     const condition = props.role
         ? props.role === 'all'
             ? `where: {group: {id: {_eq: "${props.group_id}"}}}`
-                : `where: {group: {id: {_eq: "${props.group_id}"}}, role: {_eq: "${props.role}"}}`
+            : `where: {group: {id: {_eq: "${props.group_id}"}}, role: {_eq: "${props.role}"}}`
         : `where: {group: {id: {_eq: "${props.group_id}"}}, role: {_neq: "owner"}}`
 
     const doc = gql`query MyQuery {
@@ -2378,7 +2378,7 @@ export interface CheckIn {
 }
 
 export async function queryCheckInList(props: QueryCheckInListProps): Promise<CheckIn[]> {
-   let variables = ''
+    let variables = ''
 
     if (props.profile_id) {
         variables += `profile_id: {_eq: ${props.profile_id}},`
@@ -2420,8 +2420,8 @@ export async function queryCheckInList(props: QueryCheckInListProps): Promise<Ch
           }
     }`
 
-    const res: any  = await request(graphUrl, doc)
-    return  res.map_checkins as CheckIn[]
+    const res: any = await request(graphUrl, doc)
+    return res.map_checkins as CheckIn[]
 }
 
 export interface SetEmailProps {
@@ -4329,7 +4329,7 @@ export async function queryVoucherDetail(id: number) {
     return res.vouchers[0] as Voucher || null
 }
 
-export async function sendBadgeByWallet (props: {
+export async function sendBadgeByWallet(props: {
     receivers: string[],
     auth_token: string,
     reason: string,
@@ -4340,7 +4340,7 @@ export async function sendBadgeByWallet (props: {
 }) {
     checkAuth(props)
 
-   const res = await fetch.post({
+    const res = await fetch.post({
         url: `${apiUrl}/voucher/send_badge_by_address`,
         data: props
     })
@@ -4348,7 +4348,7 @@ export async function sendBadgeByWallet (props: {
     return res.data.vouchers as Voucher[]
 }
 
-export async function queryGroupEventCheckins (group_id: number) {
+export async function queryGroupEventCheckins(group_id: number) {
     const doc = `query participants {
       participants_aggregate(where: {event: {group_id: {_eq: ${group_id}}}, status: {_eq: "checked"}}) {
         aggregate {
@@ -4361,7 +4361,7 @@ export async function queryGroupEventCheckins (group_id: number) {
     return res.participants_aggregate.aggregate.count as number
 }
 
-export async function getSwapCode (props: {auth_token: string, badgelet_id: number}) {
+export async function getSwapCode(props: { auth_token: string, badgelet_id: number }) {
     checkAuth(props)
 
     const res = await fetch.post({
@@ -4372,13 +4372,91 @@ export async function getSwapCode (props: {auth_token: string, badgelet_id: numb
     return res.data.token as string
 }
 
-export async function swapBadgelet (props: {auth_token: string, badgelet_id: number, swap_token: string}) {
+export async function swapBadgelet(props: { auth_token: string, badgelet_id: number, swap_token: string }) {
     checkAuth(props)
 
     const res = await fetch.post({
         url: `${apiUrl}/badgelet/swap`,
         data: props
     })
+}
+
+export interface Comment {
+    id: number,
+    content: string,
+    created_at: string,
+    topic_item_id: number,
+    topic_item_type: number,
+    sender: ProfileSimple
+    sender_id: number,
+}
+
+export async function sendComment(props: {
+    auth_token: string,
+    type: string,
+    target: number
+    content: string
+}) {
+    checkAuth(props)
+
+    const doc = gql`mutation {
+        insert_chat_messages_one(object: {content: "${props.content}", topic_item_id: "${props.target}", created_at: "${new Date().toISOString()}"}) {
+            id
+            content
+            created_at
+            topic_item_id
+            topic_item_type
+            sender_id
+            sender {
+                id
+                nickname
+                username
+                image_url
+                }
+        }
+    }`
+
+    const res: any = await request(graphUrl, doc, {}, {
+        'Authorization': 'Bearer ' + props.auth_token
+    })
+
+    return res.insert_chat_messages_one as Comment
+}
+
+export async function queryComment(props: {
+    type?: string,
+    target: number
+    page: number,
+    page_size?: number
+}) {
+
+    const size = props.page_size || 10
+
+    const doc = gql`query MyQuery {
+        chat_messages(
+        order_by: {created_at: desc}
+        where: {topic_item_id: {_eq: ${props.target}}}
+        limit: ${size}
+        offset: ${(props.page - 1) * size}
+      ) {
+            id
+            content
+            created_at
+            topic_item_id
+            topic_item_type
+            sender_id
+            sender {
+                id
+                nickname
+                username
+                image_url
+                }
+        }
+    }`
+
+    const res: any = await request(graphUrl, doc)
+
+    return res.chat_messages as Comment[]
 }
 
 

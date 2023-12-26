@@ -6,6 +6,7 @@ import UserContext from "../../provider/UserProvider/UserContext";
 import CardBadgelet from "../../base/Cards/CardBadgelet/CardBadgelet";
 import LangContext from "../../provider/LangProvider/LangContext";
 import useEvent, {EVENT} from "../../../hooks/globalEvent";
+import AppButton from "@/components/base/AppButton/AppButton";
 
 interface ListUserRecognitionProps {
     profile: Profile
@@ -52,7 +53,6 @@ function ListUserRecognition(props: ListUserRecognitionProps) {
             </>
         }
         <div className={`${noBadge ? 'hide-item' : ''}`}>
-            <div className={`list-title margin}`}>{lang['Created_List_Title']}</div>
             <ListUserAssets
                 queryFcn={getBadge}
                 onListChange={(list: any) => {

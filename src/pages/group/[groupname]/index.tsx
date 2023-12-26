@@ -1,6 +1,6 @@
 import {useParams, useRouter, useSearchParams} from 'next/navigation'
 import PageBack from '@/components/base/PageBack'
-import {useContext, useEffect, useState} from 'react'
+import React, {useContext, useEffect, useState} from 'react'
 import {getGroupMemberShips, getGroups, Group, Profile, queryBadge} from '@/service/solas'
 import DialogsContext from '@/components/provider/DialogProvider/DialogsContext'
 import GroupPanel from '@/components/base/GroupPanel/GroupPanel'
@@ -12,15 +12,34 @@ import useIssueBadge from '@/hooks/useIssueBadge'
 import BgProfile from '@/components/base/BgProfile/BgProfile'
 import {styled} from "baseui";
 import useCopy from '@/hooks/copy'
-import {Tab, Tabs} from "baseui/tabs";
+import {Tab} from "baseui/tabs";
 import ListUserRecognition from "@/components/compose/ListUserRecognition/ListUserRecognition";
-import ListUserPresend from "@/components/compose/ListUserPresend";
-import ListUserNftpass from "@/components/compose/ListUserNftpass/ListUserNftpass";
 import AppSubTabs from "@/components/base/AppSubTabs";
 import ListGroupInvite from "@/components/compose/ListGroupInvite";
-import ListUserPoint from "@/components/compose/ListUserPoint/ListUserPoint";
 import ListUserGift from "@/components/compose/ListUserGift/ListUserGift";
-import ListUserVote from "@/components/compose/ListUserVote";
+import GroupComment from "@/components/compose/GroupComment/GroupComment";
+import ListGroupEvent from "@/components/compose/ListGroupEvent/ListGroupEvent";
+import dynamic from 'next/dynamic'
+import {Swiper, SwiperSlide} from 'swiper/react'
+import {Mousewheel} from "swiper";
+
+
+const ListUserPresend = dynamic(() => import('@/components/compose/ListUserPresend'), {
+    loading: () => <p>Loading...</p>,
+})
+
+const ListUserNftpass = dynamic(() => import('@/components/compose/ListUserNftpass/ListUserNftpass'), {
+    loading: () => <p>Loading...</p>,
+})
+
+const ListUserPoint = dynamic(() => import('@/components/compose/ListUserVote'), {
+    loading: () => <p>Loading...</p>,
+})
+
+const ListUserVote = dynamic(() => import('@/components/compose/ListUserVote'), {
+    loading: () => <p>Loading...</p>,
+})
+
 
 function GroupPage(props: any) {
     const params = useParams()
@@ -158,12 +177,17 @@ function GroupPage(props: any) {
         }
     </div>
 
+    const setTab = (tab: string) => {
+        setSelectedTab(tab as any);
+        window.history.pushState(null, '', `/group/${groupname}?tab=${tab}`)
+    }
+
     return <>
         {!!profile &&
-            <div className='profile-page'>
+            <div className='group-page'>
                 <div className='up-side'>
-                    <BgProfile profile={profile}/>
                     <div className='center'>
+                        <BgProfile profile={profile}/>
                         <div className='top-side'>
                             <PageBack menu={ProfileMenu}/>
                         </div>
@@ -174,7 +198,7 @@ function GroupPage(props: any) {
                             {(isGroupOwner || isGroupManager || isIssuer) &&
                                 <AppButton special size={BTN_SIZE.compact} onClick={handleMintOrIssue}>
                                     <span className='icon-sendfasong'></span>
-                                    { process.env.NEXT_PUBLIC_SPECIAL_VERSION=== 'seedao' ?
+                                    {process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'seedao' ?
                                         lang['Send_SeeDAO_Badge']
                                         : lang['Follow_detail_btn_mint']}
                                 </AppButton>
@@ -183,74 +207,148 @@ function GroupPage(props: any) {
                     </div>
                 </div>
                 <div className='down-side'>
-                    <div className={'profile-tab'}>
-                        <Tabs
-                            renderAll
-                            activeKey={selectedTab}
-                            onChange={({activeKey}) => {
-                                setSelectedTab(activeKey as any);
-                                router.push(`/group/${groupname}?tab=${activeKey}`, {scroll: false})
-                            }}>
-
-                            <Tab title={lang['Profile_Tab_Received']}>
-                                <AppSubTabs
-                                    activeKey={selectedSubtab}
-                                    onChange={({activeKey}) => {
-                                        router.push(`/group/${groupname}?tab=${selectedTab}&subtab=${activeKey}`, {scroll: false})
-                                        setSelectedSubtab(activeKey as any)
-                                    }}
-                                    renderAll>
-                                    <Tab title={lang['Profile_Tab_Basic']}>
-                                        <ListUserRecognition profile={profile}/>
-                                    </Tab>
-                                    {
-                                        !!profile?.permissions.includes('nftpass') ?
-                                            <Tab title={lang['Profile_Tab_NFTPASS']}>
-                                                <ListUserNftpass profile={profile}/>
-                                            </Tab> : <></>
+                    <div className={'center'}>
+                        <div className={'profile-tab'}>
+                            <div className={'tabs'}>
+                                <Swiper
+                                    modules={[Mousewheel]}
+                                    mousewheel={true}
+                                    spaceBetween={12}
+                                    slidesPerView={'auto'}>
+                                    <SwiperSlide className={'tabs-wrapper'}>
+                                        <div className={selectedTab === '0' ? 'tabs-title active' : 'tabs-title'}
+                                             key={0}
+                                             onClick={e => {
+                                                 setTab('0')
+                                             }}>{lang['IssueBadge_Eventbtn']}</div>
+                                    </SwiperSlide>
+                                    <SwiperSlide className={'tabs-wrapper'}>
+                                        <div className={selectedTab === '1' ? 'tabs-title active' : 'tabs-title'}
+                                             key={1}
+                                             onClick={e => {
+                                                 setTab('1')
+                                             }}>{lang['Profile_Tab_Received']}</div>
+                                    </SwiperSlide>
+                                    <SwiperSlide className={'tabs-wrapper'}>
+                                        <div className={selectedTab === '3' ? 'tabs-title active' : 'tabs-title'}
+                                             key={3}
+                                             onClick={e => {
+                                                 setTab('3')
+                                             }}>{lang['Comment']}</div>
+                                    </SwiperSlide>
+                                    {(isGroupOwner || isGroupManager || isIssuer) &&
+                                        <SwiperSlide className={'tabs-wrapper'}>
+                                            <div className={selectedTab === '2' ? 'tabs-title active' : 'tabs-title'}
+                                                 key={2}
+                                                 onClick={e => {
+                                                     setTab('2')
+                                                 }}>{lang['Profile_Tab_Presend']}</div>
+                                        </SwiperSlide>
                                     }
                                     {
-                                        !!profile?.permissions.includes('gift') ?
-                                            <Tab title={lang['Badgebook_Dialog_Gift']}>
-                                                <ListUserGift profile={profile}/>
-                                            </Tab> : <></>
+                                        process.env.NEXT_PUBLIC_SPECIAL_VERSION !== 'seedao' && !!profile?.permissions.includes('point') &&
+                                        <SwiperSlide className={'tabs-wrapper'}>
+                                            <div className={selectedTab === '4' ? 'tabs-title active' : 'tabs-title'}
+                                                 key={4}
+                                                 onClick={e => {
+                                                     setTab('4')
+                                                 }}>{lang['Profile_Tab_Point']}</div>
+                                        </SwiperSlide>
                                     }
-
-                                    {isGroupOwner || isGroupManager ?
-                                        <Tab title={lang['Group_detail_tabs_Invite']}>
-                                            <ListGroupInvite group={profile}/>
+                                    {process.env.NEXT_PUBLIC_SPECIAL_VERSION !== 'seedao' &&
+                                        <SwiperSlide className={'tabs-wrapper'}>
+                                            <div className={selectedTab === '5' ? 'tabs-title active' : 'tabs-title'}
+                                                 key={5}
+                                                 onClick={e => {
+                                                     setTab('5')
+                                                 }}>{lang['Group_detail_tabs_Vote']}</div>
+                                        </SwiperSlide>
+                                    }
+                                    <SwiperSlide className={'tabs-wrapper'}>
+                                        <div className={selectedTab === '6' ? 'tabs-title active' : 'tabs-title'}
+                                             key={6}
+                                             onClick={e => {
+                                                 setTab('6')
+                                             }}>{lang['Group_detail_tabs_member']}</div>
+                                    </SwiperSlide>
+                                </Swiper>
+                            </div>
+                            {selectedTab === '0' &&
+                                <div className={'group-event'}>
+                                    <ListGroupEvent isGroup={true} profile={profile}/>
+                                </div>
+                            }
+                            {selectedTab === '1' &&
+                                <div className={'profile-badge'}>
+                                    {!!user.userName &&
+                                        <div className={'action'}>
+                                            <div></div>
+                                            {(isGroupOwner || isGroupManager || isIssuer) &&
+                                                <AppButton special size={BTN_SIZE.compact} onClick={handleMintOrIssue}>
+                                                    <span className='icon-sendfasong'></span>
+                                                    {process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'seedao' ?
+                                                        lang['Send_SeeDAO_Badge']
+                                                        : lang['Follow_detail_btn_mint']}
+                                                </AppButton>
+                                            }
+                                        </div>
+                                    }
+                                    <AppSubTabs
+                                        activeKey={selectedSubtab}
+                                        onChange={({activeKey}) => {
+                                            window.history.pushState(null, '', `/group/${groupname}?tab=${selectedTab}&subtab=${activeKey}`)
+                                            setSelectedSubtab(activeKey as any)
+                                        }}
+                                        renderAll>
+                                        <Tab title={lang['Profile_Tab_Basic']}>
+                                            <ListUserRecognition profile={profile}/>
                                         </Tab>
-                                        : <></>
-                                    }
-                                </AppSubTabs>
-                            </Tab>
-                            {isGroupOwner || isGroupManager ?
-                                <Tab title={lang['Profile_Tab_Presend']}>
-                                    <ListUserPresend profile={profile}/>
-                                </Tab>
-                                : <></>
+                                        {
+                                            !!profile?.permissions.includes('nftpass') ?
+                                                <Tab title={lang['Profile_Tab_NFTPASS']}>
+                                                    <ListUserNftpass profile={profile}/>
+                                                </Tab> : <></>
+                                        }
+                                        {
+                                            !!profile?.permissions.includes('gift') ?
+                                                <Tab title={lang['Badgebook_Dialog_Gift']}>
+                                                    <ListUserGift profile={profile}/>
+                                                </Tab> : <></>
+                                        }
+
+                                        {isGroupOwner || isGroupManager ?
+                                            <Tab title={lang['Group_detail_tabs_Invite']}>
+                                                <ListGroupInvite group={profile}/>
+                                            </Tab>
+                                            : <></>
+                                        }
+                                    </AppSubTabs>
+                                </div>
                             }
                             {
-                                !!profile?.permissions.includes('gift') ?
-                                    <Tab title={lang['Profile_Tab_Point']}>
-                                        <ListUserPoint profile={profile}/>
-                                    </Tab> : <></>
+                                selectedTab === '2' &&
+                                <ListUserPresend profile={profile}/>
                             }
-
-                            { process.env.NEXT_PUBLIC_SPECIAL_VERSION !== 'seedao' ?
-                                <Tab title={lang['Group_detail_tabs_Vote']}>
-                                    <div className={'list-vote'}>
-                                        <ListUserVote profile={profile}/>
-                                    </div>
-                                </Tab> : <></>
+                            {
+                                selectedTab === '3' &&
+                                <GroupComment group={profile as Group}/>
                             }
-
-                            <Tab title={lang['Group_detail_tabs_member']}>
-                                <div>
-                                    <ListGroupMember group={profile}/>
-                                </div>
-                            </Tab>
-                        </Tabs>
+                            {
+                                selectedTab === '4' &&
+                                <ListUserPoint profile={profile}/>
+                            }
+                            {
+                                selectedTab === '5' &&
+                                <ListUserVote profile={profile}/>
+                            }
+                            {
+                                selectedTab === '6' &&
+                                <ListGroupMember group={profile}/>
+                            }
+                        </div>
+                        <div className={'profile-side'}>
+                            <ListGroupMember group={profile} isSidebar={true}/>
+                        </div>
                     </div>
                 </div>
             </div>

@@ -36,7 +36,7 @@ function ListUserAssets<T>(props: ListUserAssetsProps<T>) {
     const [listData, setListData] = useState<T[]>(list)
     const previewCount = typeof window === 'undefined'
         ? (props.previewCount || 4)
-        : (window.innerWidth <= 450 ? (props.previewCount || 4) : (props.previewCount || 6))
+        : (window.innerWidth <= 450 ? (props.previewCount || 4) : (props.previewCount || 8))
 
     useImperativeHandle(props.onRef, () => {
         // 需要将暴露的接口返回出去

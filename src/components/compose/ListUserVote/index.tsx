@@ -19,9 +19,12 @@ function ListUserVote (props: ListUserPresendProps) {
     const [newVote, _] = useEvent(EVENT.VoteListUpdate)
     const router = useRouter()
     const [member, setMember] = useState(false)
+    const [count, setCount] = useState(0)
 
     const getVotes = async (page: number) => {
-        return await queryVotes({group_id: props.profile.id, page,})
+        const res = await queryVotes({group_id: props.profile.id, page,})
+        setCount(res.length)
+        return res
     }
 
     useEffect(() => {
@@ -51,7 +54,7 @@ function ListUserVote (props: ListUserPresendProps) {
 
     return <div className='vote-tab-list' style={{marginTop: '16px'}}>
         <div className={'title-member'} style={{marginBottom: '12px'}}>
-            <div>{lang['Group_detail_tabs_Vote']}</div>
+            <div><b>{count}</b>{`${lang['Group_detail_tabs_Vote']}`}</div>
             { (member || (props.profile as Group).creator.id === user.id) &&
                 <div className={'action'}>
                     <div className={'create-vote-btn'} onClick={e => {

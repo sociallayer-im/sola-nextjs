@@ -129,7 +129,7 @@ function GroupPanel(props: GroupPanelProps) {
     }
 
     return (
-        <div className='profile-panel'>
+        <div className='group-panel'>
             <div className='left-size'>
                 <div className='avatar' onClick={ showAvatarDialog }>
                     <img src={ group.image_url || defaultAvatar(group.id) } alt=""/>

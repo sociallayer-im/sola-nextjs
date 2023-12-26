@@ -583,6 +583,7 @@ const langCN: LangConfig = {
   Received: '已接受',
   Profile_Setting: '个人设置',
   Checkins: '签到数',
+  Comment: '评论',
 }
 
 
