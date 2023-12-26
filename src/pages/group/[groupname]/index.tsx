@@ -1,6 +1,6 @@
 import {useParams, useRouter, useSearchParams} from 'next/navigation'
 import PageBack from '@/components/base/PageBack'
-import React, {useContext, useEffect, useState, memo} from 'react'
+import React, {useContext, useEffect, useRef, useState} from 'react'
 import {getGroupMemberShips, getGroups, Group, Profile, queryBadge} from '@/service/solas'
 import DialogsContext from '@/components/provider/DialogProvider/DialogsContext'
 import GroupPanel from '@/components/base/GroupPanel/GroupPanel'
@@ -24,9 +24,9 @@ import {Swiper, SwiperSlide} from 'swiper/react'
 import {Mousewheel} from "swiper";
 
 
-const ListUserPresend = memo(dynamic(() => import('@/components/compose/ListUserPresend'), {
+const ListUserPresend = dynamic(() => import('@/components/compose/ListUserPresend'), {
     loading: () => <p>Loading...</p>,
-}))
+})
 
 const ListUserNftpass = dynamic(() => import('@/components/compose/ListUserNftpass/ListUserNftpass'), {
     loading: () => <p>Loading...</p>,
@@ -39,7 +39,6 @@ const ListUserPoint = dynamic(() => import('@/components/compose/ListUserVote'),
 const ListUserVote = dynamic(() => import('@/components/compose/ListUserVote'), {
     loading: () => <p>Loading...</p>,
 })
-
 
 function GroupPage(props: any) {
     const params = useParams()
@@ -59,14 +58,18 @@ function GroupPage(props: any) {
     const {copyWithDialog} = useCopy()
     const router = useRouter()
 
+    const loadedTabRrf = useRef<Set<string>>(new Set())
+
     // 为了实现切换tab时，url也跟着变化，而且浏览器的前进后退按钮也能切换tab
     useEffect(() => {
         if (!searchParams.get('tab')) {
             setSelectedTab('0')
+            loadedTabRrf.current.add('0')
         }
 
         if (searchParams.get('tab')) {
             setSelectedTab(searchParams.get('tab') || '0')
+            loadedTabRrf.current.add(searchParams.get('tab') || '0')
         }
 
         if (searchParams.get('subtab')) {
@@ -179,6 +182,7 @@ function GroupPage(props: any) {
     </div>
 
     const setTab = (tab: string) => {
+        loadedTabRrf.current.add(tab)
         setSelectedTab(tab as any);
         window.history.pushState(null, '', `/group/${groupname}?tab=${tab}`)
     }
@@ -274,13 +278,14 @@ function GroupPage(props: any) {
                                     </SwiperSlide>
                                 </Swiper>
                             </div>
-                            {selectedTab === '0' &&
-                                <div className={'group-event'}>
+                            {(selectedTab === '0' || loadedTabRrf.current.has('0')) &&
+                                <div className={`group-event ${selectedTab === '0' ? '' : 'hide'}`}>
                                     <ListGroupEvent isGroup={true} profile={profile}/>
                                 </div>
                             }
-                            {selectedTab === '1' &&
-                                <div className={'profile-badge'}>
+                            {
+                                (selectedTab === '1' || loadedTabRrf.current.has('1')) &&
+                                <div className={`profile-badge ${selectedTab === '1' ? '' : 'hide'}`}>
                                     {!!user.userName &&
                                         <div className={'action'}>
                                             <div><b>{badgeCount}</b> {lang['Badgelet_List_Unit']}</div>
@@ -303,7 +308,8 @@ function GroupPage(props: any) {
                                         renderAll>
                                         <Tab title={lang['Profile_Tab_Basic']}>
                                             <ListUserRecognition onBadgeCount={(badgeCount) => {
-                                                setBadgeCount(badgeCount)}
+                                                setBadgeCount(badgeCount)
+                                            }
                                             } profile={profile}/>
                                         </Tab>
                                         {
@@ -329,24 +335,31 @@ function GroupPage(props: any) {
                                 </div>
                             }
                             {
-                                selectedTab === '2' &&
-                                <ListUserPresend profile={profile}/>
+                                (selectedTab === '2' || loadedTabRrf.current.has('2')) &&
+                                <div className={`${selectedTab === '2' ? '' : 'hide'}`}>
+                                    <ListUserPresend profile={profile}/>
+                                </div>
                             }
                             {
-                                selectedTab === '3' &&
-                                <GroupComment group={profile as Group}/>
+                                (selectedTab === '3' || loadedTabRrf.current.has('3')) &&
+                                <div className={`${selectedTab === '3' ? '' : 'hide'}`}>
+                                    <GroupComment group={profile as Group}/>
+                                </div>
                             }
                             {
                                 selectedTab === '4' &&
                                 <ListUserPoint profile={profile}/>
                             }
                             {
-                                selectedTab === '5' &&
-                                <ListUserVote profile={profile}/>
+                                (selectedTab === '5' || loadedTabRrf.current.has('5')) &&
+                                <div className={`${selectedTab === '5' ? '' : 'hide'}`}>
+                                    <ListUserVote profile={profile}/>
+                                </div>
                             }
-                            {
-                                selectedTab === '6' &&
-                                <ListGroupMember group={profile}/>
+                            { (selectedTab === '6' || loadedTabRrf.current.has('6')) &&
+                                <div className={`${selectedTab === '6' ? '' : 'hide'}`}>
+                                    <ListGroupMember group={profile}/>
+                                </div>
                             }
                         </div>
                         <div className={'profile-side'}>

@@ -33,6 +33,7 @@
   .down-side {
     background: var(--color-page-bg-1);
     padding-top: 10px;
+    min-height: calc(100vh - 300px + 30px);
 
     .profile-badge {
       .action {
@@ -254,6 +255,11 @@
 
     .down-side {
       padding-bottom: 30px;
+
+      .hide {
+        display: none;
+      }
+
       .center {
         max-width: 100%;
 

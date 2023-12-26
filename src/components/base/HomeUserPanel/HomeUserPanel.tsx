@@ -61,7 +61,7 @@ function HomeUserPanel(props: {
                                          src={eventGroup?.image_url || defaultAvatar(eventGroup?.id)} alt=""/>
                                     <span>{eventGroup?.nickname || eventGroup?.username || '--'}</span>
                                 </Link>
-                                <Link href={`/group/${eventGroup.username}?tab=6`} className={'right'}>
+                                <Link href={`/group/${eventGroup.username}`} className={'right'}>
                                     {groupMembers.length} {lang['Group_detail_tabs_member'].toLowerCase()}
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"
                                          fill="none">
