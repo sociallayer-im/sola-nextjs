@@ -589,6 +589,7 @@ const langEN = {
     Checkins: 'Checkins',
     Comment: 'Comment',
     Sign_To_Comment: 'Sign in to comment',
+    Chat: 'Chat',
 }
 
 

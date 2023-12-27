@@ -268,7 +268,7 @@ function GroupPage(props: any) {
                                              key={3}
                                              onClick={e => {
                                                  setTab('3')
-                                             }}>{lang['Comment']}</div>
+                                             }}>{lang['Chat']}</div>
                                     </SwiperSlide>
                                     {(isGroupOwner || isGroupManager || isIssuer) &&
                                         <SwiperSlide className={'tabs-wrapper'}>

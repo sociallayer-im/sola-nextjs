@@ -1,8 +1,8 @@
 export function setAuth (key: string, authToken: string) {
-  const authStorage = window.localStorage.getItem('wa') || ''
+  const authStorage = window.localStorage.getItem('auth_sola') || ''
 
   if (!authStorage) {
-    window.localStorage.setItem('wa', JSON.stringify([[key, authToken]]))
+    window.localStorage.setItem('auth_sola', JSON.stringify([[key, authToken]]))
     return
   }
 
@@ -13,14 +13,14 @@ export function setAuth (key: string, authToken: string) {
     })
 
     const newStorage = [[key, authToken], ...filterStorage]
-    window.localStorage.setItem('wa', JSON.stringify(newStorage))
+    window.localStorage.setItem('auth_sola', JSON.stringify(newStorage))
   } catch (e) {
-    window.localStorage.setItem('wa', JSON.stringify([[key, authToken]]))
+    window.localStorage.setItem('auth_sola', JSON.stringify([[key, authToken]]))
   }
 }
 
 export function getAuth (account? : string) {
-  const authStorage = window.localStorage.getItem('wa') || ''
+  const authStorage = window.localStorage.getItem('auth_sola') || ''
   if (!authStorage) {
     return null
   }
@@ -43,7 +43,7 @@ export function getAuth (account? : string) {
 }
 
 export function getLatestAuth () : null| [string, string] {
-  const authStorage = window.localStorage.getItem('wa') || ''
+  const authStorage = window.localStorage.getItem('auth_sola') || ''
   if (!authStorage) {
     return null
   }
@@ -57,7 +57,7 @@ export function getLatestAuth () : null| [string, string] {
 }
 
 export function getEmailAuth (account? : string): {email: string, authToken: string} | null {
-  const authStorage = window.localStorage.getItem('wa') || ''
+  const authStorage = window.localStorage.getItem('auth_sola') || ''
   if (!authStorage) {
     return null
   }
@@ -82,9 +82,9 @@ export function getEmailAuth (account? : string): {email: string, authToken: str
 export function burnAuth (key: string) {
   if (!key) {
     // burn all history
-    window.localStorage.removeItem('wa')
+    window.localStorage.removeItem('auth_sola')
   } else {
-    const authStorage = window.localStorage.getItem('wa') || ''
+    const authStorage = window.localStorage.getItem('auth_sola') || ''
     if (!authStorage) return
 
     try {
@@ -93,9 +93,9 @@ export function burnAuth (key: string) {
         return key !== item[0]
       })
 
-      window.localStorage.setItem('wa', JSON.stringify(filterStorage))
+      window.localStorage.setItem('auth_sola', JSON.stringify(filterStorage))
     } catch (e) {
-      window.localStorage.removeItem('wa')
+      window.localStorage.removeItem('auth_sola')
     }
   }
 }
@@ -149,7 +149,7 @@ function setCookie(key: string, value: string) {
 }
 
 export function getPhoneAuth (account? : string): {phone: string, authToken: string} | null {
-  const authStorage = window.localStorage.getItem('wa') || ''
+  const authStorage = window.localStorage.getItem('auth_sola') || ''
   if (!authStorage) {
     return null
   }

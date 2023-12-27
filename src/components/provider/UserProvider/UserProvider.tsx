@@ -133,7 +133,7 @@ function UserProvider (props: UserProviderProps) {
         window.localStorage.removeItem('wagmi.store')
         window.localStorage.removeItem('wagmi.cache')
         window.localStorage.removeItem('wagmi.connected')
-        window.localStorage.removeItem('wa')
+        window.localStorage.removeItem('auth_sola')
 
         setUserInfo(emptyUser)
     }
