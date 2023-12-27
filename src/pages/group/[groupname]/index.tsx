@@ -149,14 +149,14 @@ function GroupPage(props: any) {
     useEffect(() => {
         if (profile) {
             setCanCreateEvent(
-                isJoined && (profile as Group).can_publish_event === 'member'
-                || (profile as Group).can_publish_event === 'everyone'
+                (isJoined && (profile as Group).can_publish_event === 'member')
+                || ((profile as Group).can_publish_event === 'everyone' && !!user.userName)
                 || isGroupManager
             )
+        } else {
+            setCanCreateEvent(false)
         }
-    }, [
-        isJoined, isGroupManager, isGroupOwner, profile
-    ])
+    }, [isJoined, isGroupManager, isGroupOwner, profile, user.userName])
 
     const handleMintOrIssue = async () => {
         if (!user.id) {
@@ -309,26 +309,24 @@ function GroupPage(props: any) {
                             </div>
                             {(selectedTab === '0' || loadedTabRrf.current.has('0')) &&
                                 <div className={`group-event ${selectedTab === '0' ? '' : 'hide'}`}>
-                                    {(isGroupOwner || isGroupManager || isIssuer) &&
-                                        <div className={'tab-action'}>
-                                            <div className={'left'}><b>{eventCount}</b> {lang['Setting_Events']}</div>
-                                            <div className={'right'}>
-                                                { user.userName &&
-                                                    <AppButton size={BTN_SIZE.compact} onClick={() => {
-                                                        location.href = `https://prod.sociallayer.im/gcalendar/auth_url?auth_token=${user?.authToken}`
-                                                    }} style={{backgroundColor: '#fff!important', border: '1px solid #F1F1F1'}}>
-                                                        <i className="icon-calendar" style={{marginRight: '8px', fontSize: '18px'}}/>
-                                                        {lang['Activity_Detail_Btn_add_Calender']}
-                                                    </AppButton>
-                                                }
-                                                { canCreateEvent &&
-                                                    <AppButton special size={BTN_SIZE.compact} onClick={handleMintOrIssue}>
-                                                        {`+ ${lang['Activity_Create_title']}`}
-                                                    </AppButton>
-                                                }
-                                            </div>
+                                    <div className={'tab-action'}>
+                                        <div className={'left'}><b>{eventCount}</b> {lang['Setting_Events']}</div>
+                                        <div className={'right'}>
+                                            { user.userName &&
+                                                <AppButton size={BTN_SIZE.compact} onClick={() => {
+                                                    location.href = `https://prod.sociallayer.im/gcalendar/auth_url?auth_token=${user?.authToken}`
+                                                }} style={{backgroundColor: '#fff!important', border: '1px solid #F1F1F1'}}>
+                                                    <i className="icon-calendar" style={{marginRight: '8px', fontSize: '18px'}}/>
+                                                    {lang['Activity_Detail_Btn_add_Calender']}
+                                                </AppButton>
+                                            }
+                                            { canCreateEvent &&
+                                                <AppButton special size={BTN_SIZE.compact} onClick={handleMintOrIssue}>
+                                                    {`+ ${lang['Activity_Create_title']}`}
+                                                </AppButton>
+                                            }
                                         </div>
-                                    }
+                                    </div>
                                     <ListGroupEvent isGroup={true} profile={profile}/>
                                 </div>
                             }
@@ -338,7 +336,7 @@ function GroupPage(props: any) {
                                     {!!user.userName &&
                                         <div className={'tab-action'}>
                                             <div className={'left'}><b>{badgeCount}</b> {lang['Badgelet_List_Unit']}</div>
-                                            { !!user.userName &&
+                                            { (isGroupOwner || isGroupManager || isIssuer) &&
                                                 <div className={'right'}>
                                                     <AppButton special size={BTN_SIZE.compact} onClick={handleMintOrIssue}>
                                                         <span className='icon-sendfasong'></span>
