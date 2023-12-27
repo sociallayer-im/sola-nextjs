@@ -22,14 +22,14 @@ function PageBacProvider(props: PageBacProviderProps) {
     const readHistory = () => {
         if (typeof window === 'undefined') return []
         try {
-            const history = window.localStorage.getItem('history')
+            const history = window.sessionStorage.getItem('history')
             if (history) {
                 return JSON.parse(history)
             } else {
                 return []
             }
         } catch (e) {
-            window.localStorage.setItem('history', '[]')
+            window.sessionStorage.setItem('history', '[]')
             return []
         }
     }
@@ -51,7 +51,7 @@ function PageBacProvider(props: PageBacProviderProps) {
         } else {
             // console.log('same page=====>', currPathname, history.current)
         }
-        window.localStorage.setItem('history', JSON.stringify(history.current))
+        window.sessionStorage.setItem('history', JSON.stringify(history.current))
 
         if (routerPathname !== currPathnameRef.current) {
             currPathnameRef.current = routerPathname

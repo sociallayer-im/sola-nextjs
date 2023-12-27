@@ -25,10 +25,25 @@ function CreateEventSuccess() {
     const {availableList, setEventGroup} = useContext(EventHomeContext)
     const {getMeetingName} = useGetMeetingName()
 
+    const [coverUrl, setCoverUrl] = useState('')
+
     useEffect(() => {
         async function fetchData() {
             const res = await queryEventDetail({id: Number(params?.eventid)})
             setEvent(res)
+
+            const image = new Image();
+            image.crossOrigin = 'Anonymous'
+            image.src = res!.cover_url
+            image.onload = function() {
+                image.onload = function() {}
+                const canvas = document.createElement('canvas')
+                canvas.width = image.width
+                canvas.height = image.height
+                const context = canvas.getContext('2d')
+                context!.drawImage(image, 0, 0)
+                setCoverUrl(canvas.toDataURL())
+            }
         }
 
         if (params?.eventid) {
@@ -71,7 +86,7 @@ function CreateEventSuccess() {
                 <>
                     <div className={'event-share-card-wrapper'}>
                         <div className={'event-share-card'} ref={card}>
-                            <img src={event.cover_url} className={'cover'} alt=""/>
+                            <img src={coverUrl || event.cover_url} className={'cover'} alt=""/>
                             <div className={'name'}>{event.title}</div>
                             {!!event.start_time &&
                                 <div className={'time'}>
