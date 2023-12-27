@@ -21,6 +21,10 @@
     border-radius: 8px !important;
     background: var(--Fill-2-Medium, #F5F8F6) !important;
     border: 0;
+
+    &::placeholder {
+      color: #C3C7C3;
+    }
   }
 
   :global(div[data-baseweb="textarea"]) {

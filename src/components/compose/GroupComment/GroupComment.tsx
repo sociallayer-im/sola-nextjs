@@ -41,13 +41,13 @@ function GroupComment(props: { group: Group }) {
         })
             .catch(e => {
                 console.log(e)
-                showToast('Failed to send comment')
+                showToast('Failed to send message')
             })
 
         if (newComment) {
             // setComments([newComment, ...comments])
             setComment('')
-            showToast('Comment sent')
+            showToast('Message sent')
         }
         setBusy(false)
     }
@@ -130,7 +130,7 @@ function GroupComment(props: { group: Group }) {
                 <img src={user.avatar || defaultAvatar(user.id)} alt=""/>
                 <div className={comment.length ? styles['wrapper-active'] : styles['wrapper']}>
                     <Textarea value={comment}
-                              placeholder={'Write a comment...'}
+                              placeholder={'Write a message...'}
                               maxLength={1000}
                               onChange={e => {
                                   setComment(e.target.value)
