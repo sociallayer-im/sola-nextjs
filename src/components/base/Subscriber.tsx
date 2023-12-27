@@ -4,7 +4,7 @@ import DialogsContext from '../provider/DialogProvider/DialogsContext'
 import solas, {inviteSchema, voucherSchema} from '../../service/solas'
 import {createClient} from 'graphql-ws'
 
-const wsClient = createClient({
+export const wsClient = createClient({
     url: process.env.NEXT_PUBLIC_GRAPH!.replace('https', 'wss'),
 })
 

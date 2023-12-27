@@ -10,6 +10,9 @@ import Empty from "@/components/base/Empty";
 import useTime from "@/hooks/formatTime";
 import {Spinner} from "baseui/spinner";
 import spinnerStyles from "@/components/compose/ListNftAsset/ListNftAsset.module.sass";
+import {wsClient} from "@/components/base/Subscriber";
+
+let subscription: any = null
 
 function GroupComment(props: { group: Group }) {
     const {user} = useContext(userContext)
@@ -40,7 +43,7 @@ function GroupComment(props: { group: Group }) {
             })
 
         if (newComment) {
-            setComments([newComment, ...comments])
+            // setComments([newComment, ...comments])
             setComment('')
             showToast('Comment sent')
         }
@@ -57,6 +60,62 @@ function GroupComment(props: { group: Group }) {
         })
     }, [])
 
+
+    useEffect(() => {
+        if (!ready) {
+            return
+        }
+
+        subscription = wsClient.subscribe({
+            query: `subscription {chat_messages(
+                order_by: {created_at: desc}
+                where: {topic_item_id: {_eq: ${props.group.id}}}
+                limit: 5
+              ) {
+                    id
+                    content
+                    created_at
+                    topic_item_id
+                    topic_item_type
+                    sender_id
+                    sender {
+                        id
+                        nickname
+                        username
+                        image_url
+                        }
+                }
+        }`
+        }, {
+            next: (comment1: any) => {
+                console.log('subscription comment: ', comment1)
+                if (comment1.data.chat_messages || comment1.data.chat_messages.length) {
+                    const newMessages: any = []
+                    comment1.data.chat_messages.forEach((target: any) => {
+                        if (!comments.find((c: any) => c.id === target.id)) {
+                            console.log(target)
+                            newMessages.push(target)
+                        }
+                    })
+
+                    if (newMessages.length) {
+                        setComments([...newMessages, ...comments])
+                    }
+                }
+            },
+            error: (error) => {
+            },
+            complete: () => {
+            },
+        })
+
+        return () => {
+            if (subscription) {
+                subscription = null
+            }
+        }
+    }, [ready])
+
     return (<div className={styles['group-comment']}>
         {user.userName &&
             <div className={styles['input']}>
@@ -70,8 +129,8 @@ function GroupComment(props: { group: Group }) {
                               }}></Textarea>
                     <div>
                         <AppButton
-                                   onClick={handleSendComment}
-                                   disabled={busy}>
+                            onClick={handleSendComment}
+                            disabled={busy}>
                             Send
                         </AppButton>
                     </div>
