@@ -24,6 +24,8 @@ function GroupComment(props: { group: Group }) {
     const [comment, setComment] = useState('')
     const [busy, setBusy] = useState(false)
     const [ready, setReady] = useState(false)
+    const [page, setPage] = useState(1)
+    const [loadAll, setLoadAll] = useState(false)
 
     const handleSendComment = async () => {
         if (!comment) {
@@ -52,13 +54,19 @@ function GroupComment(props: { group: Group }) {
 
 
     useEffect(() => {
-        queryComment({target: props.group.id, page: 1}).then(res => {
-            setComments(res)
+        setBusy(true)
+        queryComment({target: props.group.id, page: page}).then(res => {
+            setComments([...comments, ...res])
             setReady(true)
+            setBusy(false)
+            if (res.length < 10) {
+                setLoadAll(true)
+            }
         }).catch(e => {
+            setBusy(false)
             setReady(true)
         })
-    }, [])
+    }, [page])
 
 
     useEffect(() => {
@@ -159,6 +167,13 @@ function GroupComment(props: { group: Group }) {
                 })
             }
         </div>
+        {!loadAll &&
+            <div className={styles['action']}>
+                <AppButton disabled={busy} onClick={e => {
+                    setPage(page + 1)
+                }}>{'load more'}</AppButton>
+            </div>
+        }
     </div>)
 }
 
