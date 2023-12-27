@@ -1,7 +1,7 @@
 import {useParams, useRouter, useSearchParams} from 'next/navigation'
 import PageBack from '@/components/base/PageBack'
 import React, {useContext, useEffect, useRef, useState} from 'react'
-import {getGroupMemberShips, getGroups, Group, Profile, queryBadge} from '@/service/solas'
+import {getEventStats, getGroupMemberShips, getGroups, Group, Profile, queryBadge} from '@/service/solas'
 import DialogsContext from '@/components/provider/DialogProvider/DialogsContext'
 import GroupPanel from '@/components/base/GroupPanel/GroupPanel'
 import AppButton, {BTN_SIZE} from '@/components/base/AppButton/AppButton'
@@ -53,7 +53,10 @@ function GroupPage(props: any) {
     const [isGroupManager, setIsGroupManager] = useState(false)
     const [isIssuer, setIssuer] = useState(false)
     const [isGroupOwner, setIsGroupOwner] = useState(false)
+    const [isJoined, setIsJoined] = useState(false)
     const [badgeCount, setBadgeCount] = useState(0)
+    const [eventCount, setEventCount] = useState(0)
+    const [canCreateEvent, setCanCreateEvent] = useState(false)
     const startIssue = useIssueBadge()
     const {copyWithDialog} = useCopy()
     const router = useRouter()
@@ -111,6 +114,8 @@ function GroupPage(props: any) {
                 )
 
                 const target = memberships.find((item) => item.profile.id === user.id)
+                setIsJoined(!!target)
+
                 if (target && target.role === 'manager') {
                     setIsGroupManager(true)
                 }
@@ -124,10 +129,34 @@ function GroupPage(props: any) {
                 setIssuer(false)
                 setIsGroupManager(false)
                 setIsGroupOwner(false)
+                setIsJoined(false)
             }
         }
+
+        const getStatus = async () => {
+            if (profile) {
+                getEventStats({group_id: profile.id, days: 365}).then((res) => {
+                    setEventCount(res.total_events)
+                })
+            }
+        }
+
         check()
+        getStatus()
     }, [user.id, profile])
+
+
+    useEffect(() => {
+        if (profile) {
+            setCanCreateEvent(
+                isJoined && (profile as Group).can_publish_event === 'member'
+                || (profile as Group).can_publish_event === 'everyone'
+                || isGroupManager
+            )
+        }
+    }, [
+        isJoined, isGroupManager, isGroupOwner, profile
+    ])
 
     const handleMintOrIssue = async () => {
         if (!user.id) {
@@ -269,7 +298,7 @@ function GroupPage(props: any) {
                                                  }}>{lang['Group_detail_tabs_Vote']}</div>
                                         </SwiperSlide>
                                     }
-                                    <SwiperSlide className={'tabs-wrapper wap'}>
+                                    <SwiperSlide className={'tabs-wrapper'}>
                                         <div className={selectedTab === '6' ? 'tabs-title active' : 'tabs-title'}
                                              key={6}
                                              onClick={e => {
@@ -280,6 +309,26 @@ function GroupPage(props: any) {
                             </div>
                             {(selectedTab === '0' || loadedTabRrf.current.has('0')) &&
                                 <div className={`group-event ${selectedTab === '0' ? '' : 'hide'}`}>
+                                    {(isGroupOwner || isGroupManager || isIssuer) &&
+                                        <div className={'tab-action'}>
+                                            <div className={'left'}><b>{eventCount}</b> {lang['Setting_Events']}</div>
+                                            <div className={'right'}>
+                                                { user.userName &&
+                                                    <AppButton size={BTN_SIZE.compact} onClick={() => {
+                                                        location.href = `https://prod.sociallayer.im/gcalendar/auth_url?auth_token=${user?.authToken}`
+                                                    }} style={{backgroundColor: '#fff!important', border: '1px solid #F1F1F1'}}>
+                                                        <i className="icon-calendar" style={{marginRight: '8px', fontSize: '18px'}}/>
+                                                        {lang['Activity_Detail_Btn_add_Calender']}
+                                                    </AppButton>
+                                                }
+                                                { canCreateEvent &&
+                                                    <AppButton special size={BTN_SIZE.compact} onClick={handleMintOrIssue}>
+                                                        {`+ ${lang['Activity_Create_title']}`}
+                                                    </AppButton>
+                                                }
+                                            </div>
+                                        </div>
+                                    }
                                     <ListGroupEvent isGroup={true} profile={profile}/>
                                 </div>
                             }
@@ -287,15 +336,17 @@ function GroupPage(props: any) {
                                 (selectedTab === '1' || loadedTabRrf.current.has('1')) &&
                                 <div className={`profile-badge ${selectedTab === '1' ? '' : 'hide'}`}>
                                     {!!user.userName &&
-                                        <div className={'action'}>
-                                            <div><b>{badgeCount}</b> {lang['Badgelet_List_Unit']}</div>
-                                            {(isGroupOwner || isGroupManager || isIssuer) &&
-                                                <AppButton special size={BTN_SIZE.compact} onClick={handleMintOrIssue}>
-                                                    <span className='icon-sendfasong'></span>
-                                                    {process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'seedao' ?
-                                                        lang['Send_SeeDAO_Badge']
-                                                        : lang['Follow_detail_btn_mint']}
-                                                </AppButton>
+                                        <div className={'tab-action'}>
+                                            <div className={'left'}><b>{badgeCount}</b> {lang['Badgelet_List_Unit']}</div>
+                                            { !!user.userName &&
+                                                <div className={'right'}>
+                                                    <AppButton special size={BTN_SIZE.compact} onClick={handleMintOrIssue}>
+                                                        <span className='icon-sendfasong'></span>
+                                                        {process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'seedao' ?
+                                                            lang['Send_SeeDAO_Badge']
+                                                            : lang['Follow_detail_btn_mint']}
+                                                    </AppButton>
+                                                </div>
                                             }
                                         </div>
                                     }
@@ -343,6 +394,15 @@ function GroupPage(props: any) {
                             {
                                 (selectedTab === '3' || loadedTabRrf.current.has('3')) &&
                                 <div className={`${selectedTab === '3' ? '' : 'hide'}`}>
+                                    <div className={'tab-action'}>
+                                        { !user.userName &&
+                                            <AppButton size={BTN_SIZE.compact} onClick={() => {
+                                                openConnectWalletDialog()
+                                            }} style={{backgroundColor: '#fff!important', border: '1px solid #272928'}}>
+                                                {lang['Sign_To_Comment']}
+                                            </AppButton>
+                                        }
+                                    </div>
                                     <GroupComment group={profile as Group}/>
                                 </div>
                             }
@@ -356,7 +416,7 @@ function GroupPage(props: any) {
                                     <ListUserVote profile={profile}/>
                                 </div>
                             }
-                            { (selectedTab === '6' || loadedTabRrf.current.has('6')) &&
+                            {(selectedTab === '6' || loadedTabRrf.current.has('6')) &&
                                 <div className={`${selectedTab === '6' ? '' : 'hide'}`}>
                                     <ListGroupMember group={profile}/>
                                 </div>

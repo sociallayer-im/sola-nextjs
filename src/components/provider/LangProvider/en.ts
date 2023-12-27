@@ -196,7 +196,7 @@ const langEN = {
     Activity_All_Activity: 'All Event',
     Activity_Btn_Create: 'Create Event',
     Activity_Btn_Modify: 'Modify Event',
-    Activity_Create_title: 'Create a Event',
+    Activity_Create_title: 'Create an Event',
     Activity_Create_Btn: 'Create Event',
     Activity_Setting_Btn: 'Setting',
     Activity_Setting_title: 'Event Setting',
@@ -588,6 +588,7 @@ const langEN = {
     Profile_Setting: 'Profile setting',
     Checkins: 'Checkins',
     Comment: 'Comment',
+    Sign_To_Comment: 'Sign in to comment',
 }
 
 

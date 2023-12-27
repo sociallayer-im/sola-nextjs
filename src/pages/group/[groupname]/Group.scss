@@ -39,23 +39,37 @@
       display: none;
     }
 
-    .profile-badge {
-      .action {
+    .tab-action {
+      display: flex;
+      justify-content: space-between;
+      flex-flow: row wrap;
+      font-size: 14px;
+      align-items: center;
+      margin-bottom: 20px;
+
+      .right {
+        flex: 1;
         display: flex;
-        justify-content: space-between;
         flex-flow: row nowrap;
-        margin-bottom: 12px;
-        font-size: 14px;
-
-        b {
-          font-size: 16px;
-        }
-
-        button {
-          width: 50%;
-          display: inline-flex;
-        }
+        justify-content: flex-end;
       }
+
+      b {
+        font-size: 16px;
+      }
+
+      button {
+        width: auto;
+        display: inline-flex;
+        margin-left: 12px;
+        font-size: 12px;
+        padding: 8px 12px;
+        white-space: nowrap;
+      }
+    }
+
+    .profile-badge {
+
     }
 
     .center {
@@ -241,15 +255,15 @@
 
 @media (max-width: 700px) {
   .group-page {
+    .slot_2 {
+      display: none;
+    }
+
     .pc {
       display: none;
     }
 
     .wap {
-      display: block;
-    }
-
-    .slot_2 {
       display: block;
     }
 
@@ -259,6 +273,31 @@
 
     .down-side {
       padding-bottom: 30px;
+
+      .tab-action {
+        flex-direction: column;
+        align-items: flex-start;
+
+        .right {
+          order: 1;
+          width: 100%;
+          margin-bottom: 12px;
+        }
+
+        .left {
+          order: 2;
+        }
+
+        button {
+          width: 100%;
+          margin-left: 0;
+        }
+
+        button:nth-child(2) {
+         margin-left: 12px!important;
+        }
+      }
+
       .center {
         max-width: 100%;
 
@@ -266,7 +305,7 @@
           max-width: 100%;
 
           .tabs {
-            margin-bottom: 12px;
+            margin-bottom: 22px;
           }
 
           .profile-badge {
@@ -280,4 +319,8 @@
       }
     }
   }
+}
+
+@media (max-width: 700px) {
+
 }

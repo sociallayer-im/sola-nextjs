@@ -118,7 +118,7 @@ const langCN: LangConfig = {
   IssueBadge_By_QRcode: '二维码发送',
   IssueBadge_Sendwithdomain: '选择名字',
   IssueBadge_linkbtn: '链接',
-  IssueBadge_Eventbtn: '事件',
+  IssueBadge_Eventbtn: '活动',
   IssueBadge_Address_List_Title: '选择接收者',
   IssueBadge_Input_Error: '无效的域名，地址或者用户名',
   IssueBadge_Input_Des: '输入域名/钱包/电子邮件地址，颁发人可以接收徽章。',
@@ -453,7 +453,7 @@ const langCN: LangConfig = {
   Setting_Dashboard: '仪表盘',
   Setting_Participants: '参与人',
   Setting_Hosts: '发起人',
-  Setting_Events: '事件',
+  Setting_Events: '活动',
   Setting_Badge: '颁发徽章',
   Setting_Banner: '横幅',
   Setting_Location: '默认地点',
@@ -531,7 +531,7 @@ const langCN: LangConfig = {
   Days: '天',
   Minute: '分',
   Form_All_Day: '全天',
-  Form_Repeat_Not: '非重复事件',
+  Form_Repeat_Not: '非重复活动',
   Form_Repeat_Day: '每天',
   Form_Repeat_Week: '每周',
   Form_Repeat_Month: '每月',
@@ -584,6 +584,7 @@ const langCN: LangConfig = {
   Profile_Setting: '个人设置',
   Checkins: '签到数',
   Comment: '评论',
+  Sign_To_Comment: '请登录后评论',
 }
 
 
