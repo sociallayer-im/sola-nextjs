@@ -60,7 +60,7 @@
   .center {
     display: flex;
     flex-flow: column nowrap;
-    height: 100%;
+    height: calc(100vh - 48px);
   }
 
   .dashboard-dialog-head {
@@ -68,16 +68,18 @@
   }
 
   .action-bar {
+    position: fixed;
+    left: 0;
+    bottom: 0;
     padding: 16px;
     width: 100%;
     box-sizing: border-box;
-    left: 0;
-    bottom: 0;
     background: var(--color-page-bg-1);
     z-index: 99;
     display: flex;
     flex-flow: row nowrap;
     justify-content: center;
+
 
     button {
       width: 350px;
@@ -85,10 +87,11 @@
   }
 
   .dialog-inner {
-    padding: 20px 8px;
+    padding: 20px 8px 180px 8px;
     flex: 1;
     overflow: auto;
     box-sizing: border-box;
+
 
     .dialog-des {
       margin-bottom: 24px;
