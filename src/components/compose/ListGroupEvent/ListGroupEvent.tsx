@@ -69,7 +69,7 @@ function ListGroupEvent({profile, isGroup}: { profile: Profile, isGroup?: boolea
                         return <CardEvent participants={[]} fixed={false} key={item.id} event={item}/>
                     })
                 }
-                {!loading && <div ref={ref}></div>}
+                {!loading && <div ref={ref} style={{height: '10px'}}></div>}
             </div>
         }
     </div>)
