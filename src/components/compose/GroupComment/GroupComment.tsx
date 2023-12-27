@@ -26,6 +26,7 @@ function GroupComment(props: { group: Group }) {
     const [ready, setReady] = useState(false)
     const [page, setPage] = useState(1)
     const [loadAll, setLoadAll] = useState(false)
+    const [empty, setEmpty] = useState(false)
 
     const handleSendComment = async () => {
         if (!comment) {
@@ -35,7 +36,7 @@ function GroupComment(props: { group: Group }) {
         setBusy(true)
         const newComment = await sendComment({
             auth_token: user.authToken || '',
-            type: 'group',
+            type: 'Group',
             target: props.group.id,
             content: comment
         })
@@ -56,11 +57,16 @@ function GroupComment(props: { group: Group }) {
     useEffect(() => {
         setBusy(true)
         queryComment({target: props.group.id, page: page}).then(res => {
+            alert(res.length)
             setComments([...comments, ...res])
             setReady(true)
             setBusy(false)
             if (res.length < 10) {
                 setLoadAll(true)
+            }
+
+            if (res.length===0 && page===1) {
+                setEmpty(true)
             }
         }).catch(e => {
             setBusy(false)
@@ -77,7 +83,7 @@ function GroupComment(props: { group: Group }) {
         subscription = wsClient.subscribe({
             query: `subscription {chat_messages(
                 order_by: {created_at: desc}
-                where: {topic_item_id: {_eq: ${props.group.id}}}
+                where: {topic_item_id: {_eq: ${props.group.id}}, topic_item_type: {_eq: "Group"}}
                 limit: 5
               ) {
                     id
@@ -112,6 +118,7 @@ function GroupComment(props: { group: Group }) {
                 }
             },
             error: (error) => {
+                console.error(error)
             },
             complete: () => {
             },
@@ -137,7 +144,7 @@ function GroupComment(props: { group: Group }) {
                               }}></Textarea>
                     <div>
                         <AppButton
-                            onClick={handleSendComment}
+                            onClick={() => {handleSendComment()}}
                             disabled={busy}>
                             Send
                         </AppButton>
@@ -167,11 +174,11 @@ function GroupComment(props: { group: Group }) {
                 })
             }
         </div>
-        {!loadAll &&
+        {!loadAll && comments.length > 0 &&
             <div className={styles['action']}>
                 <AppButton disabled={busy} onClick={e => {
                     setPage(page + 1)
-                }}>{'load more'}</AppButton>
+                }}>{'Load more'}</AppButton>
             </div>
         }
     </div>)

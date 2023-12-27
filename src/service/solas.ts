@@ -4413,7 +4413,7 @@ export async function sendComment(props: {
     checkAuth(props)
 
     const doc = gql`mutation {
-        insert_chat_messages_one(object: {content: "${props.content}", topic_item_id: ${props.target}, created_at: "${new Date().toISOString()}"}) {
+        insert_chat_messages_one(object: {content: "${props.content}", topic_item_type: "${props.type}", topic_item_id: ${props.target}, created_at: "${new Date().toISOString()}"}) {
             id
             content
             created_at
@@ -4448,7 +4448,7 @@ export async function queryComment(props: {
     const doc = gql`query MyQuery {
         chat_messages(
         order_by: {created_at: desc}
-        where: {topic_item_id: {_eq: ${props.target}}}
+        where: {topic_item_id: {_eq: ${props.target}}, topic_item_type: {_eq: ${props.type || 'Group'}}}
         limit: ${size}
         offset: ${(props.page - 1) * size}
       ) {
