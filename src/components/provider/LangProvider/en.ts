@@ -588,7 +588,7 @@ const langEN = {
     Profile_Setting: 'Profile setting',
     Checkins: 'Checkins',
     Comment: 'Comment',
-    Sign_To_Comment: 'Sign in to comment',
+    Sign_To_Comment: 'Sign in to chat',
     Chat: 'Chat',
 }
 
