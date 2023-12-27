@@ -33,15 +33,15 @@ function CreateEventSuccess() {
             setEvent(res)
 
             const image = new Image();
-            image.crossOrigin = 'Anonymous';
-            image.src = res!.cover_url;
+            image.crossOrigin = 'Anonymous'
+            image.src = res!.cover_url
             image.onload = function() {
-                image.onload = function() {};
-                const canvas = document.createElement('canvas');
-                canvas.width = image.width;
-                canvas.height = image.height;
-                const context = canvas.getContext('2d');
-                context.drawImage(image, 0, 0);
+                image.onload = function() {}
+                const canvas = document.createElement('canvas')
+                canvas.width = image.width
+                canvas.height = image.height
+                const context = canvas.getContext('2d')
+                context!.drawImage(image, 0, 0)
                 setCoverUrl(canvas.toDataURL())
             }
         }
