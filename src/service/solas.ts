@@ -4413,7 +4413,7 @@ export async function sendComment(props: {
     checkAuth(props)
 
     const doc = gql`mutation {
-        insert_chat_messages_one(object: {content: "${props.content}", topic_item_id: "${props.target}", created_at: "${new Date().toISOString()}"}) {
+        insert_chat_messages_one(object: {content: "${props.content}", topic_item_id: ${props.target}, created_at: "${new Date().toISOString()}"}) {
             id
             content
             created_at
