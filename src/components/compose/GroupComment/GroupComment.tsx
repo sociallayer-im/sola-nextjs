@@ -57,7 +57,6 @@ function GroupComment(props: { group: Group }) {
     useEffect(() => {
         setBusy(true)
         queryComment({target: props.group.id, page: page}).then(res => {
-            alert(res.length)
             setComments([...comments, ...res])
             setReady(true)
             setBusy(false)
