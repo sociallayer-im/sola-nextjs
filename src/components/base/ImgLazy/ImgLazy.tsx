@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react'
+import React, {useState, useEffect} from 'react'
 import {useInView} from "react-intersection-observer";
 
 
@@ -7,29 +7,35 @@ function ImgLazy(props: React.DetailedHTMLProps<React.ImgHTMLAttributes<HTMLImag
         threshold: 0
     })
 
-    const [src, setSrc] = useState(props.src)
+    const [ready, setReady] = useState(false)
 
     useEffect(() => {
-        if (props.src?.includes('imagekit') && (props.width || props.height)) {
-            if (props.width && !props.height ) {
-                setSrc(props.src + `?tr=w-${props.width}`)
-                return
+        if (inView) {
+            setReady(true)
+        }
+    }, [inView])
+
+    const getSrc = (src?: string) => {
+        if (!src) return '/images/loading_image.jpg'
+
+        if (src.includes('imagekit') && (props.width || props.height)) {
+            if (props.width && !props.height) {
+                return src + `?tr=w-${props.width}`
             }
+
             if (props.height && !props.width) {
-                setSrc(props.src + `?tr=h-${props.height}`)
-                return
+                return src + `?tr=h-${props.height}`
             }
 
             if (props.height && props.width) {
-                setSrc(props.src + `?tr=w-${props.width},h-${props.height}`)
-                return
+                return src +`?tr=w-${props.width},h-${props.height}`
             }
+        } else {
+            return src
         }
-    }, [])
+    }
 
-    return (inView
-        ? <div {...props} ref={ref}>New Component</div>
-        : <img {...props} src={src} />)
+    return (<img ref={ref} {...props} src={ready ? getSrc(props.src) : '/images/loading_image.jpg'} loading={'lazy'}/>)
 }
 
 export default ImgLazy

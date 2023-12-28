@@ -5,6 +5,7 @@ import {useContext, useEffect, useState} from 'react'
 import UserContext from '../../../provider/UserProvider/UserContext'
 import {checkIsManager, getProfile} from "@/service/solas";
 import {useRouter} from "next/navigation";
+import ImgLazy from "@/components/base/ImgLazy/ImgLazy";
 
 const style = {
     wrapper: {
@@ -141,7 +142,7 @@ function CardBadgelet(props: CardBadgeletProps) {
                 </>
                 : <>
                     <div className={css(style.coverBg)}>
-                        <img className={css(style.img)} src={metadata?.image || props.badgelet.badge.image_url} alt=""/>
+                        <ImgLazy className={css(style.img)} src={metadata?.image || props.badgelet.badge.image_url}  width={180} height={180}/>
                     </div>
                     {props.badgelet.display === 'hide' && <div className={css(style.hideMark)}><i className='icon-lock'></i></div>}
                     <div className={css(style.name)}>{metadata?.name || props.badgelet.badge.title}</div>
