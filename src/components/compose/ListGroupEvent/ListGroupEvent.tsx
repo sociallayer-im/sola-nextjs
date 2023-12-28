@@ -22,8 +22,6 @@ function ListGroupEvent({profile, isGroup}: { profile: Profile, isGroup?: boolea
             if (isGroup) {
                 const res = await queryEvent({
                         group_id: profile.id,
-                        event_order: 'asc',
-                        start_time_from: todayZero,
                         page
                     }
                 )

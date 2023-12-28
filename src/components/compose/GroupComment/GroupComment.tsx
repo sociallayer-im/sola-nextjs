@@ -64,7 +64,7 @@ function GroupComment(props: { group: Group }) {
                 setLoadAll(true)
             }
 
-            if (res.length===0 && page===1) {
+            if (res.length === 0 && page === 1) {
                 setEmpty(true)
             }
         }).catch(e => {
@@ -136,6 +136,11 @@ function GroupComment(props: { group: Group }) {
                 <img src={user.avatar || defaultAvatar(user.id)} alt=""/>
                 <div className={comment.length ? styles['wrapper-active'] : styles['wrapper']}>
                     <Textarea value={comment}
+                              onKeyUp={e => {
+                                  if (e.keyCode === 13 && !e.shiftKey) {
+                                      handleSendComment()
+                                  }
+                              }}
                               placeholder={'Write a message...'}
                               maxLength={1000}
                               onChange={e => {
@@ -143,7 +148,9 @@ function GroupComment(props: { group: Group }) {
                               }}></Textarea>
                     <div>
                         <AppButton
-                            onClick={() => {handleSendComment()}}
+                            onClick={() => {
+                                handleSendComment()
+                            }}
                             disabled={busy}>
                             Send
                         </AppButton>
