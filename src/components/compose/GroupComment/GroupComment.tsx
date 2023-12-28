@@ -29,7 +29,7 @@ function GroupComment(props: { group: Group }) {
     const [empty, setEmpty] = useState(false)
 
     const handleSendComment = async () => {
-        if (!comment) {
+        if (!comment || busy) {
             return
         }
 
