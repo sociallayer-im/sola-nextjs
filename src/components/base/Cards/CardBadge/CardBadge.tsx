@@ -4,6 +4,7 @@ import { Badge } from '@/service/solas'
 import DialogsContext from '../../../provider/DialogProvider/DialogsContext'
 import UserContext from '../../../provider/UserProvider/UserContext'
 import {useRouter} from "next/navigation";
+import ImgLazy from "@/components/base/ImgLazy/ImgLazy";
 
 const style = {
     wrapper: {
@@ -113,7 +114,7 @@ function CardBadge (props: CardBadgeProps) {
                 </>
                : <>
                     <div className={ css(style.coverBg) }>
-                        <img className={ css(style.img) } src={ props.badge.image_url } alt=""/>
+                        <ImgLazy className={ css(style.img) } width={180} height={180} src={ props.badge.image_url } alt="" />
                     </div>
                     <div className={ css(style.name) }>{ props.badge.name }</div>
                 </>

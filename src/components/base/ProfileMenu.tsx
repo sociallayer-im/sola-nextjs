@@ -6,6 +6,7 @@ import { useStyletron } from 'baseui'
 import LangContext from '../provider/LangProvider/LangContext'
 import usePicture from '../../hooks/pictrue'
 import {useRouter} from 'next/navigation'
+import ImgLazy from "@/components/base/ImgLazy/ImgLazy";
 
 function ProfileMenu () {
     const { user, logOut } = useContext(UserContext)
@@ -93,7 +94,7 @@ function ProfileMenu () {
             content={ ({close}) => menuContent(close) }
             autoFocus>
             <div className={ css(style.wrapper) }>
-                <img className={ css(style.img) } src={ user.avatar || defaultAvatar(user.id) } alt="" />
+                <ImgLazy className={ css(style.img) } src={ user.avatar || defaultAvatar(user.id) } width={32} alt="" />
                 <div className={css(style.showName)}> {user.nickname || user.userName || shortAddress(user.wallet) || user.email}</div>
             </div>
         </StatefulPopover>

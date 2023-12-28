@@ -8,6 +8,7 @@ import DialogsContext from "@/components/provider/DialogProvider/DialogsContext"
 import AppButton from "@/components/base/AppButton/AppButton";
 import EventHomeContext from "@/components/provider/EventHomeProvider/EventHomeContext";
 import {Membership, Profile} from "@/service/solas";
+import ImgLazy from "@/components/base/ImgLazy/ImgLazy";
 
 function HomeUserPanel(props: {
     membership: Membership[],
@@ -95,7 +96,7 @@ function HomeUserPanel(props: {
 
         {eventGroup?.banner_image_url &&
             <a href={eventGroup?.banner_link_url || undefined} className={'beast-banner'} target={'_blank'}>
-                <img src={eventGroup?.banner_image_url} alt=""/>
+                <ImgLazy src={eventGroup?.banner_image_url} width={600} alt="" />
             </a>
         }
 

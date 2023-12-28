@@ -12,6 +12,7 @@ import MenuItem from '../MenuItem'
 import ProfileBio from '../ProfileBio/ProfileBio'
 import ProfileSocialMediaList from '../ProfileSocialMediaList/ProfileSocialMediaList'
 import DialogProfileQRcode from "../Dialog/DialogProfileQRcode/DialogProfileQRcode";
+import ImgLazy from "@/components/base/ImgLazy/ImgLazy";
 
 interface GroupPanelProps {
     group: Profile
@@ -132,7 +133,7 @@ function GroupPanel(props: GroupPanelProps) {
         <div className='group-panel'>
             <div className='left-size'>
                 <div className='avatar' onClick={ showAvatarDialog }>
-                    <img src={ group.image_url || defaultAvatar(group.id) } alt=""/>
+                    <ImgLazy src={ group.image_url || defaultAvatar(group.id) } width={120} alt="" />
                 </div>
                 <div className='domain-bar'>
                     <div className='domain'>{ group.nickname || group.username }</div>

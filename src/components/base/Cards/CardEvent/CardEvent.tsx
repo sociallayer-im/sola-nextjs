@@ -6,6 +6,7 @@ import langContext from "../../../provider/LangProvider/LangContext";
 import userContext from "../../../provider/UserProvider/UserContext";
 import DialogsContext from "../../../provider/DialogProvider/DialogsContext";
 import Link from "next/link";
+import ImgLazy from "@/components/base/ImgLazy/ImgLazy";
 
 export interface CardEventProps {
     event: Event,
@@ -125,7 +126,7 @@ function CardEvent({fixed=true, ...props}: CardEventProps) {
                 }
             </div>
             <div className={(fixed || hasMarker && !fixed) ? 'post marker': 'post'}>
-                <img src={props.event.cover_url} alt=""/>
+                <ImgLazy src={props.event.cover_url} width={300} alt="" />
             </div>
         </div>
     </Link>)
