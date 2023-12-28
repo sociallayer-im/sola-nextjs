@@ -75,7 +75,7 @@ function PageBacProvider(props: PageBacProviderProps) {
             }
 
             const currPathname = location.href.replace(location.origin, '')
-            const index = historyList.findLastIndex((item, index) => {
+            const index = historyList.reverse().findIndex((item, index) => {
                 // 下面列表的页面不能通过返回按钮访问
                 return item !== currPathname
                     && !item.includes('create')
@@ -85,7 +85,7 @@ function PageBacProvider(props: PageBacProviderProps) {
                     && !item.includes('checkin')
                     && !item.includes('success')
                     && !item.includes('popup')
-                    && !(process.env.NEXT_PUBLIC_SPECIAL_VERSION !== 'madao' && item.includes('/group/readyplayerclub'))
+                    && !(process.env.NEXT_PUBLIC_SPECIAL_VERSION !== 'maodao' && item.includes('/group/readyplayerclub'))
             })
 
             if (index === -1) {

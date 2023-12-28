@@ -63,6 +63,9 @@ function ListUserRecognition(props: ListUserRecognitionProps) {
             </>
         }
         <div className={`${noBadge && !(props.profile as Group).creator ? 'hide-item' : ''}`}>
+            { !(props.profile as Group).creator &&
+                <div className={`list-title margin}`}>{lang['Created_List_Title']}</div>
+            }
             <ListUserAssets
                 queryFcn={getBadge}
                 onListChange={(list: any) => {
