@@ -138,6 +138,7 @@ function GroupComment(props: { group: Group }) {
                     <Textarea value={comment}
                               onKeyUp={e => {
                                   if (e.keyCode === 13 && !e.shiftKey) {
+                                      (e.target as any).blur()
                                       handleSendComment()
                                   }
                               }}
