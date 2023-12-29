@@ -12,6 +12,7 @@ import {
     Group,
     Membership,
     Participants,
+    queryBadge,
     queryEvent,
     queryMyEvent
 } from "@/service/solas";
@@ -22,15 +23,17 @@ import ListRecommendedEvent from "@/components/compose/ListRecommendedEvent/List
 import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
 import EventHomeContext from "@/components/provider/EventHomeProvider/EventHomeContext";
 import MaodaoListEventVertical from "@/components/maodao/MaodaoListEventVertical/ListEventVertical";
+import useIssueBadge from "@/hooks/useIssueBadge";
 
 function Home(props: { initEvent?: Group, initList?: Event[], membership?: Membership[] }) {
     const {user} = useContext(UserContext)
     const router = useRouter()
     const pathname = usePathname()
     const {lang} = useContext(LangContext)
-    const {showToast} = useContext(DialogsContext)
+    const {showToast, openConnectWalletDialog} = useContext(DialogsContext)
     const {ready, joined, isManager} = useContext(EventHomeContext)
     const eventGroup = useContext(EventHomeContext).eventGroup || props.initEvent || undefined
+    const startIssueBadge = useIssueBadge()
 
     const [tabIndex, setTabIndex] = useState('0')
     const [showMyCreate, setShowMyCreate] = useState(true)
@@ -82,6 +85,16 @@ function Home(props: { initEvent?: Group, initList?: Event[], membership?: Membe
         }
 
         router.push(`/event/${eventGroup.username}/create`)
+    }
+
+    const issueBadge = async () => {
+        if (user.userName) {
+            openConnectWalletDialog()
+            return
+        }
+
+        const badges = await queryBadge({sender_id: user.id!, page: 1})
+        startIssueBadge({badges: badges.data, group_id: eventGroup!.id})
     }
 
     const isMaodao = process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'maodao'
@@ -155,22 +168,29 @@ function Home(props: { initEvent?: Group, initList?: Event[], membership?: Membe
                     <HomeUserPanel membership={props.membership || []}
                                    isSide
                                    slot={() => {
-                                       return !!user.id
-                                       && eventGroup
-                                       && ready
-                                       && ((joined && (eventGroup as Group).can_publish_event === 'member') || ((eventGroup as Group).can_publish_event === 'everyone' && user.userName) || isManager)
-                                           ? <div className={'home-action-bar'}>
-                                               <div className={'create-event-btn'} onClick={e => {
-                                                   gotoCreateEvent()
-                                               }}>+ {lang['Activity_Create_Btn']}</div>
-
-                                               {(user.id === (eventGroup as Group).creator.id || isManager) &&
-                                                   <div className={'setting-btn'} onClick={e => {
-                                                       router.push(`/event/setting/${eventGroup!.username}`)
-                                                   }}>{lang['Activity_Setting_Btn']}</div>
+                                       return  <>
+                                               { !!user.id
+                                                   && eventGroup
+                                                   && ready
+                                                   && ((joined && (eventGroup as Group).can_publish_event === 'member') || ((eventGroup as Group).can_publish_event === 'everyone' && user.userName) || isManager) &&
+                                                   <div className={'home-action-bar'}>
+                                                       <div className={'create-event-btn'} onClick={e => {
+                                                           gotoCreateEvent()
+                                                       }}>+ {lang['Activity_Create_Btn']}</div>
+                                                   </div>
                                                }
-                                           </div>
-                                           : <></>
+                                               <div className={'home-action-bar'}>
+                                                   <div className={'create-event-btn'} onClick={e => {
+                                                       issueBadge()
+                                                   }}>{lang['Profile_User_MindBadge']}</div>
+
+                                                   {eventGroup && (user.id === (eventGroup as Group).creator?.id || isManager) &&
+                                                       <div className={'setting-btn'} onClick={e => {
+                                                           router.push(`/event/setting/${eventGroup!.username}`)
+                                                       }}>{lang['Activity_Setting_Btn']}</div>
+                                                   }
+                                               </div>
+                                           </>
                                    }}/>
                 </div>
             </div>

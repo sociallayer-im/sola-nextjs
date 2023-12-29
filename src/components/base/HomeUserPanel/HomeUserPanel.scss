@@ -43,6 +43,25 @@
       flex-flow: row nowrap;
       align-items: center;
     }
+
+    .group-badge {
+      display: flex;
+      justify-content: space-between;
+      text-decoration: none;
+      padding: 0 12px;
+      margin-bottom: 12px;
+
+      img {
+        border-radius: 50%;
+        margin-right: 8px;
+      }
+    }
+
+    @media (max-width: 650px) {
+     .group-badge {
+        display: none;
+      }
+    }
   }
 
   .beast-banner {
@@ -128,7 +147,7 @@
   flex-flow: column nowrap;
   width: 100%;
 
-  >.center {
+  > .center {
     width: 100%;
     order: 4;
     margin-top: 20px;
@@ -140,12 +159,12 @@
     order: 2;
   }
 
-    .group-card {
-        .center {
-          padding: 8px 12px;
-          margin-bottom: 12px;
-        }
+  .group-card {
+    .center {
+      padding: 8px 12px;
+      margin-bottom: 12px;
     }
+  }
 
   .group-card-member-list {
     display: flex;
@@ -189,6 +208,12 @@
     margin-top: 20px;
     bottom: 0;
     order: 2;
+    display: flex;
+    align-items: center;
+
+    & .setting-btn {
+      margin-left: 12px;
+    }
   }
 
   .calendar-btn {
