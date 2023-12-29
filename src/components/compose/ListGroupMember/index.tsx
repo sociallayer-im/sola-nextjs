@@ -1,5 +1,5 @@
 import React, {useContext, useEffect, useState} from 'react'
-import solas, {Group, Profile} from '../../../service/solas'
+import solas, {Group, Membership, Profile} from '../../../service/solas'
 import LangContext from '../../provider/LangProvider/LangContext'
 import UserContext from '../../provider/UserProvider/UserContext'
 import CardInviteMember from '../../base/Cards/CardInviteMember/CardInviteMember'
@@ -55,7 +55,7 @@ function ListGroupMember(props: ListGroupMemberProps) {
 
     const getMemberShips = async () => {
         const _memberships = await solas.getGroupMemberShips({group_id: props.group.id})
-        let memberships: any = []
+        let memberships: Membership[] = []
         _memberships.forEach((membership: any) => {
             if (!memberships.find((m: any) => m.profile.id === membership.profile.id)) {
                 memberships.push(membership)
