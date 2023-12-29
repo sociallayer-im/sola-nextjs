@@ -54,19 +54,20 @@ function ListGroupMember(props: ListGroupMemberProps) {
     }
 
     const getMemberShips = async () => {
-        const memberships = await solas.getGroupMemberShips({group_id: props.group.id})
+        const _memberships = await solas.getGroupMemberShips({group_id: props.group.id})
+        let memberships: any = []
+        _memberships.forEach((membership: any) => {
+            if (!memberships.find((m: any) => m.profile.id === membership.profile.id)) {
+                memberships.push(membership)
+            }
+        })
+
         const _members = memberships.filter((manager) => manager.role === 'member').map((manager) => manager.profile) as any
         const _managers = memberships.filter((manager) => manager.role === 'manager').map((manager) => manager.profile) as any
         const _issuer = memberships.filter((manager) => manager.role === 'issuer').map((manager) => manager.profile) as any
 
         setManagers(_managers)
-        setMembers(_members.filter((member: Profile) => {
-                return !_managers.some((manager: Profile) => manager.id === member.id)
-            })
-                .filter((member: Profile) => {
-                    return !_issuer.some((issuer: Profile) => issuer.id === member.id)
-                })
-        )
+        setMembers(_members)
         setIssuer(_issuer)
         setCurrUserJoinedGroup(memberships.some((member) => member.profile.id === user.id))
     }
