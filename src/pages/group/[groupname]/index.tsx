@@ -43,7 +43,7 @@ const ListUserVote = dynamic(() => import('@/components/compose/ListUserVote'), 
 function GroupPage(props: any) {
     const params = useParams()
     const groupname = props.groupname || params?.groupname
-    const [profile, setProfile] = useState<Profile | null>(null)
+    const [profile, setProfile] = useState<Profile | null>(props.group)
     const {showLoading, openConnectWalletDialog} = useContext(DialogsContext)
     const {lang} = useContext(LangContext)
     const {user, logOut} = useContext(UserContext)
@@ -81,27 +81,10 @@ function GroupPage(props: any) {
     }, [searchParams])
 
     useEffect(() => {
-        const getProfile = async function () {
-            if (!groupname) return
-
-            if (groupname === 'readyplayerclub' && process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'maodao') {
-                router.replace('/rpc')
-                return
-            }
-
-            const unload = showLoading()
-            try {
-                const profile = await getGroups({username: groupname as string})
-                if (profile[0]) {
-                    setProfile(profile[0])
-                }
-            } catch (e) {
-                console.log('[getProfile]: ', e)
-            } finally {
-                unload()
-            }
+        if (groupname === 'readyplayerclub' && process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'maodao') {
+            router.replace('/rpc')
+            return
         }
-        getProfile()
     }, [groupname])
 
 
@@ -312,15 +295,19 @@ function GroupPage(props: any) {
                                     <div className={'tab-action'}>
                                         <div className={'left'}><b>{eventCount}</b> {lang['Setting_Events']}</div>
                                         <div className={'right'}>
-                                            { user.userName &&
+                                            {user.userName &&
                                                 <AppButton size={BTN_SIZE.compact} onClick={() => {
                                                     location.href = `https://prod.sociallayer.im/gcalendar/auth_url?auth_token=${user?.authToken}`
-                                                }} style={{backgroundColor: '#fff!important', border: '1px solid #F1F1F1'}}>
-                                                    <i className="icon-calendar" style={{marginRight: '8px', fontSize: '18px'}}/>
+                                                }} style={{
+                                                    backgroundColor: '#fff!important',
+                                                    border: '1px solid #F1F1F1'
+                                                }}>
+                                                    <i className="icon-calendar"
+                                                       style={{marginRight: '8px', fontSize: '18px'}}/>
                                                     {lang['Activity_Detail_Btn_add_Calender']}
                                                 </AppButton>
                                             }
-                                            { canCreateEvent &&
+                                            {canCreateEvent &&
                                                 <AppButton special size={BTN_SIZE.compact} onClick={handleMintOrIssue}>
                                                     {`+ ${lang['Activity_Create_title']}`}
                                                 </AppButton>
@@ -335,10 +322,12 @@ function GroupPage(props: any) {
                                 <div className={`profile-badge ${selectedTab === '1' ? '' : 'hide'}`}>
                                     {!!user.userName &&
                                         <div className={'tab-action'}>
-                                            <div className={'left'}><b>{badgeCount}</b> {lang['Badgelet_List_Unit']}</div>
-                                            { (isGroupOwner || isGroupManager || isIssuer) &&
+                                            <div className={'left'}><b>{badgeCount}</b> {lang['Badgelet_List_Unit']}
+                                            </div>
+                                            {(isGroupOwner || isGroupManager || isIssuer) &&
                                                 <div className={'right'}>
-                                                    <AppButton special size={BTN_SIZE.compact} onClick={handleMintOrIssue}>
+                                                    <AppButton special size={BTN_SIZE.compact}
+                                                               onClick={handleMintOrIssue}>
                                                         <span className='icon-sendfasong'></span>
                                                         {process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'seedao' ?
                                                             lang['Send_SeeDAO_Badge']
@@ -393,7 +382,7 @@ function GroupPage(props: any) {
                                 (selectedTab === '3' || loadedTabRrf.current.has('3')) &&
                                 <div className={`${selectedTab === '3' ? '' : 'hide'}`}>
                                     <div className={'tab-action'}>
-                                        { !user.userName &&
+                                        {!user.userName &&
                                             <AppButton size={BTN_SIZE.compact} onClick={() => {
                                                 openConnectWalletDialog()
                                             }} style={{backgroundColor: '#fff!important', border: '1px solid #272928'}}>
@@ -431,3 +420,13 @@ function GroupPage(props: any) {
 }
 
 export default GroupPage
+
+export const getServerSideProps: any = (async (context: any) => {
+    const groupname = context.params?.groupname
+
+    console.time('Group page fetch data')
+    const group = await getGroups({username: groupname as string})
+    console.timeEnd('Group page fetch data')
+
+    return {props: {group: group[0]}}
+})

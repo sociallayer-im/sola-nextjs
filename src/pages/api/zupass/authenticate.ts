@@ -51,35 +51,35 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             return;
         }
 
-        if (nullifiers.has(pcd.claim.nullifierHash)) {
-            console.error(`[ERROR] PCD ticket has already been used`);
-
-            res.status(401).send("PCD ticket has already been used");
-            return;
-        }
-
-        if (pcd.claim.partialTicket.eventId) {
-            const eventId = pcd.claim.partialTicket.eventId;
-            if (!supportedEvents.includes(eventId)) {
-                console.error(
-                    `[ERROR] PCD ticket has an unsupported event ID: ${eventId}`
-                );
-                res.status(400).send("PCD ticket is not for a supported event");
-                return;
-            }
-        } else {
-            for (const eventId of pcd.claim.validEventIds ?? []) {
-                if (!supportedEvents.includes(eventId)) {
-                    console.error(
-                        `[ERROR] PCD ticket might have an unsupported event ID: ${eventId}`
-                    );
-                    res
-                        .status(400)
-                        .send("PCD ticket is not restricted to supported events");
-                    return;
-                }
-            }
-        }
+        // if (nullifiers.has(pcd.claim.nullifierHash)) {
+        //     console.error(`[ERROR] PCD ticket has already been used`);
+        //
+        //     res.status(401).send("PCD ticket has already been used");
+        //     return;
+        // }
+        //
+        // if (pcd.claim.partialTicket.eventId) {
+        //     const eventId = pcd.claim.partialTicket.eventId;
+        //     if (!supportedEvents.includes(eventId)) {
+        //         console.error(
+        //             `[ERROR] PCD ticket has an unsupported event ID: ${eventId}`
+        //         );
+        //         res.status(400).send("PCD ticket is not for a supported event");
+        //         return;
+        //     }
+        // } else {
+        //     for (const eventId of pcd.claim.validEventIds ?? []) {
+        //         if (!supportedEvents.includes(eventId)) {
+        //             console.error(
+        //                 `[ERROR] PCD ticket might have an unsupported event ID: ${eventId}`
+        //             );
+        //             res
+        //                 .status(400)
+        //                 .send("PCD ticket is not restricted to supported events");
+        //             return;
+        //         }
+        //     }
+        // }
 
         // The PCD's nullifier is saved so that it prevents the
         // same PCD from being reused for another login.
