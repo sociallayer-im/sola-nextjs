@@ -53,7 +53,9 @@ export const getServerSideProps: any = (async (context: any) => {
         })
     ]
 
+    console.time('Home page getServerSideProps')
     const [targetGroup, events, membership] = await Promise.all(task)
+    console.timeEnd('Home page getServerSideProps')
 
     return {props: {initEvent: targetGroup.find((g: Group) => g.id === targetGroupId), initList: events, membership}}
 })
