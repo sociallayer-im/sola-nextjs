@@ -5,7 +5,6 @@ import { setLastLoginType } from '@/utils/authStorage'
 import DialogsContext from '../../../provider/DialogProvider/DialogsContext'
 import UserContext from '../../../provider/UserProvider/UserContext'
 import {useRouter} from 'next/navigation'
-import {useZupass} from "@/service/zupass/zupass";
 
 interface DialogConnectWalletProps {
     handleClose: (...rest: any[]) => any
@@ -105,6 +104,7 @@ function DialogConnectWallet (props: DialogConnectWalletProps) {
             }
             {process.env.NEXT_PUBLIC_SPECIAL_VERSION==='zumap' &&
                 <div className='connect-item' onClick={async () => {
+                    showLoading()
                     const login = (await import('@/service/zupass/zupass')).login
                     login()
                 } }>
