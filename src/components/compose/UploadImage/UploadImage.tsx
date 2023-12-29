@@ -17,6 +17,7 @@ const Wrapper = styled('div', () => {
         background: 'var(--color-input-bg)',
         borderRadius: '16px',
         userSelect: 'none',
+        position: 'relative'
     }
 })
 
@@ -104,6 +105,14 @@ function UploadImage ({cropper=true, ...props}: UploadImageProps) {
     }, [props.imageSelect])
 
     return (<Wrapper>
+        { !!imageSelect &&
+            <i className={'icon-close'}
+               onClick={ () => {
+                   setImageSelect('')
+                   props.confirm('')
+               }}
+               style={{position: 'absolute', right: '20px', top: '20px', color: '#8c8c8c', fontWeight: '900'}}/>
+        }
         { cropper ?
             <Pic data-testid='upload-image' onClick={ () => { selectFile() } } src={ imageSelect || defaultImg } alt=""/>
             : imageSelect ? <Pic2 data-testid='upload-image-uploaded' onClick={ () => { selectFile() } } src={ imageSelect  } alt=""/>

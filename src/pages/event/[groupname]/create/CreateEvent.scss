@@ -2,6 +2,44 @@
   position: relative;
   background: var(--color-page-bg-1);
 
+  .default-post {
+    width: 452px;
+    max-width: 452px;
+    height: 656px;
+    background: url("/images/default_event_cover.png") no-repeat center center;
+    background-size: 452px 656px;
+    position: relative;
+
+    .title {
+      color: var(--Text-4-Headline, #272928);
+      font-size: 46px;
+      font-style: normal;
+      font-weight: 600;
+      height: 240px;
+      width: 340px;
+      position: absolute;
+      left: 55px;
+      top: 137px;
+      overflow: hidden;
+    }
+
+    .time {
+      position: absolute;
+      color: var(--Text-4-Headline, #272928);
+      font-size: 20px;
+      left: 55px;
+      bottom: 184px;
+    }
+
+    .location {
+      position: absolute;
+      color: var(--Text-4-Headline, #272928);
+      font-size: 20px;
+      left: 55px;
+      bottom: 144px;
+    }
+  }
+
   .banded-badge {
     display: flex;
     width: 114px;
@@ -288,11 +326,11 @@
 
     .input-area-sub-title {
       color: var(--color-text-main);
-      font-size: 14px;
+      font-size: 16px;
       font-style: normal;
       font-weight: 600;
       line-height: 22px;
-      margin-left: 16px;
+      margin-left: 12px;
       margin-bottom: 10px;
       margin-top: 20px;
     }

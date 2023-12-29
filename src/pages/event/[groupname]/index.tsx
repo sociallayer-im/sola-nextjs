@@ -180,7 +180,7 @@ function Home(props: { initEvent?: Group, initList?: Event[], membership?: Membe
                                                    </div>
                                                }
                                                <div className={'home-action-bar'}>
-                                                   <div className={'create-event-btn'} onClick={e => {
+                                                   <div className={'send-btn'} style={{minWidth: '200px'}} onClick={e => {
                                                        issueBadge()
                                                    }}>{lang['Profile_User_MindBadge']}</div>
 

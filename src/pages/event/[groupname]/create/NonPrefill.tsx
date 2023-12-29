@@ -12,7 +12,6 @@ import {
     cancelRepeatEvent,
     createEvent,
     CreateEventProps,
-    createRepeatEvent,
     CreateRepeatEventProps,
     Event,
     EventSites,
@@ -21,13 +20,12 @@ import {
     Profile,
     queryBadge,
     queryBadgeDetail,
-    queryEvent,
-    queryEventDetail, queryGroupDetail,
-    RepeatEventInvite,
-    RepeatEventSetBadge,
+    queryEventDetail,
+    queryGroupDetail,
     RepeatEventUpdate,
     setEventBadge,
-    updateEvent
+    updateEvent,
+    uploadImage
 } from '@/service/solas'
 import DialogsContext from '@/components/provider/DialogProvider/DialogsContext'
 import ReasonInput from '@/components/base/ReasonInput/ReasonInput'
@@ -35,7 +33,6 @@ import SelectCreator from '@/components/compose/SelectCreator/SelectCreator'
 import AppDateInput from "@/components/base/AppDateInput/AppDateInput";
 import {Delete} from "baseui/icon";
 import Toggle from "@/components/base/Toggle/Toggle";
-import IssuesInput from "@/components/base/IssuesInput/IssuesInput";
 import EventLabels from "@/components/base/EventLabels/EventLabels";
 import DialogIssuePrefill from "@/components/eventSpecial/DialogIssuePrefill/DialogIssuePrefill";
 import {OpenDialogProps} from "@/components/provider/DialogProvider/DialogProvider";
@@ -44,6 +41,8 @@ import EventHomeContext from "@/components/provider/EventHomeProvider/EventHomeC
 import LocationInput from "@/components/compose/LocationInput/LocationInput";
 import AppFlexTextArea from "@/components/base/AppFlexTextArea/AppFlexTextArea";
 import AppEventTimeInput from "@/components/base/AppEventTimeInput/AppEventTimeInput";
+import {useTime3} from "@/hooks/formatTime";
+import html2canvas from 'html2canvas'
 
 interface Draft {
     cover: string,
@@ -100,6 +99,7 @@ function CreateEvent(props: CreateEventPageProps) {
     const [creator, setCreator] = useState<Group | Profile | null>(null)
     const {lang, langType} = useContext(LangContext)
     const {eventGroup, joined} = useContext(EventHomeContext)
+    const formatTime = useTime3()
 
     const [currEvent, setCurrEvent] = useState<Event | null>(null)
 
@@ -225,7 +225,6 @@ function CreateEvent(props: CreateEventPageProps) {
         }
 
         async function cancelRepeat() {
-
             if (repeatEventSelectorRef.current === 'one') {
                 await cancelOne()
                 return
@@ -386,7 +385,7 @@ function CreateEvent(props: CreateEventPageProps) {
             }
             setOnlineUrl(event.meeting_url || '')
 
-           setEventSite(event.event_site || null)
+            setEventSite(event.event_site || null)
 
 
             if (event.max_participant) {
@@ -455,6 +454,7 @@ function CreateEvent(props: CreateEventPageProps) {
                 prefillDraft()
             }
         }
+
         fetchEventDetail()
     }, [isEditMode])
 
@@ -548,6 +548,77 @@ function CreateEvent(props: CreateEventPageProps) {
         } as OpenDialogProps)
     }
 
+    const genCover = async (): Promise<string> => {
+        return new Promise<string>((resolve, reject) => {
+            const unload = showLoading()
+
+            const img = new Image()
+
+            img.src = '/images/default_event_cover.png'
+
+            img.onload = () => {
+                const div1 = document.createElement('div')
+                div1.className = 'default-post'
+
+                if (start && ending) {
+                    const div2 = document.createElement('dev')
+                    div2.className = 'time'
+                    const timeInfo = formatTime(start, ending, timezone)
+                    div2.innerHTML = `${timeInfo.data} <br /> ${timeInfo.time}`
+                    div1.appendChild(div2)
+                }
+
+                if (customLocation || eventSite?.title) {
+                    const div3 = document.createElement('div')
+                    div3.className = 'location'
+                    div3.innerHTML = `${customLocation || eventSite?.title!}`
+                    div1.appendChild(div3)
+                }
+
+                if (title) {
+                    const div4 = document.createElement('div')
+                    div4.className = 'title'
+                    div4.innerText = title
+                    div1.appendChild(div4)
+                }
+
+                document.querySelector('.create-event-page')!.appendChild(div1)
+
+                html2canvas(div1, {
+                    useCORS: true, // 【重要】开启跨域配置
+                    scale: 1,
+                    allowTaint: true,
+                    width: 452,
+                    height: 656,
+                    backgroundColor: null
+                }).then((canvas: HTMLCanvasElement) => {
+                    canvas.style.background = 'transparent'
+                    const imgData = canvas.toDataURL('image/jpeg')
+                    div1.remove()
+                    uploadImage({
+                        file: imgData,
+                        auth_token: user.authToken!,
+                        uploader: user.userName!
+                    })
+                        .then((res) => {
+                            unload()
+                            resolve(res)
+                        })
+                        .catch(e => {
+                            unload()
+                            reject(e)
+                        })
+
+                })
+                    .catch(function (e: any) {
+                        unload()
+                        console.error('oops, something went wrong!', e)
+                        reject(e)
+                    })
+            }
+        })
+    }
+
     const handleCreate = async () => {
         if (!user.id) {
             showToast('Please login first')
@@ -569,10 +640,6 @@ function CreateEvent(props: CreateEventPageProps) {
             return
         }
 
-        if (!cover) {
-            showToast('please upload cover')
-            return
-        }
 
         if (!title) {
             showToast('please input title')
@@ -602,7 +669,7 @@ function CreateEvent(props: CreateEventPageProps) {
 
         const props: CreateRepeatEventProps = {
             title: title.trim(),
-            cover_url: cover,
+            cover_url: cover ? cover : await genCover(),
             content,
             tags: label,
             start_time: start,
@@ -685,10 +752,6 @@ function CreateEvent(props: CreateEventPageProps) {
             return
         }
 
-        if (!cover) {
-            showToast('please upload cover')
-            return
-        }
 
         if (!title) {
             showToast('please input title')
@@ -719,7 +782,7 @@ function CreateEvent(props: CreateEventPageProps) {
         const saveProps: CreateEventProps = {
             id: props.eventId!,
             title: title.trim(),
-            cover_url: cover,
+            cover_url: cover ? cover : await genCover(),
             content,
             tags: label,
             start_time: start,
@@ -837,7 +900,7 @@ function CreateEvent(props: CreateEventPageProps) {
 
                     unloading()
                     showToast('update success')
-                   // router.replace(`/event/detail/${newEvents[0].id}`)
+                    // router.replace(`/event/detail/${newEvents[0].id}`)
                 } catch (e: any) {
                     unloading()
                     console.error(e)
@@ -854,15 +917,6 @@ function CreateEvent(props: CreateEventPageProps) {
                     <PageBack title={lang['Activity_Create_title']}/>
 
                     <div className='create-badge-page-form'>
-                        <div className='input-area'>
-                            <div className='input-area-title'>{lang['Activity_Form_Cover']}</div>
-                            <UploadImage
-                                cropper={false}
-                                imageSelect={cover}
-                                confirm={(coverUrl) => {
-                                    setCover(coverUrl)
-                                }}/>
-                        </div>
 
                         <div className='input-area'>
                             <div className='input-area-title'>{lang['Activity_Form_Name']}</div>
@@ -876,6 +930,22 @@ function CreateEvent(props: CreateEventPageProps) {
                                     setTitle(e.target.value)
                                 }}/>
                         </div>
+
+                        <div className='input-area'>
+                            <div className='input-area-title'>{lang['Activity_Form_Cover']}</div>
+                            <UploadImage
+                                cropper={false}
+                                imageSelect={cover}
+                                confirm={(coverUrl) => {
+                                    setCover(coverUrl)
+                                }}/>
+                        </div>
+
+                        {/*<div className={'default-post'}>*/}
+                        {/*    <div className={'title'}>{title}</div>*/}
+                        {/*    <div className={'time'}>{JSON.stringify(formatTime(start, ending, timezone))}</div>*/}
+                        {/*    <div className={'location'}>{customLocation || eventSite?.title || '12312'}</div>*/}
+                        {/*</div>*/}
 
                         {false &&
                             <div className='input-area'>
@@ -908,7 +978,7 @@ function CreateEvent(props: CreateEventPageProps) {
                             </div>
                         }
 
-                        { false &&
+                        {false &&
                             <div className='input-area'>
                                 <div className='input-area-title'>{lang['Activity_Form_Starttime']}</div>
                                 <AppDateInput value={start} onChange={(data) => {
@@ -918,7 +988,7 @@ function CreateEvent(props: CreateEventPageProps) {
                             </div>
                         }
 
-                        {  false &&
+                        {false &&
                             <div className='input-area'>
                                 <div className='input-area-title'>{lang['Activity_Form_Ending']}</div>
                                 <AppDateInput value={ending} onChange={(data) => {
@@ -1102,7 +1172,7 @@ function CreateEvent(props: CreateEventPageProps) {
                             </div>
                         }
 
-                        { false &&
+                        {false &&
                             <div className='input-area'>
                                 <div className='input-area-title'>{lang['Activity_Detail_Offline_Tg']}</div>
                                 <div className='input-area-des'>{lang['Activity_Detail_Offline_Tg_des']}</div>

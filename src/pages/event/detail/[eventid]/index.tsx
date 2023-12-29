@@ -32,6 +32,7 @@ import useGetMeetingName from "@/hooks/getMeetingName";
 import Head from "next/head";
 import Link from "next/link";
 import MapContext from "@/components/provider/MapProvider/MapContext";
+import ImgLazy from "@/components/base/ImgLazy/ImgLazy";
 
 import * as dayjsLib from "dayjs";
 import Empty from "@/components/base/Empty";
@@ -290,7 +291,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                 <div className={'event-detail-content'}>
                     <div className={'event-detail-content-main'}>
                         <div className={'cover'}>
-                            <img src={event.cover_url} alt=""/>
+                            <ImgLazy src={event.cover_url} alt=""  width={624} />
                         </div>
 
                         <div className={'detail'}>
@@ -619,7 +620,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                     </div>
                     <div className={'event-detail-content-site'}>
                         <div className={'cover'}>
-                            <img src={event.cover_url} alt=""/>
+                            <ImgLazy src={event.cover_url} width={640} />
                         </div>
                         <div className={'center'}>
                             {user.userName && canAccess &&

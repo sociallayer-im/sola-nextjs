@@ -263,6 +263,24 @@
     flex: 1;
   }
 
+  .send-btn {
+    display: flex;
+    height: 56px;
+    padding: 14px 0;
+    background: #ECF2EE;
+    justify-content: center;
+    align-items: center;
+    border-radius: 16px;
+    box-sizing: border-box;
+    color: #272928;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 28px;
+    cursor: pointer;
+    flex: 1;
+  }
+
   .setting-btn {
     display: flex;
     height: 56px;
