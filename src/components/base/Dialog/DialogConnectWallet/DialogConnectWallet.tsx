@@ -102,17 +102,15 @@ function DialogConnectWallet (props: DialogConnectWalletProps) {
                     <div className='connect-des'>{ lang['Login_Phone_Title'] }</div>
                 </div>
             }
-            {process.env.NEXT_PUBLIC_SPECIAL_VERSION==='zumap' &&
-                <div className='connect-item' onClick={async () => {
-                    showLoading()
-                    const login = (await import('@/service/zupass/zupass')).login
-                    login()
-                } }>
-                    <img src="/images/zupass.png" alt="email"/>
-                    <div className='connect-name'>Zupass</div>
-                    <div className='connect-des'>{ 'Login using Zupass' }</div>
-                </div>
-            }
+            <div className='connect-item' onClick={async () => {
+                showLoading()
+                const login = (await import('@/service/zupass/zupass')).login
+                login()
+            } }>
+                <img src="/images/zupass.png" alt="email"/>
+                <div className='connect-name'>Zupass</div>
+                <div className='connect-des'>{ 'Login using Zupass' }</div>
+            </div>
         </div>
     )
 }
