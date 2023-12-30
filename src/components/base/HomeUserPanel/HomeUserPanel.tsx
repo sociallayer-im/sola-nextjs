@@ -14,6 +14,7 @@ function HomeUserPanel(props: {
     membership: Membership[],
     isSide?: boolean
     slot?: any
+    badges?: Badge[]
 }) {
     const router = useRouter()
     const {lang, langType} = useContext(LangContext)
@@ -36,12 +37,10 @@ function HomeUserPanel(props: {
     }, [props.membership])
 
     useEffect(() => {
-        if (eventGroup) {
-            queryBadge({group_id: eventGroup?.id!, page: 1}).then((res) => {
-                setGroupBadges(res.data.slice(0, 5))
-            })
+        if (props.badges && props.badges.length > 0) {
+            setGroupBadges(props.badges.slice(0, 5))
         }
-    }, [eventGroup])
+    }, [props.badges])
 
     return <div className={`home-user-panel ${props.isSide ? 'side' : ''}`}>
 
@@ -81,7 +80,7 @@ function HomeUserPanel(props: {
                                 </Link>
                             </div>
                     }
-                    { !!eventGroup &&
+                    { !!eventGroup && groupBadges.length > 0 &&
                         <div className={'group-badge'}>
                             <div className={'left'}>
                                 {
@@ -97,7 +96,7 @@ function HomeUserPanel(props: {
                     }
                     <div>
                         {
-                            props.membership.filter(item => item.role !== 'member').map((membership, index) => {
+                            groupMembers.filter(item => item.role !== 'member').map((membership, index) => {
                                 return <Link key={membership.profile.id}
                                              className={'group-card-member-list'}
                                              href={`/profile/${membership.profile.username}`}>

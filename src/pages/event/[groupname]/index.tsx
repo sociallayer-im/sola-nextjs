@@ -14,7 +14,8 @@ import {
     Participants,
     queryBadge,
     queryEvent,
-    queryMyEvent
+    queryMyEvent,
+    Badge
 } from "@/service/solas";
 import ListMyAttentedEvent from "@/components/compose/ListMyAttentedEvent/ListMyAttentedEvent";
 import ListMyCreatedEvent from "@/components/compose/ListMyCreatedEvent/ListMyCreatedEvent";
@@ -25,13 +26,13 @@ import EventHomeContext from "@/components/provider/EventHomeProvider/EventHomeC
 import MaodaoListEventVertical from "@/components/maodao/MaodaoListEventVertical/ListEventVertical";
 import useIssueBadge from "@/hooks/useIssueBadge";
 
-function Home(props: { initEvent?: Group, initList?: Event[], membership?: Membership[] }) {
+function Home(props: {badges: Badge[], initEvent?: Group, initList?: Event[], membership?: Membership[] }) {
     const {user} = useContext(UserContext)
     const router = useRouter()
     const pathname = usePathname()
     const {lang} = useContext(LangContext)
     const {showToast, openConnectWalletDialog} = useContext(DialogsContext)
-    const {ready, joined, isManager} = useContext(EventHomeContext)
+    const {ready, joined, isManager, setEventGroup} = useContext(EventHomeContext)
     const eventGroup = useContext(EventHomeContext).eventGroup || props.initEvent || undefined
     const startIssueBadge = useIssueBadge()
 
@@ -73,6 +74,12 @@ function Home(props: { initEvent?: Group, initList?: Event[], membership?: Membe
             setTabIndex('1')
         }
     }, [showMyAttend])
+
+    useEffect(() => {
+        if (props.initEvent) {
+            setEventGroup(props.initEvent)
+        }
+    }, [props.initEvent])
 
     const gotoCreateEvent = () => {
         if (!user.authToken) {
@@ -166,31 +173,32 @@ function Home(props: { initEvent?: Group, initList?: Event[], membership?: Membe
 
                 <div className={'home-page-event-side'}>
                     <HomeUserPanel membership={props.membership || []}
+                                   badges={props.badges || []}
                                    isSide
                                    slot={() => {
-                                       return  <>
-                                               { !!user.id
-                                                   && eventGroup
-                                                   && ready
-                                                   && ((joined && (eventGroup as Group).can_publish_event === 'member') || ((eventGroup as Group).can_publish_event === 'everyone' && user.userName) || isManager) &&
-                                                   <div className={'home-action-bar'}>
-                                                       <div className={'create-event-btn'} onClick={e => {
-                                                           gotoCreateEvent()
-                                                       }}>+ {lang['Activity_Create_Btn']}</div>
-                                                   </div>
-                                               }
+                                       return <>
+                                           {!!user.id
+                                               && eventGroup
+                                               && ready
+                                               && ((joined && (eventGroup as Group).can_publish_event === 'member') || ((eventGroup as Group).can_publish_event === 'everyone' && user.userName) || isManager) &&
                                                <div className={'home-action-bar'}>
-                                                   <div className={'send-btn'} style={{minWidth: '200px'}} onClick={e => {
-                                                       issueBadge()
-                                                   }}>{lang['Profile_User_MindBadge']}</div>
-
-                                                   {eventGroup && (user.id === (eventGroup as Group).creator?.id || isManager) &&
-                                                       <div className={'setting-btn'} onClick={e => {
-                                                           router.push(`/event/setting/${eventGroup!.username}`)
-                                                       }}>{lang['Activity_Setting_Btn']}</div>
-                                                   }
+                                                   <div className={'create-event-btn'} onClick={e => {
+                                                       gotoCreateEvent()
+                                                   }}>+ {lang['Activity_Create_Btn']}</div>
                                                </div>
-                                           </>
+                                           }
+                                           <div className={'home-action-bar'}>
+                                               <div className={'send-btn'} style={{minWidth: '200px'}} onClick={e => {
+                                                   issueBadge()
+                                               }}>{lang['Profile_User_MindBadge']}</div>
+
+                                               {eventGroup && (user.id === (eventGroup as Group).creator?.id || isManager) &&
+                                                   <div className={'setting-btn'} onClick={e => {
+                                                       router.push(`/event/setting/${eventGroup!.username}`)
+                                                   }}>{lang['Activity_Setting_Btn']}</div>
+                                               }
+                                           </div>
+                                       </>
                                    }}/>
                 </div>
             </div>
@@ -227,6 +235,16 @@ export const getServerSideProps: any = (async (context: any) => {
         role: 'all',
     })
 
+    const badges =  await queryBadge({group_id: targetGroup[0]?.id!, page: 1})
 
-    return {props: {initEvent: targetGroup, initList: res, membership}}
+
+    return {
+        props: {
+            badges: badges.data,
+            initEvent: {
+                ...targetGroup[0],
+                creator: targetGroup[0]?.memberships[0],
+            }, initList: res, membership
+        }
+    }
 })
