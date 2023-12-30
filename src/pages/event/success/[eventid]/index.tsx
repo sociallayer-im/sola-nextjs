@@ -122,9 +122,9 @@ function CreateEventSuccess() {
                                 </div>
                             }
                             {
-                                !!event.location && <div className={'time'}>
+                                !!event.location && <div className={'time location'}>
                                     <i className={'icon-Outline'}/>
-                                    <div>{event.location}{event.formatted_address ? `(${event.formatted_address})` : ''}</div>
+                                    <div>{event.location} <br /> {event.formatted_address ? `${event.formatted_address}` : ''}</div>
                                 </div>
                             }
                             {

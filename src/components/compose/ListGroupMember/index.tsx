@@ -120,7 +120,7 @@ function ListGroupMember(props: ListGroupMemberProps) {
         const dialog = openDialog({
             content: (close: any) => <DialogTransferGroupOwner
                 group={props.group as any}
-                members={members}
+                members={[...managers, ...issuer, ...members]}
                 handleClose={(newOwner) => {
                     if (newOwner) {
                         setGroupOwnerId(newOwner.id)
