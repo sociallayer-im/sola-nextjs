@@ -1,6 +1,6 @@
 import {useSearchParams} from 'next/navigation'
 import {useContext, useEffect, useState} from 'react'
-import solas, {Group, ProfileSimple, queryVoucherDetail} from '../../service/solas'
+import solas, {Group} from '../../service/solas'
 import LangContext from '../../components/provider/LangProvider/LangContext'
 import UserContext from '../../components/provider/UserProvider/UserContext'
 import copy from '../../utils/copy'
@@ -163,7 +163,7 @@ function IssueSuccessPage(props: any) {
     useEffect(() => {
         const shareUrl = info?.link || ''
         let text = lang['IssueFinish_share']
-            .replace('#1', group?.nickname || group?.username || user.nickname|| user.domain!)
+            .replace('#1', group?.nickname || group?.username || user.nickname || user.domain!)
             .replace('#2', info?.name || '')
             .replace('#3', shareUrl)
 
@@ -216,7 +216,7 @@ export default IssueSuccessPage
 export const getServerSideProps: any = (async (context: any) => {
     const voucher = context.query?.voucher || null
     const invite = context.query?.invite || null
-    const code = context.query?.code  || null
+    const code = context.query?.code || null
 
 
     return {

@@ -21,7 +21,7 @@ function CreateEventSuccess() {
     const {lang} = useContext(LangContext)
     // const formatTime = useTime()
     const card = useRef<any>()
-    const {showToast} = useContext(DialogsContext)
+    const {showToast, showLoading} = useContext(DialogsContext)
     const {availableList, setEventGroup} = useContext(EventHomeContext)
     const {getMeetingName} = useGetMeetingName()
 
@@ -29,6 +29,7 @@ function CreateEventSuccess() {
 
     useEffect(() => {
         async function fetchData() {
+            const unload = showLoading()
             const res = await queryEventDetail({id: Number(params?.eventid)})
             setEvent(res)
 
@@ -43,6 +44,11 @@ function CreateEventSuccess() {
                 const context = canvas.getContext('2d')
                 context!.drawImage(image, 0, 0)
                 setCoverUrl(canvas.toDataURL())
+                unload()
+            }
+
+            image.onerror = function() {
+                unload()
             }
         }
 
@@ -82,11 +88,11 @@ function CreateEventSuccess() {
             <div className={'center'}><Link className={'done'} href={`/event/detail/${params?.eventid}`}>Done</Link>
             </div>
             <div className={'title'}>{lang['IssueFinish_Title']}</div>
-            {event &&
+            {event && coverUrl &&
                 <>
                     <div className={'event-share-card-wrapper'}>
                         <div className={'event-share-card'} ref={card}>
-                            <img src={coverUrl || event.cover_url} className={'cover'} alt=""/>
+                            <img src={coverUrl || event.cover_url} className={'cover'}></img>
                             <div className={'name'}>{event.title}</div>
                             {!!event.start_time &&
                                 <div className={'time'}>
