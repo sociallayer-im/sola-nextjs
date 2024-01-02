@@ -76,7 +76,7 @@ export function useTime2() {
             'AUG', 'SEP', 'OCT', 'NOV', 'DEC']
         const mon = month[target.month()]
         const date = target.date() + ''
-        const hour = target.hour() > 12 ? target.hour() - 12 + '' : target.hour() + ''
+        const hour = target.hour() + ''
         const min = target.minute() + ''
         const amOrPm = target.hour() >= 12 ? 'PM' : 'AM'
 
@@ -88,9 +88,9 @@ export function useTime2() {
             target.utcOffset() / 60
 
         if (isToday) {
-            return `${todayText} ${hour.padStart(2, '0')}:${min.padStart(2, '0')} ` + amOrPm + ' GMT' + utcOffset
+            return `${todayText} ${hour.padStart(2, '0')}:${min.padStart(2, '0')} `  + ' GMT' + utcOffset
         } else if (isTomorrow) {
-            return `${tomorrowText} ${hour.padStart(2, '0')}:${min.padStart(2, '0')} ` + amOrPm + ' GMT' + utcOffset
+            return `${tomorrowText} ${hour.padStart(2, '0')}:${min.padStart(2, '0')} ` + ' GMT' + utcOffset
         } else {
             return `${week[target.day()]}, ${mon} ${date.padStart(2, '0')}, ${hour.padStart(2, '0')}:${min.padStart(2, '0')} ` + ' GMT' + utcOffset
         }

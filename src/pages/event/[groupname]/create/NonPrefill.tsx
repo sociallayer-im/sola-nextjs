@@ -527,7 +527,6 @@ function CreateEvent(props: CreateEventPageProps) {
                     }
 
                     return res
-
                 })
 
                 setSiteOccupied(occupied)
