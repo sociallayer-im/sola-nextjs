@@ -1,7 +1,7 @@
 import {Profile} from "@/service/solas";
 
 export const walletLogin = () => {
-    window.localStorage.setItem('auth_sola', '[["0x0b23E3588c906C3F723C58Ef4d6baEe7840A977c","eyJhbGciOiJIUzI1NiJ9.eyJpZCI6MSwiYWRkcmVzc190eXBlIjoid2FsbGV0In0.nKGJlDbb76cQggPONtLj99AqqTGZTWkPF48-c8KnH1c"]]')
+    window.localStorage.setItem('auth_sola', '[["0x0b23E3588c906C3F723C58Ef4d6baEe7840A977c","eyJhbGciOiJIUzI1NiJ9.eyJpZCI6MSwiYWRkcmVzc190eXBlIjoid2FsbGV0IiwiaHR0cHM6Ly9oYXN1cmEuaW8vand0L2NsYWltcyI6eyJ4LWhhc3VyYS1kZWZhdWx0LXJvbGUiOiJ1c2VyIiwieC1oYXN1cmEtYWxsb3dlZC1yb2xlcyI6WyJ1c2VyIl0sIngtaGFzdXJhLXVzZXItaWQiOiIxIn19.on89jGySJpDjdsEqdEeJ6ycIQIZodnUMlmsSPZUrnqc"]]')
     window.localStorage.setItem('lastLoginType', 'wallet')
     window.localStorage.setItem('lang', 'en')
 }
