@@ -18,7 +18,7 @@ function ImgLazy(props: React.DetailedHTMLProps<React.ImgHTMLAttributes<HTMLImag
     const getSrc = (src?: string) => {
         if (!src) return '/images/loading_image.jpg'
 
-        if (src.includes('imagekit') && (props.width || props.height)) {
+        if (src.includes('imagekit') && !src.includes('thumbnail') && (props.width || props.height)) {
             if (props.width && !props.height) {
                 return src + `?tr=w-${props.width}`
             }
