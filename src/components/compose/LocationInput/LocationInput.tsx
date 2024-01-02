@@ -322,6 +322,8 @@ function LocationInput({arrowAlias = true, cleanable = true, ...props}: Location
 
             </>
         }
+
+        <div className={'error'}>{props.errorMsg || ''}</div>
     </div>)
 }
 

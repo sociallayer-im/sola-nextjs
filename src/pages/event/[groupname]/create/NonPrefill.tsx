@@ -25,7 +25,8 @@ import {
     RepeatEventUpdate,
     setEventBadge,
     updateEvent,
-    uploadImage
+    uploadImage,
+    queryEvent
 } from '@/service/solas'
 import DialogsContext from '@/components/provider/DialogProvider/DialogsContext'
 import ReasonInput from '@/components/base/ReasonInput/ReasonInput'
@@ -43,6 +44,12 @@ import AppFlexTextArea from "@/components/base/AppFlexTextArea/AppFlexTextArea";
 import AppEventTimeInput from "@/components/base/AppEventTimeInput/AppEventTimeInput";
 import {useTime3} from "@/hooks/formatTime";
 import html2canvas from 'html2canvas'
+import * as dayjsLib from "dayjs";
+const utc = require('dayjs/plugin/utc')
+const timezone = require('dayjs/plugin/timezone')
+const dayjs: any = dayjsLib
+dayjs.extend(utc)
+dayjs.extend(timezone)
 
 interface Draft {
     cover: string,
@@ -131,6 +138,7 @@ function CreateEvent(props: CreateEventPageProps) {
     const [startTimeError, setStartTimeError] = useState('')
     const [isEditMode, setIsEditMode] = useState(!!props?.eventId)
     const [siteOccupied, setSiteOccupied] = useState(false)
+    const [occupiedError, setOccupiedError] = useState('')
     const [formReady, setFormReady] = useState(false)
     const [creating, setCreating] = useState(false)
     const [repeat, setRepeat] = useState<'day' | 'week' | 'month' | null>(null)
@@ -483,40 +491,54 @@ function CreateEvent(props: CreateEventPageProps) {
 
     // 检查event_site在设置的event.start_time和event.ending_time否可用
     useEffect(() => {
-        async function getEventBySiteAndDate() {
+        async function checkOccupied() {
             // todo check occupied
-            // if (eventSite && start && ending) {
-            //     const startDate = new Date(new Date(start).getFullYear(), new Date(start).getMonth(), new Date(start).getDate(), 0, 0, 0)
-            //     const endDate = new Date(new Date(ending).getFullYear(), new Date(ending).getMonth(), new Date(ending).getDate(), 23, 59, 59)
-            //     let events = await queryEvent({
-            //         event_site_id: eventSite.id,
-            //         start_time_from: startDate.toISOString(),
-            //         start_time_to: endDate.toISOString(),
-            //         page: 1
-            //     })
-            //     console.log('eventseventsevents', events)
-            //
-            //     // 排除自己
-            //     events = events.filter((e) => e.id !== props.eventId && e.status !== 'cancel')
-            //
-            //     const occupied = events.some((e) => {
-            //         const eventStartTime = new Date(e.start_time!).getTime()
-            //         const eventEndTime = new Date(e.end_time!).getTime()
-            //         const selectedStartTime = new Date(start).getTime()
-            //         const selectedEndTime = new Date(ending).getTime()
-            //         return (selectedStartTime < eventStartTime && selectedEndTime > eventStartTime) ||
-            //             (selectedStartTime >= eventStartTime && selectedEndTime <= eventEndTime) ||
-            //             (selectedStartTime < eventEndTime && selectedEndTime > eventEndTime)
-            //
-            //     })
-            //
-            //     setSiteOccupied(occupied)
-            // } else {
-            //     setSiteOccupied(false)
-            // }
+            if (eventSite && start && ending) {
+                const startDate = new Date(new Date(start).getFullYear(), new Date(start).getMonth(), new Date(start).getDate(), 0, 0, 0)
+                const endDate = new Date(new Date(ending).getFullYear(), new Date(ending).getMonth(), new Date(ending).getDate(), 23, 59, 59)
+                let events = await queryEvent({
+                    event_site_id: eventSite.id,
+                    start_time_from: startDate.toISOString(),
+                    start_time_to: endDate.toISOString(),
+                    page: 1,
+                    page_size: 50
+                })
+                console.log('eventseventsevents', events)
+
+                // 排除自己
+                events = events.filter((e) => e.id !== props.eventId)
+                let inUseEvents: any = null
+                const occupied = events.some((e) => {
+                    const eventStartTime = new Date(e.start_time!).getTime()
+                    const eventEndTime = new Date(e.end_time!).getTime()
+                    const selectedStartTime = new Date(start).getTime()
+                    const selectedEndTime = new Date(ending).getTime()
+                    const eventIsAllDay = dayjs.tz(eventStartTime, timezone).hour() === 0 && (eventEndTime - eventStartTime + 60000) % 8640000 === 0
+                    const selectedIsAllDay = dayjs.tz(selectedStartTime, timezone).hour() === 0 && (selectedEndTime - selectedStartTime + 60000) % 8640000 === 0
+                    const res = ((selectedStartTime < eventStartTime && selectedEndTime > eventStartTime) ||
+                        (selectedStartTime >= eventStartTime && selectedEndTime <= eventEndTime) ||
+                        (selectedStartTime < eventEndTime && selectedEndTime > eventEndTime))  &&
+                        (!eventIsAllDay && !selectedIsAllDay)
+
+
+                    if (e) {
+                        console.log('occupied', e, res)
+                        inUseEvents = e
+                    }
+
+                    return res
+
+                })
+
+                setSiteOccupied(occupied)
+                setOccupiedError(occupied ? `${lang['Activity_Detail_site_Occupied']}  In use event :「${inUseEvents.title}」` : '')
+            } else {
+                setSiteOccupied(false)
+                setOccupiedError('')
+            }
         }
 
-        getEventBySiteAndDate()
+        checkOccupied()
     }, [start, ending, eventSite])
 
     const showBadges = async () => {
@@ -1004,6 +1026,7 @@ function CreateEvent(props: CreateEventPageProps) {
 
                         {!!eventGroup && ((isEditMode && formReady) || !isEditMode) &&
                             <LocationInput
+                                errorMsg={occupiedError}
                                 initValue={isEditMode ? {
                                     eventSite: eventSite,
                                     location: currEvent!.location || '',

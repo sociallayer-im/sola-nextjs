@@ -186,9 +186,8 @@ function AppDateInput({allowRepeat = true, ...props}: AppDateInputProps) {
     }, [from, to, repeat, timezone])
 
     useEffect(() => {
-        if ((new Date(props.to).getTime() - new Date(props.from).getTime() + 60000) % 8640000 === 0) {
-            setAllDay(true)
-        }
+        const isAllDay = dayjs.tz(new Date(props.from).getTime(), props.timezone).hour() === 0 && (new Date(props.to).getTime() - new Date(props.from).getTime() + 60000) % 8640000 === 0
+        setAllDay(isAllDay)
 
         setFrom(input(props.from, props.timezone))
         setTo(input(props.to, props.timezone))
