@@ -575,7 +575,7 @@ function CreateEvent(props: CreateEventPageProps) {
 
             const img = new Image()
 
-            img.src = '/images/default_event_cover.png'
+            img.src = '/images/default_event_cover.jpg'
 
             img.onload = () => {
                 const div1 = document.createElement('div')
@@ -610,7 +610,7 @@ function CreateEvent(props: CreateEventPageProps) {
                     scale: 1,
                     allowTaint: true,
                     width: 452,
-                    height: 656,
+                    height: 452,
                     backgroundColor: null
                 }).then((canvas: HTMLCanvasElement) => {
                     canvas.style.background = 'transparent'
@@ -938,7 +938,6 @@ function CreateEvent(props: CreateEventPageProps) {
                     <PageBack title={lang['Activity_Create_title']}/>
 
                     <div className='create-badge-page-form'>
-
                         <div className='input-area'>
                             <div className='input-area-title'>{lang['Activity_Form_Name']}</div>
                             <AppInput
