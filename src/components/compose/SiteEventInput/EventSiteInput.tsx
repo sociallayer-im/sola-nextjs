@@ -93,7 +93,6 @@ function EventSiteInput(props: LocationInputProps) {
     }, [searchKeyword, showSearchRes])
 
     useEffect(() => {
-        console.log('event-site===', newEventSite)
         if (props.onChange && newEventSite) {
             props.onChange(newEventSite)
         }
@@ -143,14 +142,16 @@ function EventSiteInput(props: LocationInputProps) {
                 setShowSearchRes(false)
                 setCustomLocationDetail(place.formatted_address)
                 setSearchKeyword('')
-                props.onChange && props.onChange({
-                    ...newEventSite!,
-                    formatted_address: place.formatted_address,
-                    title: place.name,
-                    location: place.name,
-                    geo_lng: place.geometry.location.lng(),
-                    geo_lat: place.geometry.location.lat()
-                })
+                setNewEventSite(
+                    {
+                        ...newEventSite!,
+                        formatted_address: place.formatted_address,
+                        title: newEventSite!.title || place.name,
+                        location: newEventSite!.title || place.name,
+                        geo_lng: place.geometry.location.lng(),
+                        geo_lat: place.geometry.location.lat()
+                    }
+                )
                 unload()
             })
         } catch (e) {
@@ -175,7 +176,6 @@ function EventSiteInput(props: LocationInputProps) {
             placeholder={'Enter location'}
             value={newEventSite!.title}
             onChange={(e) => {
-                console.log('e.target.value===', e.target.value)
                 setNewEventSite({
                     ...newEventSite!,
                     title: e.target.value,

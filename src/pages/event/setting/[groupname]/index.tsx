@@ -79,7 +79,9 @@ function Dashboard() {
 
     const getEventSideBar = async (id: number) => {
         const eventSite = await getEventSide(id)
-        setEventSite(eventSite)
+        setEventSite(eventSite.sort((e1, e2) => {
+            return e1.id - e2.id
+        }))
         oldEventSite.current = eventSite
     }
 
@@ -335,8 +337,6 @@ function Dashboard() {
                                             const res = newEventSiteList.filter((item, index1) => {
                                                 return index1 !== index - 1
                                             })
-
-                                            console.log('res', res)
 
                                             setEventSite(res)
                                         }}
