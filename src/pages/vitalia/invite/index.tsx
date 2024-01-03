@@ -108,10 +108,7 @@ function Invite() {
 
                     <div className='input-area'>
                         <div className='input-area-title'>{ lang['IssueBadge_Issuees'] }</div>
-
-                        <div className='issues-des'>
-                            { lang['IssueBadge_Input_Des'] }
-                        </div>
+                        
                         <IssuesInput value={ issues }
                                      allowSearch={false}
                                      allowAddressList={false}
