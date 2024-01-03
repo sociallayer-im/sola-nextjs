@@ -117,7 +117,7 @@ function ComponentName(props: { group: Group }) {
                 start_time_to: new Date(dayList.current[dayList.current.length - 1].timestamp).toISOString(),
                 page: 1,
                 event_order: 'asc',
-                page_size: 100
+                page_size: 1000
             })
 
             setEventList(events)
