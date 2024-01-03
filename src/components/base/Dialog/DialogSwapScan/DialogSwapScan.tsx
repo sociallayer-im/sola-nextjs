@@ -1,10 +1,14 @@
 import {Delete} from "baseui/icon";
 import LangContext from "../../../provider/LangProvider/LangContext";
-import {useContext, useState} from "react";
-import ScanQrcode from "../../ScanQrcode/ScanQrcode";
+import React, {useContext, useState} from "react";
 import DialogsContext from "../../../provider/DialogProvider/DialogsContext";
 import UserContext from "@/components/provider/UserProvider/UserContext";
 import {swapBadgelet} from "@/service/solas";
+import dynamic from 'next/dynamic'
+
+const ScanQrcode = dynamic(() => import('@/components/base/ScanQrcode/ScanQrcode'), {
+    loading: () => <p>Loading...</p>,
+})
 
 export interface DialogNftCheckInProps {
     handleClose: () => any
@@ -26,7 +30,6 @@ function DialogSwapScan(props: DialogNftCheckInProps) {
 
         async function handleSwap() {
             try {
-                // todo swap
                 await swapBadgelet({
                     auth_token: user.authToken || '',
                     badgelet_id: props.badgeletId,

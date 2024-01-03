@@ -1,11 +1,15 @@
 import {Delete} from "baseui/icon";
 import LangContext from "../../../provider/LangProvider/LangContext";
-import {useContext, useState} from "react";
-import ScanQrcode from "../../ScanQrcode/ScanQrcode";
+import React, {useContext, useState} from "react";
 import DialogsContext from "../../../provider/DialogProvider/DialogsContext";
 import {eventCheckIn, punchIn} from '@/service/solas'
 import UserContext from "@/components/provider/UserProvider/UserContext";
 import useEvent, {EVENT} from "@/hooks/globalEvent";
+import dynamic from 'next/dynamic'
+
+const ScanQrcode = dynamic(() => import('@/components/base/ScanQrcode/ScanQrcode'), {
+    loading: () => <p>Loading...</p>,
+})
 
 export interface DialogNftCheckInProps {
     handleClose: () => any
