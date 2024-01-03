@@ -2982,7 +2982,7 @@ export async function queryEvent(props: QueryEventProps): Promise<Event[]> {
         variables += `group_id: {_eq: ${props.group_id}}, `
     }
 
-    let order = `order_by: {start_time: desc}, `
+    let order = `order_by: {id: desc}, `
 
     if (props.event_order) {
         order = `order_by: {start_time: ${props.event_order}}, `

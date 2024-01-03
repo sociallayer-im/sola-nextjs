@@ -428,5 +428,5 @@ export const getServerSideProps: any = (async (context: any) => {
     const group = await getGroups({username: groupname as string})
     console.timeEnd('Group page fetch data')
 
-    return {props: {group: group[0]}}
+    return {props: {group: group[0], groupname: group[0].username}}
 })

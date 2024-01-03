@@ -2,7 +2,7 @@ import GroupPage from '@/pages/group/[groupname]/index'
 import {getGroups} from "@/service/solas";
 
 export default function Page(props: {group: any }) {
-    return <GroupPage groupname={props.group.username}  />
+    return <GroupPage group= {props.group} groupname={props.group.username}  />
 }
 
 export const getServerSideProps: any = (async (context: any) => {

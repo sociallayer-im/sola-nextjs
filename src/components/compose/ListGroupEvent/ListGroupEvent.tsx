@@ -2,16 +2,12 @@ import {Profile, queryEvent, userAppliedEvent} from "@/service/solas";
 import Empty from "@/components/base/Empty";
 import CardEvent from "@/components/base/Cards/CardEvent/CardEvent";
 import scrollToLoad from "@/hooks/scrollToLoad";
-import userContext from "@/components/provider/UserProvider/UserContext";
-import React, {useContext, useEffect} from "react";
+import React, {useEffect} from "react";
 import styles from './ListGroupEvent.module.sass'
 import spinnerStyles from "@/components/compose/ListNftAsset/ListNftAsset.module.sass"
-import EventHomeContext from "@/components/provider/EventHomeProvider/EventHomeContext";
 import {Spinner} from "baseui/spinner";
 
 function ListGroupEvent({profile, isGroup}: { profile: Profile, isGroup?: boolean }) {
-    const {user} = useContext(userContext)
-    const {eventGroup} = useContext(EventHomeContext)
     const [ready, setReady] = React.useState(false)
 
 
