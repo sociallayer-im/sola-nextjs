@@ -185,7 +185,7 @@ function IssueSuccessPage(props: any) {
                 <div className='center-box header'>
                     <PageBack backBtnLabel={lang['Page_Back_Done']}
                               title={lang['IssueFinish_Title']}
-                              to={user.userName ? `/profile/${user.userName}` : '/'}/>
+                              to={ props.invite ? `/group/${group?.username}` : (user.userName ?  `/profile/${user.userName}` : '/')}/>
                 </div>
                 <div className='background'>
                     <div className='ball1'></div>

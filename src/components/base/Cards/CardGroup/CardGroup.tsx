@@ -75,7 +75,7 @@ function CardGroup (props: CardGroupProps) {
     return (
         <div data-testid='CardGroup' className={ css(style.wrapper) } onClick={ toGroupDetail }>
                 <img className={ css(style.img) } src={ props.group.image_url || defaultAvatar(props.group.id) } alt=""/>
-                <div className={ css(style.name) }>{ props.group.username }</div>
+                <div className={ css(style.name) }>{ props.group.nickname || props.group.username }</div>
                 <div className={ css(style.des) }>{ props.group.creator.id === props.profile.id
                     ? lang['Group_relation_ship_owner']
                     : lang['Group_relation_ship_member'] }</div>

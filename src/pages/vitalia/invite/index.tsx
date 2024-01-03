@@ -51,21 +51,76 @@ function Invite() {
 
         const unload = showLoading()
 
-        try {
-            const invites = await sendInviteByEmail({
-                group_id: group?.id!,
-                auth_token: user.authToken || '',
-                receivers: checkedIssues,
-                message: reason,
-                role: role[0].id
-            })
+        const emails = checkedIssues.filter(item => item.includes('@'))
+        const usernames = checkedIssues.filter(item => !item.includes('@'))
 
-            unload()
-            if (invites.length === 0) {
-                showToast('The user(s) you invited has already joined the group')
+        try {
+            if (emails.length && usernames.length) {
+              const tasks = [
+                    await sendInviteByEmail({
+                        group_id: group?.id!,
+                        auth_token: user.authToken || '',
+                        receivers: emails,
+                        message: reason,
+                        role: role[0].id
+                    }),
+
+                    await sendInvite({
+                        group_id: group?.id!,
+                        auth_token: user.authToken || '',
+                        receivers: usernames,
+                        message: reason,
+                        role: role[0].id
+                    }),
+
+                ]
+
+                const [invites1, invites2] = await Promise.all(tasks)
+                const invites = [...invites1, ...invites2]
+
+                unload()
+                if (invites.length === 0) {
+                    showToast('The user(s) you invited has already joined the group')
+                    return
+                }
+
+                router.push(`/issue-success?invite=${invites[0].id}`)
+            } else if (emails.length) {
+                const invites = await sendInviteByEmail({
+                    group_id: group?.id!,
+                    auth_token: user.authToken || '',
+                    receivers: emails,
+                    message: reason,
+                    role: role[0].id
+                })
+
+                unload()
+                if (invites.length === 0) {
+                    showToast('The user(s) you invited has already joined the group')
+                    return
+                }
+
+                router.push(`/issue-success?invite=${invites[0].id}`)
+            } else if (usernames.length) {
+                const invites  = await sendInvite({
+                    group_id: group?.id!,
+                    auth_token: user.authToken || '',
+                    receivers: usernames,
+                    message: reason,
+                    role: role[0].id
+                })
+
+                unload()
+                if (invites.length === 0) {
+                    showToast('The user(s) you invited has already joined the group')
+                    return
+                }
+
+                router.push(`/issue-success?invite=${invites[0].id}`)
+            } else {
+                showToast('Please type in receiver')
                 return
             }
-            router.push(`/issue-success?invite=${invites[0].id}`)
         } catch (e: any) {
             unload()
             console.log('[handleInvite]: ', e)
@@ -108,11 +163,14 @@ function Invite() {
 
                     <div className='input-area'>
                         <div className='input-area-title'>{ lang['IssueBadge_Issuees'] }</div>
-                        
+
+                        <div className='issues-des'>
+                            { `Input the domain/email address of the receiver can receive the invite.` }
+                        </div>
                         <IssuesInput value={ issues }
-                                     allowSearch={false}
-                                     allowAddressList={false}
-                                     placeholder={'Input email'}
+                                     allowSearch={true}
+                                     allowAddressList={true}
+                                     placeholder={'Input email or username'}
                                      onChange={ (newIssues) => { setIssues(newIssues) } } />
                     </div>
 

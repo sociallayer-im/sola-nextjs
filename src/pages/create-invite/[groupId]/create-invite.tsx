@@ -109,7 +109,7 @@ function Invite() {
                         <div className='input-area-title'>{ lang['IssueBadge_Issuees'] }</div>
 
                         <div className='issues-des'>
-                            { lang['IssueBadge_Input_Des'] }
+                            { `Input the username/domain/email address of the receiver can receive the invite.` }
                         </div>
                         <IssuesInput value={ issues }
                                      onChange={ (newIssues) => { setIssues(newIssues) } } />
