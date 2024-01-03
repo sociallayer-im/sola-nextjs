@@ -1,7 +1,7 @@
 import {useContext, useEffect, useRef} from 'react'
 import UserContext from '../provider/UserProvider/UserContext'
 import DialogsContext from '../provider/DialogProvider/DialogsContext'
-import solas, {inviteSchema, voucherSchema} from '../../service/solas'
+import {voucherSchema} from '../../service/solas'
 import {createClient} from 'graphql-ws'
 
 export const wsClient = createClient({
@@ -10,6 +10,7 @@ export const wsClient = createClient({
 
 let subscription: any = null
 let subscriptionInvite: any = null
+let subscriptionInvite2: any = null
 
 
 function Subscriber() {
@@ -53,7 +54,25 @@ function Subscriber() {
             });
 
             subscriptionInvite = wsClient.subscribe({
-                    query: `subscription { ${inviteSchema({receiverId: user.id!, onlyPending: true})} }`,
+                    query: `subscription { 
+                        group_invites(where: {status: {_eq: "sending"}, _or: [{receiver_address: {_eq: "${user.wallet || user.email}"}}, {receiver_id: {_eq: ${user.id}}}]}) 
+                        {
+                            message
+                            id
+                            group_id
+                            role
+                            receiver_id
+                            created_at
+                            status
+                            receiver_address
+                            receiver {
+                                id
+                                image_url
+                                nickname
+                                username
+                            }
+                        }
+                    }`,
                 },
                 {
                     next: (event: any) => {
@@ -65,10 +84,12 @@ function Subscriber() {
                         }
                     },
                     error: (error) => {
+                        console.error(error)
                     },
                     complete: () => {
                     },
                 })
+
         }
 
         return () => {

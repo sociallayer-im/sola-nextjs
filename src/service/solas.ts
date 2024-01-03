@@ -116,7 +116,8 @@ export const inviteSchema = (props: {
     inviteId?: number,
     receiverId?: number,
     groupId?: number,
-    onlyPending?: boolean
+    onlyPending?: boolean,
+    address?: string
 }) => {
 
     let variables = ''
@@ -131,6 +132,10 @@ export const inviteSchema = (props: {
 
     if (props.groupId) {
         variables += `group_id: {_eq: "${props.groupId}"},`
+    }
+
+    if (props.address) {
+        variables += `receiver_address: {_eq: "${props.address}"},`
     }
 
     if (props.onlyPending) {
@@ -1708,6 +1713,7 @@ export interface Invite {
     created_at: string
     group_id: number,
     receiver: ProfileSimple,
+    receiver_address: string | null
 }
 
 export interface QueryGroupInvitesProps {
@@ -1831,6 +1837,31 @@ export async function sendInvite(props: SendInviteProps): Promise<Invite[]> {
             ...props,
             receivers: usernames
         }
+    })
+
+    if (res.data.result === 'error') {
+        throw new Error(res.data.message)
+    }
+
+    if (!res.data.group_invites[0]) {
+        throw new Error('Can not invite')
+    }
+
+    res.data.group_invites.forEach((item: any) => {
+        if (item.result === 'error') {
+            throw new Error(item.message)
+        }
+    })
+
+    return res.data.group_invites
+}
+
+export async function sendInviteByEmail(props: SendInviteProps): Promise<Invite[]> {
+    checkAuth(props)
+
+    const res = await fetch.post({
+        url: `${apiUrl}/group/send_invite_by_email`,
+        data: props
     })
 
     if (res.data.result === 'error') {

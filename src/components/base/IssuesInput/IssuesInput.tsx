@@ -11,9 +11,11 @@ export interface IssuesInputProps {
     value: string[],
     onChange: (value: string[]) => any,
     placeholder?: string
+    allowAddressList?: boolean
+    allowSearch?:boolean
 }
 
-function IssuesInput (props: IssuesInputProps) {
+function IssuesInput ({allowAddressList=true, allowSearch=true, ...props}: IssuesInputProps) {
     const { lang } = useContext(LangContext)
     const { openDialog } = useContext(DialogsContext)
     const { defaultAvatar } = usePicture()
@@ -31,11 +33,14 @@ function IssuesInput (props: IssuesInputProps) {
         }
 
 
-
-        setShowSearchRes(index)
         const copyValue = [...props.value]
         copyValue[index] = newValue
         props.onChange(copyValue)
+
+
+        if (!allowSearch) return
+
+        setShowSearchRes(index)
 
         console.log('newValue', newValue)
         console.log('copyValue', copyValue)
@@ -115,7 +120,7 @@ function IssuesInput (props: IssuesInputProps) {
         return (
             <div className='issue-input-item' key={index.toString()}>
                 <AppInput
-                    endEnhancer={ addressListBtn }
+                    endEnhancer={ allowAddressList ? addressListBtn: undefined }
                     placeholder={props.placeholder || lang['IssueBadge_IssueesPlaceholder']}
                     value={ value.replace('.sociallayer.im', '') }
                     onChange={(e) => { onChange(e.target.value, index)} }

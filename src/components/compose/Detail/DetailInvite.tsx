@@ -136,12 +136,11 @@ function DetailInvite(props: DetailInviteProps ) {
                     content={ formatTime(props.invite.created_at ) } />
 
             </DetailScrollBox>
-
             <BtnGroup>
                 { !user.id && LoginBtn }
 
                 { !!user.id
-                    && user.id === invite.receiver_id
+                    && (user.id === invite.receiver_id || user.email === invite.receiver_address || user.wallet === invite.receiver_address)
                     && invite.status === 'sending'
                     && ActionBtns }
             </BtnGroup>
