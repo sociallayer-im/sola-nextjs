@@ -205,13 +205,13 @@ function Invite() {
                         <div className='input-area-title'>{ lang['IssueBadge_Issuees'] }</div>
 
                         <div className='issues-des'>
-                            { `Input the domain/email address of the receiver can receive the invite.` }
+                            { `Input the domain/username/email address of the receiver can receive the invite.` }
                             <span onClick={e => {uploadFile()}}>Import from CSV file</span>
                         </div>
                         <IssuesInput value={ issues }
                                      allowSearch={true}
                                      allowAddressList={true}
-                                     placeholder={'Input email or username'}
+                                     placeholder={'Input domain/username/email'}
                                      onChange={ (newIssues) => { setIssues(newIssues) } } />
                     </div>
 
