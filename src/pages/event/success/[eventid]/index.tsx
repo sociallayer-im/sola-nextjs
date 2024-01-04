@@ -1,9 +1,10 @@
+import html2canvas from "html2canvas";
 import {useParams, useRouter} from 'next/navigation'
 import Link from 'next/link'
 import {useContext, useEffect, useRef, useState} from 'react'
 import {Event, queryEventDetail} from "@/service/solas";
 import LangContext from "@/components/provider/LangProvider/LangContext";
-import {formatTime, formatTimeWithTimezone} from "@/hooks/formatTime";
+import {formatTimeWithTimezone, useTime3, formatTime} from "@/hooks/formatTime";
 import QRcode from "@/components/base/QRcode";
 import AppButton from "@/components/base/AppButton/AppButton";
 import saveCard from "@/utils/html2png";
@@ -13,13 +14,12 @@ import EventHomeContext from "@/components/provider/EventHomeProvider/EventHomeC
 import useGetMeetingName from "@/hooks/getMeetingName";
 import {mapTimezone} from '@/components/base/AppEventTimeInput/AppEventTimeInput'
 
-
 function CreateEventSuccess() {
     const router = useRouter()
     const [event, setEvent] = useState<Event | null>(null)
     const params = useParams()
     const {lang} = useContext(LangContext)
-    // const formatTime = useTime()
+    const formatTime3 = useTime3()
     const card = useRef<any>()
     const {showToast, showLoading} = useContext(DialogsContext)
     const {availableList, setEventGroup} = useContext(EventHomeContext)
@@ -33,22 +33,76 @@ function CreateEventSuccess() {
             const res = await queryEventDetail({id: Number(params?.eventid)})
             setEvent(res)
 
-            const image = new Image();
-            image.crossOrigin = 'Anonymous'
-            image.src = res!.cover_url
-            image.onload = function() {
-                image.onload = function() {}
-                const canvas = document.createElement('canvas')
-                canvas.width = image.width
-                canvas.height = image.height
-                const context = canvas.getContext('2d')
-                context!.drawImage(image, 0, 0)
-                setCoverUrl(canvas.toDataURL())
-                unload()
-            }
+            if (res!.cover_url) {
+                const image = new Image();
+                image.crossOrigin = 'Anonymous'
+                image.src = res!.cover_url
+                image.onload = function () {
+                    image.onload = function () {
+                    }
+                    const canvas = document.createElement('canvas')
+                    canvas.width = image.width
+                    canvas.height = image.height
+                    const context = canvas.getContext('2d')
+                    context!.drawImage(image, 0, 0)
+                    setCoverUrl(canvas.toDataURL())
+                    unload()
+                }
 
-            image.onerror = function() {
-                unload()
+                image.onerror = function () {
+                    unload()
+                }
+            } else {
+                const image = new Image();
+                image.crossOrigin = 'Anonymous'
+                image.src = '/images/default_event_cover.jpg'
+                image.onload = () => {
+                    const div1 = document.createElement('div')
+                    div1.className = 'default-post'
+
+                    if (res?.start_time && res.end_time) {
+                        const div2 = document.createElement('dev')
+                        div2.className = 'time'
+                        const timeInfo = formatTime3(res!.start_time!, res!.end_time!, res!.timezone!)
+                        div2.innerHTML = `${timeInfo.data} <br /> ${timeInfo.time}`
+                        div1.appendChild(div2)
+                    }
+
+                    if (res!.location) {
+                        const div3 = document.createElement('div')
+                        div3.className = 'location'
+                        div3.innerHTML = `${res!.location}`
+                        div1.appendChild(div3)
+                    }
+
+                    if (res!.title) {
+                        const div4 = document.createElement('div')
+                        div4.className = 'title'
+                        div4.innerText = res!.title
+                        div1.appendChild(div4)
+                    }
+
+                    document.querySelector('body')!.appendChild(div1)
+
+                    html2canvas(div1, {
+                        useCORS: true, // 【重要】开启跨域配置
+                        scale: 1,
+                        allowTaint: true,
+                        width: 452,
+                        height: 452,
+                        backgroundColor: null
+                    }).then((canvas: HTMLCanvasElement) => {
+                        canvas.style.background = 'transparent'
+                        const imgData = canvas.toDataURL('image/jpeg')
+                        div1.remove()
+                        unload()
+                        setCoverUrl(imgData)
+                    })
+                        .catch(function (e: any) {
+                            unload()
+                            console.error('oops, something went wrong!', e)
+                        })
+                }
             }
         }
 
@@ -92,7 +146,7 @@ function CreateEventSuccess() {
                 <>
                     <div className={'event-share-card-wrapper'}>
                         <div className={'event-share-card'} ref={card}>
-                            <img src={coverUrl || event.cover_url} className={'cover'}></img>
+                            <img src={coverUrl!} className={'cover'}></img>
                             <div className={'name'}>{event.title}</div>
                             {!!event.start_time &&
                                 <div className={'time'}>
@@ -124,7 +178,8 @@ function CreateEventSuccess() {
                             {
                                 !!event.location && <div className={'time location'}>
                                     <i className={'icon-Outline'}/>
-                                    <div>{event.location} <br /> {event.formatted_address ? `${event.formatted_address}` : ''}</div>
+                                    <div>{event.location}
+                                        <br/> {event.formatted_address ? `${event.formatted_address}` : ''}</div>
                                 </div>
                             }
                             {

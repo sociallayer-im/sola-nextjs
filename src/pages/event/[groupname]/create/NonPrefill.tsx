@@ -52,7 +52,7 @@ dayjs.extend(utc)
 dayjs.extend(timezone)
 
 interface Draft {
-    cover: string,
+    cover: string | null,
     title: string,
     content: string,
     location_type: 'online' | 'offline' | 'both',
@@ -110,7 +110,7 @@ function CreateEvent(props: CreateEventPageProps) {
 
     const [currEvent, setCurrEvent] = useState<Event | null>(null)
 
-    const [cover, setCover] = useState('')
+    const [cover, setCover] = useState<string | null>('')
     const [title, setTitle] = useState('')
     const [content, setContent] = useState('')
     const [onlineUrl, setOnlineUrl] = useState('')
@@ -690,7 +690,7 @@ function CreateEvent(props: CreateEventPageProps) {
 
         const props: CreateRepeatEventProps = {
             title: title.trim(),
-            cover_url: cover ? cover : await genCover(),
+            cover_url: cover || null,
             content,
             tags: label,
             start_time: start,
@@ -803,7 +803,7 @@ function CreateEvent(props: CreateEventPageProps) {
         const saveProps: CreateEventProps = {
             id: props.eventId!,
             title: title.trim(),
-            cover_url: cover ? cover : await genCover(),
+            cover_url: cover || null,
             content,
             tags: label,
             start_time: start,
@@ -955,7 +955,7 @@ function CreateEvent(props: CreateEventPageProps) {
                             <div className='input-area-title'>{lang['Activity_Form_Cover']}</div>
                             <UploadImage
                                 cropper={false}
-                                imageSelect={cover}
+                                imageSelect={cover || undefined}
                                 confirm={(coverUrl) => {
                                     setCover(coverUrl)
                                 }}/>

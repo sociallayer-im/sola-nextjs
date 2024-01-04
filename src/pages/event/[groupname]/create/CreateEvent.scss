@@ -2,45 +2,6 @@
   position: relative;
   background: var(--color-page-bg-1);
 
-  .default-post {
-    width: 452px;
-    max-width: 452px;
-    height: 452px;
-    background: url("/images/default_event_cover.jpg") no-repeat center center;
-    background-size: 452px 452px;
-    position: relative;
-
-    .title {
-      color: var(--Text-4-Headline, #272928);
-      font-size: 27px;
-      font-style: normal;
-      font-weight: 600;
-      height: 240px;
-      width: 312px;
-      position: absolute;
-      left: 76px;
-      top: 78px;
-      overflow: hidden;
-    }
-
-    .time {
-      position: absolute;
-      color: var(--Text-4-Headline, #272928);
-      font-size: 18px;
-      font-weight: bold;
-      left: 76px;
-      top: 178px;
-    }
-
-    .location {
-      position: absolute;
-      color: var(--Text-4-Headline, #272928);
-      font-size: 18px;
-      font-weight: bold;
-      left: 76px;
-      top: 240px;
-    }
-  }
 
   .banded-badge {
     display: flex;

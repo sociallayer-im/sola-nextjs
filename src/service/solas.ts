@@ -2893,7 +2893,7 @@ export interface Event {
     id: number,
     title: string,
     content: string,
-    cover_url: string,
+    cover_url: string | null,
     tags: null | string[],
     start_time: null | string,
     end_time: null | string,

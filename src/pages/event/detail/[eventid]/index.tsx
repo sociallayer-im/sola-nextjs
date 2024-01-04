@@ -33,6 +33,7 @@ import Head from "next/head";
 import Link from "next/link";
 import MapContext from "@/components/provider/MapProvider/MapContext";
 import ImgLazy from "@/components/base/ImgLazy/ImgLazy";
+import EventDefaultCover from "@/components/base/EventDefaultCover";
 
 import * as dayjsLib from "dayjs";
 import Empty from "@/components/base/Empty";
@@ -266,12 +267,13 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
             <meta property="og:title" content={`${event?.title} | ${props.appName}`}/>
             <meta property="og:type" content="website"/>
             <meta property="og:url" content={`${props.host}/event/detail/${event?.id}`}/>
-            <meta property="og:image" content={event?.cover_url}/>
+            <meta property="og:image" content={event?.cover_url || ''}/>
             {event?.content &&
                 <meta name="description" property="og:description" content={event?.content.slice(0, 300) + '...'}/>
             }
             <title>{`${event?.title} | ${props.appName}`}</title>
         </Head>
+
         {
             !!event &&
             <div className={'event-detail'}>
@@ -291,7 +293,11 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                 <div className={'event-detail-content'}>
                     <div className={'event-detail-content-main'}>
                         <div className={'cover'}>
-                            <ImgLazy src={event.cover_url} alt=""  width={624} />
+                            {
+                                event.cover_url ?
+                                    <ImgLazy src={event.cover_url} alt="" width={624} />
+                                    : <EventDefaultCover  event={event} width={324} height={324}/>
+                            }
                         </div>
 
                         <div className={'detail'}>
@@ -620,7 +626,11 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                     </div>
                     <div className={'event-detail-content-site'}>
                         <div className={'cover'}>
-                            <ImgLazy src={event.cover_url} width={640} />
+                            {
+                                event.cover_url ?
+                                    <ImgLazy src={event.cover_url} alt="" width={624} />
+                                    : <EventDefaultCover  event={event} width={324} height={324}/>
+                            }
                         </div>
                         <div className={'center'}>
                             {user.userName && canAccess &&
