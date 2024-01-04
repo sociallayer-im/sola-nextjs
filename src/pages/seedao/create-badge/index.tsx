@@ -22,7 +22,7 @@ export async function getStaticProps() {
         const group = await getGroups({id: Number(process.env.NEXT_PUBLIC_LEADING_EVENT_GROUP_ID)})
         return {props: {group: group[0]}}
     } else {
-        const group = await getGroups({username: 'playground2'})
+        const group = await getGroups({id: 1516})
         return {props: {group: group[0]}}
     }
 }
