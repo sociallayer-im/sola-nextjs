@@ -128,6 +128,46 @@ function Invite() {
         }
     }
 
+    const uploadFile = async () => {
+        const input = document.createElement('input')
+        input.type = 'file'
+        input.accept = '.csv'
+        input.onchange = async (e: any) => {
+            const file = e.target.files[0]
+            if (!file) return
+
+            return new Promise((resolve, reject) => {
+                const selectedFile = file
+                const nameArry = selectedFile.name.split('.')
+                const name = nameArry[nameArry.length - 1].toLowerCase()
+
+                if (name !== 'csv') {
+                    reject(new Error('Invalid file type'))
+                }
+
+                const reader = new FileReader()
+                reader.readAsText(selectedFile)
+
+                reader.onload = () => {
+                    const str: string = reader.result as string
+                    let rows = str.split('\n')
+                    rows = rows.map(item => {
+                        return item.replace('\r', '')
+                    })
+
+                    rows = rows.filter(item => {
+                        return !!item
+                    })
+
+                    setIssues([...rows, ...issues])
+                    resolve(rows)
+                }
+            })
+        }
+
+        input.click()
+    }
+
     return (
         <>
             <div className='issue-page'>
@@ -166,6 +206,7 @@ function Invite() {
 
                         <div className='issues-des'>
                             { `Input the domain/email address of the receiver can receive the invite.` }
+                            <span onClick={e => {uploadFile()}}>Import from CSV file</span>
                         </div>
                         <IssuesInput value={ issues }
                                      allowSearch={true}

@@ -55,6 +55,13 @@
       color: #999;
       margin-bottom: 6px;
       padding-left: 10px;
+
+      span {
+        color: #58a7ff;
+        margin-left: 12px;
+        text-decoration: underline;
+        white-space: nowrap;
+      }
     }
 
     .input-area-des {
