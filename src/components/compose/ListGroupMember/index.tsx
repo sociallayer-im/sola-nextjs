@@ -70,6 +70,7 @@ function ListGroupMember(props: ListGroupMemberProps) {
         setMembers(_members)
         setIssuer(_issuer)
         setCurrUserJoinedGroup(memberships.some((member) => member.profile.id === user.id))
+        setIsManager(memberships.some((member) => member.profile.id === user.id && member.role === 'manager'))
     }
 
     const leaveGroup = async () => {
