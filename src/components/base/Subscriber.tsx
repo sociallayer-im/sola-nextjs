@@ -43,7 +43,11 @@ function Subscriber() {
                     console.log('subscription voucher: ', event)
                     if (event.data.vouchers || event.data.vouchers.length) {
                         event.data.vouchers.forEach((item: any) => {
-                            showVoucher(item)
+                            const history = window.sessionStorage.getItem('voucherHistory') || ''
+                            if (!history.split(',').includes(item.id + '')) {
+                                showVoucher(item)
+                                window.sessionStorage.setItem('voucherHistory', `${history},${item.id}`)
+                            }
                         })
                     }
                 },
@@ -79,7 +83,11 @@ function Subscriber() {
                         console.log('subscription invite: ', event)
                         if (event.data.group_invites || event.data.group_invites.length) {
                             event.data.group_invites.forEach((item: any) => {
-                                showInvite(item)
+                                const history = window.sessionStorage.getItem('inviteHistory') || ''
+                                if (!history.split(',').includes(item.id + '')) {
+                                    showInvite(item)
+                                    window.sessionStorage.setItem('inviteHistory', `${history},${item.id}`)
+                                }
                             })
                         }
                     },
