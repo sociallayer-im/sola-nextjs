@@ -318,6 +318,12 @@ function ComponentName(props: { group: Group }) {
         setEventList(res)
     }, [showJoined, currTag])
 
+    useEffect(() => {
+        document.querySelectorAll('.input-disable input').forEach((input) => {
+            input.setAttribute('readonly', 'readonly')
+        })
+    }, [])
+
     return (<div className={styles['schedule-page']}>
         <div className={`${styles['schedule-head']} schedule-head`}>
             <div className={styles['page-center']}>
@@ -356,7 +362,7 @@ function ComponentName(props: { group: Group }) {
                     <div className={styles['schedule-menu-center']}>
                         <div className={styles['mouth']}>
                             <div>{mouthName[currMonth]} {currYear}</div>
-                            <div className={styles['timezone-selected']}>
+                            <div className={`${styles['timezone-selected']} input-disable`}>
                                 <Select
                                     value={timezoneSelected}
                                     clearable={false}
@@ -389,7 +395,7 @@ function ComponentName(props: { group: Group }) {
                     </div>
                 </div>
                 <div className={`${styles['schedule-menu-2']} ${styles['wap']}`}>
-                    <div className={styles['timezone-selected']}>
+                    <div className={`${styles['timezone-selected']} input-disable`}>
                         <Select
                             value={timezoneSelected}
                             clearable={false}
