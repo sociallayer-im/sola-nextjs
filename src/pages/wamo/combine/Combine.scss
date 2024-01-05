@@ -7,6 +7,16 @@
   padding-bottom: 50px;
   background: #F1EAEA;
 
+  .success-animation {
+    width: 300px;
+    height: 300px;
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 999;
+  }
+
 
   .bg_1 {
     position: absolute;
@@ -385,6 +395,19 @@
     box-sizing: border-box;
     background: #EFEBF4 url("/images/wamo/wamo_empty.png") no-repeat center;
     position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    justify-content: center;
+
+    img {
+      width: 64px;
+      height: 64px;
+      background: #EFEBF4;
+      display: block;
+      border-radius: 6px;
+    }
 
     &:after {
       min-width: 71px;
@@ -409,6 +432,61 @@
       justify-content: center;
       align-items: center;
       margin-bottom: 12px;
+    }
+  }
+
+  .merge-res {
+    width: 286px;
+    height: 400px;
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: center;
+    align-items: center;
+
+    .name {
+      color: #121212;
+      text-align: center;
+      font-size: 18px;
+      font-style: normal;
+      font-weight: 700;
+      line-height: normal;
+    }
+
+    .card {
+      min-width: 83px;
+      width: 200px;
+      height: 200px;
+      border: 3px solid #D8CBE8;
+      border-radius: 26px;
+      margin: 0 9px;
+      box-sizing: border-box;
+      background: #EFEBF4 url("/images/wamo/wamo_empty.png") no-repeat center;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-flow: row nowrap;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 36px;
+
+      img {
+        width: 150px;
+        height: 150px;
+        background: #EFEBF4;
+        display: block;
+        border-radius: 6px;
+      }
+
+      &:after {
+        min-width: 170px;
+        height: 170px;
+        border: 3px dashed #D8CBE8;
+        border-radius: 20px;
+        content: '';
+        position: absolute;
+        left: 10px;
+        top: 10px;
+      }
     }
   }
 

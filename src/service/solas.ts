@@ -4503,6 +4503,22 @@ export async function queryComment(props: {
     return res.chat_messages as Comment[]
 }
 
+export async function combine(props: {
+    badgelet_ids: number[],
+    auth_token: string,
+    color: string,
+    new_badge_id: number
+}) {
+    checkAuth(props)
+
+    const res = await fetch.post({
+        url: `${apiUrl}/badgelet/wamo_go_merge`,
+        data: props
+    })
+
+    return res.data.badgelet_id as number
+}
+
 
 export default {
     removeMarker,
