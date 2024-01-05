@@ -135,6 +135,7 @@ function GroupPage(props: any) {
                 (isJoined && (profile as Group).can_publish_event === 'member')
                 || ((profile as Group).can_publish_event === 'everyone' && !!user.userName)
                 || isGroupManager
+                || user.id === (profile as Group).creator.id
             )
         } else {
             setCanCreateEvent(false)
