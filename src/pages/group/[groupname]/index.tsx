@@ -309,7 +309,9 @@ function GroupPage(props: any) {
                                                 </AppButton>
                                             }
                                             {canCreateEvent &&
-                                                <AppButton special size={BTN_SIZE.compact} onClick={handleMintOrIssue}>
+                                                <AppButton special size={BTN_SIZE.compact} onClick={ e => {
+                                                    router.push(`/event/${profile?.username}/create`)
+                                                }}>
                                                     {`+ ${lang['Activity_Create_title']}`}
                                                 </AppButton>
                                             }

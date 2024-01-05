@@ -35,6 +35,7 @@ function ListEventVertical(props: { participants: Participants[], initData?: Eve
         if (!eventGroup?.id) {
             return []
         }
+
         setLoading(true)
         try {
             if (tab2IndexRef.current !== 'past') {
@@ -49,7 +50,7 @@ function ListEventVertical(props: { participants: Participants[], initData?: Eve
 
                 setList(init ? res : [...list, ...res])
                 setLoading(false)
-                if (res.length === 0) {
+                if (res.length < 10 ) {
                    setIsLoadAll(true)
                 }
             } else {
@@ -63,7 +64,7 @@ function ListEventVertical(props: { participants: Participants[], initData?: Eve
                 })
 
                 setList(init ? res : [...list, ...res])
-                if (res.length === 0) {
+                if (res.length < 10 ) {
                     setIsLoadAll(true)
                 }
                 setLoading(false)
@@ -99,6 +100,12 @@ function ListEventVertical(props: { participants: Participants[], initData?: Eve
         setIsLoadAll(false)
         getEvent(true)
     }
+
+    useEffect(() => {
+        if (props.initData) {
+            setIsLoadAll(props.initData.length < 10)
+        }
+    }, [props.initData])
 
 
     return (

@@ -9,6 +9,8 @@ import Link from "next/link";
 import ImgLazy from "@/components/base/ImgLazy/ImgLazy";
 import EventDefaultCover from "@/components/base/EventDefaultCover";
 import EventHomeContext from "@/components/provider/EventHomeProvider/EventHomeContext";
+import styles from "@/pages/event/[groupname]/schedule/schedule.module.scss";
+import {getLabelColor} from "@/hooks/labelColor";
 
 export interface CardEventProps {
     event: Event,
@@ -116,6 +118,16 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
             <div className={'left'}>
                 <div className={'details'}>
                     <div className={'title'}>{eventDetail.title}</div>
+                    <div className={'tags'}>
+                        {
+                            eventDetail.tags?.map((tag, index) => {
+                                return <div key={tag} className={'tag'}>
+                                    <i className={'dot'} style={{background: getLabelColor(tag)}}/>
+                                {tag}
+                            </div>
+                            })
+                        }
+                    </div>
 
                     {!!eventDetail.start_time &&
                         <div className={'detail'}>

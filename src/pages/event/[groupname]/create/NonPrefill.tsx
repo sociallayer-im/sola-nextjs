@@ -942,7 +942,7 @@ function CreateEvent(props: CreateEventPageProps) {
                             <div className='input-area-title'>{lang['Activity_Form_Name']}</div>
                             <AppInput
                                 clearable
-                                maxLength={30}
+                                maxLength={100}
                                 value={title}
                                 errorMsg={''}
                                 placeholder={lang['Activity_Form_Name']}

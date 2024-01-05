@@ -447,7 +447,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                         disabled>{lang['Activity_Detail_Btn_has_Cancel']}</AppButton>
                                                 }
 
-                                                {!canceled && isJoined && !outOfDate && !isHoster &&
+                                                {!canceled  &&
                                                     <AppButton
                                                         onClick={e => {
                                                             addToCalender({
@@ -649,7 +649,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                 <AppButton disabled>{lang['Activity_Detail_Btn_has_Cancel']}</AppButton>
                                             }
 
-                                            {!canceled && isJoined && !outOfDate && !isHoster &&
+                                            {!canceled  &&
                                                 <AppButton
                                                     onClick={e => {
                                                         addToCalender({

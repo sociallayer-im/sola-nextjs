@@ -8,6 +8,8 @@ import LangContext from "@/components/provider/LangProvider/LangContext";
 import usePicture from "@/hooks/pictrue";
 import {getLabelColor} from "@/hooks/labelColor";
 import {useRouter} from "next/navigation";
+import timezoneList from "@/utils/timezone"
+import {Select} from "baseui/select";
 
 import * as dayjsLib from "dayjs";
 
@@ -22,6 +24,9 @@ const mouthName = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'
 
 let _offsetX = 0
 let _offsetY = 0
+
+const localTimezone = dayjs.tz.guess()
+const timezoneInfo = timezoneList.find(item => item.id === localTimezone) || {id: 'UTC', label: 'UTC+00:00'}
 
 interface DateItem {
     date: number,
@@ -63,6 +68,7 @@ function ComponentName(props: { group: Group }) {
     const scroll2Ref = useRef<any>(null)
     const eventListRef = useRef<Event[]>([])
     const dayList = useRef(getCalendarData())
+    const lock = useRef(false)
 
     const {user} = useContext(UserContext)
     const [showJoined, setShowJoined] = useState(false)
@@ -75,6 +81,7 @@ function ComponentName(props: { group: Group }) {
     const [currMonth, setCurrMonth] = useState(new Date().getMonth())
     const [currYear, setCurrYear] = useState(new Date().getFullYear())
     const [currTag, setCurrTag] = useState<string[]>([])
+    const [timezoneSelected, setTimezoneSelected] = useState<{ label: string, id: string }[]>([timezoneInfo])
 
     // touch on pc
     const touchStart = useRef(false)
@@ -130,9 +137,9 @@ function ComponentName(props: { group: Group }) {
     useEffect(() => {
         const list = JSON.parse(JSON.stringify(dayList.current))
         eventList.forEach(item => {
-            const eventStarTime = new Date(item.start_time!)
+            const eventStarTime = dayjs.tz(new Date(item.start_time!).getTime(), timezoneSelected[0].id)
             const targetIndex = list.findIndex((i: DateItem) => {
-                return i.year === eventStarTime.getFullYear() && i.date === eventStarTime.getDate() && i.month === eventStarTime.getMonth()
+                return i.year === eventStarTime.year() && i.date === eventStarTime.date() && i.month === eventStarTime.month()
             })
             if (targetIndex > 0) {
                 list[targetIndex].events.push(item)
@@ -140,7 +147,7 @@ function ComponentName(props: { group: Group }) {
         })
         setShowList(list)
         setReady(true)
-    }, [eventList])
+    }, [eventList, timezoneSelected])
 
     useEffect(() => {
         const checkScroll = (e: any) => {
@@ -160,10 +167,16 @@ function ComponentName(props: { group: Group }) {
 
             const offsetTop = e.target.scrollTop
             if (window.innerWidth < 450) {
-                if (offsetTop > 0) {
-                    (window.document.querySelector('.schedule-head') as any)!.style.height = '0'
+                if (offsetTop > 10) {
+                    (window.document.querySelector('.schedule-head') as any)!.style.height = '0';
+                    lock.current = true
+                    setTimeout(() => {
+                        lock.current = false
+                    }, 500)
                 } else {
-                    (window.document.querySelector('.schedule-head') as any)!.style.height = 'auto'
+                    if (!lock.current) {
+                        (window.document.querySelector('.schedule-head') as any)!.style.height = 'auto';
+                    }
                 }
             }
         }
@@ -343,6 +356,17 @@ function ComponentName(props: { group: Group }) {
                     <div className={styles['schedule-menu-center']}>
                         <div className={styles['mouth']}>
                             <div>{mouthName[currMonth]} {currYear}</div>
+                            <div className={styles['timezone-selected']}>
+                                <Select
+                                    value={timezoneSelected}
+                                    clearable={false}
+                                    searchable={false}
+                                    options={timezoneList}
+                                    onChange={(params) => {
+                                        setTimezoneSelected(params.value as any)
+                                    }}
+                                />
+                            </div>
                             <div className={styles['to-today']} onClick={e => {
                                 slideToToday()
                             }}>Today
@@ -364,9 +388,22 @@ function ComponentName(props: { group: Group }) {
                         }
                     </div>
                 </div>
+                <div className={`${styles['schedule-menu-2']} ${styles['wap']}`}>
+                    <div className={styles['timezone-selected']}>
+                        <Select
+                            value={timezoneSelected}
+                            clearable={false}
+                            searchable={false}
+                            options={timezoneList}
+                            onChange={(params) => {
+                                setTimezoneSelected(params.value as any)
+                            }}
+                        />
+                    </div>
+                </div>
             </div>
         </div>
-        <div className={`${styles['content']}`}>
+        <div className={`${styles['content']} schedule-content`}>
             <div className={`${styles['date-bar-wrapper']} date-bar-wrapper`} ref={scroll1Ref}>
                 <div className={`${styles['date-bar']}`}>
                     {showList.map((item: any, index) => {
@@ -388,7 +425,11 @@ function ComponentName(props: { group: Group }) {
                         return <div key={index + ''} className={`${styles['date-column']} date-column`}>
                             <div className={`${styles['events']}`}>
                                 {item.events.map((e: Event) => {
-                                    return <EventCard key={Math.random() + e.title} event={e} group={eventGroup}/>
+                                    return <EventCard
+                                        key={Math.random() + e.title}
+                                        timezone={timezoneSelected[0].id}
+                                        event={e}
+                                        group={eventGroup}/>
                                 })}
                             </div>
                         </div>
@@ -410,13 +451,18 @@ export const getServerSideProps: any = (async (context: any) => {
     }
 })
 
-function EventCard({event, blank, group}: { event: Event, blank?: boolean, group?: Group }) {
-    const timezone = event.timezone || 'UTC'
-    const isAllDay = dayjs.tz(new Date(event.start_time!).getTime(), timezone).hour() === 0 && ((new Date(event.end_time!).getTime() - new Date(event.start_time!).getTime() + 60000) % 8640000 === 0)
-    const fromTime = dayjs.tz(new Date(event.start_time!).getTime(), timezone).format('HH:mm')
-    const toTime = dayjs.tz(new Date(event.end_time!).getTime(), timezone).format('HH:mm')
+function EventCard({
+                       event,
+                       blank,
+                       group,
+                       timezone
+                   }: { event: Event, blank?: boolean, group?: Group, timezone: string }) {
+    const showTimezone = timezone || event.timezone || 'UTC'
+    const isAllDay = dayjs.tz(new Date(event.start_time!).getTime(), showTimezone).hour() === 0 && ((new Date(event.end_time!).getTime() - new Date(event.start_time!).getTime() + 60000) % 8640000 === 0)
+    const fromTime = dayjs.tz(new Date(event.start_time!).getTime(), showTimezone).format('HH:mm')
+    const toTime = dayjs.tz(new Date(event.end_time!).getTime(), showTimezone).format('HH:mm')
 
-    const offset = dayjs.tz(new Date(event.end_time!).getTime(), timezone).utcOffset()
+    const offset = dayjs.tz(new Date(event.end_time!).getTime(), showTimezone).utcOffset()
     const utcOffset = offset >= 0 ?
         ' GMT +' + offset / 60 :
         ' GMT ' + offset / 60
