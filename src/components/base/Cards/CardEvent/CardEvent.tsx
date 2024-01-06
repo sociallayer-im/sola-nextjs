@@ -11,6 +11,7 @@ import EventDefaultCover from "@/components/base/EventDefaultCover";
 import EventHomeContext from "@/components/provider/EventHomeProvider/EventHomeContext";
 import styles from "@/pages/event/[groupname]/schedule/schedule.module.scss";
 import {getLabelColor} from "@/hooks/labelColor";
+import useCalender from "@/hooks/addToCalender";
 
 export interface CardEventProps {
     event: Event,
@@ -18,6 +19,8 @@ export interface CardEventProps {
     participants?: Participants[]
     attend?: boolean
 }
+
+const localeTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone
 
 function CardEvent({fixed = true, ...props}: CardEventProps) {
     const router = useRouter()
@@ -29,6 +32,7 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
     const {showToast, showLoading} = useContext(DialogsContext)
     const [hasRegistered, setHasRegistered] = useState(false)
     const {eventGroups} = useContext(EventHomeContext)
+    const { addToCalender } = useCalender()
 
     const now = new Date().getTime()
     const endTime = new Date(eventDetail.end_time!).getTime()
@@ -132,7 +136,7 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
                     {!!eventDetail.start_time &&
                         <div className={'detail'}>
                             <i className={'icon-calendar'}/>
-                            <span>{formatTime(eventDetail.start_time, eventDetail.timezone as any)}</span>
+                            <span>{formatTime(eventDetail.start_time, localeTimezone as any)}</span>
                         </div>
                     }
 
@@ -159,11 +163,27 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
                 </div>
 
 
-                {!!user.id && !hasRegistered && !isExpired && !fixed &&
-                    <div className={'card-apply-btn'} onClick={e => {
-                        handleJoin(e)
-                    }}>{lang['Event_Card_Apply_Btn']}</div>
-                }
+                <div className={'event-card-action'}>
+                    {!!user.id && !hasRegistered && !isExpired && !fixed &&
+                        <div className={'card-apply-btn'} onClick={e => {
+                            handleJoin(e)
+                        }}>{lang['Event_Card_Apply_Btn']}</div>
+                    }
+
+                    { !fixed &&
+                        <div className={'card-add-calendar-btn'} onClick={e => {
+                            e.preventDefault()
+                            addToCalender({
+                                name: eventDetail!.title,
+                                startTime: eventDetail!.start_time!,
+                                endTime: eventDetail!.end_time!,
+                                location: eventDetail!.formatted_address || eventDetail!.location || '',
+                                details: eventDetail!.content,
+                                url: `${window.location.origin}/event/detail/${eventDetail!.id}`
+                            })
+                        }}><i className={'icon-calendar'} /></div>
+                    }
+                </div>
             </div>
             <div className={(fixed || hasMarker && !fixed) ? 'post marker' : 'post'}>
                 {

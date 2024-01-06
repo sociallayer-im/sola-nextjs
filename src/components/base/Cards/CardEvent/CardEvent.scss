@@ -9,6 +9,15 @@
   display: block;
   text-decoration: none;
 
+  .event-card-action {
+    display: flex;
+
+    >div {
+      white-space: nowrap;
+      flex: 1;
+    }
+  }
+
   &.large {
     max-height: 198px;
   }
@@ -103,6 +112,21 @@
       justify-content: center;
       align-items: center;
       margin-bottom: 10px;
+    }
+
+    .card-add-calendar-btn {
+      border-radius: 21px;
+      background: #ecf2ee;
+      display: flex;
+      height: 26px;
+      color: #272928;
+      font-size: 12px;
+      margin-right: 12px;
+      font-weight: 500;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 10px;
+      max-width: 30%;
     }
 
     .title {

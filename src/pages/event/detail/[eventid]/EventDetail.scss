@@ -511,8 +511,17 @@
 
   .event-login-status {
     .event-action {
+      justify-content: space-between;
+
       button {
         margin-bottom: 12px;
+        margin-left: 0;
+        margin-right: 0;
+        white-space: nowrap;
+      }
+
+      button:nth-child(2) {
+        margin-left: 12px;
       }
     }
   }

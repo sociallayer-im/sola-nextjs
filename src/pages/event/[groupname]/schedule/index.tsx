@@ -362,6 +362,10 @@ function ComponentName(props: { group: Group }) {
                     <div className={styles['schedule-menu-center']}>
                         <div className={styles['mouth']}>
                             <div>{mouthName[currMonth]} {currYear}</div>
+                            <div className={styles['to-today']} onClick={e => {
+                                slideToToday()
+                            }}>Today
+                            </div>
                             <div className={`${styles['timezone-selected']} input-disable`}>
                                 <Select
                                     value={timezoneSelected}
@@ -372,10 +376,6 @@ function ComponentName(props: { group: Group }) {
                                         setTimezoneSelected(params.value as any)
                                     }}
                                 />
-                            </div>
-                            <div className={styles['to-today']} onClick={e => {
-                                slideToToday()
-                            }}>Today
                             </div>
                         </div>
                         {!!user.id &&
@@ -511,7 +511,7 @@ function EventCard({
                  }}
                  target={blank ? '_blank' : '_self'}>
         <div className={styles['schedule-event-card-time']}>
-            {isAllDay ? 'All Day' : `${fromTime}--${toTime} ${utcOffset}`}
+            {isAllDay ? 'All Day' : `${fromTime}--${toTime}`}
         </div>
         <div className={styles['schedule-event-card-name']}>
             {event.title}
