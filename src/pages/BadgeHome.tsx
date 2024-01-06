@@ -92,7 +92,7 @@ function Home() {
             }, 500)
         }
 
-        if (params?.groupId && params?.inviteId) {
+        if (params?.inviteId) {
             clean('show invite detail')
             setTimeout(() => {
                 showInviteDetail()
