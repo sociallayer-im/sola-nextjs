@@ -1040,6 +1040,7 @@ export async function queryGroupsUserJoined(props: QueryUserGroupProps): Promise
     const doc = gql`query MyQuery {
       groups(where: {status: {_neq: "freezed"}, memberships: {role: {_neq: "owner"}, profile: {id: {_eq: "${props.profile_id}"}}}}) {
         about
+        permissions
         banner_image_url
         banner_link_url
         banner_text
@@ -1085,6 +1086,7 @@ export async function queryGroupsUserCreated(props: QueryUserGroupProps): Promis
     const doc = gql`query MyQuery {
       groups(where: {status: {_neq: "freezed"}, memberships: {role: {_eq: "owner"}, profile: {id: {_eq: "${props.profile_id}"}}}}) {
         about
+        permissions
         banner_image_url
         banner_link_url
         banner_text
@@ -1130,6 +1132,7 @@ export async function queryGroupsUserManager(props: QueryUserGroupProps): Promis
     const doc = gql`query MyQuery {
       groups(where: {status: {_neq: "freezed"}, memberships: {role: {_eq: "manager"}, profile: {id: {_eq: "${props.profile_id}"}}}}) {
         about
+        permissions
         banner_image_url
         banner_link_url
         banner_text
@@ -3551,6 +3554,7 @@ export async function getEventGroup() {
     const doc = gql`query MyQuery {
       groups(where: {event_enabled: {_eq: true}, status: {_neq: "freezed"}}) {
         about
+        permissions
         banner_image_url
         banner_link_url
         banner_text

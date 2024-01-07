@@ -223,7 +223,7 @@ function ListGroupMember(props: ListGroupMemberProps) {
         router.push(`/profile/${profile.username}`, {scroll: false})
     }
 
-    const Action = (groupOwnerId === user.id || isManager)
+    const Action = (groupOwnerId === user.id)
         ? OwnerAction
         : currUserJoinedGroup
             ? MemberAction
