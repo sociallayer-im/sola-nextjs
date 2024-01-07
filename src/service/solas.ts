@@ -3591,6 +3591,7 @@ export async function getEventGroup() {
 
     const res: any = await request(graphUrl, doc)
     return res.groups.map((item: any) => {
+        item.domain = item.username + process.env.NEXT_PUBLIC_SOLAS_DOMAIN
         item.creator = item.memberships[0]?.profile || null
         return item
     })
