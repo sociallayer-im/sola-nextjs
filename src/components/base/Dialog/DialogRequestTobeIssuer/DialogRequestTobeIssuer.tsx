@@ -29,7 +29,7 @@ function DialogRequestTobeIssuer({close, group_id}: { close: () => any, group_id
             showToast('Apply Success')
             unload()
             close()
-        } catch (e) {
+        } catch (e:any) {
             showToast(e.message)
             unload()
         }

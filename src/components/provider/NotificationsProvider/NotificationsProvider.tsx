@@ -24,7 +24,7 @@ export default function NotificationsProvider(props: { children: any }) {
         }
         `
 
-        const res = await request(process.env.NEXT_PUBLIC_GRAPH!, doc)
+        const res:any = await request(process.env.NEXT_PUBLIC_GRAPH!, doc)
         setSubscribeGroup(res.groups.map((item: any) => item.id))
     }
 
