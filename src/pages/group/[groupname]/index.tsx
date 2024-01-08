@@ -22,6 +22,7 @@ import ListGroupEvent from "@/components/compose/ListGroupEvent/ListGroupEvent";
 import dynamic from 'next/dynamic'
 import {Swiper, SwiperSlide} from 'swiper/react'
 import {Mousewheel} from "swiper";
+import DialogRequestTobeIssuer from "@/components/base/Dialog/DialogRequestTobeIssuer/DialogRequestTobeIssuer";
 
 
 const ListUserPresend = dynamic(() => import('@/components/compose/ListUserPresend'), {
@@ -44,7 +45,7 @@ function GroupPage(props: any) {
     const params = useParams()
     const groupname = props.groupname || params?.groupname
     const [profile, setProfile] = useState<Profile | null>(props.group)
-    const {showLoading, openConnectWalletDialog} = useContext(DialogsContext)
+    const {showLoading, openConnectWalletDialog, openDialog} = useContext(DialogsContext)
     const {lang} = useContext(LangContext)
     const {user, logOut} = useContext(UserContext)
     const searchParams = useSearchParams()
@@ -200,6 +201,13 @@ function GroupPage(props: any) {
         window.history.pushState(null, '', `/group/${groupname}?tab=${tab}`)
     }
 
+    const requestToBeIssuer = () => {
+        openDialog({
+            content: (close: any) => <DialogRequestTobeIssuer close={close} group_id={profile!.id}/>,
+            size: [360, 'auto'],
+        })
+    }
+
     return <>
         {!!profile &&
             <div className='group-page'>
@@ -309,7 +317,7 @@ function GroupPage(props: any) {
                                                 </AppButton>
                                             }
                                             {canCreateEvent &&
-                                                <AppButton special size={BTN_SIZE.compact} onClick={ e => {
+                                                <AppButton special size={BTN_SIZE.compact} onClick={e => {
                                                     router.push(`/event/${profile?.username}/create`)
                                                 }}>
                                                     {`+ ${lang['Activity_Create_title']}`}
@@ -335,6 +343,13 @@ function GroupPage(props: any) {
                                                         {process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'seedao' ?
                                                             lang['Send_SeeDAO_Badge']
                                                             : lang['Follow_detail_btn_mint']}
+                                                    </AppButton>
+                                                </div>
+                                            }
+                                            {isJoined && !isGroupOwner && !isGroupManager && !isIssuer &&
+                                                <div className={'right'}>
+                                                    <AppButton size={BTN_SIZE.compact} onClick={requestToBeIssuer}>
+                                                        <div>{lang['Request_To_Be_Issuer']}</div>
                                                     </AppButton>
                                                 </div>
                                             }

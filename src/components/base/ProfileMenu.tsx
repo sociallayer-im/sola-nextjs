@@ -1,19 +1,53 @@
-import { useContext } from 'react'
+import {useContext} from 'react'
 import UserContext from '../provider/UserProvider/UserContext'
 import MenuItem from './MenuItem'
-import { StatefulPopover, PLACEMENT } from 'baseui/popover'
-import { useStyletron } from 'baseui'
+import {PLACEMENT, StatefulPopover} from 'baseui/popover'
+import {useStyletron} from 'baseui'
 import LangContext from '../provider/LangProvider/LangContext'
 import usePicture from '../../hooks/pictrue'
 import {useRouter} from 'next/navigation'
 import ImgLazy from "@/components/base/ImgLazy/ImgLazy";
+import NotificationsContext from "@/components/provider/NotificationsProvider/NotificationsContext";
 
-function ProfileMenu () {
-    const { user, logOut } = useContext(UserContext)
-    const { lang } = useContext(LangContext)
+const style = {
+    wrapper: {
+        display: 'flex',
+        'flex-direction': 'row',
+        'flex-wrap': 'nowrap',
+        alignItems: 'center',
+        cursor: 'pointer'
+    },
+    img: {
+        width: '16px',
+        height: '16px',
+        borderRadius: ' 50%',
+        marginRight: '6px'
+    },
+    showName: {
+        maxWidth: '40px',
+        overflow: 'hidden',
+        'text-overflow': 'ellipsis',
+        whitespace: 'nowrap',
+        color: 'var(--color-text-main)'
+    },
+    dot: {
+        height: '8px',
+        width: '8px',
+        borderRadius: '50%',
+        background: '#F26692',
+        position: 'relative',
+        transform: 'translate(4px, -4px)',
+        display: 'inline-block'
+    }
+}
+
+function ProfileMenu() {
+    const {user, logOut} = useContext(UserContext)
+    const {lang} = useContext(LangContext)
     const [css] = useStyletron()
     const router = useRouter()
-    const { defaultAvatar } = usePicture()
+    const {defaultAvatar} = usePicture()
+    const {showNotification, newNotificationCount} = useContext(NotificationsContext)
 
     const handleLogOut = () => {
         logOut()
@@ -36,50 +70,52 @@ function ProfileMenu () {
     }
 
     const menuContent = (close: any) => <>
-        { !!user.domain &&
+        {!!user.userName &&
             <>
-                <MenuItem onClick={ () => { toProfile(); close() } }>{ lang['UserAction_MyProfile'] }</MenuItem>
+                <MenuItem onClick={() => {
+                    toProfile();
+                    close()
+                }}>{lang['UserAction_MyProfile']}</MenuItem>
                 {
                     !user?.maodaoid &&
-                    <MenuItem onClick={ () => { toSetting(); close() } }>{ lang['Profile_Setting']}</MenuItem>
+                    <MenuItem onClick={() => {
+                        toSetting();
+                        close()
+                    }}>{lang['Profile_Setting']}</MenuItem>
                 }
-                { !user.email &&
-                    <MenuItem onClick={ () => { toBind(); close() } }>{ lang['UserAction_Bind_Email'] }</MenuItem>
+                {!user.email &&
+                    <MenuItem onClick={() => {
+                        toBind();
+                        close()
+                    }}>{lang['UserAction_Bind_Email']}</MenuItem>
+                }
+                {process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'seedao' &&
+                    <MenuItem onClick={() => {
+                        showNotification();
+                        close()
+                    }}>
+                        {lang['Seedao_Notification']}
+                        {
+                            newNotificationCount > 0 && <i className={css(style.dot as any)} />
+                        }
+                    </MenuItem>
                 }
             </>
         }
-        <MenuItem onClick={ () => { handleLogOut(); close() } }>{ lang['UserAction_Disconnect'] }</MenuItem>
+        <MenuItem onClick={() => {
+            handleLogOut();
+            close()
+        }}>{lang['UserAction_Disconnect']}</MenuItem>
     </>
 
-    const style = {
-        wrapper: {
-            display: 'flex',
-            'flex-direction': 'row',
-            'flex-wrap': 'nowrap',
-            alignItems: 'center',
-            cursor: 'pointer'
-        },
-        img : {
-            width: '16px',
-            height: '16px',
-            borderRadius: ' 50%',
-            marginRight: '6px'
-        },
-        showName: {
-            maxWidth: '40px',
-            overflow: 'hidden',
-            'text-overflow': 'ellipsis',
-            whitespace: 'nowrap',
-            color:'var(--color-text-main)'
-        },
-    }
 
     const overridesStyle = {
-        Body : {
+        Body: {
             style: {
                 'z-index': 999
             }
-        }}
+        }
+    }
 
     const shortAddress = (address: null | string) => {
         if (!address) return address
@@ -88,14 +124,15 @@ function ProfileMenu () {
 
     return (
         <StatefulPopover
-            overrides={ overridesStyle }
-            placement={ PLACEMENT.bottomRight }
-            returnFocus = { false }
-            content={ ({close}) => menuContent(close) }
+            overrides={overridesStyle}
+            placement={PLACEMENT.bottomRight}
+            returnFocus={false}
+            content={({close}) => menuContent(close)}
             autoFocus>
-            <div className={ css(style.wrapper) }>
-                <ImgLazy className={ css(style.img) } src={ user.avatar || defaultAvatar(user.id) } width={32} alt="" />
-                <div className={css(style.showName)}> {user.nickname || user.userName || shortAddress(user.wallet) || user.email}</div>
+            <div className={css(style.wrapper)}>
+                <ImgLazy className={css(style.img)} src={user.avatar || defaultAvatar(user.id)} width={32} alt=""/>
+                <div
+                    className={css(style.showName)}> {user.nickname || user.userName || shortAddress(user.wallet) || user.email}</div>
             </div>
         </StatefulPopover>
     )

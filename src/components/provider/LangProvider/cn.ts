@@ -586,6 +586,7 @@ const langCN: LangConfig = {
   Comment: '评论',
   Sign_To_Comment: '请登录后评论',
   Chat: '聊天',
+  Request_To_Be_Issuer: '申请成为发行者',
 }
 
 

@@ -91,14 +91,14 @@ function MyApp({Component, pageProps, ...props}: any) {
                                         <DialogProvider>
                                             <MapProvider>
                                                 <EventHomeProvider>
+                                                    <NotificationsProvider>
                                                     <DisplayLay>
-                                                        <NotificationsProvider>
                                                             <NextNProgress options={{showSpinner: false}}/>
                                                             <Component {...pageProps} />
                                                             <Subscriber/>
                                                             <Analytics/>
-                                                        </NotificationsProvider>
                                                     </DisplayLay>
+                                                    </NotificationsProvider>
                                                 </EventHomeProvider>
                                             </MapProvider>
                                         </DialogProvider>

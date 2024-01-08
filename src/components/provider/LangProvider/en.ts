@@ -566,7 +566,7 @@ const langEN = {
     Seedao_Request_Issuer_Dialog_Title: 'Are you sure to apply to be an issuer？',
     Seedao_Request_Issuer_Dialog_Message: 'Leave a message',
     Seedao_Request_Issuer_Dialog_Apply: 'Apply',
-    Notification_Title: 'Seedao_Notification',
+    Notification_Title: 'Notifications',
     Seedao_Issue_Badge_Role: 'Role',
     Seedao_Issue_Badge_Section: 'Section',
     Seedao_Issue_Badge_Institution: 'SBT issuing institution',
@@ -590,6 +590,7 @@ const langEN = {
     Comment: 'Comment',
     Sign_To_Comment: 'Sign in to chat',
     Chat: 'Chat',
+    Request_To_Be_Issuer: 'Request to be issuer'
 }
 
 

@@ -4508,6 +4508,32 @@ export async function queryComment(props: {
     return res.chat_messages as Comment[]
 }
 
+export async function requestToBeIssuer(props: {
+    auth_token: string,
+    group_id: number,
+    message: string,
+    role: string
+}) {
+    checkAuth(props)
+
+    const res = await fetch.post({
+        url: `${apiUrl}/group/request_invite`,
+        data: props
+    })
+}
+
+
+export async function acceptRequest(props: {
+    auth_token: string,
+    group_invite_id: number,
+}) {
+    checkAuth(props)
+
+    const res = await fetch.post({
+        url: `${apiUrl}/group/accept_request`,
+        data: props
+    })
+}
 
 export default {
     removeMarker,
