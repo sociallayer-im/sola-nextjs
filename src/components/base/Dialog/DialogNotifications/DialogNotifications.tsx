@@ -51,21 +51,19 @@ function NotificationItem({invite, onAction}: { invite: Invite, onAction?: (invi
             title: 'Do you want to reject this application?',
             onConfirm: async (close: () => any) => {
                 const unload = showLoading()
-                await cancelInvite({
-                    group_invite_id: invite_id,
-                    auth_token: user.authToken || ''
-                })
-                    .catch((e: any) => {
-                        if (e && e.message) {
-                            unload()
-                            showToast(e.message)
-                        }
+                try {
+                    await cancelInvite({
+                        group_invite_id: invite_id,
+                        auth_token: user.authToken || ''
                     })
-
-                showToast('Rejected')
-                onAction && onAction(invite_id)
-                unload()
-                close()
+                    showToast('Rejected')
+                    onAction && onAction(invite_id)
+                    unload()
+                    close()
+                } catch (e:any) {
+                    showToast(e.message)
+                    unload()
+                }
             }
         })
     }

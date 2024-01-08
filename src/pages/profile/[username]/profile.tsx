@@ -151,10 +151,10 @@ function Page(props: any) {
                         </div>
                         <div className='slot_1'>
                             <ProfilePanel profile={profile}/>
-                            {!!maodaoprofile && maodaoprofile.company &&
+                            {!!maodaoprofile && maodaoprofile.company && isMaodao &&
                                 <div className={'maodao-tag'}>{maodaoprofile.company}</div>
                             }
-                            {!!maodaoprofile && maodaoprofile.tag &&
+                            {!!maodaoprofile && maodaoprofile.tag && isMaodao &&
                                 <div className={'maodao-tag'}>{maodaoprofile.tag}</div>
                             }
                         </div>
