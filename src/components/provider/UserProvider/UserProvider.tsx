@@ -1,5 +1,5 @@
 import {ReactNode, useContext, useEffect, useState} from 'react'
-import {useAccount, useDisconnect, useWalletClient} from 'wagmi'
+import {useAccount, useDisconnect, useWalletClient } from 'wagmi'
 import UserContext from './UserContext'
 import DialogsContext from '../DialogProvider/DialogsContext'
 import * as AuthStorage from '../../../utils/authStorage'
@@ -53,7 +53,7 @@ const emptyUser: User = {
 
 function UserProvider (props: UserProviderProps) {
     const [userInfo, setUserInfo] = useState<User>(emptyUser)
-    const { address, isConnecting, isDisconnected } = useAccount()
+    const { address, isConnecting, isDisconnected, connector } = useAccount()
     const { disconnect } = useDisconnect()
     const { data } = useWalletClient()
     const { showToast, clean, showLoading } = useContext(DialogsContext)
@@ -190,6 +190,7 @@ function UserProvider (props: UserProviderProps) {
 
         if (!data) return
 
+
         console.log('Login ...')
         console.log('Login type: ', loginType)
         console.log('Login wallet: ', address)
@@ -198,7 +199,7 @@ function UserProvider (props: UserProviderProps) {
         if (!authToken) {
             const unloading = showLoading()
             try {
-                authToken = await solaLogin(data)
+                authToken = await solaLogin(data, connector?.name)
                 console.log('New token: ', authToken)
             } catch (e) {
                 console.error(e)
@@ -269,6 +270,7 @@ function UserProvider (props: UserProviderProps) {
 
     useEffect(() => {
        if (data || address) {
+           console.log()
            walletLogin()
        }
     }, [data, address])

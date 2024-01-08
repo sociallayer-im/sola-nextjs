@@ -285,7 +285,7 @@ function ListGroupMember(props: ListGroupMemberProps) {
                 })
             }
 
-            {!props.isSidebar && <>{
+            {
                 members.map((member, index) => {
                     return <div className={'list-item'}
                                 key={index}
@@ -302,8 +302,8 @@ function ListGroupMember(props: ListGroupMemberProps) {
                         </div>
                     </div>
                 })
-            }</>
             }
+
             {
                 props.isSidebar && <div className={'side-member-count'}>{`${members.length + managers.length + issuer.length + 1} ${lang['Group_detail_tabs_member']}`} </div>
             }

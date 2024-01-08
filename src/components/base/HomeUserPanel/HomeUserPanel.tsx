@@ -27,8 +27,12 @@ function HomeUserPanel(props: {
     const [groupBadges, setGroupBadges] = useState<Badge[]>([])
 
     useEffect(() => {
-        const list: any = []
-        props.membership.forEach((item: Membership) => {
+        const owner = props.membership.find((item: Membership) => item.role === 'owner')!
+        const manager = props.membership.filter((item: Membership) => item.role === 'manager')
+        const member = props.membership.filter((item: Membership) => item.role === 'member')
+
+        const list = [owner, ...manager, ...member]
+        list.forEach((item: Membership) => {
             if (!list.some((i: any) => i.profile.id === item.profile.id)) {
                 list.push(item)
             }
@@ -96,7 +100,7 @@ function HomeUserPanel(props: {
                     }
                     <div>
                         {
-                            groupMembers.filter(item => item.role !== 'member').map((membership, index) => {
+                            groupMembers.map((membership, index) => {
                                 return <Link key={membership.profile.id}
                                              className={'group-card-member-list'}
                                              href={`/profile/${membership.profile.username}`}>

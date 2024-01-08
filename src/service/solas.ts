@@ -173,8 +173,8 @@ function checkAuth<K extends AuthProp>(props: K) {
     }
 }
 
-export async function login(signer: any) {
-    return await signInWithEthereum(signer)
+export async function login(signer: any, walletName?: string) {
+    return await signInWithEthereum(signer, walletName)
 }
 
 export interface Profile {
@@ -479,7 +479,7 @@ export interface LoginRes {
 export async function emailLogin(email: string, code: string): Promise<LoginRes> {
     const res = await fetch.post({
         url: `${apiUrl}/profile/signin_with_email`,
-        data: {email, code}
+        data: {email, code, app: window.location.host, address_source: 'email'}
     })
     if (res.data.result === 'error') {
         throw new Error(res.data.message || 'Verify fail')
@@ -3688,7 +3688,7 @@ export async function requestPhoneCode(phone: string): Promise<void> {
 export async function phoneLogin(phone: string, code: string): Promise<LoginRes> {
     const res = await fetch.post({
         url: `${apiUrl}/profile/signin_with_phone`,
-        data: {phone, code}
+        data: {phone, code, app: window.location.host, address_source: 'phone'}
     })
     if (res.data.result === 'error') {
         throw new Error(res.data.message || 'Verify fail')
@@ -4212,7 +4212,7 @@ export async function zupassLogin(props: {
 }) {
     const res = await fetch.post({
         url: `${apiUrl}/profile/signin_with_zupass`,
-        data: props
+        data: {...props, app: window.location.host, address_source: 'zupass'}
     })
 
     if (res.data.result === 'error') {

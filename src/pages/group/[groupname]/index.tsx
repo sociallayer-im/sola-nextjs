@@ -366,6 +366,7 @@ function GroupPage(props: any) {
                                                 </Tab> : <></>
                                         }
 
+
                                         {isGroupOwner || isGroupManager ?
                                             <Tab title={lang['Group_detail_tabs_Invite']}>
                                                 <ListGroupInvite group={profile}/>
