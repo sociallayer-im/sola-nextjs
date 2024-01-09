@@ -3999,7 +3999,7 @@ export async function queryMarkers(props: {
 
     const doc = gql`
         query MyQuery {
-          markers(where: {${variables}, status: {_neq: "removed"}} order_by: {${sortStr}}) {
+          markers(where: {${variables} ,status: {_nin: ["pending", "removed"]}} order_by: {${sortStr}}) {
           voucher_id
           voucher {
             id
@@ -4024,6 +4024,7 @@ export async function queryMarkers(props: {
               start_time 
               id
               tags
+              status
               location
               formatted_address
               participants {
