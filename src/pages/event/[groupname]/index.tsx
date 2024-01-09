@@ -95,7 +95,7 @@ function Home(props: {badges: Badge[], initEvent?: Group, initList?: Event[], me
     }
 
     const issueBadge = async () => {
-        if (user.userName) {
+        if (!user.userName) {
             openConnectWalletDialog()
             return
         }

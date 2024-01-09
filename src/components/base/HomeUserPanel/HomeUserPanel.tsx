@@ -108,9 +108,11 @@ function HomeUserPanel(props: {
                                          src={membership.profile.image_url || defaultAvatar(membership.profile.id)}
                                          alt=""/>
                                     {membership.profile.nickname || membership.profile.username}
-                                    <div className={'role'}>
-                                        {membership.role}
-                                    </div>
+                                    { membership.role !== 'member' &&
+                                        <div className={'role'}>
+                                            {membership.role}
+                                        </div>
+                                    }
                                 </Link>
                             })
                         }
