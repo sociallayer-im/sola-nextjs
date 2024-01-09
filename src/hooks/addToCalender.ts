@@ -21,7 +21,7 @@ PRODID:adamgibbons/ics
 METHOD:PUBLISH
 X-PUBLISHED-TTL:PT1H
 BEGIN:VEVENT
-UID:rJy2275vUNMN-WFnmwxfU
+UID:${Math.random()}
 SUMMARY:${props.name}
 DTSTAMP:${timeStrNow}
 DTSTART:${timeStr}

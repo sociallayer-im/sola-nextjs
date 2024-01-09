@@ -32,7 +32,7 @@ function RegistForm (props: RegistFormProps) {
             confirmLabel: lang['Regist_Dialog_Create'],
             cancelLabel: lang['Regist_Dialog_ModifyIt'],
             onConfirm: async (close: any) => { close(); await createProfile() },
-            content: () => <div className='confirm-domain'><span>{domain}{domainEndEnhancer}</span></div>
+            content: () => <div className='confirm-domain'><span>{domain}</span></div>
         }
 
         openDomainConfirmDialog(props)
@@ -87,7 +87,6 @@ function RegistForm (props: RegistFormProps) {
             value={ domain }
             readOnly = { loading }
             onChange={ (e) => { setDomain(e.target.value.toLowerCase().trim()) } }
-            endEnhancer={() => <span>{ domainEndEnhancer }</span> }
             placeholder={ lang['Regist_Input_Placeholder'] } />
         <div className={css({ marginTop: '34px' })}>
             <AppButton
