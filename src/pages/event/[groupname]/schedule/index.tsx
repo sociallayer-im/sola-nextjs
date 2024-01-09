@@ -173,10 +173,6 @@ function ComponentName(props: { group: Group }) {
                     setTimeout(() => {
                         lock.current = false
                     }, 500)
-                } else {
-                    if (!lock.current) {
-                        (window.document.querySelector('.schedule-head') as any)!.style.height = 'auto';
-                    }
                 }
             }
         }
@@ -261,6 +257,10 @@ function ComponentName(props: { group: Group }) {
 
                     _offsetX = offsetX
                     _offsetY = offsetY
+
+                    if (_offsetY > 150 && scrollBar2.scrollTop === 0) {
+                        (window.document.querySelector('.schedule-head') as any)!.style.height = 'auto';
+                    }
                 }
             }
 

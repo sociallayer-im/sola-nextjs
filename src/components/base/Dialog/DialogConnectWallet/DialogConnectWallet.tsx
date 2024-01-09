@@ -1,7 +1,7 @@
-import {Connector, useAccount, useConnect, useDisconnect } from 'wagmi'
+import {Connector, useAccount, useConnect, useDisconnect} from 'wagmi'
 import {useContext, useEffect, useRef} from 'react'
 import LangContext from '../../../provider/LangProvider/LangContext'
-import { setLastLoginType } from '@/utils/authStorage'
+import {setLastLoginType} from '@/utils/authStorage'
 import DialogsContext from '../../../provider/DialogProvider/DialogsContext'
 import UserContext from '../../../provider/UserProvider/UserContext'
 import {useRouter} from 'next/navigation'
@@ -10,9 +10,9 @@ interface DialogConnectWalletProps {
     handleClose: (...rest: any[]) => any
 }
 
-function DialogConnectWallet (props: DialogConnectWalletProps) {
+function DialogConnectWallet(props: DialogConnectWalletProps) {
     const unloading_1 = useRef<any>(null)
-    const { connect, connectors, error, isLoading, pendingConnector } = useConnect({
+    const {connect, connectors, error, isLoading, pendingConnector} = useConnect({
         onSettled: () => {
             if (unloading_1) {
                 unloading_1.current?.()
@@ -20,12 +20,12 @@ function DialogConnectWallet (props: DialogConnectWalletProps) {
             }
         }
     })
-    const { disconnect } = useDisconnect()
-    const { lang } = useContext(LangContext)
-    const { isDisconnected } = useAccount()
+    const {disconnect} = useDisconnect()
+    const {lang} = useContext(LangContext)
+    const {isDisconnected} = useAccount()
     const router = useRouter()
-    const { clean, showLoading } = useContext(DialogsContext)
-    const { user, logOut, setUser } = useContext(UserContext)
+    const {clean, showLoading} = useContext(DialogsContext)
+    const {user, logOut, setUser} = useContext(UserContext)
 
     useEffect(() => {
         if (user.id) {
@@ -55,10 +55,10 @@ function DialogConnectWallet (props: DialogConnectWalletProps) {
         disconnect()
         logOut()
 
-       setTimeout(() => {
-           setLastLoginType('wallet')
-           connect({ connector })
-       },500)
+        setTimeout(() => {
+            setLastLoginType('wallet')
+            connect({connector})
+        }, 500)
     }
 
     const handleConnectEmail = () => {
@@ -78,38 +78,40 @@ function DialogConnectWallet (props: DialogConnectWalletProps) {
     return (
         <div className='dialog-connect-wallet'>
             {connectors.map((connector) => (
-                <div className={ (!connector.ready || isLoading) ? 'connect-item disable': 'connect-item' }
-                    key={connector.id}
-                    onClick={() => handleConnectWallet(connector)}>
-                    <img src={ `/images/${connector.name.toLowerCase()}.png` } alt={connector.name} />
-                    <div className='connect-name'>{connector.name}</div>
-                    <div className='connect-des'>
-                        {lang['Wallet_Intro']([connector.name])}
+                (!connector.ready || isLoading) ?
+                    <></>
+                    : <div className={'connect-item'}
+                            key={connector.id}
+                            onClick={() => handleConnectWallet(connector)}>
+                        <img src={`/images/${connector.name.toLowerCase()}.png`} alt={connector.name}/>
+                        <div className='connect-name'>{connector.name}</div>
+                        <div className='connect-des'>
+                            {lang['Wallet_Intro']([connector.name])}
+                        </div>
                     </div>
-                </div>
             ))}
-            { process.env.NEXT_PUBLIC_SPECIAL_VERSION !== 'maodao' &&
-                <div className='connect-item' onClick={ handleConnectEmail }>
+            {process.env.NEXT_PUBLIC_SPECIAL_VERSION !== 'maodao' &&
+                <div className='connect-item' onClick={handleConnectEmail}>
                     <img src="/images/email.svg" alt="email"/>
                     <div className='connect-name'>Email</div>
-                    <div className='connect-des'>{ lang['Login_Title'] }</div>
+                    <div className='connect-des'>{lang['Login_Title']}</div>
                 </div>
             }
-            { arrowPhoneLogin &&
-                <div className='connect-item' onClick={ handlePhoneLogin }>
+            {arrowPhoneLogin &&
+                <div className='connect-item' onClick={handlePhoneLogin}>
                     <img src="/images/phone_login.png" alt="email"/>
                     <div className='connect-name'>Phone</div>
-                    <div className='connect-des'>{ lang['Login_Phone_Title'] }</div>
+                    <div className='connect-des'>{lang['Login_Phone_Title']}</div>
                 </div>
             }
             <div className='connect-item' onClick={async () => {
                 showLoading()
                 const login = (await import('@/service/zupass/zupass')).login
                 login()
-            } }>
+            }}>
                 <img src="/images/zupass.png" alt="email"/>
                 <div className='connect-name'>Zupass</div>
-                <div className='connect-des'>{ 'Login using Zupass' }</div>
+                <div className='connect-des'>{'Login using Zupass'}</div>
             </div>
         </div>
     )
