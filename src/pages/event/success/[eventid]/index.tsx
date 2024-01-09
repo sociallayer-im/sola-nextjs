@@ -13,6 +13,7 @@ import DialogsContext from "@/components/provider/DialogProvider/DialogsContext"
 import EventHomeContext from "@/components/provider/EventHomeProvider/EventHomeContext";
 import useGetMeetingName from "@/hooks/getMeetingName";
 import {mapTimezone} from '@/components/base/AppEventTimeInput/AppEventTimeInput'
+import Empty from "@/components/base/Empty";
 
 function CreateEventSuccess() {
     const router = useRouter()
@@ -26,12 +27,22 @@ function CreateEventSuccess() {
     const {getMeetingName} = useGetMeetingName()
 
     const [coverUrl, setCoverUrl] = useState('')
+    const [ready, setReady] = useState(false)
 
     useEffect(() => {
         async function fetchData() {
             const unload = showLoading()
             const res = await queryEventDetail({id: Number(params?.eventid)})
+
+            if (!res) {
+                unload()
+                // router.push('/error')
+                setReady(true)
+                return
+            }
+
             setEvent(res)
+            setReady(true)
 
             if (res!.cover_url) {
                 const image = new Image();
@@ -139,9 +150,15 @@ function CreateEventSuccess() {
 
     return (<>
         <div className={'create-event-success-page'}>
-            <div className={'center'}><Link className={'done'} href={`/event/detail/${params?.eventid}`}>Done</Link>
-            </div>
-            <div className={'title'}>{lang['IssueFinish_Title']}</div>
+            { ready && event &&
+                <>
+                    <div className={'center'}>
+                        <Link className={'done'} href={`/event/detail/${params?.eventid}`}>Done</Link>
+                    </div>
+                    <div className={'title'}>{lang['IssueFinish_Title']}</div>
+                </>
+            }
+
             {event && coverUrl &&
                 <>
                     <div className={'event-share-card-wrapper'}>
@@ -211,6 +228,12 @@ function CreateEventSuccess() {
                         }}>{lang['IssueFinish_CopyLink']}</AppButton>
                     </div>
                 </>
+            }
+            {!event && ready &&
+                <div className={'center'}>
+                    <Empty />
+                    <div style={{textAlign: 'center'}}><b>Event cancelled or not exist </b> <br /><Link href="/">back to home</Link></div>
+                </div>
             }
         </div>
     </>)

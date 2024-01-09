@@ -68,8 +68,8 @@ export function useTime2() {
         // format like:THU, SEP 26 AT 9 PM
         const target = dayjs.tz(new Date(dateString).getTime(), timezone)
         const now = dayjs.tz(new Date().getTime(), timezone)
-        const isToday = target.date() === now.date()
-        const isTomorrow = target.date() - now.date() === 1
+        const isToday = target.date() === now.date() && target.month() === now.month() && target.year() === now.year()
+        const isTomorrow = target.date() - now.date() === 1 && target.month() === now.month() && target.year() === now.year()
 
         const week = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT']
         const month = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL',
@@ -108,8 +108,8 @@ export function useTime3() {
         const toDate = dayjs.tz(new Date(toStr).getTime(), timezone)
 
         const now = dayjs.tz(new Date().getTime(), timezone)
-        const isToday = fromDate.date() === now.date()
-        const isTomorrow = fromDate.date() - now.date() === 1
+        const isToday = fromDate.date() === now.date() && fromDate.month() === now.month() && fromDate.year() === now.year()
+        const isTomorrow = fromDate.date() - now.date() === 1 && fromDate.month() === now.month() && fromDate.year() === now.year()
 
 
         const f_mon = lang['Month_Name'][fromDate.month()].toUpperCase()

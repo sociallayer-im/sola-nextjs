@@ -4,7 +4,7 @@ import LangContext from "@/components/provider/LangProvider/LangContext";
 import {useContext, useEffect, useState} from "react";
 import AppInput from "@/components/base/AppInput";
 import AddressList from "@/components/base/AddressList/AddressList";
-import solas, {issueBatch, Profile, queryBadgeDetail, searchDomain, sendBadgeByWallet} from "@/service/solas";
+import solas, {Badge, issueBatch, Profile, queryBadgeDetail, searchDomain, sendBadgeByWallet} from "@/service/solas";
 import AppButton from "@/components/base/AppButton/AppButton";
 import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
 import {useParams, useRouter} from 'next/navigation'
@@ -23,6 +23,7 @@ export function IssueBadge() {
     const [csvRow, setCsvRow] = useState<string[]>([])
     const [selectedCsvRow, setSelectedCsvRow] = useState<string[]>([])
     const [presendAmount, setPresendAmount] = useState(1)
+    const [badge, setBadge] = useState<Badge | null>(null)
 
     const {showToast, showLoading} = useContext(DialogsContext)
     const {user} = useContext(userContext)
@@ -34,6 +35,7 @@ export function IssueBadge() {
             searchDomain({username: domainSearchKey, page: 1}).then(res => {
                 if (res) {
                     setSearchRes(res)
+                    setBadge(badge)
                 }
             })
         }
@@ -270,8 +272,17 @@ export function IssueBadge() {
                                             handleSend()
                                         }}>{lang['Send_The_Badge']}</AppButton>
                                         <div className={styles['later']} onClick={e => {
-                                            user.userName ? router.push(`/user/${user.userName}`)
-                                                : router.push(`/`)
+                                            if (badge && badge.group && badge.group.id) {
+                                                router.push(`/group/${badge.group.username}`)
+                                                return
+                                            }
+
+                                            if (user.userName) {
+                                                router.push(`/profile/${user.userName}`)
+                                                return
+                                            }
+
+                                            router.push(`/`)
                                         }}>
                                             {lang['MintFinish_Button_Later']}
                                         </div>
