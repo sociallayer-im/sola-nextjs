@@ -295,8 +295,8 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                         <div className={'cover'}>
                             {
                                 event.cover_url ?
-                                    <ImgLazy src={event.cover_url} alt="" width={624} />
-                                    : <EventDefaultCover  event={event} width={324} height={324}/>
+                                    <ImgLazy src={event.cover_url} alt="" width={624}/>
+                                    : <EventDefaultCover event={event} width={324} height={324}/>
                             }
                         </div>
 
@@ -447,7 +447,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                         disabled>{lang['Activity_Detail_Btn_has_Cancel']}</AppButton>
                                                 }
 
-                                                {!canceled  &&
+                                                {!canceled &&
                                                     <AppButton
                                                         onClick={e => {
                                                             addToCalender({
@@ -523,20 +523,22 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                     </div>
                                 }
                             </div>
-
-
+                            
                             <div className={'event-tab'}>
                                 <div className={'tab-titles'}>
                                     <div className={'center'}>
                                         <div className={tab === 1 ? 'tab-title active' : 'tab-title'}
                                              onClick={e => {
                                                  setTab(1)
-                                             }}><div>{lang['Activity_Des']}</div></div>
-                                        <div className={'split'} />
+                                             }}>
+                                            <div>{lang['Activity_Des']}</div>
+                                        </div>
+                                        <div className={'split'}/>
                                         <div className={tab === 2 ? 'tab-title active' : 'tab-title'}
                                              onClick={e => {
                                                  setTab(2)
-                                             }}><div>{lang['Activity_Participants']}({participants.length})</div>
+                                             }}>
+                                            <div>{lang['Activity_Participants']}({participants.length})</div>
                                         </div>
                                     </div>
                                 </div>
@@ -609,7 +611,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                 }
 
                                                 {!participants.length &&
-                                                    <Empty />
+                                                    <Empty/>
                                                 }
                                             </div>
                                         </div>
@@ -628,8 +630,8 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                         <div className={'cover'}>
                             {
                                 event.cover_url ?
-                                    <ImgLazy src={event.cover_url} alt="" width={624} />
-                                    : <EventDefaultCover  event={event} width={324} height={324}/>
+                                    <ImgLazy src={event.cover_url} alt="" width={624}/>
+                                    : <EventDefaultCover event={event} width={324} height={324}/>
                             }
                         </div>
                         <div className={'center'}>
@@ -645,61 +647,54 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                     }
 
                                     <div className={'event-action'}>
-                                            {canceled &&
-                                                <AppButton disabled>{lang['Activity_Detail_Btn_has_Cancel']}</AppButton>
-                                            }
+                                        {canceled &&
+                                            <AppButton disabled>{lang['Activity_Detail_Btn_has_Cancel']}</AppButton>
+                                        }
 
-                                            {!canceled  &&
-                                                <AppButton
-                                                    onClick={e => {
-                                                        addToCalender({
-                                                            name: event!.title,
-                                                            startTime: event!.start_time!,
-                                                            endTime: event!.end_time!,
-                                                            location: eventSite?.title || event!.location || '',
-                                                            details: event!.content,
-                                                            url: window.location.href
-                                                        })
-                                                    }}>
-                                                    <i className="icon-calendar" style={{marginRight: '8px'}}/>
-                                                    {lang['Activity_Detail_Btn_add_Calender']}</AppButton>
-                                            }
+                                        {!canceled &&
+                                            <AppButton
+                                                onClick={e => {
+                                                    addToCalender({
+                                                        name: event!.title,
+                                                        startTime: event!.start_time!,
+                                                        endTime: event!.end_time!,
+                                                        location: eventSite?.title || event!.location || '',
+                                                        details: event!.content,
+                                                        url: window.location.href
+                                                    })
+                                                }}>
+                                                <i className="icon-calendar" style={{marginRight: '8px'}}/>
+                                                {lang['Activity_Detail_Btn_add_Calender']}</AppButton>
+                                        }
 
-                                            {!isJoined && !canceled && (inCheckinTime || notStart) &&
-                                                <AppButton special onClick={e => {
-                                                    handleJoin()
-                                                }}>{lang['Activity_Detail_Btn_Attend']}</AppButton>
-                                            }
+                                        {!isJoined && !canceled && (inCheckinTime || notStart) &&
+                                            <AppButton special onClick={e => {
+                                                handleJoin()
+                                            }}>{lang['Activity_Detail_Btn_Attend']}</AppButton>
+                                        }
 
+                                        {!canceled && isJoined && inProgress && !!event.meeting_url &&
+                                            <AppButton
+                                                onClick={e => {
+                                                    copy(event!.meeting_url!);
+                                                    showToast('Online location has been copied!')
+                                                    // window.open(getUrl(event!.online_location!) || '#', '_blank')
+                                                }}
+                                                special>{lang['Activity_Detail_Btn_AttendOnline']}</AppButton>
+                                        }
+                                    </div>
 
-                                            {(isHoster || isManager) && !canceled &&
-                                                <AppButton
-                                                    onClick={e => {
-                                                        handleHostCheckIn()
-                                                    }}>{
-                                                    event.badge_id
-                                                        ? lang['Activity_Host_Check_And_Send']
-                                                        : lang['Activity_Detail_Btn_Checkin']
-                                                }</AppButton>
-                                            }
-
-                                            {!canceled && isJoined && !isHoster && !isManager && inCheckinTime &&
-                                                <AppButton
-                                                    special
-                                                    onClick={e => {
-                                                        handleUserCheckIn()
-                                                    }}>{lang['Activity_Detail_Btn_Checkin']}</AppButton>
-                                            }
-
-                                            {!canceled && isJoined && inProgress && !!event.meeting_url &&
-                                                <AppButton
-                                                    onClick={e => {
-                                                        copy(event!.meeting_url!);
-                                                        showToast('Online location has been copied!')
-                                                        // window.open(getUrl(event!.online_location!) || '#', '_blank')
-                                                    }}
-                                                    special>{lang['Activity_Detail_Btn_AttendOnline']}</AppButton>
-                                            }
+                                    <div className={'event-action'}>
+                                        {(isHoster || isManager) && !canceled &&
+                                            <AppButton
+                                                onClick={e => {
+                                                    handleHostCheckIn()
+                                                }}>{
+                                                event.badge_id
+                                                    ? lang['Activity_Host_Check_And_Send']
+                                                    : lang['Activity_Detail_Btn_Checkin']
+                                            }</AppButton>
+                                        }
                                     </div>
 
                                     {!canAccess &&
