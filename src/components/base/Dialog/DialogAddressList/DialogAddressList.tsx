@@ -87,7 +87,7 @@ function DialogAddressList<T>(props: AddressListProps<T>) {
     }
 
     const addVale = (item: Group | Profile) => {
-        const value: never = (props.valueType === 'id' ? item.id : item.domain!) as never
+        const value: never = (props.valueType === 'id' ? item.id : item.username!) as never
 
         const index = selected.indexOf(value)
         if (index === -1) {
@@ -172,7 +172,7 @@ function DialogAddressList<T>(props: AddressListProps<T>) {
         const list = [...groupsMember, ...followings, ...followers, ...searchResult]
         selected.map((item) => {
             list.find((i) => {
-                if (i.domain === item) {
+                if (i.username === item) {
                     setRecord(i)
                 }
             })
@@ -212,33 +212,6 @@ function DialogAddressList<T>(props: AddressListProps<T>) {
                            { records.length ?
                                <AddressList selected={ selected } data= { records } onClick={(domain) => { addVale(domain)} } />
                                : <Empty text={'no data'} />
-                           }
-                       </div>
-                   </Tab>
-                   <Tab key='group' title={lang['Follow_detail_groups']}>
-                       <div className='center'>
-                           { !groups.length && <Empty text={'no data'} /> }
-                           { !!groups.length &&
-                               <AppSubTabs
-                                   activeKey={ groupSubTab }
-                                   styleOverrides={ overridesSubTab }
-                                   onChange={({ activeKey }) => {
-                                       getMember(Number(activeKey))
-                                   }
-                                   } >
-                                   {
-                                       groups.map((item, index) => {
-                                           return  (
-                                               <Tab key={ item.id + '' } title={ item.username } >
-                                                   { groupsMember.length
-                                                       ? <AddressList selected={ selected } data= { groupsMember } onClick={(domain) => { addVale(domain)} } />
-                                                       : groupsMemberEmpty ? <Empty text={'no data'} /> : ''
-                                                   }
-                                               </Tab>
-                                           )
-                                       })
-                                   }
-                               </AppSubTabs>
                            }
                        </div>
                    </Tab>

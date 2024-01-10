@@ -14,6 +14,7 @@ import EventHomeContext from "@/components/provider/EventHomeProvider/EventHomeC
 import useGetMeetingName from "@/hooks/getMeetingName";
 import {mapTimezone} from '@/components/base/AppEventTimeInput/AppEventTimeInput'
 import Empty from "@/components/base/Empty";
+import {useConnect} from "wagmi";
 
 function CreateEventSuccess() {
     const router = useRouter()
@@ -25,6 +26,7 @@ function CreateEventSuccess() {
     const {showToast, showLoading} = useContext(DialogsContext)
     const {availableList, setEventGroup} = useContext(EventHomeContext)
     const {getMeetingName} = useGetMeetingName()
+    const {connectors} = useConnect()
 
     const [coverUrl, setCoverUrl] = useState('')
     const [ready, setReady] = useState(false)
@@ -132,12 +134,12 @@ function CreateEventSuccess() {
     }, [event, availableList])
 
     const isMobile = () => {
-        return !!window.navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobile|BlackBerry|IEMobile|MQQBrowser|JUC|Fennec|wOSBrowser|BrowserNG|WebOS|Symbian|Windows Phone)/i);
+        return connectors.length && !!window.navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobile|BlackBerry|IEMobile|MQQBrowser|JUC|Fennec|wOSBrowser|BrowserNG|WebOS|Symbian|Windows Phone)/i);
     }
 
     const downloadCard = () => {
         if (card.current || event) {
-            const height = card.current.offsetHeight
+            const height = card.current.getBoundingClientRect().height
             saveCard(card.current, event?.title || '', [335, height])
         }
     }
