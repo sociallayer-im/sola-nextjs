@@ -157,6 +157,21 @@ function CreateEvent(props: CreateEventPageProps) {
         }
     }
 
+    const handleCancel = () => {
+        openConfirmDialog({
+            title: 'Are you sure to cancel this event?',
+            confirmBtnColor: 'red',
+            confirmLabel: 'Yes',
+            confirmTextColor: '#fff',
+            cancelLabel: 'No',
+            onConfirm: (close: any) => {
+                close()
+                cancel()
+            }
+        })
+
+    }
+
     const cancel = async () => {
         if (!currEvent?.recurring_event_id) {
             await cancelOne()
@@ -1230,7 +1245,7 @@ function CreateEvent(props: CreateEventPageProps) {
                         {
                             isEditMode && <div style={{marginTop: '12px'}}>
                                 <AppButton onClick={e => {
-                                    cancel()
+                                    handleCancel()
                                 }}>{lang['Activity_Detail_Btn_Cancel']}</AppButton>
                             </div>
                         }

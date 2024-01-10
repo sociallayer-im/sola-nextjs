@@ -237,7 +237,7 @@ function CardMarker(props: { item: Marker, participants?: Participants[], isActi
                         : <div className={styles['checkin-btn']} onClick={e => {
                             handleJoin(e)
                         }}>
-                            Apply
+                            RSVP
                         </div>
                     }
                 </>

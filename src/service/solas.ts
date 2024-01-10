@@ -3211,6 +3211,7 @@ export async function getEventSide(groupId?: number): Promise<EventSites[]> {
         geo_lng
         group_id
         id
+        about
         location
         location_viewport
         owner_id

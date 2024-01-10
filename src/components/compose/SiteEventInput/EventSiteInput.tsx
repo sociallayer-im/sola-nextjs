@@ -29,7 +29,6 @@ function EventSiteInput(props: LocationInputProps) {
     const {AutoComplete, Section, MapLibReady, MapReady, MapError} = useContext(MapContext)
 
 
-
     const [searchKeyword, setSearchKeyword] = useState('')
     const [GmapSearchResult, setGmapSearchResult] = useState<GMapSearchResult[]>([])
     const [searching, setSearching] = useState(false)
@@ -182,10 +181,10 @@ function EventSiteInput(props: LocationInputProps) {
                     location: e.target.value
                 })
             }
-        }
+            }
         />
 
-        { MapReady &&
+        {MapReady &&
             <>
                 <div className={'input-area-sub-title'}>{lang['Event_Site_Location_title']([props.index || ''])}</div>
                 <div className={'custom-selector'}>
@@ -241,6 +240,21 @@ function EventSiteInput(props: LocationInputProps) {
                 </div>
             </>
         }
+
+        <div className={'input-area-sub-title'}>
+            <div>{lang['Vote_Create_Des']}</div>
+        </div>
+        <AppInput
+            placeholder={'Enter description'}
+            value={props.initValue.about || newEventSite!.about || ''}
+            onChange={(e) => {
+                setNewEventSite({
+                    ...newEventSite!,
+                    about: e.target.value
+                })
+            }
+            }
+        />
     </div>)
 }
 
