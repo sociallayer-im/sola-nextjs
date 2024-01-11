@@ -480,14 +480,22 @@ function EventCard({
 
     useEffect(() => {
         if (event.host_info) {
-            if (group?.id === Number(event.host_info)) {
-                setGroupHost(group)
-                setReady(true)
-            } else {
-                queryGroupDetail(Number(event.host_info)).then((res: any) => {
-                    setGroupHost(res)
+            if (event.host_info.startsWith('{')) {
+                const hostInfo = JSON.parse(event.host_info!)
+                if (hostInfo.group_host) {
+                    setGroupHost(hostInfo.group_host)
                     setReady(true)
-                })
+                }
+            } else {
+                if (group?.id === Number(event.host_info)) {
+                    setGroupHost(group)
+                    setReady(true)
+                } else {
+                    queryGroupDetail(Number(event.host_info)).then((res: any) => {
+                        setGroupHost(res)
+                        setReady(true)
+                    })
+                }
             }
         } else {
             setReady(true)

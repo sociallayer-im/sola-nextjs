@@ -221,7 +221,7 @@ const langEN = {
     Activity_Form_Starttime: 'When will it happen?',
     Activity_Form_Ending: 'When will it Ending?',
     Activity_Form_Where: 'Where is the event taking place?',
-    Activity_Form_participants: 'What is the maximum number of participants?',
+    Activity_Form_participants: 'Maximum participants',
     Activity_Form_participants_Min: 'Minimum participants',
     Activity_Form_Guest: 'Invite guests to the event (Optional)',
     Activity_Form_Duration: 'Set Duration',

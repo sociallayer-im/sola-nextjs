@@ -26,7 +26,7 @@ import {
     setEventBadge,
     updateEvent,
     uploadImage,
-    queryEvent
+    queryEvent, getProfileBatch, ProfileSimple
 } from '@/service/solas'
 import DialogsContext from '@/components/provider/DialogProvider/DialogsContext'
 import ReasonInput from '@/components/base/ReasonInput/ReasonInput'
@@ -43,6 +43,7 @@ import LocationInput from "@/components/compose/LocationInput/LocationInput";
 import AppFlexTextArea from "@/components/base/AppFlexTextArea/AppFlexTextArea";
 import AppEventTimeInput from "@/components/base/AppEventTimeInput/AppEventTimeInput";
 import {useTime3} from "@/hooks/formatTime";
+import IssuesInput from "@/components/base/IssuesInput/IssuesInput";
 import html2canvas from 'html2canvas'
 import * as dayjsLib from "dayjs";
 const utc = require('dayjs/plugin/utc')
@@ -144,6 +145,11 @@ function CreateEvent(props: CreateEventPageProps) {
     const [repeat, setRepeat] = useState<'day' | 'week' | 'month' | null>(null)
     const [repeatEnd, setRepeatEnd] = useState<string | null>(null)
     const repeatEventSelectorRef = useRef<'one' | 'after' | 'all'>('one')
+
+    const [enableCoHost, setEnableCoHost] = useState(true)
+    const [cohost, setCohost] = useState<string[]>([''])
+    const [enableSpeakers, setEnableSpeakers] = useState(true)
+    const [speakers, setSpeakers] = useState<string[]>([''])
 
     const toNumber = (value: string, set: any) => {
         if (!value) {
@@ -406,6 +412,7 @@ function CreateEvent(props: CreateEventPageProps) {
                 setEnding(event.end_time)
                 setHasDuration(true)
             }
+
             setOnlineUrl(event.meeting_url || '')
 
             setEventSite(event.event_site || null)
@@ -433,8 +440,36 @@ function CreateEvent(props: CreateEventPageProps) {
             setEventType(event.event_type || 'event')
 
             if (event.host_info) {
-                const profile = await queryGroupDetail(Number(event.host_info))
-                setCreator(profile)
+                if (event.host_info.startsWith('{')) {
+                    const info = JSON.parse(event.host_info)
+
+                    if (info.group_host) {
+                        setCreator(info.group_host)
+                    } else {
+                        const profile = await getProfile({id: event.owner_id})
+                        setCreator(profile)
+                    }
+
+                    if (info.speaker.length > 0) {
+                        setEnableSpeakers(true)
+                        setSpeakers(info.speaker.map((p: ProfileSimple) => p.username))
+                    } else {
+                        setEnableSpeakers(false)
+                        setSpeakers([''])
+                    }
+
+                    if (info.co_host.length > 0) {
+                        setEnableCoHost(true)
+                        setCohost(info.co_host.map((p: ProfileSimple) => p.username))
+                    } else {
+                        setEnableCoHost(false)
+                        setCohost([''])
+                    }
+
+                } else {
+                    const profile = await queryGroupDetail(Number(event.host_info))
+                    setCreator(profile)
+                }
             } else {
                 const profile = await getProfile({id: event.owner_id})
                 setCreator(profile)
@@ -584,75 +619,30 @@ function CreateEvent(props: CreateEventPageProps) {
         } as OpenDialogProps)
     }
 
-    const genCover = async (): Promise<string> => {
-        return new Promise<string>((resolve, reject) => {
-            const unload = showLoading()
+    const parseHostInfo = async () => {
+        const usernames = [...cohost, ...speakers]
+        const profiles = await getProfileBatch(usernames)
+        if (!profiles.length ! == usernames.length) {
+            const missing = usernames.filter((u) => !profiles.find((p) => p.username === u))
+            throw new Error(`User "${missing}" not exist`)
+        }
 
-            const img = new Image()
+        const cohostUser = profiles.filter((p) => cohost.some((u) => u === p.username))
+        const speakerUsers = profiles.filter((p) => speakers.some((u) => u === p.username))
 
-            img.src = '/images/default_event_cover.jpg'
+        const hostinfo = {
+            speaker: enableSpeakers ? speakerUsers: [],
+            co_host: enableCoHost ?  cohostUser: [],
+            group_host: creator && !!(creator as Group).creator ? {
+                id: creator.id,
+                creator: true,
+                username: creator.username,
+                nickname: creator.nickname,
+                image_url: creator.image_url,
+            } : undefined,
+        }
 
-            img.onload = () => {
-                const div1 = document.createElement('div')
-                div1.className = 'default-post'
-
-                if (start && ending) {
-                    const div2 = document.createElement('dev')
-                    div2.className = 'time'
-                    const timeInfo = formatTime(start, ending, timezone)
-                    div2.innerHTML = `${timeInfo.data} <br /> ${timeInfo.time}`
-                    div1.appendChild(div2)
-                }
-
-                if (customLocation || eventSite?.title) {
-                    const div3 = document.createElement('div')
-                    div3.className = 'location'
-                    div3.innerHTML = `${customLocation || eventSite?.title!}`
-                    div1.appendChild(div3)
-                }
-
-                if (title) {
-                    const div4 = document.createElement('div')
-                    div4.className = 'title'
-                    div4.innerText = title
-                    div1.appendChild(div4)
-                }
-
-                document.querySelector('.create-event-page')!.appendChild(div1)
-
-                html2canvas(div1, {
-                    useCORS: true, // 【重要】开启跨域配置
-                    scale: 1,
-                    allowTaint: true,
-                    width: 452,
-                    height: 452,
-                    backgroundColor: null
-                }).then((canvas: HTMLCanvasElement) => {
-                    canvas.style.background = 'transparent'
-                    const imgData = canvas.toDataURL('image/jpeg')
-                    div1.remove()
-                    uploadImage({
-                        file: imgData,
-                        auth_token: user.authToken!,
-                        uploader: user.userName!
-                    })
-                        .then((res) => {
-                            unload()
-                            resolve(res)
-                        })
-                        .catch(e => {
-                            unload()
-                            reject(e)
-                        })
-
-                })
-                    .catch(function (e: any) {
-                        unload()
-                        console.error('oops, something went wrong!', e)
-                        reject(e)
-                    })
-            }
-        })
+        return JSON.stringify(hostinfo)
     }
 
     const handleCreate = async () => {
@@ -703,6 +693,17 @@ function CreateEvent(props: CreateEventPageProps) {
             lat = JSON.parse(locationDetail).geometry.location.lat
         }
 
+        setCreating(true)
+        const unloading = showLoading(true)
+
+        const hostInfo = await parseHostInfo()
+            .catch(e => {
+                showToast(e.message)
+                setCreating(false)
+                unloading()
+                return
+            })
+
         const props: CreateRepeatEventProps = {
             title: title.trim(),
             cover_url: cover || null,
@@ -720,7 +721,7 @@ function CreateEvent(props: CreateEventPageProps) {
             auth_token: user.authToken || '',
             location: customLocation || eventSite?.title || '',
             formatted_address: locationDetail ? JSON.parse(locationDetail).formatted_address : (eventSite?.formatted_address || ''),
-            host_info: creator && !!(creator as Group).creator ? creator.id + '' : undefined,
+            host_info: hostInfo ? hostInfo : undefined,
             interval: repeat || undefined,
             repeat_ending_time: repeatEnd || undefined,
             timezone,
@@ -728,8 +729,6 @@ function CreateEvent(props: CreateEventPageProps) {
             geo_lat: lat
         }
 
-        setCreating(true)
-        const unloading = showLoading(true)
         try {
             if (props.interval) {
                 // const newEvents = await createRepeatEvent(props)
@@ -830,7 +829,7 @@ function CreateEvent(props: CreateEventPageProps) {
             meeting_url: onlineUrl || null,
             auth_token: user.authToken || '',
             event_type: eventType,
-            host_info: creator && !!(creator as Group).creator ? creator.id + '' : undefined,
+            host_info: null,
             location: customLocation || eventSite?.title || '',
             formatted_address: locationDetail ? JSON.parse(locationDetail).formatted_address : (eventSite?.formatted_address || ''),
             recurring_event_id: currEvent!.recurring_event_id || undefined,
@@ -900,7 +899,11 @@ function CreateEvent(props: CreateEventPageProps) {
         async function singleSave(redirect = true) {
             const unloading = showLoading(true)
             try {
-                const newEvent = await updateEvent(saveProps)
+                const hostInfo = await parseHostInfo()
+                const newEvent = await updateEvent({
+                    ...saveProps,
+                    host_info: hostInfo
+                })
                 if (saveProps.badge_id) {
                     const setBadge = await setEventBadge({
                         id: saveProps.id!,
@@ -928,8 +931,10 @@ function CreateEvent(props: CreateEventPageProps) {
                 await singleSave(false)
                 const unloading = showLoading(true)
                 try {
+                    const hostInfo = await parseHostInfo()
                     const newEvents = await RepeatEventUpdate({
                         ...saveProps,
+                        host_info: hostInfo,
                         event_id: currEvent!.id,
                         selector: repeatEventSelectorRef.current
                     })
@@ -1083,56 +1088,6 @@ function CreateEvent(props: CreateEventPageProps) {
                             }}/>
                         </div>
 
-                        {eventType === 'event' &&
-                            <div className={'input-area'} data-testid={'input-event-participants'}>
-                                <div className={'toggle'}>
-                                    <div className={'item-title'}>{lang['Activity_Form_participants']}</div>
-                                    <div className={'item-value'}>
-                                        {enableMaxParticipants &&
-                                            <input value={maxParticipants} onChange={
-                                                e => {
-                                                    toNumber(e.target.value!.trim(), setMaxParticipants)
-                                                }
-                                            }/>
-                                        }
-
-                                        {!enableMaxParticipants &&
-                                            <div className={'unlimited'}>Unlimited</div>
-                                        }
-
-                                        <Toggle checked={enableMaxParticipants} onChange={e => {
-                                            setEnableMaxParticipants(!enableMaxParticipants)
-                                        }}/>
-                                    </div>
-                                </div>
-                            </div>
-                        }
-
-                        {eventType === 'event' &&
-                            <div className={'input-area'}>
-                                <div className={'toggle'}>
-                                    <div className={'item-title'}>{lang['Activity_Form_participants_Min']}</div>
-                                    <div className={'item-value'}>
-                                        {enableMinParticipants &&
-                                            <input value={minParticipants} onChange={
-                                                e => {
-                                                    toNumber(e.target.value!.trim(), setMinParticipants)
-                                                }
-                                            }/>
-                                        }
-
-                                        {!enableMinParticipants &&
-                                            <div className={'unlimited'}>Unlimited</div>
-                                        }
-
-                                        <Toggle checked={enableMinParticipants} onChange={e => {
-                                            setEnableMinParticipants(!enableMinParticipants)
-                                        }}/>
-                                    </div>
-                                </div>
-                            </div>
-                        }
-
                         {
                             formReady &&
                             <div className='input-area'>
@@ -1146,6 +1101,51 @@ function CreateEvent(props: CreateEventPageProps) {
                                     }}/>
                             </div>
                         }
+
+
+
+
+                        <div className={'input-area'}>
+                            <div className={'toggle'}>
+                                <div className={'item-title'}>{'Invite a Co-host'}</div>
+                                <div className={'item-value'}>
+                                    <Toggle checked={enableCoHost} onChange={e => {
+                                        setEnableCoHost(!enableCoHost)
+                                    }}/>
+                                </div>
+                            </div>
+
+                            {enableCoHost &&
+                                <IssuesInput
+                                    value={cohost as any}
+                                    placeholder={`Co-host`}
+                                    onChange={(newIssues) => {
+                                        setCohost(newIssues)
+                                    }}/>
+                            }
+                        </div>
+
+                        <div className={'input-area'}>
+                            <div className={'toggle'}>
+                                <div className={'item-title'}>{'Invite a speaker to the event'}</div>
+                                <div className={'item-value'}>
+                                    <Toggle checked={enableSpeakers} onChange={e => {
+                                        setEnableSpeakers(!enableSpeakers)
+                                    }}/>
+                                </div>
+                            </div>
+
+                            {enableSpeakers &&
+                                <IssuesInput
+                                    value={speakers as any}
+                                    placeholder={`speaker`}
+                                    onChange={(newIssues) => {
+                                        setSpeakers(newIssues)
+                                    }}/>
+                            }
+                        </div>
+
+
 
                         {!!eventGroup && (eventGroup as Group).event_tags &&
                             <div className={'input-area'}>
@@ -1181,6 +1181,58 @@ function CreateEvent(props: CreateEventPageProps) {
                                     </div>
                                 }
                             </div>}
+
+                        {eventType === 'event' &&
+                            <div className={'input-area'} data-testid={'input-event-participants'}>
+                                <div className={'toggle'}>
+                                    <div className={'item-title'}>{lang['Activity_Form_participants']}</div>
+                                    <div className={'item-value'}>
+                                        {enableMaxParticipants &&
+                                            <input value={maxParticipants} onChange={
+                                                e => {
+                                                    toNumber(e.target.value!.trim(), setMaxParticipants)
+                                                }
+                                            }/>
+                                        }
+
+                                        {!enableMaxParticipants &&
+                                            <div className={'unlimited'}>Unlimited</div>
+                                        }
+
+                                        <Toggle checked={enableMaxParticipants} onChange={e => {
+                                            setEnableMaxParticipants(!enableMaxParticipants)
+                                        }}/>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+
+                        {eventType === 'event' &&
+                            <div className={'input-area'}>
+                                <div className={'toggle'}>
+                                    <div className={'item-title'}>{lang['Activity_Form_participants_Min']}</div>
+                                    <div className={'item-value'}>
+                                        {enableMinParticipants &&
+                                            <input value={minParticipants} onChange={
+                                                e => {
+                                                    toNumber(e.target.value!.trim(), setMinParticipants)
+                                                }
+                                            }/>
+                                        }
+
+                                        {!enableMinParticipants &&
+                                            <div className={'unlimited'}>Unlimited</div>
+                                        }
+
+                                        <Toggle checked={enableMinParticipants} onChange={e => {
+                                            setEnableMinParticipants(!enableMinParticipants)
+                                        }}/>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
 
 
                         {langType === 'cn' && false &&

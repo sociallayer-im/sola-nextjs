@@ -125,44 +125,38 @@
       border-bottom: 1px solid var(--color-box-border);
       padding: 13px 0;
 
-      .center {
-        display: flex;
+      .slide {
+        display: block;
         flex-flow: row nowrap;
-        align-items: center;
-        overflow: auto;
-
-        &::-webkit-scrollbar {
-          display: none;
-        }
-
-        .host-item {
-          display: flex;
-          flex-flow: row nowrap;
-          align-items: center;
-          white-space: nowrap;
-          margin-right: 30px;
-          cursor: pointer;
-          color: var(--color-text-sub);
-
-
-          img {
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            margin-right: 8px;
-          }
-
-          .host-name {
-            color: var(--color-text-main);
-            font-size: 14px;
-            font-style: normal;
-            font-weight: 600;
-            line-height: 22px;
-          }
-        }
+        width: auto;
+        white-space: nowrap;
       }
 
+      .host-item {
+        display: inline-flex;
+        flex-flow: row nowrap;
+        align-items: center;
+        white-space: nowrap;
+        margin-right: 30px;
+        cursor: pointer;
+        color: var(--color-text-sub);
 
+
+        img {
+          width: 44px;
+          height: 44px;
+          border-radius: 50%;
+          margin-right: 8px;
+        }
+
+        .host-name {
+          color: var(--color-text-main);
+          font-size: 14px;
+          font-style: normal;
+          font-weight: 600;
+          line-height: 22px;
+        }
+      }
     }
 
     .event-badge {
@@ -461,7 +455,7 @@
 
 .event-detail-content-main {
   flex: 1px;
-  max-width: 100%;
+  max-width: 637px;
 
   .event-login-status , .home-login-panel {
     display: none;

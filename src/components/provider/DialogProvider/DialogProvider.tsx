@@ -750,7 +750,7 @@ function DialogProvider (props: DialogProviderProps) {
 
                 const dialogProps = {
                     key: id.toString(),
-                    size: width < 768 ?  ['100%', '100%'] :  [500, 'auto'],
+                    size:['100%', '100%'],
                     handleClose: close
                 }
 

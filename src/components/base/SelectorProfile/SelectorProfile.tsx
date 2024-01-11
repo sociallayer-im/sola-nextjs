@@ -8,20 +8,21 @@ import usePicture from "../../../hooks/pictrue";
 import {Profile, searchDomain, getProfile} from "@/service/solas";
 
 export interface IssuesInputProps {
-    value: string[],
-    onChange: (value: string[]) => any,
+    value: Profile[],
+    onChange: (value: Profile[]) => any,
     placeholder?: string
     allowAddressList?: boolean
     allowSearch?:boolean
 }
 
-function IssuesInput ({allowAddressList=true, allowSearch=true, ...props}: IssuesInputProps) {
+function SelectorProfile ({allowAddressList=true, allowSearch=true, ...props}: IssuesInputProps) {
     const { lang } = useContext(LangContext)
     const { openDialog } = useContext(DialogsContext)
     const { defaultAvatar } = usePicture()
     const timeout = useRef<any>(null)
     const [showSearchRes, setShowSearchRes] = useState<null | number>(null)
     const [searchRes, setSearchRes] = useState<Profile[]>([])
+    const [usernames, setUsernames] = useState<string[]>(props.value.map(i => i.username!))
 
     const onChange = (newValue: string, index: number) => {
         if (!newValue) {
@@ -33,8 +34,10 @@ function IssuesInput ({allowAddressList=true, allowSearch=true, ...props}: Issue
         }
 
 
-        const copyValue = [...props.value]
+        const copyValue = [...usernames]
         copyValue[index] = newValue
+        setUsernames(copyValue)
+
         props.onChange(copyValue)
 
 
@@ -142,9 +145,9 @@ function IssuesInput ({allowAddressList=true, allowSearch=true, ...props}: Issue
                         <div className={'shell'} onClick={e => { hideSearchRes() }}></div>
                         {
                             searchRes.map((item, index2) => {
-                                return <div className={'res-item'} key={index2} onClick={e => { onChange(item.username || '', index); hideSearchRes()}}>
+                                return <div className={'res-item'} key={index2} onClick={e => { onChange(item.domain || '', index); hideSearchRes()}}>
                                     <img src={item.image_url || defaultAvatar(item.id)} alt=""/>
-                                    <div>{ item.username }<span>{item.nickname ? `(${item.nickname})` : ''}</span></div>
+                                    <div>{item.nickname || item.username }({item.domain || item.email || item.address})</div>
                                 </div>
                             })
                         }
@@ -156,11 +159,11 @@ function IssuesInput ({allowAddressList=true, allowSearch=true, ...props}: Issue
 
     return (<div>
         {
-            props.value.map((item, index) => {
+            usernames.map((item, index) => {
                 return InputItem(item, index)
             })
         }
     </div>)
 }
 
-export default IssuesInput
+export default SelectorProfile

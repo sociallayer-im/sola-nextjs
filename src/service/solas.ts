@@ -4023,6 +4023,7 @@ export async function queryMarkers(props: {
             event {
               end_time
               start_time 
+              host_info
               id
               tags
               status
@@ -4535,6 +4536,20 @@ export async function acceptRequest(props: {
         url: `${apiUrl}/group/accept_request`,
         data: props
     })
+}
+
+export async function getProfileBatch (usernames: string[]) {
+    const doc = gql`query MyQuery @cached {
+          profiles(where: {username: {_in:${JSON.stringify(usernames)}}}) {
+            id,
+            username,
+            nickname,
+            image_url
+          }
+        }
+        `
+    const res = await request(graphUrl, doc)
+    return res.profiles as ProfileSimple[]
 }
 
 export default {
