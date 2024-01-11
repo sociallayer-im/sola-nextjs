@@ -525,18 +525,6 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                     }}>{lang['Activity_Detail_Btn_Attend']}</AppButton>
                                                 }
 
-
-                                                {(isHoster || isManager) && !canceled &&
-                                                    <AppButton
-                                                        onClick={e => {
-                                                            handleHostCheckIn()
-                                                        }}>{
-                                                        event.badge_id
-                                                            ? lang['Activity_Host_Check_And_Send']
-                                                            : lang['Activity_Detail_Btn_Checkin']
-                                                    }</AppButton>
-                                                }
-
                                                 {!canceled && isJoined && !isHoster && !isManager && inCheckinTime &&
                                                     <AppButton
                                                         special
@@ -553,6 +541,19 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                             // window.open(getUrl(event!.online_location!) || '#', '_blank')
                                                         }}
                                                         special>{lang['Activity_Detail_Btn_AttendOnline']}</AppButton>
+                                                }
+                                            </div>
+
+                                            <div className={'center'}>
+                                                {(isHoster || isManager) && !canceled &&
+                                                    <AppButton
+                                                        onClick={e => {
+                                                            handleHostCheckIn()
+                                                        }}>{
+                                                        event.badge_id
+                                                            ? lang['Activity_Host_Check_And_Send']
+                                                            : lang['Activity_Detail_Btn_Checkin']
+                                                    }</AppButton>
                                                 }
                                             </div>
                                         </div>

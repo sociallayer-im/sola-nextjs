@@ -146,9 +146,9 @@ function CreateEvent(props: CreateEventPageProps) {
     const [repeatEnd, setRepeatEnd] = useState<string | null>(null)
     const repeatEventSelectorRef = useRef<'one' | 'after' | 'all'>('one')
 
-    const [enableCoHost, setEnableCoHost] = useState(true)
+    const [enableCoHost, setEnableCoHost] = useState(false)
     const [cohost, setCohost] = useState<string[]>([''])
-    const [enableSpeakers, setEnableSpeakers] = useState(true)
+    const [enableSpeakers, setEnableSpeakers] = useState(false)
     const [speakers, setSpeakers] = useState<string[]>([''])
 
     const toNumber = (value: string, set: any) => {
