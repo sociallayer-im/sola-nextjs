@@ -16,6 +16,7 @@ import dynamic from 'next/dynamic'
 import MaodaoUserTab from "@/components/maodao/MaodaoUserTab/MaodaoUserTab";
 import fetch from "@/utils/fetch";
 import alchemy from "@/service/alchemy/alchemy";
+import useSafePush from "@/hooks/useSafePush";
 
 const UserTabs = dynamic(() => import('@/components/compose/ProfileTabs/ProfileTabs'), {
     loading: () => <p>Loading...</p>,
@@ -46,6 +47,7 @@ function Page(props: any) {
         position: string,
         tag: string,
     } | null>(null)
+    const {safePush} = useSafePush()
 
     useEffect(() => {
         if (newProfile && newProfile.id === profile?.id) {
@@ -105,7 +107,7 @@ function Page(props: any) {
 
         // 处理用户登录后但是未注册域名的情况，即有authToken和钱包地址,但是没有domain和username的情况
         if (user.wallet && user.authToken && !user.domain) {
-            router.push('/regist')
+            safePush('/regist')
             return
         }
 
