@@ -4548,7 +4548,7 @@ export async function getProfileBatch (usernames: string[]) {
           }
         }
         `
-    const res = await request(graphUrl, doc)
+    const res: any = await request(graphUrl, doc)
     return res.profiles as ProfileSimple[]
 }
 

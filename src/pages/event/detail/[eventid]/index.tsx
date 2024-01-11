@@ -348,9 +348,9 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                     </div>
                                                 </div>
                                                 {cohost.map((item, index) => {
-                                                    return    <div className={'host-item'} key={item.username + index}
+                                                    return <div className={'host-item'} key={item.username! + index}
                                                                    onClick={e => {
-                                                                       !!item?.username && goToProfile(item.username,)
+                                                                       !!item?.username && goToProfile(item.username)
                                                                    }}>
                                                         <img src={item.image_url || defaultAvatar(item.id)} alt=""/>
                                                         <div>
@@ -363,9 +363,9 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                 }
 
                                                 {speaker.map((item, index) => {
-                                                    return <div className={'host-item'} key={item.username + index}
+                                                    return <div className={'host-item'} key={item.username! + index}
                                                                   onClick={e => {
-                                                                      !!item?.username && goToProfile(item.username,)
+                                                                      !!item?.username && goToProfile(item.username)
                                                                   }}>
                                                         <img src={item.image_url || defaultAvatar(item.id)} alt=""/>
                                                         <div>

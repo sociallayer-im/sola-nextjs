@@ -622,7 +622,7 @@ function CreateEvent(props: CreateEventPageProps) {
     const parseHostInfo = async () => {
         const usernames = [...cohost, ...speakers]
         const profiles = await getProfileBatch(usernames)
-        if (!profiles.length ! == usernames.length) {
+        if (profiles.length !== usernames.length) {
             const missing = usernames.filter((u) => !profiles.find((p) => p.username === u))
             throw new Error(`User "${missing}" not exist`)
         }
