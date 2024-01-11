@@ -620,11 +620,17 @@ function CreateEvent(props: CreateEventPageProps) {
     }
 
     const parseHostInfo = async () => {
-        const usernames = [...cohost, ...speakers]
+        const usernames = [...cohost, ...speakers].filter((u) => !!u)
+        if (!usernames.length) {
+            return null
+        }
+
         const profiles = await getProfileBatch(usernames)
         if (profiles.length !== usernames.length) {
-            const missing = usernames.filter((u) => !profiles.find((p) => p.username === u))
-            throw new Error(`User "${missing}" not exist`)
+            const missing = usernames.find((u) => !profiles.find((p) => p.username === u))
+            if (missing) {
+                throw new Error(`User 「${missing}」 not exist`)
+            }
         }
 
         const cohostUser = profiles.filter((p) => cohost.some((u) => u === p.username))
@@ -701,8 +707,11 @@ function CreateEvent(props: CreateEventPageProps) {
                 showToast(e.message)
                 setCreating(false)
                 unloading()
-                return
             })
+
+        if (!hostInfo) {
+            return
+        }
 
         const props: CreateRepeatEventProps = {
             title: title.trim(),

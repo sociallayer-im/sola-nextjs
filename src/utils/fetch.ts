@@ -19,7 +19,7 @@ async function get (options: FetchOptions) {
     const after = Date.now()
     const duration = after - before
     console.log(`request time: ${duration}, url: ${options.url}, data: ${JSON.stringify(options.data)}`)
-    if (duration > 1000) {
+    if (duration > 3000) {
         console.error(`fetch duration: ${duration}, url: ${options.url}, data: ${JSON.stringify(options.data)}`)
     }
 
@@ -40,7 +40,7 @@ async function post (options: FetchOptions) {
     const after = Date.now()
     const duration = after - before
     console.log(`request time: ${duration}, url: ${options.url}, data: ${JSON.stringify(options.data)}`)
-    if (duration > 1000) {
+    if (duration > 3000) {
         console.error(`fetch duration: ${duration}, url: ${options.url}, data: ${JSON.stringify(options.data)}`)
     }
 

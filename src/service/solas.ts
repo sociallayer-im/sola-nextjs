@@ -3,7 +3,6 @@ import fetch from '../utils/fetch'
 import Alchemy from "@/service/alchemy/alchemy";
 import {gql, request} from 'graphql-request'
 
-// const api = process.env.NEXT_PUBLIC_SOLAS_API!
 const apiUrl = process.env.NEXT_PUBLIC_API!
 const graphUrl = process.env.NEXT_PUBLIC_GRAPH!
 
