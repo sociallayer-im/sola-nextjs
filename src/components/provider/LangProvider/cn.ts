@@ -588,6 +588,10 @@ const langCN: LangConfig = {
   Sign_To_Comment: '请登录后评论',
   Chat: '聊天',
   Request_To_Be_Issuer: '申请成为发行者',
+  Pending: '待审核',
+  Publish: '发布',
+  Reject: '拒绝',
+  Rejected: '已拒绝',
 }
 
 

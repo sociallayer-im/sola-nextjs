@@ -46,6 +46,7 @@ import AppEventTimeInput from "@/components/base/AppEventTimeInput/AppEventTimeI
 import {useTime3} from "@/hooks/formatTime";
 import IssuesInput from "@/components/base/IssuesInput/IssuesInput";
 import * as dayjsLib from "dayjs";
+import fa from "@walletconnect/legacy-modal/dist/cjs/browser/languages/fa";
 
 const utc = require('dayjs/plugin/utc')
 const timezone = require('dayjs/plugin/timezone')
@@ -107,7 +108,7 @@ function CreateEvent(props: CreateEventPageProps) {
     const {showLoading, showToast, openDialog, openConfirmDialog} = useContext(DialogsContext)
     const [creator, setCreator] = useState<Group | Profile | null>(null)
     const {lang, langType} = useContext(LangContext)
-    const {eventGroup, joined} = useContext(EventHomeContext)
+    const {eventGroup, joined, isManager} = useContext(EventHomeContext)
     const formatTime = useTime3()
 
     const [currEvent, setCurrEvent] = useState<Event | null>(null)
@@ -151,6 +152,8 @@ function CreateEvent(props: CreateEventPageProps) {
     const [cohost, setCohost] = useState<string[]>([''])
     const [enableSpeakers, setEnableSpeakers] = useState(false)
     const [speakers, setSpeakers] = useState<string[]>([''])
+
+    const [needPublish, setNeedPublish] = useState(false)
 
     const toNumber = (value: string, set: any) => {
         if (!value) {
@@ -371,12 +374,22 @@ function CreateEvent(props: CreateEventPageProps) {
     }, [telegram])
 
     useEffect(() => {
-        if (eventGroup && (eventGroup as Group).can_publish_event !== 'everyone' && !joined) {
-            router.replace('/event')
+        if (!eventGroup || (eventGroup as Group).can_publish_event === 'everyone') {
+            setNeedPublish(false)
             return
         }
 
-    }, [joined, eventGroup])
+        if ((eventGroup as Group).can_publish_event === 'member' && !joined) {
+            setNeedPublish(true)
+            return
+        }
+
+        if ((eventGroup as Group).can_publish_event === 'manager' && !isManager) {
+            setNeedPublish(true)
+            return
+        }
+
+    }, [joined, isManager, eventGroup])
 
     useEffect(() => {
         if (start && ending) {
@@ -652,42 +665,62 @@ function CreateEvent(props: CreateEventPageProps) {
         return JSON.stringify(hostinfo)
     }
 
-    const handleCreate = async () => {
+    const checkForm = () => {
         if (!user.id) {
             showToast('Please login first')
-            return
+            return false
         }
 
         if (!eventGroup) {
             showToast('请选择一个组织')
-            return
+            return false
         }
 
         if (siteOccupied) {
             showToast(lang['Activity_Detail_site_Occupied'])
-            return
+            return false
         }
 
         if (new Date(start) > new Date(ending)) {
             showToast('start time should be earlier than ending time')
-            return
+            return false
         }
 
 
         if (!title) {
             showToast('please input title')
-            return
+            return false
         }
 
         if (startTimeError) {
             showToast(lang['Activity_Form_Ending_Time_Error'])
-            return
+            return false
         }
 
         if (telegramError) {
             showToast('Invalid telegram Group Url')
-            return
+            return false
         }
+
+        return true
+    }
+
+    const showCreateConfirm = async () => {
+        const check = checkForm()
+        if (!check) return
+
+        openConfirmDialog({
+            title: 'The Event you posted needs to be reviewed by a manager. Would you like to send it?',
+            onConfirm: async (close: any) => {
+                close()
+                handleCreate()
+            }
+        })
+    }
+
+    const handleCreate = async () => {
+        const check = checkForm()
+        if (!check) return
 
         let lng: string | null = null
         let lat: string | null = null
@@ -768,7 +801,12 @@ function CreateEvent(props: CreateEventPageProps) {
                 unloading()
                 showToast('create success')
                 window.localStorage.removeItem('event_draft')
-                router.push(`/event/success/${newEvent.id}`)
+                if (newEvent.status === 'pending') {
+                    router.push(`/event/detail/${newEvent.id}`)
+                } else {
+                    router.push(`/event/success/${newEvent.id}`)
+
+                }
                 setCreating(false)
             }
         } catch (e: any) {
@@ -1294,7 +1332,9 @@ function CreateEvent(props: CreateEventPageProps) {
                                        disabled={creating}
                                        special
                                        onClick={() => {
-                                           handleCreate()
+                                           needPublish
+                                               ? showCreateConfirm()
+                                               : handleCreate()
                                        }}>
                                 {lang['Activity_Btn_Create']}
                             </AppButton>
@@ -1306,6 +1346,7 @@ function CreateEvent(props: CreateEventPageProps) {
                                 }}>{lang['Activity_Detail_Btn_Cancel']}</AppButton>
                             </div>
                         }
+
                     </div>
                 </div>
             </div>

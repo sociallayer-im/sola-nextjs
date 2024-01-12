@@ -1,6 +1,14 @@
 import {useRouter} from "next/navigation";
 import {useContext, useEffect, useState} from 'react'
-import {Event, getGroupMembers, Group, joinEvent, Participants, queryEventDetail} from "@/service/solas";
+import {
+    Event,
+    getGroupMembers,
+    Group,
+    joinEvent,
+    Participants,
+    queryEventDetail,
+    setEventStatus
+} from "@/service/solas";
 import {useTime2} from "@/hooks/formatTime";
 import langContext from "../../../provider/LangProvider/LangContext";
 import userContext from "../../../provider/UserProvider/UserContext";
@@ -9,15 +17,17 @@ import Link from "next/link";
 import ImgLazy from "@/components/base/ImgLazy/ImgLazy";
 import EventDefaultCover from "@/components/base/EventDefaultCover";
 import EventHomeContext from "@/components/provider/EventHomeProvider/EventHomeContext";
-import styles from "@/pages/event/[groupname]/schedule/schedule.module.scss";
 import {getLabelColor} from "@/hooks/labelColor";
 import useCalender from "@/hooks/addToCalender";
+import AppButton from "@/components/base/AppButton/AppButton";
 
 export interface CardEventProps {
     event: Event,
     fixed?: boolean,
     participants?: Participants[]
-    attend?: boolean
+    attend?: boolean,
+    canPublish?: boolean,
+    onRemove?: (event: Event) => void,
 }
 
 const localeTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone
@@ -29,10 +39,10 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
     const {lang} = useContext(langContext)
     const [isCreated, setIsCreated] = useState(false)
     const {user} = useContext(userContext)
-    const {showToast, showLoading} = useContext(DialogsContext)
+    const {showToast, showLoading, openConfirmDialog} = useContext(DialogsContext)
     const [hasRegistered, setHasRegistered] = useState(false)
     const {eventGroups} = useContext(EventHomeContext)
-    const { addToCalender } = useCalender()
+    const {addToCalender} = useCalender()
 
     const now = new Date().getTime()
     const endTime = new Date(eventDetail.end_time!).getTime()
@@ -100,21 +110,77 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
         }
     }
 
-    const gotoDetail = () => {
-        router.push(`/event/detail/${props.event.id}`)
-    }
-
     const hasMarker = isExpired || !!hasRegistered || isCreated
 
     const largeCard = fixed || (hasMarker && !fixed)
 
+    const handleReject = (e: any) => {
+        e.preventDefault()
+        openConfirmDialog({
+            title: 'Are you sure you want to reject this event?',
+            content: `[${props.event.title}]`,
+            confirmLabel: 'Yes',
+            confirmTextColor: '#fff',
+            confirmBtnColor: '#F64F4F',
+            cancelLabel: 'No',
+            onConfirm: async (close: any) => {
+                const unload = showLoading()
+                try {
+                    await setEventStatus({
+                        id: props.event.id,
+                        status: 'rejected',
+                        auth_token: user.authToken || ''
+                    })
+                    unload()
+                    showToast('Reject success')
+                    props.onRemove && props.onRemove(props.event)
+                    close()
+                } catch (e: any) {
+                    unload()
+                    close()
+                    showToast(e.message)
+                }
+            }
+        })
+    }
+
+    const handlePublish = (e: any) => {
+        e.preventDefault()
+        openConfirmDialog({
+            title: 'Are you sure you want to publish this event?',
+            content: `[${props.event.title}]`,
+            confirmLabel: 'Yes',
+            cancelLabel: 'No',
+            onConfirm: async (close: any) => {
+                const unload = showLoading()
+                try {
+                    await setEventStatus({
+                        id: props.event.id,
+                        status: 'open',
+                        auth_token: user.authToken || ''
+                    })
+                    unload()
+                    showToast('Reject success')
+                    props.onRemove && props.onRemove(props.event)
+                    close()
+                } catch (e: any) {
+                    unload()
+                    close()
+                    showToast(e.message)
+                }
+            }
+        })
+    }
+
     return (<Link href={`/event/detail/${props.event.id}`} className={largeCard ? 'event-card large' : 'event-card'}>
         {largeCard &&
             <div className={'markers'}>
-                {isExpired && <div className={'marker expired'}>{lang['Activity_Detail_Expired']}</div>}
+                {props.event.status === 'pending' && <div className={'marker pending'}>{lang['Pending']}</div>}
+                {props.event.status === 'rejected' && <div className={'marker rejected'}>{lang['Rejected']}</div>}
                 {(hasRegistered || props.attend) &&
                     <div className={'marker registered'}>{lang['Activity_State_Registered']}</div>}
                 {isCreated && <div className={'marker created'}>{lang['Activity_Detail_Created']}</div>}
+                {isExpired && <div className={'marker expired'}>{lang['Activity_Detail_Expired']}</div>}
             </div>
         }
 
@@ -127,8 +193,8 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
                             eventDetail.tags?.map((tag, index) => {
                                 return <div key={tag} className={'tag'}>
                                     <i className={'dot'} style={{background: getLabelColor(tag)}}/>
-                                {tag}
-                            </div>
+                                    {tag}
+                                </div>
                             })
                         }
                     </div>
@@ -163,27 +229,39 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
                 </div>
 
 
-                <div className={'event-card-action'}>
-                    {!!user.id && !hasRegistered && !isExpired && !fixed &&
-                        <div className={'card-apply-btn'} onClick={e => {
-                            handleJoin(e)
-                        }}>{lang['Event_Card_Apply_Btn']}</div>
-                    }
+                {props.event.status === 'open' &&
+                    <div className={'event-card-action'}>
+                        {!fixed &&
+                            <AppButton
+                                style={{maxWidth: '60px'}}
+                                onClick={e => {
+                                    e.preventDefault()
+                                    addToCalender({
+                                        name: eventDetail!.title,
+                                        startTime: eventDetail!.start_time!,
+                                        endTime: eventDetail!.end_time!,
+                                        location: eventDetail!.formatted_address || eventDetail!.location || '',
+                                        details: eventDetail!.content,
+                                        url: `${window.location.origin}/event/detail/${eventDetail!.id}`
+                                    })
+                                }}
+                            ><i className={'icon-calendar'}/></AppButton>
+                        }
 
-                    { !fixed &&
-                        <div className={'card-add-calendar-btn'} onClick={e => {
-                            e.preventDefault()
-                            addToCalender({
-                                name: eventDetail!.title,
-                                startTime: eventDetail!.start_time!,
-                                endTime: eventDetail!.end_time!,
-                                location: eventDetail!.formatted_address || eventDetail!.location || '',
-                                details: eventDetail!.content,
-                                url: `${window.location.origin}/event/detail/${eventDetail!.id}`
-                            })
-                        }}><i className={'icon-calendar'} /></div>
-                    }
-                </div>
+                        {!!user.id && !hasRegistered && !isExpired && !fixed &&
+                            <AppButton special onClick={e => {
+                                handleJoin(e)
+                            }}>{lang['Event_Card_Apply_Btn']}</AppButton>
+                        }
+                    </div>
+                }
+
+                {props.event.status === 'pending' && props.canPublish &&
+                    <div className={'event-card-action'}>
+                        <AppButton special onClick={handlePublish}>{lang['Publish']}</AppButton>
+                        <AppButton onClick={handleReject}>{lang['Reject']}</AppButton>
+                    </div>
+                }
             </div>
             <div className={(fixed || hasMarker && !fixed) ? 'post marker' : 'post'}>
                 {

@@ -23,6 +23,8 @@ import EventHomeContext from "@/components/provider/EventHomeProvider/EventHomeC
 import MaodaoListEventVertical from "@/components/maodao/MaodaoListEventVertical/ListEventVertical";
 import useIssueBadge from "@/hooks/useIssueBadge";
 import ListMyEvent from "@/components/compose/ListMyEvent/ListMyEvent";
+import ListPendingEvent from "@/components/compose/ListPendingEvent/ListPendingEvent";
+import fa from "@walletconnect/legacy-modal/dist/cjs/browser/languages/fa";
 
 function Home(props: {badges: Badge[], initEvent?: Group, initList?: Event[], membership?: Membership[] }) {
     const {user} = useContext(UserContext)
@@ -35,9 +37,25 @@ function Home(props: {badges: Badge[], initEvent?: Group, initList?: Event[], me
     const startIssueBadge = useIssueBadge()
 
     const [mode, setMode] = useState<'public' | 'my' | 'request'>('public')
+    const [canPublish, setCanPublish] = useState(false)
 
     useEffect(() => {
-       // todo check show my create
+        if (!user.userName) {
+            setCanPublish(false)
+            return
+        }
+
+        if (props.initEvent){
+            const checkCanPublish = (props.initEvent.can_publish_event === 'member' && joined)
+            || (props.initEvent.can_publish_event === 'manager' && isManager)
+
+            setCanPublish(checkCanPublish)
+        } else {
+            setCanPublish(false)
+        }
+    }, [joined, isManager, user.userName, props.initEvent])
+
+    useEffect(() => {
         if (!user.userName) {
             setMode('public')
         }
@@ -74,8 +92,6 @@ function Home(props: {badges: Badge[], initEvent?: Group, initList?: Event[], me
 
     const isMaodao = process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'maodao'
 
-
-
     return <>
         <div className='home-page-event'>
             {!!user.id &&
@@ -84,7 +100,7 @@ function Home(props: {badges: Badge[], initEvent?: Group, initList?: Event[], me
                         <div className={'mode-selector'}>
                             <div className={`mode ${mode === 'public' ? 'active' : ''}`} onClick={e => {setMode('public')}}>{'Public Events'}</div>
                             <div className={`mode ${mode === 'my' ? 'active' : ''}`} onClick={e => {setMode('my')}}>{'My Events'}</div>
-                            <div className={`mode ${mode === 'request' ? 'active' : ''}`} onClick={e => {setMode('request')}}>{'Publish Request'}</div>
+                            { canPublish && <div className={`mode ${mode === 'request' ? 'active' : ''}`} onClick={e => {setMode('request')}}>{'Publish Request'}</div>}
                         </div>
                     </div>
                 </div>
@@ -96,7 +112,9 @@ function Home(props: {badges: Badge[], initEvent?: Group, initList?: Event[], me
                         <div className={'mode-selector request'}>
                             <div className={`mode ${mode === 'public' ? 'active' : ''}`} onClick={e => {setMode('public')}}>{'Public Events'}</div>
                             <div className={`mode ${mode === 'my' ? 'active' : ''}`} onClick={e => {setMode('my')}}>{'My Events'}</div>
-                            <div className={`mode ${mode === 'request' ? 'active' : ''}`} onClick={e => {setMode('request')}}>{'Publish Request'}</div>
+                            { canPublish &&
+                                <div className={`mode ${mode === 'request' ? 'active' : ''}`} onClick={e => {setMode('request')}}>{'Publish Request'}</div>
+                            }
                         </div>
                     }
 
@@ -111,11 +129,16 @@ function Home(props: {badges: Badge[], initEvent?: Group, initList?: Event[], me
                         <ListMyEvent />
                     </div>
 
+                    { canPublish &&
+                        <div className={`center ${mode === 'request' ? '' : 'hide'}`}>
+                            <ListPendingEvent />
+                        </div>
+                    }
+
                     {
                         !!user.id
                         && eventGroup
                         && ready
-                        && ((joined && (eventGroup as Group).can_publish_event === 'member') || (eventGroup as Group).can_publish_event === 'everyone' || isManager)
                         && <div className={'home-action-bar'}>
                             <div className={'create-event-btn'} onClick={e => {
                                 gotoCreateEvent()
@@ -138,8 +161,7 @@ function Home(props: {badges: Badge[], initEvent?: Group, initList?: Event[], me
                                        return <>
                                            {!!user.id
                                                && eventGroup
-                                               && ready
-                                               && ((joined && (eventGroup as Group).can_publish_event === 'member') || ((eventGroup as Group).can_publish_event === 'everyone' && user.userName) || isManager) &&
+                                               && ready &&
                                                <div className={'home-action-bar'}>
                                                    <div className={'create-event-btn'} onClick={e => {
                                                        gotoCreateEvent()

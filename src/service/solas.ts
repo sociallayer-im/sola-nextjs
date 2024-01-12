@@ -2980,6 +2980,8 @@ export interface QueryEventProps {
     group_id?: number,
     event_order?: 'asc' | 'desc',
     page_size?: number,
+    show_pending_event?: boolean,
+    show_rejected_event?: boolean,
 }
 
 
@@ -3021,11 +3023,145 @@ export async function queryEvent(props: QueryEventProps): Promise<Event[]> {
         order = `order_by: {start_time: ${props.event_order}}, `
     }
 
+    let status = `"open", "new", "normal"`
+    if (props.show_pending_event) {
+        status = status + ', "pending"'
+    }
+
+    if(props.show_rejected_event) {
+        status = status + ', "rejected"'
+    }
+
     variables = variables.replace(/,$/, '')
 
 
     const doc = gql`query MyQuery {
-      events (where: {${variables}, status: {_in: ["open", "new", "normal"]}} ${order} limit: ${page_size}, offset: ${(props.page - 1) * page_size}) {
+      events (where: {${variables}, status: {_in: [${status}]}} ${order} limit: ${page_size}, offset: ${(props.page - 1) * page_size}) {
+        badge_id
+        geo_lat
+        geo_lng
+        category
+        content
+        cover_url
+        created_at
+        display
+        end_time
+        event_site_id
+        event_site {
+            id
+            title
+            location
+            about
+            group_id
+            owner_id
+            created_at
+            formatted_address
+            geo_lat
+            geo_lng
+        }
+        event_type
+        formatted_address
+        location
+        owner_id
+        owner {
+            id
+            username
+            nickname
+            image_url
+        }
+        title
+        timezone
+        status
+        tags
+        start_time
+        require_approval
+        participants_count
+        max_participant
+        meeting_url
+        group_id
+        host_info
+        id
+        location_viewport
+        min_participant
+        recurring_event {
+          id
+        }
+        recurring_event_id
+        participants(where: {status: {_neq: "cancel"}}) {
+          id
+          profile_id
+          profile {
+            id
+            username
+            nickname
+            image_url
+          }
+          role
+          status
+          voucher_id
+          check_time
+          created_at
+          message
+          event {
+            id
+          }
+        }
+      }
+    }`
+
+    const resp: any = await request(graphUrl, doc)
+    return resp.events.map((item: any) => {
+        return {
+            ...item,
+            end_time: item.end_time && !item.end_time.endsWith('Z') ? item.end_time + 'Z' : item.end_time,
+            start_time: item.end_time && !item.start_time.endsWith('Z') ? item.start_time + 'Z' : item.start_time,
+        }
+    }) as Event[]
+}
+
+export async function queryPendingEvent(props: QueryEventProps): Promise<Event[]> {
+    const page_size = props.page_size || 10
+    let variables = ''
+
+    if (props.id) {
+        variables += `id: {_eq: ${props.id}},`
+    }
+
+    if (props.owner_id) {
+        variables += `owner_id: {_eq: ${props.owner_id}},`
+    }
+
+    if (props.tag) {
+        variables += `tags: {_contains:["${props.tag}"]}, `
+    }
+
+    if (props.event_site_id) {
+        variables += `event_site_id: {_eq: ${props.event_site_id}}, `
+    }
+
+    if (props.start_time_from && props.start_time_to) {
+        variables += `start_time: {_gte: "${props.start_time_from}"}, _and: {start_time: {_lte: "${props.start_time_to}"}}, `
+    } else if (props.start_time_from) {
+        variables += `start_time: {_gte: "${props.start_time_from}"}, `
+    } else if (props.start_time_to) {
+        variables += `start_time: {_lte: "${props.start_time_to}"}, `
+    }
+
+    if (props.group_id) {
+        variables += `group_id: {_eq: ${props.group_id}}, `
+    }
+
+    let order = `order_by: {id: desc}, `
+
+    if (props.event_order) {
+        order = `order_by: {start_time: ${props.event_order}}, `
+    }
+
+    variables = variables.replace(/,$/, '')
+
+
+    const doc = gql`query MyQuery {
+      events (where: {${variables} status: {_eq: "pending"}}, ${order} limit: ${page_size}, offset: ${(props.page - 1) * page_size}) {
         badge_id
         geo_lat
         geo_lng
@@ -3138,7 +3274,7 @@ export interface QueryEventDetailProps {
 }
 
 export async function queryEventDetail(props: QueryEventDetailProps) {
-    const res = await queryEvent({id: props.id, page: 1})
+    const res = await queryEvent({id: props.id, page: 1, show_pending_event: true})
 
     return res[0] as Event || null
 }
@@ -4564,7 +4700,7 @@ export async function acceptRequest(props: {
     })
 }
 
-export async function getProfileBatch (usernames: string[]) {
+export async function getProfileBatch(usernames: string[]) {
     const doc = gql`query MyQuery @cached {
           profiles(where: {username: {_in:${JSON.stringify(usernames)}}}) {
             id,
@@ -4576,6 +4712,21 @@ export async function getProfileBatch (usernames: string[]) {
         `
     const res: any = await request(graphUrl, doc)
     return res.profiles as ProfileSimple[]
+}
+
+export async function setEventStatus(props: {
+    auth_token: string,
+    id: number,
+    status: string
+}) {
+    checkAuth(props)
+
+    const res = await fetch.post({
+        url: `${apiUrl}/event/set_status`,
+        data: props
+    })
+
+    return res.data.event as Event
 }
 
 export default {

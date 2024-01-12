@@ -158,7 +158,6 @@
   .module-tabs {
     .tab-titles {
       margin-bottom: 20px;
-      transition: top 0.3s;
       top: 10px;
 
       .center {
@@ -170,7 +169,6 @@
         }
 
         > div {
-          transition: font-size 0.1s;
         }
       }
 

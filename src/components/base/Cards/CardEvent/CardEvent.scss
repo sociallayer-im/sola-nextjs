@@ -11,16 +11,24 @@
 
   .event-card-action {
     display: flex;
+    padding-bottom: 8px;
+    flex-grow: 0;
+    flex-shrink: 0;
+
+    > button {
+      display: inline-flex;
+    }
+
+    > button:nth-child(2) {
+      margin-left: 12px;
 
     >div {
       white-space: nowrap;
       flex: 1;
     }
-  }
+  }}
 
-  &.large {
-    max-height: 198px;
-  }
+
 
   .info {
     margin-top: 18px;
@@ -58,6 +66,16 @@
         background: var(--secondary-color-brand-41-light, #e7f4ff);
         color: var(--secondary-color-brand-43-normal, #5992ff);
       }
+
+      &.pending {
+        background: #FFF7E8;
+        color: #E7C54E;
+      }
+
+      &.rejected {
+        background: #ffe9ef;
+        color: #7a0829;
+      }
     }
   }
 
@@ -93,7 +111,7 @@
   .left {
     min-width: 180px;
     margin-left: 18px;
-    width: 60%;
+    width: 58%;
 
     .details {
       min-height: 113px;

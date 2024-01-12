@@ -24,7 +24,7 @@ function ListMyEvent() {
         try {
             if (tab2IndexRef.current !== 'attended') {
                 pageRef.current = pageRef.current + 1
-                const res = await queryEvent({owner_id: user.id!, page: pageRef.current})
+                const res = await queryEvent({owner_id: user.id!, page: pageRef.current, show_pending_event: true, show_rejected_event: true})
                 setList(init ? res : [...list, ...res])
                 if (res.length < 10) {
                     setIsLoadAll(true)

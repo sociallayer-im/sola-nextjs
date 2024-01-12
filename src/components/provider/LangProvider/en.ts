@@ -591,7 +591,11 @@ const langEN = {
     Comment: 'Comment',
     Sign_To_Comment: 'Sign in to chat',
     Chat: 'Chat',
-    Request_To_Be_Issuer: 'Request to be issuer'
+    Request_To_Be_Issuer: 'Request to be issuer',
+    Pending: 'Pending',
+    Publish: 'Publish',
+    Reject: 'Reject',
+    Rejected: 'Rejected',
 }
 
 
