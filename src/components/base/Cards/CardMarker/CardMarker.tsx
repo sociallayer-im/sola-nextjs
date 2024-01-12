@@ -1,7 +1,6 @@
 import styles from './CardMarker.module.scss'
 import {
     getFollowings,
-    getProfile,
     joinEvent,
     Marker,
     Participants,
@@ -76,16 +75,22 @@ function CardMarker(props: { item: Marker, participants?: Participants[], isActi
 
     useEffect(() => {
         if (props.item.event?.host_info) {
-
-            queryGroupDetail(Number(props.item.event?.host_info)).then(res => {
-                if (res) {
-                    setGroupHost(res)
+            if (props.item.event?.host_info.startsWith('{')) {
+                const hostInfo = JSON.parse(props.item.event?.host_info!)
+                if (hostInfo.group_host) {
+                    setGroupHost(hostInfo.group_host)
                 }
-            })
+            } else {
+                queryGroupDetail(Number(props.item.event?.host_info)).then(res => {
+                    if (res) {
+                        setGroupHost(res)
+                    }
+                })
+            }
         }
     }, [props.item.event?.host_info])
 
-   function CardWrapper (wrapperProps: { children: any}) {
+    function CardWrapper(wrapperProps: { children: any }) {
         const href = props.item.marker_type === 'event'
             ? `/event/detail/${props.item.event_id}`
             : `/event/detail-marker/${props.item.id}`
@@ -108,12 +113,12 @@ function CardMarker(props: { item: Marker, participants?: Participants[], isActi
     return (<CardWrapper>
         <div className={styles['left']}>
             <div className={styles['title']}>{props.item.title}</div>
-            { !!props.item.event && !!props.item.event.tags && props.item.event.tags.length > 0 &&
+            {!!props.item.event && !!props.item.event.tags && props.item.event.tags.length > 0 &&
                 <div className={styles['tags']}>
                     {
                         props.item.event.tags.map((item, index) => {
                             return <div key={index} className={styles['tag']}>
-                                <i className={styles['dot']} style={{background: getLabelColor(item)}} />
+                                <i className={styles['dot']} style={{background: getLabelColor(item)}}/>
                                 {item}
                             </div>
                         })
@@ -122,7 +127,7 @@ function CardMarker(props: { item: Marker, participants?: Participants[], isActi
             }
             <div className={styles['des']}>{props.item.about}</div>
             {groupHost &&
-                <div className={styles['creator']}>by <img
+                <div className={styles['creator']}>by<img
                     alt=""
                     className={styles['avatar']}
                     src={groupHost.image_url || defaultAvatar(groupHost.id)} height={16} width={16}/>
@@ -130,11 +135,11 @@ function CardMarker(props: { item: Marker, participants?: Participants[], isActi
                 </div>
             }
             {!props.item.event?.host_info &&
-                <div className={styles['creator']}>by <img
+                <div className={styles['creator']}>by<img
                     alt=""
                     className={styles['avatar']}
                     src={props.item.owner.image_url || defaultAvatar(props.item.owner.id)} height={16} width={16}/>
-                    {props.item.owner.nickname || props.item.owner.username }
+                    {props.item.owner.nickname || props.item.owner.username}
                 </div>
             }
 
@@ -161,18 +166,22 @@ function CardMarker(props: { item: Marker, participants?: Participants[], isActi
                         <span>{` ${props.item.map_checkins_count} people checked in`}</span>
                     </div>
                 }
-                { !!props.item.event?.participants && props.item.event?.participants?.length > 0 &&
+                {!!props.item.event?.participants && props.item.event?.participants?.length > 0 &&
                     <div className={styles['detail']}>
                         {props.item.event?.participants?.[0] &&
-                            <img src={props.item.event?.participants?.[0].profile.image_url || defaultAvatar(props.item.event?.participants?.[0].profile.id)} alt=""/>
+                            <img
+                                src={props.item.event?.participants?.[0].profile.image_url || defaultAvatar(props.item.event?.participants?.[0].profile.id)}
+                                alt=""/>
                         }
                         {props.item.event?.participants?.[1] &&
-                            <img src={props.item.event?.participants?.[1].profile.image_url || defaultAvatar(props.item.event?.participants?.[1].profile.id)} alt=""/>
+                            <img
+                                src={props.item.event?.participants?.[1].profile.image_url || defaultAvatar(props.item.event?.participants?.[1].profile.id)}
+                                alt=""/>
                         }
                         {
                             props.item.event?.participants?.length > 2 ?
-                            <span>{`and ${props.item.event?.participants?.length - 2} people applied`}</span>
-                            : <span>{`applied`}</span>
+                                <span>{`and ${props.item.event?.participants?.length - 2} people applied`}</span>
+                                : <span>{`applied`}</span>
                         }
                     </div>
                 }

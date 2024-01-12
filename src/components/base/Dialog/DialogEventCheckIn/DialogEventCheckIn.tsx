@@ -94,11 +94,9 @@ function DialogEventCheckIn(props: DialogNftCheckInProps) {
             <ScanQrcode enable={canScan} onResult={(res) => {
                 handleScanResult(res)
             }}/>
-            {isMobile &&
-                <div className={'btns'}>
-                    <div role={"button"} onClick={props.handleClose}><Delete size={30}/></div>
-                </div>
-            }
+            <div className={'btns'}>
+                <div role={"button"} onClick={props.handleClose}><Delete size={30}/></div>
+            </div>
         </div>
     </div>
 }

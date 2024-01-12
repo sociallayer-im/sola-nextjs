@@ -7,6 +7,7 @@ import {
     joinEvent,
     Participants,
     Profile,
+    ProfileSimple,
     punchIn,
     queryBadgeDetail,
     queryEventDetail,
@@ -34,6 +35,8 @@ import Link from "next/link";
 import MapContext from "@/components/provider/MapProvider/MapContext";
 import ImgLazy from "@/components/base/ImgLazy/ImgLazy";
 import EventDefaultCover from "@/components/base/EventDefaultCover";
+import {Swiper, SwiperSlide} from 'swiper/react'
+import {Mousewheel, FreeMode} from "swiper";
 
 import * as dayjsLib from "dayjs";
 import Empty from "@/components/base/Empty";
@@ -76,6 +79,9 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
     const [canAccess, setCanAccess] = useState(false)
     const [eventSite, setEventSite] = useState<any | null>(null)
     const [showMap, setShowMap] = useState(false)
+
+    const [cohost, setCohost] = useState<ProfileSimple[]>([])
+    const [speaker, setSpeaker] = useState<ProfileSimple[]>([])
 
     async function fetchData() {
         if (params?.eventid) {
@@ -136,14 +142,24 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
 
             let profile: Profile | Group | null = null
             if (res.host_info) {
-                const isDomain = res.host_info && res.host_info.indexOf('.') > -1
-
-                if (!isDomain) {
+                if (!res.host_info.startsWith('{')) {
                     profile = await queryGroupDetail(Number(res.host_info))
-                }
-
-                if (profile) {
-                    setHoster(profile)
+                    if (profile) {
+                        setHoster(profile)
+                    }
+                } else {
+                    const info = JSON.parse(res.host_info)
+                    if (info.speaker) {
+                        setSpeaker(info.speaker)
+                    }
+                    if (info.co_host) {
+                        setCohost(info.co_host)
+                    }
+                    if (info.group_host) {
+                        setHoster(info.group_host)
+                    } else {
+                        setHoster(res.owner as Profile)
+                    }
                 }
             } else {
                 setHoster(res.owner as Profile)
@@ -312,19 +328,59 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
 
                                 {!!hoster &&
                                     <div className={'hoster'}>
-                                        <div className={'center'}>
-                                            <div className={'host-item'}
-                                                 onClick={e => {
-                                                     !!hoster?.username && goToProfile(hoster.username, !!(hoster as Group).creator || undefined)
-                                                 }}>
-                                                <img src={hoster.image_url || defaultAvatar(hoster.id)} alt=""/>
-                                                <div>
-                                                    <div
-                                                        className={'host-name'}>{hoster.nickname || hoster.username}</div>
-                                                    <div>{lang['Activity_Form_Hoster']}</div>
+                                        <Swiper
+                                            direction={'horizontal'}
+                                            slidesPerView={'auto'}
+                                            freeMode={true}
+                                            mousewheel={true}
+                                            modules={[FreeMode, Mousewheel]}
+                                            spaceBetween={12}>
+                                            <SwiperSlide className={'slide'}>
+                                                <div className={'host-item'}
+                                                     onClick={e => {
+                                                         !!hoster?.username && goToProfile(hoster.username, !!(hoster as Group).creator || undefined)
+                                                     }}>
+                                                    <img src={hoster.image_url || defaultAvatar(hoster.id)} alt=""/>
+                                                    <div>
+                                                        <div
+                                                            className={'host-name'}>{hoster.nickname || hoster.username}</div>
+                                                        <div>{lang['Activity_Form_Hoster']}</div>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        </div>
+                                                {cohost.map((item, index) => {
+                                                    return <div className={'host-item'} key={item.username! + index}
+                                                                   onClick={e => {
+                                                                       !!item?.username && goToProfile(item.username)
+                                                                   }}>
+                                                        <img src={item.image_url || defaultAvatar(item.id)} alt=""/>
+                                                        <div>
+                                                            <div
+                                                                className={'host-name'}>{item.nickname || item.username}</div>
+                                                            <div>{'Co-host'}</div>
+                                                        </div>
+                                                    </div>
+                                                })
+                                                }
+
+                                                {speaker.map((item, index) => {
+                                                    return <div className={'host-item'} key={item.username! + index}
+                                                                  onClick={e => {
+                                                                      !!item?.username && goToProfile(item.username)
+                                                                  }}>
+                                                        <img src={item.image_url || defaultAvatar(item.id)} alt=""/>
+                                                        <div>
+                                                            <div
+                                                                className={'host-name'}>{item.nickname || item.username}</div>
+                                                            <div>{'Speaker'}</div>
+                                                        </div>
+                                                    </div>
+                                                })}
+                                            </SwiperSlide>
+
+
+
+
+                                        </Swiper>
                                     </div>
                                 }
 
@@ -469,18 +525,6 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                     }}>{lang['Activity_Detail_Btn_Attend']}</AppButton>
                                                 }
 
-
-                                                {(isHoster || isManager) && !canceled &&
-                                                    <AppButton
-                                                        onClick={e => {
-                                                            handleHostCheckIn()
-                                                        }}>{
-                                                        event.badge_id
-                                                            ? lang['Activity_Host_Check_And_Send']
-                                                            : lang['Activity_Detail_Btn_Checkin']
-                                                    }</AppButton>
-                                                }
-
                                                 {!canceled && isJoined && !isHoster && !isManager && inCheckinTime &&
                                                     <AppButton
                                                         special
@@ -497,6 +541,19 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                             // window.open(getUrl(event!.online_location!) || '#', '_blank')
                                                         }}
                                                         special>{lang['Activity_Detail_Btn_AttendOnline']}</AppButton>
+                                                }
+                                            </div>
+
+                                            <div className={'center'}>
+                                                {(isHoster || isManager) && !canceled &&
+                                                    <AppButton
+                                                        onClick={e => {
+                                                            handleHostCheckIn()
+                                                        }}>{
+                                                        event.badge_id
+                                                            ? lang['Activity_Host_Check_And_Send']
+                                                            : lang['Activity_Detail_Btn_Checkin']
+                                                    }</AppButton>
                                                 }
                                             </div>
                                         </div>
@@ -523,7 +580,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                     </div>
                                 }
                             </div>
-                            
+
                             <div className={'event-tab'}>
                                 <div className={'tab-titles'}>
                                     <div className={'center'}>

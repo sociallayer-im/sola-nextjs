@@ -142,9 +142,9 @@ function IssuesInput ({allowAddressList=true, allowSearch=true, ...props}: Issue
                         <div className={'shell'} onClick={e => { hideSearchRes() }}></div>
                         {
                             searchRes.map((item, index2) => {
-                                return <div className={'res-item'} key={index2} onClick={e => { onChange(item.domain || '', index); hideSearchRes()}}>
+                                return <div className={'res-item'} key={index2} onClick={e => { onChange(item.username || '', index); hideSearchRes()}}>
                                     <img src={item.image_url || defaultAvatar(item.id)} alt=""/>
-                                    <div>{item.nickname || item.username }({item.domain || item.email || item.address})</div>
+                                    <div>{ item.username }<span>{item.nickname ? `(${item.nickname})` : ''}</span></div>
                                 </div>
                             })
                         }

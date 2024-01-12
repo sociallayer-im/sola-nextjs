@@ -3,7 +3,6 @@ import fetch from '../utils/fetch'
 import Alchemy from "@/service/alchemy/alchemy";
 import {gql, request} from 'graphql-request'
 
-// const api = process.env.NEXT_PUBLIC_SOLAS_API!
 const apiUrl = process.env.NEXT_PUBLIC_API!
 const graphUrl = process.env.NEXT_PUBLIC_GRAPH!
 
@@ -4023,6 +4022,7 @@ export async function queryMarkers(props: {
             event {
               end_time
               start_time 
+              host_info
               id
               tags
               status
@@ -4536,6 +4536,20 @@ export async function acceptRequest(props: {
         url: `${apiUrl}/group/accept_request`,
         data: props
     })
+}
+
+export async function getProfileBatch (usernames: string[]) {
+    const doc = gql`query MyQuery @cached {
+          profiles(where: {username: {_in:${JSON.stringify(usernames)}}}) {
+            id,
+            username,
+            nickname,
+            image_url
+          }
+        }
+        `
+    const res: any = await request(graphUrl, doc)
+    return res.profiles as ProfileSimple[]
 }
 
 export default {
