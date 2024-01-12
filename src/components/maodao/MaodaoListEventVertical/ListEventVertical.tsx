@@ -11,7 +11,7 @@ import MaodaoSelectGroup from "@/components/maodao/MaodaoSelectGroup/MaodaoSelec
 import {useRouter} from "next/navigation";
 
 
-function ListEventVertical(props: { participants: Participants[] }) {
+function ListEventVertical() {
     const searchParams = useSearchParams()
     const [tab2Index, setTab2Index] = useState<'latest' | 'soon' | 'past'>(searchParams?.get('tab') as any || 'soon')
     const {lang} = useContext(LangContext)
@@ -129,7 +129,7 @@ function ListEventVertical(props: { participants: Participants[] }) {
                     <div className={'list'}>
                         {
                             list.map((item, index) => {
-                                return <CardEvent participants={props.participants || []} fixed={false} key={item.id}
+                                return <CardEvent fixed={false} key={item.id}
                                                   event={item}/>
                             })
                         }

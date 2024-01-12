@@ -1958,7 +1958,7 @@ export async function queryInvites(props: {
     return res.group_invites as Invite[]
 }
 
-export interface UpdateGroupProps extends Partial<Profile> {
+export interface UpdateGroupProps extends Partial<Group> {
     id: number,
     auth_token: string
 }
@@ -3146,14 +3146,15 @@ export async function queryEventDetail(props: QueryEventDetailProps) {
 export interface QueryMyEventProps {
     page?: number,
     profile_id?: number,
+    page_size?: number,
 }
 
-export async function queryMyEvent({page = 1, ...props}: QueryMyEventProps): Promise<Participants[]> {
+export async function queryMyEvent({page = 1, page_size = 10, ...props}: QueryMyEventProps): Promise<Participants[]> {
     const doc = gql`query MyQuery {
      participants(
        where: {profile_id: {_eq: ${props.profile_id}}, status: {_neq: "cancel"}}
-       limit: 20
-       offset: ${page * 20 - 20}
+       limit: ${page_size}
+       offset: ${page * page_size - page_size}
        order_by: {id: desc}
        ) {
         id
@@ -3162,6 +3163,13 @@ export async function queryMyEvent({page = 1, ...props}: QueryMyEventProps): Pro
         message
         check_time
         created_at
+        profile_id
+        profile {
+          id
+          image_url
+          nickname
+          username
+        }
         role
          event {
           cover_url
@@ -3174,6 +3182,25 @@ export async function queryMyEvent({page = 1, ...props}: QueryMyEventProps): Pro
           owner_id
           start_time
           status
+          participants(where: {status: {_neq: "cancel"}}) {
+          id
+          profile_id
+          profile {
+            id
+            username
+            nickname
+            image_url
+          }
+          role
+          status
+          voucher_id
+          check_time
+          created_at
+          message
+          event {
+            id
+          }
+        }
         }
       }
     }`

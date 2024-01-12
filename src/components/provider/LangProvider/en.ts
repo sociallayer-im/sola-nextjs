@@ -463,6 +463,7 @@ const langEN = {
     Setting_Location: 'Default location',
     Setting_Banner_Link: 'Link (Optional)',
     Setting_Permission: 'Permission to create and apply',
+    Permission: 'Permission',
     Event_Today: 'Today',
     Event_Tomorrow: 'Tomorrow',
     Event_Label_All: 'All',

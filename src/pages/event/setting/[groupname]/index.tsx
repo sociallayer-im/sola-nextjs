@@ -13,6 +13,7 @@ import UploadImage from "@/components/compose/UploadImage/UploadImage";
 import AppInput from "@/components/base/AppInput";
 import LocationInput from "@/components/compose/LocationInput/LocationInput";
 import EventTagInput from "@/components/compose/EventTagInput/EventTagInput";
+import AppRadio from "@/components/base/AppRadio/AppRadio";
 
 function Dashboard() {
     const {eventGroup, availableList, findGroup, setEventGroup, reload} = useContext(EventHomeContext)
@@ -30,8 +31,9 @@ function Dashboard() {
     const [bannerUrl, setBannerUrl] = useState('')
     const [showSetBanner, setShowSetBanner] = useState(false)
 
-    const [permission, setPermission] = useState<null | 'public' | 'protected' | 'private'>(null)
-    const [showPermission, setShowPermission] = useState(false)
+    const [permissionCanJoin, setPermissionCanJoin] = useState<'everyone' | 'member'>('everyone')
+    const [permissionCanCreate, setPermissionCanCreate] = useState<'everyone' | 'member' | 'manager'>('everyone')
+    const [showPermission, setShowPermission] = useState(true)
 
     const [defaultLocation, setDefaultLocation] = useState<string | null>(null)
     const [showDefaultLocation, setShowDefaultLocation] = useState(false)
@@ -71,7 +73,8 @@ function Dashboard() {
             getEventSideBar(eventGroup.id)
             setBanner(eventGroup.banner_image_url || '')
             setBannerUrl(eventGroup.banner_link_url || '')
-            setPermission(eventGroup.group_event_visibility || null)
+            setPermissionCanJoin((eventGroup as Group)!.can_join_event as any || 'everyone')
+            setPermissionCanCreate((eventGroup as Group)!.can_publish_event as any || 'everyone')
             setDefaultLocation(eventGroup.group_location_details || null)
             setReady(true)
         }
@@ -165,6 +168,20 @@ function Dashboard() {
         await reload()
         unload()
         showToast('Update banner success')
+    }
+
+    const setPermission = async function () {
+        const unload = showLoading()
+        const update = await updateGroup({
+            ...eventGroup,
+            auth_token: user.authToken || '',
+            id: eventGroup?.id || 1516,
+            can_publish_event: permissionCanCreate ,
+            can_join_event: permissionCanJoin,
+        })
+        await reload()
+        unload()
+        showToast('Update permission success')
     }
 
     const setLocation = async function () {
@@ -264,7 +281,7 @@ function Dashboard() {
                     }
 
 
-                    { false &&
+                    {
                         <div className={'setting-form-item'} onClick={e => {
                             setShowPermission(true)
                         }}>
@@ -405,16 +422,33 @@ function Dashboard() {
                 <div className={'dashboard-dialog dashboard-event-site-list'}>
                     <div className={'center'}>
                         <div className={'dashboard-dialog-head'}>
-                            <PageBack title={lang['Setting_Permission']} onClose={() => {
+                            <PageBack title={lang['Permission']} onClose={() => {
                                 setShowPermission(false)
                                 switchOverflow(false)
                             }}/>
                         </div>
                         <div className={'dialog-inner'}>
+                            <div className={'permission-title'}>Create</div>
+                            <div className={'permission-item'} onClick={e => {setPermissionCanCreate('everyone')}}>
+                                <AppRadio checked={permissionCanCreate === 'everyone'} /> Everyone
+                            </div>
+                            <div className={'permission-item'} onClick={e => {setPermissionCanCreate('member')}}>
+                                <AppRadio checked={permissionCanCreate === 'member'} /> Member, Manager, Owner
+                            </div>
+                            <div className={'permission-item'} onClick={e => {setPermissionCanCreate('manager')}}>
+                                <AppRadio checked={permissionCanCreate === 'manager'} /> Manager, Owner
+                            </div>
 
+                            <div className={'permission-title'}>Apply</div>
+                            <div className={'permission-item'} onClick={e => {setPermissionCanJoin('everyone')}}>
+                                <AppRadio checked={permissionCanJoin === 'everyone'} /> Everyone
+                            </div>
+                            <div className={'permission-item'} onClick={e => {setPermissionCanJoin('member')}}>
+                                <AppRadio checked={permissionCanJoin === 'member'} /> Member
+                            </div>
                         </div>
                         <div className={'action-bar'}>
-                            <AppButton special onClick={setBannerImage}>Save</AppButton>
+                            <AppButton special onClick={setPermission}>Save</AppButton>
                         </div>
                     </div>
                 </div>

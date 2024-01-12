@@ -10,7 +10,7 @@ import EventHomeContext from "../../provider/EventHomeProvider/EventHomeContext"
 import AppButton from "@/components/base/AppButton/AppButton";
 import Link from "next/link";
 
-function ListEventVertical(props: { participants: Participants[], initData?: Event[] }) {
+function ListEventVertical(props: {initData?: Event[] }) {
     const router = useRouter()
     const searchParams = useSearchParams()
     const params = useParams()
@@ -158,7 +158,7 @@ function ListEventVertical(props: { participants: Participants[], initData?: Eve
                     <div className={'list'}>
                         {
                             listToShow.map((item, index) => {
-                                return <CardEvent participants={props.participants || []} fixed={false} key={item.id}
+                                return <CardEvent fixed={false} key={item.id}
                                                   event={item}/>
                             })
                         }

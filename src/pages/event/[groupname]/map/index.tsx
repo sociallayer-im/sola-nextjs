@@ -305,7 +305,7 @@ function ComponentName(props: { markerType: string | null }) {
 
     useEffect(() => {
         if (user.id) {
-            queryMyEvent({profile_id: user.id || 0, page: 1}).then(res => {
+            queryMyEvent({profile_id: user.id || 0, page: 1, page_size: 100}).then(res => {
                 setParticipants(res)
             })
             queryCheckInList({profile_id: user.id || 0}).then(res => {

@@ -17,14 +17,12 @@ import {
     queryMyEvent,
     Badge
 } from "@/service/solas";
-import ListMyAttentedEvent from "@/components/compose/ListMyAttentedEvent/ListMyAttentedEvent";
-import ListMyCreatedEvent from "@/components/compose/ListMyCreatedEvent/ListMyCreatedEvent";
 import ListEventVertical from "@/components/compose/ListEventVertical/ListEventVertical";
-import ListRecommendedEvent from "@/components/compose/ListRecommendedEvent/ListRecommendedEvent";
 import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
 import EventHomeContext from "@/components/provider/EventHomeProvider/EventHomeContext";
 import MaodaoListEventVertical from "@/components/maodao/MaodaoListEventVertical/ListEventVertical";
 import useIssueBadge from "@/hooks/useIssueBadge";
+import ListMyEvent from "@/components/compose/ListMyEvent/ListMyEvent";
 
 function Home(props: {badges: Badge[], initEvent?: Group, initList?: Event[], membership?: Membership[] }) {
     const {user} = useContext(UserContext)
@@ -36,44 +34,14 @@ function Home(props: {badges: Badge[], initEvent?: Group, initList?: Event[], me
     const eventGroup = useContext(EventHomeContext).eventGroup || props.initEvent || undefined
     const startIssueBadge = useIssueBadge()
 
-    const [tabIndex, setTabIndex] = useState('0')
-    const [showMyCreate, setShowMyCreate] = useState(true)
-    const [showMyAttend, setShowMyAttend] = useState(true)
-    const [myRegistered, setMyRegistered] = useState<Participants[]>([])
+    const [mode, setMode] = useState<'public' | 'my' | 'request'>('public')
 
     useEffect(() => {
-        const myEvent = async () => {
-            if (user.authToken) {
-                const res = await queryMyEvent({profile_id: user.id!})
-                const myRegistered = res.map((item: Participants) => item.event)
-                const res2 = await queryEvent({owner_id: user.id!, page: 1})
-                setMyRegistered(res)
-                setShowMyAttend(myRegistered.length > 0)
-                setShowMyCreate(res2.length > 0)
-                if (myRegistered.length > 0) {
-                    setTabIndex('0')
-                } else {
-                    setTabIndex('1')
-                }
-            } else {
-                setShowMyAttend(false)
-                setShowMyCreate(false)
-            }
+       // todo check show my create
+        if (!user.userName) {
+            setMode('public')
         }
-        myEvent()
-    }, [user.authToken])
-
-    useEffect(() => {
-        if (!showMyCreate) {
-            setTabIndex('0')
-        }
-    }, [showMyCreate])
-
-    useEffect(() => {
-        if (!showMyAttend) {
-            setTabIndex('1')
-        }
-    }, [showMyAttend])
+    }, [user.userName])
 
     useEffect(() => {
         if (props.initEvent) {
@@ -106,50 +74,41 @@ function Home(props: {badges: Badge[], initEvent?: Group, initList?: Event[], me
 
     const isMaodao = process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'maodao'
 
+
+
     return <>
         <div className='home-page-event'>
+            {!!user.id &&
+                <div className={'home-page-event-top'}>
+                    <div className={'center'}>
+                        <div className={'mode-selector'}>
+                            <div className={`mode ${mode === 'public' ? 'active' : ''}`} onClick={e => {setMode('public')}}>{'Public Events'}</div>
+                            <div className={`mode ${mode === 'my' ? 'active' : ''}`} onClick={e => {setMode('my')}}>{'My Events'}</div>
+                            <div className={`mode ${mode === 'request' ? 'active' : ''}`} onClick={e => {setMode('request')}}>{'Publish Request'}</div>
+                        </div>
+                    </div>
+                </div>
+            }
             <div className={'home-page-event-wrapper'}>
-                <div className={'home-page-event-main'}>
+                <div className={`home-page-event-main`}>
                     <HomeUserPanel membership={props.membership || []}/>
                     {!!user.id &&
-                        <>
-                            {(showMyAttend || showMyCreate) &&
-                                <>
-                                    <div className={'center'}>
-                                        <div className={'module-title'} style={{marginBottom: '20px'}}>
-                                            {lang['Activity_My_Event']}
-                                        </div>
-                                    </div>
-                                    <div className={'center'}>
-                                        <AppSubTabs activeKey={tabIndex} renderAll onChange={({activeKey}) => {
-                                            setTabIndex(activeKey + '')
-                                        }}>
-                                            {showMyAttend ? <Tab title={lang['Activity_State_Registered']}>
-                                                <ListMyAttentedEvent/>
-                                            </Tab> : <></>}
-
-                                            {showMyCreate && !isMaodao ?
-                                                <Tab title={lang['Activity_State_Created']}>
-                                                    <ListMyCreatedEvent participants={myRegistered}/>
-                                                </Tab> : <></>
-                                            }
-                                        </AppSubTabs>
-                                    </div>
-                                </>
-                            }
-                        </>
-                    }
-                    {!!user.id &&
-                        <div className={'center'}>
-                            <ListRecommendedEvent/>
+                        <div className={'mode-selector request'}>
+                            <div className={`mode ${mode === 'public' ? 'active' : ''}`} onClick={e => {setMode('public')}}>{'Public Events'}</div>
+                            <div className={`mode ${mode === 'my' ? 'active' : ''}`} onClick={e => {setMode('my')}}>{'My Events'}</div>
+                            <div className={`mode ${mode === 'request' ? 'active' : ''}`} onClick={e => {setMode('request')}}>{'Publish Request'}</div>
                         </div>
                     }
 
-                    <div className={'center'}>
+                    <div className={`center ${mode === 'public' ? '' : 'hide'}`}>
                         {!isMaodao || pathname?.includes('event-home') ?
-                            <ListEventVertical participants={myRegistered} initData={props.initList || []}/>
-                            : <MaodaoListEventVertical participants={myRegistered}/>
+                            <ListEventVertical initData={props.initList || []}/>
+                            : <MaodaoListEventVertical />
                         }
+                    </div>
+
+                    <div className={`center ${mode === 'my' ? '' : 'hide'}`}>
+                        <ListMyEvent />
                     </div>
 
                     {
