@@ -1,8 +1,8 @@
 import {Event} from '@/service/solas'
-import {useTime3} from "@/hooks/formatTime";
+import {useTime4} from "@/hooks/formatTime";
 
 export default function EventDefaultCover({event, height, width}: { event: Event, width: number, height: number }) {
-    const formatTime = useTime3()
+    const formatTime = useTime4
 
     const timeInfo = event.start_time && event.end_time ? formatTime(event.start_time!, event.end_time!, event.timezone!): undefined
 

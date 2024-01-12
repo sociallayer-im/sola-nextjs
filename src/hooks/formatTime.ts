@@ -142,4 +142,45 @@ export function useTime3() {
     }
 }
 
+export function useTime4 (from: string, to: string, timezone: string = 'UTC') {
+    const fromStr = from.endsWith('Z') ? from : from + 'Z'
+    const toStr = to.endsWith('Z') ? to : to + 'Z'
+
+    const fromDate = dayjs.tz(new Date(fromStr).getTime(), timezone)
+    const toDate = dayjs.tz(new Date(toStr).getTime(), timezone)
+
+    const now = dayjs.tz(new Date().getTime(), timezone)
+    const isToday = fromDate.date() === now.date() && fromDate.month() === now.month() && fromDate.year() === now.year()
+    const isTomorrow = fromDate.date() - now.date() === 1 && fromDate.month() === now.month() && fromDate.year() === now.year()
+
+    const week = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT']
+    const month = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL',
+        'AUG', 'SEP', 'OCT', 'NOV', 'DEC']
+
+    const f_mon = month[fromDate.month()].toUpperCase()
+    const f_date = fromDate.date() + ''
+    const f_hour = fromDate.hour() + ''
+    const f_min = fromDate.minute() + ''
+    const f_year = fromDate.year() + ''
+    const f_day = week[fromDate.day()]
+
+    const t_hour = toDate.hour() + ''
+    const t_min = toDate.minute() + ''
+
+    const utcOffset = fromDate.utcOffset() >= 0 ?
+        '+' + fromDate.utcOffset() / 60 :
+        fromDate.utcOffset() / 60
+
+    const todayOrTomorrow = isToday ?
+        'Today' + ' ' :
+        isTomorrow ?
+            'Tomorrow' + ' ':
+            ''
+
+    return {
+        data: `${todayOrTomorrow}${f_day}, ${f_mon} ${f_date.padStart(2, '0')}, ${f_year}`,
+        time: `${f_hour.padStart(2, '0')}:${f_min.padStart(2, '0')} — ${t_hour.padStart(2, '0')}:${t_min.padStart(2, '0')}  GMT${utcOffset}`
+    }
+}
+
 export default useTime
