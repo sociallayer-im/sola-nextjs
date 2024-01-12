@@ -16,17 +16,18 @@ import {
     Event,
     EventSites,
     getProfile,
+    getProfileBatch,
     Group,
     Profile,
+    ProfileSimple,
     queryBadge,
     queryBadgeDetail,
+    queryEvent,
     queryEventDetail,
     queryGroupDetail,
     RepeatEventUpdate,
     setEventBadge,
-    updateEvent,
-    uploadImage,
-    queryEvent, getProfileBatch, ProfileSimple
+    updateEvent
 } from '@/service/solas'
 import DialogsContext from '@/components/provider/DialogProvider/DialogsContext'
 import ReasonInput from '@/components/base/ReasonInput/ReasonInput'
@@ -44,8 +45,8 @@ import AppFlexTextArea from "@/components/base/AppFlexTextArea/AppFlexTextArea";
 import AppEventTimeInput from "@/components/base/AppEventTimeInput/AppEventTimeInput";
 import {useTime3} from "@/hooks/formatTime";
 import IssuesInput from "@/components/base/IssuesInput/IssuesInput";
-import html2canvas from 'html2canvas'
 import * as dayjsLib from "dayjs";
+
 const utc = require('dayjs/plugin/utc')
 const timezone = require('dayjs/plugin/timezone')
 const dayjs: any = dayjsLib
@@ -566,8 +567,8 @@ function CreateEvent(props: CreateEventPageProps) {
                     const eventIsAllDay = dayjs.tz(eventStartTime, timezone).hour() === 0 && (eventEndTime - eventStartTime + 60000) % 8640000 === 0
                     const selectedIsAllDay = dayjs.tz(selectedStartTime, timezone).hour() === 0 && (selectedEndTime - selectedStartTime + 60000) % 8640000 === 0
                     const res = ((selectedStartTime < eventStartTime && selectedEndTime > eventStartTime) ||
-                        (selectedStartTime >= eventStartTime && selectedEndTime <= eventEndTime) ||
-                        (selectedStartTime < eventEndTime && selectedEndTime > eventEndTime))  &&
+                            (selectedStartTime >= eventStartTime && selectedEndTime <= eventEndTime) ||
+                            (selectedStartTime < eventEndTime && selectedEndTime > eventEndTime)) &&
                         (!eventIsAllDay && !selectedIsAllDay)
 
 
@@ -637,8 +638,8 @@ function CreateEvent(props: CreateEventPageProps) {
         const speakerUsers = profiles.filter((p) => speakers.some((u) => u === p.username))
 
         const hostinfo = {
-            speaker: enableSpeakers ? speakerUsers: [],
-            co_host: enableCoHost ?  cohostUser: [],
+            speaker: enableSpeakers ? speakerUsers : [],
+            co_host: enableCoHost ? cohostUser : [],
             group_host: creator && !!(creator as Group).creator ? {
                 id: creator.id,
                 creator: true,
@@ -702,14 +703,13 @@ function CreateEvent(props: CreateEventPageProps) {
         setCreating(true)
         const unloading = showLoading(true)
 
-        const hostInfo = await parseHostInfo()
-            .catch(e => {
-                showToast(e.message)
-                setCreating(false)
-                unloading()
-            })
-
-        if (!hostInfo) {
+        let host_info: string | null = ''
+        try {
+            host_info = await parseHostInfo()
+        } catch (e) {
+            showToast(e.message)
+            setCreating(false)
+            unloading()
             return
         }
 
@@ -730,7 +730,7 @@ function CreateEvent(props: CreateEventPageProps) {
             auth_token: user.authToken || '',
             location: customLocation || eventSite?.title || '',
             formatted_address: locationDetail ? JSON.parse(locationDetail).formatted_address : (eventSite?.formatted_address || ''),
-            host_info: hostInfo ? hostInfo : undefined,
+            host_info: host_info,
             interval: repeat || undefined,
             repeat_ending_time: repeatEnd || undefined,
             timezone,
@@ -1112,8 +1112,6 @@ function CreateEvent(props: CreateEventPageProps) {
                         }
 
 
-
-
                         <div className={'input-area'}>
                             <div className={'toggle'}>
                                 <div className={'item-title'}>{'Invite a Co-host'}</div>
@@ -1153,7 +1151,6 @@ function CreateEvent(props: CreateEventPageProps) {
                                     }}/>
                             }
                         </div>
-
 
 
                         {!!eventGroup && (eventGroup as Group).event_tags &&
@@ -1241,7 +1238,6 @@ function CreateEvent(props: CreateEventPageProps) {
                                 </div>
                             </div>
                         }
-
 
 
                         {langType === 'cn' && false &&
