@@ -741,7 +741,7 @@ function CreateEvent(props: CreateEventPageProps) {
         let host_info: string | null = ''
         try {
             host_info = await parseHostInfo()
-        } catch (e) {
+        } catch (e: any) {
             showToast(e.message)
             setCreating(false)
             unloading()

@@ -4374,10 +4374,11 @@ export async function zupassLogin(props: {
     zupass_product_id: string,
     email: string,
     next_token: string
+    host?: string,
 }) {
     const res = await fetch.post({
         url: `${apiUrl}/profile/signin_with_zupass`,
-        data: {...props, app: window.location.host, address_source: 'zupass'}
+        data: {...props, app: props.host, address_source: 'zupass'}
     })
 
     if (res.data.result === 'error') {

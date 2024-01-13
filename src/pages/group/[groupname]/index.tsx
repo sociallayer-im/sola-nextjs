@@ -23,6 +23,7 @@ import dynamic from 'next/dynamic'
 import {Swiper, SwiperSlide} from 'swiper/react'
 import {Mousewheel} from "swiper";
 import DialogRequestTobeIssuer from "@/components/base/Dialog/DialogRequestTobeIssuer/DialogRequestTobeIssuer";
+import useSafePush from "@/hooks/useSafePush";
 
 
 const ListUserPresend = dynamic(() => import('@/components/compose/ListUserPresend'), {
@@ -61,6 +62,7 @@ function GroupPage(props: any) {
     const startIssue = useIssueBadge()
     const {copyWithDialog} = useCopy()
     const router = useRouter()
+    const {safePush} = useSafePush()
 
     const loadedTabRrf = useRef<Set<string>>(new Set())
 
@@ -151,7 +153,7 @@ function GroupPage(props: any) {
 
         // 处理用户登录后但是未注册域名的情况，即有authToken和钱包地址,但是没有domain和username的情况
         if (!user.userName) {
-            router.push('/regist')
+            safePush('/regist')
             return
         }
 

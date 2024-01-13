@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation'
 import useEvent, {EVENT} from '../../../hooks/globalEvent'
 import {setAuth} from "@/utils/authStorage";
 import useShowRole from "@/components/zugame/RoleDialog/RoleDialog";
+import useSafePush from "@/hooks/useSafePush";
 
 
 import solaExtensionLogin from '../../../service/ExtensionLogin'
@@ -60,6 +61,7 @@ function UserProvider (props: UserProviderProps) {
     const router = useRouter()
     const [newProfile, _] = useEvent(EVENT.profileUpdate)
     const showRoleDialog = useShowRole()
+    const {safePush} = useSafePush()
 
     const setUser = (data: Partial<Record<keyof User, any>>) => {
         const copyUserInfo = { ...userInfo , ...data }
@@ -93,7 +95,7 @@ function UserProvider (props: UserProviderProps) {
                 }
                 clean()
                 setTimeout(() => {
-                    router.push('/regist')
+                    safePush('/regist')
                 },100)
                 return
             }

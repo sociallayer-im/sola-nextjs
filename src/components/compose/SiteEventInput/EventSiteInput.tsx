@@ -246,7 +246,7 @@ function EventSiteInput(props: LocationInputProps) {
         </div>
         <AppInput
             placeholder={'Enter description'}
-            value={props.initValue.about || newEventSite!.about || ''}
+            value={newEventSite!.about || ''}
             onChange={(e) => {
                 setNewEventSite({
                     ...newEventSite!,
