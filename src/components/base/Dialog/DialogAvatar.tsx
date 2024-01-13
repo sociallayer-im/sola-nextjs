@@ -116,7 +116,7 @@ function DialogAvatar(props: DialogAvatarProps) {
                                 newProfile = await solas.updateGroup({
                                     ...props.profile,
                                     auth_token: user.authToken || ''
-                                })
+                                } as any)
                                 emitGroupUpdate(newProfile)
                             } else {
                                 await solas.setAvatar({

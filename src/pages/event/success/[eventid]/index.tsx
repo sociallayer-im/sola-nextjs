@@ -4,7 +4,7 @@ import Link from 'next/link'
 import {useContext, useEffect, useRef, useState} from 'react'
 import {Event, queryEventDetail} from "@/service/solas";
 import LangContext from "@/components/provider/LangProvider/LangContext";
-import {formatTimeWithTimezone, useTime3, formatTime} from "@/hooks/formatTime";
+import {formatTimeWithTimezone, useTime4, formatTime} from "@/hooks/formatTime";
 import QRcode from "@/components/base/QRcode";
 import AppButton from "@/components/base/AppButton/AppButton";
 import saveCard from "@/utils/html2png";
@@ -21,7 +21,7 @@ function CreateEventSuccess() {
     const [event, setEvent] = useState<Event | null>(null)
     const params = useParams()
     const {lang} = useContext(LangContext)
-    const formatTime3 = useTime3()
+    const formatTime3 = useTime4
     const card = useRef<any>()
     const {showToast, showLoading} = useContext(DialogsContext)
     const {availableList, setEventGroup} = useContext(EventHomeContext)
