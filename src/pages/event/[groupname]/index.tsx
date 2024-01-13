@@ -24,7 +24,6 @@ import MaodaoListEventVertical from "@/components/maodao/MaodaoListEventVertical
 import useIssueBadge from "@/hooks/useIssueBadge";
 import ListMyEvent from "@/components/compose/ListMyEvent/ListMyEvent";
 import ListPendingEvent from "@/components/compose/ListPendingEvent/ListPendingEvent";
-import fa from "@walletconnect/legacy-modal/dist/cjs/browser/languages/fa";
 
 function Home(props: {badges: Badge[], initEvent?: Group, initList?: Event[], membership?: Membership[] }) {
     const {user} = useContext(UserContext)
@@ -38,6 +37,7 @@ function Home(props: {badges: Badge[], initEvent?: Group, initList?: Event[], me
 
     const [mode, setMode] = useState<'public' | 'my' | 'request'>('public')
     const [canPublish, setCanPublish] = useState(false)
+    const [pendingEvent, setPendingEvent] = useState<Event[]>([])
 
     useEffect(() => {
         if (!user.userName) {
@@ -100,7 +100,12 @@ function Home(props: {badges: Badge[], initEvent?: Group, initList?: Event[], me
                         <div className={'mode-selector'}>
                             <div className={`mode ${mode === 'public' ? 'active' : ''}`} onClick={e => {setMode('public')}}>{'Public Events'}</div>
                             <div className={`mode ${mode === 'my' ? 'active' : ''}`} onClick={e => {setMode('my')}}>{'My Events'}</div>
-                            { canPublish && <div className={`mode ${mode === 'request' ? 'active' : ''}`} onClick={e => {setMode('request')}}>{'Publish Request'}</div>}
+                            { canPublish && <div className={`mode ${mode === 'request' ? 'active' : ''}`} onClick={e => {setMode('request')}}>
+                                {'Publish Request'}
+                                { pendingEvent.length > 0 &&
+                                    <i className={'dot'} />
+                                }
+                            </div>}
                         </div>
                     </div>
                 </div>
@@ -113,7 +118,12 @@ function Home(props: {badges: Badge[], initEvent?: Group, initList?: Event[], me
                             <div className={`mode ${mode === 'public' ? 'active' : ''}`} onClick={e => {setMode('public')}}>{'Public Events'}</div>
                             <div className={`mode ${mode === 'my' ? 'active' : ''}`} onClick={e => {setMode('my')}}>{'My Events'}</div>
                             { canPublish &&
-                                <div className={`mode ${mode === 'request' ? 'active' : ''}`} onClick={e => {setMode('request')}}>{'Publish Request'}</div>
+                                <div className={`mode ${mode === 'request' ? 'active' : ''}`} onClick={e => {setMode('request')}}>
+                                    {'Publish Request'}
+                                    { pendingEvent.length > 0 &&
+                                        <i className={'dot'} />
+                                    }
+                                </div>
                             }
                         </div>
                     }
@@ -131,7 +141,9 @@ function Home(props: {badges: Badge[], initEvent?: Group, initList?: Event[], me
 
                     { canPublish &&
                         <div className={`center ${mode === 'request' ? '' : 'hide'}`}>
-                            <ListPendingEvent />
+                            <ListPendingEvent onload={(pendingEvent) => {
+                                setPendingEvent(pendingEvent)
+                            }}/>
                         </div>
                     }
 

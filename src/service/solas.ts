@@ -239,7 +239,7 @@ export interface ProfileSimple {
     username: string | null,
 }
 
-export async function queryProfileByGraph(props: { type: keyof GetProfileProps, address: string | number }) {
+export async function queryProfileByGraph(props: { type: keyof GetProfileProps, address: string | number, skip_maodao?: boolean }) {
     const condition = `where: {${props.type}: {_eq: ${props.type === 'id' ? props.address : `"${props.address}"`}}}`
 
     const doc = gql`query MyQuery {
@@ -274,7 +274,7 @@ export async function queryProfileByGraph(props: { type: keyof GetProfileProps, 
     }
 
     const isMaodao = process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'maodao'
-    if (isMaodao && resp.profiles[0].address) {
+    if (isMaodao && resp.profiles[0].address && !props.skip_maodao) {
         const profile = await getMaodaoProfile(resp.profiles[0])
         return {
             ...profile,
@@ -317,7 +317,7 @@ export async function getProfile(props: GetProfileProps): Promise<Profile | null
     if (type === 'email') {
         profile = await queryProfileByEmail(props.email!)
     } else {
-        profile = await queryProfileByGraph({type, address})
+        profile = await queryProfileByGraph({type, address, skip_maodao: true})
     }
 
     if (process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'maodao' && profile?.address) {

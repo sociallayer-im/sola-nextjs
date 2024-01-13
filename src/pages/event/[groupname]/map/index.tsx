@@ -8,7 +8,7 @@ import {
     Marker,
     MarkerCheckinDetail,
     markersCheckinList,
-    Participants, queryCheckInList,
+    Participants, queryCheckInList, queryEvent,
     queryMarkers,
     queryMyEvent
 } from "@/service/solas";
@@ -62,15 +62,41 @@ function ComponentName(props: { markerType: string | null }) {
             setSelectedType('event')
             return
         } else if (type === 'event') {
-            res = await queryMarkers({
-                marker_type: 'event',
-                group_id: eventGroup?.id || undefined,
-                with_checkins: user.authToken ? true : undefined,
-                auth_token: user.authToken ? user.authToken : undefined,
+            // res = await queryMarkers({
+            //     marker_type: 'event',
+            //     group_id: eventGroup?.id || undefined,
+            //     with_checkins: user.authToken ? true : undefined,
+            //     auth_token: user.authToken ? user.authToken : undefined,
+            //     start_time_from: todayZero,
+            //     sort_by: 'start_time',
+            //     sort: 'asc'
+            // })
+            res = (await queryEvent({
+                page: 1,
                 start_time_from: todayZero,
-                sort_by: 'start_time',
-                sort: 'asc'
-            })
+                event_order: 'asc',
+                page_size: 50,
+                group_id: eventGroup?.id || undefined,
+            })).map(event => {
+                return {
+                    event: event,
+                    event_id: event.id,
+                    id: event.id,
+                    group_id: event.group_id,
+                    owner_id: event.owner_id,
+                    owner: event.owner,
+                    group: eventGroup,
+                    pin_image_url: null,
+                    cover_image_url: event.cover_url,
+                    title: event.title,
+                    category: 'event',
+                    about: event.content,
+                    message: event.content,
+                    status: event.status,
+                    marker_type: 'event',
+                    ...event
+                } as Marker
+            }).filter(marker => !!marker.geo_lat)
         } else if (type === 'Zugame') {
             res = await queryMarkers({
                 group_id: eventGroup?.id || undefined,

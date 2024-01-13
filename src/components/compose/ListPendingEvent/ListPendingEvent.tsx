@@ -7,7 +7,7 @@ import AppButton from "@/components/base/AppButton/AppButton";
 import userContext from "@/components/provider/UserProvider/UserContext";
 import EventHomeContext from "@/components/provider/EventHomeProvider/EventHomeContext";
 
-function ListPendingEvent() {
+function ListPendingEvent(props: { onload?: (pendingEvent: Event[]) => any}) {
     const {lang} = useContext(LangContext)
     const {user} = useContext(userContext)
     const {eventGroup} = useContext(EventHomeContext)
@@ -45,6 +45,10 @@ function ListPendingEvent() {
             pageRef.current = 0
         }
     }, [eventGroup])
+
+    useEffect(() => {
+        props.onload && props.onload(list)
+    }, [list])
 
     return (
         <div className={'module-tabs'}>

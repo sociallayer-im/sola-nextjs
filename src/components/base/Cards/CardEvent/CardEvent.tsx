@@ -20,6 +20,7 @@ import EventHomeContext from "@/components/provider/EventHomeProvider/EventHomeC
 import {getLabelColor} from "@/hooks/labelColor";
 import useCalender from "@/hooks/addToCalender";
 import AppButton from "@/components/base/AppButton/AppButton";
+import useEvent, {EVENT} from "@/hooks/globalEvent";
 
 export interface CardEventProps {
     event: Event,
@@ -43,6 +44,7 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
     const [hasRegistered, setHasRegistered] = useState(false)
     const {eventGroups} = useContext(EventHomeContext)
     const {addToCalender} = useCalender()
+    const [_, emit] = useEvent(EVENT.setEventStatus)
 
     const now = new Date().getTime()
     const endTime = new Date(eventDetail.end_time!).getTime()
@@ -160,7 +162,8 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
                         auth_token: user.authToken || ''
                     })
                     unload()
-                    showToast('Reject success')
+                    showToast('Publish success')
+                    emit(props.event)
                     props.onRemove && props.onRemove(props.event)
                     close()
                 } catch (e: any) {

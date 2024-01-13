@@ -9,6 +9,7 @@ import DialogsContext from "../../provider/DialogProvider/DialogsContext";
 import EventHomeContext from "../../provider/EventHomeProvider/EventHomeContext";
 import AppButton from "@/components/base/AppButton/AppButton";
 import Link from "next/link";
+import useEvent, {EVENT} from "@/hooks/globalEvent";
 
 function ListEventVertical(props: {initData?: Event[] }) {
     const router = useRouter()
@@ -19,6 +20,7 @@ function ListEventVertical(props: {initData?: Event[] }) {
     const {lang} = useContext(LangContext)
     const {showLoading} = useContext(DialogsContext)
     const {eventGroup, availableList, setEventGroup} = useContext(EventHomeContext)
+    const [needUpdate, _] = useEvent(EVENT.setEventStatus)
 
     const [selectTag, setSelectTag] = useState<string[]>([])
     const [loadAll, setIsLoadAll] = useState(false)
@@ -39,7 +41,7 @@ function ListEventVertical(props: {initData?: Event[] }) {
         setLoading(true)
         try {
             if (tab2IndexRef.current !== 'past') {
-                pageRef.current = pageRef.current + 1
+                pageRef.current = init ? 1 : pageRef.current + 1
                 let res = await queryEvent({
                     page: pageRef.current,
                     start_time_from: new Date().toISOString(),
@@ -54,7 +56,7 @@ function ListEventVertical(props: {initData?: Event[] }) {
                    setIsLoadAll(true)
                 }
             } else {
-                pageRef.current = pageRef.current + 1
+                pageRef.current = init ? 1 : pageRef.current + 1
                 let res = await queryEvent({
                     page: pageRef.current,
                     start_time_to: new Date().toISOString(),
@@ -80,6 +82,10 @@ function ListEventVertical(props: {initData?: Event[] }) {
     useEffect(() => {
         setListToShow(list)
     }, [list])
+
+    useEffect(() => {
+        getEvent(true)
+    }, [needUpdate])
 
     const changeTab = (tab: 'latest' | 'coming' | 'past') => {
         setTab2Index(tab)

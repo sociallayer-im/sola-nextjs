@@ -99,6 +99,8 @@ function EventHomeProvider(props: { children: any }) {
             })
 
             setJoined(!!joined)
+        } else {
+            setJoined(false)
         }
     }, [userGroup.length, selectedEventGroup])
 

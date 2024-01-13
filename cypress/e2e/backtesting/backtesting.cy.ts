@@ -11,7 +11,7 @@ describe('Back testing', () => {
      * @bug编号: #1
      */
     it('#1', () => {
-        cy.visit('/event/setting/playground2')
+        cy.visit('/event/setting/seedaobeta')
 
         cy.contains('Event site').click()
 
@@ -42,7 +42,7 @@ describe('Back testing', () => {
 
                 cy.contains('success')
 
-                cy.visit('/event/setting/playground2')
+                cy.visit('/event/setting/seedaobeta')
 
                 cy.contains('Event site').click()
 

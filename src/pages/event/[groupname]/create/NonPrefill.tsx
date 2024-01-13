@@ -389,7 +389,9 @@ function CreateEvent(props: CreateEventPageProps) {
             return
         }
 
-    }, [joined, isManager, eventGroup])
+        setNeedPublish(false)
+
+    }, [joined, isManager, eventGroup, user.userName])
 
     useEffect(() => {
         if (start && ending) {

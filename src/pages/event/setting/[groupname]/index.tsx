@@ -33,7 +33,7 @@ function Dashboard() {
 
     const [permissionCanJoin, setPermissionCanJoin] = useState<'everyone' | 'member'>('everyone')
     const [permissionCanCreate, setPermissionCanCreate] = useState<'everyone' | 'member' | 'manager'>('everyone')
-    const [showPermission, setShowPermission] = useState(true)
+    const [showPermission, setShowPermission] = useState(false)
 
     const [defaultLocation, setDefaultLocation] = useState<string | null>(null)
     const [showDefaultLocation, setShowDefaultLocation] = useState(false)
@@ -428,14 +428,14 @@ function Dashboard() {
                             }}/>
                         </div>
                         <div className={'dialog-inner'}>
-                            <div className={'permission-title'}>Create</div>
+                            <div className={'permission-title'}>Publish</div>
                             <div className={'permission-item'} onClick={e => {setPermissionCanCreate('everyone')}}>
                                 <AppRadio checked={permissionCanCreate === 'everyone'} /> Everyone
                             </div>
-                            <div className={'permission-item'} onClick={e => {setPermissionCanCreate('member')}}>
+                            <div className={'permission-item'} data-test-id="member" onClick={e => {setPermissionCanCreate('member')}}>
                                 <AppRadio checked={permissionCanCreate === 'member'} /> Member, Manager, Owner
                             </div>
-                            <div className={'permission-item'} onClick={e => {setPermissionCanCreate('manager')}}>
+                            <div className={'permission-item'} data-test-id="manager" onClick={e => {setPermissionCanCreate('manager')}}>
                                 <AppRadio checked={permissionCanCreate === 'manager'} /> Manager, Owner
                             </div>
 

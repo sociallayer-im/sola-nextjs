@@ -567,6 +567,16 @@
   border: 1px solid var(--Line-2-Dark, #CECED3);
   background: #fff;
 
+  .dot {
+    width: 8px;
+    height: 8px;
+    flex-shrink: 0;
+    background: #F26692;
+    border-radius: 50%;
+    position: relative;
+    transform: translate(1px, -6px);
+  }
+
   .mode {
     display: flex;
     white-space: nowrap;
