@@ -60,7 +60,7 @@ function GroupEdit() {
             const update = await solas.updateGroup({
                 ...form.current!.profile,
                 auth_token: user.authToken || ''
-            })
+            } as any)
 
             showToast('Save Successfully')
             router.push(`/group/${profile?.username}`)
