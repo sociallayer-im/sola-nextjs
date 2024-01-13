@@ -79,24 +79,23 @@ function ComponentName(props: { markerType: string | null }) {
                 group_id: eventGroup?.id || undefined,
             })).map(event => {
                 return {
+                    ...event,
                     event: event,
                     event_id: event.id,
-                    id: event.id,
                     group_id: event.group_id,
-                    owner_id: event.owner_id,
-                    owner: event.owner,
                     group: eventGroup,
-                    pin_image_url: null,
+                    pin_image_url: '',
                     cover_image_url: event.cover_url,
-                    title: event.title,
-                    category: 'event',
                     about: event.content,
                     message: event.content,
                     status: event.status,
                     marker_type: 'event',
-                    ...event
-                } as Marker
-            }).filter(marker => !!marker.geo_lat)
+                    link: '',
+                    map_checkins_count: 0,
+                    voucher_id:null,
+                    category: 'event',
+                } as any
+            }).filter((marker: Marker) => !!marker.geo_lat)
         } else if (type === 'Zugame') {
             res = await queryMarkers({
                 group_id: eventGroup?.id || undefined,

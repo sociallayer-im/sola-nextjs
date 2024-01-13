@@ -164,7 +164,7 @@ function Dashboard() {
             id: eventGroup?.id || 1516,
             banner_image_url: banner,
             banner_link_url: bannerUrl,
-        })
+        } as any)
         await reload()
         unload()
         showToast('Update banner success')
@@ -178,7 +178,7 @@ function Dashboard() {
             id: eventGroup?.id || 1516,
             can_publish_event: permissionCanCreate ,
             can_join_event: permissionCanJoin,
-        })
+        } as any)
         await reload()
         unload()
         showToast('Update permission success')
@@ -191,7 +191,7 @@ function Dashboard() {
             auth_token: user.authToken || '',
             id: eventGroup?.id || 1516,
             group_location_details: defaultLocation,
-        })
+        } as any)
         await reload()
         unload()
         showToast('Update success')
@@ -204,7 +204,7 @@ function Dashboard() {
             auth_token: user.authToken || '',
             id: eventGroup?.id || 1516,
             event_tags: tags.filter(e => !!e),
-        })
+        } as any)
         await reload()
         unload()
         showToast('Update success')

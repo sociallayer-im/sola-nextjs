@@ -758,7 +758,7 @@ function CreateEvent(props: CreateEventPageProps) {
             max_participant: enableMaxParticipants ? maxParticipants : null,
             min_participant: enableMinParticipants ? minParticipants : null,
             badge_id: badgeId,
-            group_id: eventGroup.id,
+            group_id: eventGroup?.id,
             meeting_url: onlineUrl || null,
             event_site_id: eventSite?.id || null,
             event_type: eventType,
