@@ -16,7 +16,7 @@ import EventTagInput from "@/components/compose/EventTagInput/EventTagInput";
 import AppRadio from "@/components/base/AppRadio/AppRadio";
 
 function Dashboard() {
-    const {eventGroup, availableList, findGroup, setEventGroup, reload} = useContext(EventHomeContext)
+    const {eventGroup, availableList, findGroup, setEventGroup, reload, isManager} = useContext(EventHomeContext)
     const params = useParams()
     const {lang} = useContext(LangContext)
     const {showToast, showLoading} = useContext(DialogsContext)
@@ -281,7 +281,7 @@ function Dashboard() {
                     }
 
 
-                    {
+                    { isManager &&
                         <div className={'setting-form-item'} onClick={e => {
                             setShowPermission(true)
                         }}>
