@@ -90,7 +90,13 @@ function Page(props: any) {
             }
         }
 
-        getMaodaoProfile()
+        if (!profile) {
+            router.push('/error')
+            return
+        } else {
+            getMaodaoProfile()
+
+        }
     }, [profile])
 
     useEffect(() => {
@@ -167,10 +173,10 @@ function Page(props: any) {
                                     size={BTN_SIZE.compact}
                                     onClick={handleMintOrIssue}>
                                     <span className='icon-sendfasong'></span>
-                                    {user.id === profile.id
+                                    <span className='name'>{user.id === profile.id
                                         ? lang['Profile_User_MindBadge']
                                         : lang['Profile_User_IssueBadge'] + (profile.nickname || profile.username)
-                                    }
+                                    }</span>
                                 </AppButton>
                             </div>
                         }

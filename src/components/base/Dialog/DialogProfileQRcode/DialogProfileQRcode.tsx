@@ -15,7 +15,7 @@ export interface DialogProfileQRcodeProps {
 function DialogProfileQRcode (props: DialogProfileQRcodeProps) {
     const { lang, langType } = useContext(LangContext)
     const { showLoading } = useContext(DialogsContext)
-    const domain = process.env.NEXT_PUBLIC_SOLAS_HOME
+    const domain = window.location.origin
     const { defaultAvatar } = usePicture()
     const shareUrl = `${domain}/profile/${props.profile.username}`
     const card = useRef(null)

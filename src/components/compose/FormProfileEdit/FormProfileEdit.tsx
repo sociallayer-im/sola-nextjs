@@ -77,7 +77,7 @@ function FormProfileEdit(props: ProfileEditFormProps) {
 
     const update = (key: keyof Profile |  keyof Group, value: any) => {
         console.log(value)
-        const profile: any = {...newProfile}
+        const profile: any = {...newProfile, nickname: newProfile.nickname?.trim() || null}
         profile[key] = value
         console.log('edit', profile)
         setNewProfile(profile)
@@ -95,8 +95,10 @@ function FormProfileEdit(props: ProfileEditFormProps) {
 
         <div className='input-area'>
             <div className='input-area-title'>{lang['Profile_Edit_Ncikname']}</div>
-            <AppInput value={newProfile.nickname || ''} onChange={(e) => {
-                update('nickname', e.target.value.trim())
+            <AppInput maxLength={50} value={newProfile.nickname || ''}
+                      endEnhancer={() => <span style={{fontSize: '14px'}}>{`${newProfile.nickname?.length || 0}/50`}</span> }
+                      onChange={(e) => {
+                update('nickname', e.target.value)
             }}/>
         </div>
 

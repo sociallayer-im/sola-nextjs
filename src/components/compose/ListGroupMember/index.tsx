@@ -255,7 +255,7 @@ function ListGroupMember(props: ListGroupMemberProps) {
                                 }}>
                         <div className={'left'}>
                             <img src={member.image_url || defaultAvatar(member.id)} alt=""/>
-                            <span>{member.nickname || member.username || member.domain?.split('.')[0]}</span>
+                            <span className={'name'}>{member.nickname || member.username || member.domain?.split('.')[0]}</span>
                             <span className={'role'}>{lang['Group_Role_Manager']}</span>
                             {member.id === user.id && <div className={'you-tag'}>
                                 You
