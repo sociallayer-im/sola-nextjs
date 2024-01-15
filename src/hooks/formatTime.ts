@@ -21,6 +21,10 @@ export const formatTime = (dateString: string) => {
 }
 
 export const formatTimeWithTimezone = (dateString: string, timezone: string) => {
+    if (process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'vitalia') {
+        timezone = 'America/Tegucigalpa'
+    }
+
     dateString = dateString.endsWith('Z') ? dateString : dateString + 'Z'
     const diff = dayjs.tz('2023-01-01 00:00', timezone).diff(dayjs.tz('2023-01-01 00:00'), 'millisecond')
     return dayjs(new Date(new Date(dateString).getTime() - diff).toString()).format("YYYY.MM.DD HH:mm")
@@ -65,6 +69,10 @@ export function useTime2() {
         dateString = dateString.endsWith('Z') ? dateString : dateString + 'Z'
         timezone = timezone || 'UTC'
 
+        if (process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'vitalia') {
+            timezone = 'America/Tegucigalpa'
+        }
+
         // format like:THU, SEP 26 AT 9 PM
         const target = dayjs.tz(new Date(dateString).getTime(), timezone)
         const now = dayjs.tz(new Date().getTime(), timezone)
@@ -103,6 +111,10 @@ export function useTime3() {
     return (from: string, to: string, timezone: string = 'UTC') => {
         const fromStr = from.endsWith('Z') ? from : from + 'Z'
         const toStr = to.endsWith('Z') ? to : to + 'Z'
+
+        if (process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'vitalia') {
+            timezone = 'America/Tegucigalpa'
+        }
 
         const fromDate = dayjs.tz(new Date(fromStr).getTime(), timezone)
         const toDate = dayjs.tz(new Date(toStr).getTime(), timezone)
@@ -146,6 +158,10 @@ export function useTime4 (from: string, to: string, timezone: string = 'UTC') {
     const fromStr = from.endsWith('Z') ? from : from + 'Z'
     const toStr = to.endsWith('Z') ? to : to + 'Z'
 
+    if (process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'vitalia') {
+        timezone = 'America/Tegucigalpa'
+    }
+    
     const fromDate = dayjs.tz(new Date(fromStr).getTime(), timezone)
     const toDate = dayjs.tz(new Date(toStr).getTime(), timezone)
 

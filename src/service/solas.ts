@@ -2977,6 +2977,8 @@ export interface QueryEventProps {
     event_site_id?: number,
     start_time_from?: string,
     start_time_to?: string,
+    end_time_gte?: string,
+    end_time_lte?: string,
     group_id?: number,
     event_order?: 'asc' | 'desc',
     page_size?: number,
@@ -3011,6 +3013,14 @@ export async function queryEvent(props: QueryEventProps): Promise<Event[]> {
         variables += `start_time: {_gte: "${props.start_time_from}"}, `
     } else if (props.start_time_to) {
         variables += `start_time: {_lte: "${props.start_time_to}"}, `
+    }
+
+    if (props.end_time_gte) {
+        variables += `end_time: {_gte: "${props.end_time_gte}"}, `
+    }
+
+    if (props.end_time_lte) {
+        variables += `end_time: {_lte: "${props.end_time_lte}"}, `
     }
 
     if (props.group_id) {
@@ -3170,7 +3180,6 @@ export async function queryPendingEvent(props: QueryEventProps): Promise<Event[]
         cover_url
         created_at
         display
-        end_time
         event_site_id
         event_site {
             id
@@ -3199,6 +3208,7 @@ export async function queryPendingEvent(props: QueryEventProps): Promise<Event[]
         status
         tags
         start_time
+        end_time
         require_approval
         participants_count
         max_participant

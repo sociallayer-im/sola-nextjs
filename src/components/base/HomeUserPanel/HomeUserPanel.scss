@@ -177,6 +177,13 @@
     font-style: normal;
     font-weight: 400;
 
+    .name {
+      max-width: 50%;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+
     &:hover {
       background: #f1f1f1;
     }

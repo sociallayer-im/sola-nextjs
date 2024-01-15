@@ -125,7 +125,9 @@ function BadgeDetail(props: { badgelet: Badgelet }) {
                                                         lang['Seedao_Issue_Badge_Institution'] :
                                                         item.trait_type === 'type' ?
                                                             lang['BadgeDialog_Label_Private'] :
-                                                            item.trait_type
+                                                            item.trait_type === 'issuer' ?
+                                                                lang['Issuer'] :
+                                                                item.trait_type
                                             item.trait_type
 
 

@@ -107,7 +107,7 @@ function HomeUserPanel(props: {
                                     <img className={'avatar'}
                                          src={membership.profile.image_url || defaultAvatar(membership.profile.id)}
                                          alt=""/>
-                                    {membership.profile.nickname || membership.profile.username}
+                                    <span className={'name'}>{membership.profile.nickname || membership.profile.username}</span>
                                     { membership.role !== 'member' &&
                                         <div className={'role'}>
                                             {membership.role}

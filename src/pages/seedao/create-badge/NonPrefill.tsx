@@ -142,8 +142,12 @@ function CreateBadgeNonPrefill({group}: { group: Group }) {
                     },
                     {
                         trait_type: 'type',
-                        value: 'Seedao SBT'
+                        value: 'SeedDao SBT'
                     },
+                    {
+                        trait_type: 'issuer',
+                        value: user.userName || ''
+                    }
                 ]
             })
         }

@@ -44,7 +44,7 @@ function ListEventVertical(props: {initData?: Event[] }) {
                 pageRef.current = init ? 1 : pageRef.current + 1
                 let res = await queryEvent({
                     page: pageRef.current,
-                    start_time_from: new Date().toISOString(),
+                    end_time_gte: new Date().toISOString(),
                     event_order: 'asc',
                     group_id: eventGroup?.id || undefined,
                     tag: tagRef.current || undefined
@@ -59,7 +59,7 @@ function ListEventVertical(props: {initData?: Event[] }) {
                 pageRef.current = init ? 1 : pageRef.current + 1
                 let res = await queryEvent({
                     page: pageRef.current,
-                    start_time_to: new Date().toISOString(),
+                    end_time_lte: new Date().toISOString(),
                     event_order: 'desc',
                     group_id: eventGroup?.id || undefined,
                     tag: tagRef.current || undefined

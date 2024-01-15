@@ -68,6 +68,13 @@
 
   .slot_2 {
     margin-top: 20px;
+
+    .name {
+      max-width: 250px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
   }
 
   .icon-sendfasong {

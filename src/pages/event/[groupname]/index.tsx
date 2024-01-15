@@ -210,14 +210,14 @@ export const getServerSideProps: any = (async (context: any) => {
     if (tab === 'past') {
         res = await queryEvent({
             page: 1,
-            start_time_to: new Date().toISOString(),
+            end_time_lte: new Date().toISOString(),
             event_order: 'desc',
             group_id: targetGroup[0]?.id
         })
     } else {
         res = await queryEvent({
             page: 1,
-            start_time_from: new Date().toISOString(),
+            end_time_gte: new Date().toISOString(),
             event_order: 'asc',
             group_id: targetGroup[0]?.id
         })

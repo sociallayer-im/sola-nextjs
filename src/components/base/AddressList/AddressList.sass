@@ -1,6 +1,11 @@
 .address-list
   display: flex
   flex-flow: column wrap
+  .address-delete
+    cursor: pointer
+    padding: 7px
+  .list-item.deleted-only
+    cursor: auto
   .list-item
     display: flex
     padding: 12px 20px
@@ -12,6 +17,7 @@
     align-items: center
     cursor: pointer
     background: #fff
+
   .you-tag
     display: flex
     justify-content: center
@@ -30,6 +36,11 @@
     color: #272928
     align-items: center
     position: relative
+    .name
+      max-width: 180px
+      white-space: nowrap
+      text-overflow: ellipsis
+      overflow: hidden
     img.owner-marker
       width: 17px
       height: 17px
