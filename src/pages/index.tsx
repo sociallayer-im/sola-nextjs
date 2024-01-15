@@ -38,13 +38,13 @@ export const getServerSideProps: any = (async (context: any) => {
         tab === 'past' ?
             queryEvent({
                 page: 1,
-                start_time_to: new Date().toISOString(),
+                end_time_lte: new Date().toISOString(),
                 event_order: 'desc',
                 group_id: targetGroupId
             }) :
             queryEvent({
                 page: 1,
-                start_time_from: new Date().toISOString(),
+                end_time_gte: new Date().toISOString(),
                 event_order: 'asc',
                 group_id: targetGroupId
             }),
