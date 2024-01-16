@@ -26,7 +26,7 @@ function Subscriber() {
             SubscriptionUserId.current = 0
         }
         // unSubscribe
-        if (!user.id && SubscriptionUserId) {
+        if (!user.userName && SubscriptionUserId) {
             clean()
         }
 
@@ -103,7 +103,7 @@ function Subscriber() {
         return () => {
             clean()
         }
-    }, [user.id])
+    }, [user.userName])
 
     return (<></>)
 }

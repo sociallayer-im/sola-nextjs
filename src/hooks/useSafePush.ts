@@ -13,7 +13,10 @@ const useSafePush = () => {
             return;
         }
         setOnChanging(true);
-        router.push(path);
+        router.push(path)
+            .catch((e: any)=> {
+                console.log('[savePush]:', e)
+            })
     };
 
     useEffect(() => {

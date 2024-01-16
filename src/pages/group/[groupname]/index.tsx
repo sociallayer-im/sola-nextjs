@@ -24,6 +24,7 @@ import {Swiper, SwiperSlide} from 'swiper/react'
 import {Mousewheel} from "swiper";
 import DialogRequestTobeIssuer from "@/components/base/Dialog/DialogRequestTobeIssuer/DialogRequestTobeIssuer";
 import useSafePush from "@/hooks/useSafePush";
+import {PageBackContext} from "@/components/provider/PageBackProvider";
 
 
 const ListUserPresend = dynamic(() => import('@/components/compose/ListUserPresend'), {
@@ -49,6 +50,7 @@ function GroupPage(props: any) {
     const {showLoading, openConnectWalletDialog, openDialog} = useContext(DialogsContext)
     const {lang} = useContext(LangContext)
     const {user, logOut} = useContext(UserContext)
+    const {history} = useContext(PageBackContext)
     const searchParams = useSearchParams()
     const [selectedTab, setSelectedTab] = useState(searchParams.get('tab') || '0')
     const [selectedSubtab, setSelectedSubtab] = useState(searchParams.get('subtab') || '0')
@@ -200,6 +202,7 @@ function GroupPage(props: any) {
     const setTab = (tab: string) => {
         loadedTabRrf.current.add(tab)
         setSelectedTab(tab as any);
+        history.push(`/group/${groupname}?tab=${tab}`)
         window.history.pushState(null, '', `/group/${groupname}?tab=${tab}`)
     }
 
