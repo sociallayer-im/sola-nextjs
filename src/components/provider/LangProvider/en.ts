@@ -596,6 +596,11 @@ const langEN = {
     Publish: 'Publish',
     Reject: 'Reject',
     Rejected: 'Rejected',
+    Are_You_Sure_To_Publish_This_Event: 'Are you sure to publish this event?',
+    Yes: '是',
+    No: '否',
+    Are_You_Sure_To_Reject_This_Event: 'Are you sure to reject this event?',
+    Ongoing: 'Ongoing',
 }
 
 

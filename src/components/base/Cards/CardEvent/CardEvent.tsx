@@ -48,7 +48,9 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
 
     const now = new Date().getTime()
     const endTime = new Date(eventDetail.end_time!).getTime()
+    const startTime = new Date(eventDetail.start_time!).getTime()
     const isExpired = endTime < now
+    const onGoing =  startTime <= now && endTime >= now
 
     useEffect(() => {
         if (user.id) {
@@ -112,19 +114,19 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
         }
     }
 
-    const hasMarker = isExpired || !!hasRegistered || isCreated
+    const hasMarker = isExpired || !!hasRegistered || isCreated || props.event.status === 'pending'
 
     const largeCard = fixed || (hasMarker && !fixed)
 
     const handleReject = (e: any) => {
         e.preventDefault()
         openConfirmDialog({
-            title: 'Are you sure you want to reject this event?',
+            title: lang['Are_You_Sure_To_Reject_This_Event'],
             content: `[${props.event.title}]`,
-            confirmLabel: 'Yes',
+            confirmLabel: lang['Yes'],
             confirmTextColor: '#fff',
             confirmBtnColor: '#F64F4F',
-            cancelLabel: 'No',
+            cancelLabel:  lang['No'],
             onConfirm: async (close: any) => {
                 const unload = showLoading()
                 try {
@@ -149,10 +151,10 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
     const handlePublish = (e: any) => {
         e.preventDefault()
         openConfirmDialog({
-            title: 'Are you sure you want to publish this event?',
+            title: lang['Are_You_Sure_To_Publish_This_Event'],
             content: `[${props.event.title}]`,
-            confirmLabel: 'Yes',
-            cancelLabel: 'No',
+            confirmLabel: lang['Yes'],
+            cancelLabel: lang['No'],
             onConfirm: async (close: any) => {
                 const unload = showLoading()
                 try {
@@ -190,7 +192,21 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
         <div className={(fixed || hasMarker && !fixed) ? 'info marker' : 'info'}>
             <div className={'left'}>
                 <div className={'details'}>
-                    <div className={'title'}>{eventDetail.title}</div>
+                    <div className={'title'}>
+                        { hasMarker &&
+                            <div className={'markers'}>
+                                {props.event.status === 'pending' && <div className={'marker pending'}>{lang['Pending']}</div>}
+                                {onGoing && <div className={'marker registered'}>{lang['Ongoing']}</div>}
+                                {props.event.status === 'rejected' && <div className={'marker rejected'}>{lang['Rejected']}</div>}
+                                {(hasRegistered || props.attend) &&
+                                    <div className={'marker registered'}>{lang['Activity_State_Registered']}</div>}
+                                {isCreated && <div className={'marker created'}>{lang['Activity_Detail_Created']}</div>}
+                                {isExpired && <div className={'marker expired'}>{lang['Activity_Detail_Expired']}</div>}
+                            </div>
+                        }
+
+                        {eventDetail.title}
+                    </div>
                     <div className={'tags'}>
                         {
                             eventDetail.tags?.map((tag, index) => {

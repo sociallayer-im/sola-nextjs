@@ -301,8 +301,10 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                     <Link href={`/event/${eventGroup?.username}/edit/${event?.id}`}>
                                         <i className={'icon-edit'}></i>{lang['Activity_Detail_Btn_Modify']}</Link>
                                 }
-                                <Link href={`/event/success/${event?.id}`}>
-                                    <img src="/images/icon_share.svg" alt=""/>{lang['IssueFinish_Title']}</Link>
+                                { event?.status !== 'pending' &&
+                                    <Link href={`/event/success/${event?.id}`}>
+                                        <img src="/images/icon_share.svg" alt=""/>{lang['IssueFinish_Title']}</Link>
+                                }
                             </div>}
                     />
                 </div>
@@ -318,7 +320,10 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
 
                         <div className={'detail'}>
                             <div className={'center'}>
-                                <div className={'name'}>{event.title}</div>
+                                <div className={'name'}>
+                                    {event.status === 'pending' && <span className={'pending'}>Pending</span>}
+                                    {event.title}
+                                </div>
 
                                 {event.tags && !!event.tags.length &&
                                     <div className={'label'}>
@@ -692,7 +697,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                             }
                         </div>
                         <div className={'center'}>
-                            {user.userName && canAccess &&
+                            {user.userName && canAccess && event.status !== 'pending' &&
                                 <div className={'event-login-status'}>
                                     <div className={'user-info'}>
                                         <img src={user.avatar || defaultAvatar(user.id!)} alt=""/>
