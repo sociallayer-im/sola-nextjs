@@ -13,7 +13,6 @@ export interface DotBitAccount {
 export async function getDotBitAccount (owner: string): Promise<DotBitAccount[]> {
     const list = await dotbit.accountsOfOwner({
         key: owner,
-        coin_type: "60" as any// The coin type of ETH
     })
 
     return list.map((item:any) => {

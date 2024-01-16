@@ -120,6 +120,7 @@ function CreateEvent(props: CreateEventPageProps) {
     const [maxParticipants, setMaxParticipants] = useState<number>(10) // default 10
     const [minParticipants, setMinParticipants] = useState<number>(3) // default 3
     const [label, setLabel] = useState<string[]>([])
+    const [labelError, setLabelError] = useState<boolean>(false)
     const [badgeId, setBadgeId] = useState<null | number>(null)
     const [wechatImage, setWechatImage] = useState('')
     const [wechatAccount, setWechatAccount] = useState('')
@@ -359,6 +360,10 @@ function CreateEvent(props: CreateEventPageProps) {
             setIsEditMode(!!props.eventId)
         }
     }, [props])
+
+    useEffect(() => {
+        setLabelError(label.length > 3)
+    }, [label])
 
     useEffect(() => {
         if (telegram) {
@@ -689,6 +694,11 @@ function CreateEvent(props: CreateEventPageProps) {
             return
         }
 
+        if (labelError) {
+            showToast('The maximum number of tags is 3')
+            return
+        }
+
         let lng: string | null = null
         let lat: string | null = null
 
@@ -809,6 +819,11 @@ function CreateEvent(props: CreateEventPageProps) {
 
         if (telegramError) {
             showToast('Invalid telegram Group Url')
+            return
+        }
+
+        if (labelError) {
+            showToast('The maximum number of tags is 3')
             return
         }
 
@@ -1159,7 +1174,11 @@ function CreateEvent(props: CreateEventPageProps) {
                                 <EventLabels
                                     data={(eventGroup as Group).event_tags!} onChange={e => {
                                     setLabel(e)
-                                }} value={label}/>
+                                }} value={label} />
+
+                                { labelError &&
+                                    <div className={'label-error'}>{'The maximum number of tags is 3'}</div>
+                                }
                             </div>
                         }
 

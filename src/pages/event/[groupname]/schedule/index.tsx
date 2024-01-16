@@ -519,7 +519,7 @@ function EventCard({
                  }}
                  target={blank ? '_blank' : '_self'}>
         <div className={styles['schedule-event-card-time']}>
-            {isAllDay ? 'All Day' : `${fromTime}--${toTime}`}
+            {isAllDay ? 'All Day' : `${fromTime}-${toTime}`}
         </div>
         <div className={styles['schedule-event-card-name']}>
             {event.title}
