@@ -1181,7 +1181,7 @@ function CreateEvent(props: CreateEventPageProps) {
 
                         {
                             formReady &&
-                            <div className='input-area'>
+                            <div className='input-area' data-test-id="host">
                                 <div className='input-area-title'>{lang['Activity_originators']}</div>
                                 <SelectCreator
                                     autoSet={!creator}

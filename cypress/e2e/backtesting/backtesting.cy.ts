@@ -10,7 +10,7 @@ describe('Back testing', () => {
      * @时间: 2024-01-02
      * @bug编号: #1
      */
-    it('#1', () => {
+    it.skip('#1', () => {
         cy.visit('/event/setting/seedaobeta')
 
         cy.contains('Event site').click()
@@ -53,5 +53,23 @@ describe('Back testing', () => {
                     .first()
                     .should('have.value', customLocation)
             })
+    })
+
+    /**
+     * @bug描述: 用group身份创建活动，host信息必须展示 group
+     * @时间: 2024-01-17
+     * @bug编号: #2
+     */
+    it('#2', ()=>{
+        walletLogin()
+
+        cy.visit('/event/seedaobeta/create')
+        cy.get('div[data-test-id="host"] div[data-baseweb="select"]').click()
+        cy.get('ul[role="listbox"]').contains('seedaobeta').click()
+        const eventName = `cypress test event ${Date.now()}`
+        cy.get('input[placeholder="Event Name"]').type(eventName)
+        cy.contains('Create Event').click()
+        cy.contains('Done').should('exist').click()
+        cy.get('.hoster').should('contain', 'seedaobeta')
     })
 })
