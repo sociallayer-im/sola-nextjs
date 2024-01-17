@@ -27,7 +27,9 @@ import {
     queryGroupDetail,
     RepeatEventUpdate,
     setEventBadge,
-    updateEvent
+    updateEvent,
+    createRepeatEvent,
+    RepeatEventSetBadge
 } from '@/service/solas'
 import DialogsContext from '@/components/provider/DialogProvider/DialogsContext'
 import ReasonInput from '@/components/base/ReasonInput/ReasonInput'
@@ -98,7 +100,7 @@ const initTime = getNearestTime()
 const repeatEventEditOptions = [
     {label: 'Only this event', value: 'one'},
     {label: 'This and following events', value: 'after'},
-    {label: 'All events', value: 'all'},
+    {label: 'All recurring events', value: 'all'},
 ]
 
 function CreateEvent(props: CreateEventPageProps) {
@@ -268,7 +270,7 @@ function CreateEvent(props: CreateEventPageProps) {
                 try {
                     const cancel = await cancelRepeatEvent({
                         auth_token: user.authToken || '',
-                        repeat_event_id: currEvent?.recurring_event_id!,
+                        recurring_event_id: currEvent?.recurring_event_id!,
                         event_id: props.eventId!,
                         selector: repeatEventSelectorRef.current,
                     })
@@ -776,30 +778,31 @@ function CreateEvent(props: CreateEventPageProps) {
             location: customLocation || eventSite?.title || '',
             formatted_address: locationDetail ? JSON.parse(locationDetail).formatted_address : (eventSite?.formatted_address || ''),
             host_info: host_info,
-            interval: repeat || undefined,
-            repeat_ending_time: repeatEnd || undefined,
             timezone,
             geo_lng: lng,
-            geo_lat: lat
+            geo_lat: lat,
+            interval: repeat!,
+            repeat_end_time: repeatEnd  as any,
+            repeat_start_time: start  as any,
         }
 
         try {
             if (props.interval) {
-                // const newEvents = await createRepeatEvent(props)
-                //
-                // if (badgeId) {
-                //     const setBadge = await RepeatEventSetBadge({
-                //         repeat_event_id: newEvents[0].recurring_event_id!,
-                //         badge_id: badgeId,
-                //         auth_token: user.authToken || ''
-                //     })
-                // }
-                //
-                // unloading()
-                // showToast('create success')
-                // window.localStorage.removeItem('event_draft')
-                // router.push(`/event/success/${newEvents[0].id}`)
-                // setCreating(false)
+                const newEvent = await createRepeatEvent(props)
+
+                if (badgeId) {
+                    const setBadge = await RepeatEventSetBadge({
+                        recurring_event_id: newEvent.recurring_event_id!,
+                        badge_id: badgeId,
+                        auth_token: user.authToken || ''
+                    })
+                }
+
+                 unloading()
+                 showToast('create success')
+                 window.localStorage.removeItem('event_draft')
+                 router.push(`/event/success/${newEvent.id}`)
+                 setCreating(false)
             } else {
                 const newEvent = await createEvent(props)
 
@@ -1003,9 +1006,18 @@ function CreateEvent(props: CreateEventPageProps) {
                         selector: repeatEventSelectorRef.current
                     })
 
+                    if (saveProps.badge_id) {
+                        const setBadge = await RepeatEventSetBadge({
+                            auth_token: user.authToken || '',
+                            badge_id: saveProps.badge_id,
+                            recurring_event_id: saveProps.recurring_event_id!,
+                            selector: repeatEventSelectorRef.current
+                        })
+                    }
+
                     unloading()
                     showToast('update success')
-                    // router.replace(`/event/detail/${newEvents[0].id}`)
+                    router.replace(`/event/detail/${currEvent!.id}`)
                 } catch (e: any) {
                     unloading()
                     console.error(e)
@@ -1070,7 +1082,7 @@ function CreateEvent(props: CreateEventPageProps) {
                                 <AppEventTimeInput
                                     from={start}
                                     to={ending}
-                                    allowRepeat={false}
+                                    allowRepeat={isManager}
                                     timezone={timezone}
                                     onChange={e => {
                                         setStart(e.from)

@@ -2984,6 +2984,7 @@ export interface QueryEventProps {
     page_size?: number,
     show_pending_event?: boolean,
     show_rejected_event?: boolean,
+    recurring_event_id?: number,
 }
 
 
@@ -3005,6 +3006,10 @@ export async function queryEvent(props: QueryEventProps): Promise<Event[]> {
 
     if (props.event_site_id) {
         variables += `event_site_id: {_eq: ${props.event_site_id}}, `
+    }
+
+    if(props.recurring_event_id) {
+        variables += `recurring_event_id: {_eq: ${props.recurring_event_id}}, `
     }
 
     if (props.start_time_from && props.start_time_to) {
@@ -3911,45 +3916,43 @@ export async function eventCheckIn(props: EventCheckInProps) {
 export interface CancelRepeatProps {
     auth_token: string,
     selector: 'one' | 'after' | 'all',
-    repeat_event_id: number,
+    recurring_event_id: number,
     event_id?: number,
 }
 
 export async function cancelRepeatEvent(props: CancelRepeatProps) {
-    // checkAuth(props)
-    //
-    // const res = await fetch.post({
-    //     url: `${api}/repeat_event/cancel_event`,
-    //     data: props
-    // })
-    //
-    // if (res.data.result === 'error') {
-    //     throw new Error(res.data.message)
-    // }
-    //
-    // return res.data.events as Event[]
-    throw new Error('Not implement')
+    checkAuth(props)
+
+    const res = await fetch.post({
+        url: `${apiUrl}/recurring_event/cancel_event`,
+        data: props
+    })
+
+    if (res.data.result === 'error') {
+        throw new Error(res.data.message)
+    }
 }
 
 export interface CreateRepeatEventProps extends CreateEventProps {
     interval?: 'day' | 'week' | 'month',
-    repeat_ending_time?: string,
+    repeat_start_time?: string,
+    repeat_end_time?: string,
     event_count?: number,
 }
 
 export async function createRepeatEvent(props: CreateRepeatEventProps) {
-    // checkAuth(props)
-    // const res = await fetch.post({
-    //     url: `${api}/repeat_event/create`,
-    //     data: props
-    // })
-    //
-    // if (res.data.result === 'error') {
-    //     throw new Error(res.data.message)
-    // }
-    //
-    // return res.data.events as Event[]
-    throw new Error('Not implement')
+    checkAuth(props)
+    const res = await fetch.post({
+        url: `${apiUrl}/recurring_event/create`,
+        data: props
+    })
+
+    if (res.data.result === 'error') {
+        throw new Error(res.data.message)
+    }
+
+  const event = await queryEvent({recurring_event_id: res.data.recurring_event_id, page: 1})
+  return event[0]
 }
 
 export interface RepeatEventInviteProps {
@@ -3992,42 +3995,39 @@ export async function RepeatEventInvite(props: RepeatEventInviteProps) {
 export interface RepeatEventSetBadgeProps {
     auth_token: string,
     badge_id: number,
-    repeat_event_id: number,
+    recurring_event_id: number,
+    selector?: 'one' | 'after' | 'all'
 }
 
 export async function RepeatEventSetBadge(props: RepeatEventSetBadgeProps) {
-    // checkAuth(props)
-    // const res = await fetch.post({
-    //     url: `${api}/repeat_event/set_badge`,
-    //     data: props
-    // })
-    //
-    // if (res.data.result === 'error') {
-    //     throw new Error(res.data.message)
-    // }
-    // return res.data.events as Event[]
-    throw new Error('Not implement')
+    checkAuth(props)
+    const res = await fetch.post({
+        url: `${apiUrl}/recurring_event/set_badge`,
+        data: props
+    })
+
+    if (res.data.result === 'error') {
+        throw new Error(res.data.message)
+    }
+    return res.data.events as Event[]
 }
 
 export interface RepeatEventUpdateProps extends CreateEventProps {
-    selector: 'one' | 'after' | 'all',
     event_id?: number,
+    selector?: 'one' | 'after' | 'all',
 }
 
 
 export async function RepeatEventUpdate(props: RepeatEventUpdateProps) {
-    // checkAuth(props)
-    // const res = await fetch.post({
-    //     url: `${api}/repeat_event/update`,
-    //     data: props
-    // })
-    //
-    // if (res.data.result === 'error') {
-    //     throw new Error(res.data.message)
-    // }
-    //
-    // return res.data.events as Event[]
-    throw new Error('Not implement')
+    checkAuth(props)
+    const res = await fetch.post({
+        url: `${apiUrl}/recurring_event/update`,
+        data: props
+    })
+
+    if (res.data.result === 'error') {
+        throw new Error(res.data.message)
+    }
 }
 
 export interface Marker {
