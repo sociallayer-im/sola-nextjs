@@ -2485,7 +2485,7 @@ export async function setEmail(props: SetEmailProps) {
     })
 
     if (res.data.result === 'error') {
-        throw new Error(res.data.message || 'send email fail')
+        throw new Error(res.data.message || 'Set email fail')
     }
 }
 

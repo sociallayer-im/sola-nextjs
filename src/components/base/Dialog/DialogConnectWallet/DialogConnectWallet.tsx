@@ -78,7 +78,7 @@ function DialogConnectWallet(props: DialogConnectWalletProps) {
     return (
         <div className='dialog-connect-wallet'>
             {connectors.map((connector) => (
-                (!connector.ready || isLoading) ?
+                (!connector.ready) ?
                     <></>
                     : <div className={'connect-item'}
                             key={connector.id}

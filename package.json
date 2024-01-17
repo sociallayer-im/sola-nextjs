@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "dev2": "next dev -H 192.168.43.118 -p 3000",
+    "dev2": "next dev -H 192.168.3.34 -p 3000",
+    "dev:https": "next dev --experimental-https",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
