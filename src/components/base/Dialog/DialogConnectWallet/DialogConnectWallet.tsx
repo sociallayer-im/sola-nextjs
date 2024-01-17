@@ -77,6 +77,10 @@ function DialogConnectWallet(props: DialogConnectWalletProps) {
 
     return (
         <div className='dialog-connect-wallet'>
+            <div className={'title'}>
+                <div>{lang['Nav_Wallet_Connect']}</div>
+                <i className={'icon-close'}  onClick={e => {props.handleClose()}}/>
+            </div>
             {connectors.map((connector) => (
                 (!connector.ready) ?
                     <></>
@@ -85,23 +89,18 @@ function DialogConnectWallet(props: DialogConnectWalletProps) {
                             onClick={() => handleConnectWallet(connector)}>
                         <img src={`/images/${connector.name.toLowerCase()}.png`} alt={connector.name}/>
                         <div className='connect-name'>{connector.name}</div>
-                        <div className='connect-des'>
-                            {lang['Wallet_Intro']([connector.name])}
-                        </div>
                     </div>
             ))}
             {process.env.NEXT_PUBLIC_SPECIAL_VERSION !== 'maodao' &&
                 <div className='connect-item' onClick={handleConnectEmail}>
                     <img src="/images/email.svg" alt="email"/>
                     <div className='connect-name'>Email</div>
-                    <div className='connect-des'>{lang['Login_Title']}</div>
                 </div>
             }
             {arrowPhoneLogin &&
                 <div className='connect-item' onClick={handlePhoneLogin}>
                     <img src="/images/phone_login.png" alt="email"/>
                     <div className='connect-name'>Phone</div>
-                    <div className='connect-des'>{lang['Login_Phone_Title']}</div>
                 </div>
             }
             <div className='connect-item' onClick={async () => {
@@ -111,7 +110,6 @@ function DialogConnectWallet(props: DialogConnectWalletProps) {
             }}>
                 <img src="/images/zupass.png" alt="email"/>
                 <div className='connect-name'>Zupass</div>
-                <div className='connect-des'>{'Login using Zupass'}</div>
             </div>
         </div>
     )
