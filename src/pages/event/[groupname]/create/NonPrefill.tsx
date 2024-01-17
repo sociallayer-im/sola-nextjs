@@ -645,7 +645,22 @@ function CreateEvent(props: CreateEventPageProps) {
     const parseHostInfo = async () => {
         const usernames = [...cohost, ...speakers].filter((u) => !!u)
         if (!usernames.length) {
-            return null
+            if (!!(creator as Group).creator) {
+                const hostinfo = {
+                    speaker: [],
+                    co_host: [],
+                    group_host: {
+                        id: creator!.id,
+                        creator: true,
+                        username: creator!.username,
+                        nickname: creator!.nickname,
+                        image_url: creator!.image_url,
+                    }
+                }
+                return JSON.stringify(hostinfo)
+            } else {
+                return null
+            }
         }
 
         const profiles = await getProfileBatch(usernames)
