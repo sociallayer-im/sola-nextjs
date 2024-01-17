@@ -6,7 +6,7 @@ import {
     Group,
     joinEvent,
     Participants,
-    queryEventDetail,
+    queryEventDetail, queryGroupDetail,
     setEventStatus
 } from "@/service/solas";
 import {useTime2} from "@/hooks/formatTime";
@@ -21,6 +21,7 @@ import {getLabelColor} from "@/hooks/labelColor";
 import useCalender from "@/hooks/addToCalender";
 import AppButton from "@/components/base/AppButton/AppButton";
 import useEvent, {EVENT} from "@/hooks/globalEvent";
+import usePicture from "@/hooks/pictrue";
 
 export interface CardEventProps {
     event: Event,
@@ -45,6 +46,8 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
     const {eventGroups} = useContext(EventHomeContext)
     const {addToCalender} = useCalender()
     const [_, emit] = useEvent(EVENT.setEventStatus)
+    const [groupHost, setGroupHost] = useState<Group>()
+    const {defaultAvatar} = usePicture()
 
     const now = new Date().getTime()
     const endTime = new Date(eventDetail.end_time!).getTime()
@@ -66,6 +69,22 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
 
     useEffect(() => {
         setEventDetail(props.event)
+
+
+        if (props.event?.host_info) {
+            if (props.event?.host_info.startsWith('{')) {
+                const hostInfo = JSON.parse(props.event?.host_info!)
+                if (hostInfo.group_host) {
+                    setGroupHost(hostInfo.group_host)
+                }
+            } else {
+                queryGroupDetail(Number(props.event?.host_info)).then(res => {
+                    if (res) {
+                        setGroupHost(res)
+                    }
+                })
+            }
+        }
     }, [props.event])
 
     const handleJoin = async (e: any) => {
@@ -122,7 +141,7 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
         e.preventDefault()
         openConfirmDialog({
             title: lang['Are_You_Sure_To_Reject_This_Event'],
-            content: `[${props.event.title}]`,
+            content: `${props.event.title}`,
             confirmLabel: lang['Yes'],
             confirmTextColor: '#fff',
             confirmBtnColor: '#F64F4F',
@@ -152,7 +171,7 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
         e.preventDefault()
         openConfirmDialog({
             title: lang['Are_You_Sure_To_Publish_This_Event'],
-            content: `[${props.event.title}]`,
+            content: `${props.event.title}`,
             confirmLabel: lang['Yes'],
             cancelLabel: lang['No'],
             onConfirm: async (close: any) => {
@@ -217,6 +236,20 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
                             })
                         }
                     </div>
+
+                    {
+                        groupHost ?
+                            <div className={'detail'}>
+                                <ImgLazy src={groupHost.image_url || defaultAvatar(groupHost.id)} width={16} height={16} alt=""/>
+                                <span>{groupHost?.nickname || groupHost?.username}</span>
+                            </div>
+                                : props.event.owner ?
+                                <div className={'detail'}>
+                                    <ImgLazy src={props.event.owner.image_url || defaultAvatar(props.event.owner.id)} width={16} height={16} alt=""/>
+                                    <span>{`${props.event.owner?.nickname || props.event.owner?.username}`}</span>
+                                </div>
+                                :<></>
+                    }
 
                     {!!eventDetail.start_time &&
                         <div className={'detail'}>

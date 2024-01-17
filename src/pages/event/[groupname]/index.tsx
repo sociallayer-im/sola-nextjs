@@ -46,10 +46,7 @@ function Home(props: {badges: Badge[], initEvent?: Group, initList?: Event[], me
         }
 
         if (props.initEvent){
-            const checkCanPublish = (props.initEvent.can_publish_event === 'member' && joined)
-            || (props.initEvent.can_publish_event === 'manager' && isManager)
-
-            setCanPublish(checkCanPublish)
+            setCanPublish(isManager)
         } else {
             setCanPublish(false)
         }

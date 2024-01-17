@@ -458,7 +458,7 @@ const langCN: LangConfig = {
   Setting_Banner: '横幅',
   Setting_Location: '默认地点',
   Setting_Banner_Link: '链接（选填）',
-  Setting_Permission: '创建和参加权限',
+  Setting_Permission: '活动权限',
   Permission: '权限设置',
   Event_Today: '今天',
   Event_Tomorrow: '明天',

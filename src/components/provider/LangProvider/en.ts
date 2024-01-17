@@ -462,7 +462,7 @@ const langEN = {
     Setting_Banner: 'Banner',
     Setting_Location: 'Default location',
     Setting_Banner_Link: 'Link (Optional)',
-    Setting_Permission: 'Permission to create and apply',
+    Setting_Permission: 'Event Permission',
     Permission: 'Permission',
     Event_Today: 'Today',
     Event_Tomorrow: 'Tomorrow',
@@ -597,13 +597,11 @@ const langEN = {
     Reject: 'Reject',
     Rejected: 'Rejected',
     Are_You_Sure_To_Publish_This_Event: 'Are you sure to publish this event?',
-    Yes: '是',
-    No: '否',
+    Yes: 'Yes',
+    No: 'No',
     Are_You_Sure_To_Reject_This_Event: 'Are you sure to reject this event?',
     Ongoing: 'Ongoing',
 }
-
-
 
 
 export type LangConfig = typeof langEN

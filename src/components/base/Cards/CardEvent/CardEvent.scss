@@ -35,7 +35,7 @@
 
 
   .info {
-    padding-top: 20px;
+    padding-top: 0px;
     &.marker {
         margin-top: 0;
     }
@@ -44,7 +44,6 @@
   .markers {
     height: 20px;
     max-height: 20px;
-    margin-bottom: 10px;
 
     .marker {
       border-radius: 5px;
@@ -118,6 +117,7 @@
     .details {
       min-height: 113px;
       margin-bottom: 8px;
+      margin-top: 16px;
     }
 
     .card-apply-btn {
@@ -238,6 +238,13 @@
       margin-top: 6px;
       overflow: hidden;
 
+      img {
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        margin-right: 6px;
+      }
+
       span {
         text-overflow: ellipsis;
         overflow: hidden;
@@ -266,6 +273,10 @@
 
   .event-card .info {
     padding-top: 0;
+  }
+
+  .event-card .left .details {
+    margin-top: 10px;
   }
 
   .title > .markers {
