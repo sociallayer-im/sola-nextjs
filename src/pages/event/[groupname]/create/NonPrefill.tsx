@@ -373,7 +373,7 @@ function CreateEvent(props: CreateEventPageProps) {
 
     useEffect(() => {
         if (repeat) {
-            setRepeatCounterError(repeatCounter < 1)
+            setRepeatCounterError(repeatCounter < 1 || repeatCounter > 100)
         } else {
             setRepeatCounterError(false)
         }
@@ -741,7 +741,7 @@ function CreateEvent(props: CreateEventPageProps) {
         }
 
         if (repeatCounterError && repeat) {
-            showToast('The number of times the event repeats must be greater than 0')
+            showToast('The number of times the event repeats must be greater than 0 and less than 100')
             return false
         }
 
@@ -1126,7 +1126,7 @@ function CreateEvent(props: CreateEventPageProps) {
 
                         {repeatCounterError &&
                             <div className={'start-time-error'}>
-                                {'The number of times the event repeats must be greater than 0'}
+                                {'The number of times the event repeats must be greater than 0 and less than 100'}
                             </div>
                         }
 

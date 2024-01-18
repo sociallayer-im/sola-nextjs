@@ -329,7 +329,6 @@ function AppDateInput({allowRepeat = true, ...props}: AppDateInputProps) {
             <div className={'repeat-counter'}>
                 <div className={'title'}>How many times does it repeat?</div>
                 <div className={'repeat-counter-input'}>
-                    <span>Ends after</span>
                     <input type="number"
                            value={Boolean(counter) ? counter : ''}
                            onChange={e => {
