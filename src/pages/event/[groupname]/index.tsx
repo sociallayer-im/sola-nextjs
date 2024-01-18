@@ -109,7 +109,7 @@ function Home(props: {badges: Badge[], initEvent?: Group, initList?: Event[], me
             }
             <div className={'home-page-event-wrapper'}>
                 <div className={`home-page-event-main`}>
-                    <HomeUserPanel membership={props.membership || []}/>
+                    <HomeUserPanel group={props.initEvent} membership={props.membership || []}/>
                     {!!user.id &&
                         <div className={'mode-selector request'}>
                             <div className={`mode ${mode === 'public' ? 'active' : ''}`} onClick={e => {setMode('public')}}>{'Public Events'}</div>
