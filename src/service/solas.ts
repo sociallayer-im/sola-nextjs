@@ -2991,6 +2991,7 @@ export interface QueryEventProps {
 export async function queryEvent(props: QueryEventProps): Promise<Event[]> {
     const page_size = props.page_size || 10
     let variables = ''
+    let order = `order_by: {id: ${props.event_order || 'desc'}}, `
 
     if (props.id) {
         variables += `id: {_eq: ${props.id}},`
@@ -3013,29 +3014,28 @@ export async function queryEvent(props: QueryEventProps): Promise<Event[]> {
     }
 
     if (props.start_time_from && props.start_time_to) {
+        order = `order_by: {start_time: ${props.event_order || 'desc'}}, `
         variables += `start_time: {_gte: "${props.start_time_from}"}, _and: {start_time: {_lte: "${props.start_time_to}"}}, `
     } else if (props.start_time_from) {
+        order = `order_by: {start_time: ${props.event_order || 'desc'}}, `
         variables += `start_time: {_gte: "${props.start_time_from}"}, `
     } else if (props.start_time_to) {
+        order = `order_by: {start_time: ${props.event_order || 'desc'}}, `
         variables += `start_time: {_lte: "${props.start_time_to}"}, `
     }
 
     if (props.end_time_gte) {
+        order = `order_by: {end_time: ${props.event_order || 'desc'}}, `
         variables += `end_time: {_gte: "${props.end_time_gte}"}, `
     }
 
     if (props.end_time_lte) {
+        order = `order_by: {end_time: ${props.event_order || 'desc'}}, `
         variables += `end_time: {_lte: "${props.end_time_lte}"}, `
     }
 
     if (props.group_id) {
         variables += `group_id: {_eq: ${props.group_id}}, `
-    }
-
-    let order = `order_by: {id: desc}, `
-
-    if (props.event_order) {
-        order = `order_by: {start_time: ${props.event_order}}, `
     }
 
     let status = `"open", "new", "normal"`
@@ -3048,7 +3048,6 @@ export async function queryEvent(props: QueryEventProps): Promise<Event[]> {
     }
 
     variables = variables.replace(/,$/, '')
-
 
     const doc = gql`query MyQuery {
       events (where: {${variables}, status: {_in: [${status}]}} ${order} limit: ${page_size}, offset: ${(props.page - 1) * page_size}) {
@@ -3137,6 +3136,7 @@ export async function queryEvent(props: QueryEventProps): Promise<Event[]> {
 export async function queryPendingEvent(props: QueryEventProps): Promise<Event[]> {
     const page_size = props.page_size || 10
     let variables = ''
+    let order = `order_by: {id: ${props.event_order || 'desc'}}, `
 
     if (props.id) {
         variables += `id: {_eq: ${props.id}},`
@@ -3154,23 +3154,35 @@ export async function queryPendingEvent(props: QueryEventProps): Promise<Event[]
         variables += `event_site_id: {_eq: ${props.event_site_id}}, `
     }
 
+    if(props.recurring_event_id) {
+        variables += `recurring_event_id: {_eq: ${props.recurring_event_id}}, `
+    }
+
     if (props.start_time_from && props.start_time_to) {
+        order = `order_by: {start_time: ${props.event_order || 'desc'}}, `
         variables += `start_time: {_gte: "${props.start_time_from}"}, _and: {start_time: {_lte: "${props.start_time_to}"}}, `
     } else if (props.start_time_from) {
+        order = `order_by: {start_time: ${props.event_order || 'desc'}}, `
         variables += `start_time: {_gte: "${props.start_time_from}"}, `
     } else if (props.start_time_to) {
+        order = `order_by: {start_time: ${props.event_order || 'desc'}}, `
         variables += `start_time: {_lte: "${props.start_time_to}"}, `
+    }
+
+    if (props.end_time_gte) {
+        order = `order_by: {end_time: ${props.event_order || 'desc'}}, `
+        variables += `end_time: {_gte: "${props.end_time_gte}"}, `
+    }
+
+    if (props.end_time_lte) {
+        order = `order_by: {end_time: ${props.event_order || 'desc'}}, `
+        variables += `end_time: {_lte: "${props.end_time_lte}"}, `
     }
 
     if (props.group_id) {
         variables += `group_id: {_eq: ${props.group_id}}, `
     }
 
-    let order = `order_by: {id: desc}, `
-
-    if (props.event_order) {
-        order = `order_by: {start_time: ${props.event_order}}, `
-    }
 
     variables = variables.replace(/,$/, '')
 
