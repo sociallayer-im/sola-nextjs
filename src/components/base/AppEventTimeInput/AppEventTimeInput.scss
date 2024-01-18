@@ -14,6 +14,7 @@
   }
 }
 
+
 .all-day-repeat {
   display: flex;
   align-items: center;
@@ -22,7 +23,7 @@
     width: auto;
 
     * {
-      border: 0!important;
+      border: 0 !important;
       background: none;
       color: var(--text-2-secondary, #7B7C7B);
       font-size: 14px;
@@ -30,8 +31,52 @@
       font-weight: 400;
     }
 
-    *{
+    * {
       padding: 0;
+    }
+  }
+}
+
+.repeat-counter {
+  .title {
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 22px;
+    color: var(--color-text-main);
+    margin-bottom: 10px;
+    margin-left: 10px;
+    margin-top: 10px;
+  }
+
+  .repeat-counter-input {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    color: var(--Text-4-Headline, #272928);
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 22px; /* 157.143% */
+    padding-left: 12px;
+
+    input {
+      display: flex;
+      width: 66px;
+      padding: 5px 0;
+      justify-content: center;
+      align-items: center;
+      color: var(--Text-4-Headline, #272928);
+      text-align: center;
+      font-size: 16px;
+      font-style: normal;
+      font-weight: 700;
+      line-height: 22px;
+      outline: none;
+      box-sizing: border-box;
+      border-radius: 5px;
+      background: #ECF2EE;
+      border: 0;
+      margin: 0 6px;
     }
   }
 }
@@ -56,8 +101,8 @@
 
 
   .time-input {
-    max-width: 86px!important;
-    min-width: 60px!important;
+    max-width: 86px !important;
+    min-width: 60px !important;
     height: 44px;
     margin-left: 8px;
 
@@ -68,7 +113,7 @@
         background: var(--color-input-bg);
         color: var(--color-text-main);
 
-        >div:nth-child(2) {
+        > div:nth-child(2) {
           display: none;
         }
       }
@@ -88,7 +133,7 @@
     display: flex;
     align-items: center;
 
-    >div:nth-child(3) {
+    > div:nth-child(3) {
       background: red;
       position: absolute;
       left: 0;
@@ -131,11 +176,12 @@ ul[role="listbox"] {
 .timezone {
   margin-bottom: 8px;
   margin-top: 8px;
+
   div[data-baseweb="select"] {
     width: auto;
 
     * {
-      border: 0!important;
+      border: 0 !important;
       color: var(--text-2-secondary, #7B7C7B);
       font-size: 14px;
       font-style: normal;

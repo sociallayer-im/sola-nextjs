@@ -3,7 +3,7 @@ import {DatePicker, TimePicker} from "baseui/datepicker";
 import LangContext from "../../provider/LangProvider/LangContext";
 import Toggle from "../Toggle/Toggle";
 import {Select} from "baseui/select";
-import timezoneList, {locateTimeTransfer} from "@/utils/timezone";
+import timezoneList from "@/utils/timezone";
 import * as dayjsLib from 'dayjs'
 
 const utc = require('dayjs/plugin/utc')
@@ -14,7 +14,7 @@ dayjs.extend(timezone)
 
 
 export function mapTimezone(value: any) {
-    const target =  timezoneList.find((item) => {
+    const target = timezoneList.find((item) => {
         return item.id === value
     })
 
@@ -22,18 +22,18 @@ export function mapTimezone(value: any) {
     return target
 }
 
-function output (date: Date, timezone: string) {
+function output(date: Date, timezone: string) {
     const year = date.getFullYear()
     const month = date.getMonth() + 1
     const day = date.getDate()
     const hours = date.getHours()
     const minute = date.getMinutes()
 
-    const str =  `${year}-${month}-${day} ${hours}:${minute}`
+    const str = `${year}-${month}-${day} ${hours}:${minute}`
     return dayjs.tz(str, timezone).toISOString()
 }
 
-function input (dateStr: string, timezone: string ) {
+function input(dateStr: string, timezone: string) {
     const date = new Date(dateStr)
     const diff = dayjs.tz('2023-01-01 00:00', timezone).diff(dayjs.tz('2023-01-01 00:00', localeTimezone), 'millisecond')
     return new Date(date.getTime() - diff)
@@ -52,7 +52,9 @@ interface AppDateInputProps {
         to: string,
         repeat: string,
         timezone: string,
-        repeatEndingTime: string }) => any
+        repeatEndingTime: string
+        counter: number
+    }) => any
 }
 
 function AppDateInput({allowRepeat = true, ...props}: AppDateInputProps) {
@@ -61,6 +63,7 @@ function AppDateInput({allowRepeat = true, ...props}: AppDateInputProps) {
     const [to, setTo] = useState(input(props.to, props.timezone))
     const [allDay, setAllDay] = useState(false)
     const [timezone, setTimezone] = useState([mapTimezone(props.timezone)])
+    const [counter, setCounter] = useState(1)
     const history = useRef<[Date, Date]>([from, to])
 
     const repeatOptions: any = [
@@ -176,14 +179,15 @@ function AppDateInput({allowRepeat = true, ...props}: AppDateInputProps) {
             to: output(to, timezone[0]!.id),
             repeat: repeat[0]!.id,
             repeatEndingTime,
-            timezone: timezone[0]!.id
+            timezone: timezone[0]!.id,
+            counter: counter
         }
 
 
-        console.log('duration',res)
+        console.log('duration', res)
         console.log(res.from, '→', res.to, repeat[0]!.id)
         props.onChange(res)
-    }, [from, to, repeat, timezone])
+    }, [from, to, repeat, timezone, counter])
 
     useEffect(() => {
         const isAllDay = dayjs.tz(new Date(props.from).getTime(), props.timezone).hour() === 0 && (new Date(props.to).getTime() - new Date(props.from).getTime() + 60000) % 8640000 === 0
@@ -319,6 +323,22 @@ function AppDateInput({allowRepeat = true, ...props}: AppDateInputProps) {
                 />
             }
         </div>
+
+        {
+            !!repeat[0] && !!repeat[0].id &&
+            <div className={'repeat-counter'}>
+                <div className={'title'}>How many times does it repeat?</div>
+                <div className={'repeat-counter-input'}>
+                    <span>Ends after</span>
+                    <input type="number"
+                           value={Boolean(counter) ? counter : ''}
+                           onChange={e => {
+                               setCounter(e.target.value as any * 1)
+                           }}/>
+                    <span>times</span>
+                </div>
+            </div>
+        }
     </>)
 }
 

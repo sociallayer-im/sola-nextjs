@@ -48,7 +48,6 @@ import AppEventTimeInput from "@/components/base/AppEventTimeInput/AppEventTimeI
 import {useTime3} from "@/hooks/formatTime";
 import IssuesInput from "@/components/base/IssuesInput/IssuesInput";
 import * as dayjsLib from "dayjs";
-import fa from "@walletconnect/legacy-modal/dist/cjs/browser/languages/fa";
 
 const utc = require('dayjs/plugin/utc')
 const timezone = require('dayjs/plugin/timezone')
@@ -155,6 +154,8 @@ function CreateEvent(props: CreateEventPageProps) {
     const [cohost, setCohost] = useState<string[]>([''])
     const [enableSpeakers, setEnableSpeakers] = useState(false)
     const [speakers, setSpeakers] = useState<string[]>([''])
+    const [repeatCounter, setRepeatCounter] = useState(1)
+    const [repeatCounterError, setRepeatCounterError] = useState(false)
 
     const [needPublish, setNeedPublish] = useState(false)
 
@@ -369,6 +370,14 @@ function CreateEvent(props: CreateEventPageProps) {
     useEffect(() => {
         setLabelError(label.length > 3)
     }, [label])
+
+    useEffect(() => {
+        if (repeat) {
+            setRepeatCounterError(repeatCounter < 1)
+        } else {
+            setRepeatCounterError(false)
+        }
+    }, [repeatCounter, repeat])
 
     useEffect(() => {
         if (telegram) {
@@ -731,6 +740,11 @@ function CreateEvent(props: CreateEventPageProps) {
             return false
         }
 
+        if (repeatCounterError && repeat) {
+            showToast('The number of times the event repeats must be greater than 0')
+            return false
+        }
+
         return true
     }
 
@@ -797,8 +811,8 @@ function CreateEvent(props: CreateEventPageProps) {
             geo_lng: lng,
             geo_lat: lat,
             interval: repeat!,
-            repeat_end_time: repeatEnd  as any,
             repeat_start_time: start  as any,
+            event_count: repeatCounter,
         }
 
         try {
@@ -1105,7 +1119,14 @@ function CreateEvent(props: CreateEventPageProps) {
                                         setRepeat(e.repeat as any || null)
                                         setRepeatEnd(e.repeatEndingTime as any || null)
                                         setTimezone(e.timezone as any || null)
+                                        setRepeatCounter(e.counter)
                                     }}/>
+                            </div>
+                        }
+
+                        {repeatCounterError &&
+                            <div className={'start-time-error'}>
+                                {'The number of times the event repeats must be greater than 0'}
                             </div>
                         }
 
