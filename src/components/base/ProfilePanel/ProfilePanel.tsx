@@ -210,12 +210,10 @@ function ProfilePanel(props: ProfilePanelProps) {
                     </div>
                 }
                 { !!props.profile.about && !isMaodao && !isSeedao &&
-                    <ProfileBio text={ props.profile.about }/>
+                    <ProfileBio text={ props.profile.about } />
                 }
 
-                { !isSeedao &&
-                    <ProfileSocialMediaList profile={ props.profile }/>
-                }
+                <ProfileSocialMediaList profile={ props.profile } />
             </div>
             {!isMaodao && !isSeedao &&
                 <div className='right-size'>
