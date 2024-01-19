@@ -184,7 +184,7 @@ function ProfileSocialMediaList(props: ProfileSocialMediaListProps) {
                             fill="#000"/>
                     </g>
                 </svg>
-                <a href={'#'} target='_blank'>{sns}</a>
+                <a>{sns}</a>
             </div>
         }
     </div>)
