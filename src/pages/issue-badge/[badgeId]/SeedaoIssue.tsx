@@ -4,13 +4,25 @@ import LangContext from "@/components/provider/LangProvider/LangContext";
 import {useContext, useEffect, useState} from "react";
 import AppInput from "@/components/base/AppInput";
 import AddressList from "@/components/base/AddressList/AddressList";
-import solas, {Badge, issueBatch, Profile, queryBadgeDetail, searchDomain, sendBadgeByWallet} from "@/service/solas";
+import solas, {
+    Badge,
+    getProfile,
+    issueBatch,
+    Profile,
+    queryBadgeDetail,
+    searchDomain,
+    sendBadgeByWallet
+} from "@/service/solas";
 import AppButton from "@/components/base/AppButton/AppButton";
 import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
 import {useParams, useRouter} from 'next/navigation'
 import userContext from "@/components/provider/UserProvider/UserContext";
 import {IssueTypeSelectorData} from "@/components/compose/IssueTypeSelectorBadge/IssueTypeSelectorBadge";
+import fetch from "@/utils/fetch";
 
+interface ProfileWithSns  extends Profile {
+    sns?: string
+}
 
 export function IssueBadge() {
     const {lang} = useContext(LangContext)
@@ -30,14 +42,56 @@ export function IssueBadge() {
     const params = useParams()
     const router = useRouter()
 
+    const getProfileBySNS = async (params: string): Promise<ProfileWithSns | null> => {
+        params = params.replace('.seedao', '') + '.seedao'
+        try {
+            const info = await fetch.get({
+                url: `https://sola.deno.dev/seedao/resolve/${params}`,
+                data: {}
+            })
+
+            if (info.data.address === '0x0000000000000000000000000000000000000000') {
+                return null
+            }
+
+            const profile = await getProfile({address: info.data.address})
+
+            return profile ? {
+                sns: params,
+                ...profile
+            } : null
+        } catch (e: any) {
+            return null
+        }
+    }
+
     useEffect(() => {
         if (domainSearchKey) {
-            searchDomain({username: domainSearchKey, page: 1}).then(res => {
-                if (res) {
-                    setSearchRes(res)
-                    setBadge(badge)
+            const task = [
+                getProfileBySNS(domainSearchKey),
+                searchDomain({username: domainSearchKey, page: 1})
+            ]
+
+            Promise.all(task).then(res => {
+                const [profile, searchRes] = res
+                if (profile) {
+                    const index = (searchRes as Profile[]).findIndex(item => item.id === (profile as Profile).id)
+                    if (index > -1) {
+                        (searchRes as Profile[])[index] = profile as any
+                        setSearchRes(searchRes as any)
+                    } else {
+                        setSearchRes([profile, ...searchRes as any])
+                    }
+                } else {
+                    setSearchRes(searchRes as any)
                 }
             })
+            //
+            // searchDomain({username: domainSearchKey, page: 1}).then(res => {
+            //     if (res) {
+            //         setSearchRes(res)
+            //     }
+            // })
         }
     }, [domainSearchKey])
 
@@ -229,7 +283,7 @@ export function IssueBadge() {
                                                   setDomainSearchKey(e.target.value)
                                               }}
                                               clearable={true}
-                                              placeholder={'Please input the domain/username to search'}/>
+                                              placeholder={'Please input the domain/username/SeeDAO SNS to search'}/>
                                     {!!searchRes.length && domainSearchKey &&
                                         <div className={styles['search-res']}>
                                             <AddressList data={searchRes}

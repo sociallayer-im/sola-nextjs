@@ -19,7 +19,7 @@ function AddressList<T>({ selected = [], ...props }: AddressListProp<T>) {
                             onClick={() => { !!props.onClick && !props.deletedOnly && props.onClick(item, index)} }>
                     <div className={'left'}>
                         <img src={item.image_url || defaultAvatar(item.id)} alt=""/>
-                        <span className={'name'}>{item.nickname || item.username }</span>
+                        <span className={'name'}>{item.username + `${item.nickname ? `(${item.nickname})` : ''}` + `${(item as any).sns ? `(${(item as any).sns})` : ''}`}</span>
                     </div>
                     { isSelected ? <i className='icon icon-selected' title='selected'></i> : false }
                     { props.deletedOnly &&
