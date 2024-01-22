@@ -1,18 +1,18 @@
 import {ReactNode, useContext, useEffect, useState} from 'react'
-import {useAccount, useDisconnect, useWalletClient } from 'wagmi'
+import {useAccount, useDisconnect, useWalletClient} from 'wagmi'
 import UserContext from './UserContext'
 import DialogsContext from '../DialogProvider/DialogsContext'
 import * as AuthStorage from '../../../utils/authStorage'
-import {myProfile, login as solaLogin} from '@/service/solas'
-import { useRouter } from 'next/navigation'
+import {login as solaLogin, myProfile} from '@/service/solas'
+import {useRouter} from 'next/navigation'
 import useEvent, {EVENT} from '../../../hooks/globalEvent'
 import {setAuth} from "@/utils/authStorage";
 import useShowRole from "@/components/zugame/RoleDialog/RoleDialog";
 import useSafePush from "@/hooks/useSafePush";
-import solaExtensionLogin from '../../../service/ExtensionLogin'
-import { WalletContext as solanaWalletContext } from '@solana/wallet-adapter-react'
+import {WalletContext as solanaWalletContext} from '@solana/wallet-adapter-react'
 import {SolanaSignInInput} from "@solana/wallet-standard-features";
 import fetch from "@/utils/fetch";
+import {createSignInMessage} from '@solana/wallet-standard-util';
 
 export interface User {
     id: number | null,
@@ -53,12 +53,12 @@ const emptyUser: User = {
     phone: null,
 }
 
-function UserProvider (props: UserProviderProps) {
+function UserProvider(props: UserProviderProps) {
     const [userInfo, setUserInfo] = useState<User>(emptyUser)
-    const { address, isConnecting, isDisconnected, connector } = useAccount()
-    const { disconnect } = useDisconnect()
-    const { data } = useWalletClient()
-    const { showToast, clean, showLoading } = useContext(DialogsContext)
+    const {address, isConnecting, isDisconnected, connector} = useAccount()
+    const {disconnect} = useDisconnect()
+    const {data} = useWalletClient()
+    const {showToast, clean, showLoading} = useContext(DialogsContext)
     const router = useRouter()
     const [newProfile, _] = useEvent(EVENT.profileUpdate)
     const showRoleDialog = useShowRole()
@@ -67,12 +67,12 @@ function UserProvider (props: UserProviderProps) {
 
 
     const setUser = (data: Partial<Record<keyof User, any>>) => {
-        const copyUserInfo = { ...userInfo , ...data }
+        const copyUserInfo = {...userInfo, ...data}
         setUserInfo(copyUserInfo)
     }
 
 
-    const setProfile = async (props: { authToken: string}) => {
+    const setProfile = async (props: { authToken: string }) => {
         try {
             const profileInfo = await myProfile({auth_token: props.authToken})
             setUser({
@@ -81,10 +81,10 @@ function UserProvider (props: UserProviderProps) {
                 twitter: profileInfo?.twitter || null,
                 domain: profileInfo?.username ? profileInfo?.username + process.env.NEXT_PUBLIC_SOLAS_DOMAIN : null,
                 userName: profileInfo?.username || null,
-                email:  profileInfo?.email || null,
+                email: profileInfo?.email || null,
                 avatar: profileInfo?.image_url || null,
                 authToken: props.authToken,
-                nickname:profileInfo?.nickname || null,
+                nickname: profileInfo?.nickname || null,
                 permissions: profileInfo?.permissions || [],
                 maodaoid: profileInfo?.maodaoid
             })
@@ -99,7 +99,7 @@ function UserProvider (props: UserProviderProps) {
                 clean()
                 setTimeout(() => {
                     safePush('/regist')
-                },100)
+                }, 100)
                 return
             }
 
@@ -249,30 +249,40 @@ function UserProvider (props: UserProviderProps) {
         console.log('Login ...')
         console.log('Login type: ', loginType)
 
+
         let authToken = AuthStorage.getAuth(solanaWallet.publicKey.toBase58())?.authToken
         const adapter: any = solanaWallet.wallet.adapter;
         const address = adapter.publicKey ? adapter.publicKey.toBase58() : undefined
 
+        console.log('adapter', adapter)
+
         if (!authToken) {
-            if (!('signIn' in adapter)) return true;
             const unloading = showLoading()
             try {
-                const input: SolanaSignInInput = {
-                    domain: window.location.host,
-                    address: address,
-                    statement: 'Sign in to Social Layer',
-                };
+                adapter.connect()
 
-                const output = await adapter.signIn(input);
+                const message = createSignInMessage({
+                    address: adapter.publicKey.toBase58(),
+                    domain: window.location.origin,
+                })
+
+
+                const sign = await solanaWallet.wallet.adapter.signMessage(message)
+                let signature: any = {}
+                sign.map((item: any, index: number) => {
+                    signature[index] = item
+                })
+
                 const getAuthToken = await fetch.post({
                     url: '/api/solana/authenticate',
                     data: {
-                        signature: output.signature,
-                        signedMessage: output.signedMessage,
-                        public_key: output.account.publicKey,
+                        signature: signature,
+                        signedMessage: message,
+                        public_key: adapter.publicKey,
                         address: address,
                     }
                 })
+
                 authToken = getAuthToken.data.auth_token
                 await setProfile({authToken: authToken!})
                 setAuth(adapter.publicKey.toBase58(), authToken!)
@@ -328,9 +338,9 @@ function UserProvider (props: UserProviderProps) {
     }, [])
 
     useEffect(() => {
-       if (data) {
-           walletLogin()
-       }
+        if (data) {
+            walletLogin()
+        }
     }, [data])
 
     useEffect(() => {
@@ -340,9 +350,10 @@ function UserProvider (props: UserProviderProps) {
     // update profile from event
     useEffect(() => {
         if (newProfile && (newProfile.id === userInfo.id || (!userInfo.domain && userInfo.id))) {
-            setUser({...userInfo,
+            setUser({
+                ...userInfo,
                 domain: newProfile.domain,
-                userName: newProfile.domain ? newProfile.domain.split('.')[0]: null,
+                userName: newProfile.domain ? newProfile.domain.split('.')[0] : null,
                 nickname: newProfile.nickname,
                 avatar: newProfile.image_url
             })
@@ -350,8 +361,9 @@ function UserProvider (props: UserProviderProps) {
     }, [newProfile])
 
     return (
-        <UserContext.Provider value={{ user: userInfo, setUser, logOut, emailLogin, walletLogin, phoneLogin, zupassLogin}}>
-            { props.children }
+        <UserContext.Provider
+            value={{user: userInfo, setUser, logOut, emailLogin, walletLogin, phoneLogin, zupassLogin}}>
+            {props.children}
         </UserContext.Provider>
     )
 }

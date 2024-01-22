@@ -1,7 +1,13 @@
 import {NextApiRequest, NextApiResponse} from "next/dist/shared/lib/utils";
-import {verifySignIn} from '@solana/wallet-standard-util';
+import {
+    verifySignIn,
+    parseSignInMessage,
+    deriveSignInMessageText,
+    createSignInMessage
+} from '@solana/wallet-standard-util';
 import {SolanaSignInInput} from "@solana/wallet-standard-features";
 import {solanaLogin} from "@/service/solas";
+import bs58 from 'bs58'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     try {
@@ -29,22 +35,23 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             return;
         }
 
-        const publicKey = new Uint8Array(Object.values(req.body.public_key) as any);
+        const publicKey = bs58.decode(req.body.public_key)
 
-        const input: SolanaSignInInput = {
-            domain: req.headers.host,
-            address: req.body.address,
-            statement: 'Sign in to Social Layer',
-        };
+        const input = {
+            address: req.body.address!,
+            domain: req.headers.origin!,
+        }
 
-        const signature = new Uint8Array(req.body.signature.data);
-        const signedMessage = new Uint8Array(req.body.signedMessage.data);
+        const signature = new Uint8Array(Object.values(req.body.signature) as any);
+        const signedMessage = new Uint8Array(Object.values(req.body.signedMessage) as any);
 
         const output: any = {
             signedMessage: signedMessage,
             signature: signature,
             account: {publicKey: publicKey}
         };
+
+        const info = parseSignInMessage(signature)
 
         if (!verifySignIn(input, output)) {
             res.status(403).send("Signature is not valid");

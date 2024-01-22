@@ -11,6 +11,13 @@ interface DialogConnectWalletProps {
     handleClose: (...rest: any[]) => any
 }
 
+const walletIcon:any = {
+    'metamask': '/images/metamask.png',
+    'joyid': '/images/joyid.png',
+    'trust wallet': '/images/trust_wallet.webp',
+    'rabby wallet': '/images/rabby wallet.png'
+}
+
 function DialogConnectWallet(props: DialogConnectWalletProps) {
     const unloading_1 = useRef<any>(null)
     const {connect, connectors, error, isLoading, pendingConnector} = useConnect({
@@ -97,7 +104,7 @@ function DialogConnectWallet(props: DialogConnectWalletProps) {
                     : <div className={'connect-item'}
                             key={connector.id}
                             onClick={() => handleConnectWallet(connector)}>
-                        <img src={`/images/${connector.name.toLowerCase()}.png`} alt={connector.name}/>
+                        <img src={walletIcon[connector.name.toLowerCase()] || `/images/injected.png`} alt={connector.name}/>
                         <div className='connect-name'>{connector.name}</div>
                     </div>
             ))}
@@ -126,12 +133,13 @@ function DialogConnectWallet(props: DialogConnectWalletProps) {
                 <>
                     {
                         solanaWallet.wallets.map((wallet: any, idx: number) => {
-                            return <div className='connect-item' key={idx} onClick={async () => {
+                            return wallet.readyState !== 'NotDetected' ? <div className='connect-item' key={idx} onClick={async () => {
                                 await handleSolanaLogin(wallet.adapter.name)
                             }}>
                                 <img src={wallet.adapter.icon} alt="email"/>
                                 <div className='connect-name'>{wallet.adapter.name}</div>
                             </div>
+                                :<div key={idx}></div>
                         })
                     }
                 </>
