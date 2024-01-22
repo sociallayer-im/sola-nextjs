@@ -5,6 +5,7 @@ import {setLastLoginType} from '@/utils/authStorage'
 import DialogsContext from '../../../provider/DialogProvider/DialogsContext'
 import UserContext from '../../../provider/UserProvider/UserContext'
 import {useRouter} from 'next/navigation'
+import { WalletContext as solanaWalletContext } from '@solana/wallet-adapter-react'
 
 interface DialogConnectWalletProps {
     handleClose: (...rest: any[]) => any
@@ -26,6 +27,7 @@ function DialogConnectWallet(props: DialogConnectWalletProps) {
     const router = useRouter()
     const {clean, showLoading} = useContext(DialogsContext)
     const {user, logOut, setUser} = useContext(UserContext)
+    const solanaWallet:any  = useContext(solanaWalletContext)
 
     useEffect(() => {
         if (user.id) {
@@ -73,6 +75,14 @@ function DialogConnectWallet(props: DialogConnectWalletProps) {
         router.push('/login-phone')
     }
 
+    const handleSolanaLogin= (walletName: string) => {
+        // solanaWallet.disconnect()
+        setLastLoginType('solana')
+        window.localStorage.setItem('fallback', window.location.href)
+        solanaWallet.select(walletName)
+        clean()
+    }
+
     const arrowPhoneLogin = process.env.NEXT_PUBLIC_ALLOW_PHONE_LOGIN === 'true'
 
     return (
@@ -111,6 +121,21 @@ function DialogConnectWallet(props: DialogConnectWalletProps) {
                 <img src="/images/zupass.png" alt="email"/>
                 <div className='connect-name'>Zupass</div>
             </div>
+
+            { solanaWallet.wallets && solanaWallet.wallets.length > 0 &&
+                <>
+                    {
+                        solanaWallet.wallets.map((wallet: any, idx: number) => {
+                            return <div className='connect-item' key={idx} onClick={async () => {
+                                await handleSolanaLogin(wallet.adapter.name)
+                            }}>
+                                <img src={wallet.adapter.icon} alt="email"/>
+                                <div className='connect-name'>{wallet.adapter.name}</div>
+                            </div>
+                        })
+                    }
+                </>
+            }
         </div>
     )
 }

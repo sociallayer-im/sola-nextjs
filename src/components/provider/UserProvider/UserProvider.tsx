@@ -9,9 +9,10 @@ import useEvent, {EVENT} from '../../../hooks/globalEvent'
 import {setAuth} from "@/utils/authStorage";
 import useShowRole from "@/components/zugame/RoleDialog/RoleDialog";
 import useSafePush from "@/hooks/useSafePush";
-
-
 import solaExtensionLogin from '../../../service/ExtensionLogin'
+import { WalletContext as solanaWalletContext } from '@solana/wallet-adapter-react'
+import {SolanaSignInInput} from "@solana/wallet-standard-features";
+import fetch from "@/utils/fetch";
 
 export interface User {
     id: number | null,
@@ -62,6 +63,8 @@ function UserProvider (props: UserProviderProps) {
     const [newProfile, _] = useEvent(EVENT.profileUpdate)
     const showRoleDialog = useShowRole()
     const {safePush} = useSafePush()
+    const solanaWallet: any = useContext(solanaWalletContext)
+
 
     const setUser = (data: Partial<Record<keyof User, any>>) => {
         const copyUserInfo = { ...userInfo , ...data }
@@ -73,7 +76,7 @@ function UserProvider (props: UserProviderProps) {
         try {
             const profileInfo = await myProfile({auth_token: props.authToken})
             setUser({
-                wallet: profileInfo?.address,
+                wallet: profileInfo.sol_address || profileInfo?.address,
                 id: profileInfo?.id! || null,
                 twitter: profileInfo?.twitter || null,
                 domain: profileInfo?.username ? profileInfo?.username + process.env.NEXT_PUBLIC_SOLAS_DOMAIN : null,
@@ -120,6 +123,7 @@ function UserProvider (props: UserProviderProps) {
 
     const logOut = () => {
         disconnect()
+        solanaWallet.disconnect()
 
         if (userInfo.wallet) {
             AuthStorage.burnAuth(userInfo.wallet)
@@ -237,6 +241,56 @@ function UserProvider (props: UserProviderProps) {
         setAuth(phone, authToken)
     }
 
+    const solanaLogin = async () => {
+        const loginType = AuthStorage.getLastLoginType()
+        if (!loginType) return
+        if (loginType !== 'solana') return
+
+        console.log('Login ...')
+        console.log('Login type: ', loginType)
+
+        let authToken = AuthStorage.getAuth(solanaWallet.publicKey.toBase58())?.authToken
+        const adapter: any = solanaWallet.wallet.adapter;
+        const address = adapter.publicKey ? adapter.publicKey.toBase58() : undefined
+
+        if (!authToken) {
+            if (!('signIn' in adapter)) return true;
+            const unloading = showLoading()
+            try {
+                const input: SolanaSignInInput = {
+                    domain: window.location.host,
+                    address: address,
+                    statement: 'Sign in to Social Layer',
+                };
+
+                const output = await adapter.signIn(input);
+                const getAuthToken = await fetch.post({
+                    url: '/api/solana/authenticate',
+                    data: {
+                        signature: output.signature,
+                        signedMessage: output.signedMessage,
+                        public_key: output.account.publicKey,
+                        address: address,
+                    }
+                })
+                authToken = getAuthToken.data.auth_token
+                await setProfile({authToken: authToken!})
+                setAuth(adapter.publicKey.toBase58(), authToken!)
+            } catch (e) {
+                console.error(e)
+                showToast('Login fail', 3000)
+                logOut()
+                return
+            } finally {
+                unloading()
+            }
+        }
+
+        console.log('Storage token: ', authToken!)
+        await setProfile({authToken: authToken!})
+        setAuth(address, authToken!)
+    }
+
     const login = async () => {
         const loginType = AuthStorage.getLastLoginType()
         if (!loginType) return
@@ -262,9 +316,12 @@ function UserProvider (props: UserProviderProps) {
         } else if (loginType === 'phone') {
             await setProfile({authToken})
         } else if (loginType == 'zupass') {
-            setProfile({authToken})
+            await setProfile({authToken})
+        } else if (loginType == 'solana') {
+            await setProfile({authToken})
         }
     }
+
 
     useEffect(() => {
         login()
@@ -275,6 +332,10 @@ function UserProvider (props: UserProviderProps) {
            walletLogin()
        }
     }, [data])
+
+    useEffect(() => {
+        solanaWallet.connected && solanaLogin()
+    }, [solanaWallet.connected])
 
     // update profile from event
     useEffect(() => {

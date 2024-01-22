@@ -96,8 +96,8 @@ function ProfilePanel(props: ProfilePanelProps) {
             title: lang['Profile_Show_Wallet'],
             confirmLabel: lang['Profile_Show_Copy'],
             cancelLabel: lang['Profile_Show_Close'],
-            onConfirm: (close: any) => { copyWithDialog(profile.address!);close(); },
-            content: () => <DialogContent>{ profile.address }</DialogContent>
+            onConfirm: (close: any) => { copyWithDialog(profile.sol_address! || profile.address!);close(); },
+            content: () => <DialogContent>{ profile.sol_address! || profile.address! }</DialogContent>
         })
     }
 
@@ -181,7 +181,7 @@ function ProfilePanel(props: ProfilePanelProps) {
                 </div>
                 <div className='domain-bar'>
                     <div className='domain'>{ profile.nickname || profile.username }</div>
-                    { profile.address &&
+                    { profile.address || profile.sol_address &&
                         <div className='show-wallet' onClick={ () => { showWallet() } }>
                             <i className='icon icon-wallet'></i>
                         </div>

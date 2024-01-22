@@ -48,6 +48,7 @@ function Page(props: any) {
     useEffect(() => {
         const getProfile = async function () {
             const emptyProfile: Profile = {
+                sol_address: null,
                 id: 0,
                 username: '--',
                 address: null,
