@@ -181,7 +181,7 @@ function ProfilePanel(props: ProfilePanelProps) {
                 </div>
                 <div className='domain-bar'>
                     <div className='domain'>{ profile.nickname || profile.username }</div>
-                    { profile.address || profile.sol_address &&
+                    {(!!profile.address || !!profile.sol_address) &&
                         <div className='show-wallet' onClick={ () => { showWallet() } }>
                             <i className='icon icon-wallet'></i>
                         </div>
