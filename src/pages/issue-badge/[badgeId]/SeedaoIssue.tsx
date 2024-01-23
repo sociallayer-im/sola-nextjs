@@ -1,7 +1,7 @@
 import styles from './IssueBadge.module.scss'
 import PageBack from "@/components/base/PageBack";
 import LangContext from "@/components/provider/LangProvider/LangContext";
-import {useContext, useEffect, useState} from "react";
+import {useContext, useEffect, useState, useRef} from "react";
 import AppInput from "@/components/base/AppInput";
 import AddressList from "@/components/base/AddressList/AddressList";
 import solas, {
@@ -37,6 +37,8 @@ export function IssueBadge() {
     const [presendAmount, setPresendAmount] = useState(1)
     const [badge, setBadge] = useState<Badge | null>(null)
 
+    const timeout = useRef<any>(null)
+
     const {showToast, showLoading} = useContext(DialogsContext)
     const {user} = useContext(userContext)
     const params = useParams()
@@ -66,32 +68,50 @@ export function IssueBadge() {
     }
 
     useEffect(() => {
-        if (domainSearchKey) {
-            const task = [
-                getProfileBySNS(domainSearchKey),
-                searchDomain({username: domainSearchKey, page: 1})
-            ]
+        timeout.current = setTimeout( async () => {
+            if (timeout.current) {
+                clearTimeout(timeout.current)
+            }
 
-            Promise.all(task).then(res => {
-                const [profile, searchRes] = res
-                if (profile) {
-                    const index = (searchRes as Profile[]).findIndex(item => item.id === (profile as Profile).id)
-                    if (index > -1) {
-                        (searchRes as Profile[])[index] = profile as any
-                        setSearchRes(searchRes as any)
-                    } else {
-                        setSearchRes([profile, ...searchRes as any])
+            if (domainSearchKey) {
+                const task = [
+                    searchDomain({username: domainSearchKey, page: 1}),
+                    getProfile({username: domainSearchKey.split('.')[0]}),
+                    getProfileBySNS(domainSearchKey),
+                ]
+
+                const fetch = await Promise.all(task)
+                let res:Profile[] = [];
+                [fetch[1], ...fetch[0] as any].map(item => {
+                    if (item && !res.find(i => i.id === item.id)) {
+                        res.push(item)
                     }
-                } else {
-                    setSearchRes(searchRes as any)
+                })
+
+                if (fetch[2]) {
+                    const target: any = fetch[2]
+                    let index = -1
+                    res.forEach((item, i) => {
+                        if (item.id === target.id) {
+                            index = i
+                        }
+                    })
+
+                    if (index !== -1) {
+                        res.splice(index, 1)
+                    }
+
+                    res = [target, ...res]
                 }
-            })
-            //
-            // searchDomain({username: domainSearchKey, page: 1}).then(res => {
-            //     if (res) {
-            //         setSearchRes(res)
-            //     }
-            // })
+
+                setSearchRes(res)
+            } else {
+                setSearchRes([])
+            }
+        }, 300)
+
+        return () => {
+            timeout.current && clearTimeout(timeout.current)
         }
     }, [domainSearchKey])
 

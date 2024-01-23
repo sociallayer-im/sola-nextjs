@@ -597,6 +597,9 @@ const langCN: LangConfig = {
   No: '否',
   Are_You_Sure_To_Reject_This_Event: '确定要拒绝这个活动吗？',
   Ongoing: '进行中',
+  Public_Events: '公共活动',
+  My_Events: '我的活动',
+  Publish_Request: '发布申请',
 }
 
 

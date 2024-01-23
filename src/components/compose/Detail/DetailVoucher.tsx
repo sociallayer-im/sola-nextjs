@@ -42,7 +42,7 @@ function DetailVoucher(props: DetailBadgeletProps) {
 
     const isCreator = user.id === props.voucher.sender.id
     const isPresend = props.voucher.strategy === 'code'
-    const isBadgeletOwner = props.voucher.receiver && user.id === props.voucher.receiver.id
+    const isBadgeletOwner = (props.voucher.receiver && user.id === props.voucher.receiver.id) || props.voucher.receiver_address === user.wallet
 
     const formatTime = useTime()
 

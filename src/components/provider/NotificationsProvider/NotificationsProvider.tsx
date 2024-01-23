@@ -30,6 +30,7 @@ export default function NotificationsProvider(props: { children: any }) {
 
     useEffect(() => {
         if (!user.userName) {
+            subscription = null
             setInfoList([])
             return
         }
@@ -67,7 +68,7 @@ export default function NotificationsProvider(props: { children: any }) {
             },
             {
                 next: (event: any) => {
-                    console.log('subscription group_invites : ', event)
+                    console.log('subscription group_request_invites : ', event)
                     if (event.data.group_invites || event.data.group_invites.length) {
                         setInfoList(event.data.group_invites)
                     }

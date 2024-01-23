@@ -56,6 +56,7 @@ function ListUserRecognition(props: ListUserRecognitionProps) {
             <>
                 <div className={'list-title'}>{lang['Badgelet_List_Title']}</div>
                 <ListUserAssets
+                    previewCount={9}
                     queryFcn={getBadgelet}
                     onRef={listWrapperRefBadgeLet}
                     child={(item, key) => <CardBadgelet badgelet={item} key={key}/>}/>
@@ -67,6 +68,7 @@ function ListUserRecognition(props: ListUserRecognitionProps) {
                 <div className={`list-title margin}`}>{lang['Created_List_Title']}</div>
             }
             <ListUserAssets
+                previewCount={ (props.profile as Group).creator ? 8 : 9 }
                 queryFcn={getBadge}
                 onListChange={(list: any) => {
                     setNoBadge(!list.length)

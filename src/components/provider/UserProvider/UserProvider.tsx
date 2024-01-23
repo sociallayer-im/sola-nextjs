@@ -271,7 +271,7 @@ function UserProvider (props: UserProviderProps) {
     }, [])
 
     useEffect(() => {
-       if (data) {
+       if (data && !userInfo.id) {
            walletLogin()
        }
     }, [data])

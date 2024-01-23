@@ -92,8 +92,8 @@ function IssuesInput ({allowAddressList=true, allowSearch=true, ...props}: Issue
                 // const res2 = await getProfile({domain: newValue.split('.')[0]})
                 // const res3 = await getProfile({username: newValue.split('.')[0]})
                 // const res4 = await getProfile({email: newValue})
-                let res:Profile[] = []
-                const deduplication = [fetch[1], ...fetch[0] as any].map(item => {
+                let res:Profile[] = [];
+                [fetch[1], ...fetch[0] as any].map(item => {
                     if (item && !res.find(i => i.id === item.id)) {
                         res.push(item)
                     }
@@ -109,8 +109,10 @@ function IssuesInput ({allowAddressList=true, allowSearch=true, ...props}: Issue
                     })
 
                     if (index !== -1) {
-                        res[index] = target
+                        res.splice(index, 1)
                     }
+
+                    res = [target, ...res]
                 }
 
                 setSearchRes(res.splice(0,4) || [])

@@ -601,6 +601,9 @@ const langEN = {
     No: 'No',
     Are_You_Sure_To_Reject_This_Event: 'Are you sure to reject this event?',
     Ongoing: 'Ongoing',
+    Public_Events: 'Public events',
+    My_Events: 'My events',
+    Publish_Request: 'Publish Request'
 }
 
 

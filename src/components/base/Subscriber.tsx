@@ -21,8 +21,10 @@ function Subscriber() {
     // 实时接受badgelet
     useEffect(() => {
         const clean = () => {
-            !!subscription && subscription()
-            !!subscriptionInvite && subscriptionInvite()
+            // !!subscription && subscription()
+            // !!subscriptionInvite && subscriptionInvite()
+            subscription = null
+            subscriptionInvite = null
             SubscriptionUserId.current = 0
         }
         // unSubscribe
@@ -37,7 +39,7 @@ function Subscriber() {
 
             // create new
             subscription = wsClient.subscribe({
-                query: `subscription { ${voucherSchema({page: 1, receiver_id: user.id!})} }`,
+                query: `subscription { ${voucherSchema({page: 1, receiver_id: user.id!, address: user.wallet || undefined})} }`,
             }, {
                 next: (event: any) => {
                     console.log('subscription voucher: ', event)

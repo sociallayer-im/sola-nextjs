@@ -28,13 +28,18 @@ export const voucherSchema = (props: QueryPresendProps) => {
         variables += `id: {_eq: ${props.id}},`
     }
 
-    if (props.receiver_id) {
+    if (props.receiver_id && props.address) {
+        variables += `_or: [{receiver_id: {_eq: ${props.receiver_id}}}, {receiver_address: {_eq: "${props.address}"}}],`
+    } else if (props.receiver_id) {
         variables += `receiver_id: {_eq: ${props.receiver_id}},`
+    } else if (props.address) {
+        variables += `receiver_address: {_eq: "${props.address}"},`
     }
 
     return gql`vouchers(where: {counter: {_neq: 0}, ${variables}, expires_at: {_gt: "${new Date().toISOString()}"}} limit: 20, offset: ${props.page * 20 - 20}, order_by: {created_at: desc}) {
         id
         strategy
+        receiver_address
         badgelets {
           badge_id
           content
@@ -783,7 +788,8 @@ interface QueryPresendProps {
     page: number,
     group_id?: number,
     id?: number
-    receiver_id?: number
+    receiver_id?: number,
+    address?: string
 }
 
 export interface Presend extends Voucher {
@@ -4471,6 +4477,7 @@ export interface Voucher {
     sender_id: number,
     badgelets: Badgelet[]
     strategy: 'code' | 'account'
+    receiver_address: string | null
 }
 
 export async function getPendingBadges(profile_id: number, page = 1) {
@@ -4485,6 +4492,7 @@ export async function queryVoucherDetail(id: number) {
       vouchers(where: {id: {_eq: "${id}"}}) {
         id
         strategy
+        receiver_address
         badge_id
         badge {
           badge_type

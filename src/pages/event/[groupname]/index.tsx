@@ -95,10 +95,10 @@ function Home(props: {badges: Badge[], initEvent?: Group, initList?: Event[], me
                 <div className={'home-page-event-top'}>
                     <div className={'center'}>
                         <div className={'mode-selector'}>
-                            <div className={`mode ${mode === 'public' ? 'active' : ''}`} onClick={e => {setMode('public')}}>{'Public Events'}</div>
-                            <div className={`mode ${mode === 'my' ? 'active' : ''}`} onClick={e => {setMode('my')}}>{'My Events'}</div>
+                            <div className={`mode ${mode === 'public' ? 'active' : ''}`} onClick={e => {setMode('public')}}>{lang['Public_Events']}</div>
+                            <div className={`mode ${mode === 'my' ? 'active' : ''}`} onClick={e => {setMode('my')}}>{lang['My_Events']}</div>
                             { canPublish && <div className={`mode ${mode === 'request' ? 'active' : ''}`} onClick={e => {setMode('request')}}>
-                                {'Publish Request'}
+                                {lang['Publish_Request']}
                                 { pendingEvent.length > 0 &&
                                     <i className={'dot'} />
                                 }
