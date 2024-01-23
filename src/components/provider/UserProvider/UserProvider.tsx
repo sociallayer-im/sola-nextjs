@@ -260,12 +260,14 @@ function UserProvider(props: UserProviderProps) {
             const unloading = showLoading()
             try {
                 adapter.connect()
-
+                const now = new Date().toISOString()
                 const message = createSignInMessage({
                     address: adapter.publicKey.toBase58(),
                     domain: window.location.origin,
+                    version: '1',
+                    issuedAt: now,
+                    uri: window.location.origin,
                 })
-
 
                 const sign = await solanaWallet.wallet.adapter.signMessage(message)
                 let signature: any = {}
@@ -280,6 +282,7 @@ function UserProvider(props: UserProviderProps) {
                         signedMessage: message,
                         public_key: adapter.publicKey,
                         address: address,
+                        timestamps: now,
                     }
                 })
 

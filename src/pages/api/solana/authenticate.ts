@@ -40,6 +40,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const input = {
             address: req.body.address!,
             domain: req.headers.origin!,
+            version: '1',
+            issuedAt: req.body.timestamps,
+            uri: req.headers.origin!
         }
 
         const signature = new Uint8Array(Object.values(req.body.signature) as any);

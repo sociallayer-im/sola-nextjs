@@ -5,13 +5,13 @@ import {setLastLoginType} from '@/utils/authStorage'
 import DialogsContext from '../../../provider/DialogProvider/DialogsContext'
 import UserContext from '../../../provider/UserProvider/UserContext'
 import {useRouter} from 'next/navigation'
-import { WalletContext as solanaWalletContext } from '@solana/wallet-adapter-react'
+import {WalletContext as solanaWalletContext} from '@solana/wallet-adapter-react'
 
 interface DialogConnectWalletProps {
     handleClose: (...rest: any[]) => any
 }
 
-const walletIcon:any = {
+const walletIcon: any = {
     'metamask': '/images/metamask.png',
     'joyid': '/images/joyid.png',
     'trust wallet': '/images/trust_wallet.webp',
@@ -34,7 +34,7 @@ function DialogConnectWallet(props: DialogConnectWalletProps) {
     const router = useRouter()
     const {clean, showLoading} = useContext(DialogsContext)
     const {user, logOut, setUser} = useContext(UserContext)
-    const solanaWallet:any  = useContext(solanaWalletContext)
+    const solanaWallet: any = useContext(solanaWalletContext)
 
     useEffect(() => {
         if (user.id) {
@@ -82,7 +82,7 @@ function DialogConnectWallet(props: DialogConnectWalletProps) {
         router.push('/login-phone')
     }
 
-    const handleSolanaLogin= (walletName: string) => {
+    const handleSolanaLogin = (walletName: string) => {
         // solanaWallet.disconnect()
         setLastLoginType('solana')
         window.localStorage.setItem('fallback', window.location.href)
@@ -96,14 +96,16 @@ function DialogConnectWallet(props: DialogConnectWalletProps) {
         <div className='dialog-connect-wallet'>
             <div className={'title'}>
                 <div>{lang['Nav_Wallet_Connect']}</div>
-                <i className={'icon-close'}  onClick={e => {props.handleClose()}}/>
+                <i className={'icon-close'} onClick={e => {
+                    props.handleClose()
+                }}/>
             </div>
             {connectors.map((connector) => (
                 (!connector.ready) ?
                     <></>
                     : <div className={'connect-item'}
-                            key={connector.id}
-                            onClick={() => handleConnectWallet(connector)}>
+                           key={connector.id}
+                           onClick={() => handleConnectWallet(connector)}>
                         <img src={walletIcon[connector.name.toLowerCase()] || `/images/injected.png`} alt={connector.name}/>
                         <div className='connect-name'>{connector.name}</div>
                     </div>
@@ -129,17 +131,19 @@ function DialogConnectWallet(props: DialogConnectWalletProps) {
                 <div className='connect-name'>Zupass</div>
             </div>
 
-            { solanaWallet.wallets && solanaWallet.wallets.length > 0 &&
+            {solanaWallet.wallets && solanaWallet.wallets.length > 0 &&
                 <>
                     {
                         solanaWallet.wallets.map((wallet: any, idx: number) => {
-                            return wallet.readyState !== 'NotDetected' ? <div className='connect-item' key={idx} onClick={async () => {
-                                await handleSolanaLogin(wallet.adapter.name)
-                            }}>
-                                <img src={wallet.adapter.icon} alt="email"/>
-                                <div className='connect-name'>{wallet.adapter.name}</div>
-                            </div>
-                                :<div key={idx}></div>
+                            return wallet.readyState !== 'NotDetected' ?
+                                <div className='connect-item' key={idx} onClick={async () => {
+                                    await handleSolanaLogin(wallet.adapter.name)
+                                }}>
+                                    <img src={wallet.adapter.icon} alt="email"/>
+                                    <div className='connect-name'>{wallet.adapter.name}</div>
+                                    <img className='chain-icon' src="/images/solana.png" alt=""/>
+                                </div>
+                                : <div key={idx}></div>
                         })
                     }
                 </>
