@@ -244,7 +244,7 @@ function UserProvider (props: UserProviderProps) {
         console.log('Login ...')
         console.log('Login type: ', loginType)
 
-        let auth = AuthStorage.getAuth(address)
+        let auth = AuthStorage.getAuth()
         if (!auth) {
             return
         }
