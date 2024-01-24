@@ -1,0 +1,126 @@
+.ticket-setting-list {
+  max-width: 600px;
+  margin-bottom: 40px;
+
+  .add-btn {
+    color: var(--Text-4-Headline, #272928);
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 24px;
+  }
+}
+
+.ticket-form {
+  max-width: 600px;
+  border: 1px solid #F1F1F1;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 12px;
+
+  .width-limit {
+    max-width: 300px;
+  }
+
+  .width-limit-2 {
+    max-width: 520px;
+  }
+
+  .width-limit-3 {
+    width: 80px;
+    margin-right: 12px;
+  }
+
+  .width-limit-4 {
+    width: 160px;
+    margin-right: 12px;
+  }
+
+  .title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .left {
+      color: var(--Text-4-Headline, #272928);
+      text-align: center;
+      font-size: 16px;
+      font-style: normal;
+      font-weight: 600;
+      line-height: 18px;
+      display: flex;
+      flex-flow: row nowrap;
+      align-items: center;
+
+      svg {
+        margin-right: 6px;
+      }
+    }
+
+    .delete {
+      cursor: pointer;
+    }
+  }
+
+  .item-des {
+    color: var(--Text-3-Subtitle, #4F5150);
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 18px;
+    margin-bottom: 8px;
+  }
+
+  .item-title {
+    color: var(--Text-4-Headline, #272928);
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 24px;
+    margin-bottom: 8px;
+    margin-top: 27px;
+  }
+
+  .item-title-inline {
+    color: var(--Text-4-Headline, #272928);
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 24px;
+    margin-bottom: 8px;
+    margin-top: 27px;
+    display: flex;
+    align-items: center;
+    flex-flow: row nowrap;
+    .label {
+      margin-right: 12px;
+    }
+
+    .value {
+      display: flex;
+      flex-flow: row nowrap;
+      align-items: center;
+    }
+  }
+
+  .ticket-type {
+    display: flex;
+    flex-flow: row nowrap;
+    margin-right: 20px;
+    cursor: pointer;
+  }
+
+}
+
+.ticket-payment {
+  display: flex;
+  align-items: center;
+
+  div[data-baseweb="select"] {
+    margin-right: 12px;
+  }
+
+  div[data-baseweb="select"] > div {
+    border: 0;
+  }
+}

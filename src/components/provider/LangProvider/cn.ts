@@ -600,6 +600,17 @@ const langCN: LangConfig = {
   Public_Events: '公共活动',
   My_Events: '我的活动',
   Publish_Request: '发布申请',
+  Ticket_Type_Setting: '票种设置',
+  Ticket: '门票',
+  Name_Of_Tickets: '票种名称',
+  Ticket_Description: '票种描述',
+  Price: '价格',
+  Receiving_Wallet_Address: '收费钱包地址',
+  Ticket_Amount: '票数',
+  Qualification: 'Qualification (Optional)',
+  Tickets: '张',
+  Select_A_Badge: '选择徽章',
+  Get_A_Ticket: 'Get a ticket',
 }
 
 

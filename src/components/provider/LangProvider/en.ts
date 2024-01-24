@@ -603,7 +603,18 @@ const langEN = {
     Ongoing: 'Ongoing',
     Public_Events: 'Public events',
     My_Events: 'My events',
-    Publish_Request: 'Publish Request'
+    Publish_Request: 'Publish Request',
+    Ticket_Type_Setting: 'Ticket Type Setting',
+    Ticket: 'Ticket',
+    Name_Of_Tickets: 'Name of Tickets',
+    Ticket_Description: 'Ticket description',
+    Price: 'Price',
+    Receiving_Wallet_Address: 'Receiving wallet address',
+    Ticket_Amount: 'Ticket amount',
+    Qualification: 'Qualification (Optional)',
+    Tickets: 'Tickets',
+    Select_A_Badge: 'Select a badge',
+    Get_A_Ticket: 'Get a ticket',
 }
 
 

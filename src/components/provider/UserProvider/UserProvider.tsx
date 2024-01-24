@@ -119,6 +119,7 @@ function UserProvider (props: UserProviderProps) {
     }
 
     const logOut = () => {
+        console.trace('logOut====')
         disconnect()
 
         if (userInfo.wallet) {

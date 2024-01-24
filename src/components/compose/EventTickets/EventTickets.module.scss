@@ -1,0 +1,57 @@
+.event-ticket-list {
+  .event-ticket-title {
+    color: #000;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 24px;
+    margin-bottom: 14px;
+  }
+
+  .list {
+    display: flex;
+    flex-flow: column nowrap;
+    border-radius: 4px;
+    border: 1px solid var(--Fill-2-Medium, #F2F2F1);
+    background: #FFF;
+    padding: 16px;
+
+    .item {
+      padding: 16px;
+      background: #F8F9F8;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      box-sizing: border-box;
+      cursor: pointer;
+
+      &.selected {
+        background: #EFFFF9;
+        border: 2px solid var(--Fill-2-Medium, #BAFFAD);
+      }
+
+      .item-title {
+        color: var(--Text-4-Headline, #272928);
+        font-size: 20px;
+        font-style: normal;
+        font-weight: 600;
+        line-height: 28px;
+      }
+
+      .item-des {
+        color: var(--Text-2-Secondary, #7B7C7B);
+        font-size: 14px;
+        font-style: normal;
+        font-weight: 400;
+        line-height: 22px;
+      }
+
+      .item-price {
+        color: var(--Secondary-Color-Brand4-3-Normal, #F26692);
+        font-size: 20px;
+        font-style: normal;
+        font-weight: 600;
+        line-height: 28px;
+      }
+    }
+  }
+}

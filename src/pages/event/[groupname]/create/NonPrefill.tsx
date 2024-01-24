@@ -48,6 +48,7 @@ import AppEventTimeInput from "@/components/base/AppEventTimeInput/AppEventTimeI
 import {useTime3} from "@/hooks/formatTime";
 import IssuesInput from "@/components/base/IssuesInput/IssuesInput";
 import * as dayjsLib from "dayjs";
+import TicketSetting from "@/components/compose/TicketSetting/TicketSetting";
 
 const utc = require('dayjs/plugin/utc')
 const timezone = require('dayjs/plugin/timezone')
@@ -158,6 +159,8 @@ function CreateEvent(props: CreateEventPageProps) {
     const [repeatCounterError, setRepeatCounterError] = useState(false)
 
     const [needPublish, setNeedPublish] = useState(false)
+
+    const [enableTicket, setEnableTicket] = useState(true)
 
     const toNumber = (value: string, set: any) => {
         if (!value) {
@@ -1344,6 +1347,23 @@ function CreateEvent(props: CreateEventPageProps) {
                                     </div>
                                 </div>
                             </div>
+                        }
+
+                        <div className={'input-area'}>
+                            <div className={'toggle'}>
+                                <div className={'item-title'}>{lang['Ticket_Type_Setting']}</div>
+                                <div className={'item-value'}>
+
+                                    <Toggle checked={enableTicket} onChange={e => {
+                                        setEnableTicket(!enableTicket)
+                                    }}/>
+                                </div>
+                            </div>
+                        </div>
+
+                        {
+                            enableTicket && creator &&
+                            <TicketSetting creator={creator} value={[]}/>
                         }
 
 

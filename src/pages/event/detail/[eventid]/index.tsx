@@ -37,6 +37,7 @@ import ImgLazy from "@/components/base/ImgLazy/ImgLazy";
 import EventDefaultCover from "@/components/base/EventDefaultCover";
 import {Swiper, SwiperSlide} from 'swiper/react'
 import {Mousewheel, FreeMode} from "swiper";
+import EventTickets from "@/components/compose/EventTickets/EventTickets";
 
 import * as dayjsLib from "dayjs";
 import Empty from "@/components/base/Empty";
@@ -779,6 +780,8 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                     </div>
                                 </div>
                             }
+
+                            <EventTickets event={event} />
                         </div>
                     </div>
                 </div>
