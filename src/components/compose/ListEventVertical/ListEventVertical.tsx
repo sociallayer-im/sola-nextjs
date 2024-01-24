@@ -84,7 +84,9 @@ function ListEventVertical(props: {initData?: Event[] }) {
     }, [list])
 
     useEffect(() => {
-        getEvent(true)
+        if (needUpdate) {
+            getEvent(true)
+        }
     }, [needUpdate])
 
     const changeTab = (tab: 'latest' | 'coming' | 'past') => {
@@ -112,7 +114,6 @@ function ListEventVertical(props: {initData?: Event[] }) {
             setIsLoadAll(props.initData.length < 10)
         }
     }, [props.initData])
-
 
     return (
         <div className={'module-tabs'}>
