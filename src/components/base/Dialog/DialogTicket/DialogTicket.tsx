@@ -5,11 +5,15 @@ import useCopy from "@/hooks/copy";
 import AppButton from "@/components/base/AppButton/AppButton";
 import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
 import DialogConnectWalletForPay from "@/components/base/Dialog/DialogConnectWalletForPay/DialogConnectWalletForPay";
+import {useAccount, useWriteContract} from "wagmi";
 
 function DialogTicket(props: { close: () => any }) {
     const {lang} = useContext(LangContext)
     const {copyWithDialog} = useCopy()
     const {openDialog} = useContext(DialogsContext)
+    const {address} = useAccount()
+
+    const { data: hash, writeContract } = useWriteContract()
 
     useEffect(() => {
 
@@ -87,7 +91,14 @@ function DialogTicket(props: { close: () => any }) {
             <div className={styles['value']}>10 USDT</div>
         </div>
 
-        <AppButton special onClick={e => {connectWallet()}}>{'Connect Wallet'}</AppButton>
+        {!address &&
+            <AppButton special onClick={e => {connectWallet()}}>{'Connect Wallet'}</AppButton>
+
+        }
+
+        {address &&
+            <AppButton special onClick={e => {connectWallet()}}>{'Pay'}</AppButton>
+        }
 
     </div>)
 }

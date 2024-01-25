@@ -10,42 +10,7 @@ import DialogIssuePrefill from "@/components/eventSpecial/DialogIssuePrefill/Dia
 import {OpenDialogProps} from "@/components/provider/DialogProvider/DialogProvider";
 import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
 import {Delete} from "baseui/icon";
-
-export const paymentTokenList = [{
-    chain: 'Ethereum',
-    id: 'ethereum',
-    chainId: 1,
-    icon: 'https://etherscan.io/images/ethereum-icon.png',
-    tokenList: [
-        {
-            name: 'USDT',
-            id: 'usdt',
-            contract: '0xdac17f958d2ee523a2206206994597c13d831ec7',
-            icon: 'https://etherscan.io/token/images/tether_32.png',
-            decimals: 6
-        },
-        {
-            name: 'SOLAS',
-            id: 'solas',
-            contract: '0x7b6ab32ca02b314e1e9f8cfd9e522d2a4cf3b555',
-            icon: 'https://etherscan.io/token/images/solas_32.png',
-        }
-    ]
-}, {
-    chain: 'Polygon',
-    id: 'polygon',
-    chainId: 137,
-    icon: 'https://etherscan.io/images/ethereum-icon.png',
-    tokenList: [
-        {
-            name: 'USDT',
-            id: 'usdt',
-            contract: '0xc2132d05d31c914a87c6611c10748aeb04b58e8f',
-            icon: 'https://etherscan.io/token/images/tether_32.png',
-            decimals: 6
-        }
-    ]
-}]
+import { paymentTokenList } from '@/payment_settring'
 
 export interface Ticket {
     name: string
@@ -143,7 +108,7 @@ function Ticket({creator, ...props}: {
 
     const token = chain ? chain.tokenList.find((t) => t.id === props.ticket.token)! : undefined
 
-    console.log('ticket====', props.ticket)
+    console.log('ticket: ', props.ticket)
 
     return (<div className={styles['ticket-form']}>
         <div className={styles['title']}>
