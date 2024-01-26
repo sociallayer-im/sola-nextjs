@@ -349,7 +349,7 @@ function ComponentName(props: { markerType: string | null }) {
                 zoom: defaultZoom,
                 // 2c7555ce0787c1b 紫色
                 // e2f9ddc0facd5a80 普通
-                mapId: '2c7555ce0787c1b',
+                mapId: process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'zumap' ? '2c7555ce0787c1b' : 'e2f9ddc0facd5a80',
             })
         }
     }, [MapReady, mapDomRef, eventGroup])
