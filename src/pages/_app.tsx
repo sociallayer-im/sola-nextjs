@@ -13,7 +13,7 @@ import UserProvider from "@/components/provider/UserProvider/UserProvider";
 import theme from "@/theme"
 import {Provider as StyletronProvider} from 'styletron-react'
 import {BaseProvider} from 'baseui'
-import {mainnet, moonbeam} from 'wagmi/chains'
+import {mainnet, moonbeam, avalancheFuji, bsc} from 'wagmi/chains'
 import {InjectedConnector} from 'wagmi/connectors/injected'
 import {publicProvider} from 'wagmi/providers/public'
 import {configureChains, createConfig, WagmiConfig} from 'wagmi'
@@ -39,7 +39,7 @@ const inject = new InjectedConnector({
 // })
 
 const {chains, publicClient, webSocketPublicClient} = configureChains(
-    [mainnet, moonbeam],
+    [mainnet, moonbeam, avalancheFuji, bsc],
     [publicProvider()],
 )
 
@@ -52,7 +52,7 @@ const config = createConfig({
         inject,
         new JoyIdConnector(
         {
-            chains: [mainnet, moonbeam],
+            chains: [mainnet, moonbeam, avalancheFuji, bsc],
             options: {
                 joyidAppURL: 'https://app.joy.id'
             }

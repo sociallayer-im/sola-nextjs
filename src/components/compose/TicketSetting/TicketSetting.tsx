@@ -106,9 +106,20 @@ function Ticket({creator, ...props}: {
 
     const chain = props.ticket.type === 'payment' ?  paymentTokenList.find((chain) => chain.id === props.ticket.chain)! : undefined
 
-    const token = chain ? chain.tokenList.find((t) => t.id === props.ticket.token)! : undefined
+
+    let token = undefined
+    if (chain) {
+        const tokenExist = chain.tokenList.find((t: any) => {return t.id === props.ticket.token})
+        if (tokenExist) {
+            token = tokenExist
+        } else {
+            token = chain.tokenList[0]
+        }
+    }
 
     console.log('ticket: ', props.ticket)
+    console.log('chain: ', chain)
+    console.log('token: ', token)
 
     return (<div className={styles['ticket-form']}>
         <div className={styles['title']}>
@@ -210,6 +221,7 @@ function Ticket({creator, ...props}: {
                                 props.onChange && props.onChange({
                                     ...props.ticket,
                                     chain: (params.option as any).id,
+                                    token: (params.option as any).tokenList[0].id
                                 })
                             }}
                         />

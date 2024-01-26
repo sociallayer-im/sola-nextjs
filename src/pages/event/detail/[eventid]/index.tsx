@@ -781,7 +781,9 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                 </div>
                             }
 
-                            <EventTickets event={event} />
+                            { !!event &&
+                                <EventTickets event={event} />
+                            }
                         </div>
                     </div>
                 </div>

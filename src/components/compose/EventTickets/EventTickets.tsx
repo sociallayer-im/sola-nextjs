@@ -13,7 +13,7 @@ function EventTickets(props: { event: Event }) {
 
     const showTicketDialog = () => {
         openDialog({
-            content: (close) => <DialogTicket close={close} />,
+            content: (close) => <DialogTicket event={props.event} close={close} />,
             size: [360, 'auto']
         })
     }

@@ -1,23 +1,25 @@
-import {useContext, useEffect, useState} from 'react'
+import {useContext, useState} from 'react'
 import styles from './DialogTicket.module.scss'
 import LangContext from "@/components/provider/LangProvider/LangContext";
 import useCopy from "@/hooks/copy";
 import AppButton from "@/components/base/AppButton/AppButton";
 import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
 import DialogConnectWalletForPay from "@/components/base/Dialog/DialogConnectWalletForPay/DialogConnectWalletForPay";
-import {useAccount, useWriteContract} from "wagmi";
+import {useAccount} from "wagmi";
+import Erc20TokenTransferHandler from "@/components/base/Erc20TokenTransferHandler/Erc20TokenTransferHandler";
+import Erc20Balance from "@/components/base/Erc20Balance/Erc20Balance";
+import EventDefaultCover from "@/components/base/EventDefaultCover";
+import {Event} from '@/service/solas'
+import useTime from "@/hooks/formatTime";
 
-function DialogTicket(props: { close: () => any }) {
+function DialogTicket(props: { close: () => any, event: Event }) {
     const {lang} = useContext(LangContext)
     const {copyWithDialog} = useCopy()
-    const {openDialog} = useContext(DialogsContext)
+    const {openDialog, showToast} = useContext(DialogsContext)
+    const [errorMsg, setErrorMsg] = useState('')
+
     const {address} = useAccount()
-
-    const { data: hash, writeContract } = useWriteContract()
-
-    useEffect(() => {
-
-    }, [])
+    const formatTime = useTime()
 
     const connectWallet = () => {
         openDialog({
@@ -49,21 +51,16 @@ function DialogTicket(props: { close: () => any }) {
         </div>
 
         <div className={styles['dialog-event']}>
-            {/*<EventDefaultCover width={53} height={74} event={{
-                id: 1,
-                title: 'Event Title',
-                cover: 'https://ik.imagekit.io/soladata/0gwjdhtx_2D4ss0TJB?tr=w-300',
-                startTime: '2021-08-01 12:00:00',
-                endTime: '2021-08-01 12:00:00',
-                location: 'Event Location',
-                description: 'Event Description',
-                formatted_address: 'Event Address',
-            } as any}/>*/}
-            <img className={styles['cover']} src="https://ik.imagekit.io/soladata/0gwjdhtx_2D4ss0TJB?tr=w-300" alt=""/>
+            {
+                props.event.cover_url ?
+                    <img className={styles['cover']} src={props.event.cover_url} alt="" />
+                    : <EventDefaultCover width={53} height={74} event={props.event} />
+
+            }
             <div className={styles['info']}>
-                <div className={styles['title']}>Event Title Event Title Event Title Event Title Event Title</div>
-                <div className={styles['time']}>2021-08-01 12:00:00</div>
-                <div className={styles['location']}>Event Location</div>
+                <div className={styles['title']}>{props.event.title}</div>
+                <div className={styles['time']}>{formatTime(props.event.start_time!)}</div>
+                <div className={styles['location']}>{props.event.location}</div>
             </div>
         </div>
         <div className={styles['type-name-title']}>Ticket type</div>
@@ -90,16 +87,52 @@ function DialogTicket(props: { close: () => any }) {
             <div className={styles['label']}>Total</div>
             <div className={styles['value']}>10 USDT</div>
         </div>
+        <div className={styles['balance']}>
+            <div className={styles['label']}>Balance<span>USDT</span></div>
+            <div className={styles['value']}>{
+                !!address ? <Erc20Balance
+                        chanId={43113}
+                        account={address}
+                        token={"0x70c34957154355a0bF048073eb1d4b7895359743"}
+                        decimals={6}/>
+                    : '--'
+            }  </div>
+        </div>
+
+        {errorMsg &&
+            <div className={styles['error-msg']}>{errorMsg}</div>
+        }
+
 
         {!address &&
-            <AppButton special onClick={e => {connectWallet()}}>{'Connect Wallet'}</AppButton>
-
+            <AppButton special onClick={e => {
+                connectWallet()
+            }}>{'Connect Wallet'}</AppButton>
         }
 
-        {address &&
-            <AppButton special onClick={e => {connectWallet()}}>{'Pay'}</AppButton>
+        {!!address &&
+            <Erc20TokenTransferHandler
+                token={"0x70c34957154355a0bF048073eb1d4b7895359743"}
+                to={"0xD21dAFbEbE121634a413AB53772CD17Bf0085976"}
+                amount={'1'}
+                decimals={6}
+                chainId={43113}
+                onErrMsg={(errMsg: string) => {
+                    setErrorMsg(errMsg)
+                }}
+                onSuccess={(txHash: string) => {
+                    showToast('Payment successful')
+                    props.close()
+                }}
+                content={(trigger, busy) => <AppButton
+                    disabled={busy || !!errorMsg}
+                    special={!busy && !errorMsg}
+                    onClick={e => {
+                        setErrorMsg('')
+                        trigger?.()
+                    }}>{'Pay'}</AppButton>}
+            />
         }
-
     </div>)
 }
 

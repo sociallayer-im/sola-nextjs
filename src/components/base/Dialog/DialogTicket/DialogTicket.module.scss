@@ -31,6 +31,7 @@
     .info {
       flex: 1;
       margin-left: 12px;
+      width: 263px;
     }
 
     .cover {
@@ -46,7 +47,6 @@
       font-style: normal;
       font-weight: 400;
       line-height: 18px;
-      max-width: calc(100% - 130px);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -58,7 +58,6 @@
       font-style: normal;
       font-weight: 600;
       line-height: 24px;
-      max-width: calc(100% - 130px);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -148,7 +147,6 @@
     flex-flow: row nowrap;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
 
     .label {
       color: var(--Text-2-Secondary, #7B7C7B);
@@ -166,6 +164,42 @@
       font-weight: 600;
       line-height: 28px;
     }
+  }
+
+  .balance {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: flex-end;
+    align-items: center;
+    margin-bottom: 20px;
+
+    .label {
+      color: var(--Text-2-Secondary, #7B7C7B);
+      font-size: 16px;
+      font-style: normal;
+      font-weight: 400;
+      line-height: 24px;
+
+      span {
+        color: var(--Text-4-Headline, #272928);
+        margin-left: 12px;
+      }
+    }
+
+    .value {
+      color: var(--Text-4-Headline, #272928);
+      font-size: 16px;
+      font-style: normal;
+      font-weight: 400;
+      line-height: 24px;
+      margin-left: 6px;
+    }
+  }
+
+  .error-msg {
+    font-size: 14px;
+    margin: 12px 0;
+    color: #FF4D4F;
   }
 
 }
