@@ -10,9 +10,11 @@ function ImgLazy(props: React.DetailedHTMLProps<React.ImgHTMLAttributes<HTMLImag
     const [ready, setReady] = useState(false)
 
     useEffect(() => {
-        if (inView) {
-            setReady(true)
-        }
+        // if (inView) {
+        //     setReady(true)
+        // }
+
+        setReady(true)
     }, [inView])
 
     const getSrc = (src?: string) => {
