@@ -1111,7 +1111,7 @@ function CreateEvent(props: CreateEventPageProps) {
                                 <AppEventTimeInput
                                     from={start}
                                     to={ending}
-                                    allowRepeat={isManager}
+                                    allowRepeat={isManager && !isEditMode}
                                     timezone={timezone}
                                     onChange={e => {
                                         setStart(e.from)
