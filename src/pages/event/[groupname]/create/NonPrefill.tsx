@@ -48,6 +48,7 @@ import AppEventTimeInput from "@/components/base/AppEventTimeInput/AppEventTimeI
 import {useTime3} from "@/hooks/formatTime";
 import IssuesInput from "@/components/base/IssuesInput/IssuesInput";
 import * as dayjsLib from "dayjs";
+import internal from "stream";
 
 const utc = require('dayjs/plugin/utc')
 const timezone = require('dayjs/plugin/timezone')
@@ -186,9 +187,9 @@ function CreateEvent(props: CreateEventPageProps) {
 
     }
 
-    const cancel = async () => {
+    const cancel = async (redirect= true) => {
         if (!currEvent?.recurring_event_id) {
-            await cancelOne()
+            await cancelOne(redirect)
         } else {
             const dialog = openConfirmDialog({
                 confirmLabel: 'Cancel event',
@@ -989,7 +990,18 @@ function CreateEvent(props: CreateEventPageProps) {
                 }
             })
         } else {
-            await singleSave()
+            if (!!repeat) {
+                // from single event switch to repeat event, cancel the old one, create a new one
+               try {
+                   await cancel(false)
+                   await handleCreate()
+               } catch (e: any) {
+                     console.error(e)
+                     showToast(e.message)
+               }
+            } else {
+                await singleSave()
+            }
         }
 
         async function singleSave(redirect = true) {
@@ -1111,7 +1123,7 @@ function CreateEvent(props: CreateEventPageProps) {
                                 <AppEventTimeInput
                                     from={start}
                                     to={ending}
-                                    allowRepeat={isManager && !isEditMode}
+                                    allowRepeat={isManager}
                                     timezone={timezone}
                                     onChange={e => {
                                         setStart(e.from)
