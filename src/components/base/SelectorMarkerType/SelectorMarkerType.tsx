@@ -48,7 +48,7 @@ export const markerTypeList: any = {
     // 'Mempool Bottle': '/images/marker/Mempool Bottle.png#/images/marker/Mempool Bottle_checked.png',
 }
 
-function SelectorMarkerType(props: { value?: string, onChange?: (value: MarkerType) => any }) {
+function SelectorMarkerType(props: { value?: string, exclude?: string[], onChange?: (value: MarkerType) => any }) {
     const {lang} = useContext(langContext)
     const router = useRouter()
     const params = useParams()
@@ -58,17 +58,21 @@ function SelectorMarkerType(props: { value?: string, onChange?: (value: MarkerTy
         <div className={styles['list']}>
             {
                 markerTypeList2.map((item, index) => {
-                    return <div
-                        onClick={() => {
-                            props.onChange && props.onChange(item)
-                            if (item.category.toLowerCase() === 'event') {
-                                router.push(`/event/${params?.groupname}/create`)
-                            } else {
-                                router.push(`/event/${params?.groupname}/create-marker?type=${item.category}`)
-                            }
-                        }}
-                        className={`${styles['item']} ${item.category === props.value ? styles['item-active'] : ''}`}
-                        key={item.category}>{item.label}</div>
+                    if (!props.exclude?.includes(item.category)) {
+                        return <div
+                            onClick={() => {
+                                props.onChange && props.onChange(item)
+                                if (item.category.toLowerCase() === 'event') {
+                                    router.push(`/event/${params?.groupname}/create`)
+                                } else {
+                                    router.push(`/event/${params?.groupname}/create-marker?type=${item.category}`)
+                                }
+                            }}
+                            className={`${styles['item']} ${item.category === props.value ? styles['item-active'] : ''}`}
+                            key={item.category}>{item.label}</div>
+                    } else {
+                        return null
+                    }
                 })
             }
         </div>
