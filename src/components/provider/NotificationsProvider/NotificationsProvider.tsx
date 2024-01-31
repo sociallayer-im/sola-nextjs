@@ -5,15 +5,17 @@ import DialogNotifications from "@/components/base/Dialog/DialogNotifications/Di
 import userContext from "@/components/provider/UserProvider/UserContext";
 import {gql, request} from "graphql-request";
 import {wsClient} from "@/components/base/Subscriber";
-import {Invite} from "@/service/solas";
+import {Activity, Invite} from "@/service/solas";
 
 let subscription: any = null
+let subscriptionActivity: any = null
 
 export default function NotificationsProvider(props: { children: any }) {
     const {openDialog} = useContext(DialogsContext)
     const {user} = useContext(userContext)
     const [subscribeGroup, setSubscribeGroup] = useState<number[]>([])
-    const [infoList, setInfoList] = useState<Invite[]>([])
+    const [userRequest, setUserRequest] = useState<Invite[]>([])
+    const [activities, setActivities] = useState<Activity[]>([])
 
     const getMyGroup = async () => {
         const doc = gql`
@@ -31,9 +33,53 @@ export default function NotificationsProvider(props: { children: any }) {
     useEffect(() => {
         if (!user.userName) {
             subscription = null
-            setInfoList([])
+            subscriptionActivity = null
+            setUserRequest([])
+            setActivities([])
             return
         }
+
+        subscriptionActivity = null
+        // create new subscription
+        subscriptionActivity = wsClient.subscribe({
+            query: `subscription {
+                activities(where: {action: {_in: ["voucher/send_badge"]}, receiver_id: {_eq: ${user.id!}}, has_read: {_eq: false}}, order_by: {created_at: desc})  {
+                    data
+                    action
+                    created_at
+                    id
+                    has_read
+                    initiator {
+                      id
+                      image_url
+                      nickname
+                      username
+                    }
+                    item_class_id
+                    item_id
+                    item_type
+                    memo
+                    receiver_address
+                    receiver_id
+                    receiver_type
+                    target_id
+                    target_type
+                  }
+                  }`
+        }, {
+            next: (event: any) => {
+                console.log('subscription activities : ', event)
+                if (event.data.activities || event.data.activities.length) {
+                    setActivities(event.data.activities)
+                }
+            },
+            error: (error) => {
+                console.error(error)
+            },
+            complete: () => {
+            },
+        })
+
         getMyGroup()
     }, [user.userName])
 
@@ -41,7 +87,8 @@ export default function NotificationsProvider(props: { children: any }) {
         subscription = null
 
         if (!subscribeGroup.length) {
-            setInfoList([])
+            setUserRequest([])
+            setActivities([])
             return
         }
 
@@ -70,7 +117,7 @@ export default function NotificationsProvider(props: { children: any }) {
                 next: (event: any) => {
                     console.log('subscription group_request_invites : ', event)
                     if (event.data.group_invites || event.data.group_invites.length) {
-                        setInfoList(event.data.group_invites)
+                        setUserRequest(event.data.group_invites)
                     }
                 },
                 error: (error) => {
@@ -88,12 +135,18 @@ export default function NotificationsProvider(props: { children: any }) {
 
     const showNotification = () => {
         openDialog({
-            content: (close: any) => <DialogNotifications close={close} notification={infoList}/>,
+            content: (close: any) => <DialogNotifications
+                newActivities={activities}
+                close={close}
+                newRequestList={userRequest}/>,
             size: ['100%', '100%'],
         })
     }
 
-    return <NotificationsContext.Provider value={{showNotification, notificationCount:infoList.length, newNotificationCount:infoList.length}}>
+    return <NotificationsContext.Provider value={{
+        showNotification,
+        notificationCount: userRequest.length,
+        newNotificationCount:userRequest.length  + activities.length}}>
         {props.children}
     </NotificationsContext.Provider>
 }

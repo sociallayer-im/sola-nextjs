@@ -310,7 +310,7 @@ function DialogProvider (props: DialogProviderProps) {
         setDialogsGroup({ ...dialogsGroup })
     }
 
-    const showVoucher = (voucher: Voucher, code?: string) => {
+    const showVoucher = (voucher: Voucher, code?: string, redirect?: boolean) => {
         if (checkDuplicate('badgelet', voucher.id)) return
 
         const id = genID()
@@ -332,7 +332,7 @@ function DialogProvider (props: DialogProviderProps) {
 
                 return (
                     <Dialog { ...dialogProps } >
-                        { (close) => <DetailVoucher voucher={voucher}  code={code} handleClose={ close } /> }
+                        { (close) => <DetailVoucher voucher={voucher} redirect={redirect} code={code} handleClose={ close } /> }
                     </Dialog>
                 )
             }
