@@ -24,7 +24,7 @@ function Login () {
     }
 
     useEffect(() => {
-        if (user.domain) {
+        if (user.userName) {
             const fallBack = window.localStorage.getItem('fallback')
 
             if (fallBack) {
@@ -35,7 +35,7 @@ function Login () {
                 router.push(`/profile/${user.userName}`)
             }
         }
-    }, [user.domain])
+    }, [user.userName])
 
     return <div className='login-page'>
         <div className={'login-page-back'}><PageBack onClose={() => {router.push('/')}} /></div>

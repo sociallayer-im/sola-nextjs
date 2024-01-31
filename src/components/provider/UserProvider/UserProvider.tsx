@@ -86,19 +86,19 @@ function UserProvider (props: UserProviderProps) {
                 maodaoid: profileInfo?.maodaoid
             })
 
-            if (!profileInfo!.domain) {
-                // 如果当前页面是’/login‘说明是邮箱登录，fallback已经在点击邮箱登录按钮的时候设置了:
-                // src/components/dialogs/ConnectWalletDialog/ConnectWalletDialog.tsx  42行
-
-                if (!window.location.href.includes('/login')) {
-                    window.localStorage.setItem('fallback', window.location.href)
-                }
-                clean()
-                setTimeout(() => {
-                    safePush('/regist')
-                },100)
-                return
-            }
+            // if (!profileInfo!.username) {
+            //     // 如果当前页面是’/login‘说明是邮箱登录，fallback已经在点击邮箱登录按钮的时候设置了:
+            //     // src/components/dialogs/ConnectWalletDialog/ConnectWalletDialog.tsx  42行
+            //
+            //     if (!window.location.href.includes('/login')) {
+            //         window.localStorage.setItem('fallback', window.location.href)
+            //     }
+            //     clean()
+            //     setTimeout(() => {
+            //         safePush('/regist')
+            //     },100)
+            //     return
+            // }
 
             // if (window.location.pathname === '/') {
             //     navigate(`/profile/${profileInfo.username}`)

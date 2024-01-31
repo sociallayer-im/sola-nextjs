@@ -46,7 +46,10 @@ function Layout(props?: any) {
 
     // 如果用户已经登录，离开注册域名页面，将会被强制回到注册页面
     useEffect(() => {
-        if (!user.domain && user.authToken && !window.location.href.includes('regist')) {
+        if (!user.userName && user.authToken && !window.location.href.includes('regist')) {
+            if (!window.location.href.includes('/login')) {
+                window.localStorage.setItem('fallback', window.location.href)
+            }
             safePush('/regist')
         }
     })

@@ -98,7 +98,7 @@ function ComponentName(props: { group: Group }) {
             return item.year === now.getFullYear() && item.month === now.getMonth() && item.date === now.getDate()
         })
 
-        const offset = (targetColumnIndex - 1) * 176
+        const offset = targetColumnIndex * 256
 
         if (scrollBar2.scrollLeft === 0 && init) {
             scrollBar1.scrollLeft = offset

@@ -197,8 +197,8 @@
 }
 
 .date-column {
-  max-width: 176px;
-  min-width: 176px;
+  max-width: 256px;
+  min-width: 256px;
   display: flex;
   flex-flow: column nowrap;
   min-height: 100%;
@@ -214,7 +214,7 @@
 
 .date-day {
   display: flex;
-  width: 181px;
+  width: 258px;
   padding: 19px 12px;
   align-items: center;
   box-sizing: border-box;
