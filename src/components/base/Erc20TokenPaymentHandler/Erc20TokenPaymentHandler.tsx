@@ -6,7 +6,7 @@ import DialogsContext from "@/components/provider/DialogProvider/DialogsContext"
 
 let loadingRef: any = null
 
-function Erc20TokenTransferHandler(
+function Erc20TokenPaymentHandler(
     props: {
         content?: (trigger: (() => void) | undefined, busy: boolean) => ReactNode
         token: string
@@ -81,4 +81,4 @@ function Erc20TokenTransferHandler(
     </>)
 }
 
-export default Erc20TokenTransferHandler
+export default Erc20TokenPaymentHandler

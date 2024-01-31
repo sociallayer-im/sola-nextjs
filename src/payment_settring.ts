@@ -1,22 +1,9 @@
 export const paymentTokenList = [{
-    chain: 'Ethereum',
-    id: 'ethereum',
-    chainId: 1,
-    icon: '/images/ethereum-icon.webp',
-    tokenList: [
-        {
-            name: 'USDT',
-            id: 'usdt',
-            contract: '0xdac17f958d2ee523a2206206994597c13d831ec7',
-            icon: '/images/tether_32.webp',
-            decimals: 6
-        }
-    ]
-}, {
     chain: 'Polygon',
     id: 'polygon',
     chainId: 137,
     icon: '/images/polygon.svg',
+    payHub: '0xea6D3bEE13F1e5080FA4cF768db91682602c65D3',
     tokenList: [
         {
             name: 'USDT',
@@ -24,28 +11,29 @@ export const paymentTokenList = [{
             contract: '0xc2132d05d31c914a87c6611c10748aeb04b58e8f',
             icon: '/images/tether_32.webp',
             decimals: 6
+        },
+        {
+            name: 'USDC',
+            id: 'usdc',
+            contract: '0x2791bca1f2de4661ed88a30c99a7a9449aa84174',
+            icon: '/images/usdc_32.webp',
+            decimals: 6
+        },
+        {
+            name: 'DAI',
+            id: 'dai',
+            contract: '0x8f3cf7ad23cd3cadbd9735aff958023239c6a063',
+            icon: '/images/mcdDai_32.png',
+            decimals: 18
         }
     ]
 },
-    {
-        chain: 'Binance Smart Chain',
-        id: 'bsc',
-        chainId: 56,
-        icon: '/images/bsc.svg',
-        tokenList: [
-            {
-                name: 'BSC-USD',
-                id: 'bsc-usd',
-                contract: '0x55d398326f99059ff775485246999027b3197955',
-                icon: '/images/busdt_32.webp',
-            }
-        ]
-    },
     {
         chain: 'Fuji Testnet',
         id: 'fuji',
         chainId: 43113,
         icon: '/images/fuji.png',
+        payHub: '0x388F827Be557Bd500B4C4961BdCc10c25d782bCA',
         tokenList: [
             {
                 name: 'TUSDT',
@@ -582,3 +570,67 @@ export const erc20_abi = [
         "type": "function"
     }
 ]
+
+export const payhub_abi = [{"inputs": [], "stateMutability": "nonpayable", "type": "constructor"}, {
+    "anonymous": false,
+    "inputs": [{
+        "indexed": true,
+        "internalType": "address",
+        "name": "previousOwner",
+        "type": "address"
+    }, {"indexed": true, "internalType": "address", "name": "newOwner", "type": "address"}],
+    "name": "OwnershipTransferred",
+    "type": "event"
+}, {
+    "anonymous": false,
+    "inputs": [{"indexed": false, "internalType": "address", "name": "from", "type": "address"}, {
+        "indexed": false,
+        "internalType": "address",
+        "name": "to",
+        "type": "address"
+    }, {"indexed": false, "internalType": "address", "name": "token", "type": "address"}, {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+    }, {"indexed": false, "internalType": "uint256", "name": "productId", "type": "uint256"}, {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "itemId",
+        "type": "uint256"
+    }],
+    "name": "PaymentTrasnfered",
+    "type": "event"
+}, {
+    "inputs": [],
+    "name": "owner",
+    "outputs": [{"internalType": "address", "name": "", "type": "address"}],
+    "stateMutability": "view",
+    "type": "function"
+}, {
+    "inputs": [],
+    "name": "renounceOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+}, {
+    "inputs": [{"internalType": "address", "name": "to", "type": "address"}, {
+        "internalType": "address",
+        "name": "token",
+        "type": "address"
+    }, {"internalType": "uint256", "name": "amount", "type": "uint256"}, {
+        "internalType": "uint256",
+        "name": "productId",
+        "type": "uint256"
+    }, {"internalType": "uint256", "name": "itemId", "type": "uint256"}],
+    "name": "transfer",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+}, {
+    "inputs": [{"internalType": "address", "name": "newOwner", "type": "address"}],
+    "name": "transferOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+}]

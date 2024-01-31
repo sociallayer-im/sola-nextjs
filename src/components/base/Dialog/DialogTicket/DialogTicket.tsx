@@ -6,7 +6,7 @@ import AppButton from "@/components/base/AppButton/AppButton";
 import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
 import DialogConnectWalletForPay from "@/components/base/Dialog/DialogConnectWalletForPay/DialogConnectWalletForPay";
 import {useAccount} from "wagmi";
-import Erc20TokenTransferHandler from "@/components/base/Erc20TokenTransferHandler/Erc20TokenTransferHandler";
+import Erc20TokenPaymentHandler from "@/components/base/Erc20TokenPaymentHandler/Erc20TokenPaymentHandler";
 import Erc20Balance from "@/components/base/Erc20Balance/Erc20Balance";
 import EventDefaultCover from "@/components/base/EventDefaultCover";
 import {Event} from '@/service/solas'
@@ -111,7 +111,7 @@ function DialogTicket(props: { close: () => any, event: Event }) {
         }
 
         {!!address &&
-            <Erc20TokenTransferHandler
+            <Erc20TokenPaymentHandler
                 token={"0x70c34957154355a0bF048073eb1d4b7895359743"}
                 to={"0xD21dAFbEbE121634a413AB53772CD17Bf0085976"}
                 amount={'1'}

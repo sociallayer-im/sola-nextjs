@@ -189,8 +189,8 @@ function Ticket({creator, ...props}: {
                          props.onChange && props.onChange({
                              ...props.ticket,
                              type: 'payment',
-                             chain: 'ethereum',
-                             token: 'usdt',
+                             chain: paymentTokenList[0].id,
+                             token:  paymentTokenList[0].tokenList[0].id,
                              price: 0
                          })
                      }}>
