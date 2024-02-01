@@ -24,12 +24,13 @@ import {useSearchParams, useRouter} from "next/navigation";
 
 
 export interface DetailBadgeletProps {
+    redirect?: boolean,
     voucher: Voucher,
     code?: string,
     handleClose: () => void
 }
 
-function DetailVoucher(props: DetailBadgeletProps) {
+function DetailVoucher({redirect=true, ...props}: DetailBadgeletProps) {
     const {lang} = useContext(LangContext)
     const {user} = useContext(UserContext)
     const router = useRouter()
@@ -106,7 +107,7 @@ function DetailVoucher(props: DetailBadgeletProps) {
             // emitUpdate(badgelet)
             props.handleClose()
             showToast('Accept success')
-            router.push(`/profile/${user.userName}`)
+            redirect && router.push(`/profile/${user.userName}`)
         } catch (e: any) {
             unload()
             console.log('[handleAccept]: ', e)

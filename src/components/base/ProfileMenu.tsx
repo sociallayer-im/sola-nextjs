@@ -89,17 +89,15 @@ function ProfileMenu() {
                         close()
                     }}>{lang['UserAction_Bind_Email']}</MenuItem>
                 }
-                {process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'seedao' &&
-                    <MenuItem onClick={() => {
-                        showNotification();
-                        close()
-                    }}>
-                        {lang['Seedao_Notification']}
-                        {
-                            newNotificationCount > 0 && <i className={css(style.dot as any)} />
-                        }
-                    </MenuItem>
-                }
+                <MenuItem onClick={() => {
+                    showNotification();
+                    close()
+                }}>
+                    {lang['Notifications']}
+                    {
+                        newNotificationCount > 0 && <i className={css(style.dot as any)} />
+                    }
+                </MenuItem>
             </>
         }
         <MenuItem onClick={() => {
@@ -131,8 +129,8 @@ function ProfileMenu() {
             autoFocus>
             <div className={css(style.wrapper)}>
                 <ImgLazy className={css(style.img)} src={user.avatar || defaultAvatar(user.id)} width={32} alt=""/>
-                <div
-                    className={css(style.showName)}> {user.nickname || user.userName || shortAddress(user.wallet) || user.email}</div>
+                <div className={css(style.showName)}> {user.nickname || user.userName || shortAddress(user.wallet) || user.email}</div>
+                { newNotificationCount > 0 && <i className={css(style.dot as any)} /> }
             </div>
         </StatefulPopover>
     )

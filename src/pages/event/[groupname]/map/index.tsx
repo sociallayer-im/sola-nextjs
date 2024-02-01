@@ -4,7 +4,7 @@ import MapContext from "@/components/provider/MapProvider/MapContext";
 import EventHomeContext from "@/components/provider/EventHomeProvider/EventHomeContext";
 import {
     CheckIn,
-    Event,
+    Event, isMember as checkIsMember,
     Marker,
     MarkerCheckinDetail,
     markersCheckinList,
@@ -21,6 +21,7 @@ import userContext from "@/components/provider/UserProvider/UserContext";
 import DialogGuideFollow from "@/components/base/Dialog/DialogGuideFollow/DialogGuideFollow";
 import GameMenu from "@/components/zugame/GameMenu/GameMenu";
 import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
+import {PageBackContext} from "@/components/provider/PageBackProvider";
 
 const menuList = markerTypeList2
 
@@ -31,6 +32,7 @@ function ComponentName(props: { markerType: string | null }) {
     const {eventGroup, isManager} = useContext(EventHomeContext)
     const {openConnectWalletDialog} = useContext(DialogsContext)
     const {user} = useContext(userContext)
+    const {history} = useContext(PageBackContext)
     const router = useRouter()
     const searchParams = useSearchParams()
 
@@ -47,6 +49,7 @@ function ComponentName(props: { markerType: string | null }) {
     const [showList, setShowList] = useState(false)
     const [itemWidth, setItemWidth] = useState(0)
     const [currSwiperIndex, setCurrSwiperIndex] = useState(0)
+    const [isMember, setIsMember] = useState(false)
 
     const getMarker = async (type?: any) => {
         let res: Marker[] = []
@@ -362,6 +365,13 @@ function ComponentName(props: { markerType: string | null }) {
                 setTimeout(() => {
                     setShowList(true)
                 }, 100)
+
+                if (user.id) {
+                    checkIsMember({profile_id: user.id, group_id: eventGroup.id }).then(res => {
+                        setIsMember(res)
+                    })
+                }
+
                 window.addEventListener('resize', calcWidth, false)
                 return () => {
                     window.removeEventListener('resize', calcWidth, false)
@@ -395,21 +405,26 @@ function ComponentName(props: { markerType: string | null }) {
         }
 
         <div className={styles['top-menu']}>
-            <div className={styles['menu-item-create']} onClick={() => {
-                if (!user.id) {
-                    openConnectWalletDialog()
-                    return
-                }
-                router.push(`/event/${eventGroup?.username}/create-marker`)
-            }}>Create a Marker +
-            </div>
-            <div className={styles['menu-item-create']} onClick={() => {
-                if (!user.id) {
-                    openConnectWalletDialog()
-                    return
-                }
-                router.push(`/event/${eventGroup?.username}/create-share-me`)
-            }}>Share me + </div>
+            { (isMember || isManager) &&
+                <div className={styles['menu-item-create']} onClick={() => {
+                    if (!user.id) {
+                        openConnectWalletDialog()
+                        return
+                    }
+                    router.push(`/event/${eventGroup?.username}/create-marker`)
+                }}>Create a Marker +
+                </div>
+            }
+            { (isMember || isManager) &&
+                <div className={styles['menu-item-create']} onClick={() => {
+                    if (!user.id) {
+                        openConnectWalletDialog()
+                        return
+                    }
+                    router.push(`/event/${eventGroup?.username}/create-share-me`)
+                }}>Share me + </div>
+            }
+
             {/*<div className={`${styles['menu-item']} ${!selectedType ? styles['menu-item-active'] : ''}`}*/}
             {/*     onClick={() => {*/}
             {/*         setSelectedType('')*/}
@@ -421,7 +436,11 @@ function ComponentName(props: { markerType: string | null }) {
                     const isSelected = selectedType === item.category
                     return <div key={index}
                                 onClick={() => {
-                                    router.push(`/event/${eventGroup?.username}/map?type=${item.category}`)
+                                    const patch = `/event/${eventGroup?.username}/map?type=${item.category}`
+                                    setSelectedType(item.category)
+                                    history.push(patch)
+                                    window.history.pushState({}, '', patch)
+                                    // router.push(`/event/${eventGroup?.username}/map?type=${item.category}`)
                                 }}
                                 className={`${styles['menu-item']} ${isSelected ? styles['menu-item-active'] : ''}`}>{item.label}</div>
                 })

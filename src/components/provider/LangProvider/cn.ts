@@ -611,6 +611,8 @@ const langCN: LangConfig = {
   Tickets: '张',
   Select_A_Badge: '选择徽章',
   Get_A_Ticket: 'Get a ticket',
+  Notifications: '消息通知',
+  Send_You_A_Badge: '发送了一个徽章给你。',
 }
 
 

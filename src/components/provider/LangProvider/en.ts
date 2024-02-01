@@ -615,6 +615,8 @@ const langEN = {
     Tickets: 'Tickets',
     Select_A_Badge: 'Select a badge',
     Get_A_Ticket: 'Get a ticket',
+    Notifications: 'Notifications',
+    Send_You_A_Badge: 'Send you a badge.',
 }
 
 

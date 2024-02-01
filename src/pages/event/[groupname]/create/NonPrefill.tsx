@@ -51,6 +51,7 @@ import IssuesInput from "@/components/base/IssuesInput/IssuesInput";
 import * as dayjsLib from "dayjs";
 import TicketSetting from "@/components/compose/TicketSetting/TicketSetting";
 
+
 const utc = require('dayjs/plugin/utc')
 const timezone = require('dayjs/plugin/timezone')
 const dayjs: any = dayjsLib
@@ -192,9 +193,9 @@ function CreateEvent(props: CreateEventPageProps) {
 
     }
 
-    const cancel = async () => {
+    const cancel = async (redirect= true) => {
         if (!currEvent?.recurring_event_id) {
-            await cancelOne()
+            await cancelOne(redirect)
         } else {
             const dialog = openConfirmDialog({
                 confirmLabel: 'Cancel event',
@@ -977,7 +978,18 @@ function CreateEvent(props: CreateEventPageProps) {
                 }
             })
         } else {
-            await singleSave()
+            if (!!repeat) {
+                // from single event switch to repeat event, cancel the old one, create a new one
+               try {
+                   await cancel(false)
+                   await handleCreate()
+               } catch (e: any) {
+                     console.error(e)
+                     showToast(e.message)
+               }
+            } else {
+                await singleSave()
+            }
         }
 
         async function singleSave(redirect = true) {
