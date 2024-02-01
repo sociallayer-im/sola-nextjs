@@ -1,14 +1,28 @@
 import {useContext, useEffect, useState} from 'react'
-import {Badge, Event, queryBadgeDetail, Ticket} from '@/service/solas'
+import {Badge, Event, getParticipantDetail, Participants, queryBadgeDetail, Ticket} from '@/service/solas'
 import styles from './EventTickets.module.scss'
 import langContext from "@/components/provider/LangProvider/LangContext";
 import AppButton from "@/components/base/AppButton/AppButton";
 import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
 import DialogTicket from "@/components/base/Dialog/DialogTicket/DialogTicket";
 import ImgLazy from "@/components/base/ImgLazy/ImgLazy";
+import userContext from "@/components/provider/UserProvider/UserContext";
+import useEvent, {EVENT} from "@/hooks/globalEvent";
+import {parseUnits, formatUnits} from "viem/utils";
+import {paymentTokenList} from "@/payment_settring";
 
-function TicketItem({ticket, selected}: { ticket: Ticket, selected?: boolean }) {
+function TicketItem({
+                        ticket,
+                        selected,
+                        disable,
+                        waitForPayment
+                    }: { ticket: Ticket, selected?: boolean, disable?: boolean, waitForPayment?: boolean }) {
+
+
     const [badge, setBadge] = useState<Badge | null>(null)
+
+    const chain = ticket.payment_chain ? paymentTokenList.find(item => item.id === ticket.payment_chain) : undefined
+    const token = chain ? chain.tokenList.find(item => item.id === ticket.payment_token_name) : undefined
 
     useEffect(() => {
         if (ticket.check_badge_id) {
@@ -19,7 +33,9 @@ function TicketItem({ticket, selected}: { ticket: Ticket, selected?: boolean }) 
     }, [ticket])
 
 
-    return <div className={`${styles['item']} ${selected ? styles['selected'] : ''}`} key={ticket.id}>
+    return <div
+        className={`${styles['item']} ${selected ? styles['selected'] : ''} ${disable ? styles['disable'] : ''}`}
+        key={ticket.id}>
         <div className={styles['item-title']}>{ticket.title}</div>
         <div className={styles['item-des']}>{ticket.content}</div>
 
@@ -37,26 +53,57 @@ function TicketItem({ticket, selected}: { ticket: Ticket, selected?: boolean }) 
         {
             ticket.payment_token_price !== null &&
             <div
-                className={styles['item-price']}>{ticket.payment_token_price} {ticket.payment_token_name?.toUpperCase()}</div>
+                className={styles['item-price']}>{formatUnits(BigInt(ticket.payment_token_price), token?.decimals!)} {ticket.payment_token_name?.toUpperCase()}</div>
         }
 
         {
             ticket.check_badge_id === null && ticket.payment_token_price === null &&
             <div className={styles['item-price']}>{'Free'}</div>
         }
+
+        {
+            waitForPayment &&
+            <div className={styles['item-waiting-payment']}>{'Waiting for payment'}</div>
+        }
     </div>
 }
 
-function EventTickets(props: { event: Event, tickets: Ticket[] }) {
+function EventTickets({canAccess = true, ...props}: { event: Event, tickets: Ticket[], canAccess?: boolean }) {
 
     const {lang} = useContext(langContext)
-    const {openDialog} = useContext(DialogsContext)
+    const {openDialog, showToast} = useContext(DialogsContext)
     const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(props.tickets[0] || null)
+    const {user} = useContext(userContext)
+    const [userPendingPayment, setUserPendingPayment] = useState<Participants | null>(null)
+    const [userHasPaid, setUserHasPaid] = useState<Participants | null>(null)
+    const [needUpdate, _] = useEvent(EVENT.participantUpdate)
+
+
+    useEffect(() => {
+        if (needUpdate) {
+            alert('update')
+        }
+        if (user.userName || needUpdate) {
+            getParticipantDetail({event_id: props.event.id, profile_id: user.id!}).then((res) => {
+                if (!!res) {
+                    if (res.payment_status !== 'success') {
+                        setUserPendingPayment(res)
+                    } else {
+                        setUserHasPaid(res)
+                        setUserPendingPayment(null)
+                    }
+                } else {
+                    setUserHasPaid(null)
+                    setUserPendingPayment(null)
+                }
+            })
+        }
+    }, [user.id, needUpdate])
 
 
     const showTicketDialog = (ticket: Ticket) => {
         openDialog({
-            content: (close) => <DialogTicket
+            content: (close: any) => <DialogTicket
                 ticket={ticket}
                 event={props.event}
                 close={close}/>,
@@ -69,18 +116,38 @@ function EventTickets(props: { event: Event, tickets: Ticket[] }) {
         <div className={styles['list']}>
             {
                 props.tickets.map((item, index) => {
+                    const disable = !!userPendingPayment && userPendingPayment.ticket_id !== item.id
                     return <div key={item.id} onClick={() => {
-                        setSelectedTicket(item)
+                        !disable && setSelectedTicket(item)
                     }}>
                         <TicketItem
-                            selected={selectedTicket?.id === item.id}
-                            ticket={item} />
+                            waitForPayment={!!userPendingPayment && !disable}
+                            disable={disable}
+                            selected={selectedTicket?.id === item.id && !userHasPaid}
+                            ticket={item}/>
                     </div>
                 })
             }
-            <AppButton special onClick={() => {
-                selectedTicket && showTicketDialog(selectedTicket)
-            }}>{lang['Get_A_Ticket']}</AppButton>
+
+            {
+                !!userHasPaid ?
+                    <AppButton disabled>
+                        {'You have purchased the ticket'}
+                    </AppButton>
+                    : canAccess ?
+                    <AppButton special onClick={() => {
+                        if (!selectedTicket) {
+                            showToast('Please select a ticket')
+                            return
+                        }
+                        selectedTicket && showTicketDialog(selectedTicket)
+                    }}>{lang['Get_A_Ticket']}</AppButton>
+                        : <AppButton disabled>
+                            {'Only for group members'}
+                        </AppButton>
+            }
+
+
         </div>
 
     </div>)

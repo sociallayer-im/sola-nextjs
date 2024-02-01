@@ -2894,7 +2894,9 @@ export interface Participants {
     status: string,
     event: Event,
     role: string,
+    ticket_id: number | null,
     event_id: number,
+    payment_status: string,
 }
 
 export interface Event {
@@ -2943,6 +2945,7 @@ export interface Event {
 
 export interface CreateEventProps extends Partial<Event> {
     auth_token: string
+    tickets?: Partial<Ticket>[] | null
 }
 
 export async function createEvent(props: CreateEventProps) {
@@ -3119,6 +3122,8 @@ export async function queryEvent(props: QueryEventProps): Promise<Event[]> {
           role
           status
           voucher_id
+          payment_status
+          ticket_id
           check_time
           created_at
           message
@@ -3257,6 +3262,8 @@ export async function queryPendingEvent(props: QueryEventProps): Promise<Event[]
           role
           status
           voucher_id
+          payment_status
+          ticket_id
           check_time
           created_at
           message
@@ -3328,6 +3335,8 @@ export async function queryMyEvent({page = 1, page_size = 10, ...props}: QueryMy
        ) {
         id
         event_id
+        payment_status
+        ticket_id
         status
         message
         check_time
@@ -3363,6 +3372,8 @@ export async function queryMyEvent({page = 1, page_size = 10, ...props}: QueryMy
           role
           status
           voucher_id
+          payment_status
+          ticket_id
           check_time
           created_at
           message
@@ -3517,6 +3528,8 @@ export async function searchEvent(keyword: string) {
           role
           status
           voucher_id
+          payment_status
+          ticket_id
           check_time
           created_at
           message
@@ -4891,6 +4904,48 @@ export async function setActivityRead (props: {ids: number[], auth_token: string
         url: `${apiUrl}/activity/set_read_status`,
         data: props
     })
+}
+
+export async function getParticipantDetail (props: {id?: number, event_id?: number, profile_id?: number}) {
+    let variables = ''
+    if (props.id) {
+        variables += `id: {_eq: ${props.id}}, `
+    }
+
+    if (props.event_id) {
+        variables += `event_id: {_eq: ${props.event_id}}, `
+    }
+
+    if (props.profile_id) {
+        variables += `profile_id: {_eq: ${props.profile_id}}, `
+    }
+
+    const doc = gql`query MyQuery {
+        participants(where: {${variables}}) {
+          id
+          profile_id
+          profile {
+            id
+            username
+            nickname
+            image_url
+          }
+          role
+          status
+          voucher_id
+          payment_status
+          ticket_id
+          check_time
+          created_at
+          message
+          event {
+            id
+          }
+        }
+    }`
+
+    const res: any = await request(graphUrl, doc)
+    return res.participants[0] as Participants || null
 }
 
 export default {

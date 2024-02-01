@@ -14,6 +14,9 @@ import {Event, joinEvent, Ticket} from '@/service/solas'
 import useTime from "@/hooks/formatTime";
 import {paymentTokenList} from "@/payment_settring";
 import UserContext from "@/components/provider/UserProvider/UserContext";
+import useEvent, {EVENT} from "@/hooks/globalEvent";
+import {formatUnits} from "viem/utils";
+
 
 function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket }) {
     const {lang} = useContext(LangContext)
@@ -22,6 +25,7 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
     const {openDialog, showToast, showLoading} = useContext(DialogsContext)
     const [errorMsg, setErrorMsg] = useState('')
     const [approved, setApproved] = useState(false)
+    const [_, emit] = useEvent(EVENT.participantUpdate)
 
     const {address} = useAccount()
     const formatTime = useTime()
@@ -30,7 +34,7 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
 
     const connectWallet = () => {
         openDialog({
-            content: (close) => <DialogConnectWalletForPay handleClose={close}/>,
+            content: (close: any) => <DialogConnectWalletForPay handleClose={close}/>,
             size: [360, 'auto']
         })
     }
@@ -114,7 +118,7 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
                 <div className={styles['payment-title']}>Payment</div>
                 <div className={styles['price']}>
                     <div className={styles['label']}>Price</div>
-                    <div className={styles['value']}>{props.ticket.payment_token_price} {props.ticket.payment_token_name?.toUpperCase()}</div>
+                    <div className={styles['value']}>{formatUnits(BigInt(props.ticket.payment_token_price),token.decimals!)} {props.ticket.payment_token_name?.toUpperCase()}</div>
                 </div>
                 <div className={styles['balance']}>
                     <div className={styles['label']}>Balance</div>
@@ -155,9 +159,11 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
                 decimals={token.decimals}
                 chainId={chain.chainId}
                 onErrMsg={(errMsg: string) => {
+                    emit('payment-error')
                     setErrorMsg(errMsg)
                 }}
                 onSuccess={(txHash: string) => {
+                    emit('payment-success')
                     showToast('Payment successful')
                     props.close()
                 }}

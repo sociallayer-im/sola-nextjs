@@ -41,6 +41,7 @@ import EventTickets from "@/components/compose/EventTickets/EventTickets";
 
 import * as dayjsLib from "dayjs";
 import Empty from "@/components/base/Empty";
+import useEvent, {EVENT} from "@/hooks/globalEvent";
 
 const utc = require('dayjs/plugin/utc')
 const timezone = require('dayjs/plugin/timezone')
@@ -64,6 +65,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
     const {eventGroups, setEventGroup, eventGroup, ready, isManager} = useContext(EventHomeContext)
     const {getMeetingName, getUrl} = useGetMeetingName()
     const {MapReady} = useContext(MapContext)
+    const [needUpdate, _] = useEvent(EVENT.participantUpdate)
 
 
     const [tab, setTab] = useState(1)
@@ -183,16 +185,18 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
     async function checkJoined() {
         if (hoster && user.id) {
             const eventParticipants = event?.participants || []
-            const joined = eventParticipants.find((item: Participants) => item.profile.id === user.id && item.status !== 'cancel')
+            const joined = eventParticipants.find((item: Participants) => (!item.ticket_id && item.profile.id === user.id && item.status === 'applied')
+                || (item.ticket_id && item.profile.id === user.id && item.status === 'applied' && item.payment_status === 'success'))
+            console.log('Participants', joined)
             setIsJoined(!!joined)
         }
     }
 
     useEffect(() => {
-        if (params?.eventid) {
+        if (params?.eventid || needUpdate) {
             fetchData()
         }
-    }, [params])
+    }, [params, needUpdate])
 
     useEffect(() => {
         if (event && event.group_id && ready) {
@@ -501,8 +505,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                             <div>{user.nickname || user.userName}</div>
                                         </div>
                                         {!isJoined ?
-                                            <div className={'des'}>Welcome! To join the event, please attend
-                                                below.</div>
+                                            <div className={'des'}>Welcome to join the event.</div>
                                             :
                                             <div className={'des'}>You're attended, we’d love to have you join us.</div>
                                         }
@@ -530,7 +533,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                         {lang['Activity_Detail_Btn_add_Calender']}</AppButton>
                                                 }
 
-                                                {!isJoined && !canceled && (inCheckinTime || notStart) &&
+                                                {!isJoined && !canceled && (inCheckinTime || notStart) && !tickets?.length &&
                                                     <AppButton special onClick={e => {
                                                         handleJoin()
                                                     }}>{lang['Activity_Detail_Btn_Attend']}</AppButton>
@@ -600,6 +603,13 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                  setTab(1)
                                              }}>
                                             <div>{lang['Activity_Des']}</div>
+                                        </div>
+                                        <div className={'split mobile-item'}/>
+                                        <div className={tab === 4 ? 'tab-title mobile-item active' : 'mobile-item tab-title'}
+                                             onClick={e => {
+                                                 setTab(4)
+                                             }}>
+                                            <div>{'Tickets'}</div>
                                         </div>
                                         <div className={'split'}/>
                                         <div className={tab === 2 ? 'tab-title active' : 'tab-title'}
@@ -690,6 +700,11 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                 <ListCheckLog eventId={Number(params?.eventid)}/>
                                             </div>
                                         </div>}
+
+                                    {
+                                        tab === 4 && !!event &&
+                                        <EventTickets tickets={tickets} event={event} canAccess={canAccess}/>
+                                    }
                                 </div>
                             </div>
                         </div>
@@ -710,7 +725,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                         <div>{user.nickname || user.userName}</div>
                                     </div>
                                     {!isJoined ?
-                                        <div className={'des'}>Welcome! To join the event, please attend below.</div>
+                                        <div className={'des'}>Welcome To join the event.</div>
                                         : <div className={'des'}>You're attended, we’d love to have you join us.</div>
                                     }
 
@@ -735,7 +750,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                 {lang['Activity_Detail_Btn_add_Calender']}</AppButton>
                                         }
 
-                                        {!isJoined && !canceled && (inCheckinTime || notStart) &&
+                                        {!isJoined && !canceled && (inCheckinTime || notStart) && !tickets?.length &&
                                             <AppButton special onClick={e => {
                                                 handleJoin()
                                             }}>{lang['Activity_Detail_Btn_Attend']}</AppButton>
@@ -787,7 +802,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                             }
 
                             { !!event &&
-                                <EventTickets tickets={tickets} event={event} />
+                                <EventTickets tickets={tickets} event={event} canAccess={canAccess}/>
                             }
                         </div>
                     </div>

@@ -8,21 +8,21 @@ export const paymentTokenList = [{
         {
             name: 'USDT',
             id: 'usdt',
-            contract: '0x7FFB3d637014488b63fb9858E279385685AFc1e2',
+            contract: '0xc2132D05D31c914a87C6611C10748AEb04B58e8F',
             icon: '/images/tether_32.webp',
             decimals: 6
         },
         {
             name: 'USDC',
             id: 'usdc',
-            contract: '0x2791bca1f2de4661ed88a30c99a7a9449aa84174',
+            contract: '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174',
             icon: '/images/usdc_32.webp',
             decimals: 6
         },
         {
             name: 'DAI',
             id: 'dai',
-            contract: '0x8f3cf7ad23cd3cadbd9735aff958023239c6a063',
+            contract: '0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063',
             icon: '/images/mcdDai_32.png',
             decimals: 18
         },

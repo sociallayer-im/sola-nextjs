@@ -11,6 +11,7 @@ import {OpenDialogProps} from "@/components/provider/DialogProvider/DialogProvid
 import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
 import {Delete} from "baseui/icon";
 import {paymentTokenList} from '@/payment_settring'
+import {parseUnits, formatUnits} from "viem/utils";
 
 const emptyTicket: Partial<Ticket> = {
     title: '',
@@ -68,7 +69,7 @@ function Ticket({creator, ...props}: {
     useEffect(() => {
         if (props.errorMsg?.length) {
             const target = props.errorMsg.find((msg) => msg.index === props.index)
-            setErrMsg(target)
+            setErrMsg(target || null)
         }
     }, [props.errorMsg])
 
@@ -108,7 +109,7 @@ function Ticket({creator, ...props}: {
     const chain = props.ticket.payment_token_price !== null ? paymentTokenList.find((chain) => chain.id === props.ticket.payment_chain)! : undefined
 
 
-    let token = undefined
+    let token: any = undefined
     if (chain) {
         const tokenExist = chain.tokenList.find((t: any) => {
             return t.id === props.ticket.payment_token_name
@@ -120,8 +121,8 @@ function Ticket({creator, ...props}: {
         }
     }
 
-    console.log(`ticket: ${props.index + 1}`, props.ticket)
-    console.log(`token: ${props.index + 1}`, token)
+    console.log(`ticket: ${(props.index || 0) + 1}`, props.ticket)
+    console.log(`token: ${(props.index || 0) + 1}`, token)
 
     return (<div className={styles['ticket-form']}>
         <div className={styles['title']}>
@@ -191,7 +192,7 @@ function Ticket({creator, ...props}: {
                      onClick={e => {
                          props.onChange && props.onChange({
                              ...props.ticket,
-                             payment_token_price: '1',
+                             payment_token_price: parseUnits('0', paymentTokenList[0].tokenList[0].decimals).toString(),
                              payment_chain: paymentTokenList[0].id,
                              payment_token_name: paymentTokenList[0].tokenList[0].id,
                              payment_token_address: paymentTokenList[0].tokenList[0].contract,
@@ -256,10 +257,10 @@ function Ticket({creator, ...props}: {
                         onChange={e => {
                             props.onChange && props.onChange({
                                 ...props.ticket,
-                                payment_token_price: Number(e.target.value) + ''
+                                payment_token_price: parseUnits(e.target.value , token.decimals!).toString()
                             })
                         }}
-                        value={props.ticket.payment_token_price || '1'}/>
+                        value={formatUnits(BigInt(props.ticket.payment_token_price || 0), token.decimals!)}/>
                 </div>
             </div>
         }

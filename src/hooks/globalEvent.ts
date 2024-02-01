@@ -19,6 +19,7 @@ export enum EVENT {
     markerCheckin = 'markerCheckin',
     showFollowGuide = 'showFollowGuide',
     setEventStatus = 'setEventStatus',
+    participantUpdate = 'participantUpdate',
 }
 
 export default function useEvent (eventName: EVENT) {

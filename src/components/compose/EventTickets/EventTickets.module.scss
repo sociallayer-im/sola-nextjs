@@ -30,12 +30,24 @@
         border: 2px solid var(--Fill-2-Medium, #BAFFAD);
       }
 
+      &.disable {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
       .item-title {
         color: var(--Text-4-Headline, #272928);
         font-size: 20px;
         font-style: normal;
         font-weight: 600;
         line-height: 28px;
+      }
+
+      .item-waiting-payment {
+        display: flex;
+        flex-flow: row nowrap;
+        justify-content: flex-end;
+        color: #ff7900;
       }
 
       .item-des {

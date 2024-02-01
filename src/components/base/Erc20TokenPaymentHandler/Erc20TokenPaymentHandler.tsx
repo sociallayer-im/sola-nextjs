@@ -1,8 +1,9 @@
-import {ReactNode, useContext, useEffect, useState} from 'react'
-import {useContractWrite, usePrepareContractWrite, useWaitForTransaction, useWalletClient, usePublicClient, useAccount} from "wagmi";
+import {ReactNode, useContext, useState} from 'react'
+import {useAccount, usePublicClient, useWalletClient} from "wagmi";
 import {payhub_abi, paymentTokenList} from "@/payment_settring";
 import {parseUnits} from "viem/utils";
 import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
+import {getParticipantDetail} from "@/service/solas";
 
 let loadingRef: any = null
 
@@ -23,12 +24,47 @@ function Erc20TokenPaymentHandler(
     const {showLoading} = useContext(DialogsContext)
     const {address} = useAccount()
     const {data: walletClient}: any = useWalletClient({chainId: props.chainId})
-    const publicClient : any = usePublicClient({chainId: props.chainId})
+    const publicClient: any = usePublicClient({chainId: props.chainId})
 
+    const [busy, setBusy] = useState(false)
+
+    const verifyPayment = async (participant_id: number) => {
+        return new Promise((resolve, reject) => {
+            let remainTimes = 60
+            const checkParticipant = async () => {
+                try {
+                    const participant = await getParticipantDetail({id: participant_id})
+                    if (!participant) {
+                        reject(new Error('Participant not found'))
+                    }
+
+                    if (participant?.payment_status === 'fail') {
+                        reject(new Error('Fail for verify'))
+                    }
+
+                    if (participant?.payment_status !== 'success') {
+                        remainTimes--
+                        if (remainTimes > 0) {
+                            setTimeout(checkParticipant, 1000)
+                        } else {
+                            reject(new Error('Verify timeout'))
+                        }
+                    } else {
+                        resolve(true)
+                    }
+                } catch (e: any) {
+                    reject(e)
+                }
+            }
+
+            checkParticipant()
+        })
+    }
 
 
     const handlePay = async (participant_id: number) => {
         try {
+            setBusy(true)
             const payhubContract = paymentTokenList.find((item) => item.chainId === props.chainId)?.payHub
             const opt = {
                 address: payhubContract as any,
@@ -39,7 +75,7 @@ function Erc20TokenPaymentHandler(
                 args: [
                     props.to,
                     props.token,
-                    parseUnits(props.amount, props.decimals),
+                    BigInt(props.amount),
                     props.ticketId,
                     participant_id
                 ]
@@ -47,22 +83,25 @@ function Erc20TokenPaymentHandler(
 
             console.log(opt)
 
-            const { request } = await publicClient.simulateContract(opt)
+            const {request} = await publicClient.simulateContract(opt)
 
-            const hash = await walletClient.writeContract(opt)
+            const hash = await walletClient.writeContract(request)
 
             const transaction = await publicClient.waitForTransactionReceipt(
-                { hash }
+                {hash}
             )
+
+            const verify = await verifyPayment(participant_id)
 
             loadingRef?.()
             console.log('transaction====', transaction)
             !!props.onSuccess && props.onSuccess(hash)
         } catch (e: any) {
-            console.log(e.message)
+            console.error(e)
             props.onErrMsg?.(e.message)
         } finally {
             loadingRef?.()
+            setBusy(false)
         }
     }
 
@@ -70,7 +109,7 @@ function Erc20TokenPaymentHandler(
         {props.content ? props.content(async (participant_id) => {
             loadingRef = showLoading()
             await handlePay(participant_id)
-        }, false) : null}
+        }, busy) : null}
     </>)
 }
 

@@ -22,6 +22,8 @@ function Erc20TokenApproveHandler(
     const {address} = useAccount()
     const {showLoading} = useContext(DialogsContext)
 
+    const payHubContract = paymentTokenList.find((item) => item.chainId === props.chainId)?.payHub
+
     const {config: approveConfig, error: prepareError} = usePrepareContractWrite(
         {
             address: props.token as any,
@@ -29,8 +31,8 @@ function Erc20TokenApproveHandler(
             functionName: 'approve',
             chainId: props.chainId,
             args: [
-                props.to,
-                parseUnits(props.amount, props.decimals)
+                payHubContract,
+                BigInt(props.amount)
             ]
         })
 
@@ -43,7 +45,6 @@ function Erc20TokenApproveHandler(
 
     useEffect(() => {
         if (address) {
-            const payHubContract = paymentTokenList.find((item) => item.chainId === props.chainId)?.payHub
             publicClient.readContract({
                 address: props.token as any,
                 abi: erc20_abi,
