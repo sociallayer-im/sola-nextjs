@@ -3421,6 +3421,7 @@ export async function getEventSide(groupId?: number): Promise<EventSites[]> {
 export interface JoinEventProps {
     id: number,
     auth_token: string,
+    ticket_id?: number,
 }
 
 export async function joinEvent(props: JoinEventProps) {
@@ -4758,6 +4759,52 @@ export async function setEventStatus(props: {
     })
 
     return res.data.event as Event
+}
+
+export interface Ticket {
+    id: number,
+    check_badge_id: number | null
+    content: string,
+    created_at: string,
+    end_time: string | null
+    event_id: number,
+    need_approval: boolean
+    payment_chain: string | null
+    payment_target_address: string | null
+    payment_token_address: string | null
+    payment_token_price: string | null
+    payment_token_name: string | null
+    quantity: number | null,
+    status: string
+    title: string
+}
+
+export async function queryTickets (props: {
+    event_id: number,
+}) {
+
+    const doc = gql`query MyQuery {
+      tickets(where: {event_id: {_eq: ${props.event_id}}}) {
+        check_badge_id
+        content
+        created_at
+        end_time
+        event_id
+        id
+        need_approval
+        payment_chain
+        payment_target_address
+        payment_token_address
+        payment_token_name
+        payment_token_price
+        quantity
+        status
+        title
+      }
+    }`
+
+    const res: any = await request(graphUrl, doc)
+    return res.tickets as Ticket[]
 }
 
 export default {

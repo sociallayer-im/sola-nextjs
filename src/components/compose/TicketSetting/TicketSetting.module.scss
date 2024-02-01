@@ -11,12 +11,18 @@
   }
 }
 
+
 .ticket-form {
   max-width: 600px;
   border: 1px solid #F1F1F1;
   border-radius: 8px;
   padding: 16px;
   margin-bottom: 12px;
+
+  .error-msg {
+    color: red;
+    margin-top: 8px;
+  }
 
   .width-limit {
     max-width: 300px;

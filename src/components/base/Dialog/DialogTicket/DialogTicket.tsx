@@ -7,19 +7,26 @@ import DialogsContext from "@/components/provider/DialogProvider/DialogsContext"
 import DialogConnectWalletForPay from "@/components/base/Dialog/DialogConnectWalletForPay/DialogConnectWalletForPay";
 import {useAccount} from "wagmi";
 import Erc20TokenPaymentHandler from "@/components/base/Erc20TokenPaymentHandler/Erc20TokenPaymentHandler";
+import Erc20TokenApproveHandler from "@/components/base/Erc20TokenApproveHandler/Erc20TokenApproveHandler";
 import Erc20Balance from "@/components/base/Erc20Balance/Erc20Balance";
 import EventDefaultCover from "@/components/base/EventDefaultCover";
-import {Event} from '@/service/solas'
+import {Event, joinEvent, Ticket} from '@/service/solas'
 import useTime from "@/hooks/formatTime";
+import {paymentTokenList} from "@/payment_settring";
+import UserContext from "@/components/provider/UserProvider/UserContext";
 
-function DialogTicket(props: { close: () => any, event: Event }) {
+function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket }) {
     const {lang} = useContext(LangContext)
+    const {user} = useContext(UserContext)
     const {copyWithDialog} = useCopy()
-    const {openDialog, showToast} = useContext(DialogsContext)
+    const {openDialog, showToast, showLoading} = useContext(DialogsContext)
     const [errorMsg, setErrorMsg] = useState('')
+    const [approved, setApproved] = useState(false)
 
     const {address} = useAccount()
     const formatTime = useTime()
+
+    console.log('ticket====', props.ticket)
 
     const connectWallet = () => {
         openDialog({
@@ -32,6 +39,21 @@ function DialogTicket(props: { close: () => any, event: Event }) {
         const len = address.length
         return address.slice(0, 6) + '...' + address.slice(len - 6, len)
     }
+
+    const handleJoin = async () => {
+        return await joinEvent(
+            {
+                id: props.event.id,
+                auth_token: user.authToken || '',
+                ticket_id: props.ticket.id,
+            }
+        )
+    }
+
+    const chain = props.ticket.payment_chain ? paymentTokenList.find(item => item.id === props.ticket.payment_chain) : undefined
+
+    let token = !!chain ?
+        chain.tokenList.find(item => item.id === props.ticket.payment_token_name) : undefined
 
     return (<div className={styles['dialog-ticket']}>
         <div className={styles['dialog-title']}>
@@ -64,40 +86,52 @@ function DialogTicket(props: { close: () => any, event: Event }) {
             </div>
         </div>
         <div className={styles['type-name-title']}>Ticket type</div>
-        <div className={styles['type-name']}>Ticket type</div>
+        <div className={styles['type-name']}>{props.ticket.title}</div>
 
-        <div className={styles['receiver']}>
-            <div className={styles['receiver-des']}>Payments will be sent to</div>
-            <div className={styles['address']}>
-                <div className={styles['left']}>
-                    <img src="/images/ethereum-icon.webp" alt=""/>
-                    <div>{shotAddress('0x1234567890123456789012345678901234567890')}</div>
-                </div>
-                <div className={styles['copy']}
-                     onClick={e => {
-                         copyWithDialog('0x1234567890123456789012345678901234567890')
-                     }}>
-                    {lang['Profile_Show_Copy']}
+        { props.ticket.payment_target_address &&
+            <div className={styles['receiver']}>
+                <div className={styles['receiver-des']}>Payments will be sent to</div>
+                <div className={styles['address']}>
+                    <div className={styles['left']}>
+                        {
+                            chain &&
+                            <img src={chain.icon} alt=""/>
+                        }
+                        <div>{shotAddress(props.ticket.payment_target_address)}</div>
+                    </div>
+                    <div className={styles['copy']}
+                         onClick={e => {
+                             copyWithDialog(props.ticket.payment_target_address!)
+                         }}>
+                        {lang['Profile_Show_Copy']}
+                    </div>
                 </div>
             </div>
-        </div>
+        }
 
-        <div className={styles['payment-title']}>Payment</div>
-        <div className={styles['price']}>
-            <div className={styles['label']}>Total</div>
-            <div className={styles['value']}>10 USDT</div>
-        </div>
-        <div className={styles['balance']}>
-            <div className={styles['label']}>Balance<span>USDT</span></div>
-            <div className={styles['value']}>{
-                !!address ? <Erc20Balance
-                        chanId={43113}
-                        account={address}
-                        token={"0x70c34957154355a0bF048073eb1d4b7895359743"}
-                        decimals={6}/>
-                    : '--'
-            }  </div>
-        </div>
+        { props.ticket.payment_token_price !== null && !!token && !!chain &&
+            <>
+                <div className={styles['payment-title']}>Payment</div>
+                <div className={styles['price']}>
+                    <div className={styles['label']}>Price</div>
+                    <div className={styles['value']}>{props.ticket.payment_token_price} {props.ticket.payment_token_name?.toUpperCase()}</div>
+                </div>
+                <div className={styles['balance']}>
+                    <div className={styles['label']}>Balance</div>
+                    <div className={styles['value']}>
+                        {
+                        !!address ? <Erc20Balance
+                                chanId={chain.chainId}
+                                account={address}
+                                token={props.ticket.payment_token_address!}
+                                decimals={token.decimals}/>
+                            : '--'
+                    }
+                        <span>{props.ticket.payment_token_name?.toUpperCase()}</span>
+                    </div>
+                </div>
+            </>
+        }
 
         {errorMsg &&
             <div className={styles['error-msg']}>{errorMsg}</div>
@@ -110,13 +144,16 @@ function DialogTicket(props: { close: () => any, event: Event }) {
             }}>{'Connect Wallet'}</AppButton>
         }
 
-        {!!address &&
+
+        {!!address && !!token && !!chain && approved &&
             <Erc20TokenPaymentHandler
-                token={"0x70c34957154355a0bF048073eb1d4b7895359743"}
-                to={"0xD21dAFbEbE121634a413AB53772CD17Bf0085976"}
-                amount={'1'}
-                decimals={6}
-                chainId={43113}
+                eventId={props.event.id}
+                ticketId={props.ticket.id}
+                token={props.ticket.payment_token_address!}
+                to={props.ticket.payment_target_address!}
+                amount={props.ticket.payment_token_price?.toString() || '0'}
+                decimals={token.decimals}
+                chainId={chain.chainId}
                 onErrMsg={(errMsg: string) => {
                     setErrorMsg(errMsg)
                 }}
@@ -127,10 +164,36 @@ function DialogTicket(props: { close: () => any, event: Event }) {
                 content={(trigger, busy) => <AppButton
                     disabled={busy || !!errorMsg}
                     special={!busy && !errorMsg}
-                    onClick={e => {
+                    onClick={ async (e) => {
+                        const loading = showLoading()
+                        const participant = await handleJoin()
+                        loading()
+                        setErrorMsg('')
+                        trigger?.(participant.id)
+                    }}>{'Pay'}</AppButton>}
+            />
+        }
+
+        {!!address && !!token && !!chain && !approved &&
+            <Erc20TokenApproveHandler
+                token={props.ticket.payment_token_address!}
+                to={props.ticket.payment_target_address!}
+                amount={props.ticket.payment_token_price?.toString() || '0'}
+                decimals={token.decimals}
+                chainId={chain.chainId}
+                onErrMsg={(errMsg: string) => {
+                    setErrorMsg(errMsg)
+                }}
+                onSuccess={(txHash: string) => {
+                   setApproved(true)
+                }}
+                content={(trigger, busy) => <AppButton
+                    disabled={busy || !!errorMsg}
+                    special={!busy && !errorMsg}
+                    onClick={async (e) => {
                         setErrorMsg('')
                         trigger?.()
-                    }}>{'Pay'}</AppButton>}
+                    }}>{'Approve'}</AppButton>}
             />
         }
     </div>)

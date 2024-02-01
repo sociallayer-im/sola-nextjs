@@ -11,8 +11,8 @@ import {
     punchIn,
     queryBadgeDetail,
     queryEventDetail,
-    queryGroupDetail,
-    queryUserGroup
+    queryGroupDetail, queryTickets,
+    queryUserGroup, Ticket
 } from "@/service/solas";
 import LangContext from "@/components/provider/LangProvider/LangContext";
 import {useTime3} from "@/hooks/formatTime";
@@ -80,6 +80,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
     const [canAccess, setCanAccess] = useState(false)
     const [eventSite, setEventSite] = useState<any | null>(null)
     const [showMap, setShowMap] = useState(false)
+    const [tickets, setTickets] = useState<Ticket[]>([])
 
     const [cohost, setCohost] = useState<ProfileSimple[]>([])
     const [speaker, setSpeaker] = useState<ProfileSimple[]>([])
@@ -98,6 +99,10 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                 router.push('/error')
                 return
             }
+
+            queryTickets({event_id: res.id}).then((res) => {
+                setTickets(res)
+            })
 
             setEvent(res)
             setEventSite(res.event_site)
@@ -782,7 +787,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                             }
 
                             { !!event &&
-                                <EventTickets event={event} />
+                                <EventTickets tickets={tickets} event={event} />
                             }
                         </div>
                     </div>

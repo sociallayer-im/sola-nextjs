@@ -603,7 +603,7 @@ const langCN: LangConfig = {
   Ticket_Type_Setting: '票种设置',
   Ticket: '门票',
   Name_Of_Tickets: '票种名称',
-  Ticket_Description: '票种描述',
+  Ticket_Description: '票种描述 (选填)',
   Price: '价格',
   Receiving_Wallet_Address: '收费钱包地址',
   Ticket_Amount: '票数',

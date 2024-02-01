@@ -23,6 +23,7 @@
       margin-bottom: 16px;
       box-sizing: border-box;
       cursor: pointer;
+      border: 2px solid  #F8F9F8;
 
       &.selected {
         background: #EFFFF9;
@@ -52,6 +53,37 @@
         font-weight: 600;
         line-height: 28px;
       }
+    }
+  }
+}
+
+.item-badge {
+  margin-bottom: 12px;
+  margin-top: 12px;
+  .title {
+    color: var(--Text-2-Secondary, #7B7C7B);
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 24px;
+  }
+
+  .info {
+    color: var(--Text-4-Headline, #272928);
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 24px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    img {
+      width: 34px;
+      height: 34px;
+      margin-right: 8px;
+      border-radius: 50%;
+      vertical-align: middle;
     }
   }
 }

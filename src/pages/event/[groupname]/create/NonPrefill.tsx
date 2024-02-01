@@ -29,7 +29,8 @@ import {
     setEventBadge,
     updateEvent,
     createRepeatEvent,
-    RepeatEventSetBadge
+    RepeatEventSetBadge,
+    Ticket, queryTickets,
 } from '@/service/solas'
 import DialogsContext from '@/components/provider/DialogProvider/DialogsContext'
 import ReasonInput from '@/components/base/ReasonInput/ReasonInput'
@@ -161,6 +162,8 @@ function CreateEvent(props: CreateEventPageProps) {
     const [needPublish, setNeedPublish] = useState(false)
 
     const [enableTicket, setEnableTicket] = useState(true)
+    const [tickets, setTickets] = useState<Partial<Ticket>[]>([])
+    const ticketSettingRef = useRef<{verify : () => boolean} | null>(null)
 
     const toNumber = (value: string, set: any) => {
         if (!value) {
@@ -467,6 +470,15 @@ function CreateEvent(props: CreateEventPageProps) {
                 setEnableMinParticipants(false)
             }
 
+            queryTickets({event_id: event.id}).then((res) => {
+                if (res && res.length > 0) {
+                    setTickets(res)
+                    setEnableTicket(true)
+                } else {
+                    setEnableTicket(false)
+                }
+            })
+
             setTelegram(event.telegram_contact_group || '')
             setCustomLocation(event.location || '')
 
@@ -702,6 +714,11 @@ function CreateEvent(props: CreateEventPageProps) {
     }
 
     const checkForm = () => {
+        if (!ticketSettingRef || !ticketSettingRef.current?.verify()) {
+            showToast('Invalid ticket setting')
+            return false
+        }
+
         if (!user.id) {
             showToast('Please login first')
             return false
@@ -816,6 +833,7 @@ function CreateEvent(props: CreateEventPageProps) {
             interval: repeat!,
             repeat_start_time: start  as any,
             event_count: repeatCounter,
+            tickets: enableTicket && tickets.length ? tickets : null,
         }
 
         try {
@@ -865,42 +883,8 @@ function CreateEvent(props: CreateEventPageProps) {
     }
 
     const handleSave = async () => {
-        if (!user.id) {
-            showToast('Please login first')
-            return
-        }
-
-        if (siteOccupied) {
-            showToast(lang['Activity_Detail_site_Occupied'])
-            // window.location.href = location.pathname + '#SiteError'
-            return
-        }
-
-        if (new Date(start) > new Date(ending)) {
-            showToast('start time should be earlier than ending time')
-            return
-        }
-
-
-        if (!title) {
-            showToast('please input title')
-            return
-        }
-
-        if (startTimeError) {
-            showToast(lang['Activity_Form_Ending_Time_Error'])
-            return
-        }
-
-        if (telegramError) {
-            showToast('Invalid telegram Group Url')
-            return
-        }
-
-        if (labelError) {
-            showToast('The maximum number of tags is 3')
-            return
-        }
+        const check = checkForm()
+        if (!check) return
 
         let lng: string | null = null
         let lat: string | null = null
@@ -934,7 +918,8 @@ function CreateEvent(props: CreateEventPageProps) {
             recurring_event_id: currEvent!.recurring_event_id || undefined,
             timezone,
             geo_lng: lng,
-            geo_lat: lat
+            geo_lat: lat,
+            tickets: enableTicket && tickets.length ? tickets : null,
         }
 
         if (currEvent?.recurring_event_id) {
@@ -1363,9 +1348,16 @@ function CreateEvent(props: CreateEventPageProps) {
 
                         {
                             enableTicket && creator &&
-                            <TicketSetting creator={creator} value={[]}/>
+                            <TicketSetting
+                                ref={ticketSettingRef}
+                                creator={creator}
+                                value={tickets}
+                                onChange={
+                                (tickets) => {
+                                    setTickets(tickets)
+                                }
+                            }/>
                         }
-
 
                         {langType === 'cn' && false &&
                             <div className={'input-area'}>

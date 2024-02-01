@@ -607,7 +607,7 @@ const langEN = {
     Ticket_Type_Setting: 'Ticket Type Setting',
     Ticket: 'Ticket',
     Name_Of_Tickets: 'Name of Tickets',
-    Ticket_Description: 'Ticket description',
+    Ticket_Description: 'Ticket description (Optional)',
     Price: 'Price',
     Receiving_Wallet_Address: 'Receiving wallet address',
     Ticket_Amount: 'Ticket amount',

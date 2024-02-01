@@ -1,61 +1,55 @@
-import {useContext, useEffect, useState} from 'react'
+import {forwardRef, useContext, useEffect, useImperativeHandle, useState} from 'react'
 import styles from './TicketSetting.module.scss'
 import LangContext from "@/components/provider/LangProvider/LangContext";
 import AppInput from "@/components/base/AppInput";
 import AppRadio from "@/components/base/AppRadio/AppRadio";
 import {Select} from "baseui/select";
 import AppButton from "@/components/base/AppButton/AppButton";
-import {Badge, Group, Profile, queryBadge, queryBadgeDetail} from "@/service/solas";
+import {Badge, Group, Profile, queryBadge, queryBadgeDetail, Ticket} from "@/service/solas";
 import DialogIssuePrefill from "@/components/eventSpecial/DialogIssuePrefill/DialogIssuePrefill";
 import {OpenDialogProps} from "@/components/provider/DialogProvider/DialogProvider";
 import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
 import {Delete} from "baseui/icon";
-import { paymentTokenList } from '@/payment_settring'
+import {paymentTokenList} from '@/payment_settring'
 
-export interface Ticket {
-    name: string
-    description: string
-    price: number | null
-    chain: string | null
-    type: string
-    receiver: string | null
-    amount: number | null
-    qualification: number | null
-    token: string | null,
-    badgeId?: number
+const emptyTicket: Partial<Ticket> = {
+    title: '',
+    content: '',
+    check_badge_id: null,
+    payment_chain: null,
+    payment_target_address: null,
+    payment_token_address: null,
+    payment_token_name: null,
+    payment_token_price: null,
+    quantity: null,
 }
 
-const emptyTicket: Ticket = {
-    name: '',
-    description: '',
-    price: null,
-    chain: null,
-    type: 'free',
-    receiver: null,
-    amount: null,
-    qualification: null,
-    token: null,
-    badgeId: undefined
+interface ErrorMsg {
+    index: number,
+    title: boolean,
+    payment_target_address: boolean,
 }
 
 function Ticket({creator, ...props}: {
-    ticket: Ticket,
+    ticket: Partial<Ticket>,
     creator: Group | Profile,
     index?: number,
-    onChange?: (ticket: Ticket) => any
-    onDelete?: (ticket: Ticket) => any
+    errorMsg?: ErrorMsg[]
+    onChange?: (ticket: Partial<Ticket>) => any
+    onDelete?: (ticket: Partial<Ticket>) => any
 }) {
     const {lang} = useContext(LangContext)
     const {openDialog, showLoading} = useContext(DialogsContext)
 
     const [badges, setBadges] = useState<Badge[]>([])
     const [badgeDetail, setBadgeDetail] = useState<Badge | null>(null)
+    const [errMsg, setErrMsg] = useState<ErrorMsg | null>(null)
 
     useEffect(() => {
-        if (props.ticket.badgeId && badges.length > 0) {
-            setBadgeDetail(badges.find((badge) => badge.id === props.ticket.badgeId) || null)
-        } else if (props.ticket.badgeId) {
-            queryBadgeDetail({id: props.ticket.badgeId}).then((res) => {
+        if (props.ticket.check_badge_id && badges.length > 0) {
+            setBadgeDetail(badges.find((badge) => badge.id === props.ticket.check_badge_id) || null)
+        } else if (props.ticket.check_badge_id) {
+            queryBadgeDetail({id: props.ticket.check_badge_id}).then((res) => {
                 if (res) {
                     setBadgeDetail(res)
                 }
@@ -63,13 +57,20 @@ function Ticket({creator, ...props}: {
         } else {
             setBadgeDetail(null)
         }
-    }, [props.ticket.badgeId])
+    }, [props.ticket.check_badge_id])
 
     useEffect(() => {
         document.querySelectorAll('.ticket-payment input').forEach((input) => {
             input.setAttribute('readonly', 'readonly')
         })
     }, [])
+
+    useEffect(() => {
+        if (props.errorMsg?.length) {
+            const target = props.errorMsg.find((msg) => msg.index === props.index)
+            setErrMsg(target)
+        }
+    }, [props.errorMsg])
 
     const showBadges = async () => {
         const queryProp = !!(creator as Group)?.creator ? {
@@ -94,7 +95,7 @@ function Ticket({creator, ...props}: {
                     if (res.badgeId) {
                         props.onChange && props.onChange({
                             ...props.ticket,
-                            badgeId: res.badgeId
+                            check_badge_id: res.badgeId
                         })
                     }
                 }}
@@ -104,12 +105,14 @@ function Ticket({creator, ...props}: {
         } as OpenDialogProps)
     }
 
-    const chain = props.ticket.type === 'payment' ?  paymentTokenList.find((chain) => chain.id === props.ticket.chain)! : undefined
+    const chain = props.ticket.payment_token_price !== null ? paymentTokenList.find((chain) => chain.id === props.ticket.payment_chain)! : undefined
 
 
     let token = undefined
     if (chain) {
-        const tokenExist = chain.tokenList.find((t: any) => {return t.id === props.ticket.token})
+        const tokenExist = chain.tokenList.find((t: any) => {
+            return t.id === props.ticket.payment_token_name
+        })
         if (tokenExist) {
             token = tokenExist
         } else {
@@ -117,9 +120,8 @@ function Ticket({creator, ...props}: {
         }
     }
 
-    console.log('ticket: ', props.ticket)
-    console.log('chain: ', chain)
-    console.log('token: ', token)
+    console.log(`ticket: ${props.index + 1}`, props.ticket)
+    console.log(`token: ${props.index + 1}`, token)
 
     return (<div className={styles['ticket-form']}>
         <div className={styles['title']}>
@@ -133,7 +135,7 @@ function Ticket({creator, ...props}: {
             </div>
 
             <svg className={styles['delete']}
-                    onClick={() => props.onDelete && props.onDelete(props.ticket)}
+                 onClick={() => props.onDelete && props.onDelete(props.ticket)}
                  xmlns="http://www.w3.org/2000/svg" width="14" height="15"
                  viewBox="0 0 14 15" fill="none">
                 <rect x="0.93335" y="0.311035" width="18.479" height="1.31993" rx="0.659966"
@@ -145,23 +147,24 @@ function Ticket({creator, ...props}: {
 
         <div className={styles['item-title']}>{lang['Name_Of_Tickets']}</div>
         <div className={styles['width-limit']}>
-            <AppInput value={props.ticket.name}
+            <AppInput value={props.ticket.title || ''}
                       onChange={(e) => {
                           props.onChange && props.onChange({
                               ...props.ticket,
-                              name: e.target.value
+                              title: e.target.value
                           })
                       }}
                       placeholder={lang['Name_Of_Tickets']}/>
         </div>
+        { errMsg?.title && <div className={styles['error-msg']}>{'Please input ticket name'}</div> }
 
         <div className={styles['item-title']}>{lang['Ticket_Description']}</div>
         <div className={styles['width-limit-2']}>
-            <AppInput value={props.ticket.description}
+            <AppInput value={props.ticket.content || ''}
                       onChange={(e) => {
                           props.onChange && props.onChange({
                               ...props.ticket,
-                              description: e.target.value
+                              content: e.target.value
                           })
                       }}
                       placeholder={lang['Ticket_Description']}/>
@@ -174,33 +177,33 @@ function Ticket({creator, ...props}: {
                 <div className={styles['ticket-type']} onClick={e => {
                     props.onChange && props.onChange({
                         ...props.ticket,
-                        type: 'free',
-                        chain: null,
-                        token: null,
-                        price: null,
-                        receiver: null
+                        payment_token_price: null,
+                        payment_chain: null,
+                        payment_token_name: null,
+                        payment_token_address: null,
+                        payment_target_address: null
                     })
                 }}>
-                    <AppRadio checked={props.ticket.type === 'free'}/>
+                    <AppRadio checked={props.ticket.payment_token_price === null}/>
                     {'Free'}
                 </div>
                 <div className={styles['ticket-type']}
                      onClick={e => {
                          props.onChange && props.onChange({
                              ...props.ticket,
-                             type: 'payment',
-                             chain: paymentTokenList[0].id,
-                             token:  paymentTokenList[0].tokenList[0].id,
-                             price: 0
+                             payment_token_price: '1',
+                             payment_chain: paymentTokenList[0].id,
+                             payment_token_name: paymentTokenList[0].tokenList[0].id,
+                             payment_token_address: paymentTokenList[0].tokenList[0].contract,
                          })
                      }}>
-                    <AppRadio checked={props.ticket.type === 'payment'}/>
+                    <AppRadio checked={props.ticket.payment_token_price !== null}/>
                     {'Payment'}
                 </div>
             </div>
         </div>
 
-        { props.ticket.type === 'payment' && !!chain && !!token &&
+        {props.ticket.payment_token_price !== null && !!chain && !!token &&
             <div className={styles['item-title-inline']}>
                 <div className={styles['label']}>{lang['Price']}</div>
 
@@ -220,8 +223,9 @@ function Ticket({creator, ...props}: {
                             onChange={(params) => {
                                 props.onChange && props.onChange({
                                     ...props.ticket,
-                                    chain: (params.option as any).id,
-                                    token: (params.option as any).tokenList[0].id
+                                    payment_chain: (params.option as any).id,
+                                    payment_token_name: (params.option as any).tokenList[0].id,
+                                    payment_token_address: (params.option as any).tokenList[0].contract,
                                 })
                             }}
                         />
@@ -240,7 +244,8 @@ function Ticket({creator, ...props}: {
                             onChange={(params) => {
                                 props.onChange && props.onChange({
                                     ...props.ticket,
-                                    token: (params.option as any).id,
+                                    payment_token_name: (params.option as any).id,
+                                    payment_token_address: (params.option as any).contract,
                                 })
                             }}
                         />
@@ -251,28 +256,29 @@ function Ticket({creator, ...props}: {
                         onChange={e => {
                             props.onChange && props.onChange({
                                 ...props.ticket,
-                                price: Number(e.target.value)
+                                payment_token_price: Number(e.target.value) + ''
                             })
                         }}
-                        value={props.ticket.price ? props.ticket.price + '' : '0'}/>
+                        value={props.ticket.payment_token_price || '1'}/>
                 </div>
             </div>
         }
 
-        { props.ticket.type === 'payment' &&
+        {props.ticket.payment_token_price !== null &&
             <>
                 <div className={styles['item-title']}>{lang['Receiving_Wallet_Address']}</div>
                 <div className={styles['width-limit-2']}>
                     <AppInput
-                        value={props.ticket.receiver || ''}
+                        value={props.ticket.payment_target_address || ''}
                         onChange={(e) => {
                             props.onChange && props.onChange({
                                 ...props.ticket,
-                                receiver: e.target.value
+                                payment_target_address: e.target.value
                             })
                         }}
                         placeholder={lang['Receiving_Wallet_Address']}/>
                 </div>
+                { errMsg?.payment_target_address && <div className={styles['error-msg']}>{'Please input receiving wallet address'}</div> }
             </>
         }
 
@@ -283,36 +289,36 @@ function Ticket({creator, ...props}: {
                 <div className={styles['ticket-type']} onClick={e => {
                     props.onChange && props.onChange({
                         ...props.ticket,
-                        amount: null
+                        quantity: null
                     })
                 }}>
-                    <AppRadio checked={props.ticket.amount === null}/>
+                    <AppRadio checked={props.ticket.quantity === null}/>
                     {'No limit'}
                 </div>
 
                 <div className={styles['ticket-type']} onClick={e => {
                     props.onChange && props.onChange({
                         ...props.ticket,
-                        amount: 1
+                        quantity: 1
                     })
                 }}>
-                    <AppRadio checked={props.ticket.amount !== null}/>
+                    <AppRadio checked={props.ticket.quantity !== null}/>
                     {'Limit'}
                 </div>
 
-                { props.ticket.amount !== null &&
+                {props.ticket.quantity !== null &&
                     <>
                         <div className={styles['width-limit-3']}>
                             <AppInput
                                 onChange={e => {
                                     props.onChange && props.onChange({
                                         ...props.ticket,
-                                        amount: e.target.value >= 0 ? e.target.value * 1 : 0
+                                        quantity: e.target.value >= 0 ? e.target.value * 1 : 0
                                     })
                                 }}
                                 type={'number'}
                                 placeholder={lang['Price']}
-                                value={props.ticket.amount ? props.ticket.amount + '' : '0'}/>
+                                value={props.ticket.quantity ? props.ticket.quantity + '' : '0'}/>
                         </div>
 
                         <div>{lang['Tickets']}</div>
@@ -327,7 +333,7 @@ function Ticket({creator, ...props}: {
         </div>
 
         {
-            !props.ticket.badgeId &&
+            !props.ticket.check_badge_id &&
             <div className={styles['width-limit-4']}>
                 <AppButton onClick={showBadges}>{lang['Select_A_Badge']}</AppButton>
             </div>
@@ -338,7 +344,7 @@ function Ticket({creator, ...props}: {
                 <Delete size={22} onClick={e => {
                     props.onChange && props.onChange({
                         ...props.ticket,
-                        badgeId: undefined
+                        check_badge_id: undefined
                     })
                 }
                 }/>
@@ -349,44 +355,76 @@ function Ticket({creator, ...props}: {
     </div>)
 }
 
-function TicketSetting(props: { creator: Group | Profile, onChange?: (tickets: Ticket[]) => any, value: Ticket[]}) {
+function TicketSetting(props: { creator: Group | Profile, onChange?: (tickets: Partial<Ticket>[]) => any, value: Partial<Ticket>[] }, ref: any) {
+    const [errorMsg, setErrorMsg] = useState<ErrorMsg[]>([])
 
-    const [tickets, setTickets] = useState<Ticket[]>(props.value || [emptyTicket])
+    const verify = () => {
+        let res = true
+        let newErrorMsg: ErrorMsg[] = []
+        props.value.forEach((ticket, index) => {
+            let errMsg: ErrorMsg = {
+                index,
+                title: false,
+                payment_target_address: false,
+            }
 
-    useEffect(() => {
+            if (!ticket.title) {
+                errMsg.title = true
+            }
 
-    }, [tickets])
+            if (ticket.payment_token_price !== null && !ticket.payment_target_address) {
+                errMsg.payment_target_address = true
+            }
+
+            if (errMsg.title || errMsg.payment_target_address) {
+                newErrorMsg.push(errMsg)
+                res = false
+            }
+        })
+
+        setErrorMsg(newErrorMsg)
+        return res
+    }
+
+    useImperativeHandle(ref, () => {
+        return {
+            verify
+        }
+    })
 
     return (<div className={styles['ticket-setting-list']}>
         {
-            tickets.map((ticket, index) => {
+            props.value.map((ticket, index) => {
                 return <Ticket
                     creator={props.creator}
                     ticket={ticket}
                     key={index}
                     index={index}
+                    errorMsg={errorMsg}
                     onChange={(ticket) => {
-                        const newTickets = [...tickets]
+                        const newTickets = [...props.value]
                         newTickets[index] = ticket
-                        setTickets(newTickets)
+                        props.onChange && props.onChange(newTickets)
                     }}
-                    onDelete={()=> {
-                        const newTickets = [...tickets]
+                    onDelete={() => {
+                        const newTickets = [...props.value]
                         newTickets.splice(index, 1)
-                        setTickets(newTickets)
+                        props.onChange && props.onChange(newTickets)
                     }}/>
             })
         }
 
-        <AppButton onClick={e=> {
-            setTickets([...tickets, emptyTicket])
+        <AppButton onClick={e => {
+            props.onChange && props.onChange([...props.value, emptyTicket])
         }}>
             <svg xmlns="http://www.w3.org/2000/svg" width="25" height="24" viewBox="0 0 25 24" fill="none">
-                <path d="M19.5 11H13.5V5C13.5 4.73478 13.3946 4.48043 13.2071 4.29289C13.0196 4.10536 12.7652 4 12.5 4C12.2348 4 11.9804 4.10536 11.7929 4.29289C11.6054 4.48043 11.5 4.73478 11.5 5V11H5.5C5.23478 11 4.98043 11.1054 4.79289 11.2929C4.60536 11.4804 4.5 11.7348 4.5 12C4.5 12.2652 4.60536 12.5196 4.79289 12.7071C4.98043 12.8946 5.23478 13 5.5 13H11.5V19C11.5 19.2652 11.6054 19.5196 11.7929 19.7071C11.9804 19.8946 12.2348 20 12.5 20C12.7652 20 13.0196 19.8946 13.2071 19.7071C13.3946 19.5196 13.5 19.2652 13.5 19V13H19.5C19.7652 13 20.0196 12.8946 20.2071 12.7071C20.3946 12.5196 20.5 12.2652 20.5 12C20.5 11.7348 20.3946 11.4804 20.2071 11.2929C20.0196 11.1054 19.7652 11 19.5 11Z" fill="#272928"/>
+                <path
+                    d="M19.5 11H13.5V5C13.5 4.73478 13.3946 4.48043 13.2071 4.29289C13.0196 4.10536 12.7652 4 12.5 4C12.2348 4 11.9804 4.10536 11.7929 4.29289C11.6054 4.48043 11.5 4.73478 11.5 5V11H5.5C5.23478 11 4.98043 11.1054 4.79289 11.2929C4.60536 11.4804 4.5 11.7348 4.5 12C4.5 12.2652 4.60536 12.5196 4.79289 12.7071C4.98043 12.8946 5.23478 13 5.5 13H11.5V19C11.5 19.2652 11.6054 19.5196 11.7929 19.7071C11.9804 19.8946 12.2348 20 12.5 20C12.7652 20 13.0196 19.8946 13.2071 19.7071C13.3946 19.5196 13.5 19.2652 13.5 19V13H19.5C19.7652 13 20.0196 12.8946 20.2071 12.7071C20.3946 12.5196 20.5 12.2652 20.5 12C20.5 11.7348 20.3946 11.4804 20.2071 11.2929C20.0196 11.1054 19.7652 11 19.5 11Z"
+                    fill="#272928"/>
             </svg>
             <span className={styles['add-btn']}>Add a ticket type</span>
         </AppButton>
     </div>)
 }
 
-export default TicketSetting
+export default forwardRef(TicketSetting)
