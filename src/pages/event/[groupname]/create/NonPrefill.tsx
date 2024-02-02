@@ -162,7 +162,7 @@ function CreateEvent(props: CreateEventPageProps) {
 
     const [needPublish, setNeedPublish] = useState(false)
 
-    const [enableTicket, setEnableTicket] = useState(true)
+    const [enableTicket, setEnableTicket] = useState(false)
     const [tickets, setTickets] = useState<Partial<Ticket>[]>([])
     const ticketSettingRef = useRef<{verify : () => boolean} | null>(null)
 
