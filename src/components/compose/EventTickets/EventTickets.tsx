@@ -68,7 +68,7 @@ function TicketItem({
     </div>
 }
 
-function EventTickets({canAccess = true, ...props}: { event: Event, tickets: Ticket[], canAccess?: boolean }) {
+function EventTickets({canAccess = true, ...props}: { event: Event, tickets: Ticket[], canAccess?: boolean , isDialog?: boolean}) {
 
     const {lang} = useContext(langContext)
     const {openDialog, showToast} = useContext(DialogsContext)
@@ -111,21 +111,23 @@ function EventTickets({canAccess = true, ...props}: { event: Event, tickets: Tic
 
     return (<div className={styles['event-ticket-list']}>
         <div className={styles['event-ticket-title']}>{lang['Tickets']}</div>
-        <div className={styles['list']}>
-            {
-                props.tickets.map((item, index) => {
-                    const disable = !!userPendingPayment && userPendingPayment.ticket_id !== item.id
-                    return <div key={item.id} onClick={() => {
-                        !disable && setSelectedTicket(item)
-                    }}>
-                        <TicketItem
-                            waitForPayment={!!userPendingPayment && !disable}
-                            disable={disable}
-                            selected={selectedTicket?.id === item.id && !userHasPaid}
-                            ticket={item}/>
-                    </div>
-                })
-            }
+        <div className={`${styles['list']} ${props.isDialog ? styles['dialog'] : ''}`}>
+            <div className={`${props.isDialog ? styles['scroll'] : ''}`}>
+                {
+                    props.tickets.map((item, index) => {
+                        const disable = !!userPendingPayment && userPendingPayment.ticket_id !== item.id
+                        return <div key={item.id} onClick={() => {
+                            !disable && setSelectedTicket(item)
+                        }}>
+                            <TicketItem
+                                waitForPayment={!!userPendingPayment && !disable}
+                                disable={disable}
+                                selected={selectedTicket?.id === item.id && !userHasPaid}
+                                ticket={item}/>
+                        </div>
+                    })
+                }
+            </div>
 
             {
                 !!userHasPaid ?
@@ -144,8 +146,6 @@ function EventTickets({canAccess = true, ...props}: { event: Event, tickets: Tic
                             {'Only for group members'}
                         </AppButton>
             }
-
-
         </div>
 
     </div>)

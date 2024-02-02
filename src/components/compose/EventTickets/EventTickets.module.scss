@@ -8,6 +8,22 @@
     margin-bottom: 14px;
   }
 
+  .scroll {
+    max-height: 300px;
+    overflow: auto;
+    margin-bottom: 12px;
+    padding-right: 6px;
+
+    &::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background-color: #f1f1f1;
+      border-radius: 6px;
+    }
+  }
+
   .list {
     display: flex;
     flex-flow: column nowrap;
@@ -15,6 +31,11 @@
     border: 1px solid var(--Fill-2-Medium, #F2F2F1);
     background: #FFF;
     padding: 16px;
+
+    &.dialog {
+      padding: 0;
+      border: 0;
+    }
 
     .item {
       padding: 16px;

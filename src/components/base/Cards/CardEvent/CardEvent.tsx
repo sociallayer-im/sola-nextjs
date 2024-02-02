@@ -129,7 +129,7 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
             unload()
             openDialog({
                 content: (close: any) => <div style={{background: '#fff', padding: '20px', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.12)'}}>
-                    <EventTickets tickets={tickets} event={props.event} />
+                    <EventTickets isDialog tickets={tickets} event={props.event} />
                 </div>,
                 size: [400, 'auto'],
                 position: 'bottom',
