@@ -251,16 +251,18 @@ function Ticket({creator, ...props}: {
                             }}
                         />
                     </div>
-                    <AppInput
-                        type={'number'}
-                        placeholder={lang['Price']}
-                        onChange={e => {
-                            props.onChange && props.onChange({
-                                ...props.ticket,
-                                payment_token_price: parseUnits(e.target.value , token.decimals!).toString()
-                            })
-                        }}
-                        value={formatUnits(BigInt(props.ticket.payment_token_price || 0), token.decimals!)}/>
+                   <div className={styles['width-limit-3']}>
+                       <AppInput
+                           type={'number'}
+                           placeholder={lang['Price']}
+                           onChange={e => {
+                               props.onChange && props.onChange({
+                                   ...props.ticket,
+                                   payment_token_price: parseUnits(e.target.value , token.decimals!).toString()
+                               })
+                           }}
+                           value={formatUnits(BigInt(props.ticket.payment_token_price || 0), token.decimals!)}/>
+                   </div>
                 </div>
             </div>
         }
@@ -308,7 +310,7 @@ function Ticket({creator, ...props}: {
                 </div>
 
                 {props.ticket.quantity !== null &&
-                    <>
+                    <div className={styles['ticket-quantity']}>
                         <div className={styles['width-limit-3']}>
                             <AppInput
                                 onChange={e => {
@@ -318,12 +320,12 @@ function Ticket({creator, ...props}: {
                                     })
                                 }}
                                 type={'number'}
-                                placeholder={lang['Price']}
+                                placeholder={'Quantity'}
                                 value={props.ticket.quantity ? props.ticket.quantity + '' : '0'}/>
                         </div>
 
                         <div>{lang['Tickets']}</div>
-                    </>
+                    </div>
                 }
             </div>
         </div>

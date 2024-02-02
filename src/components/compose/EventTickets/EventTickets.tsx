@@ -80,9 +80,6 @@ function EventTickets({canAccess = true, ...props}: { event: Event, tickets: Tic
 
 
     useEffect(() => {
-        if (needUpdate) {
-            alert('update')
-        }
         if (user.userName || needUpdate) {
             getParticipantDetail({event_id: props.event.id, profile_id: user.id!}).then((res) => {
                 if (!!res) {
@@ -107,7 +104,8 @@ function EventTickets({canAccess = true, ...props}: { event: Event, tickets: Tic
                 ticket={ticket}
                 event={props.event}
                 close={close}/>,
-            size: [360, 'auto']
+            size: [400, 'auto'],
+            position: 'bottom'
         })
     }
 

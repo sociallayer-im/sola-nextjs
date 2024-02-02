@@ -1,4 +1,4 @@
-import {useContext, useState} from 'react'
+import {useContext, useEffect, useState} from 'react'
 import styles from './DialogTicket.module.scss'
 import LangContext from "@/components/provider/LangProvider/LangContext";
 import useCopy from "@/hooks/copy";
@@ -10,7 +10,7 @@ import Erc20TokenPaymentHandler from "@/components/base/Erc20TokenPaymentHandler
 import Erc20TokenApproveHandler from "@/components/base/Erc20TokenApproveHandler/Erc20TokenApproveHandler";
 import Erc20Balance from "@/components/base/Erc20Balance/Erc20Balance";
 import EventDefaultCover from "@/components/base/EventDefaultCover";
-import {Event, joinEvent, Ticket} from '@/service/solas'
+import {Event, joinEvent, queryBadgeDetail, Ticket, Badge, queryBadgelet, queryBadgeletDetail} from '@/service/solas'
 import useTime from "@/hooks/formatTime";
 import {paymentTokenList} from "@/payment_settring";
 import UserContext from "@/components/provider/UserProvider/UserContext";
@@ -26,11 +26,40 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
     const [errorMsg, setErrorMsg] = useState('')
     const [approved, setApproved] = useState(false)
     const [_, emit] = useEvent(EVENT.participantUpdate)
+    const [soldOut, setSoldOut] = useState(false)
+    const [badge, setBadge] = useState<Badge | null>(null)
+    const [OwnedBadge, setOwnedBadge] = useState(false)
 
     const {address} = useAccount()
     const formatTime = useTime()
 
+    const hasBadgePermission = !props.ticket.check_badge_id || (!!props.ticket.check_badge_id && OwnedBadge)
+
     console.log('ticket====', props.ticket)
+
+    useEffect(() => {
+        if (!!user.id && !!badge) {
+            queryBadgelet({owner_id: user.id, badge_id: badge.id, page: 1}).then((res) => {
+               setOwnedBadge(!!res.length)
+            })
+        } else {
+            setOwnedBadge(false)
+        }
+    }, [user.id, badge])
+
+
+
+    useEffect(() => {
+        if (props.ticket.payment_token_name) {
+            setSoldOut(props.ticket.quantity === 0)
+        }
+
+        if (props.ticket.check_badge_id) {
+            queryBadgeDetail({id: props.ticket.check_badge_id}).then((res) => {
+                res && setBadge(res)
+            })
+        }
+    }, [props.ticket])
 
     const connectWallet = () => {
         openDialog({
@@ -61,7 +90,7 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
 
     return (<div className={styles['dialog-ticket']}>
         <div className={styles['dialog-title']}>
-            <div></div>
+            <div>{'Event'}</div>
             <svg
                 onClick={props.close}
                 className={styles['close']} xmlns="http://www.w3.org/2000/svg" width="14" height="15"
@@ -71,9 +100,6 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
                 <rect x="14" y="0.933319" width="18.479" height="1.31993" rx="0.659966"
                       transform="rotate(135 14 0.933319)" fill="#7B7C7B"/>
             </svg>
-        </div>
-        <div className={styles['dialog-title']}>
-            <div>{'Event'}</div>
         </div>
 
         <div className={styles['dialog-event']}>
@@ -92,26 +118,43 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
         <div className={styles['type-name-title']}>Ticket type</div>
         <div className={styles['type-name']}>{props.ticket.title}</div>
 
-        { props.ticket.payment_target_address &&
-            <div className={styles['receiver']}>
-                <div className={styles['receiver-des']}>Payments will be sent to</div>
-                <div className={styles['address']}>
-                    <div className={styles['left']}>
-                        {
-                            chain &&
-                            <img src={chain.icon} alt=""/>
-                        }
-                        <div>{shotAddress(props.ticket.payment_target_address)}</div>
-                    </div>
-                    <div className={styles['copy']}
-                         onClick={e => {
-                             copyWithDialog(props.ticket.payment_target_address!)
-                         }}>
-                        {lang['Profile_Show_Copy']}
+        <div className={styles['detail']}>
+            {
+                !!badge &&
+                <div className={styles['badge']}>
+                    <div className={styles['title']}>{'Need to have badge'}</div>
+                    <div className={styles['info']}>
+                        <div className={styles['name']}>
+                            <img src={badge.image_url} alt=""/>
+                            <div>{badge.title}</div>
+                        </div>
+                        { OwnedBadge && <div className={styles['owned']}>Owned</div>}
+                        { !OwnedBadge && user.id && <div className={styles['owned']}>Not Collected</div>}
                     </div>
                 </div>
-            </div>
-        }
+            }
+
+            { props.ticket.payment_target_address &&
+                <div className={styles['receiver']}>
+                    <div className={styles['receiver-des']}>Payments will be sent to</div>
+                    <div className={styles['address']}>
+                        <div className={styles['left']}>
+                            {
+                                chain &&
+                                <img src={chain.icon} alt=""/>
+                            }
+                            <div>{shotAddress(props.ticket.payment_target_address)}</div>
+                        </div>
+                        <div className={styles['copy']}
+                             onClick={e => {
+                                 copyWithDialog(props.ticket.payment_target_address!)
+                             }}>
+                            {lang['Profile_Show_Copy']}
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
 
         { props.ticket.payment_token_price !== null && !!token && !!chain &&
             <>
@@ -141,15 +184,34 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
             <div className={styles['error-msg']}>{errorMsg}</div>
         }
 
+        {
+            soldOut &&
+            <AppButton disabled>{'Sold Out'}</AppButton>
+        }
 
-        {!address &&
+        {
+            !hasBadgePermission &&
+            <AppButton disabled>{'Need to have badge'}</AppButton>
+        }
+
+        {!address
+            && !soldOut
+            && user.id
+            && !!chain
+            && hasBadgePermission &&
             <AppButton special onClick={e => {
                 connectWallet()
             }}>{'Connect Wallet'}</AppButton>
         }
 
 
-        {!!address && !!token && !!chain && approved &&
+        {!!address
+            && !!token
+            && !!chain
+            && approved
+            && !soldOut
+            && user.id
+            && hasBadgePermission &&
             <Erc20TokenPaymentHandler
                 eventId={props.event.id}
                 ticketId={props.ticket.id}
@@ -180,7 +242,13 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
             />
         }
 
-        {!!address && !!token && !!chain && !approved &&
+        {!!address
+            && !!token
+            && !!chain
+            && !approved
+            && !soldOut
+            && user.id
+            && hasBadgePermission &&
             <Erc20TokenApproveHandler
                 token={props.ticket.payment_token_address!}
                 to={props.ticket.payment_target_address!}
@@ -201,6 +269,10 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
                         trigger?.()
                     }}>{'Approve'}</AppButton>}
             />
+        }
+
+        { user.id && !chain && hasBadgePermission &&
+           <AppButton special>{'Get A Ticket'}</AppButton>
         }
     </div>)
 }

@@ -97,14 +97,14 @@
     margin-top: 27px;
     display: flex;
     align-items: center;
-    flex-flow: row nowrap;
+    flex-flow: row wrap;
     .label {
       margin-right: 12px;
     }
 
     .value {
       display: flex;
-      flex-flow: row nowrap;
+      flex-flow: row wrap;
       align-items: center;
     }
   }
@@ -114,6 +114,13 @@
     flex-flow: row nowrap;
     margin-right: 20px;
     cursor: pointer;
+    White-space: nowrap;
+  }
+
+  .ticket-quantity {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
   }
 
 }
@@ -121,6 +128,7 @@
 .ticket-payment {
   display: flex;
   align-items: center;
+  padding: 8px 0;
 
   div[data-baseweb="select"] {
     margin-right: 12px;

@@ -6,7 +6,7 @@ import {
     Group,
     joinEvent,
     Participants,
-    queryEventDetail, queryGroupDetail,
+    queryEventDetail, queryGroupDetail, queryTickets,
     setEventStatus
 } from "@/service/solas";
 import {useTime2} from "@/hooks/formatTime";
@@ -22,6 +22,9 @@ import useCalender from "@/hooks/addToCalender";
 import AppButton from "@/components/base/AppButton/AppButton";
 import useEvent, {EVENT} from "@/hooks/globalEvent";
 import usePicture from "@/hooks/pictrue";
+import dynamic from 'next/dynamic'
+
+const EventTickets = dynamic(() => import('@/components/compose/EventTickets/EventTickets'), {ssr: false})
 
 export interface CardEventProps {
     event: Event,
@@ -41,7 +44,7 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
     const {lang} = useContext(langContext)
     const [isCreated, setIsCreated] = useState(false)
     const {user} = useContext(userContext)
-    const {showToast, showLoading, openConfirmDialog} = useContext(DialogsContext)
+    const {showToast, showLoading, openConfirmDialog, openDialog} = useContext(DialogsContext)
     const [hasRegistered, setHasRegistered] = useState(false)
     const {eventGroups} = useContext(EventHomeContext)
     const {addToCalender} = useCalender()
@@ -59,7 +62,8 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
         if (user.id) {
             setIsCreated(props.event.owner_id === user.id)
             setHasRegistered(!!props.event.participants?.some(item => {
-                return item.profile_id === user.id
+                return (item.profile_id === user.id && item.status === 'applied' && item.ticket_id === null) ||
+                    (item.profile_id === user.id && item.status === 'applied' && !!item.ticket_id && item.payment_status === 'success')
             }))
         } else {
             setHasRegistered(false)
@@ -112,12 +116,24 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
         }
 
         const unload = showLoading()
-
         const membership = await getGroupMembers({group_id: props.event.group_id!, role: 'all'})
         const isMember = membership.some(item => item.id === user.id)
         if ((!isMember && (group as Group).can_join_event === 'member') && (group as Group).can_join_event !== 'everyone') {
             unload()
             showToast('Only group members can join this event.')
+            return
+        }
+
+        const tickets = await queryTickets({event_id: props.event.id})
+        if (tickets.length > 0) {
+            unload()
+            openDialog({
+                content: (close: any) => <div style={{background: '#fff', padding: '20px', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.12)'}}>
+                    <EventTickets tickets={tickets} event={props.event} />
+                </div>,
+                size: [400, 'auto'],
+                position: 'bottom',
+            })
             return
         }
 
