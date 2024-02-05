@@ -2578,7 +2578,7 @@ export interface QueryUserActivityProps {
 }
 
 export interface Activity {
-    "id": null | number,
+    "id": number,
     "badge_id": null | number
     "badgelet_id": null | number,
     "point_id": null | number,
@@ -4512,9 +4512,27 @@ export async function getPendingBadges(profile_id: number, page = 1) {
     return res.vouchers as Voucher[]
 }
 
-export async function queryVoucherDetail(id: number) {
+export async function queryVoucherDetail(id?: number, badge_id?: number, receiver_id?: number, canClaim?: boolean) {
+    let variables = ''
+
+    if (id) {
+        variables += `id: {_eq: "${id}"},`
+    }
+
+    if (badge_id) {
+        variables += `badge_id: {_eq: "${badge_id}"},`
+    }
+
+    if (receiver_id) {
+        variables += `receiver_id: {_eq: "${receiver_id}"},`
+    }
+
+    if (canClaim) {
+        variables += `counter: {_neq: 0},`
+    }
+
     const doc = gql`query MyQuery {
-      vouchers(where: {id: {_eq: "${id}"}}) {
+      vouchers(where: {${variables}}) {
         id
         strategy
         receiver_address
@@ -4784,6 +4802,74 @@ export async function setEventStatus(props: {
     })
 
     return res.data.event as Event
+}
+
+export interface Activity {
+    id: number,
+    created_at: string,
+    action: string,
+    has_read: boolean,
+    initiator: ProfileSimple,
+    item_id: number,
+    receiver_id: number | null
+}
+
+export async function queryActivities(props: {
+    page: number,
+    page_size?: number,
+    initiator_id?: number,
+    receiver_id?: number,
+    has_read?: boolean
+}) {
+    let variables = ''
+    if (props.initiator_id) {
+        variables += `, initiator_id: {_eq: ${props.initiator_id}},`
+    }
+    if (props.receiver_id) {
+        variables += `, receiver_id: {_eq: ${props.receiver_id}},`
+    }
+    if (props.has_read !== undefined) {
+        variables += `, has_read: {_eq: ${props.has_read}},`
+    }
+
+    const pageSize = props.page_size || 10
+
+    const doc = gql`query MyQuery {
+        activities(where: {${variables} _or: [{action: {_eq: "voucher/send_badge"}}]} limit: ${pageSize} offset: ${(props.page- 1) * pageSize}  order_by: {created_at: desc}) {
+                    data
+                    action
+                    created_at
+                    id
+                    has_read
+                    initiator {
+                      id
+                      image_url
+                      nickname
+                      username
+                    }
+                    item_class_id
+                    item_id
+                    item_type
+                    memo
+                    receiver_address
+                    receiver_id
+                    receiver_type
+                    target_id
+                    target_type
+                  }
+    }`
+
+    const res: any = await request(graphUrl, doc)
+    return res.activities as Activity[]
+}
+
+export async function setActivityRead (props: {ids: number[], auth_token: string}) {
+    checkAuth(props)
+
+    const res = await fetch.post({
+        url: `${apiUrl}/activity/set_read_status`,
+        data: props
+    })
 }
 
 export default {

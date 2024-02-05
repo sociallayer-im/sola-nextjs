@@ -605,6 +605,8 @@ const langEN = {
     My_Events: 'My events',
     Publish_Request: 'Publish Request',
     External_Url: 'External Url',
+    Notifications: 'Notifications',
+    Send_You_A_Badge: 'Send you a badge.',
 }
 
 

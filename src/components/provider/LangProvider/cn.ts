@@ -601,6 +601,8 @@ const langCN: LangConfig = {
   My_Events: '我的活动',
   Publish_Request: '发布申请',
   External_Url: '外部链接',
+  Notifications: '消息通知',
+  Send_You_A_Badge: '发送了一个徽章给你。',
 }
 
 
