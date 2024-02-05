@@ -24,8 +24,8 @@ import EventHomeProvider from "@/components/provider/EventHomeProvider/EventHome
 import ColorSchemeProvider from "@/components/provider/ColorSchemeProvider";
 import Subscriber from '@/components/base/Subscriber'
 import {JoyIdConnector} from '@joyid/wagmi'
-import { WalletConnectConnector } from '@wagmi/core/connectors/walletConnect'
 import NotificationsProvider from "@/components/provider/NotificationsProvider/NotificationsProvider";
+import {SolanaWalletProvider} from '@/components/provider/SolanaWalletProvider/SolanaWalletProvider'
 
 const inject = new InjectedConnector({
     chains: [mainnet, moonbeam],
@@ -51,19 +51,19 @@ const config = createConfig({
         //  walletConnectConnect,
         inject,
         new JoyIdConnector(
-        {
-            chains: [mainnet, moonbeam],
-            options: {
-                joyidAppURL: 'https://app.joy.id'
-            }
-        })
+            {
+                chains: [mainnet, moonbeam],
+                options: {
+                    joyidAppURL: 'https://app.joy.id'
+                }
+            })
     ],
 })
 
 function MyApp({Component, pageProps, ...props}: any) {
 
-    function DisplayLay  (params: {children: any}) {
-       return  props.router.pathname.includes('/wamo/')
+    function DisplayLay(params: { children: any }) {
+        return props.router.pathname.includes('/wamo/')
             ? <div className={'light'} style={{width: '100vw', height: '100vh'}}>{params.children}</div>
             : <Layout>{params.children}</Layout>
     }
@@ -82,32 +82,34 @@ function MyApp({Component, pageProps, ...props}: any) {
                 <Script src="/jslib/trackjs.min.js" async></Script>
             }
             <WagmiConfig config={config as any}>
-                <ColorSchemeProvider>
-                    <StyletronProvider value={styletron}>
-                        <BaseProvider theme={theme}>
-                            <DialogProvider>
-                                <UserProvider>
-                                    <LangProvider>
-                                        <DialogProvider>
-                                            <MapProvider>
-                                                <EventHomeProvider>
-                                                    <NotificationsProvider>
-                                                    <DisplayLay>
-                                                            <NextNProgress options={{showSpinner: false}}/>
-                                                            <Component {...pageProps} />
-                                                            <Subscriber/>
-                                                            <Analytics/>
-                                                    </DisplayLay>
-                                                    </NotificationsProvider>
-                                                </EventHomeProvider>
-                                            </MapProvider>
-                                        </DialogProvider>
-                                    </LangProvider>
-                                </UserProvider>
-                            </DialogProvider>
-                        </BaseProvider>
-                    </StyletronProvider>
-                </ColorSchemeProvider>
+                <SolanaWalletProvider>
+                    <ColorSchemeProvider>
+                        <StyletronProvider value={styletron}>
+                            <BaseProvider theme={theme}>
+                                <DialogProvider>
+                                    <UserProvider>
+                                        <LangProvider>
+                                            <DialogProvider>
+                                                <MapProvider>
+                                                    <EventHomeProvider>
+                                                        <NotificationsProvider>
+                                                            <DisplayLay>
+                                                                <NextNProgress options={{showSpinner: false}}/>
+                                                                <Component {...pageProps} />
+                                                                <Subscriber/>
+                                                                <Analytics/>
+                                                            </DisplayLay>
+                                                        </NotificationsProvider>
+                                                    </EventHomeProvider>
+                                                </MapProvider>
+                                            </DialogProvider>
+                                        </LangProvider>
+                                    </UserProvider>
+                                </DialogProvider>
+                            </BaseProvider>
+                        </StyletronProvider>
+                    </ColorSchemeProvider>
+                </SolanaWalletProvider>
             </WagmiConfig>
         </PageBacProvider>
     );

@@ -5,9 +5,17 @@ import {setLastLoginType} from '@/utils/authStorage'
 import DialogsContext from '../../../provider/DialogProvider/DialogsContext'
 import UserContext from '../../../provider/UserProvider/UserContext'
 import {useRouter} from 'next/navigation'
+import {WalletContext as solanaWalletContext} from '@solana/wallet-adapter-react'
 
 interface DialogConnectWalletProps {
     handleClose: (...rest: any[]) => any
+}
+
+const walletIcon: any = {
+    'metamask': '/images/metamask.png',
+    'joyid': '/images/joyid.png',
+    'trust wallet': '/images/trust_wallet.webp',
+    'rabby wallet': '/images/rabby wallet.png'
 }
 
 function DialogConnectWallet(props: DialogConnectWalletProps) {
@@ -26,6 +34,7 @@ function DialogConnectWallet(props: DialogConnectWalletProps) {
     const router = useRouter()
     const {clean, showLoading} = useContext(DialogsContext)
     const {user, logOut, setUser} = useContext(UserContext)
+    const solanaWallet: any = useContext(solanaWalletContext)
 
     useEffect(() => {
         if (user.id) {
@@ -73,21 +82,31 @@ function DialogConnectWallet(props: DialogConnectWalletProps) {
         router.push('/login-phone')
     }
 
+    const handleSolanaLogin = (walletName: string) => {
+        // solanaWallet.disconnect()
+        setLastLoginType('solana')
+        window.localStorage.setItem('fallback', window.location.href)
+        solanaWallet.select(walletName)
+        clean()
+    }
+
     const arrowPhoneLogin = process.env.NEXT_PUBLIC_ALLOW_PHONE_LOGIN === 'true'
 
     return (
         <div className='dialog-connect-wallet'>
             <div className={'title'}>
                 <div>{lang['Nav_Wallet_Connect']}</div>
-                <i className={'icon-close'}  onClick={e => {props.handleClose()}}/>
+                <i className={'icon-close'} onClick={e => {
+                    props.handleClose()
+                }}/>
             </div>
             {connectors.map((connector) => (
                 (!connector.ready) ?
                     <></>
                     : <div className={'connect-item'}
-                            key={connector.id}
-                            onClick={() => handleConnectWallet(connector)}>
-                        <img src={`/images/${connector.name.toLowerCase()}.png`} alt={connector.name}/>
+                           key={connector.id}
+                           onClick={() => handleConnectWallet(connector)}>
+                        <img src={walletIcon[connector.name.toLowerCase()] || `/images/injected.png`} alt={connector.name}/>
                         <div className='connect-name'>{connector.name}</div>
                     </div>
             ))}
@@ -111,6 +130,24 @@ function DialogConnectWallet(props: DialogConnectWalletProps) {
                 <img src="/images/zupass.png" alt="email"/>
                 <div className='connect-name'>Zupass</div>
             </div>
+
+            {solanaWallet.wallets && solanaWallet.wallets.length > 0 &&
+                <>
+                    {
+                        solanaWallet.wallets.map((wallet: any, idx: number) => {
+                            return wallet.readyState !== 'NotDetected' ?
+                                <div className='connect-item' key={idx} onClick={async () => {
+                                    await handleSolanaLogin(wallet.adapter.name)
+                                }}>
+                                    <img src={wallet.adapter.icon} alt="email"/>
+                                    <div className='connect-name'>{wallet.adapter.name}</div>
+                                    <img className='chain-icon' src="/images/solana.png" alt=""/>
+                                </div>
+                                : <div key={idx}></div>
+                        })
+                    }
+                </>
+            }
         </div>
     )
 }

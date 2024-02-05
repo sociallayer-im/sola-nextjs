@@ -185,6 +185,7 @@ export interface Profile {
     id: number,
     username: string | null,
     address: string | null,
+    sol_address: string | null,
     email: string | null,
     phone: string | null,
     zupass: string | null,
@@ -268,7 +269,8 @@ export async function queryProfileByGraph(props: { type: keyof GetProfileProps, 
         username
         website
         zupass
-        permissions
+        permissions,
+        sol_address
       }
     }`
 
@@ -1527,7 +1529,8 @@ export async function getFollowers(userId: number): Promise<Profile[]> {
         id
         username
         nickname
-        image_url
+        image_url,
+        sol_address
       }
     }
     `)
@@ -2012,7 +2015,8 @@ export async function searchDomain(props: SearchDomainProps): Promise<Profile[]>
         id
         username
         nickname
-        image_url
+        image_url,
+        sol_address
       }
     }`
 
@@ -4420,6 +4424,23 @@ export async function zupassLogin(props: {
     return res.data.auth_token as string
 }
 
+export async function solanaLogin(props: {
+    sol_address: string,
+    next_token: string,
+    host?: string
+}) {
+    const res = await fetch.post({
+        url: `${apiUrl}/profile/signin_with_solana`,
+        data: {...props, app: props.host, address_source: 'solana'}
+    })
+
+    if (res.data.result === 'error') {
+        throw new Error(res.data.message)
+    }
+
+    return res.data.auth_token as string
+}
+
 export async function jubmojiCheckin(props: {
     id: number,
     auth_token: string,
@@ -4741,7 +4762,8 @@ export async function getProfileBatch(usernames: string[]) {
             id,
             username,
             nickname,
-            image_url
+            image_url,
+            sol_address
           }
         }
         `
