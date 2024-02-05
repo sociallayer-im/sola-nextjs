@@ -600,6 +600,7 @@ const langCN: LangConfig = {
   Public_Events: '公共活动',
   My_Events: '我的活动',
   Publish_Request: '发布申请',
+  External_Url: '外部链接',
 }
 
 

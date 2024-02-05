@@ -196,7 +196,9 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
         })
     }
 
-    return (<Link href={`/event/detail/${props.event.id}`} className={largeCard ? 'event-card large' : 'event-card'}>
+    return (<Link href={props.event.external_url || `/event/detail/${props.event.id}`}
+                  target={props.event.external_url ? '_blank' : undefined}
+                  className={largeCard ? 'event-card large' : 'event-card'}>
         {largeCard &&
             <div className={'markers'}>
                 {props.event.status === 'pending' && <div className={'marker pending'}>{lang['Pending']}</div>}

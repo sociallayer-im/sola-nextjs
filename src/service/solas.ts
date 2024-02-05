@@ -2939,6 +2939,7 @@ export interface Event {
     geo_lng: null | string,
     geo_lat: null | string,
     participants: null | Participants[],
+    external_url: null | string,
 }
 
 export interface CreateEventProps extends Partial<Event> {
@@ -3063,6 +3064,7 @@ export async function queryEvent(props: QueryEventProps): Promise<Event[]> {
         category
         content
         cover_url
+        external_url
         created_at
         display
         end_time
@@ -3196,6 +3198,7 @@ export async function queryPendingEvent(props: QueryEventProps): Promise<Event[]
     const doc = gql`query MyQuery {
       events (where: {${variables} status: {_eq: "pending"}}, ${order} limit: ${page_size}, offset: ${(props.page - 1) * page_size}) {
         badge_id
+        external_url
         geo_lat
         geo_lng
         category
@@ -3455,6 +3458,7 @@ export async function searchEvent(keyword: string) {
     const doc = gql`query MyQuery {
       events (where: {title: {_iregex: "${keyword}"} , status: {_neq: "closed"}}, limit: 10) {
         badge_id
+        external_url
         geo_lat
         geo_lng
         category

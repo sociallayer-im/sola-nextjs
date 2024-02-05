@@ -157,6 +157,7 @@ function CreateEvent(props: CreateEventPageProps) {
     const [speakers, setSpeakers] = useState<string[]>([''])
     const [repeatCounter, setRepeatCounter] = useState(1)
     const [repeatCounterError, setRepeatCounterError] = useState(false)
+    const [externalUrl, setExternalUrl] = useState<string | null>(null)
 
     const [needPublish, setNeedPublish] = useState(false)
 
@@ -814,6 +815,7 @@ function CreateEvent(props: CreateEventPageProps) {
             interval: repeat!,
             repeat_start_time: start  as any,
             event_count: repeatCounter,
+            external_url: externalUrl,
         }
 
         try {
@@ -932,7 +934,8 @@ function CreateEvent(props: CreateEventPageProps) {
             recurring_event_id: currEvent!.recurring_event_id || undefined,
             timezone,
             geo_lng: lng,
-            geo_lat: lat
+            geo_lat: lat,
+            external_url: externalUrl,
         }
 
         if (currEvent?.recurring_event_id) {
@@ -1210,6 +1213,16 @@ function CreateEvent(props: CreateEventPageProps) {
                             <ReasonInput unlimited value={content} onChange={(value) => {
                                 setContent(value)
                             }}/>
+                        </div>
+
+                        <div className='input-area'>
+                            <div className='input-area-title'>{lang['External_Url']}</div>
+                            <AppInput clearable={false}
+                                      value={externalUrl || ''}
+                                      placeholder={lang['External_Url']}
+                                        onChange={(e) => {
+                                            setExternalUrl(e.target.value)
+                                        }}/>
                         </div>
 
                         {

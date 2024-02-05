@@ -603,7 +603,8 @@ const langEN = {
     Ongoing: 'Ongoing',
     Public_Events: 'Public events',
     My_Events: 'My events',
-    Publish_Request: 'Publish Request'
+    Publish_Request: 'Publish Request',
+    External_Url: 'External Url',
 }
 
 
