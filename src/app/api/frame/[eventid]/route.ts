@@ -4,6 +4,8 @@ import { FrameRequest, getFrameMessage, getFrameHtmlResponse } from '@coinbase/o
 async function handler(req: NextRequest,  eventid: string) : Promise<NextResponse>
 {
     let accountAddress: string | undefined = '';
+    let fid: number | undefined = 0;
+    let custody_address: string | undefined = '';
 
    try {
        const body: FrameRequest = await req.json();
@@ -23,9 +25,15 @@ async function handler(req: NextRequest,  eventid: string) : Promise<NextRespons
        if (message?.button === 2) {
            if (isValid) {
                accountAddress = message!.interactor.verified_accounts[0];
+               fid = message!.interactor.fid;
+                custody_address = message!.interactor.custody_address;
            }
 
-           console.log('[Farcast account address]:', accountAddress)
+           console.log('[Farcast account info]:', {
+                accountAddress,
+                fid,
+                custody_address
+           })
 
            return NextResponse.redirect(
                redirectUrl,
