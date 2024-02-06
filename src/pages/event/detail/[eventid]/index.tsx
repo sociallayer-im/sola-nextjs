@@ -295,8 +295,11 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                     <>
                         <meta name="fc:frame" content="vNext" />
                         <meta name="fc:frame:image" content={event.cover_url!} />
-                        <meta name="fc:frame:button:1" content="View Detail" />
-                        <meta name="fc:frame:post_url" content="https://zizzamia.xyz/api/frame" />
+                        <meta name="fc:frame:button:1" content="View" />
+                        <meta name="fc:frame:button:2" content="Join" />
+                        <meta name="fc:frame:button:1:action" content="post_redirect" />
+                        <meta name="fc:frame:button:2:action" content="post_redirect" />
+                        <meta name="fc:frame:post_url" content={`${process.env.NEXT_PUBLIC_HOST}/api/frame/${event.id}`} />
                     </>
             }
             <title>{`${event?.title} | ${props.appName}`}</title>
