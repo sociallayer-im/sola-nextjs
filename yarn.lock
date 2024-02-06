@@ -1928,6 +1928,11 @@
   resolved "https://registry.npmmirror.com/@bcoe/v8-coverage/-/v8-coverage-0.2.3.tgz#75a2e8b51cb758a7553d6804a5932d7aace75c39"
   integrity sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==
 
+"@coinbase/onchainkit@^0.5.0":
+  version "0.5.0"
+  resolved "https://registry.npmjs.org/@coinbase/onchainkit/-/onchainkit-0.5.0.tgz#cc82a8a8b09dbdcd756a90d1db7b560516039f19"
+  integrity sha512-RiJUq3DuzY/aHuGLnbg47kSiWY+CifntLVPbuYPGR4pGDUKLNlJvbPZvV5iWHBKmF9p9YiG4bCD2ZJTjcof37w==
+
 "@coinbase/wallet-sdk@^3.6.6":
   version "3.7.2"
   resolved "https://registry.npmmirror.com/@coinbase/wallet-sdk/-/wallet-sdk-3.7.2.tgz#7a89bd9e3a06a1f26d4480d8642af33fb0c7e3aa"
