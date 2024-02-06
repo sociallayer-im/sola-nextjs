@@ -384,7 +384,7 @@ function ComponentName(props: { markerType: string | null }) {
     }, [eventGroup?.id, selectedType, Marker, user.id])
 
     useEffect(() => {
-        if (searchParams && searchParams.get('type')) {
+        if (searchParams && searchParams?.get('type')) {
             setSelectedType(searchParams?.get('type')!)
         }
     }, [searchParams])

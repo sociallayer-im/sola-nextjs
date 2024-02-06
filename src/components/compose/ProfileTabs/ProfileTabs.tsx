@@ -41,22 +41,22 @@ function ComponentName({profile}: {profile: Profile}) {
     const router = useRouter()
     const {user} = useContext(UserContext)
     const {lang} = useContext(LangContext)
-    const [selectedTab, setSelectedTab] = useState(searchParams.get('tab') || '0')
-    const [selectedSubtab, setSelectedSubtab] = useState(searchParams.get('subtab') || '0')
+    const [selectedTab, setSelectedTab] = useState(searchParams?.get('tab') || '0')
+    const [selectedSubtab, setSelectedSubtab] = useState(searchParams?.get('subtab') || '0')
     const {history} = useContext(PageBackContext)
 
     // 为了实现切换tab时，url也跟着变化，而且浏览器的前进后退按钮也能切换tab
     useEffect(() => {
-        if (!searchParams.get('tab')) {
+        if (!searchParams?.get('tab')) {
             setSelectedTab('0')
         }
 
-        if (searchParams.get('tab')) {
-            setSelectedTab(searchParams.get('tab') || '0')
+        if (searchParams?.get('tab')) {
+            setSelectedTab(searchParams?.get('tab') || '0')
         }
 
-        if (searchParams.get('subtab')) {
-            setSelectedSubtab(searchParams.get('subtab') || '0')
+        if (searchParams?.get('subtab')) {
+            setSelectedSubtab(searchParams?.get('subtab') || '0')
         }
     }, [searchParams])
 

@@ -328,7 +328,7 @@ function ComponentName() {
         } else {
             setReady(true)
             if (searchParams?.get('type')) {
-                const key = searchParams.get('type') as string
+                const key = searchParams?.get('type') as string
                 const target = markerTypeList2.find((item) => item.category === key)
                 if (target) {
                     setIcon(target.pin)

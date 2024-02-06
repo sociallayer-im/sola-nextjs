@@ -20,7 +20,7 @@ function CreateBadgeWithPrefill(props: CreateBadgeWithPrefillProp) {
     const {user} = useContext(UserContext)
     const searchParams = useSearchParams()
     const [preFillBadge, setPreFillBadge] = useState<Point | null>(null)
-    const presetAcceptor = searchParams.get('to')
+    const presetAcceptor = searchParams?.get('to')
 
     const {lang} = useContext(LangContext)
 

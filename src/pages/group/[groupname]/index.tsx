@@ -52,8 +52,8 @@ function GroupPage(props: any) {
     const {user, logOut} = useContext(UserContext)
     const {history} = useContext(PageBackContext)
     const searchParams = useSearchParams()
-    const [selectedTab, setSelectedTab] = useState(searchParams.get('tab') || '0')
-    const [selectedSubtab, setSelectedSubtab] = useState(searchParams.get('subtab') || '0')
+    const [selectedTab, setSelectedTab] = useState(searchParams?.get('tab') || '0')
+    const [selectedSubtab, setSelectedSubtab] = useState(searchParams?.get('subtab') || '0')
     const [isGroupManager, setIsGroupManager] = useState(false)
     const [isIssuer, setIssuer] = useState(false)
     const [isGroupOwner, setIsGroupOwner] = useState(false)
@@ -70,18 +70,18 @@ function GroupPage(props: any) {
 
     // 为了实现切换tab时，url也跟着变化，而且浏览器的前进后退按钮也能切换tab
     useEffect(() => {
-        if (!searchParams.get('tab')) {
+        if (!searchParams?.get('tab')) {
             setSelectedTab('0')
             loadedTabRrf.current.add('0')
         }
 
-        if (searchParams.get('tab')) {
-            setSelectedTab(searchParams.get('tab') || '0')
-            loadedTabRrf.current.add(searchParams.get('tab') || '0')
+        if (searchParams?.get('tab')) {
+            setSelectedTab(searchParams?.get('tab') || '0')
+            loadedTabRrf.current.add(searchParams?.get('tab') || '0')
         }
 
-        if (searchParams.get('subtab')) {
-            setSelectedSubtab(searchParams.get('subtab') || '0')
+        if (searchParams?.get('subtab')) {
+            setSelectedSubtab(searchParams?.get('subtab') || '0')
         }
     }, [searchParams])
 

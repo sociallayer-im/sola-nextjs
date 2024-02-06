@@ -22,10 +22,10 @@ function IssueSuccessPage(props: any) {
     const [group, setGroup] = useState<Group | null>(null)
 
     // presend成功传参
-    const voucher_id = props.voucher || searchParams.get('voucher')
-    const code = props.code || searchParams.get('code')
+    const voucher_id = props.voucher || searchParams?.get('voucher')
+    const code = props.code || searchParams?.get('code')
 
-    const inviteId = props.invite || searchParams.get('invite')
+    const inviteId = props.invite || searchParams?.get('invite')
 
     useEffect(() => {
         async function fetchInfo() {

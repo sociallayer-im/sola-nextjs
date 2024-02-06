@@ -19,7 +19,7 @@ function Issue() {
     const router = useRouter()
 
     // 处理预填接受者
-    const presetAcceptor = SearchParams.get('to')
+    const presetAcceptor = SearchParams?.get('to')
     const [initIssueType, setInitIssueType] = useState<IssueType>(presetAcceptor ? 'issue' : 'unset')
     const initIssues = presetAcceptor ? [presetAcceptor, ''] : ['']
 
@@ -27,7 +27,7 @@ function Issue() {
 
     useEffect(() => {
         async function getBadgeInfo() {
-            const badge = await solas.queryBadgeDetail({id: Number(params.badgeId)})
+            const badge = await solas.queryBadgeDetail({id: Number(params!.badgeId)})
 
             // nftpass 和 private badge 只能 issue
             if (badge!.badge_type ==='nftpass' || badge!.badge_type === 'private') {
@@ -54,7 +54,7 @@ function Issue() {
         try {
             const presend = await solas.createPresend({
                 badge_id: badge?.id!,
-                message: SearchParams.get('reason') || '',
+                message: SearchParams?.get('reason') || '',
                 counter: data.presendAmount ? Number(data.presendAmount) : null,
                 auth_token: user.authToken || ''
             })
@@ -81,7 +81,7 @@ function Issue() {
         try {
             const vouchers = await solas.issueBatch({
                 badgeId: badge?.id!,
-                reason: SearchParams.get('reason') || '',
+                reason: SearchParams?.get('reason') || '',
                 issues: checkedIssues,
                 auth_token: user.authToken || ''
             })

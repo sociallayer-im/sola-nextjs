@@ -19,7 +19,7 @@ function Issue() {
     const enhancer = process.env.NEXT_PUBLIC_SOLAS_DOMAIN
 
     // 处理预填接受者
-    const presetAcceptor = SearchParams.get('to')
+    const presetAcceptor = SearchParams?.get('to')
     const initIssueType = presetAcceptor ? 'issue' : ''
     const initIssues = presetAcceptor ? [presetAcceptor, ''] : ['']
 
@@ -27,7 +27,7 @@ function Issue() {
 
     useEffect(() => {
         async function getBadgeInfo() {
-            const badge = await solas.queryBadgeDetail({id: Number(params.pointId)})
+            const badge = await solas.queryBadgeDetail({id: Number(params!.pointId)})
             setBadge(badge)
         }
 
@@ -77,7 +77,7 @@ function Issue() {
 
         try {
             const pointItems = await sendPoint({
-                point_id: Number(params.pointId),
+                point_id: Number(params!.pointId),
                 value: Number(data.points),
                 auth_token: user.authToken || '',
                 receivers: domain.map((item) => {

@@ -54,7 +54,7 @@ function PageBacProvider(props: PageBacProviderProps) {
         window.sessionStorage.setItem('history', JSON.stringify(history.current))
 
         if (routerPathname !== currPathnameRef.current) {
-            currPathnameRef.current = routerPathname
+            currPathnameRef.current = routerPathname as string
             const pageContent = document.querySelector('#PageContent')
             pageContent?.scrollTo(0, 0)
         }

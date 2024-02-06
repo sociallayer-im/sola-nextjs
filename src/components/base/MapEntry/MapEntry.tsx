@@ -29,7 +29,7 @@ function MapEntry() {
     }, [])
 
     useEffect(() => {
-       setSelected(pathname?.includes('map'))
+       setSelected(!!pathname && pathname?.includes('map'))
     }, [pathname])
 
     return (

@@ -27,7 +27,7 @@ function CreateBadgeNonPrefill() {
     const { showLoading, showToast } = useContext(DialogsContext)
     const { verifyDomain } = useVerify()
     const searchParams = useSearchParams()
-    const presetAcceptor = searchParams.get('to')
+    const presetAcceptor = searchParams?.get('to')
 
     const { lang } = useContext(LangContext)
 
@@ -47,8 +47,8 @@ function CreateBadgeNonPrefill() {
         const unload = showLoading()
         try {
             let groupId = 0
-            if (searchParams.get('group')) {
-                const group = await solas.getGroups({ id: Number(searchParams.get('group')) })
+            if (searchParams?.get('group')) {
+                const group = await solas.getGroups({ id: Number(searchParams?.get('group')) })
                 if (group[0]) {
                     groupId = group[0].id
                 }
@@ -134,7 +134,7 @@ function CreateBadgeNonPrefill() {
                             </div>
                         </div>
 
-                        { !searchParams.get('group') &&
+                        { !searchParams?.get('group') &&
                             <div className='input-area'>
                                 <div className='input-area-title'>{ lang['BadgeDialog_Label_Creator'] }</div>
                                 <SelectCreator value={ creator } onChange={(res) => { console.log('resres', res);setCreator(res) }}/>
