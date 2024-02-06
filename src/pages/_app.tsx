@@ -23,7 +23,7 @@ import MapProvider from "@/components/provider/MapProvider/MapProvider";
 import EventHomeProvider from "@/components/provider/EventHomeProvider/EventHomeProvider";
 import ColorSchemeProvider from "@/components/provider/ColorSchemeProvider";
 import Subscriber from '@/components/base/Subscriber'
-import {JoyIdConnector} from '@joyid/wagmi'
+//import {JoyIdConnector} from '@joyid/wagmi'
 import NotificationsProvider from "@/components/provider/NotificationsProvider/NotificationsProvider";
 import {SolanaWalletProvider} from '@/components/provider/SolanaWalletProvider/SolanaWalletProvider'
 
@@ -50,13 +50,13 @@ const config = createConfig({
     connectors: [
         //  walletConnectConnect,
         inject,
-        new JoyIdConnector(
-            {
-                chains: [mainnet, moonbeam],
-                options: {
-                    joyidAppURL: 'https://app.joy.id'
-                }
-            })
+        // new JoyIdConnector(
+        //     {
+        //         chains: [mainnet, moonbeam],
+        //         options: {
+        //             joyidAppURL: 'https://app.joy.id'
+        //         }
+        //     })
     ],
 })
 
