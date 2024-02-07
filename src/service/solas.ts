@@ -3036,7 +3036,7 @@ export async function queryEvent(props: QueryEventProps): Promise<Event[]> {
     }
 
     if (props.end_time_gte) {
-        order = `order_by: {end_time: ${props.event_order || 'desc'}}, `
+        order = `order_by: {start_time: ${props.event_order || 'desc'}}, `
         variables += `end_time: {_gte: "${props.end_time_gte}"}, `
     }
 

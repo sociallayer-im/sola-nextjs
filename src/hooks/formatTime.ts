@@ -131,8 +131,18 @@ export function useTime3() {
         const f_year = fromDate.year() + ''
         const f_day = lang['Day_Name'][fromDate.day()]
 
+        const t_mon = lang['Month_Name'][toDate.month()].toUpperCase()
+        const t_date = toDate.date() + ''
         const t_hour = toDate.hour() + ''
         const t_min = toDate.minute() + ''
+        const t_year = toDate.year() + ''
+        const t_day = lang['Day_Name'][toDate.day()]
+
+
+        const differentYear = f_year !== t_year
+        const differentMonth = t_mon !== f_mon || differentYear
+        const differentDate = t_date !== f_date || differentMonth || differentYear
+
 
         const utcOffset = fromDate.utcOffset() >= 0 ?
             '+' + fromDate.utcOffset() / 60 :
@@ -146,8 +156,8 @@ export function useTime3() {
 
         return {
             data: langType === 'cn'
-                ? `${todayOrTomorrow}${f_mon}${f_date.padStart(2, '0')}日 ${f_day}`
-                : `${todayOrTomorrow}${f_day}, ${f_mon} ${f_date.padStart(2, '0')}, ${f_year}`,
+                ? `${differentYear ? ' ' + f_year + ',': ''} ${todayOrTomorrow}${f_mon}${f_date.padStart(2, '0')}日 ${differentDate ? "" : f_day}${differentDate ? `- ${differentYear ? ' ' + t_year + ',': ''}${differentMonth ? t_mon : '' } ${t_date.padStart(2, '0')}日` : ''}`
+                : `${todayOrTomorrow}${f_day}, ${f_mon} ${f_date.padStart(2, '0')}${differentYear ? ' ,' + f_year : ''} ${differentDate ? `- ${t_day}, ${t_mon} ${t_date.padStart(2, '0')}${differentYear ? ' ,' + t_year: ''}` : ''}`,
 
             time: `${f_hour.padStart(2, '0')}:${f_min.padStart(2, '0')} — ${t_hour.padStart(2, '0')}:${t_min.padStart(2, '0')}  GMT${utcOffset}`
         }
@@ -161,7 +171,7 @@ export function useTime4 (from: string, to: string, timezone: string = 'UTC') {
     if (process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'vitalia') {
         timezone = 'America/Tegucigalpa'
     }
-    
+
     const fromDate = dayjs.tz(new Date(fromStr).getTime(), timezone)
     const toDate = dayjs.tz(new Date(toStr).getTime(), timezone)
 
