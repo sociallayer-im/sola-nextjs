@@ -19,18 +19,18 @@ function Issue() {
     const router = useRouter()
 
     // 处理预填接受者
-    const presetAcceptor = SearchParams.get('to')
+    const presetAcceptor = SearchParams?.get('to')
     const initIssues = presetAcceptor ? [presetAcceptor, ''] : ['']
 
     const {lang} = useContext(LangContext)
 
     useEffect(() => {
         async function getBadgeInfo() {
-            const badge = await solas.queryBadgeDetail({id: Number(params.giftId)})
+            const badge = await solas.queryBadgeDetail({id: Number(params!.giftId)})
             setBadge(badge)
         }
 
-        if (params.giftId) {
+        if (params?.giftId) {
             getBadgeInfo()
         }
     }, [params])
@@ -48,7 +48,7 @@ function Issue() {
         try {
             const badgelets = await solas.issueBatch({
                 badgeId: badge?.id!,
-                reason: SearchParams.get('reason') || '',
+                reason: SearchParams?.get('reason') || '',
                 issues: checkedIssues,
                 auth_token: user.authToken || '',
                 value: !isNaN(Number(data.value)) ? Number(data.value) : null,

@@ -225,7 +225,7 @@ function ComponentName() {
                 }
                 unload()
             } else {
-                const groupId = searchParams.get('group')
+                const groupId = searchParams?.get('group')
                 if (groupId) {
                     const groupDetail = await queryGroupDetail(Number(groupId))
                     setGroup(groupDetail)

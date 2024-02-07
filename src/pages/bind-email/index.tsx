@@ -27,7 +27,7 @@ function BindEmail() {
 
     return <div className='bind-email'>
         <div className={'login-page-back'}>
-            {searchParams.get('new') ?
+            {searchParams?.get('new') ?
                 <div className={'skip'} onClick={e => {fallback()}}>{lang['Bind_Email_Skip']}</div>
                 : <PageBack onClose={() => {
                     router.push('/')

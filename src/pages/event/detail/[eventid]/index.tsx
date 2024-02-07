@@ -37,6 +37,7 @@ import ImgLazy from "@/components/base/ImgLazy/ImgLazy";
 import EventDefaultCover from "@/components/base/EventDefaultCover";
 import {Swiper, SwiperSlide} from 'swiper/react'
 import {Mousewheel, FreeMode} from "swiper";
+import { getFrameMetadata } from '@coinbase/onchainkit';
 
 import * as dayjsLib from "dayjs";
 import Empty from "@/components/base/Empty";
@@ -46,6 +47,7 @@ const timezone = require('dayjs/plugin/timezone')
 const dayjs: any = dayjsLib
 dayjs.extend(utc)
 dayjs.extend(timezone)
+
 
 function EventDetail(props: { event: Event | null, appName: string, host: string }) {
     const router = useRouter()
@@ -286,6 +288,17 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
             <meta property="og:image" content={event?.cover_url || ''}/>
             {event?.content &&
                 <meta name="description" property="og:description" content={event?.content.slice(0, 300) + '...'}/>
+            }
+
+            {
+                !!event &&
+                    <>
+                        <meta name="fc:frame" content="vNext" />
+                        <meta name="fc:frame:image" content={event.cover_url!} />
+                        <meta name="fc:frame:button:1" content="Join" />
+                        <meta name="fc:frame:button:1:action" content="post_redirect" />
+                        <meta name="fc:frame:post_url" content={`${process.env.NEXT_PUBLIC_HOST}/api/frame/${event.id}`} />
+                    </>
             }
             <title>{`${event?.title} | ${props.appName}`}</title>
         </Head>

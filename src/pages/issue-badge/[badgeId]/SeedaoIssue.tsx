@@ -117,7 +117,7 @@ export function IssueBadge() {
 
     useEffect(() => {
         if (params?.badgeId) {
-            const badge = queryBadgeDetail({id: Number(params.badgeId)})
+            const badge = queryBadgeDetail({id: Number(params!.badgeId)})
                 .then(res => {
                     setReason(res?.content || '')
                 })
@@ -130,7 +130,7 @@ export function IssueBadge() {
             return
         }
 
-        if (!params.badgeId) {
+        if (!params?.badgeId) {
             showToast('Invalid badge id')
             return
         }
@@ -138,7 +138,7 @@ export function IssueBadge() {
         const unload = showLoading()
         try {
             const vouchers = await issueBatch({
-                badgeId: Number(params.badgeId!),
+                badgeId: Number(params!.badgeId!),
                 issues: selectedProfiles.map(item => item.username!),
                 auth_token: user.authToken || '',
                 reason: reason
@@ -199,7 +199,7 @@ export function IssueBadge() {
             return
         }
 
-        if (!params.badgeId) {
+        if (!params?.badgeId) {
             showToast('Invalid badge id')
             return
         }
@@ -207,7 +207,7 @@ export function IssueBadge() {
         const unload = showLoading()
         try {
             const vouchers = await sendBadgeByWallet({
-                badge_id: Number(params.badgeId!),
+                badge_id: Number(params!.badgeId!),
                 receivers: selectedCsvRow,
                 auth_token: user.authToken || '',
                 reason: reason
@@ -228,7 +228,7 @@ export function IssueBadge() {
             return
         }
 
-        if (!params.badgeId) {
+        if (!params?.badgeId) {
             showToast('Invalid badge id')
             return
         }
@@ -237,7 +237,7 @@ export function IssueBadge() {
 
         try {
             const presend = await solas.createPresend({
-                badge_id: Number(params.badgeId!),
+                badge_id: Number(params!.badgeId!),
                 message: reason || '',
                 counter: presendAmount,
                 auth_token: user.authToken || ''
