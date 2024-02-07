@@ -14,15 +14,15 @@ async function handler(req: NextRequest,  eventid: string) : Promise<NextRespons
         const redirectUrl = `${process.env.NEXT_PUBLIC_HOST || 'https://app.sola.day'}/event/detail/${eventid}`
        // view event detail
 
-       if (message?.button === 1) {
-           return NextResponse.redirect(
-               redirectUrl,
-               { status: 302 },
-           );
-       }
+       // if (message?.button === 1) {
+       //     return NextResponse.redirect(
+       //         redirectUrl,
+       //         { status: 302 },
+       //     );
+       // }
 
        // join event
-       if (message?.button === 2) {
+       if (message?.button === 1) {
            if (isValid) {
                accountAddress = message!.interactor.verified_accounts[0];
                fid = message!.interactor.fid;
