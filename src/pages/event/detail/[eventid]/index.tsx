@@ -295,7 +295,9 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                 !!event &&
                     <>
                         <meta name="fc:frame" content="vNext" />
-                        <meta name="fc:frame:image" content={event.cover_url!} />
+                        { !!event.cover_url &&
+                            <meta name="fc:frame:image" content={event.cover_url!} />
+                        }
                         <meta name="fc:frame:input:text" content={event.title + ' 📅' + formatTime2(event.start_time!, event.timezone!) + `${event.location ? ` 📍${event.location}` : ''}`} />
                         <meta name="fc:frame:button:1" content="Join" />
                         <meta name="fc:frame:button:1:action" content="post_redirect" />
