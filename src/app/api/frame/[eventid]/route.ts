@@ -21,27 +21,23 @@ async function handler(req: NextRequest,  eventid: string) : Promise<NextRespons
        //     );
        // }
 
-       // join event
-       if (message?.button === 1) {
-           if (isValid) {
-               accountAddress = message!.interactor.verified_accounts[0];
-               fid = message!.interactor.fid;
-                custody_address = message!.interactor.custody_address;
-           }
+
+       if (isValid) {
+           accountAddress = message!.interactor.verified_accounts[0];
+           fid = message!.interactor.fid;
+           custody_address = message!.interactor.custody_address;
 
            console.log('[Farcast account info]:', {
-                accountAddress,
-                fid,
-                custody_address
+               accountAddress,
+               fid,
+               custody_address
            })
-
-           return NextResponse.redirect(
-               redirectUrl,
-               { status: 302 }
-           )
        }
 
-       return NextResponse.json({error: 'invalid'}, { status: 500 })
+       return NextResponse.redirect(
+           redirectUrl,
+           { status: 302 }
+       )
    } catch (e: any) {
          console.error(e);
          return NextResponse.json({error: e.message}, { status: 500 })
