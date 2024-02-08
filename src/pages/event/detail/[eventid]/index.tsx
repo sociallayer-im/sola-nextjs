@@ -296,8 +296,16 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                     <>
                         <meta name="fc:frame" content="vNext" />
                         <meta name="fc:frame:image" content={event.cover_url!} />
-                        <meta name="fc:frame:button:1" content={`${event.title } \n${formatTime2(event.start_time!, event.timezone!)} \n${event.location || ''}`} />
+                        <meta name="fc:frame:button:1" content={event.title}/>
                         <meta name="fc:frame:button:1:action" content="post_redirect" />
+                        <meta name="fc:frame:button:2" content={'📅 ' + formatTime2(event.start_time!, event.timezone!)} />
+                        <meta name="fc:frame:button:2:action" content="post_redirect" />
+                        {!!event.location &&
+                           <>
+                               <meta name="fc:frame:button:3" content={'📍 ' + event.location} />
+                               <meta name="fc:frame:button:3:action" content="post_redirect" />
+                           </>
+                        }
                         <meta name="fc:frame:post_url" content={`${process.env.NEXT_PUBLIC_HOST}/api/frame/${event.id}`} />
                     </>
             }
