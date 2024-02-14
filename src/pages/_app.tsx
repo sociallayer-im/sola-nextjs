@@ -63,7 +63,7 @@ const config = createConfig({
 function MyApp({Component, pageProps, ...props}: any) {
 
     function DisplayLay(params: { children: any }) {
-        return props.router.pathname.includes('/wamo/')
+        return props.router.pathname.includes('/wamo/') || props.router.pathname.includes('/iframe/')
             ? <div className={'light'} style={{width: '100vw', height: '100vh'}}>{params.children}</div>
             : <Layout>{params.children}</Layout>
     }
