@@ -151,7 +151,7 @@ function DialogConnectWallet(props: DialogConnectWalletProps) {
             }
 
             <div className='connect-item' onClick={async () => {
-               const btn = document.querySelector('.fc-authkit-signin-button button')
+               const btn:any = document.querySelector('.fc-authkit-signin-button button')
                 btn && btn.click()
             }}>
                 <SignInButton />
