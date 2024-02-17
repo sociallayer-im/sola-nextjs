@@ -6,6 +6,7 @@ import DialogsContext from '../../../provider/DialogProvider/DialogsContext'
 import UserContext from '../../../provider/UserProvider/UserContext'
 import {useRouter} from 'next/navigation'
 import {WalletContext as solanaWalletContext} from '@solana/wallet-adapter-react'
+import { SignInButton } from '@farcaster/auth-kit';
 
 interface DialogConnectWalletProps {
     handleClose: (...rest: any[]) => any
@@ -148,6 +149,15 @@ function DialogConnectWallet(props: DialogConnectWalletProps) {
                     }
                 </>
             }
+
+            <div className='connect-item' onClick={async () => {
+               const btn = document.querySelector('.fc-authkit-signin-button button')
+                btn && btn.click()
+            }}>
+                <SignInButton />
+                <img src="/images/farcaster.svg" alt="farcaster"/>
+                <div className='connect-name'>Farcaster</div>
+            </div>
         </div>
     )
 }

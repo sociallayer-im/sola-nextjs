@@ -27,6 +27,16 @@ import {JoyIdConnector} from '@/libs/joid'
 import NotificationsProvider from "@/components/provider/NotificationsProvider/NotificationsProvider";
 import {SolanaWalletProvider} from '@/components/provider/SolanaWalletProvider/SolanaWalletProvider'
 
+import '@farcaster/auth-kit/styles.css';
+import { AuthKitProvider } from '@farcaster/auth-kit';
+
+const farcasterConfig = {
+    rpcUrl: 'https://mainnet.optimism.io',
+    domain: process.env.NEXT_PUBLIC_HOST!.split('//')[1],
+    siweUri: process.env.NEXT_PUBLIC_HOST,
+};
+
+
 const inject = new InjectedConnector({
     chains: [mainnet, moonbeam],
 } as any)
@@ -82,6 +92,7 @@ function MyApp({Component, pageProps, ...props}: any) {
                 <Script src="/jslib/trackjs.min.js" async></Script>
             }
             <WagmiConfig config={config as any}>
+                <AuthKitProvider config={farcasterConfig}>
                 <SolanaWalletProvider>
                     <ColorSchemeProvider>
                         <StyletronProvider value={styletron}>
@@ -110,6 +121,7 @@ function MyApp({Component, pageProps, ...props}: any) {
                         </StyletronProvider>
                     </ColorSchemeProvider>
                 </SolanaWalletProvider>
+                    </AuthKitProvider>
             </WagmiConfig>
         </PageBacProvider>
     );

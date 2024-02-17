@@ -4424,6 +4424,24 @@ export async function zupassLogin(props: {
     return res.data.auth_token as string
 }
 
+export async function farcasterLogin(props: {
+    far_fid: number,
+    far_address: string,
+    next_token: string
+    host?: string,
+}) {
+    const res = await fetch.post({
+        url: `${apiUrl}/profile/signin_with_farcaster`,
+        data: {...props, app: props.host, address_source: 'farcaster'}
+    })
+
+    if (res.data.result === 'error') {
+        throw new Error(res.data.message)
+    }
+
+    return res.data.auth_token as string
+}
+
 export async function solanaLogin(props: {
     sol_address: string,
     next_token: string,

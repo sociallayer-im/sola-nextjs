@@ -13,6 +13,8 @@ import {WalletContext as solanaWalletContext} from '@solana/wallet-adapter-react
 import {SolanaSignInInput} from "@solana/wallet-standard-features";
 import fetch from "@/utils/fetch";
 import {createSignInMessage} from '@solana/wallet-standard-util';
+import { useProfile as useFarcasterProfile } from '@farcaster/auth-kit';
+
 
 export interface User {
     id: number | null,
@@ -64,6 +66,7 @@ function UserProvider(props: UserProviderProps) {
     const showRoleDialog = useShowRole()
     const {safePush} = useSafePush()
     const solanaWallet: any = useContext(solanaWalletContext)
+    const {isAuthenticated, profile } = useFarcasterProfile()
 
 
     const setUser = (data: Partial<Record<keyof User, any>>) => {
@@ -304,6 +307,10 @@ function UserProvider(props: UserProviderProps) {
         setAuth(address, authToken!)
     }
 
+    const facasterLogin = async () => {
+        console.log('facasterLogin ...', profile)
+    }
+
     const login = async () => {
         const loginType = AuthStorage.getLastLoginType()
         if (!loginType) return
@@ -322,17 +329,7 @@ function UserProvider(props: UserProviderProps) {
         console.log('Login account: ', account)
         console.log('Storage token: ', authToken)
 
-        if (loginType === 'wallet') {
-            await setProfile({authToken})
-        } else if (loginType === 'email') {
-            await setProfile({authToken})
-        } else if (loginType === 'phone') {
-            await setProfile({authToken})
-        } else if (loginType == 'zupass') {
-            await setProfile({authToken})
-        } else if (loginType == 'solana') {
-            await setProfile({authToken})
-        }
+        await setProfile({authToken})
     }
 
 
@@ -349,6 +346,12 @@ function UserProvider(props: UserProviderProps) {
     useEffect(() => {
         solanaWallet.connected && solanaLogin()
     }, [solanaWallet.connected])
+
+    useEffect(() => {
+        if (isAuthenticated) {
+            facasterLogin()
+        }
+    }, [isAuthenticated])
 
     // update profile from event
     useEffect(() => {

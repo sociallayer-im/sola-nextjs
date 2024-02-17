@@ -100,7 +100,7 @@ export function burnAuth (key: string) {
   }
 }
 
-export type LoginType =  'wallet' | 'email' | 'phone' | 'zupass' | 'solana' | null
+export type LoginType =  'wallet' | 'email' | 'phone' | 'zupass' | 'solana' | 'farcaster' | null
 
 export function setLastLoginType (type: LoginType) {
   if (!type) {
