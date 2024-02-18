@@ -233,6 +233,7 @@ export interface Profile {
             "industry": string
         }
     }
+    far_address: null | string
 }
 
 export interface ProfileSimple {
@@ -270,7 +271,9 @@ export async function queryProfileByGraph(props: { type: keyof GetProfileProps, 
         website
         zupass
         permissions,
-        sol_address
+        sol_address,
+        far_fid,
+        far_address
       }
     }`
 

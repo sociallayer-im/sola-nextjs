@@ -24,6 +24,7 @@
   },
   "dependencies": {
     "@coinbase/onchainkit": "^0.5.0",
+    "@farcaster/auth-client": "^0.1.0",
     "@farcaster/auth-kit": "^0.2.1",
     "@joyid/wagmi": "^0.1.0",
     "@noble/secp256k1": "1.6.0",
