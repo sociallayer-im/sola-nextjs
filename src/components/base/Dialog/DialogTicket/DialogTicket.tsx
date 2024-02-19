@@ -264,7 +264,7 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
                         const participant = await handleJoin()
                         loading()
                         setErrorMsg('')
-                        trigger?.(participant.id)
+                        trigger?.(participant!.id)
                     }}>{'Pay'}</AppButton>}
             />
         }
