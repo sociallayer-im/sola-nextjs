@@ -12,6 +12,8 @@ import DialogsContext from "@/components/provider/DialogProvider/DialogsContext"
 import {Delete} from "baseui/icon";
 import {paymentTokenList} from '@/payment_settring'
 import {parseUnits, formatUnits} from "viem/utils";
+import {Datepicker} from "baseui/datepicker";
+import {TimePicker} from 'baseui/timepicker';
 
 const emptyTicket: Partial<Ticket> = {
     title: '',
@@ -23,6 +25,7 @@ const emptyTicket: Partial<Ticket> = {
     payment_token_name: null,
     payment_token_price: null,
     quantity: null,
+    end_time: null,
 }
 
 interface ErrorMsg {
@@ -325,6 +328,56 @@ function Ticket({creator, ...props}: {
                         </div>
 
                         <div>{lang['Tickets']}</div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div className={styles['item-title-inline']}>
+            <div className={styles['label']}> {'Ticket sales end time'}</div>
+
+            <div className={styles['value']}>
+                <div className={styles['ticket-type']} onClick={e => {
+                    props.onChange && props.onChange({
+                        ...props.ticket,
+                        end_time: null
+                    })
+                }}>
+                    <AppRadio checked={props.ticket.end_time === null}/>
+                    {'No limit'}
+                </div>
+
+                <div className={styles['ticket-type']} onClick={e => {
+                    props.onChange && props.onChange({
+                        ...props.ticket,
+                        end_time: new Date().toISOString()
+                    })
+                }}>
+                    <AppRadio checked={props.ticket.end_time !== null}/>
+                    {'Limit'}
+                </div>
+
+                {props.ticket.end_time !== null &&
+                    <div className={styles['time-picker']}>
+                        <Datepicker
+                            timeSelectStart={true}
+                            value={new Date(props.ticket.end_time!)}
+                            onChange={({ date }) => {
+                                props.onChange && props.onChange({
+                                    ...props.ticket,
+                                    end_time: Array.isArray(date) ? date[0]?.toISOString() : date?.toISOString()
+                                })
+                            }}
+                        />
+                        <TimePicker
+                            value={new Date(props.ticket.end_time!)}
+                            onChange={(date) => {
+                                props.onChange && props.onChange({
+                                    ...props.ticket,
+                                    end_time: date?.toISOString()
+                                })
+                            }}
+                        />
                     </div>
                 }
             </div>

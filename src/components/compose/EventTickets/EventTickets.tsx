@@ -83,7 +83,9 @@ function EventTickets({canAccess = true, ...props}: { event: Event, tickets: Tic
         if (user.userName || needUpdate) {
             getParticipantDetail({event_id: props.event.id, profile_id: user.id!}).then((res) => {
                 if (!!res) {
-                    if (res.payment_status !== 'success') {
+                    const ticket = props.tickets.find(item => item.id === res.ticket_id)
+
+                    if (!!ticket && res.payment_status !== 'success' && ticket.payment_token_price !== null) {
                         setUserPendingPayment(res)
                     } else {
                         setUserHasPaid(res)

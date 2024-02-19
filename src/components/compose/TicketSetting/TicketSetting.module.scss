@@ -138,3 +138,30 @@
     border: 0;
   }
 }
+
+@media (max-width: 600px) {
+  .time-picker {
+    margin-top: 8px;
+  }
+}
+
+.time-picker {
+  display: flex;
+  flex-flow: row nowrap;
+
+  * {
+    font-size: 14px;
+  }
+
+  >div {
+    margin-right: 12px;
+  }
+
+  div[data-baseweb="input"] {
+    border: 0;
+  }
+
+  div[data-baseweb="select"] > div {
+    border: 0;
+  }
+}

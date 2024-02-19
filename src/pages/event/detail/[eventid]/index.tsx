@@ -185,9 +185,12 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
     async function checkJoined() {
         if (hoster && user.id) {
             const eventParticipants = event?.participants || []
-            const joined = eventParticipants.find((item: Participants) => (!item.ticket_id && item.profile.id === user.id && item.status === 'applied')
-                || (item.ticket_id && item.profile.id === user.id && item.status === 'applied' && item.payment_status === 'success'))
-            console.log('Participants', joined)
+            const joined = eventParticipants.find((item: Participants) => {
+                const ticket = tickets.find(t => t.id === item.ticket_id)
+                return (!item.ticket_id && item.profile.id === user.id && item.status === 'applied') // no tickets needed
+                    || (!!ticket && !!item.ticket_id && item.profile.id === user.id && item.status === 'applied' && item.payment_status === 'success' ) // paid ticket
+                    || (!!ticket && !!item.ticket_id && item.profile.id === user.id && item.status === 'applied' && ticket.payment_token_price === null) // free ticket
+            })
             setIsJoined(!!joined)
         }
     }
@@ -228,7 +231,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
         setIsHoster(hoster?.id === user.id ||
             (!!(hoster as Group)?.creator && (hoster as Group)?.creator.id === user.id))
         checkJoined()
-    }, [hoster, user.id])
+    }, [hoster, user.id, tickets])
 
     const gotoModify = () => {
         router.push(`/event/${eventGroup?.username}/edit/${event?.id}`)

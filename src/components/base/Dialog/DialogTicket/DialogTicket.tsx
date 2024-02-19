@@ -29,6 +29,7 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
     const [soldOut, setSoldOut] = useState(false)
     const [badge, setBadge] = useState<Badge | null>(null)
     const [OwnedBadge, setOwnedBadge] = useState(false)
+    const [stopSales, setStopSales] = useState(false)
 
     const {address} = useAccount()
     const formatTime = useTime()
@@ -47,8 +48,6 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
         }
     }, [user.id, badge])
 
-
-
     useEffect(() => {
         if (props.ticket.payment_token_name) {
             setSoldOut(props.ticket.quantity === 0)
@@ -58,6 +57,10 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
             queryBadgeDetail({id: props.ticket.check_badge_id}).then((res) => {
                 res && setBadge(res)
             })
+        }
+
+        if (props.ticket.end_time && new Date(props.ticket.end_time).getTime() < new Date().getTime()) {
+            setStopSales(true)
         }
     }, [props.ticket])
 
@@ -73,14 +76,31 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
         return address.slice(0, 6) + '...' + address.slice(len - 6, len)
     }
 
-    const handleJoin = async () => {
-        return await joinEvent(
-            {
-                id: props.event.id,
-                auth_token: user.authToken || '',
-                ticket_id: props.ticket.id,
+    const handleJoin = async (isFree=false) => {
+        const unload = showLoading()
+
+        try {
+            const join =  await joinEvent(
+                {
+                    id: props.event.id,
+                    auth_token: user.authToken || '',
+                    ticket_id:  props.ticket.id,
+                }
+            )
+
+            if (isFree) {
+                emit(join)
+                props.close()
+                showToast('Purchase successful')
             }
-        )
+
+            return join
+        } catch (e: any) {
+            console.error(e)
+            showToast(e.message)
+        } finally {
+            unload()
+        }
     }
 
     const chain = props.ticket.payment_chain ? paymentTokenList.find(item => item.id === props.ticket.payment_chain) : undefined
@@ -190,11 +210,17 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
         }
 
         {
+            stopSales &&
+            <AppButton disabled>{'Stop ticket sales'}</AppButton>
+        }
+
+        {
             !hasBadgePermission &&
             <AppButton disabled>{'Need to have badge'}</AppButton>
         }
 
         {!address
+            && !stopSales
             && !soldOut
             && user.id
             && !!chain
@@ -209,6 +235,7 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
             && !!token
             && !!chain
             && approved
+            && !stopSales
             && !soldOut
             && user.id
             && hasBadgePermission &&
@@ -247,6 +274,7 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
             && !!chain
             && !approved
             && !soldOut
+            && !stopSales
             && user.id
             && hasBadgePermission &&
             <Erc20TokenApproveHandler
@@ -271,8 +299,10 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
             />
         }
 
-        { user.id && !chain && hasBadgePermission &&
-           <AppButton special>{'Get A Ticket'}</AppButton>
+        { user.id && !chain && hasBadgePermission && !stopSales &&
+            <AppButton special onClick={e => {
+               handleJoin(true)
+           }}>{'Get A Ticket'}</AppButton>
         }
     </div>)
 }
