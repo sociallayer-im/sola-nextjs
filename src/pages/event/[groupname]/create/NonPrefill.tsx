@@ -517,6 +517,10 @@ function CreateEvent(props: CreateEventPageProps) {
                 setWechatAccount(event.wechat_contact_person)
             }
 
+            if (event.external_url) {
+                setExternalUrl(event.external_url)
+            }
+
             // if (event.formatted_address) {
             //     setLocationDetail(event.formatted_address)
             // }

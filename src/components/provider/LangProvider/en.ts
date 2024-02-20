@@ -607,6 +607,10 @@ const langEN = {
     External_Url: 'External Url',
     Notifications: 'Notifications',
     Send_You_A_Badge: 'Send you a badge.',
+    Go_to_Event_Page: 'Go to event page',
+    Back_To_Profile_Page: 'Back to profile page',
+    Back_To_Group_Page: 'Back to group page',
+    Back_To_Event_Home: 'Back to event home',
 }
 
 

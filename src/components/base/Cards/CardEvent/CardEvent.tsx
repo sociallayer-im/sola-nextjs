@@ -87,6 +87,14 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
         }
     }, [props.event])
 
+    const handleExternal = (e: any) => {
+        e.preventDefault()
+        if (props.event.external_url) {
+            location.href = props.event.external_url
+            return
+        }
+    }
+
     const handleJoin = async (e: any) => {
         e.stopPropagation()
         e.preventDefault()
@@ -133,7 +141,7 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
         }
     }
 
-    const hasMarker = isExpired || !!hasRegistered || isCreated || props.event.status === 'pending'
+    const hasMarker = isExpired || hasRegistered || isCreated || props.event.status === 'pending' || onGoing
 
     const largeCard = fixed || (hasMarker && !fixed)
 
@@ -196,21 +204,22 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
         })
     }
 
-    return (<Link href={props.event.external_url || `/event/detail/${props.event.id}`}
-                  target={props.event.external_url ? '_blank' : undefined}
+    return (<Link href={`/event/detail/${props.event.id}`}
                   className={largeCard ? 'event-card large' : 'event-card'}>
         {largeCard &&
             <div className={'markers'}>
                 {props.event.status === 'pending' && <div className={'marker pending'}>{lang['Pending']}</div>}
+                {onGoing && <div className={'marker registered'}>{lang['Ongoing']}</div>}
                 {props.event.status === 'rejected' && <div className={'marker rejected'}>{lang['Rejected']}</div>}
                 {(hasRegistered || props.attend) &&
                     <div className={'marker registered'}>{lang['Activity_State_Registered']}</div>}
                 {isCreated && <div className={'marker created'}>{lang['Activity_Detail_Created']}</div>}
                 {isExpired && <div className={'marker expired'}>{lang['Activity_Detail_Expired']}</div>}
+                {!!props.event.external_url && <div className={'marker external'}>{'External'}</div>}
             </div>
         }
 
-        <div className={(fixed || hasMarker && !fixed) ? 'info marker' : 'info'}>
+        <div className={largeCard ? 'info marker' : 'info'}>
             <div className={'left'}>
                 <div className={'details'}>
                     <div className={'title'}>
@@ -223,9 +232,9 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
                                     <div className={'marker registered'}>{lang['Activity_State_Registered']}</div>}
                                 {isCreated && <div className={'marker created'}>{lang['Activity_Detail_Created']}</div>}
                                 {isExpired && <div className={'marker expired'}>{lang['Activity_Detail_Expired']}</div>}
+                                {!!props.event.external_url && <div className={'marker external'}>{'External'}</div>}
                             </div>
                         }
-
                         {eventDetail.title}
                     </div>
                     <div className={'tags'}>
@@ -302,9 +311,15 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
                             ><i className={'icon-calendar'}/></AppButton>
                         }
 
-                        {!!user.id && !hasRegistered && !isExpired && !fixed &&
+                        {!!user.id && !hasRegistered && !fixed && !props.event.external_url &&
                             <AppButton special onClick={e => {
                                 handleJoin(e)
+                            }}>{lang['Event_Card_Apply_Btn']}</AppButton>
+                        }
+
+                        { !fixed && !!props.event.external_url &&
+                            <AppButton special onClick={e => {
+                                handleExternal(e)
                             }}>{lang['Event_Card_Apply_Btn']}</AppButton>
                         }
                     </div>

@@ -505,7 +505,27 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                             </div>
 
                             <div className={'center'}>
-                                {user.userName && canAccess &&
+                                {!!event.external_url &&
+                                    <div className={'event-login-status'}>
+                                        <div className={'user-info'}>
+                                            <div>{'External url'}</div>
+                                        </div>
+                                        <div className={'des'}>{event.external_url}</div>
+                                        <div className={'event-action'}>
+                                            <AppButton
+                                                special
+                                                onClick={e => {
+                                                    const url = (event as any).external_url
+                                                    if ((event as any).external_url) {
+                                                        location.href = url
+                                                    }
+                                                }}>
+                                                {lang['Go_to_Event_Page']}</AppButton>
+                                        </div>
+                                    </div>
+                                }
+
+                                {user.userName && canAccess && !event.external_url &&  event.status !== 'pending' &&
                                     <div className={'event-login-status'}>
                                         <div className={'user-info'}>
                                             <img src={user.avatar || defaultAvatar(user.id!)} alt=""/>
@@ -714,7 +734,29 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                             }
                         </div>
                         <div className={'center'}>
-                            {user.userName && canAccess && event.status !== 'pending' &&
+
+                            {!!event.external_url &&
+                                <div className={'event-login-status'}>
+                                    <div className={'user-info'}>
+                                        <div>{'External url'}</div>
+                                    </div>
+                                    <div className={'des'}>{event.external_url}</div>
+                                    <div className={'event-action'}>
+                                        <AppButton
+                                            special
+                                            onClick={e => {
+                                                const url = (event as any).external_url
+                                                if ((event as any).external_url) {
+                                                    location.href = url
+                                                }
+                                            }}>
+                                            {lang['Go_to_Event_Page']}</AppButton>
+                                    </div>
+                                </div>
+                            }
+
+
+                            {user.userName && canAccess && event.status !== 'pending' && !props.event?.external_url &&
                                 <div className={'event-login-status'}>
                                     <div className={'user-info'}>
                                         <img src={user.avatar || defaultAvatar(user.id!)} alt=""/>

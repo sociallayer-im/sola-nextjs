@@ -77,6 +77,11 @@
         background: #ffe9ef;
         color: #7a0829;
       }
+
+      &.external {
+        background: #ffede1;
+        color: #fd9127;
+      }
     }
   }
 
@@ -197,6 +202,11 @@
         &.rejected {
           background: #ffe9ef;
           color: #7a0829;
+        }
+
+        &.external {
+          background: #ffede1;
+          color: #fd9127;
         }
       }
     }
