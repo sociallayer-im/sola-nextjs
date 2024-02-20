@@ -607,13 +607,17 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                              }}>
                                             <div>{lang['Activity_Des']}</div>
                                         </div>
-                                        <div className={'split mobile-item'}/>
-                                        <div className={tab === 4 ? 'tab-title mobile-item active' : 'mobile-item tab-title'}
-                                             onClick={e => {
-                                                 setTab(4)
-                                             }}>
-                                            <div>{'Tickets'}</div>
-                                        </div>
+                                        { tickets.length > 0 &&
+                                            <>
+                                                <div className={'split mobile-item'}/>
+                                                <div className={tab === 4 ? 'tab-title mobile-item active' : 'mobile-item tab-title'}
+                                                     onClick={e => {
+                                                         setTab(4)
+                                                     }}>
+                                                    <div>{'Tickets'}</div>
+                                                </div>
+                                            </>
+                                        }
                                         <div className={'split'}/>
                                         <div className={tab === 2 ? 'tab-title active' : 'tab-title'}
                                              onClick={e => {
@@ -804,7 +808,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                 </div>
                             }
 
-                            { !!event &&
+                            { !!event && tickets.length > 0 &&
                                 <EventTickets tickets={tickets} event={event} canAccess={canAccess}/>
                             }
                         </div>
