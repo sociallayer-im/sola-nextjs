@@ -1,6 +1,6 @@
 import {useRouter} from 'next/navigation'
 import Link from 'next/link'
-import {useContext, useEffect, useState} from 'react'
+import React, {useContext, useEffect, useState} from 'react'
 import LangContext from '@/components/provider/LangProvider/LangContext'
 import UserContext from "@/components/provider/UserProvider/UserContext";
 import usePicture from "@/hooks/pictrue";
@@ -26,11 +26,22 @@ function HomeUserPanel(props: {
 
     const [groupMembers, setGroupMembers] = useState<Membership[]>([])
     const [groupBadges, setGroupBadges] = useState<Badge[]>([])
+    const [compact, setCompact] = useState(props.isSide || false)
 
     useEffect(() => {
         const owner = props.membership.find((item: Membership) => item.role === 'owner')!
         const manager = props.membership.filter((item: Membership) => item.role === 'manager')
-        const member = props.membership.filter((item: Membership) => item.role === 'member')
+        const issuer = props.membership.filter((item: Membership) => item.role === 'issuer')
+        let member = props.membership.filter((item: Membership) => item.role === 'member')
+
+        if (compact) {
+            const length = manager.length  + issuer.length + 1
+            if (length < 10) {
+                member = member.slice(0, 10 - length)
+            } else {
+                member = []
+            }
+        }
 
         const list = [owner, ...manager, ...member]
         list.forEach((item: Membership) => {
@@ -39,7 +50,7 @@ function HomeUserPanel(props: {
             }
         })
         setGroupMembers(list)
-    }, [props.membership])
+    }, [props.membership, compact])
 
     useEffect(() => {
         if (props.badges && props.badges.length > 0) {
@@ -75,7 +86,7 @@ function HomeUserPanel(props: {
                                     <span>{eventGroup?.nickname || eventGroup?.username || '--'}</span>
                                 </Link>
                                 <Link href={`/group/${eventGroup.username}`} className={'right'}>
-                                    {groupMembers.length} {lang['Group_detail_tabs_member'].toLowerCase()}
+                                    {props.membership.length} {lang['Group_detail_tabs_member'].toLowerCase()}
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"
                                          fill="none">
                                         <path
@@ -116,6 +127,10 @@ function HomeUserPanel(props: {
                                     }
                                 </Link>
                             })
+                        }
+
+                        { props.membership.length > 0 &&
+                           <div className={'side-member-count'} onClick={e => {setCompact(!compact)}}>{`${props.membership.length} ${lang['Group_detail_tabs_member']}`} </div>
                         }
                     </div>
                 </div>

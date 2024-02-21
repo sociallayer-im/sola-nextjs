@@ -107,7 +107,7 @@ function CreateEvent(props: CreateEventPageProps) {
     const initTime = getNearestTime()
     const router = useRouter()
     const {user} = useContext(UserContext)
-    const {showLoading, showToast, openDialog, openConfirmDialog} = useContext(DialogsContext)
+    const {showLoading, showToast, openDialog, openConfirmDialog, openConnectWalletDialog} = useContext(DialogsContext)
     const [creator, setCreator] = useState<Group | Profile | null>(null)
     const {lang, langType} = useContext(LangContext)
     const {eventGroup, joined, isManager} = useContext(EventHomeContext)
@@ -392,6 +392,12 @@ function CreateEvent(props: CreateEventPageProps) {
     }, [telegram])
 
     useEffect(() => {
+        if (!user.userName) {
+            openConnectWalletDialog()
+        }
+    }, [user.userName])
+
+    useEffect(() => {
         if (!eventGroup || (eventGroup as Group).can_publish_event === 'everyone') {
             setNeedPublish(false)
             return
@@ -591,7 +597,6 @@ function CreateEvent(props: CreateEventPageProps) {
                     page: 1,
                     page_size: 50
                 })
-                console.log('eventseventsevents', events)
 
                 // 排除自己
                 events = events.filter((e) => e.id !== props.eventId)
