@@ -141,7 +141,7 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
         }
     }
 
-    const hasMarker = isExpired || hasRegistered || isCreated || props.event.status === 'pending' || onGoing
+    const hasMarker = isExpired || hasRegistered || isCreated || props.event.status === 'pending' || onGoing || !!props.event.external_url
 
     const largeCard = fixed || (hasMarker && !fixed)
 
@@ -290,7 +290,6 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
                         </div>
                     }
                 </div>
-
 
                 {props.event.status === 'open' &&
                     <div className={'event-card-action'}>

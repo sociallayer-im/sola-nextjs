@@ -7,7 +7,7 @@ import UserContext from "@/components/provider/UserProvider/UserContext";
 import LangContext from "@/components/provider/LangProvider/LangContext";
 import usePicture from "@/hooks/pictrue";
 import {getLabelColor} from "@/hooks/labelColor";
-import {useRouter} from "next/navigation";
+import {useRouter, useSearchParams} from "next/navigation";
 import timezoneList from "@/utils/timezone"
 import {Select} from "baseui/select";
 
@@ -25,6 +25,8 @@ const mouthName = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'
 let _offsetX = 0
 let _offsetY = 0
 
+let observer: any = null
+
 const localTimezone = dayjs.tz.guess()
 const timezoneInfo = timezoneList.find(item => item.id === localTimezone) || {id: 'UTC', label: 'UTC+00:00'}
 
@@ -40,9 +42,9 @@ interface DateItem {
 
 const getCalendarData = () => {
     const now = new Date()
-    // 计算出今天前15天和后15天的日期时间戳数组 182
-    const from = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 30, 0, 0, 0, 0).getTime()
-    const to = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 30, 0, 0, 0, 0).getTime()
+    // 计算出今天前183天和后182天的日期时间戳数组 182
+    const from = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 183, 0, 0, 0, 0).getTime()
+    const to = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 182, 0, 0, 0, 0).getTime()
 
     // 获得 from 和 to  之间所以天0点的时间戳数组
     const dayArray = []
@@ -69,6 +71,8 @@ function ComponentName(props: { group: Group }) {
     const eventListRef = useRef<Event[]>([])
     const dayList = useRef(getCalendarData())
     const lock = useRef(false)
+    const searchParams = useSearchParams()
+
 
     const {user} = useContext(UserContext)
     const [showJoined, setShowJoined] = useState(false)
@@ -94,8 +98,19 @@ function ComponentName(props: { group: Group }) {
         const scrollBar1 = scroll1Ref.current
         const scrollBar2 = scroll2Ref.current
 
+        let targetDate = now
+
+        const initDateString = searchParams?.get('date')
+        if (!!initDateString && init) {
+            const dateRegex = /^\d{4}-\d{1,2}-\d{1,2}$/
+            targetDate = dateRegex.test(initDateString) ? new Date(initDateString) : now
+        }
+
+        setCurrMonth(targetDate.getMonth())
+        setCurrYear(targetDate.getFullYear())
+
         const targetColumnIndex = dayList.current.findIndex((item: DateItem) => {
-            return item.year === now.getFullYear() && item.month === now.getMonth() && item.date === now.getDate()
+            return item.year === targetDate.getFullYear() && item.month === targetDate.getMonth() && item.date === targetDate.getDate()
         })
 
         const offset = targetColumnIndex * 256
@@ -106,6 +121,41 @@ function ComponentName(props: { group: Group }) {
 
             if (init) {
                 setTimeout(() => {
+                    if (observer) {
+                        observer.disconnect()
+                        observer = null
+                    }
+
+                    observer = new IntersectionObserver((entries, observer) => {
+                        entries.forEach(entry => {
+                            if (_offsetX === 0) return
+
+                            // 横向滚动时动态改变显示月份
+                            if (entry.isIntersecting) {
+                                const month = Number(entry.target.getAttribute('data-month'))
+                                const year = Number(entry.target.getAttribute('data-year'))
+                                if (_offsetX < 0) {
+                                    setCurrYear(year)
+                                    setCurrMonth(month)
+                                }
+                            } else {
+                                const month = Number(entry.target.getAttribute('data-month'))
+                                const year = Number(entry.target.getAttribute('data-year'))
+                                if (_offsetX > 0) {
+                                    setCurrMonth(month === 1 ? 12 : month - 1)
+                                    setCurrYear(month === 1 ? year - 1 : year)
+                                }
+                            }
+                        })
+                    }, {threshold: 0.9})
+
+                    const target = document.querySelectorAll('.month-begin')
+                    if (target.length > 0) {
+                        target.forEach((item: any) => {
+                            observer.observe(item)
+                        })
+                    }
+
                     slideToToday(true)
                 }, 100)
             }
@@ -295,6 +345,11 @@ function ComponentName(props: { group: Group }) {
                 scrollBar2?.removeEventListener('touchmove', touchmove)
                 scrollBar2?.removeEventListener('touchend', touchend)
                 scrollBar2?.removeEventListener('touchcancel', touchend)
+
+                if (observer) {
+                    observer.disconnect()
+                    observer = null
+                }
             }
         }
     }, [scroll1Ref, scroll2Ref])
@@ -418,7 +473,12 @@ function ComponentName(props: { group: Group }) {
             <div className={`${styles['date-bar-wrapper']} date-bar-wrapper`} ref={scroll1Ref}>
                 <div className={`${styles['date-bar']}`}>
                     {showList.map((item: any, index) => {
-                        return <div key={index + ''} className={styles['date-column']}>
+                        const isMonthBegin = item.date === 1
+
+                        return <div key={index + ''}
+                                    data-month={item.month}
+                                    data-year={item.year}
+                                    className={isMonthBegin ? `month-begin ${styles['date-column']}` :  styles['date-column']}>
                             <div className={styles['date-day']}>
                                 <span>{item.dayName}</span>
                                 <span
