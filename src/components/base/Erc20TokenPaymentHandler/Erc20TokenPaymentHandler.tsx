@@ -1,5 +1,5 @@
 import {ReactNode, useContext, useState} from 'react'
-import {useAccount, usePublicClient, useWalletClient} from "wagmi";
+import {useAccount, usePublicClient, useWalletClient, useSwitchNetwork, useNetwork} from "wagmi";
 import {payhub_abi, paymentTokenList} from "@/payment_settring";
 import {parseUnits} from "viem/utils";
 import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
@@ -25,6 +25,8 @@ function Erc20TokenPaymentHandler(
     const {address} = useAccount()
     const {data: walletClient}: any = useWalletClient({chainId: props.chainId})
     const publicClient: any = usePublicClient({chainId: props.chainId})
+    const { switchNetworkAsync } = useSwitchNetwork()
+    const { chain } = useNetwork()
 
     const [busy, setBusy] = useState(false)
 
@@ -65,6 +67,12 @@ function Erc20TokenPaymentHandler(
     const handlePay = async (participant_id: number) => {
         try {
             setBusy(true)
+
+            if (chain?.id !== props.chainId) {
+                await switchNetworkAsync?.(props.chainId)
+            }
+
+
             const payhubContract = paymentTokenList.find((item) => item.chainId === props.chainId)?.payHub
             const opt = {
                 address: payhubContract as any,
@@ -98,7 +106,10 @@ function Erc20TokenPaymentHandler(
             !!props.onSuccess && props.onSuccess(hash)
         } catch (e: any) {
             console.error(e)
-            props.onErrMsg?.(e.message)
+            if (!e.message.includes('rejected')) {
+                props.onErrMsg?.(e.message)
+            }
+
         } finally {
             loadingRef?.()
             setBusy(false)

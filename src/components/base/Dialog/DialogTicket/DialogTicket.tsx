@@ -284,7 +284,7 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
                 decimals={token.decimals}
                 chainId={chain.chainId}
                 onErrMsg={(errMsg: string) => {
-                    setErrorMsg(errMsg)
+                    // setErrorMsg(errMsg)
                 }}
                 onSuccess={(txHash: string) => {
                    setApproved(true)
