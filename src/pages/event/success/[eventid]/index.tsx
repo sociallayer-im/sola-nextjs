@@ -4,7 +4,7 @@ import Link from 'next/link'
 import {useContext, useEffect, useRef, useState} from 'react'
 import {Event, queryEventDetail} from "@/service/solas";
 import LangContext from "@/components/provider/LangProvider/LangContext";
-import {formatTimeWithTimezone, useTime4, formatTime} from "@/hooks/formatTime";
+import {formatTime, formatTimeWithTimezone, useTime4} from "@/hooks/formatTime";
 import QRcode from "@/components/base/QRcode";
 import AppButton from "@/components/base/AppButton/AppButton";
 import saveCard from "@/utils/html2png";
@@ -24,7 +24,7 @@ function CreateEventSuccess() {
     const formatTime3 = useTime4
     const card = useRef<any>()
     const {showToast, showLoading} = useContext(DialogsContext)
-    const {availableList, setEventGroup} = useContext(EventHomeContext)
+    const {availableList, setEventGroup, eventGroup} = useContext(EventHomeContext)
     const {getMeetingName} = useGetMeetingName()
     const {connectors} = useConnect()
 
@@ -152,7 +152,7 @@ function CreateEventSuccess() {
 
     return (<>
         <div className={'create-event-success-page'}>
-            { ready && event &&
+            {ready && event &&
                 <>
                     <div className={'center'}>
                         <Link className={'done'} href={`/event/detail/${params?.eventid}`}>Done</Link>
@@ -218,23 +218,38 @@ function CreateEventSuccess() {
                             </div>
                         </div>
                     </div>
+
+                    <div className={'center'}>
+                        <AppButton special onClick={e => {
+                            if (eventGroup) {
+                                router.push(`/event/${eventGroup.username}`)
+                            } else {
+                                router.push('/')
+                            }
+                        }}>{lang['Back_To_Event_Home']}</AppButton>
+
+                    </div>
+
                     {!isMobile() &&
                         <div className={'center'}>
-                            <AppButton special onClick={e => {
+                            <AppButton onClick={e => {
                                 downloadCard()
                             }}>{lang['Save_Card']}</AppButton>
                         </div>}
+
                     <div className={'center'}>
                         <AppButton onClick={e => {
                             copyLink()
                         }}>{lang['IssueFinish_CopyLink']}</AppButton>
+
                     </div>
                 </>
             }
             {!event && ready &&
                 <div className={'center'}>
-                    <Empty />
-                    <div style={{textAlign: 'center'}}><b>Event cancelled or not exist </b> <br /><Link href="/">back to home</Link></div>
+                    <Empty/>
+                    <div style={{textAlign: 'center'}}><b>Event cancelled or not exist </b> <br/><Link href="/">back to
+                        home</Link></div>
                 </div>
             }
         </div>

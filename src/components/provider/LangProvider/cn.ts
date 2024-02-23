@@ -611,8 +611,16 @@ const langCN: LangConfig = {
   Tickets: '张',
   Select_A_Badge: '选择徽章',
   Get_A_Ticket: 'Get a ticket',
+  External_Url: '外部链接',
   Notifications: '消息通知',
   Send_You_A_Badge: '发送了一个徽章给你。',
+  Go_to_Event_Page: '前往活动页面',
+  Back_To_Profile_Page: '返回个人主页',
+  Back_To_Group_Page: '返回群组主页',
+  Back_To_Event_Home: '返回活动首页',
+  Event_Notes: '活动笔记',
+  Event_Notes_: '活动笔记 (确定参加活动后展示)',
+  Input_Notes: '输入活动笔记'
 }
 
 

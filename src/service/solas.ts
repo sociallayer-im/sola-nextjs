@@ -185,6 +185,7 @@ export interface Profile {
     id: number,
     username: string | null,
     address: string | null,
+    sol_address: string | null,
     email: string | null,
     phone: string | null,
     zupass: string | null,
@@ -268,7 +269,8 @@ export async function queryProfileByGraph(props: { type: keyof GetProfileProps, 
         username
         website
         zupass
-        permissions
+        permissions,
+        sol_address
       }
     }`
 
@@ -1527,7 +1529,8 @@ export async function getFollowers(userId: number): Promise<Profile[]> {
         id
         username
         nickname
-        image_url
+        image_url,
+        sol_address
       }
     }
     `)
@@ -2012,7 +2015,8 @@ export async function searchDomain(props: SearchDomainProps): Promise<Profile[]>
         id
         username
         nickname
-        image_url
+        image_url,
+        sol_address
       }
     }`
 
@@ -2922,6 +2926,7 @@ export interface Event {
     group_id?: null | number,
     formatted_address: null | any,
     owner: ProfileSimple,
+    notes: string | null,
 
     owner_id: number,
     created_at: string,
@@ -2941,6 +2946,7 @@ export interface Event {
     geo_lng: null | string,
     geo_lat: null | string,
     participants: null | Participants[],
+    external_url: null | string,
 }
 
 export interface CreateEventProps extends Partial<Event> {
@@ -3034,7 +3040,7 @@ export async function queryEvent(props: QueryEventProps): Promise<Event[]> {
     }
 
     if (props.end_time_gte) {
-        order = `order_by: {end_time: ${props.event_order || 'desc'}}, `
+        order = `order_by: {start_time: ${props.event_order || 'desc'}}, `
         variables += `end_time: {_gte: "${props.end_time_gte}"}, `
     }
 
@@ -3061,11 +3067,13 @@ export async function queryEvent(props: QueryEventProps): Promise<Event[]> {
     const doc = gql`query MyQuery {
       events (where: {${variables}, status: {_in: [${status}]}} ${order} limit: ${page_size}, offset: ${(props.page - 1) * page_size}) {
         badge_id
+        notes
         geo_lat
         geo_lng
         category
         content
         cover_url
+        external_url
         created_at
         display
         end_time
@@ -3201,6 +3209,8 @@ export async function queryPendingEvent(props: QueryEventProps): Promise<Event[]
     const doc = gql`query MyQuery {
       events (where: {${variables} status: {_eq: "pending"}}, ${order} limit: ${page_size}, offset: ${(props.page - 1) * page_size}) {
         badge_id
+        notes
+        external_url
         geo_lat
         geo_lng
         category
@@ -3353,6 +3363,7 @@ export async function queryMyEvent({page = 1, page_size = 10, ...props}: QueryMy
           cover_url
           content
           end_time
+          notes
           id
           location
           title
@@ -3467,6 +3478,8 @@ export async function searchEvent(keyword: string) {
     const doc = gql`query MyQuery {
       events (where: {title: {_iregex: "${keyword}"} , status: {_neq: "closed"}}, limit: 10) {
         badge_id
+        notes
+        external_url
         geo_lat
         geo_lng
         category
@@ -4228,6 +4241,7 @@ export async function queryMarkers(props: {
               end_time
               start_time 
               host_info
+              notes
               id
               tags
               status
@@ -4421,6 +4435,23 @@ export async function zupassLogin(props: {
     const res = await fetch.post({
         url: `${apiUrl}/profile/signin_with_zupass`,
         data: {...props, app: props.host, address_source: 'zupass'}
+    })
+
+    if (res.data.result === 'error') {
+        throw new Error(res.data.message)
+    }
+
+    return res.data.auth_token as string
+}
+
+export async function solanaLogin(props: {
+    sol_address: string,
+    next_token: string,
+    host?: string
+}) {
+    const res = await fetch.post({
+        url: `${apiUrl}/profile/signin_with_solana`,
+        data: {...props, app: props.host, address_source: 'solana'}
     })
 
     if (res.data.result === 'error') {
@@ -4769,7 +4800,8 @@ export async function getProfileBatch(usernames: string[]) {
             id,
             username,
             nickname,
-            image_url
+            image_url,
+            sol_address
           }
         }
         `

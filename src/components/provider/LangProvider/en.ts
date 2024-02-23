@@ -615,8 +615,16 @@ const langEN = {
     Tickets: 'Tickets',
     Select_A_Badge: 'Select a badge',
     Get_A_Ticket: 'Get a ticket',
+    External_Url: 'External Url',
     Notifications: 'Notifications',
     Send_You_A_Badge: 'Send you a badge.',
+    Go_to_Event_Page: 'Go to event page',
+    Back_To_Profile_Page: 'Back to profile page',
+    Back_To_Group_Page: 'Back to group page',
+    Back_To_Event_Home: 'Back to event home',
+    Event_Notes: 'Event Notes',
+    Event_Notes_: 'Event Note (Display after confirming attendance)',
+    Input_Notes: 'Input the note of the event'
 }
 
 

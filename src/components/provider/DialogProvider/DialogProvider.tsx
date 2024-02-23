@@ -140,9 +140,13 @@ function DialogProvider (props: DialogProviderProps) {
     }
 
     const openConnectWalletDialog = () => {
+        if (checkDuplicate('login', 0)) return
+
         const id = genID()
         dialogsGroup.dialogs.push({
             id,
+            itemId: 0,
+            type: 'login',
             content: () => {
                 const close = () => {
                     closeDialogByID(id)

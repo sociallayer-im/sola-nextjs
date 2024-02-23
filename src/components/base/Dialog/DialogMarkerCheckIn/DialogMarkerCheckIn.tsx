@@ -56,7 +56,7 @@ function DialogMarkerCheckIn(props: DialogNftCheckInProps) {
                     voucher_id: props.marker.voucher_id!,
                     code: Number(resVoucherCode),
                     auth_token: user.authToken || '',
-                    index: searchParams.get('index') ? Number(searchParams.get('index')) : undefined
+                    index: searchParams?.get('index') ? Number(searchParams.get('index')) : undefined
                 })
                 badgeletId = mintBadge.id
             }

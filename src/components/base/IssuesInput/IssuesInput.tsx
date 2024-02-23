@@ -21,7 +21,7 @@ interface ProfileWithSns  extends Profile {
 }
 
 const getProfileBySNS = async (params: string): Promise<ProfileWithSns | null> => {
-    params = params.replace('.seedao', '') + '.seedao'
+    params = params!.replace('.seedao', '') + '.seedao'
     try {
         const info = await fetch.get({
             url: `https://sola.deno.dev/seedao/resolve/${params}`,

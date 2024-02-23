@@ -17,16 +17,16 @@ function Issue() {
     const { lang } = useContext(LangContext)
 
     // 处理预填接受者
-    const presetAcceptor = SearchParams.get('to')
+    const presetAcceptor = SearchParams?.get('to')
     const initIssues = presetAcceptor ?[presetAcceptor, ''] : ['']
 
     useEffect(() => {
         async function getBadgeInfo() {
-            const badge = await solas.queryBadgeDetail({id: Number(params.nftpassId)})
+            const badge = await solas.queryBadgeDetail({id: Number(params!.nftpassId)})
             setBadge(badge)
         }
 
-        if (params.nftpassId) {
+        if (params?.nftpassId) {
             getBadgeInfo()
         }
     }, [params])

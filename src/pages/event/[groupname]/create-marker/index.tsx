@@ -190,7 +190,7 @@ function ComponentName() {
             setBusy(false)
             console.error(e)
             unload()
-            showToast('Create fail', 1000)
+            showToast('fail to create', 1000)
         }
     }
 
@@ -248,7 +248,7 @@ function ComponentName() {
         } catch (e: any) {
             console.error(e)
             unload()
-            showToast('Save fail', 1000)
+            showToast('fail to save', 1000)
             setBusy(false)
         }
     }
@@ -272,7 +272,7 @@ function ComponentName() {
                 } catch (e: any) {
                     console.error(e)
                     unload()
-                    showToast('Remove fail', 500)
+                    showToast('fail to remove', 500)
                 }
             }
         })
@@ -328,7 +328,7 @@ function ComponentName() {
         } else {
             setReady(true)
             if (searchParams?.get('type')) {
-                const key = searchParams.get('type') as string
+                const key = searchParams?.get('type') as string
                 const target = markerTypeList2.find((item) => item.category === key)
                 if (target) {
                     setIcon(target.pin)

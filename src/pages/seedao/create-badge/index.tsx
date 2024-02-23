@@ -5,7 +5,7 @@ import {getGroups} from "@/service/solas";
 
 function CreateBadge(props: {group: any}) {
     const searchParams = useSearchParams()
-    const prefillBadgeId = searchParams.get('badge')
+    const prefillBadgeId = searchParams?.get('badge')
     return  <>
         { prefillBadgeId
             ? <CreateBadgeWithPrefill badgeId={ Number(prefillBadgeId) } />

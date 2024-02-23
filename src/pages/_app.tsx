@@ -13,7 +13,7 @@ import UserProvider from "@/components/provider/UserProvider/UserProvider";
 import theme from "@/theme"
 import {Provider as StyletronProvider} from 'styletron-react'
 import {BaseProvider} from 'baseui'
-import {avalancheFuji, polygon} from 'wagmi/chains'
+import {avalancheFuji, polygon, mainnet} from 'wagmi/chains'
 import {InjectedConnector} from 'wagmi/connectors/injected'
 import {publicProvider} from 'wagmi/providers/public'
 import {configureChains, createConfig, WagmiConfig} from 'wagmi'
@@ -23,9 +23,9 @@ import MapProvider from "@/components/provider/MapProvider/MapProvider";
 import EventHomeProvider from "@/components/provider/EventHomeProvider/EventHomeProvider";
 import ColorSchemeProvider from "@/components/provider/ColorSchemeProvider";
 import Subscriber from '@/components/base/Subscriber'
-import {JoyIdConnector} from '@joyid/wagmi'
-import { WalletConnectConnector } from '@wagmi/core/connectors/walletConnect'
+import {JoyIdConnector} from '@/libs/joid'
 import NotificationsProvider from "@/components/provider/NotificationsProvider/NotificationsProvider";
+import {SolanaWalletProvider} from '@/components/provider/SolanaWalletProvider/SolanaWalletProvider'
 
 const inject = new InjectedConnector({
     chains: [polygon, avalancheFuji],
@@ -52,7 +52,7 @@ const config = createConfig({
         inject,
         new JoyIdConnector(
         {
-            chains: [polygon, avalancheFuji],
+            chains: [mainnet, polygon, avalancheFuji],
             options: {
                 joyidAppURL: 'https://app.joy.id'
             }
@@ -62,8 +62,8 @@ const config = createConfig({
 
 function MyApp({Component, pageProps, ...props}: any) {
 
-    function DisplayLay  (params: {children: any}) {
-       return  props.router.pathname.includes('/wamo/')
+    function DisplayLay(params: { children: any }) {
+        return props.router.pathname.includes('/wamo/') || props.router.pathname.includes('/iframe/')
             ? <div className={'light'} style={{width: '100vw', height: '100vh'}}>{params.children}</div>
             : <Layout>{params.children}</Layout>
     }
@@ -82,32 +82,34 @@ function MyApp({Component, pageProps, ...props}: any) {
                 <Script src="/jslib/trackjs.min.js" async></Script>
             }
             <WagmiConfig config={config as any}>
-                <ColorSchemeProvider>
-                    <StyletronProvider value={styletron}>
-                        <BaseProvider theme={theme}>
-                            <DialogProvider>
-                                <UserProvider>
-                                    <LangProvider>
-                                        <DialogProvider>
-                                            <MapProvider>
-                                                <EventHomeProvider>
-                                                    <NotificationsProvider>
-                                                    <DisplayLay>
-                                                            <NextNProgress options={{showSpinner: false}}/>
-                                                            <Component {...pageProps} />
-                                                            <Subscriber/>
-                                                            <Analytics/>
-                                                    </DisplayLay>
-                                                    </NotificationsProvider>
-                                                </EventHomeProvider>
-                                            </MapProvider>
-                                        </DialogProvider>
-                                    </LangProvider>
-                                </UserProvider>
-                            </DialogProvider>
-                        </BaseProvider>
-                    </StyletronProvider>
-                </ColorSchemeProvider>
+                <SolanaWalletProvider>
+                    <ColorSchemeProvider>
+                        <StyletronProvider value={styletron}>
+                            <BaseProvider theme={theme}>
+                                <DialogProvider>
+                                    <UserProvider>
+                                        <LangProvider>
+                                            <DialogProvider>
+                                                <MapProvider>
+                                                    <EventHomeProvider>
+                                                        <NotificationsProvider>
+                                                            <DisplayLay>
+                                                                <NextNProgress options={{showSpinner: false}}/>
+                                                                <Component {...pageProps} />
+                                                                <Subscriber/>
+                                                                <Analytics/>
+                                                            </DisplayLay>
+                                                        </NotificationsProvider>
+                                                    </EventHomeProvider>
+                                                </MapProvider>
+                                            </DialogProvider>
+                                        </LangProvider>
+                                    </UserProvider>
+                                </DialogProvider>
+                            </BaseProvider>
+                        </StyletronProvider>
+                    </ColorSchemeProvider>
+                </SolanaWalletProvider>
             </WagmiConfig>
         </PageBacProvider>
     );

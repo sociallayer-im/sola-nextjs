@@ -36,6 +36,8 @@
     align-items: center
     flex-flow: row nowrap
     justify-content: flex-start
+    user-select: none
+    position: relative
     &.disable
       pointer-events: none
       opacity: 0.6
@@ -56,3 +58,14 @@
     .connect-des
       color: #C6C9C5
       font-size: 12px
+    .chain-icon
+      position: absolute
+      width: 18px!important
+      height: 18px!important
+      border-radius: 50%
+      left: 16px
+      top: 25px
+  .wallet-adapter-dropdown
+    .wallet-adapter-button
+      background: none
+      border: 0

@@ -72,7 +72,7 @@ function ListEventVertical() {
 
     useEffect(() => {
         if (searchParams?.get('tab')) {
-            setTab2Index(searchParams.get('tab') as any)
+            setTab2Index(searchParams?.get('tab') as any)
         }
     }, [searchParams])
 

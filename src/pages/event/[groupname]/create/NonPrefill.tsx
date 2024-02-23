@@ -6,6 +6,7 @@ import UploadImage from '@/components/compose/UploadImage/UploadImage'
 import AppInput from '@/components/base/AppInput'
 import UserContext from '@/components/provider/UserProvider/UserContext'
 import AppButton, {BTN_KIND} from '@/components/base/AppButton/AppButton'
+import AppTextArea from "@/components/base/AppTextArea/AppTextArea";
 import {
     Badge,
     cancelEvent,
@@ -109,7 +110,7 @@ function CreateEvent(props: CreateEventPageProps) {
     const initTime = getNearestTime()
     const router = useRouter()
     const {user} = useContext(UserContext)
-    const {showLoading, showToast, openDialog, openConfirmDialog} = useContext(DialogsContext)
+    const {showLoading, showToast, openDialog, openConfirmDialog, openConnectWalletDialog} = useContext(DialogsContext)
     const [creator, setCreator] = useState<Group | Profile | null>(null)
     const {lang, langType} = useContext(LangContext)
     const {eventGroup, joined, isManager} = useContext(EventHomeContext)
@@ -159,12 +160,17 @@ function CreateEvent(props: CreateEventPageProps) {
     const [speakers, setSpeakers] = useState<string[]>([''])
     const [repeatCounter, setRepeatCounter] = useState(1)
     const [repeatCounterError, setRepeatCounterError] = useState(false)
+    const [externalUrl, setExternalUrl] = useState<string | null>(null)
 
     const [needPublish, setNeedPublish] = useState(false)
 
     const [enableTicket, setEnableTicket] = useState(false)
     const [tickets, setTickets] = useState<Partial<Ticket>[]>([])
     const ticketSettingRef = useRef<{verify : () => boolean} | null>(null)
+
+    const [enableNotes, setEnableNotes] = useState(false)
+    const [notes, setNotes] = useState('')
+
 
     const toNumber = (value: string, set: any) => {
         if (!value) {
@@ -397,6 +403,12 @@ function CreateEvent(props: CreateEventPageProps) {
     }, [telegram])
 
     useEffect(() => {
+        if (!user.userName) {
+            openConnectWalletDialog()
+        }
+    }, [user.userName])
+
+    useEffect(() => {
         if (!eventGroup || (eventGroup as Group).can_publish_event === 'everyone') {
             setNeedPublish(false)
             return
@@ -531,12 +543,21 @@ function CreateEvent(props: CreateEventPageProps) {
                 setWechatAccount(event.wechat_contact_person)
             }
 
+            if (event.external_url) {
+                setExternalUrl(event.external_url)
+            }
+
             // if (event.formatted_address) {
             //     setLocationDetail(event.formatted_address)
             // }
 
             if (event.timezone) {
                 setTimezone(event.timezone)
+            }
+
+            if (event.notes) {
+                setEnableNotes(true)
+                setNotes(event.notes)
             }
 
             setFormReady(true)
@@ -601,7 +622,6 @@ function CreateEvent(props: CreateEventPageProps) {
                     page: 1,
                     page_size: 50
                 })
-                console.log('eventseventsevents', events)
 
                 // 排除自己
                 events = events.filter((e) => e.id !== props.eventId)
@@ -835,6 +855,8 @@ function CreateEvent(props: CreateEventPageProps) {
             repeat_start_time: start  as any,
             event_count: repeatCounter,
             tickets: enableTicket && tickets.length ? tickets : null,
+            external_url: externalUrl,
+            notes: enableNotes ? notes : null,
         }
 
         try {
@@ -921,6 +943,9 @@ function CreateEvent(props: CreateEventPageProps) {
             geo_lng: lng,
             geo_lat: lat,
             tickets: enableTicket && tickets.length ? tickets : null,
+            external_url: externalUrl,
+            notes: enableNotes ? notes : null,
+
         }
 
         if (currEvent?.recurring_event_id) {
@@ -1198,6 +1223,30 @@ function CreateEvent(props: CreateEventPageProps) {
                             <ReasonInput unlimited value={content} onChange={(value) => {
                                 setContent(value)
                             }}/>
+                        </div>
+
+                        <div className={'input-area'}>
+                            <div className={'toggle'}>
+                                <div className={'item-title main'}>{lang['Event_Notes_']}</div>
+                                <div className={'item-value'}>
+                                    <Toggle checked={enableNotes} onChange={e => {
+                                        setEnableNotes(!enableNotes)
+                                    }}/>
+                                </div>
+                            </div>
+                            { enableNotes &&
+                                <AppTextArea maxLength={2000} placeholder={lang['Input_Notes']} value={notes} onChange={(e) => {setNotes(e.target.value)}}/>
+                            }
+                        </div>
+
+                        <div className='input-area'>
+                            <div className='input-area-title'>{lang['External_Url']}</div>
+                            <AppInput clearable={false}
+                                      value={externalUrl || ''}
+                                      placeholder={lang['External_Url']}
+                                        onChange={(e) => {
+                                            setExternalUrl(e.target.value)
+                                        }}/>
                         </div>
 
                         {

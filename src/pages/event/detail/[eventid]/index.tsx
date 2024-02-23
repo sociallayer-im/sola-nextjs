@@ -15,7 +15,7 @@ import {
     queryUserGroup, Ticket
 } from "@/service/solas";
 import LangContext from "@/components/provider/LangProvider/LangContext";
-import {useTime3} from "@/hooks/formatTime";
+import {useTime3, useTime2} from "@/hooks/formatTime";
 import EventLabels from "@/components/base/EventLabels/EventLabels";
 import usePicture from "@/hooks/pictrue";
 import ReasonText from "@/components/base/EventDes/ReasonText";
@@ -38,6 +38,8 @@ import EventDefaultCover from "@/components/base/EventDefaultCover";
 import {Swiper, SwiperSlide} from 'swiper/react'
 import {Mousewheel, FreeMode} from "swiper";
 import EventTickets from "@/components/compose/EventTickets/EventTickets";
+import EventNotes from "@/components/base/EventNotes/EventNotes";
+
 
 import * as dayjsLib from "dayjs";
 import Empty from "@/components/base/Empty";
@@ -49,6 +51,7 @@ const dayjs: any = dayjsLib
 dayjs.extend(utc)
 dayjs.extend(timezone)
 
+
 function EventDetail(props: { event: Event | null, appName: string, host: string }) {
     const router = useRouter()
     const [event, setEvent] = useState<Event | null>(props.event || null)
@@ -56,6 +59,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
     const params = useParams()
     const {lang} = useContext(LangContext)
     const formatTime = useTime3()
+    const formatTime2 = useTime2()
     const {defaultAvatar} = usePicture()
     const {user} = useContext(userContext)
     const {showLoading, showToast, showEventCheckIn, openConnectWalletDialog} = useContext(DialogsContext)
@@ -300,6 +304,20 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
             {event?.content &&
                 <meta name="description" property="og:description" content={event?.content.slice(0, 300) + '...'}/>
             }
+
+            {
+                !!event &&
+                    <>
+                        <meta name="fc:frame" content="vNext" />
+                        { !!event.cover_url &&
+                            <meta name="fc:frame:image" content={event.cover_url!} />
+                        }
+                        <meta name="fc:frame:input:text" content={event.title + ' 📅' + formatTime2(event.start_time!, event.timezone!) + `${event.location ? ` 📍${event.location}` : ''}`} />
+                        <meta name="fc:frame:button:1" content="Join" />
+                        <meta name="fc:frame:button:1:action" content="post_redirect" />
+                        <meta name="fc:frame:post_url" content={`${process.env.NEXT_PUBLIC_HOST}/api/frame/${event.id}`} />
+                    </>
+            }
             <title>{`${event?.title} | ${props.appName}`}</title>
         </Head>
 
@@ -501,7 +519,27 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                             </div>
 
                             <div className={'center'}>
-                                {user.userName && canAccess &&
+                                {!!event.external_url &&
+                                    <div className={'event-login-status'}>
+                                        <div className={'user-info'}>
+                                            <div>{'External url'}</div>
+                                        </div>
+                                        <div className={'des'}>{event.external_url}</div>
+                                        <div className={'event-action'}>
+                                            <AppButton
+                                                special
+                                                onClick={e => {
+                                                    const url = (event as any).external_url
+                                                    if ((event as any).external_url) {
+                                                        location.href = url
+                                                    }
+                                                }}>
+                                                {lang['Go_to_Event_Page']}</AppButton>
+                                        </div>
+                                    </div>
+                                }
+
+                                {user.userName && canAccess && !event.external_url &&  event.status !== 'pending' &&
                                     <div className={'event-login-status'}>
                                         <div className={'user-info'}>
                                             <img src={user.avatar || defaultAvatar(user.id!)} alt=""/>
@@ -674,6 +712,10 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                     </div>
                                                 }
                                                 <ReasonText className={'event-des'} text={event.content}/>
+
+                                                { !!event.notes &&
+                                                    <EventNotes hide={!isJoined && !isHoster} notes={event.notes} />
+                                                }
                                             </div>
                                         </div>}
                                     {tab === 2 &&
@@ -725,7 +767,29 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                             }
                         </div>
                         <div className={'center'}>
-                            {user.userName && canAccess && event.status !== 'pending' &&
+
+                            {!!event.external_url &&
+                                <div className={'event-login-status'}>
+                                    <div className={'user-info'}>
+                                        <div>{'External url'}</div>
+                                    </div>
+                                    <div className={'des'}>{event.external_url}</div>
+                                    <div className={'event-action'}>
+                                        <AppButton
+                                            special
+                                            onClick={e => {
+                                                const url = (event as any).external_url
+                                                if ((event as any).external_url) {
+                                                    location.href = url
+                                                }
+                                            }}>
+                                            {lang['Go_to_Event_Page']}</AppButton>
+                                    </div>
+                                </div>
+                            }
+
+
+                            {user.userName && canAccess && event.status !== 'pending' && !props.event?.external_url &&
                                 <div className={'event-login-status'}>
                                     <div className={'user-info'}>
                                         <img src={user.avatar || defaultAvatar(user.id!)} alt=""/>

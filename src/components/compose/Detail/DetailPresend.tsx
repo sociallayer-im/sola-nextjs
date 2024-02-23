@@ -89,7 +89,7 @@ function DetailPresend (props: DetailPresendProps ) {
                 voucher_id: props.presend.id,
                 code: Number(code),
                 auth_token: user.authToken || '',
-                index: searchParams.get('index') ? Number(searchParams.get('index')) : undefined
+                index: searchParams?.get('index') ? Number(searchParams.get('index')) : undefined
             })
             unload()
             emitBadgeletListUpdate(props.presend)

@@ -1,17 +1,18 @@
 import {ReactNode, useContext, useEffect, useState} from 'react'
-import {useAccount, useDisconnect, useWalletClient } from 'wagmi'
+import {useAccount, useDisconnect, useWalletClient} from 'wagmi'
 import UserContext from './UserContext'
 import DialogsContext from '../DialogProvider/DialogsContext'
 import * as AuthStorage from '../../../utils/authStorage'
-import {myProfile, login as solaLogin} from '@/service/solas'
-import { useRouter } from 'next/navigation'
+import {login as solaLogin, myProfile} from '@/service/solas'
+import {useRouter} from 'next/navigation'
 import useEvent, {EVENT} from '../../../hooks/globalEvent'
 import {setAuth} from "@/utils/authStorage";
 import useShowRole from "@/components/zugame/RoleDialog/RoleDialog";
 import useSafePush from "@/hooks/useSafePush";
-
-
-import solaExtensionLogin from '../../../service/ExtensionLogin'
+import {WalletContext as solanaWalletContext} from '@solana/wallet-adapter-react'
+import {SolanaSignInInput} from "@solana/wallet-standard-features";
+import fetch from "@/utils/fetch";
+import {createSignInMessage} from '@solana/wallet-standard-util';
 
 export interface User {
     id: number | null,
@@ -52,53 +53,55 @@ const emptyUser: User = {
     phone: null,
 }
 
-function UserProvider (props: UserProviderProps) {
+function UserProvider(props: UserProviderProps) {
     const [userInfo, setUserInfo] = useState<User>(emptyUser)
-    const { address, isConnecting, isDisconnected, connector } = useAccount()
-    const { disconnect } = useDisconnect()
-    const { data } = useWalletClient()
-    const { showToast, clean, showLoading } = useContext(DialogsContext)
+    const {address, isConnecting, isDisconnected, connector} = useAccount()
+    const {disconnect} = useDisconnect()
+    const {data} = useWalletClient()
+    const {showToast, clean, showLoading} = useContext(DialogsContext)
     const router = useRouter()
     const [newProfile, _] = useEvent(EVENT.profileUpdate)
     const showRoleDialog = useShowRole()
     const {safePush} = useSafePush()
+    const solanaWallet: any = useContext(solanaWalletContext)
+
 
     const setUser = (data: Partial<Record<keyof User, any>>) => {
-        const copyUserInfo = { ...userInfo , ...data }
+        const copyUserInfo = {...userInfo, ...data}
         setUserInfo(copyUserInfo)
     }
 
 
-    const setProfile = async (props: { authToken: string}) => {
+    const setProfile = async (props: { authToken: string }) => {
         try {
             const profileInfo = await myProfile({auth_token: props.authToken})
             setUser({
-                wallet: profileInfo?.address,
+                wallet: profileInfo.sol_address || profileInfo?.address,
                 id: profileInfo?.id! || null,
                 twitter: profileInfo?.twitter || null,
                 domain: profileInfo?.username ? profileInfo?.username + process.env.NEXT_PUBLIC_SOLAS_DOMAIN : null,
                 userName: profileInfo?.username || null,
-                email:  profileInfo?.email || null,
+                email: profileInfo?.email || null,
                 avatar: profileInfo?.image_url || null,
                 authToken: props.authToken,
-                nickname:profileInfo?.nickname || null,
+                nickname: profileInfo?.nickname || null,
                 permissions: profileInfo?.permissions || [],
                 maodaoid: profileInfo?.maodaoid
             })
 
-            if (!profileInfo!.domain) {
-                // 如果当前页面是’/login‘说明是邮箱登录，fallback已经在点击邮箱登录按钮的时候设置了:
-                // src/components/dialogs/ConnectWalletDialog/ConnectWalletDialog.tsx  42行
-
-                if (!window.location.href.includes('/login')) {
-                    window.localStorage.setItem('fallback', window.location.href)
-                }
-                clean()
-                setTimeout(() => {
-                    safePush('/regist')
-                },100)
-                return
-            }
+            // if (!profileInfo!.username) {
+            //     // 如果当前页面是’/login‘说明是邮箱登录，fallback已经在点击邮箱登录按钮的时候设置了:
+            //     // src/components/dialogs/ConnectWalletDialog/ConnectWalletDialog.tsx  42行
+            //
+            //     if (!window.location.href.includes('/login')) {
+            //         window.localStorage.setItem('fallback', window.location.href)
+            //     }
+            //     clean()
+            //     setTimeout(() => {
+            //         safePush('/regist')
+            //     },100)
+            //     return
+            // }
 
             // if (window.location.pathname === '/') {
             //     navigate(`/profile/${profileInfo.username}`)
@@ -121,6 +124,7 @@ function UserProvider (props: UserProviderProps) {
     const logOut = () => {
         console.trace('logOut====')
         disconnect()
+        solanaWallet.disconnect()
 
         if (userInfo.wallet) {
             AuthStorage.burnAuth(userInfo.wallet)
@@ -238,6 +242,69 @@ function UserProvider (props: UserProviderProps) {
         setAuth(phone, authToken)
     }
 
+    const solanaLogin = async () => {
+        const loginType = AuthStorage.getLastLoginType()
+        if (!loginType) return
+        if (loginType !== 'solana') return
+
+        console.log('Login ...')
+        console.log('Login type: ', loginType)
+
+
+        let authToken = AuthStorage.getAuth(solanaWallet.publicKey.toBase58())?.authToken
+        const adapter: any = solanaWallet.wallet.adapter;
+        const address = adapter.publicKey ? adapter.publicKey.toBase58() : undefined
+
+        console.log('adapter', adapter)
+
+        if (!authToken) {
+            const unloading = showLoading()
+            try {
+                adapter.connect()
+                const now = new Date().toISOString()
+                const message = createSignInMessage({
+                    address: adapter.publicKey.toBase58(),
+                    domain: window.location.origin,
+                    version: '1',
+                    issuedAt: now,
+                    uri: window.location.origin,
+                })
+
+                const sign = await solanaWallet.wallet.adapter.signMessage(message)
+                let signature: any = {}
+                sign.map((item: any, index: number) => {
+                    signature[index] = item
+                })
+
+                const getAuthToken = await fetch.post({
+                    url: '/api/solana/authenticate',
+                    data: {
+                        signature: signature,
+                        signedMessage: message,
+                        public_key: adapter.publicKey,
+                        address: address,
+                        timestamps: now,
+                    }
+                })
+
+                authToken = getAuthToken.data.auth_token
+                await setProfile({authToken: authToken!})
+                setAuth(adapter.publicKey.toBase58(), authToken!)
+            } catch (e) {
+                console.error(e)
+                showToast('Login fail', 3000)
+                logOut()
+                return
+            } finally {
+                unloading()
+            }
+        }
+
+        console.log('Storage token: ', authToken!)
+        await setProfile({authToken: authToken!})
+        setAuth(address, authToken!)
+    }
+
     const login = async () => {
         const loginType = AuthStorage.getLastLoginType()
         if (!loginType) return
@@ -263,9 +330,12 @@ function UserProvider (props: UserProviderProps) {
         } else if (loginType === 'phone') {
             await setProfile({authToken})
         } else if (loginType == 'zupass') {
-            setProfile({authToken})
+            await setProfile({authToken})
+        } else if (loginType == 'solana') {
+            await setProfile({authToken})
         }
     }
+
 
     useEffect(() => {
         login()
@@ -277,12 +347,17 @@ function UserProvider (props: UserProviderProps) {
        }
     }, [data])
 
+    useEffect(() => {
+        solanaWallet.connected && solanaLogin()
+    }, [solanaWallet.connected])
+
     // update profile from event
     useEffect(() => {
         if (newProfile && (newProfile.id === userInfo.id || (!userInfo.domain && userInfo.id))) {
-            setUser({...userInfo,
+            setUser({
+                ...userInfo,
                 domain: newProfile.domain,
-                userName: newProfile.domain ? newProfile.domain.split('.')[0]: null,
+                userName: newProfile.domain ? newProfile.domain.split('.')[0] : null,
                 nickname: newProfile.nickname,
                 avatar: newProfile.image_url
             })
@@ -290,8 +365,9 @@ function UserProvider (props: UserProviderProps) {
     }, [newProfile])
 
     return (
-        <UserContext.Provider value={{ user: userInfo, setUser, logOut, emailLogin, walletLogin, phoneLogin, zupassLogin}}>
-            { props.children }
+        <UserContext.Provider
+            value={{user: userInfo, setUser, logOut, emailLogin, walletLogin, phoneLogin, zupassLogin}}>
+            {props.children}
         </UserContext.Provider>
     )
 }

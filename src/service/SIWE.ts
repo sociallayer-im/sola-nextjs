@@ -22,7 +22,7 @@ Issued At: ${new Date().toISOString()}`
 }
 
 export async function signInWithEthereum(signer: any, walletName?: string): Promise<string> {
-    const connect = await signer.requestAddresses()
+    // const connect = await signer.requestAddresses()
     const loginAddress = await signer.account.address
     const message = await createSiweMessage(
         loginAddress,
