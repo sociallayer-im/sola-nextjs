@@ -607,6 +607,9 @@ const langCN: LangConfig = {
   Back_To_Profile_Page: '返回个人主页',
   Back_To_Group_Page: '返回群组主页',
   Back_To_Event_Home: '返回活动首页',
+  Event_Notes: '活动笔记',
+  Event_Notes_: '活动笔记 (确定参加活动后展示)',
+  Input_Notes: '输入活动笔记'
 }
 
 

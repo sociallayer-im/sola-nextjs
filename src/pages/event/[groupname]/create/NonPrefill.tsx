@@ -6,6 +6,7 @@ import UploadImage from '@/components/compose/UploadImage/UploadImage'
 import AppInput from '@/components/base/AppInput'
 import UserContext from '@/components/provider/UserProvider/UserContext'
 import AppButton, {BTN_KIND} from '@/components/base/AppButton/AppButton'
+import AppTextArea from "@/components/base/AppTextArea/AppTextArea";
 import {
     Badge,
     cancelEvent,
@@ -160,6 +161,9 @@ function CreateEvent(props: CreateEventPageProps) {
     const [externalUrl, setExternalUrl] = useState<string | null>(null)
 
     const [needPublish, setNeedPublish] = useState(false)
+
+    const [enableNotes, setEnableNotes] = useState(false)
+    const [notes, setNotes] = useState('')
 
     const toNumber = (value: string, set: any) => {
         if (!value) {
@@ -535,6 +539,11 @@ function CreateEvent(props: CreateEventPageProps) {
                 setTimezone(event.timezone)
             }
 
+            if (event.notes) {
+                setEnableNotes(true)
+                setNotes(event.notes)
+            }
+
             setFormReady(true)
         }
 
@@ -825,6 +834,7 @@ function CreateEvent(props: CreateEventPageProps) {
             repeat_start_time: start  as any,
             event_count: repeatCounter,
             external_url: externalUrl,
+            notes: enableNotes ? notes : null,
         }
 
         try {
@@ -945,6 +955,7 @@ function CreateEvent(props: CreateEventPageProps) {
             geo_lng: lng,
             geo_lat: lat,
             external_url: externalUrl,
+            notes: enableNotes ? notes : null,
         }
 
         if (currEvent?.recurring_event_id) {
@@ -1222,6 +1233,20 @@ function CreateEvent(props: CreateEventPageProps) {
                             <ReasonInput unlimited value={content} onChange={(value) => {
                                 setContent(value)
                             }}/>
+                        </div>
+
+                        <div className={'input-area'}>
+                            <div className={'toggle'}>
+                                <div className={'item-title main'}>{lang['Event_Notes_']}</div>
+                                <div className={'item-value'}>
+                                    <Toggle checked={enableNotes} onChange={e => {
+                                        setEnableNotes(!enableNotes)
+                                    }}/>
+                                </div>
+                            </div>
+                            { enableNotes &&
+                                <AppTextArea maxLength={2000} placeholder={lang['Input_Notes']} value={notes} onChange={(e) => {setNotes(e.target.value)}}/>
+                            }
                         </div>
 
                         <div className='input-area'>

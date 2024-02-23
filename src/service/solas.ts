@@ -2924,6 +2924,7 @@ export interface Event {
     group_id?: null | number,
     formatted_address: null | any,
     owner: ProfileSimple,
+    notes: string | null,
 
     owner_id: number,
     created_at: string,
@@ -3063,6 +3064,7 @@ export async function queryEvent(props: QueryEventProps): Promise<Event[]> {
     const doc = gql`query MyQuery {
       events (where: {${variables}, status: {_in: [${status}]}} ${order} limit: ${page_size}, offset: ${(props.page - 1) * page_size}) {
         badge_id
+        notes
         geo_lat
         geo_lng
         category
@@ -3202,6 +3204,7 @@ export async function queryPendingEvent(props: QueryEventProps): Promise<Event[]
     const doc = gql`query MyQuery {
       events (where: {${variables} status: {_eq: "pending"}}, ${order} limit: ${page_size}, offset: ${(props.page - 1) * page_size}) {
         badge_id
+        notes
         external_url
         geo_lat
         geo_lng
@@ -3351,6 +3354,7 @@ export async function queryMyEvent({page = 1, page_size = 10, ...props}: QueryMy
           cover_url
           content
           end_time
+          notes
           id
           location
           title
@@ -3462,6 +3466,7 @@ export async function searchEvent(keyword: string) {
     const doc = gql`query MyQuery {
       events (where: {title: {_iregex: "${keyword}"} , status: {_neq: "closed"}}, limit: 10) {
         badge_id
+        notes
         external_url
         geo_lat
         geo_lng
@@ -4222,6 +4227,7 @@ export async function queryMarkers(props: {
               end_time
               start_time 
               host_info
+              notes
               id
               tags
               status

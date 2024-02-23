@@ -37,7 +37,7 @@ import ImgLazy from "@/components/base/ImgLazy/ImgLazy";
 import EventDefaultCover from "@/components/base/EventDefaultCover";
 import {Swiper, SwiperSlide} from 'swiper/react'
 import {Mousewheel, FreeMode} from "swiper";
-import { getFrameMetadata } from '@coinbase/onchainkit';
+import EventNotes from "@/components/base/EventNotes/EventNotes";
 
 import * as dayjsLib from "dayjs";
 import Empty from "@/components/base/Empty";
@@ -688,6 +688,10 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                     </div>
                                                 }
                                                 <ReasonText className={'event-des'} text={event.content}/>
+
+                                                { !!event.notes &&
+                                                    <EventNotes hide={!isJoined} notes={event.notes} />
+                                                }
                                             </div>
                                         </div>}
                                     {tab === 2 &&
