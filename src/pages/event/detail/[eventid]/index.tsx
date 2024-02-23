@@ -690,7 +690,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                 <ReasonText className={'event-des'} text={event.content}/>
 
                                                 { !!event.notes &&
-                                                    <EventNotes hide={!isJoined} notes={event.notes} />
+                                                    <EventNotes hide={!isJoined && !isHoster} notes={event.notes} />
                                                 }
                                             </div>
                                         </div>}
