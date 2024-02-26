@@ -730,6 +730,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                         onChange={e => {
                                                             fetchData()
                                                         }}
+                                                        cancelable={tickets.length === 0}
                                                         editable={false}
                                                         participants={participants}
                                                         isHost={isHoster}

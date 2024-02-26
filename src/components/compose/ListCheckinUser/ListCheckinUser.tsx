@@ -11,10 +11,11 @@ interface ListCheckinUserProps {
     isHost?: boolean
     eventId: number
     editable?: boolean
-    onChecked?: (participants: Participants) => any
+    onChecked?: (participants: Participants) => any,
+    cancelable?: boolean
 }
 
-function ListCheckinUser({editable=true, ...props}: ListCheckinUserProps) {
+function ListCheckinUser({editable=true,cancelable=true, ...props}: ListCheckinUserProps) {
     const {defaultAvatar} = usePicture()
     const {lang} = useContext(LangContext)
     const [participants, setParticipants] = useState<Participants[]>(
@@ -104,7 +105,7 @@ function ListCheckinUser({editable=true, ...props}: ListCheckinUserProps) {
                         }
 
                         {
-                            user.id === item.profile.id && item.status !== 'cancel' && !editable &&
+                            user.id === item.profile.id && item.status !== 'cancel' && !editable && cancelable &&
                             <div className={'unjoin'} onClick={handleUnJoin}>{lang['Activity_Detail_Btn_unjoin']}</div>
                         }
                     </div>

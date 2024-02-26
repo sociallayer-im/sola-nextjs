@@ -10,7 +10,6 @@ import {setAuth} from "@/utils/authStorage";
 import useShowRole from "@/components/zugame/RoleDialog/RoleDialog";
 import useSafePush from "@/hooks/useSafePush";
 import {WalletContext as solanaWalletContext} from '@solana/wallet-adapter-react'
-import {SolanaSignInInput} from "@solana/wallet-standard-features";
 import fetch from "@/utils/fetch";
 import {createSignInMessage} from '@solana/wallet-standard-util';
 
@@ -342,9 +341,11 @@ function UserProvider(props: UserProviderProps) {
     }, [])
 
     useEffect(() => {
-       if (data && !userInfo.id) {
-           walletLogin()
-       }
+        let auth = AuthStorage.getAuth()
+
+        if (data && !auth) {
+            walletLogin()
+        }
     }, [data])
 
     useEffect(() => {

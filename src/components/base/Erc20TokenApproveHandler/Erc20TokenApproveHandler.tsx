@@ -1,6 +1,14 @@
-import {ReactNode, useContext, useEffect} from 'react'
-import {useContractWrite, useAccount, usePrepareContractWrite, useSwitchNetwork, useWaitForTransaction, usePublicClient} from "wagmi";
-import {erc20_abi, paymentTokenList} from "@/payment_settring";
+import {ReactNode, useContext, useEffect, useState} from 'react'
+import {
+    useContractWrite,
+    useAccount,
+    usePrepareContractWrite,
+    useSwitchNetwork,
+    useWaitForTransaction,
+    usePublicClient,
+    useNetwork, useWalletClient
+} from "wagmi";
+import {erc20_abi, payhub_abi, paymentTokenList} from "@/payment_settring";
 import {parseUnits} from "viem/utils";
 import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
 
@@ -19,29 +27,53 @@ function Erc20TokenApproveHandler(
     }
 ) {
     const publicClient: any = usePublicClient({chainId: props.chainId})
+    const {data: walletClient}: any = useWalletClient({chainId: props.chainId})
     const {address} = useAccount()
     const {showLoading} = useContext(DialogsContext)
+    const [busy, setBusy] = useState(false)
+    const { switchNetworkAsync } = useSwitchNetwork()
+    const { chain } = useNetwork()
 
     const payHubContract = paymentTokenList.find((item) => item.chainId === props.chainId)?.payHub
 
-    const {config: approveConfig, error: prepareError} = usePrepareContractWrite(
-        {
-            address: props.token as any,
-            abi: erc20_abi,
-            functionName: 'approve',
-            chainId: props.chainId,
-            args: [
-                payHubContract,
-                BigInt(props.amount)
-            ]
-        })
+    const handleApprove = async () => {
+        try {
+            setBusy(true)
+            if (chain?.id !== props.chainId) {
+                await switchNetworkAsync?.(props.chainId)
+            }
 
-    const {data: approveData, isLoading:  approving, isSuccess, write: approve, error: approveError} = useContractWrite(approveConfig)
+            const opt = {
+                address: props.token as any,
+                abi: erc20_abi,
+                functionName: 'approve',
+                chainId: props.chainId,
+                account: address,
+                args: [
+                    payHubContract,
+                    BigInt(props.amount)
+                ]
+            }
 
-    const {data, isSuccess: approveSuccess, isError: approveWaitingError, isLoading: approveWaiting} = useWaitForTransaction({
-        hash: approveData?.hash as `0x${string}`,
-        chainId: props.chainId
-    })
+            console.log(opt)
+
+            const {request} = await publicClient.simulateContract(opt)
+            const hash = await walletClient.writeContract(request)
+            const transaction = await publicClient.waitForTransactionReceipt(
+                {hash}
+            )
+
+            !!props.onSuccess && props.onSuccess(hash)
+        } catch (e: any) {
+            console.error(e)
+            if (!e.message.includes('rejected')) {
+                props.onErrMsg?.(e.message)
+            }
+        } finally {
+            loadingRef?.()
+            setBusy(false)
+        }
+    }
 
     useEffect(() => {
         if (address) {
@@ -62,45 +94,11 @@ function Erc20TokenApproveHandler(
         }
     }, [address])
 
-    useEffect(() => {
-        if (isSuccess) {
-            loadingRef && loadingRef()
-            props.onSuccess?.(approveData?.hash as any)
-        }
-    }, [approveSuccess])
-
-    useEffect(() => {
-        if (prepareError) {
-            if (prepareError.message?.includes('Insufficient')) {
-                props.onErrMsg?.('Insufficient balance')
-            } else {
-                props.onErrMsg?.(prepareError.message || prepareError.toString())
-            }
-
-            loadingRef && loadingRef()
-        } else if (approveWaitingError) {
-            props.onErrMsg?.('transaction failed')
-            loadingRef && loadingRef()
-        } else if (approveError) {
-            if (!approveError.message?.includes('rejected')) {
-                props.onErrMsg?.(approveError.message)
-            } else {
-                props.onErrMsg?.('')
-            }
-
-            loadingRef && loadingRef()
-        } else {
-            props.onErrMsg?.('')
-        }
-    }, [prepareError, approveError, approveWaitingError])
-
     return (<>
         {props.content ? props.content(() => {
-            if (!!approve) {
-                loadingRef = showLoading()
-                approve?.()
-            }
-        }, approving || approveWaiting || !approve) : null
+            loadingRef = showLoading()
+            handleApprove()
+        }, busy) : null
         }
     </>)
 }

@@ -1,22 +1,24 @@
 export function setAuth (key: string, authToken: string) {
-  const authStorage = window.localStorage.getItem('auth_sola') || ''
+  // const authStorage = window.localStorage.getItem('auth_sola') || ''
+  //
+  // if (!authStorage) {
+  //   window.localStorage.setItem('auth_sola', JSON.stringify([[key, authToken]]))
+  //   return
+  // }
+  //
+  // try {
+  //   const jsonStorage: [string, string][] = JSON.parse(authStorage)
+  //   const filterStorage = jsonStorage.filter((item) => {
+  //     return key !== item[0]
+  //   })
+  //
+  //   const newStorage = [[key, authToken], ...filterStorage]
+  //   window.localStorage.setItem('auth_sola', JSON.stringify(newStorage))
+  // } catch (e) {
+  //   window.localStorage.setItem('auth_sola', JSON.stringify([[key, authToken]]))
+  // }
 
-  if (!authStorage) {
-    window.localStorage.setItem('auth_sola', JSON.stringify([[key, authToken]]))
-    return
-  }
-
-  try {
-    const jsonStorage: [string, string][] = JSON.parse(authStorage)
-    const filterStorage = jsonStorage.filter((item) => {
-      return key !== item[0]
-    })
-
-    const newStorage = [[key, authToken], ...filterStorage]
-    window.localStorage.setItem('auth_sola', JSON.stringify(newStorage))
-  } catch (e) {
-    window.localStorage.setItem('auth_sola', JSON.stringify([[key, authToken]]))
-  }
+  window.localStorage.setItem('auth_sola', JSON.stringify([[key, authToken]]))
 }
 
 export function getAuth (account? : string) {

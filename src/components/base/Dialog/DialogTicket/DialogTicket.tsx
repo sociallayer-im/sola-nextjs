@@ -200,7 +200,7 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
             </>
         }
 
-        {errorMsg &&
+        { !!errorMsg &&
             <div className={styles['error-msg']}>{errorMsg}</div>
         }
 
@@ -222,7 +222,7 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
         {!address
             && !stopSales
             && !soldOut
-            && user.id
+            && !!user.id
             && !!chain
             && hasBadgePermission &&
             <AppButton special onClick={e => {
@@ -237,7 +237,7 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
             && approved
             && !stopSales
             && !soldOut
-            && user.id
+            && !!user.id
             && hasBadgePermission &&
             <Erc20TokenPaymentHandler
                 eventId={props.event.id}
@@ -275,7 +275,7 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
             && !approved
             && !soldOut
             && !stopSales
-            && user.id
+            && !!user.id
             && hasBadgePermission &&
             <Erc20TokenApproveHandler
                 token={props.ticket.payment_token_address!}
@@ -284,7 +284,7 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
                 decimals={token.decimals}
                 chainId={chain.chainId}
                 onErrMsg={(errMsg: string) => {
-                    // setErrorMsg(errMsg)
+                   setErrorMsg(errMsg)
                 }}
                 onSuccess={(txHash: string) => {
                    setApproved(true)
@@ -299,7 +299,7 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
             />
         }
 
-        { user.id && !chain && hasBadgePermission && !stopSales &&
+        { !!user.id && !chain && hasBadgePermission && !stopSales &&
             <AppButton special onClick={e => {
                handleJoin(true)
            }}>{'Get A Ticket'}</AppButton>
