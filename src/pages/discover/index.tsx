@@ -3,16 +3,35 @@ import ImgLazy from "@/components/base/ImgLazy/ImgLazy";
 import Link from 'next/link'
 import CardPopupCity from "@/components/base/Cards/CardPopupCity/index.ts";
 import UserContext from "@/components/provider/UserProvider/UserContext";
-import {useContext} from "react";
+import {useContext, useEffect, useState} from "react";
 import useIssueBadge from "@/hooks/useIssueBadge";
 import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
-import solas from "@/service/solas";
+import solas, {getEventGroup, Group, memberCount, PopupCity, queryPopupCity} from "@/service/solas";
+import usePicture from "@/hooks/pictrue";
+import {useTime3} from "@/hooks/formatTime";
 
-function Discover() {
+export interface GroupWithMemberCount extends Group {
+    member_count: number
+}
+
+function Discover({eventGroups, popupCities, members} : {eventGroups: Group[], popupCities: PopupCity[], members: {group_id: number, count: number}[]}) {
     const {user} = useContext(UserContext)
     const {showLoading} = useContext(DialogsContext)
     const startIssueBadge = useIssueBadge()
+    const {defaultAvatar} = usePicture()
+    const formatTime = useTime3()
 
+    const [groupInfo, setGroupInfo] = useState<GroupWithMemberCount[]>([])
+
+    useEffect(() => {
+        setGroupInfo(eventGroups.map(group => {
+            const member = members.find(member => member.group_id === group.id)
+            return {
+                ...group,
+                member_count: member?.count || 0
+            }
+        }))
+    }, [eventGroups, members])
 
     const start = async () => {
         if (user.userName && user.authToken) {
@@ -25,39 +44,35 @@ function Discover() {
 
     return <div className={styles['discover-page']}>
         <div className={styles['center']}>
-            <h2 className={styles['page-title']}>Featured</h2>
-            <Link href={'/'} className={styles['card-featured']}>
-                <div className={styles['cover']}>
-                    <ImgLazy width={318} height={184} src={'https://ik.imagekit.io/soladata/h8s2pg0i_3DVNxGY9z'}/>
-                </div>
-                <div className={styles['detail']}>
-                    <div className={styles['title']}>muChiangmai week</div>
-                    <div className={styles['des']}>A pop-up city uniting dev communities for long-term projects
-                        committed to creating a better future
-                    </div>
-
-                    <div className={styles['item']}>
-                        <i className={'icon-Outline'}/>
-                        <div>A pop-up city uniting dev communities for long-term projects committed to creating a better
-                            future
+            { !!popupCities[0] &&
+                <>
+                    <h2 className={styles['page-title']}>Featured</h2>
+                    <Link href={'/'} className={styles['card-featured']}>
+                        <div className={styles['cover']}>
+                            <ImgLazy width={318} height={184} src={popupCities[0].image_url!}/>
                         </div>
-                    </div>
+                        <div className={styles['detail']}>
+                            <div className={styles['title']}>{popupCities[0].title}</div>
+                            <div className={styles['des']}></div>
 
-                    <div className={styles['item']}>
-                        <i className={'icon-calendar'}/>
-                        <div>A pop-up city uniting dev communities for long-term projects committed to creating a better
-                            future
-                        </div>
-                    </div>
+                            <div className={styles['item']}>
+                                <i className={'icon-Outline'}/>
+                                <div>{popupCities[0].location}</div>
+                            </div>
 
-                    <div className={styles['item']}>
-                        <ImgLazy width={32} height={32} src={'https://ik.imagekit.io/soladata/h8s2pg0i_3DVNxGY9z'}/>
-                        <div>A pop-up city uniting dev communities for long-term projects committed to creating a better
-                            future
+                            <div className={styles['item']}>
+                                <i className={'icon-calendar'}/>
+                                <div>{formatTime(popupCities[0].start_date!, popupCities[0].end_date!).data}</div>
+                            </div>
+
+                            <div className={styles['item']}>
+                                <ImgLazy width={32} height={32} src={popupCities[0].group.image_url || defaultAvatar(popupCities[0].group_id)}/>
+                                <div>by {popupCities[0].group.nickname || popupCities[0].group.username}</div>
+                            </div>
                         </div>
-                    </div>
-                </div>
-            </Link>
+                    </Link>
+                </>
+            }
 
             <h2 className={styles['page-title']}>
                 <div>Events of Pop-up Cities</div>
@@ -72,10 +87,11 @@ function Discover() {
             </h2>
 
             <div className={styles['popup-city-list']}>
-                <CardPopupCity/>
-                <CardPopupCity/>
-                <CardPopupCity/>
-                <CardPopupCity/>
+                {
+                    popupCities.map((popupCity, index) => {
+                        return <CardPopupCity popupCity={popupCity} key={popupCity.id}/>
+                    })
+                }
             </div>
 
             <h2 className={styles['page-title']}>
@@ -91,63 +107,17 @@ function Discover() {
             </h2>
 
             <div className={styles['group-list']}>
-                <Link href={'/'}>
-                    <ImgLazy className={styles['cover']} width={64} height={64}
-                             src={'https://ik.imagekit.io/soladata/h8s2pg0i_3DVNxGY9z'}/>
-                    <div className={styles['name']}>NICE 公社</div>
-                    <div className={styles['detail']}><b>123</b> Members</div>
-                    <div className={styles['detail']}>12 Upcoming events</div>
-                </Link>
-                <Link href={'/'}>
-                    <ImgLazy className={styles['cover']} width={64} height={64}
-                             src={'https://ik.imagekit.io/soladata/h8s2pg0i_3DVNxGY9z'}/>
-                    <div className={styles['name']}>NICE 公社</div>
-                    <div className={styles['detail']}><b>123</b> Members</div>
-                    <div className={styles['detail']}>12 Upcoming events</div>
-                </Link>
-                <Link href={'/'}>
-                    <ImgLazy className={styles['cover']} width={64} height={64}
-                             src={'https://ik.imagekit.io/soladata/h8s2pg0i_3DVNxGY9z'}/>
-                    <div className={styles['name']}>NICE 公社</div>
-                    <div className={styles['detail']}><b>123</b> Members</div>
-                    <div className={styles['detail']}>12 Upcoming events</div>
-                </Link>
-                <Link href={'/'}>
-                    <ImgLazy className={styles['cover']} width={64} height={64}
-                             src={'https://ik.imagekit.io/soladata/h8s2pg0i_3DVNxGY9z'}/>
-                    <div className={styles['name']}>NICE 公社</div>
-                    <div className={styles['detail']}><b>123</b> Members</div>
-                    <div className={styles['detail']}>12 Upcoming events</div>
-                </Link>
-
-                <Link href={'/'}>
-                    <ImgLazy className={styles['cover']} width={64} height={64}
-                             src={'https://ik.imagekit.io/soladata/h8s2pg0i_3DVNxGY9z'}/>
-                    <div className={styles['name']}>NICE 公社</div>
-                    <div className={styles['detail']}><b>123</b> Members</div>
-                    <div className={styles['detail']}>12 Upcoming events</div>
-                </Link>
-                <Link href={'/'}>
-                    <ImgLazy className={styles['cover']} width={64} height={64}
-                             src={'https://ik.imagekit.io/soladata/h8s2pg0i_3DVNxGY9z'}/>
-                    <div className={styles['name']}>NICE 公社</div>
-                    <div className={styles['detail']}><b>123</b> Members</div>
-                    <div className={styles['detail']}>12 Upcoming events</div>
-                </Link>
-                <Link href={'/'}>
-                    <ImgLazy className={styles['cover']} width={64} height={64}
-                             src={'https://ik.imagekit.io/soladata/h8s2pg0i_3DVNxGY9z'}/>
-                    <div className={styles['name']}>NICE 公社</div>
-                    <div className={styles['detail']}><b>123</b> Members</div>
-                    <div className={styles['detail']}>12 Upcoming events</div>
-                </Link>
-                <Link href={'/'}>
-                    <ImgLazy className={styles['cover']} width={64} height={64}
-                             src={'https://ik.imagekit.io/soladata/h8s2pg0i_3DVNxGY9z'}/>
-                    <div className={styles['name']}>NICE 公社</div>
-                    <div className={styles['detail']}><b>123</b> Members</div>
-                    <div className={styles['detail']}>12 Upcoming events</div>
-                </Link>
+                {
+                    groupInfo.slice(0, 8).map((group, index) => {
+                        return <Link href={'/'} key={index}>
+                            <ImgLazy className={styles['cover']} width={64} height={64}
+                                     src={group.image_url || defaultAvatar(group.id)}/>
+                            <div className={styles['name']}>{group.nickname || group.username}</div>
+                            <div className={styles['detail']}><b>{group.member_count}</b> Members</div>
+                            <div className={styles['detail']}>12 Upcoming events</div>
+                        </Link>
+                    })
+                }
             </div>
 
             <h2 className={styles['page-title']}>
@@ -254,3 +224,19 @@ function Discover() {
 }
 
 export default Discover
+
+export const getServerSideProps: any  = async (context) => {
+    const groups = await getEventGroup()
+    const popupCities = await queryPopupCity({page: 1, page_size: 8})
+
+    const req = await Promise.all([groups, popupCities])
+    const members = await memberCount(req[0].map(item => item.id))
+
+    return {
+        props: {
+            eventGroups: req[0],
+            popupCities: req[1],
+            members
+        }
+    }
+}

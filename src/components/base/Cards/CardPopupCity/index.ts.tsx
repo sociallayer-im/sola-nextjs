@@ -2,8 +2,13 @@ import {useEffect} from 'react'
 import styles from './CardPopupCity.module.scss'
 import ImgLazy from "@/components/base/ImgLazy/ImgLazy";
 import Link from 'next/link'
+import {PopupCity} from "@/service/solas";
+import usePicture from "@/hooks/pictrue";
+import {useTime3} from "@/hooks/formatTime";
 
-function CardPopupCity() {
+function CardPopupCity({ popupCity }: {popupCity: PopupCity}) {
+    const {defaultAvatar} = usePicture()
+    const formatTime = useTime3()
 
     useEffect(() => {
 
@@ -12,20 +17,20 @@ function CardPopupCity() {
     return (<div className={styles['card-popup-city']}>
         <div className={styles['citizens']}>321 citizens joined</div>
         <div className={styles['cover']}>
-            <ImgLazy src="https://ik.imagekit.io/soladata/h8s2pg0i_3DVNxGY9z" alt="" width={220} height={148}/>
+            <ImgLazy src={popupCity.image_url!} alt="" width={220} height={148}/>
         </div>
-        <div className={styles['time']}>Oct 15 - Oct 30, 2024</div>
-        <div className={styles['title']}>Vitalia 2024</div>
+        <div className={styles['time']}>{formatTime(popupCity.start_date!, popupCity.end_date!).data}</div>
+        <div className={styles['title']}>{popupCity.title}</div>
 
         <div className={styles['detail']}>
             <div className={styles['items']}>
                 <div className={styles['item']}>
                     <i className={'icon-Outline'}></i>
-                   <div> Shanghai Shanghai Shanghai Shanghai</div>
+                   <div>{popupCity.location}</div>
                 </div>
                 <div className={styles['item']}>
-                    <img src="https://ik.imagekit.io/soladata/h8s2pg0i_3DVNxGY9z" alt=""/>
-                   <div>by Shanghai</div>
+                    <img src={popupCity.group.image_url || defaultAvatar(popupCity.group_id)} alt=""/>
+                   <div>by {popupCity.group.nickname || popupCity.group.username}</div>
                 </div>
             </div>
             <Link href={'/'} className={styles['link']}>{'View events'}</Link>

@@ -4872,6 +4872,72 @@ export async function setActivityRead (props: {ids: number[], auth_token: string
     })
 }
 
+export interface PopupCity {
+    id: number
+    image_url: string | null
+    location: string | null
+    start_date: string | null
+    title: string
+    updated_at:  string | null
+    website: string | null
+    created_at: string | null
+    end_date: string | null
+    group_id: string | null,
+    group: ProfileSimple
+}
+
+export async function queryPopupCity ({page = 1, page_size = 10}: {page?: number, page_size?: number}) {
+    const doc = gql`
+        query MyQuery {
+          popup_cities(offset: ${(page - 1 ) * page_size}, limit: ${page_size}, order_by: {id: desc}) {
+            id
+            image_url
+            location
+            start_date
+            title
+            updated_at
+            website
+            created_at
+            end_date
+            group_id
+            group {
+              image_url
+              id
+              nickname
+              username
+            }
+          }
+    }
+    `
+
+    const res: any = await request(graphUrl, doc)
+    return res.popup_cities as PopupCity[]
+}
+
+export async function memberCount (group_ids: number[]) {
+    let queryItem = ''
+    group_ids.forEach((item) => {
+        queryItem = queryItem + `_${item}: memberships_aggregate(where: {group: {id: {_eq: "${item}"}}}) {aggregate {count}}
+        `
+    })
+
+    const doc = `query MyQuery @cached {
+        ${queryItem}
+    }`
+
+    const res: any = await request(graphUrl, doc)
+    const keys = Object.keys(res)
+
+    const res_format = keys.map((item, index) => {
+        return {
+            group_id: Number(item.replace('_', '')),
+            count: res[item].aggregate.count
+        }
+    })
+
+    return res_format
+}
+
 export default {
     removeMarker,
     queryMarkers,
