@@ -396,7 +396,8 @@ function CreateEvent(props: CreateEventPageProps) {
     }, [telegram])
 
     useEffect(() => {
-        if (!user.userName) {
+        const authStorage = window.localStorage.getItem('auth_sola') || ''
+        if (!authStorage) {
             openConnectWalletDialog()
         }
     }, [user.userName])
