@@ -1,4 +1,4 @@
-import {useEffect} from 'react'
+import {useEffect, useState} from 'react'
 import styles from './CardPopupCity.module.scss'
 import ImgLazy from "@/components/base/ImgLazy/ImgLazy";
 import Link from 'next/link'
@@ -9,17 +9,24 @@ import {useTime3} from "@/hooks/formatTime";
 function CardPopupCity({ popupCity }: {popupCity: PopupCity}) {
     const {defaultAvatar} = usePicture()
     const formatTime = useTime3()
+    const [timeStr, setTimeString] = useState('')
 
     useEffect(() => {
-
+        if (typeof window !== 'undefined') {
+            // 获得浏览器时区
+            const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
+            setTimeString(formatTime(popupCity.start_date!, popupCity.end_date!, timezone).data)
+        } else {
+            setTimeString(formatTime(popupCity.start_date!, popupCity.end_date!).data)
+        }
     }, [])
 
     return (<div className={styles['card-popup-city']}>
-        <div className={styles['citizens']}>321 citizens joined</div>
+        {/*<div className={styles['citizens']}>321 citizens joined</div>*/}
         <div className={styles['cover']}>
             <ImgLazy src={popupCity.image_url!} alt="" width={220} height={148}/>
         </div>
-        <div className={styles['time']}>{formatTime(popupCity.start_date!, popupCity.end_date!).data}</div>
+        <div className={styles['time']}>{timeStr}</div>
         <div className={styles['title']}>{popupCity.title}</div>
 
         <div className={styles['detail']}>
@@ -33,7 +40,7 @@ function CardPopupCity({ popupCity }: {popupCity: PopupCity}) {
                    <div>by {popupCity.group.nickname || popupCity.group.username}</div>
                 </div>
             </div>
-            <Link href={'/'} className={styles['link']}>{'View events'}</Link>
+            <Link href={`/popup-city/${popupCity.id}`} className={styles['link']}>{'View events'}</Link>
         </div>
     </div>)
 }

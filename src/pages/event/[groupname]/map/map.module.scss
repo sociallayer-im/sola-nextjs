@@ -15,6 +15,11 @@
   z-index: 1 !important;
 }
 
+.map-container.iframe {
+  top: 0!important;
+  height: 100% !important;
+}
+
 .map-container-fixed {
   position: relative !important;
   width: 100% !important;

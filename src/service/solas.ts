@@ -4905,6 +4905,8 @@ export async function queryPopupCity ({page = 1, page_size = 10}: {page?: number
               id
               nickname
               username
+              banner_image_url
+              map_enabled
             }
           }
     }
@@ -4914,10 +4916,66 @@ export async function queryPopupCity ({page = 1, page_size = 10}: {page?: number
     return res.popup_cities as PopupCity[]
 }
 
+export async function popupCityDetail (id: number) {
+    const doc = gql`
+        query MyQuery {
+          popup_cities(where: {id: {_eq: ${id}}}, order_by: {id: desc}) {
+            id
+            image_url
+            location
+            start_date
+            title
+            updated_at
+            website
+            created_at
+            end_date
+            group_id
+            group {
+              image_url
+              id
+              nickname
+              username
+              banner_image_url
+              map_enabled
+            }
+        }
+    }
+    `
+
+    const res: any = await request(graphUrl, doc)
+    return res.popup_cities[0] as PopupCity || null
+}
+
 export async function memberCount (group_ids: number[]) {
     let queryItem = ''
     group_ids.forEach((item) => {
         queryItem = queryItem + `_${item}: memberships_aggregate(where: {group: {id: {_eq: "${item}"}}}) {aggregate {count}}
+        `
+    })
+
+    const doc = `query MyQuery @cached {
+        ${queryItem}
+    }`
+
+    const res: any = await request(graphUrl, doc)
+    const keys = Object.keys(res)
+
+    const res_format = keys.map((item, index) => {
+        return {
+            group_id: Number(item.replace('_', '')),
+            count: res[item].aggregate.count
+        }
+    })
+
+    return res_format
+}
+
+export async function groupComingEventCount (group_ids: number[]) {
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    let queryItem = ''
+    group_ids.forEach((item) => {
+        queryItem = queryItem + `_${item}: events_aggregate(where: {group: {id: {_eq: "${item}"}}, end_time: {_gt: "${today.toISOString()}"}}) {aggregate {count}}
         `
     })
 

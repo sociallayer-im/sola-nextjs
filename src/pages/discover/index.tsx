@@ -6,7 +6,14 @@ import UserContext from "@/components/provider/UserProvider/UserContext";
 import {useContext, useEffect, useState} from "react";
 import useIssueBadge from "@/hooks/useIssueBadge";
 import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
-import solas, {getEventGroup, Group, memberCount, PopupCity, queryPopupCity} from "@/service/solas";
+import solas, {
+    getEventGroup,
+    Group,
+    groupComingEventCount,
+    memberCount,
+    PopupCity,
+    queryPopupCity
+} from "@/service/solas";
 import usePicture from "@/hooks/pictrue";
 import {useTime3} from "@/hooks/formatTime";
 
@@ -20,15 +27,26 @@ function Discover({eventGroups, popupCities, members} : {eventGroups: Group[], p
     const startIssueBadge = useIssueBadge()
     const {defaultAvatar} = usePicture()
     const formatTime = useTime3()
+    const [timeStr, setTimeString] = useState('')
 
     const [groupInfo, setGroupInfo] = useState<GroupWithMemberCount[]>([])
 
     useEffect(() => {
+        if (typeof window !== 'undefined' && !!popupCities[0]) {
+            // 获得浏览器时区
+            const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
+            setTimeString(formatTime(popupCities[0].start_date!, popupCities[0].end_date!, timezone).data)
+        } else {
+            setTimeString(formatTime(popupCities[0].start_date!, popupCities[0].end_date!).data)
+        }
+    }, [])
+
+    useEffect(() => {
         setGroupInfo(eventGroups.map(group => {
-            const member = members.find(member => member.group_id === group.id)
+            const member_count = members.find(member => member.group_id === group.id)?.count || 0
             return {
                 ...group,
-                member_count: member?.count || 0
+                member_count,
             }
         }))
     }, [eventGroups, members])
@@ -62,7 +80,7 @@ function Discover({eventGroups, popupCities, members} : {eventGroups: Group[], p
 
                             <div className={styles['item']}>
                                 <i className={'icon-calendar'}/>
-                                <div>{formatTime(popupCities[0].start_date!, popupCities[0].end_date!).data}</div>
+                                <div>{timeStr}</div>
                             </div>
 
                             <div className={styles['item']}>
@@ -96,7 +114,7 @@ function Discover({eventGroups, popupCities, members} : {eventGroups: Group[], p
 
             <h2 className={styles['page-title']}>
                 <div>Communities</div>
-                <Link href={'/'}>
+                <Link href={'/communities'}>
                     See all
                     <svg width="12" height="13" viewBox="0 0 12 13" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path
@@ -109,12 +127,11 @@ function Discover({eventGroups, popupCities, members} : {eventGroups: Group[], p
             <div className={styles['group-list']}>
                 {
                     groupInfo.slice(0, 8).map((group, index) => {
-                        return <Link href={'/'} key={index}>
+                        return <Link href={`/group/${group.username}`} key={index}>
                             <ImgLazy className={styles['cover']} width={64} height={64}
                                      src={group.image_url || defaultAvatar(group.id)}/>
                             <div className={styles['name']}>{group.nickname || group.username}</div>
                             <div className={styles['detail']}><b>{group.member_count}</b> Members</div>
-                            <div className={styles['detail']}>12 Upcoming events</div>
                         </Link>
                     })
                 }
@@ -225,18 +242,19 @@ function Discover({eventGroups, popupCities, members} : {eventGroups: Group[], p
 
 export default Discover
 
-export const getServerSideProps: any  = async (context) => {
-    const groups = await getEventGroup()
-    const popupCities = await queryPopupCity({page: 1, page_size: 8})
+export const getServerSideProps: any  = async (context: any) => {
+    const groups = getEventGroup()
+    const popupCities = queryPopupCity({page: 1, page_size: 8})
 
-    const req = await Promise.all([groups, popupCities])
-    const members = await memberCount(req[0].map(item => item.id))
+    const req1 = await Promise.all([groups, popupCities])
+    const groupIds = req1[0].map((item: Group) => item.id)
+    const req2 = await memberCount(groupIds)
 
     return {
         props: {
-            eventGroups: req[0],
-            popupCities: req[1],
-            members
+            eventGroups: req1[0],
+            popupCities: req1[1],
+            members: req2,
         }
     }
 }

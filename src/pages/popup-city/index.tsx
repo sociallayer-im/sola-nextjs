@@ -2,30 +2,30 @@ import {useEffect} from 'react'
 import styles from './popupcity.module.scss'
 import Link from "next/link";
 import CardPopupCity from "@/components/base/Cards/CardPopupCity/index.ts";
+import {getEventGroup, memberCount, PopupCity, queryPopupCity} from "@/service/solas";
 
-function PopupCityPage() {
+function PopupCityPage({popupCities} : {popupCities: PopupCity[]}) {
 
     useEffect(() => {
 
     }, [])
 
     return (<div className={styles['popup-city-page']}>
-        <div class={styles['center']}>
+        <div className={styles['center']}>
             <h2 className={styles['page-title']}>
                 <div>Events of Pop-up Cities</div>
             </h2>
 
             <div className={styles['popup-city-list']}>
-                <CardPopupCity/>
-                <CardPopupCity/>
-                <CardPopupCity/>
-                <CardPopupCity/>
+                {popupCities.map(item => {
+                    return <CardPopupCity key={item.id} popupCity={item}/>
+                })}
             </div>
 
             <div className={styles['footer']}>
                <div className={styles['left']}>
                    <svg xmlns="http://www.w3.org/2000/svg" width="39" height="27" viewBox="0 0 39 27" fill="none">
-                       <path d="M2.31952 25.6621C1.6759 25.6621 1.14929 25.1355 1.14929 24.4918V5.76813C1.14929 5.1245 1.6759 4.5979 2.31952 4.5979H32.7455C33.3892 4.5979 33.9158 5.1245 33.9158 5.76813V24.4918C33.9158 25.1355 33.3892 25.6621 32.7455 25.6621H2.31952Z" fill="white" fill-opacity="0.8"/>
+                       <path d="M2.31952 25.6621C1.6759 25.6621 1.14929 25.1355 1.14929 24.4918V5.76813C1.14929 5.1245 1.6759 4.5979 2.31952 4.5979H32.7455C33.3892 4.5979 33.9158 5.1245 33.9158 5.76813V24.4918C33.9158 25.1355 33.3892 25.6621 32.7455 25.6621H2.31952Z" fill="white" fillOpacity="0.8"/>
                        <path d="M32.7664 5.8512V24.5749H2.34034V5.8512H32.7664ZM32.7664 3.51074H2.34034C1.05309 3.51074 -0.00012207 4.56395 -0.00012207 5.8512V24.5749C-0.00012207 25.8622 1.05309 26.9154 2.34034 26.9154H32.7664C34.0536 26.9154 35.1068 25.8622 35.1068 24.5749V5.8512C35.1068 4.55225 34.0653 3.51074 32.7664 3.51074Z" fill="#272928"/>
                        <path d="M5.85114 22.2346C5.20751 22.2346 4.68091 21.708 4.68091 21.0643V2.34064C4.68091 1.69701 5.20751 1.17041 5.85114 1.17041H36.2772C36.9208 1.17041 37.4474 1.69701 37.4474 2.34064V21.0643C37.4474 21.708 36.9208 22.2346 36.2772 22.2346H5.85114Z" fill="#7FF7CE"/>
                        <path d="M36.2771 2.34046V21.0642H5.85108V2.34046H36.2771ZM36.2771 0H5.85108C4.56383 0 3.51062 1.05321 3.51062 2.34046V21.0642C3.51062 22.3514 4.56383 23.4046 5.85108 23.4046H36.2771C37.5644 23.4046 38.6176 22.3514 38.6176 21.0642V2.34046C38.6176 1.04151 37.5761 0 36.2771 0Z" fill="#272928"/>
@@ -51,3 +51,14 @@ function PopupCityPage() {
 }
 
 export default PopupCityPage
+
+export const getServerSideProps: any  = async (context: any) => {
+    const popupCities = await queryPopupCity({page: 1, page_size: 1000})
+    console.log(popupCities.length)
+    return {
+        props: {
+            popupCities: popupCities,
+        }
+    }
+}
+

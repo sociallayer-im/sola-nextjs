@@ -10,12 +10,13 @@ import EventHomeContext from "@/components/provider/EventHomeProvider/EventHomeC
 import {Badge, Membership, queryBadge, Group} from "@/service/solas";
 import ImgLazy from "@/components/base/ImgLazy/ImgLazy";
 
-function HomeUserPanel(props: {
+function HomeUserPanel({showSchedule=true, ...props}: {
     membership: Membership[],
     isSide?: boolean
     slot?: any
     badges?: Badge[]
-    group?: Group
+    group?: Group,
+    showSchedule?: boolean
 }) {
     const router = useRouter()
     const {lang, langType} = useContext(LangContext)
@@ -143,7 +144,7 @@ function HomeUserPanel(props: {
             </a>
         }
 
-        { (props.group || eventGroup) &&
+        { (props.group || eventGroup) && showSchedule &&
             <Link href={`/event/${props.group?.username || eventGroup?.username}/schedule`} className={'calendar-btn'}>
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
                     <path
