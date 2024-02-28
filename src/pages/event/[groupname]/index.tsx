@@ -1,4 +1,4 @@
-import {useContext, useEffect, useState} from 'react'
+import React, {useContext, useEffect, useState} from 'react'
 import UserContext from '@/components/provider/UserProvider/UserContext'
 import {usePathname, useRouter} from 'next/navigation'
 import LangContext from '@/components/provider/LangProvider/LangContext'
@@ -24,6 +24,8 @@ import MaodaoListEventVertical from "@/components/maodao/MaodaoListEventVertical
 import useIssueBadge from "@/hooks/useIssueBadge";
 import ListMyEvent from "@/components/compose/ListMyEvent/ListMyEvent";
 import ListPendingEvent from "@/components/compose/ListPendingEvent/ListPendingEvent";
+import Link from "next/link";
+import MapContext from "@/components/provider/MapProvider/MapContext";
 
 function Home(props: {badges: Badge[], initEvent?: Group, initList?: Event[], membership?: Membership[] }) {
     const {user} = useContext(UserContext)
@@ -34,6 +36,7 @@ function Home(props: {badges: Badge[], initEvent?: Group, initList?: Event[], me
     const {ready, joined, isManager, setEventGroup} = useContext(EventHomeContext)
     const eventGroup = useContext(EventHomeContext).eventGroup || props.initEvent || undefined
     const startIssueBadge = useIssueBadge()
+    const {MapReady} = useContext(MapContext)
 
     const [mode, setMode] = useState<'public' | 'my' | 'request'>('public')
     const [canPublish, setCanPublish] = useState(false)
@@ -91,37 +94,23 @@ function Home(props: {badges: Badge[], initEvent?: Group, initList?: Event[], me
 
     return <>
         <div className='home-page-event'>
-            {!!user.id &&
-                <div className={'home-page-event-top'}>
-                    <div className={'center'}>
-                        <div className={'mode-selector'}>
-                            <div className={`mode ${mode === 'public' ? 'active' : ''}`} onClick={e => {setMode('public')}}>{lang['Public_Events']}</div>
-                            <div className={`mode ${mode === 'my' ? 'active' : ''}`} onClick={e => {setMode('my')}}>{lang['My_Events']}</div>
-                            { canPublish && <div className={`mode ${mode === 'request' ? 'active' : ''}`} onClick={e => {setMode('request')}}>
-                                {lang['Publish_Request']}
-                                { pendingEvent.length > 0 &&
-                                    <i className={'dot'} />
-                                }
-                            </div>}
-                        </div>
-                    </div>
-                </div>
-            }
             <div className={'home-page-event-wrapper'}>
                 <div className={`home-page-event-main`}>
                     <HomeUserPanel group={props.initEvent} membership={props.membership || []}/>
-                    {!!user.id &&
-                        <div className={'mode-selector request'}>
-                            <div className={`mode ${mode === 'public' ? 'active' : ''}`} onClick={e => {setMode('public')}}>{'Public Events'}</div>
-                            <div className={`mode ${mode === 'my' ? 'active' : ''}`} onClick={e => {setMode('my')}}>{'My Events'}</div>
-                            { canPublish &&
-                                <div className={`mode ${mode === 'request' ? 'active' : ''}`} onClick={e => {setMode('request')}}>
-                                    {'Publish Request'}
-                                    { pendingEvent.length > 0 &&
-                                        <i className={'dot'} />
-                                    }
-                                </div>
-                            }
+
+
+                    { props.initEvent?.map_enabled && MapReady &&
+                        <div className="home-map">
+                            <iframe src={`/iframe/map?group=${props.initEvent?.username}`} frameBorder={0} width="100%" height="300" />
+                            <Link className={'map-link'} href={`/event/${props.initEvent?.username}/map`}>
+                                {'Browse in map'}
+                                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 15 15" fill="none">
+                                    <path d="M13.3637 8.4541V13.3632H8.45459" stroke="#333333" strokeWidth="1.63636" strokeLinecap="round" strokeLinejoin="round"/>
+                                    <path d="M1.00009 5.90918L1.00009 1.00009L5.90918 1.00009" stroke="#333333" strokeWidth="1.63636" strokeLinecap="round" strokeLinejoin="round"/>
+                                    <path d="M13.3637 13.3632L8.45459 8.4541" stroke="#333333" strokeWidth="1.63636" strokeLinecap="round" strokeLinejoin="round"/>
+                                    <path d="M1.00009 1.00009L5.90918 5.90918" stroke="#333333" strokeWidth="1.63636" strokeLinecap="round" strokeLinejoin="round"/>
+                                </svg>
+                            </Link>
                         </div>
                     }
 

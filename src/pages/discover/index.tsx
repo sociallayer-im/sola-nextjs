@@ -65,7 +65,7 @@ function Discover({eventGroups, popupCities, members} : {eventGroups: Group[], p
             { !!popupCities[0] &&
                 <>
                     <h2 className={styles['page-title']}>Featured</h2>
-                    <Link href={'/'} className={styles['card-featured']}>
+                    <Link href={`/popup-city/${popupCities[0].id}`} className={styles['card-featured']}>
                         <div className={styles['cover']}>
                             <ImgLazy width={318} height={184} src={popupCities[0].image_url!}/>
                         </div>

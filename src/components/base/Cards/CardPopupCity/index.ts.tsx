@@ -40,7 +40,7 @@ function CardPopupCity({ popupCity }: {popupCity: PopupCity}) {
                    <div>by {popupCity.group.nickname || popupCity.group.username}</div>
                 </div>
             </div>
-            <Link href={`/popup-city/${popupCity.id}`} className={styles['link']}>{'View events'}</Link>
+            <Link href={`/event/${popupCity.group.username}`} className={styles['link']}>{'View events'}</Link>
         </div>
     </div>)
 }

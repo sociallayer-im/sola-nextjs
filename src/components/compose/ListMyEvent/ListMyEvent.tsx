@@ -6,7 +6,7 @@ import {Event, Participants, queryEvent, queryMyEvent} from "@/service/solas";
 import AppButton from "@/components/base/AppButton/AppButton";
 import userContext from "@/components/provider/UserProvider/UserContext";
 
-function ListMyEvent() {
+function ListMyEvent(props: {tab?: 'attended' | 'created' }) {
     const [tab2Index, setTab2Index] = useState<'attended' | 'created'>('attended')
     const {lang} = useContext(LangContext)
     const {user} = useContext(userContext)
@@ -67,26 +67,34 @@ function ListMyEvent() {
         }
     }, [user.id])
 
+    useEffect(() => {
+        if (props.tab) {
+            changeTab(props.tab)
+        }
+    }, [props.tab])
+
     return (
         <div className={'module-tabs'}>
-            <div className={'tab-titles'}>
-                <div className={'center'}>
-                    <div onClick={e => {
-                        e.preventDefault()
-                        changeTab('attended')
-                    }}
-                         className={tab2Index === 'attended' ? 'module-title' : 'tab-title'}>
-                        {'Attended'}
-                    </div>
-                    <div onClick={e => {
-                        e.preventDefault()
-                        changeTab('created')
-                    }}
-                         className={tab2Index === 'created' ? 'module-title' : 'tab-title'}>
-                        {'Created'}
+            { !props.tab &&
+                <div className={'tab-titles'}>
+                    <div className={'center'}>
+                        <div onClick={e => {
+                            e.preventDefault()
+                            changeTab('attended')
+                        }}
+                             className={tab2Index === 'attended' ? 'module-title' : 'tab-title'}>
+                            {'Attended'}
+                        </div>
+                        <div onClick={e => {
+                            e.preventDefault()
+                            changeTab('created')
+                        }}
+                             className={tab2Index === 'created' ? 'module-title' : 'tab-title'}>
+                            {'Created'}
+                        </div>
                     </div>
                 </div>
-            </div>
+            }
 
             <div className={'tab-contains'}>
                 {!list.length ? <Empty/> :

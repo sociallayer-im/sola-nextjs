@@ -2996,6 +2996,7 @@ export interface QueryEventProps {
     show_pending_event?: boolean,
     show_rejected_event?: boolean,
     recurring_event_id?: number,
+    group_ids?: number[]
 }
 
 
@@ -3193,6 +3194,10 @@ export async function queryPendingEvent(props: QueryEventProps): Promise<Event[]
 
     if (props.group_id) {
         variables += `group_id: {_eq: ${props.group_id}}, `
+    }
+
+    if (props.group_ids) {
+        variables += `group_id: {_in: [${props.group_ids.join(',')}]}, `
     }
 
 
@@ -4994,6 +4999,20 @@ export async function groupComingEventCount (group_ids: number[]) {
     })
 
     return res_format
+}
+
+export async function userManageGroups (userid: number) {
+    const doc = `query MyQuery {
+        memberships(where: {profile_id: {_eq: ${userid}}, role: {_in: ["owner", "manager"]}}) {
+            group {
+                id
+                }
+        }
+    }`
+
+    const res: any = await request(graphUrl, doc)
+
+    return res.memberships.map((item: any) => item.group.id) as number[]
 }
 
 export default {
