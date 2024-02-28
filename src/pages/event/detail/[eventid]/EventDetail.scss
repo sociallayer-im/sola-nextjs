@@ -69,6 +69,21 @@
       line-height: 20px;
     }
 
+    .cancel {
+      color: #ffffff;
+      background: #bdbdbd;
+      font-weight: normal;
+      padding: 4px 8px;
+      font-size: 16px;
+      border-radius: 6px;
+      margin-right: 12px;
+      position: relative;
+      display: inline-block;
+      height: 20px;
+      transform: translateY(-5px);
+      line-height: 20px;
+    }
+
     @media (min-width: 450px) {
       & {
         padding-top: 0;

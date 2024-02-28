@@ -339,6 +339,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                             <div className={'center'}>
                                 <div className={'name'}>
                                     {event.status === 'pending' && <span className={'pending'}>Pending</span>}
+                                    {event.status === 'cancel' && <span className={'cancel'}>Canceled</span>}
                                     {event.title}
                                 </div>
 

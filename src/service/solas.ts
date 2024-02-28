@@ -2997,6 +2997,7 @@ export interface QueryEventProps {
     show_pending_event?: boolean,
     show_rejected_event?: boolean,
     recurring_event_id?: number,
+    show_cancel_event?: boolean,
 }
 
 
@@ -3057,6 +3058,10 @@ export async function queryEvent(props: QueryEventProps): Promise<Event[]> {
 
     if(props.show_rejected_event) {
         status = status + ', "rejected"'
+    }
+
+    if(props.show_cancel_event) {
+        status = status + ', "cancel"'
     }
 
     variables = variables.replace(/,$/, '')
@@ -3317,7 +3322,7 @@ export interface QueryEventDetailProps {
 }
 
 export async function queryEventDetail(props: QueryEventDetailProps) {
-    const res = await queryEvent({id: props.id, page: 1, show_pending_event: true})
+    const res = await queryEvent({id: props.id, page: 1, show_pending_event: true, show_cancel_event: true})
 
     return res[0] as Event || null
 }
