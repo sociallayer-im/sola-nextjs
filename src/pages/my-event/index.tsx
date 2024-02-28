@@ -83,7 +83,7 @@ function MyEvent({popupCities}: {popupCities: PopupCity[]}) {
                 <div className={styles['page-title']}>Pop-up Cities</div>
                 {
                     popupCities.map((city, index) => {
-                        return <Link href={`/popup-city/${city.id}`}  className={styles['popup-cities']} key={city.id}>
+                        return <Link href={`/event/${city.group.username}/`}  className={styles['popup-cities']} key={city.id}>
                             <div className={styles['cover']}>
                                 <ImgLazy src={city.image_url!} width={300} />
                             </div>
