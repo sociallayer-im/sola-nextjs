@@ -225,15 +225,14 @@
     }
 
     .name {
-      display: -webkit-box;
-      -webkit-line-clamp: 1;
-      -webkit-box-orient: vertical;
       color: var(--Text-4-Headline, #272928);
       font-size: 20px;
       font-style: normal;
       font-weight: 600;
       line-height: 28px;
       margin-top: 9px;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .detail {
