@@ -78,9 +78,9 @@
     }
 
     .side {
-      min-width: 400px;
-      max-width: 400px;
-      margin-left: 20px;
+      min-width: 318px;
+      max-width: 318px;
+      margin-left: 48px;
 
 
       @media (max-width: 768px) {
@@ -103,13 +103,13 @@
       padding: 8px;
 
       .cover {
-        min-width: 160px;
-        max-width: 160px;
-        height: 90px;
+        min-width: 64px;
+        max-width: 64px;
+        height: 64px;
         overflow: hidden;
         position: relative;
         margin-right: 12px;
-        border-radius: 6px;
+        border-radius: 8px;
 
         img {
           object-fit: cover;
@@ -129,7 +129,7 @@
         font-style: normal;
         font-weight: 600;
         line-height: 28px;
-        margin-bottom: 20px;
+        margin-bottom: 16px;
       }
 
       .detail {

@@ -95,10 +95,7 @@ function PageLogo() {
                     <Link href={'/discover'} className={(pathname?.includes('discover') || pathname === '/') ? 'nav-link active' : 'nav-link'}>Discover</Link>
                 }
 
-                {
-                   !! user.userName &&
-                    <Link href={'/my-event'} className={pathname?.includes('my-event') ? 'nav-link active' : 'nav-link'}>My Event</Link>
-                }
+                <Link href={'/my-event'} className={pathname?.includes('my-event') ? 'nav-link active' : 'nav-link'}>My Events</Link>
 
             </>
             : <>

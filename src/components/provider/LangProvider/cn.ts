@@ -607,6 +607,21 @@ const langCN: LangConfig = {
   Back_To_Profile_Page: '返回个人主页',
   Back_To_Group_Page: '返回群组主页',
   Back_To_Event_Home: '返回活动首页',
+  Featured: '特别推荐',
+  Events_Of_Popup_Cities: 'Pop-up Cities 活动',
+  Communities: '社区',
+  See_All_Communities: '查看全部社区',
+  See_All_Popup_Cities_Events: '查看全部 Pop-up Cities 活动',
+  Go_to: '前往',
+  My_Badges: '我的徽章',
+  My_Groups: '我的群组',
+  About_Us: '关于我们',
+  What_s_badge: '什么是徽章?',
+  Development_Doc: '开发文档',
+  Attended: '已参加',
+  Pending_Requests: '审核请求',
+  My_Communities: '我的社区',
+  My_Subscriptions: '我的订阅',
 }
 
 

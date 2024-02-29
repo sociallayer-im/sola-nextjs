@@ -211,12 +211,18 @@
   > a {
     border-radius: 8px;
     background: var(--Fill-0-White, #FFF);
-    box-shadow: 0px 4px 16px 0px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.12);
     padding: 16px;
     box-sizing: border-box;
     margin-right: 12px;
     margin-bottom: 12px;
     text-decoration: none;
+    position: relative;
+    transition: all 0.12s linear;
+
+    &:hover {
+      transform: translateY(-8px)
+    }
 
     .cover {
       width: 64px;
@@ -361,6 +367,11 @@
     margin-right: 12px;
     margin-bottom: 12px;
     text-decoration: none;
+    transition: all 0.12s linear;
+
+    &:hover {
+      transform: translateY(-8px)
+    }
 
     > svg {
       margin-bottom: 9px;
@@ -369,7 +380,7 @@
     img {
       width: 24px;
       height: 24px;
-      margin-bottom: 9px;
+      margin-bottom: 16px;
     }
 
     .name {

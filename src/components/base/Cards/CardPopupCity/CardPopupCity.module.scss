@@ -8,6 +8,11 @@
   padding: 10px;
   box-sizing: border-box;
   position: relative;
+  transition: all 0.12s linear;
+
+  &:hover {
+    transform: translateY(-8px)
+  }
 
   .cover {
     width: 100%;
@@ -124,6 +129,7 @@
   @media (max-width: 520px) {
     & {
       height: auto;
+
       .cover {
         height: 100px;
 
@@ -140,7 +146,7 @@
           width: 100%;
           margin-bottom: 12px;
 
-          .item  div{
+          .item div {
             width: auto
           }
         }

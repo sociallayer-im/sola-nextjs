@@ -6,21 +6,31 @@ import AppButton from "@/components/base/AppButton/AppButton";
 import UserContext from "@/components/provider/UserProvider/UserContext";
 import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
 import LangContext from "@/components/provider/LangProvider/LangContext";
-import {PopupCity, queryPopupCity, userManageGroups} from "@/service/solas";
+import {PopupCity, queryPopupCity, userManageGroups, Group, memberCount} from "@/service/solas";
 import ImgLazy from "@/components/base/ImgLazy/ImgLazy";
 import Link from "next/link";
 import {useTime3} from "@/hooks/formatTime";
+import EventHomeContext from "@/components/provider/EventHomeProvider/EventHomeContext";
+import usePicture from "@/hooks/pictrue";
+
+export interface GroupWithMemberCount extends Group {
+    member_count: number
+}
+
 
 function MyEvent({popupCities}: {popupCities: PopupCity[]}) {
     const {user} = useContext(UserContext)
     const {openConnectWalletDialog} = useContext(DialogsContext)
     const {lang} = useContext(LangContext)
-    const formatTime = useTime3()
+    const {eventGroups} = useContext(EventHomeContext)
+    const {defaultAvatar} = usePicture()
 
     const [showTime, setShowTime] = useState(false)
 
     const [tab, setTab] = useState<'attended' | 'created' | 'requests'>('attended')
     const [myGroup, setMyGroup] = useState<number[]>([])
+    const [createdGroup, setCreatedGroup] = useState<GroupWithMemberCount[]>([])
+    const [joinedGroup, setJoinedGroup] = useState<GroupWithMemberCount[]>([])
 
 
     useEffect(() => {
@@ -37,10 +47,34 @@ function MyEvent({popupCities}: {popupCities: PopupCity[]}) {
         }
     }, [])
 
+    useEffect(() => {
+        if (eventGroups.length && myGroup.length && user.id) {
+            const created = (eventGroups as Group[]).filter((group: Group) => group.creator.id === user.id)
+            const joined = (eventGroups as Group[]).filter((group: Group) => group.creator.id !== user.id && myGroup.includes(group.id))
+            memberCount(eventGroups.map(group => group.id)).then((members ) => {
+                setCreatedGroup(created.map((group: Group) => {
+                    return {
+                        ...group,
+                        member_count: members.find(member => member.group_id === group.id)?.count || 0
+                    }
+                }
+                ))
+
+                setJoinedGroup(joined.map((group: Group) => {
+                        return {
+                            ...group,
+                            member_count: members.find(member => member.group_id === group.id)?.count || 0
+                        }
+                    }
+                ))
+            })
+        }
+    }, [eventGroups, myGroup, user])
+
     return (<div className={styles['my-event-page']}>
         <div className={styles['inner']}>
             <div className={styles['main']}>
-                <div className={styles['page-title']}>My Event</div>
+                <div className={styles['page-title']}>{lang['My_Events']}</div>
 
                 {
                     !user.userName &&
@@ -60,13 +94,13 @@ function MyEvent({popupCities}: {popupCities: PopupCity[]}) {
                         <div className={styles['page-tab']}>
                             <div className={tab === 'attended' ? styles['active'] : ''} onClick={e => {
                                 setTab('attended')
-                            }}>{'Attended'}</div>
+                            }}>{lang['Attended']}</div>
                             <div className={tab === 'created' ? styles['active'] : ''} onClick={e => {
                                 setTab('created')
-                            }}>{'Created'}</div>
+                            }}>{lang['Activity_State_Created']}</div>
                             <div className={tab === 'requests' ? styles['active'] : ''} onClick={e => {
                                 setTab('requests')
-                            }}>{'Pending requests'}</div>
+                            }}>{lang['Pending_Requests']}</div>
                         </div>
 
                         {(tab === 'attended' || tab === 'created') &&
@@ -80,24 +114,31 @@ function MyEvent({popupCities}: {popupCities: PopupCity[]}) {
                 }
             </div>
             <div className={styles['side']}>
-                <div className={styles['page-title']}>Pop-up Cities</div>
+                <div className={styles['page-title']}>{lang['My_Communities']}</div>
                 {
-                    popupCities.map((city, index) => {
-                        return <Link href={`/event/${city.group.username}/`}  className={styles['popup-cities']} key={city.id}>
+                    createdGroup.map((group, index) => {
+                        return <Link href={`/event/${group.username}/`}  className={styles['popup-cities']} key={group.id}>
                             <div className={styles['cover']}>
-                                <ImgLazy src={city.image_url!} width={300} />
+                                <ImgLazy src={group.image_url || defaultAvatar(group.id)} width={300} />
                             </div>
                             <div>
-                                <div className={styles['title']}>{city.title}</div>
-                                { showTime &&
-                                    <div className={styles['detail']}>
-                                        <i className={'icon-calendar'}/>
-                                        {formatTime(city.start_date!, city.end_date!, Intl.DateTimeFormat().resolvedOptions().timeZone).data}
-                                    </div>
-                                }
-                                <div className={styles['detail']}>
-                                    <i className={'icon-Outline'} />
-                                    {city.location}</div>
+                                <div className={styles['title']}>{group.nickname || group.username}</div>
+                                <div className={styles['detail']}> {group.member_count} {lang['Group_detail_tabs_member']}</div>
+                            </div>
+                        </Link>
+                    })
+                }
+
+                <div className={styles['page-title']}>{lang['My_Subscriptions']}</div>
+                {
+                    joinedGroup.map((group, index) => {
+                        return <Link href={`/event/${group.username}/`}  className={styles['popup-cities']} key={group.id}>
+                            <div className={styles['cover']}>
+                                <ImgLazy src={group.image_url || defaultAvatar(group.id)} width={300} />
+                            </div>
+                            <div>
+                                <div className={styles['title']}>{group.nickname || group.username}</div>
+                                <div className={styles['detail']}> {group.member_count} {lang['Group_detail_tabs_member']}</div>
                             </div>
                         </Link>
                     })

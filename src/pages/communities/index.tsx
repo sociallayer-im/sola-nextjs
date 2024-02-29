@@ -1,15 +1,17 @@
-import {useEffect, useState} from 'react'
+import {useContext, useEffect, useState} from 'react'
 import styles from './communities.module.scss'
 import Link from "next/link";
 import {getEventGroup, Group, memberCount} from "@/service/solas";
 import {GroupWithMemberCount} from "@/pages/discover";
 import ImgLazy from "@/components/base/ImgLazy/ImgLazy";
 import usePicture from "@/hooks/pictrue";
+import langContext from "@/components/provider/LangProvider/LangContext";
 
 function CommunitiesPage({eventGroups,members}: { eventGroups: Group[], members: { group_id: number, count: number }[] }) {
 
     const [groupInfo, setGroupInfo] = useState<GroupWithMemberCount[]>([])
     const {defaultAvatar} = usePicture()
+    const {lang} = useContext(langContext)
 
     useEffect(() => {
         setGroupInfo(eventGroups.map(group => {
@@ -24,7 +26,7 @@ function CommunitiesPage({eventGroups,members}: { eventGroups: Group[], members:
     return (<div className={styles['communities-page']}>
         <div className={styles['center']}>
             <h2 className={styles['page-title']}>
-                <div>{'Communities'}</div>
+                <div>{lang['Communities']}</div>
             </h2>
 
             <div className={styles['list']}>

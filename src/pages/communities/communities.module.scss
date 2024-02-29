@@ -38,6 +38,11 @@
     margin-right: 12px;
     margin-bottom: 12px;
     text-decoration: none;
+    transition: all 0.12s linear;
+
+    &:hover {
+      transform: translateY(-8px)
+    }
 
     .cover {
       width: 64px;
