@@ -86,9 +86,9 @@ function PageLogo() {
                         <img className={css(imgStyle)} src="/images/seedao.png" alt=""/>
                     </Link>
                 }
-                {/*{ process.env.NEXT_PUBLIC_SPECIAL_VERSION !== 'seedao' &&*/}
-                {/*    <HomePageSwitcher/>*/}
-                {/*}*/}
+                { process.env.NEXT_PUBLIC_SPECIAL_VERSION !== 'seedao' &&
+                    <HomePageSwitcher/>
+                }
                 {/*<MapEntry/>*/}
 
                 { !process.env.NEXT_PUBLIC_LEADING_EVENT_GROUP_ID &&

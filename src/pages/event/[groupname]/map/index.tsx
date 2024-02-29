@@ -350,6 +350,7 @@ function ComponentName(props: { markerType: string | null, group?: Group, isIfra
     }, [props.group])
 
     useEffect(() => {
+        console.log(typeof window !== 'undefined', !GoogleMapRef.current, MapReady, Map, MapEvent, mapDomRef.current, eventGroup?.id)
         if (typeof window !== 'undefined' && !GoogleMapRef.current && MapReady && Map && MapEvent && mapDomRef.current && eventGroup?.id) {
             GoogleMapRef.current = new Map(mapDomRef.current as HTMLElement, {
                 center: eventGroup && eventGroup.group_location_details ? JSON.parse(eventGroup.group_location_details).geometry.location : {

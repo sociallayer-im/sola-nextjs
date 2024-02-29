@@ -230,7 +230,7 @@ function Discover({eventGroups, popupCities, members} : {eventGroups: Group[], p
                     </svg>
                     <div className={styles['name']}>Development Doc</div>
                 </Link>
-                <Link href={'/'}
+                <Link href={'https://twitter.com/SocialLayer_im'} target='_blank'
                       style={{'background': 'linear-gradient(180deg, #F3FFF8 0%, rgba(255, 255, 255, 0.00) 100%)'}}>
                     <img src="/images/x.jpg" alt=""/>
                     <div className={styles['name']}>@SocialLayer_im</div>

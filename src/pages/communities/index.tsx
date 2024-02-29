@@ -79,9 +79,9 @@ function CommunitiesPage({eventGroups,members}: { eventGroups: Group[], members:
                     <Link href={'/'}>Contact us</Link>
                 </div>
 
-                <Link href={'/'}>
+                <Link href={'https://twitter.com/SocialLayer_im'} target='_blank'>
                     <img src="/images/x.jpg" alt=""/>
-                    Social Layer
+                    <span>Social Layer</span>
                 </Link>
             </div>
         </div>

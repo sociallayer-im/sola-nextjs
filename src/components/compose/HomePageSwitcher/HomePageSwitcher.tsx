@@ -70,7 +70,7 @@ function HomePageSwitcher() {
     }
 
     return (<>
-        {process.env.NEXT_PUBLIC_SPECIAL_VERSION !== 'zumap' &&
+        {false &&
             <div className={'home-page-switcher'}>
                 <div className={'group-page active'}>
                     <div onClick={
