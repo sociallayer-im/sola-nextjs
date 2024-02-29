@@ -81,10 +81,10 @@ function HomePageSwitcher() {
                         }
                     }>
                         {eventGroup ?
-                            leadingEvent?.id === eventGroup.id ?
-                                leadingEvent.logo ? <img src={leadingEvent.logo} alt={''}/>
-                                    : (eventGroup.nickname || eventGroup.username)
-                                : (eventGroup.nickname || eventGroup.username)
+                            leadingEvent?.id === eventGroup!.id ?
+                                leadingEvent?.logo ? <img src={leadingEvent!.logo!} alt={''}/>
+                                    : (eventGroup!.nickname || eventGroup!.username)
+                                : (eventGroup!.nickname || eventGroup!.username)
                             : lang['Nav_Event_Page']
                         }
                     </div>
