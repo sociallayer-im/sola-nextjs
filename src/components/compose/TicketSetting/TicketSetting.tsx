@@ -360,7 +360,6 @@ function Ticket({creator, ...props}: {
                 {props.ticket.end_time !== null &&
                     <div className={styles['time-picker']}>
                         <Datepicker
-                            timeSelectStart={true}
                             value={new Date(props.ticket.end_time!)}
                             onChange={({ date }) => {
                                 props.onChange && props.onChange({
@@ -376,6 +375,19 @@ function Ticket({creator, ...props}: {
                                     ...props.ticket,
                                     end_time: date?.toISOString()
                                 })
+                            }}
+                            overrides={{
+                                Select: {
+                                    props: {
+                                        overrides: {
+                                            Dropdown: {
+                                                style: ({ $theme  } : any) => ({
+                                                    minHeight: '300px',
+                                                })
+                                            }
+                                        }
+                                    }
+                                }
                             }}
                         />
                     </div>
@@ -447,6 +459,12 @@ function TicketSetting(props: { creator: Group | Profile, onChange?: (tickets: P
             verify
         }
     })
+
+    useEffect(() => {
+        if (!props.value.length) {
+            props.onChange && props.onChange([emptyTicket])
+        }
+    }, [])
 
     return (<div className={styles['ticket-setting-list']}>
         {

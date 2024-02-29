@@ -735,7 +735,7 @@ function CreateEvent(props: CreateEventPageProps) {
     }
 
     const checkForm = () => {
-        if (!ticketSettingRef || !ticketSettingRef.current?.verify()) {
+        if (enableTicket && (!ticketSettingRef?.current?.verify())) {
             showToast('Invalid ticket setting')
             return false
         }
