@@ -3,6 +3,14 @@
   min-height: 100vh;
   width: 100vw;
 
+  .tab-show {
+    display: block;
+  }
+
+  .tab-hide {
+    display: none;
+  }
+
   :global(.event-card) {
     width: auto;
     margin-right: 0;

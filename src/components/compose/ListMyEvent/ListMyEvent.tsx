@@ -7,7 +7,7 @@ import AppButton from "@/components/base/AppButton/AppButton";
 import userContext from "@/components/provider/UserProvider/UserContext";
 
 function ListMyEvent(props: {tab?: 'attended' | 'created' }) {
-    const [tab2Index, setTab2Index] = useState<'attended' | 'created'>('attended')
+    const [tab2Index, setTab2Index] = useState<'attended' | 'created'>(props.tab || 'attended')
     const {lang} = useContext(LangContext)
     const {user} = useContext(userContext)
 
@@ -68,7 +68,7 @@ function ListMyEvent(props: {tab?: 'attended' | 'created' }) {
     }, [user.id])
 
     useEffect(() => {
-        if (props.tab) {
+        if (props.tab && (props.tab === 'attended' || props.tab === 'created') && props.tab !== tab2Index) {
             changeTab(props.tab)
         }
     }, [props.tab])

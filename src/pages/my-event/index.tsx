@@ -18,14 +18,13 @@ export interface GroupWithMemberCount extends Group {
 }
 
 
-function MyEvent({popupCities}: {popupCities: PopupCity[]}) {
+function MyEvent() {
     const {user} = useContext(UserContext)
     const {openConnectWalletDialog} = useContext(DialogsContext)
     const {lang} = useContext(LangContext)
     const {eventGroups} = useContext(EventHomeContext)
     const {defaultAvatar} = usePicture()
 
-    const [showTime, setShowTime] = useState(false)
 
     const [tab, setTab] = useState<'attended' | 'created' | 'requests'>('attended')
     const [myGroup, setMyGroup] = useState<number[]>([])
@@ -40,12 +39,6 @@ function MyEvent({popupCities}: {popupCities: PopupCity[]}) {
             })
         }
     }, [user.userName])
-
-    useEffect(() => {
-        if (typeof window !== 'undefined') {
-            setShowTime(true)
-        }
-    }, [])
 
     useEffect(() => {
         if (eventGroups.length && myGroup.length && user.id) {
@@ -103,13 +96,14 @@ function MyEvent({popupCities}: {popupCities: PopupCity[]}) {
                             }}>{lang['Pending_Requests']}</div>
                         </div>
 
-                        {(tab === 'attended' || tab === 'created') &&
-                            <ListMyEvent tab={tab}/>
-                        }
 
-                        {tab === 'requests' &&
+                        <div className={(tab === 'attended' || tab === 'created') ? styles['tab-show'] : styles['tab-hide']}>
+                            <ListMyEvent tab={tab as any}/>
+                        </div>
+
+                        <div className={ tab === 'requests' ? styles['tab-show'] : styles['tab-hide']}>
                             <ListPendingEvent groupIds={myGroup}/>
-                        }
+                        </div>
                     </>
                 }
             </div>
@@ -153,13 +147,3 @@ function MyEvent({popupCities}: {popupCities: PopupCity[]}) {
 }
 
 export default MyEvent
-
-export const getServerSideProps = async (context: any) => {
-    const popupCities = await queryPopupCity({page: 1, page_size: 5})
-
-    return {
-        props: {
-            popupCities
-        }
-    }
-}
