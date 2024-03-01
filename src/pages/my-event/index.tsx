@@ -113,7 +113,10 @@ function MyEvent({popupCities}: {popupCities: PopupCity[]}) {
                     </>
                 }
             </div>
+
+            {user.userName &&
             <div className={styles['side']}>
+
                 <div className={styles['page-title']}>{lang['My_Communities']}</div>
                 {
                     createdGroup.map((group, index) => {
@@ -144,6 +147,7 @@ function MyEvent({popupCities}: {popupCities: PopupCity[]}) {
                     })
                 }
             </div>
+            }
         </div>
     </div>)
 }

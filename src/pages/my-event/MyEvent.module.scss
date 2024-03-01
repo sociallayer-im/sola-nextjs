@@ -9,6 +9,14 @@
     margin-bottom: 12px;
   }
 
+  :global {
+
+    .home-login-panel {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+  }
+
   .inner {
     max-width: 1040px;
     margin: 0 auto;
