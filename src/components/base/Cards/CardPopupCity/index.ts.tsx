@@ -6,7 +6,7 @@ import {PopupCity} from "@/service/solas";
 import usePicture from "@/hooks/pictrue";
 import {useTime3} from "@/hooks/formatTime";
 
-function CardPopupCity({ popupCity }: {popupCity: PopupCity}) {
+function CardPopupCity({popupCity}: { popupCity: PopupCity }) {
     const {defaultAvatar} = usePicture()
     const formatTime = useTime3()
     const [timeStr, setTimeString] = useState('')
@@ -24,7 +24,10 @@ function CardPopupCity({ popupCity }: {popupCity: PopupCity}) {
     return (<div className={styles['card-popup-city']}>
         {/*<div className={styles['citizens']}>321 citizens joined</div>*/}
         <div className={styles['cover']}>
-            <ImgLazy src={popupCity.image_url!} alt="" width={220} height={148}/>
+            {!!popupCity.image_url ?
+                <ImgLazy src={popupCity.image_url} alt="" width={220} height={148}/> :
+                <div className={styles['default-cover']}><span>{popupCity.title}</span></div>
+            }
         </div>
         <div className={styles['time']}>{timeStr}</div>
         <div className={styles['title']}>{popupCity.title}</div>
@@ -33,11 +36,11 @@ function CardPopupCity({ popupCity }: {popupCity: PopupCity}) {
             <div className={styles['items']}>
                 <div className={styles['item']}>
                     <i className={'icon-Outline'}></i>
-                   <div>{popupCity.location}</div>
+                    <div>{popupCity.location}</div>
                 </div>
                 <div className={styles['item']}>
                     <img src={popupCity.group.image_url || defaultAvatar(popupCity.group_id)} alt=""/>
-                   <div>by {popupCity.group.nickname || popupCity.group.username}</div>
+                    <div>by {popupCity.group.nickname || popupCity.group.username}</div>
                 </div>
             </div>
             <Link href={`/event/${popupCity.group.username}`} className={styles['link']}>{'View events'}</Link>

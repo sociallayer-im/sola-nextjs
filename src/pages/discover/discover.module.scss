@@ -59,6 +59,8 @@
   color: var(--color-text-main);
 
 
+
+
   .cover {
     max-width: 318px;
     height: 184px;
@@ -70,6 +72,22 @@
     align-items: center;
     margin-right: 16px;
     flex-grow: 0;
+
+    .default-cover {
+      width: 100%;
+      min-width: 318px;
+      height: 184px;
+      background: linear-gradient(45deg, #ffddf5, #cdfffb);
+      display: flex;
+      flex-flow: row nowrap;
+      justify-content: center;
+      align-items: center;
+      font-size: 22px;
+      color:#fff;
+      font-weight: 600;
+      text-align: center;
+      text-shadow: rgba(0,0,0, 0.2) 0 0 10px;
+    }
 
     img {
       width: 100%;
