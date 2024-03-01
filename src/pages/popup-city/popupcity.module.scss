@@ -1,0 +1,135 @@
+.popup-city-page {
+  background: var(--color-page-bg-1);
+  min-height: 100vh;
+  overflow: hidden;
+
+  .center {
+    max-width: 1024px;
+    padding: 0 12px;
+    margin: 0 auto;
+  }
+
+  .page-title {
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--color-text-main);
+    margin: 24px 0 20px 0;
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-between;
+    align-items: center;
+  }
+}
+
+
+.popup-city-list {
+  display: flex;
+  flex-flow: row wrap;
+  width: 100%;
+  margin-right: -12px;
+  margin-bottom: -12px;
+
+
+  :global(>div) {
+    min-width: calc((100% - 12px * 3) / 4);
+    max-width: calc((100% - 12px * 3) / 4);
+
+    &:nth-child(4n) {
+      margin-right: 0;
+    }
+  }
+
+  @media(max-width: 1000px) {
+    :global(>div) {
+      min-width: calc((100% - 12px * 2) / 3);
+      max-width: calc((100% - 12px * 2) / 3);
+
+      &:nth-child(4n) {
+        margin-right: 12px;
+      }
+
+      &:nth-child(3n) {
+        margin-right: 0;
+      }
+    }
+  }
+
+  @media(max-width: 650px) {
+    & {
+      flex-flow: row wrap;
+    }
+
+    :global(>div) {
+      min-width: calc((100% - 12px * 1) / 2);
+      max-width: calc((100% - 12px * 1) / 2);
+
+      &:nth-child(2n) {
+        margin-right: 0;
+      }
+
+      &:nth-child(3n) {
+        margin-right: 12px;
+      }
+    }
+  }
+}
+
+.footer {
+  margin-top: 90px;
+  display: flex;
+  flex-flow: row nowrap;
+  padding: 18px;
+  border-top: 1px solid #F1F1F1;
+  justify-content: space-between;
+
+  .left {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+
+    a {
+      margin-left: 30px;
+      text-decoration: none;
+      color: var(--Text-4-Headline, #272928);
+      font-size: 16px;
+      font-style: normal;
+      font-weight: 400;
+    }
+  }
+
+  > a {
+    align-items: center;
+    display: flex;
+    flex-flow: row nowrap;
+    color: var(--Text-4-Headline, #272928);
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 24px;
+    text-decoration: none;
+
+    img {
+      width: 18px;
+      height: 18px;
+      margin-right: 8px;
+    }
+  }
+
+  @media (max-width: 650px) {
+    & .left {
+      a {
+        font-size: 13px!important;
+        margin-left: 14px;
+      }
+    }
+
+    & > a {
+      span {
+        display: none;
+      }
+    }
+  }
+}
+
+
+

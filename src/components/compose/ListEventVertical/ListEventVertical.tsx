@@ -1,9 +1,9 @@
-import {useParams, usePathname, useSearchParams, useRouter} from "next/navigation";
+import {useParams, usePathname, useRouter, useSearchParams} from "next/navigation";
 import {useContext, useEffect, useRef, useState} from 'react'
 import LangContext from "../../provider/LangProvider/LangContext";
 import Empty from "../../base/Empty";
 import CardEvent from "../../base/Cards/CardEvent/CardEvent";
-import {Event, Participants, queryEvent, Group} from "@/service/solas";
+import {Event, Group, queryEvent} from "@/service/solas";
 import EventLabels from "../../base/EventLabels/EventLabels";
 import DialogsContext from "../../provider/DialogProvider/DialogsContext";
 import EventHomeContext from "../../provider/EventHomeProvider/EventHomeContext";
@@ -11,7 +11,7 @@ import AppButton from "@/components/base/AppButton/AppButton";
 import Link from "next/link";
 import useEvent, {EVENT} from "@/hooks/globalEvent";
 
-function ListEventVertical(props: {initData?: Event[] }) {
+function ListEventVertical(props: { initData?: Event[], patch?: string }) {
     const router = useRouter()
     const searchParams = useSearchParams()
     const params = useParams()
@@ -52,8 +52,8 @@ function ListEventVertical(props: {initData?: Event[] }) {
 
                 setList(init ? res : [...list, ...res])
                 setLoading(false)
-                if (res.length < 10 ) {
-                   setIsLoadAll(true)
+                if (res.length < 10) {
+                    setIsLoadAll(true)
                 }
             } else {
                 pageRef.current = init ? 1 : pageRef.current + 1
@@ -66,7 +66,7 @@ function ListEventVertical(props: {initData?: Event[] }) {
                 })
 
                 setList(init ? res : [...list, ...res])
-                if (res.length < 10 ) {
+                if (res.length < 10) {
                     setIsLoadAll(true)
                 }
                 setLoading(false)
@@ -95,9 +95,11 @@ function ListEventVertical(props: {initData?: Event[] }) {
         pageRef.current = 0
         setIsLoadAll(false)
         getEvent(true)
-        const href = params?.groupname ?
-            `/event/${eventGroup?.username}?tab=${tab}`
-            : `/?tab=${tab}`
+        const href = props.patch ?
+            `${props.patch}?tab=${tab}`
+            : params?.groupname ?
+                `/event/${eventGroup?.username}?tab=${tab}`
+                : `/?tab=${tab}`
         window?.history.pushState({}, '', href)
     }
 
@@ -119,24 +121,28 @@ function ListEventVertical(props: {initData?: Event[] }) {
         <div className={'module-tabs'}>
             <div className={'tab-titles'}>
                 <div className={'center'}>
-                    <Link href={params?.groupname ?
-                        `/event/${eventGroup?.username}?tab=coming`
-                        : `/?tab=coming`} shallow
+                    <Link href={props.patch ?
+                        `${props.patch}?tab=coming`
+                        : params?.groupname ?
+                            `/event/${eventGroup?.username}?tab=coming`
+                            : `/?tab=coming`} shallow
                           onClick={e => {
                               e.preventDefault()
                               changeTab('coming')
                           }}
-                         className={tab2Index === 'coming' ? 'module-title' : 'tab-title'}>
+                          className={tab2Index === 'coming' ? 'module-title' : 'tab-title'}>
                         {lang['Activity_Coming']}
                     </Link>
-                    <Link href={params?.groupname ?
-                        `/event/${eventGroup?.username}?tab=past`
-                        : `/?tab=past`} shallow
+                    <Link href={props.patch ?
+                        `${props.patch}?tab=coming`
+                        : params?.groupname ?
+                            `/event/${eventGroup?.username}?tab=past`
+                            : `/?tab=past`} shallow
                           onClick={e => {
                               e.preventDefault()
                               changeTab('past')
                           }}
-                         className={tab2Index === 'past' ? 'module-title' : 'tab-title'}>
+                          className={tab2Index === 'past' ? 'module-title' : 'tab-title'}>
                         {lang['Activity_Past']}
                     </Link>
                 </div>
@@ -175,7 +181,9 @@ function ListEventVertical(props: {initData?: Event[] }) {
                 {!loadAll &&
                     <AppButton
                         disabled={loading}
-                        onClick={e => {getEvent()}} style={{width: '200px', margin: '0 auto'}}>
+                        onClick={e => {
+                            getEvent()
+                        }} style={{width: '200px', margin: '0 auto'}}>
                         Load more
                     </AppButton>
                 }

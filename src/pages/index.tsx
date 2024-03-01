@@ -1,10 +1,23 @@
+import DiscoverPage from "@/pages/discover"
 import Page from "@/pages/event/index"
 import MapPage from '@/pages/event/[groupname]/map'
 import MaodaoHome from '@/pages/rpc'
-import {Event, getEventGroup, getGroupMembership, Group, Membership, queryBadge, queryEvent, Badge} from "@/service/solas";
+import {
+    Badge,
+    Event,
+    getEventGroup,
+    getGroupMembership,
+    Group,
+    memberCount,
+    Membership,
+    PopupCity,
+    queryBadge,
+    queryEvent,
+    queryPopupCity
+} from "@/service/solas";
 import SeedaoHome from "@/pages/seedao";
 
-export default function HomePage(props: { badges: Badge[], initEvent: Group, initList?: Event[], membership?: Membership[] }) {
+export default function HomePage(props: { badges: Badge[], eventGroups: Group[], members: { group_id: number, count: number }[], initEvent: Group, initList?: Event[], popupCities: PopupCity[], membership?: Membership[] }) {
     return <>
         {
             process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'zumap' ?
@@ -13,11 +26,17 @@ export default function HomePage(props: { badges: Badge[], initEvent: Group, ini
                     <MaodaoHome/> :
                     process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'seedao' ?
                         <SeedaoHome group={props.initEvent}/> :
-                        <Page
-                            badges={props.badges}
-                            initEvent={props.initEvent || undefined}
-                            membership={props.membership || []}
-                            initList={props.initList || []}/>
+                        process.env.NEXT_PUBLIC_LEADING_EVENT_GROUP_ID ?
+                            <Page
+                                badges={props.badges}
+                                initEvent={props.initEvent || undefined}
+                                membership={props.membership || []}
+                                initList={props.initList || []}/>
+                            :
+                            <DiscoverPage
+                                popupCities={props.popupCities}
+                                eventGroups={props.eventGroups}
+                                members={props.members}/>
         }
     </>
 }
@@ -52,16 +71,26 @@ export const getServerSideProps: any = (async (context: any) => {
             group_id: targetGroupId,
             role: 'all',
         }),
-        queryBadge({group_id: targetGroupId, page: 1})
+        queryBadge({group_id: targetGroupId, page: 1}),
+        queryPopupCity({page: 1, page_size: 8})
     ]
 
     console.time('Home page fetch data')
-    const [targetGroup, events, membership, badges] = await Promise.all(task)
+    const [targetGroup, events, membership, badges, popupCities] = await Promise.all(task)
     console.timeEnd('Home page fetch data')
 
-    return {props: {
-        initEvent: targetGroup.find((g: Group) => g.id === targetGroupId),
+    const groupIds = targetGroup.map((item: Group) => item.id)
+    const members = await memberCount(groupIds)
+
+    return {
+        props: {
+            initEvent: targetGroup.find((g: Group) => g.id === targetGroupId),
             initList: events,
             badges: badges.data,
-            membership}}
+            popupCities,
+            eventGroups: targetGroup,
+            members,
+            membership
+        }
+    }
 })

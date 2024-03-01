@@ -70,7 +70,7 @@ function HomePageSwitcher() {
     }
 
     return (<>
-        {process.env.NEXT_PUBLIC_SPECIAL_VERSION !== 'zumap' &&
+        {false &&
             <div className={'home-page-switcher'}>
                 <div className={'group-page active'}>
                     <div onClick={
@@ -81,10 +81,10 @@ function HomePageSwitcher() {
                         }
                     }>
                         {eventGroup ?
-                            leadingEvent?.id === eventGroup.id ?
-                                leadingEvent.logo ? <img src={leadingEvent.logo} alt={''}/>
-                                    : (eventGroup.nickname || eventGroup.username)
-                                : (eventGroup.nickname || eventGroup.username)
+                            leadingEvent?.id === eventGroup!.id ?
+                                leadingEvent?.logo ? <img src={leadingEvent!.logo!} alt={''}/>
+                                    : (eventGroup!.nickname || eventGroup!.username)
+                                : (eventGroup!.nickname || eventGroup!.username)
                             : lang['Nav_Event_Page']
                         }
                     </div>

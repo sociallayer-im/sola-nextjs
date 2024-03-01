@@ -2998,6 +2998,7 @@ export interface QueryEventProps {
     show_rejected_event?: boolean,
     recurring_event_id?: number,
     show_cancel_event?: boolean,
+    group_ids?: number[]
 }
 
 
@@ -3200,6 +3201,10 @@ export async function queryPendingEvent(props: QueryEventProps): Promise<Event[]
 
     if (props.group_id) {
         variables += `group_id: {_eq: ${props.group_id}}, `
+    }
+
+    if (props.group_ids) {
+        variables += `group_id: {_in: [${props.group_ids.join(',')}]}, `
     }
 
 
@@ -4881,6 +4886,144 @@ export async function setActivityRead (props: {ids: number[], auth_token: string
         url: `${apiUrl}/activity/set_read_status`,
         data: props
     })
+}
+
+export interface PopupCity {
+    id: number
+    image_url: string | null
+    location: string | null
+    start_date: string | null
+    title: string
+    updated_at:  string | null
+    website: string | null
+    created_at: string | null
+    end_date: string | null
+    group_id: string | null,
+    group: ProfileSimple
+}
+
+export async function queryPopupCity ({page = 1, page_size = 10}: {page?: number, page_size?: number}) {
+    const doc = gql`
+        query MyQuery {
+          popup_cities(offset: ${(page - 1 ) * page_size}, limit: ${page_size}, order_by: {id: desc}) {
+            id
+            image_url
+            location
+            start_date
+            title
+            updated_at
+            website
+            created_at
+            end_date
+            group_id
+            group {
+              image_url
+              id
+              nickname
+              username
+              banner_image_url
+              map_enabled
+            }
+          }
+    }
+    `
+
+    const res: any = await request(graphUrl, doc)
+    return res.popup_cities as PopupCity[]
+}
+
+export async function popupCityDetail (id: number) {
+    const doc = gql`
+        query MyQuery {
+          popup_cities(where: {id: {_eq: ${id}}}, order_by: {id: desc}) {
+            id
+            image_url
+            location
+            start_date
+            title
+            updated_at
+            website
+            created_at
+            end_date
+            group_id
+            group {
+              image_url
+              id
+              nickname
+              username
+              banner_image_url
+              map_enabled
+            }
+        }
+    }
+    `
+
+    const res: any = await request(graphUrl, doc)
+    return res.popup_cities[0] as PopupCity || null
+}
+
+export async function memberCount (group_ids: number[]) {
+    let queryItem = ''
+    group_ids.forEach((item) => {
+        queryItem = queryItem + `_${item}: memberships_aggregate(where: {group: {id: {_eq: "${item}"}}}) {aggregate {count}}
+        `
+    })
+
+    const doc = `query MyQuery @cached {
+        ${queryItem}
+    }`
+
+    const res: any = await request(graphUrl, doc)
+    const keys = Object.keys(res)
+
+    const res_format = keys.map((item, index) => {
+        return {
+            group_id: Number(item.replace('_', '')),
+            count: res[item].aggregate.count
+        }
+    })
+
+    return res_format
+}
+
+export async function groupComingEventCount (group_ids: number[]) {
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    let queryItem = ''
+    group_ids.forEach((item) => {
+        queryItem = queryItem + `_${item}: events_aggregate(where: {group: {id: {_eq: "${item}"}}, end_time: {_gt: "${today.toISOString()}"}}) {aggregate {count}}
+        `
+    })
+
+    const doc = `query MyQuery @cached {
+        ${queryItem}
+    }`
+
+    const res: any = await request(graphUrl, doc)
+    const keys = Object.keys(res)
+
+    const res_format = keys.map((item, index) => {
+        return {
+            group_id: Number(item.replace('_', '')),
+            count: res[item].aggregate.count
+        }
+    })
+
+    return res_format
+}
+
+export async function userManageGroups (userid: number) {
+    const doc = `query MyQuery {
+        memberships(where: {profile_id: {_eq: ${userid}}, role: {_in: ["owner", "manager"]}}) {
+            group {
+                id
+                }
+        }
+    }`
+
+    const res: any = await request(graphUrl, doc)
+
+    return res.memberships.map((item: any) => item.group.id) as number[]
 }
 
 export default {

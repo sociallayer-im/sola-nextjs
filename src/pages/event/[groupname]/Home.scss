@@ -19,6 +19,7 @@
   min-height: 100%;
   padding-bottom: 100px;
   box-sizing: border-box;
+  overflow: hidden;
 
   &:before {
     content: '';
@@ -32,15 +33,112 @@
     background: linear-gradient(180deg, rgba(238, 238, 238, 0.5) 0%, #FFFFFF 100%);
   }
 
+  .home-map {
+    margin: 20px;
+    overflow: hidden;
+    height: 300px;
+    outline: none;
+    position: relative;
+    background: #f1f1f1;
+
+    .map-link {
+      border-radius: 4px;
+      background: #FFF;
+      padding: 6px;
+      color: #000;
+      font-size: 12px;
+      font-style: normal;
+      font-weight: 600;
+      display: flex;
+      flex-flow: row nowrap;
+      align-items: center;
+      justify-content: center;
+      position: absolute;
+      right: 10px;
+      bottom: 10px;
+      text-decoration: none;
+
+      svg {
+        margin-left: 8px;
+      }
+    }
+
+    iframe {
+      outline: none;
+      position: absolute;
+      left: 0;
+      top: 0;
+    }
+  }
+
+  .home-page-city-name {
+    max-width: 1040px;
+    margin: 35px auto 0 auto;
+
+    @media (max-width: 450px) {
+      margin: 20px auto 0 auto;
+      .home-page-city-name-text {
+        font-size: 22px !important;
+      }
+    }
+
+    .home-page-city-name-text {
+      max-width: 1000px;
+      background: #f1f1f1;
+      border-radius: 8px;
+      display: flex;
+      height: 126px;
+      flex-flow: row nowrap;
+      align-items: center;
+      justify-content: center;
+      color: var(--Text-4-Headline, #272928);
+      font-size: 36px;
+      font-style: normal;
+      font-weight: 600;
+      line-height: 44px;
+      z-index: 2;
+      margin: 0 20px;
+      position: relative;
+    }
+  }
+
+  .calendar-btn {
+    border-radius: 7px;
+    background: var(--secondary-color-brand-51-light, #EEF2FE);
+    height: 42px;
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    color: var(--secondary-color-brand-53-normal, #7492EF);
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+    justify-content: center;
+    cursor: pointer;
+    text-decoration: none;
+    margin-left: 20px;
+    margin-right: 20px;
+    margin-top: 20px;
+
+    svg {
+      margin-right: 8px;
+    }
+
+    &:hover {
+      opacity: 0.7;
+    }
+  }
+
   .home-page-event-wrapper {
-    max-width: 1020px;
+    max-width: 1040px;
     display: flex;
     flex-flow: row nowrap;
     margin: 0 auto;
   }
 
   .home-page-event-main {
-    max-width: 630px;
+    max-width: 672px;
     flex: 1;
     overflow: auto;
     z-index: 2;
