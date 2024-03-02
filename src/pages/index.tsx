@@ -42,7 +42,6 @@ export default function HomePage(props: { badges?: Badge[], eventGroups?: Group[
 }
 
 export const getServerSideProps: any = (async (context: any) => {
-    console.time('Home page fetch data')
     let targetGroupId = 1516
     const tab = context.query?.tab
 
@@ -53,15 +52,18 @@ export const getServerSideProps: any = (async (context: any) => {
     }
 
     if (process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'zumap' || process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'maodao') {
-        console.timeEnd('Home page fetch data')
+        console.time('zumap/maodao home page fetch data')
+        console.timeEnd('zumap/maodao home page fetch data')
         return  { props : {}}
 
     } else if (process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'seedao') {
+        console.time('seedao home page fetch data')
         const eventgroups = await getEventGroup()
-        console.timeEnd('Home page fetch data')
+        console.timeEnd('seedao home page fetch data')
         return  { props : {initEvent: eventgroups.find((g: Group) => g.id === targetGroupId)}}
 
-    } else if (!! process.env.NEXT_PUBLIC_LEADING_EVENT_GROUP_ID) {
+    } else if (!!process.env.NEXT_PUBLIC_LEADING_EVENT_GROUP_ID) {
+        console.time('event home page fetch data')
         const task = [
             getEventGroup(),
             tab === 'past' ?
@@ -87,7 +89,7 @@ export const getServerSideProps: any = (async (context: any) => {
 
 
         const [targetGroup, events, membership, badges] = await Promise.all(task)
-        console.timeEnd('Home page fetch data')
+        console.timeEnd('event home page fetch data')
         return {
             props: {
                 initEvent: targetGroup.find((g: Group) => g.id === targetGroupId),
@@ -98,6 +100,7 @@ export const getServerSideProps: any = (async (context: any) => {
             }
         }
     } else {
+        console.time('discover page fetch data')
         const task = [
             queryPopupCity({page: 1, page_size: 8}),
             getEventGroup(),
@@ -108,7 +111,7 @@ export const getServerSideProps: any = (async (context: any) => {
         const groupIds = eventGroups.map((item: Group) => item.id)
         const members = await memberCount(groupIds)
 
-        console.timeEnd('Home page fetch data')
+        console.timeEnd('discover page fetch data')
         return  {
             props: {
                 popupCities,

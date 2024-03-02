@@ -109,8 +109,8 @@ export function useTime3() {
     const {lang, langType} = useContext(LangContext)
 
     return (from: string, to: string, timezone: string = 'UTC') => {
-        const fromStr = from.endsWith('Z') ? from : from + 'Z'
-        const toStr = to.endsWith('Z') ? to : to + 'Z'
+        const fromStr = from.endsWith('Z') || !from.includes(":") ? from : from + 'Z'
+        const toStr = to.endsWith('Z') || !from.includes(":") ? to : to + 'Z'
 
         if (process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'vitalia') {
             timezone = 'America/Tegucigalpa'
@@ -122,7 +122,6 @@ export function useTime3() {
         const now = dayjs.tz(new Date().getTime(), timezone)
         const isToday = fromDate.date() === now.date() && fromDate.month() === now.month() && fromDate.year() === now.year()
         const isTomorrow = fromDate.date() - now.date() === 1 && fromDate.month() === now.month() && fromDate.year() === now.year()
-
 
         const f_mon = lang['Month_Name'][fromDate.month()].toUpperCase()
         const f_date = fromDate.date() + ''
