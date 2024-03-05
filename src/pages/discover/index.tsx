@@ -30,36 +30,33 @@ function Discover({eventGroups, popupCities } : {eventGroups: Group[], popupCiti
     const formatTime = useTime3()
     const [timeStr, setTimeString] = useState('')
     const {lang} = useContext(LangContext)
-    const [featured, setFeatured] = useState<PopupCity | null>(null)
-    const [sortedPopupCities, setSortedPopupCities] = useState<PopupCity[]>([])
+
+    const featured = popupCities.find(item => item.group_tags?.includes(':featured'))
 
     useEffect(() => {
         if (popupCities.length > 0) {
             const featuredItem = popupCities.find(item => item.group_tags?.includes(':featured'))
-            setFeatured(featuredItem || null)
-
             if (typeof window !== 'undefined' && featuredItem) {
                 const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
                 setTimeString(formatTime(featuredItem.start_date!, featuredItem.end_date!, timezone).data)
             }
-
-            let topPopupCities: PopupCity[] = []
-            let normalPopupCities: PopupCity[] = []
-            let featuredPopupCities: PopupCity[] = []
-            popupCities.forEach((item) => {
-                if (item.group_tags?.includes(':featured')) {
-                    featuredPopupCities.push(item)
-                } else if (item.group_tags?.includes(':top')) {
-                    topPopupCities.push(item)
-                } else {
-                    normalPopupCities.push(item)
-                }
-            })
-
-            const _sortedPopupCities = [...featuredPopupCities, ...topPopupCities, ...normalPopupCities]
-            setSortedPopupCities(_sortedPopupCities)
         }
-    }, [popupCities])
+    }, [])
+
+    let topPopupCities: PopupCity[] = []
+    let normalPopupCities: PopupCity[] = []
+    let featuredPopupCities: PopupCity[] = []
+    popupCities.forEach((item) => {
+        if (item.group_tags?.includes(':featured')) {
+            featuredPopupCities.push(item)
+        } else if (item.group_tags?.includes(':top')) {
+            topPopupCities.push(item)
+        } else {
+            normalPopupCities.push(item)
+        }
+    })
+
+    const _sortedPopupCities = [...featuredPopupCities, ...topPopupCities, ...normalPopupCities]
 
     const start = async () => {
         if (user.userName && user.authToken) {
@@ -119,7 +116,7 @@ function Discover({eventGroups, popupCities } : {eventGroups: Group[], popupCiti
 
             <div className={styles['popup-city-list']}>
                 {
-                    sortedPopupCities.map((popupCity, index) => {
+                    _sortedPopupCities.map((popupCity, index) => {
                         return <CardPopupCity popupCity={popupCity} key={popupCity.id}/>
                     })
                 }
