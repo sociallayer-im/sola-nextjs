@@ -1,0 +1,51 @@
+@font-face {
+  font-family: 'icomoon-editor-icon';
+  src:  url('fonts/icomoon.eot?2u1oko');
+  src:  url('fonts/icomoon.eot?2u1oko#iefix') format('embedded-opentype'),
+    url('fonts/icomoon.ttf?2u1oko') format('truetype'),
+    url('fonts/icomoon.woff?2u1oko') format('woff'),
+    url('fonts/icomoon.svg?2u1oko#icomoon') format('svg');
+  font-weight: normal;
+  font-style: normal;
+  font-display: block;
+}
+
+[class^="editor-icon-"], [class*=" editor-icon-"] {
+  /* use !important to prevent issues with browser extensions that change fonts */
+  font-family: 'icomoon-editor-icon' !important;
+  speak: never;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+
+  /* Better Font Rendering =========== */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.editor-icon-quote:before {
+  content: "\e900";
+}
+.editor-icon-code:before {
+  content: "\e901";
+}
+.editor-icon-link:before {
+  content: "\e902";
+}
+.editor-icon-photo:before {
+  content: "\e903";
+}
+.editor-icon-unordered-list:before {
+  content: "\e904";
+}
+.editor-icon-ordered-list:before {
+  content: "\e905";
+}
+.editor-icon-italic:before {
+  content: "\e906";
+}
+.editor-icon-bold:before {
+  content: "\e907";
+}

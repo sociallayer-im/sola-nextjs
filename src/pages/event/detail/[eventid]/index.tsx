@@ -38,6 +38,7 @@ import EventDefaultCover from "@/components/base/EventDefaultCover";
 import {Swiper, SwiperSlide} from 'swiper/react'
 import {Mousewheel, FreeMode} from "swiper";
 import EventNotes from "@/components/base/EventNotes/EventNotes";
+import RichTextDisplayer from "@/components/compose/RichTextEditor/Displayer";
 
 import * as dayjsLib from "dayjs";
 import Empty from "@/components/base/Empty";
@@ -688,7 +689,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                         </a>
                                                     </div>
                                                 }
-                                                <ReasonText className={'event-des'} text={event.content}/>
+                                                <RichTextDisplayer markdownStr={event.content} />
 
                                                 { !!event.notes &&
                                                     <EventNotes hide={!isJoined && !isHoster} notes={event.notes} />
