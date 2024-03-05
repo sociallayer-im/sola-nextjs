@@ -17,7 +17,7 @@ import {
 } from "@/service/solas";
 import SeedaoHome from "@/pages/seedao";
 
-export default function HomePage(props: { badges?: Badge[], eventGroups?: Group[], members?: { group_id: number, count: number }[], initEvent?: Group, initList?: Event[], popupCities?: PopupCity[], membership?: Membership[] }) {
+export default function HomePage(props: { badges?: Badge[], eventGroups?: Group[], initEvent?: Group, initList?: Event[], popupCities?: PopupCity[], membership?: Membership[] }) {
     return <>
         {
             process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'zumap' ?
@@ -35,8 +35,7 @@ export default function HomePage(props: { badges?: Badge[], eventGroups?: Group[
                             :
                             <DiscoverPage
                                 popupCities={props.popupCities!}
-                                eventGroups={props.eventGroups!}
-                                members={props.members!}/>
+                                eventGroups={props.eventGroups!}/>
         }
     </>
 }
@@ -108,15 +107,11 @@ export const getServerSideProps: any = (async (context: any) => {
 
         const [popupCities, eventGroups] = await Promise.all(task)
 
-        const groupIds = eventGroups.map((item: Group) => item.id)
-        const members = await memberCount(groupIds)
-
         console.timeEnd('discover page fetch data')
         return  {
             props: {
                 popupCities,
-                eventGroups,
-                members
+                eventGroups
             }
         }
     }

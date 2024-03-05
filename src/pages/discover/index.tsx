@@ -22,7 +22,7 @@ export interface GroupWithMemberCount extends Group {
     member_count: number
 }
 
-function Discover({eventGroups, popupCities, members} : {eventGroups: Group[], popupCities: PopupCity[], members: {group_id: number, count: number}[]}) {
+function Discover({eventGroups, popupCities } : {eventGroups: Group[], popupCities: PopupCity[]}) {
     const {user} = useContext(UserContext)
     const {showLoading} = useContext(DialogsContext)
     const startIssueBadge = useIssueBadge()
@@ -30,28 +30,36 @@ function Discover({eventGroups, popupCities, members} : {eventGroups: Group[], p
     const formatTime = useTime3()
     const [timeStr, setTimeString] = useState('')
     const {lang} = useContext(LangContext)
-
-    const [groupInfo, setGroupInfo] = useState<GroupWithMemberCount[]>([])
-
-    useEffect(() => {
-        if (typeof window !== 'undefined' && !!popupCities[0]) {
-            // 获得浏览器时区
-            const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
-            setTimeString(formatTime(popupCities[0].start_date!, popupCities[0].end_date!, timezone).data)
-        } else {
-            setTimeString(formatTime(popupCities[0].start_date!, popupCities[0].end_date!).data)
-        }
-    }, [])
+    const [featured, setFeatured] = useState<PopupCity | null>(null)
+    const [sortedPopupCities, setSortedPopupCities] = useState<PopupCity[]>([])
 
     useEffect(() => {
-        setGroupInfo(eventGroups.map(group => {
-            const member_count = members.find(member => member.group_id === group.id)?.count || 0
-            return {
-                ...group,
-                member_count,
+        if (popupCities.length > 0) {
+            const featuredItem = popupCities.find(item => item.group_tags?.includes(':featured'))
+            setFeatured(featuredItem || null)
+
+            if (typeof window !== 'undefined' && featuredItem) {
+                const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
+                setTimeString(formatTime(featuredItem.start_date!, featuredItem.end_date!, timezone).data)
             }
-        }))
-    }, [eventGroups, members])
+
+            let topPopupCities: PopupCity[] = []
+            let normalPopupCities: PopupCity[] = []
+            let featuredPopupCities: PopupCity[] = []
+            popupCities.forEach((item) => {
+                if (item.group_tags?.includes(':featured')) {
+                    featuredPopupCities.push(item)
+                } else if (item.group_tags?.includes(':top')) {
+                    topPopupCities.push(item)
+                } else {
+                    normalPopupCities.push(item)
+                }
+            })
+
+            const _sortedPopupCities = [...featuredPopupCities, ...topPopupCities, ...normalPopupCities]
+            setSortedPopupCities(_sortedPopupCities)
+        }
+    }, [popupCities])
 
     const start = async () => {
         if (user.userName && user.authToken) {
@@ -64,23 +72,23 @@ function Discover({eventGroups, popupCities, members} : {eventGroups: Group[], p
 
     return <div className={styles['discover-page']}>
         <div className={styles['center']}>
-            { !!popupCities[0] &&
+            { !!featured &&
                 <>
                     <h2 className={styles['page-title']}>{lang['Featured']}</h2>
-                    <Link href={`/popup-city/${popupCities[0].id}`} className={styles['card-featured']}>
+                    <Link href={`/popup-city/${featured.id}`} className={styles['card-featured']}>
                         <div className={styles['cover']}>
-                            { !!popupCities[0].image_url ?
-                                    <ImgLazy width={318} height={184} src={popupCities[0].image_url!}/> :
-                                    <div className={styles['default-cover']}><span>{popupCities[0].title}</span></div>
+                            { !!featured.image_url ?
+                                    <ImgLazy width={318} height={184} src={featured.image_url!}/> :
+                                    <div className={styles['default-cover']}><span>{featured.title}</span></div>
                             }
                         </div>
                         <div className={styles['detail']}>
-                            <div className={styles['title']}>{popupCities[0].title}</div>
+                            <div className={styles['title']}>{featured.title}</div>
                             <div className={styles['des']}></div>
 
                             <div className={styles['item']}>
                                 <i className={'icon-Outline'}/>
-                                <div>{popupCities[0].location}</div>
+                                <div>{featured.location}</div>
                             </div>
 
                             <div className={styles['item']}>
@@ -89,8 +97,8 @@ function Discover({eventGroups, popupCities, members} : {eventGroups: Group[], p
                             </div>
 
                             <div className={styles['item']}>
-                                <ImgLazy width={32} height={32} src={popupCities[0].group.image_url || defaultAvatar(popupCities[0].group_id)}/>
-                                <div>by {popupCities[0].group.nickname || popupCities[0].group.username}</div>
+                                <ImgLazy width={32} height={32} src={featured.group.image_url || defaultAvatar(featured.group_id)}/>
+                                <div>by {featured.group.nickname || featured.group.username}</div>
                             </div>
                         </div>
                     </Link>
@@ -111,7 +119,7 @@ function Discover({eventGroups, popupCities, members} : {eventGroups: Group[], p
 
             <div className={styles['popup-city-list']}>
                 {
-                    popupCities.map((popupCity, index) => {
+                    sortedPopupCities.map((popupCity, index) => {
                         return <CardPopupCity popupCity={popupCity} key={popupCity.id}/>
                     })
                 }
@@ -131,12 +139,13 @@ function Discover({eventGroups, popupCities, members} : {eventGroups: Group[], p
 
             <div className={styles['group-list']}>
                 {
-                    groupInfo.slice(0, 8).map((group, index) => {
+                    eventGroups.slice(0, 8).map((group, index) => {
                         return <Link href={`/group/${group.username}`} key={index}>
                             <ImgLazy className={styles['cover']} width={64} height={64}
                                      src={group.image_url || defaultAvatar(group.id)}/>
                             <div className={styles['name']}>{group.nickname || group.username}</div>
-                            <div className={styles['detail']}><b>{group.member_count}</b> Members</div>
+                            <div className={styles['detail']}><b>{group.memberships_count}</b> Members</div>
+                            <div className={styles['detail']}><b>{group.events_count}</b> Events</div>
                         </Link>
                     })
                 }
@@ -240,7 +249,6 @@ export const getServerSideProps: any  = async (context: any) => {
         props: {
             eventGroups: req1[0],
             popupCities: req1[1],
-            members: req2,
         }
     }
 }

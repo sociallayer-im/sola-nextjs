@@ -401,6 +401,9 @@ export async function getGroups(props: GetGroupProps): Promise<Group[]> {
 
     const doc = gql`query MyQuery {
       groups(${condition}) {
+        events_count
+        memberships_count
+        group_tags
         about
         banner_image_url
         banner_link_url
@@ -1037,6 +1040,9 @@ export interface Group extends Profile {
     can_publish_event: string
     can_join_event: string
     can_view_event: string
+    events_count: number
+    memberships_count: number
+    group_tags :string | null
 }
 
 export interface QueryUserGroupProps {
@@ -1046,6 +1052,9 @@ export interface QueryUserGroupProps {
 export async function queryGroupsUserJoined(props: QueryUserGroupProps): Promise<Group[]> {
     const doc = gql`query MyQuery {
       groups(where: {status: {_neq: "freezed"}, memberships: {role: {_neq: "owner"}, profile: {id: {_eq: "${props.profile_id}"}}}}) {
+        events_count
+        memberships_count
+        group_tags
         about
         permissions
         banner_image_url
@@ -1092,6 +1101,9 @@ export async function queryGroupsUserJoined(props: QueryUserGroupProps): Promise
 export async function queryGroupsUserCreated(props: QueryUserGroupProps): Promise<Group[]> {
     const doc = gql`query MyQuery {
       groups(where: {status: {_neq: "freezed"}, memberships: {role: {_eq: "owner"}, profile: {id: {_eq: "${props.profile_id}"}}}}) {
+        events_count
+        memberships_count
+        group_tags
         about
         permissions
         banner_image_url
@@ -1138,6 +1150,9 @@ export async function queryGroupsUserCreated(props: QueryUserGroupProps): Promis
 export async function queryGroupsUserManager(props: QueryUserGroupProps): Promise<Group[]> {
     const doc = gql`query MyQuery {
       groups(where: {status: {_neq: "freezed"}, memberships: {role: {_eq: "manager"}, profile: {id: {_eq: "${props.profile_id}"}}}}) {
+        events_count
+        memberships_count
+        group_tags
         about
         permissions
         banner_image_url
@@ -3772,6 +3787,9 @@ export async function divineBeastRemerge(props: DivineBeastRmergeProps) {
 export async function getEventGroup() {
     const doc = gql`query MyQuery {
       groups(where: {event_enabled: {_eq: true}, status: {_neq: "freezed"}}) {
+        events_count
+        memberships_count
+        group_tags
         about
         permissions
         banner_image_url
@@ -4900,6 +4918,7 @@ export interface PopupCity {
     end_date: string | null
     group_id: string | null,
     group: ProfileSimple
+    group_tags: string[] | null
 }
 
 export async function queryPopupCity ({page = 1, page_size = 10}: {page?: number, page_size?: number}) {
@@ -4907,6 +4926,7 @@ export async function queryPopupCity ({page = 1, page_size = 10}: {page?: number
         query MyQuery {
           popup_cities(offset: ${(page - 1 ) * page_size}, limit: ${page_size}, order_by: {id: desc}) {
             id
+            group_tags
             image_url
             location
             start_date

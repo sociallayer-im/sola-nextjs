@@ -1,14 +1,29 @@
-import {useEffect} from 'react'
+import {useEffect, useState} from 'react'
 import styles from './popupcity.module.scss'
 import Link from "next/link";
 import CardPopupCity from "@/components/base/Cards/CardPopupCity/index.ts";
 import {getEventGroup, memberCount, PopupCity, queryPopupCity} from "@/service/solas";
 
 function PopupCityPage({popupCities} : {popupCities: PopupCity[]}) {
+    const [sortedPopupCities, setSortedPopupCities] = useState<PopupCity[]>([])
 
     useEffect(() => {
+        let topPopupCities: PopupCity[] = []
+        let normalPopupCities: PopupCity[] = []
+        let featuredPopupCities: PopupCity[] = []
+        popupCities.forEach((item) => {
+            if (item.group_tags?.includes(':featured')) {
+                featuredPopupCities.push(item)
+            } else if (item.group_tags?.includes(':top')) {
+                topPopupCities.push(item)
+            } else {
+                normalPopupCities.push(item)
+            }
+        })
 
-    }, [])
+        const _sortedPopupCities = [...featuredPopupCities, ...topPopupCities, ...normalPopupCities]
+        setSortedPopupCities(_sortedPopupCities)
+    }, [popupCities])
 
     return (<div className={styles['popup-city-page']}>
         <div className={styles['center']}>
@@ -17,7 +32,7 @@ function PopupCityPage({popupCities} : {popupCities: PopupCity[]}) {
             </h2>
 
             <div className={styles['popup-city-list']}>
-                {popupCities.map(item => {
+                {sortedPopupCities.map(item => {
                     return <CardPopupCity key={item.id} popupCity={item}/>
                 })}
             </div>

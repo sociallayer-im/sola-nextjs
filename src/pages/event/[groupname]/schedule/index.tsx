@@ -59,7 +59,6 @@ const getCalendarData = () => {
             events: [] as Event[]
         })
     }
-
     return dayArray as DateItem[]
 }
 
@@ -181,6 +180,12 @@ function ComponentName(props: { group: Group }) {
             eventListRef.current = events
             setReady(true)
         }
+        const historyTimeZone = localStorage.getItem('schedule-timezone')
+        try {
+            if (historyTimeZone) {
+                setTimezoneSelected(JSON.parse(historyTimeZone))
+            }
+        } catch (e: any) {}
         getEventList()
     }, [])
 
@@ -429,6 +434,7 @@ function ComponentName(props: { group: Group }) {
                                     searchable={false}
                                     options={timezoneList}
                                     onChange={(params) => {
+                                        localStorage.setItem('schedule-timezone', JSON.stringify(params.value))
                                         setTimezoneSelected(params.value as any)
                                     }}
                                 />
