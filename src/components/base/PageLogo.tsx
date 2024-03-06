@@ -92,7 +92,7 @@ function PageLogo() {
                 {/*<MapEntry/>*/}
 
                 { !process.env.NEXT_PUBLIC_LEADING_EVENT_GROUP_ID &&
-                    <Link href={'/discover'} className={(pathname?.includes('discover') || pathname === '/') ? 'nav-link active' : 'nav-link'}>Discover</Link>
+                    <Link href={'/'} className={(pathname?.includes('discover') || pathname === '/') ? 'nav-link active' : 'nav-link'}>Discover</Link>
                 }
 
                 <Link href={'/my-event'} className={pathname?.includes('my-event') ? 'nav-link active' : 'nav-link'}>My Events</Link>
