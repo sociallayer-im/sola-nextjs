@@ -18,7 +18,6 @@ import LangContext from "@/components/provider/LangProvider/LangContext";
 import {useTime3, useTime2} from "@/hooks/formatTime";
 import EventLabels from "@/components/base/EventLabels/EventLabels";
 import usePicture from "@/hooks/pictrue";
-import ReasonText from "@/components/base/EventDes/ReasonText";
 import AppButton from "@/components/base/AppButton/AppButton";
 import userContext from "@/components/provider/UserProvider/UserContext";
 import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
@@ -39,6 +38,7 @@ import {Swiper, SwiperSlide} from 'swiper/react'
 import {Mousewheel, FreeMode} from "swiper";
 import EventNotes from "@/components/base/EventNotes/EventNotes";
 import RichTextDisplayer from "@/components/compose/RichTextEditor/Displayer";
+import removeMarkdown from "markdown-to-text"
 
 import * as dayjsLib from "dayjs";
 import Empty from "@/components/base/Empty";
@@ -50,7 +50,7 @@ dayjs.extend(utc)
 dayjs.extend(timezone)
 
 
-function EventDetail(props: { event: Event | null, appName: string, host: string }) {
+function EventDetail(props: { event: Event | null, appName: string, host: string, des: string }) {
     const router = useRouter()
     const [event, setEvent] = useState<Event | null>(props.event || null)
     const [hoster, setHoster] = useState<Profile | null>(null)
@@ -289,7 +289,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
             <meta property="og:url" content={`${props.host}/event/detail/${event?.id}`}/>
             <meta property="og:image" content={event?.cover_url || ''}/>
             {event?.content &&
-                <meta name="description" property="og:description" content={event?.content.slice(0, 300) + '...'}/>
+                <meta name="description" property="og:description" content={props.des.slice(0, 300) + '...'}/>
             }
 
             {
@@ -862,10 +862,11 @@ export const getServerSideProps: any = (async (context: any) => {
             props: {
                 event: detail || null,
                 host: process.env.NEXT_PUBLIC_HOST,
-                appName: process.env.NEXT_PUBLIC_APP_NAME
+                appName: process.env.NEXT_PUBLIC_APP_NAME,
+                des: removeMarkdown(detail?.content || '')
             },
         }
     } else {
-        return {props: {event: null, host: process.env.NEXT_PUBLIC_HOST, appName: process.env.NEXT_PUBLIC_APP_NAME}}
+        return {props: {des: '', event: null, host: process.env.NEXT_PUBLIC_HOST, appName: process.env.NEXT_PUBLIC_APP_NAME}}
     }
 })
