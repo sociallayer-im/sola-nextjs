@@ -4,8 +4,8 @@ import userContext from "@/components/provider/UserProvider/UserContext";
 import chooseFile from "@/utils/chooseFile";
 import solas from "@/service/solas";
 import {Command, EditorState, Plugin} from "prosemirror-state";
-import {Attrs, DOMParser, NodeSpec} from "prosemirror-model";
-import {wrapInList} from "prosemirror-schema-list";
+import {Attrs, DOMParser, NodeSpec, Schema} from "prosemirror-model";
+import {wrapInList, addListNodes} from "prosemirror-schema-list";
 import {lift, setBlockType, toggleMark, wrapIn} from "prosemirror-commands";
 import {EditorView} from "prosemirror-view";
 import {editorSetup} from "@/components/compose/RichTextEditor/setup";
@@ -13,7 +13,7 @@ import styles from "@/components/compose/RichTextEditor/RichTextEditor.module.sc
 import {PLACEMENT, StatefulPopover} from "baseui/popover";
 import {StatefulMenu} from "baseui/menu";
 import AppButton from "@/components/base/AppButton/AppButton";
-import {defaultMarkdownParser, defaultMarkdownSerializer, schema as markdownSchema} from "prosemirror-markdown";
+import {defaultMarkdownParser, defaultMarkdownSerializer, schema as markdownSchema} from "./markdown/index";
 import AppInput from "@/components/base/AppInput";
 
 export interface MenuItemForm {
@@ -121,6 +121,11 @@ function RichTextEditor({
 
     useEffect(() => {
         if (editorRef.current && typeof window !== 'undefined') {
+            const mySchema = new Schema({
+                nodes: addListNodes(markdownSchema.spec.nodes, "paragraph block*", "block"),
+                marks: markdownSchema.spec.marks
+            })
+
             const UpdateEditorView = new Plugin({
                 view(editorView) {
                     return {
@@ -305,9 +310,7 @@ function RichTextEditor({
 
             editorViewRef.current = new EditorView(document.querySelector("#editor"), {
                 state: EditorState.create({
-                    doc: initText ?
-                        defaultMarkdownParser.parse(initText)!
-                        : DOMParser.fromSchema(markdownSchema).parse(document.querySelector("#content") as Node),
+                    doc: defaultMarkdownParser.parse(initText || '')!,
                     plugins: [UpdateEditorView, ...editorSetup({schema: markdownSchema})],
                 })
             })
@@ -379,7 +382,6 @@ function RichTextEditor({
             </div>
             <div ref={editorRef} id={"editor"}
                  style={{minHeight: `${height}px`, maxHeight: maxHeight ? `${maxHeight}px` : 'initial'}}/>
-            <div id={"content"}/>
         </div>
     </div>)
 }

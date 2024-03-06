@@ -7,6 +7,15 @@
     background: none!important;
     padding: 0;
     border-radius: 0;
+
+    :global {
+      .ProseMirror-separator {
+        display: none!important;
+      }
+      .ProseMirror-trailingBreak {
+        display: none!important;
+      }
+    }
   }
 
   :global {
@@ -98,10 +107,6 @@
       border-radius: 6px;
       text-decoration: none!important;
       font-family: sans-serif;
-    }
-
-    .ProseMirror-trailingBreak {
-      display: none;
     }
 
     .ProseMirror img {

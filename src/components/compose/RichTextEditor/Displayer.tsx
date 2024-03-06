@@ -2,7 +2,7 @@ import {useEffect, useRef} from 'react'
 import styles from './RichTextEditor.module.scss'
 import {EditorView,} from "prosemirror-view";
 import {EditorState} from "prosemirror-state";
-import {defaultMarkdownParser} from "prosemirror-markdown";
+import {defaultMarkdownParser} from "./markdown/index";
 
 
 function RichTextDisplayer({markdownStr}: { markdownStr: string }) {
