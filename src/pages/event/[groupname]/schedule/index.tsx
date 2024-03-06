@@ -43,7 +43,7 @@ interface DateItem {
 const getCalendarData = () => {
     const now = new Date()
     // 计算出今天前183天和后182天的日期时间戳数组 182
-    const from = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 183, 0, 0, 0, 0).getTime()
+    const from = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 182, 0, 0, 0, 0).getTime()
     const to = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 182, 0, 0, 0, 0).getTime()
 
     // 获得 from 和 to  之间所以天0点的时间戳数组
@@ -62,13 +62,15 @@ const getCalendarData = () => {
     return dayArray as DateItem[]
 }
 
+const _dayList = getCalendarData()
+
 function ComponentName(props: { group: Group }) {
     const eventGroup = props.group
     const now = new Date()
     const scroll1Ref = useRef<any>(null)
     const scroll2Ref = useRef<any>(null)
     const eventListRef = useRef<Event[]>([])
-    const dayList = useRef(getCalendarData())
+    const dayList = useRef(_dayList)
     const lock = useRef(false)
     const searchParams = useSearchParams()
 
@@ -120,40 +122,45 @@ function ComponentName(props: { group: Group }) {
 
             if (init) {
                 setTimeout(() => {
-                    if (observer) {
-                        observer.disconnect()
-                        observer = null
-                    }
-
-                    observer = new IntersectionObserver((entries, observer) => {
-                        entries.forEach(entry => {
-                            if (_offsetX === 0) return
-
-                            // 横向滚动时动态改变显示月份
-                            if (entry.isIntersecting) {
-                                const month = Number(entry.target.getAttribute('data-month'))
-                                const year = Number(entry.target.getAttribute('data-year'))
-                                if (_offsetX < 0) {
-                                    setCurrYear(year)
-                                    setCurrMonth(month)
-                                }
-                            } else {
-                                const month = Number(entry.target.getAttribute('data-month'))
-                                const year = Number(entry.target.getAttribute('data-year'))
-                                if (_offsetX > 0) {
-                                    setCurrMonth(month === 1 ? 12 : month - 1)
-                                    setCurrYear(month === 1 ? year - 1 : year)
-                                }
-                            }
-                        })
-                    }, {threshold: 0.9})
-
-                    const target = document.querySelectorAll('.month-begin')
-                    if (target.length > 0) {
-                        target.forEach((item: any) => {
-                            observer.observe(item)
-                        })
-                    }
+                    // if (observer) {
+                    //     observer.disconnect()
+                    //     observer = null
+                    // }
+                    //
+                    // observer = new IntersectionObserver((entries, observer) => {
+                    //     entries.forEach(entry => {
+                    //         if (_offsetX === 0) return
+                    //         console.log(_offsetX)
+                    //         // 横向滚动时动态改变显示月份
+                    //         if (entry.isIntersecting) {
+                    //             if (_offsetX < 0) {
+                    //                 console.log('======entry.target add')
+                    //                 const month = Number(entry.target.getAttribute('data-month'))
+                    //                 const year = Number(entry.target.getAttribute('data-year'))
+                    //                 document.querySelector('.curr-month')!.innerHTML = `${mouthName[month]} ${year}`
+                    //                 // setCurrYear(year)
+                    //                 // setCurrMonth(month)
+                    //             }
+                    //         } else {
+                    //             if (_offsetX > 0) {
+                    //                 console.log('======entry.target del')
+                    //                 const month = Number(entry.target.getAttribute('data-month'))
+                    //                 const year = Number(entry.target.getAttribute('data-year'))
+                    //                 document.querySelector('.curr-month')!.innerHTML = `${mouthName[month === 0 ? 11 : month - 1]} ${month === 0 ? year - 1 : year}`
+                    //                 // setCurrMonth(month === 0 ? 11 : month - 1)
+                    //                 // setCurrYear(month === 0 ? year - 1 : year)
+                    //             }
+                    //
+                    //         }
+                    //     })
+                    // }, {threshold: 0.9})
+                    //
+                    // const target = document.querySelectorAll('.month-begin')
+                    // if (target.length > 0) {
+                    //     target.forEach((item: any) => {
+                    //         observer.observe(item)
+                    //     })
+                    // }
 
                     slideToToday(true)
                 }, 100)
@@ -163,7 +170,6 @@ function ComponentName(props: { group: Group }) {
             scrollBar2.scrollLeft = offset
         }
     }
-
 
     useEffect(() => {
         const getEventList = async () => {
@@ -185,7 +191,8 @@ function ComponentName(props: { group: Group }) {
             if (historyTimeZone) {
                 setTimezoneSelected(JSON.parse(historyTimeZone))
             }
-        } catch (e: any) {}
+        } catch (e: any) {
+        }
         getEventList()
     }, [])
 
@@ -391,7 +398,8 @@ function ComponentName(props: { group: Group }) {
                     <div className={styles['schedule-title-left']}>
                         <div className={'group-name'}>{lang['Activity_Calendar']}</div>
                     </div>
-                    <Link className={styles['create-btn']} href={`/event/${eventGroup.username}/create`} target={'_blank'}>
+                    <Link className={styles['create-btn']} href={`/event/${eventGroup.username}/create`}
+                          target={'_blank'}>
                         <svg xmlns="http://www.w3.org/2000/svg" width="17" height="16" viewBox="0 0 17 16" fill="none">
                             <path
                                 d="M13.1667 7.33335H9.16675V3.33335C9.16675 3.15654 9.09651 2.98697 8.97149 2.86195C8.84646 2.73693 8.67689 2.66669 8.50008 2.66669C8.32327 2.66669 8.1537 2.73693 8.02868 2.86195C7.90365 2.98697 7.83341 3.15654 7.83341 3.33335V7.33335H3.83341C3.6566 7.33335 3.48703 7.40359 3.36201 7.52862C3.23699 7.65364 3.16675 7.82321 3.16675 8.00002C3.16675 8.17683 3.23699 8.3464 3.36201 8.47142C3.48703 8.59645 3.6566 8.66669 3.83341 8.66669H7.83341V12.6667C7.83341 12.8435 7.90365 13.0131 8.02868 13.1381C8.1537 13.2631 8.32327 13.3334 8.50008 13.3334C8.67689 13.3334 8.84646 13.2631 8.97149 13.1381C9.09651 13.0131 9.16675 12.8435 9.16675 12.6667V8.66669H13.1667C13.3436 8.66669 13.5131 8.59645 13.6382 8.47142C13.7632 8.3464 13.8334 8.17683 13.8334 8.00002C13.8334 7.82321 13.7632 7.65364 13.6382 7.52862C13.5131 7.40359 13.3436 7.33335 13.1667 7.33335Z"
@@ -399,7 +407,8 @@ function ComponentName(props: { group: Group }) {
                         </svg>
                         Create an event
                     </Link>
-                    <Link className={styles['create-btn-2']} href={`/event/${eventGroup.username}/create`} target={'_blank'}>
+                    <Link className={styles['create-btn-2']} href={`/event/${eventGroup.username}/create`}
+                          target={'_blank'}>
                         <svg xmlns="http://www.w3.org/2000/svg" width="17" height="16" viewBox="0 0 17 16"
                              fill="none">
                             <path
@@ -422,7 +431,7 @@ function ComponentName(props: { group: Group }) {
                 <div className={styles['schedule-menu-2']}>
                     <div className={styles['schedule-menu-center']}>
                         <div className={styles['mouth']}>
-                            <div>{mouthName[currMonth]} {currYear}</div>
+                            <div className={'curr-month'}>{mouthName[currMonth]} {currYear}</div>
                             <div className={styles['to-today']} onClick={e => {
                                 slideToToday()
                             }}>Today
@@ -480,8 +489,12 @@ function ComponentName(props: { group: Group }) {
                         return <div key={index + ''}
                                     data-month={item.month}
                                     data-year={item.year}
-                                    className={isMonthBegin ? `month-begin ${styles['date-column']}` :  styles['date-column']}>
+                                    className={isMonthBegin ? `month-begin ${styles['date-column']}` : styles['date-column']}>
                             <div className={styles['date-day']}>
+                                {
+                                    isMonthBegin &&
+                                    <span className={styles['month']}>{lang['Month_Name'][item.month]} </span>
+                                }
                                 <span>{item.dayName}</span>
                                 <span
                                     className={item.date === now.getDate() && item.year === now.getFullYear() && item.month === now.getMonth()
@@ -573,14 +586,14 @@ function EventCard({
     return <Link className={styles['schedule-event-card']}
                  href={`/event/detail/${event.id}`}
                  onClick={e => {
-                     if (Math.abs(_offsetX) > 5 || Math.abs(_offsetY) > 5) {
+                     if (_offsetX !==0 || _offsetX!==0) {
                          e.preventDefault()
                      }
 
                  }}
                  onTouchEnd={e => {
                      e.preventDefault()
-                     if (Math.abs(_offsetX) < 10 && Math.abs(_offsetY) < 10) {
+                     if (_offsetX===0 && _offsetX===0) {
                          router.push(`/event/detail/${event.id}`)
                      }
                  }}

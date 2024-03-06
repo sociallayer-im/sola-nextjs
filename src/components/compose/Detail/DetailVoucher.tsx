@@ -160,7 +160,7 @@ function DetailVoucher({redirect=true, ...props}: DetailBadgeletProps) {
                 }}>
                 {lang['BadgeDialog_Btn_Accept']}
             </AppButton>
-        { !isPresend && !isBadgeletOwner &&
+        { isBadgeletOwner &&
             <AppButton onClick={() => {
                 handleReject()
             }}>
