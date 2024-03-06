@@ -13,6 +13,7 @@ const emptyUser: User = {
     nickname: null,
     permissions: [],
     phone: null,
+    far_address: null
 }
 
 const UserContext  = createContext<UserContextType>({

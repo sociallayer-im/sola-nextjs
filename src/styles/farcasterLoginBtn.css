@@ -1,0 +1,23 @@
+.fc-authkit-signin-button button {
+    background: none;
+    font-weight: 600;
+    font-size: 16px;
+    line-height: 24px;
+    letter-spacing: 0.02em;
+    color: #000000;
+    padding: 4px 18px 4px 4px;
+    display: none;
+}
+
+.fc-authkit-signin-button button svg g {
+    fill: #7c65c1;
+
+}
+
+.fc-authkit-signin-button button span {
+    display: none;
+}
+
+.fc-authkit-profile-button {
+    display: none!important;
+}

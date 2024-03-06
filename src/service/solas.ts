@@ -233,6 +233,7 @@ export interface Profile {
             "industry": string
         }
     }
+    far_address: null | string
 }
 
 export interface ProfileSimple {
@@ -270,7 +271,9 @@ export async function queryProfileByGraph(props: { type: keyof GetProfileProps, 
         website
         zupass
         permissions,
-        sol_address
+        sol_address,
+        far_fid,
+        far_address
       }
     }`
 
@@ -4449,6 +4452,24 @@ export async function zupassLogin(props: {
     const res = await fetch.post({
         url: `${apiUrl}/profile/signin_with_zupass`,
         data: {...props, app: props.host, address_source: 'zupass'}
+    })
+
+    if (res.data.result === 'error') {
+        throw new Error(res.data.message)
+    }
+
+    return res.data.auth_token as string
+}
+
+export async function farcasterLogin(props: {
+    far_fid: number,
+    far_address: string,
+    next_token: string
+    host?: string,
+}) {
+    const res = await fetch.post({
+        url: `${apiUrl}/profile/signin_with_farcaster`,
+        data: {...props, app: props.host, address_source: 'farcaster'}
     })
 
     if (res.data.result === 'error') {

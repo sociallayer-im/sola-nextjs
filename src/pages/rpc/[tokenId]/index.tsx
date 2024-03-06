@@ -42,6 +42,7 @@ export const getServerSideProps: any = (async (context: any) => {
         banner_image_url: null,
         banner_link_url: null,
         group_location_details: null,
+        far_address: null
     }
 
     if (tokenId) {
