@@ -70,6 +70,7 @@
       margin-bottom: 6px;
       font-size: 16px;
       line-height: 2;
+      flex: 1;
 
       word-wrap: break-word;
       white-space: pre-wrap;
@@ -444,6 +445,8 @@
       margin-top: 6px;
       box-sizing: border-box;
       overflow: auto;
+      display: flex;
+      flex-flow: column;
     }
 
     .ProseMirror p:first-child,
