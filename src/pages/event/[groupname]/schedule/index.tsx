@@ -40,29 +40,35 @@ interface DateItem {
     events: Event[]
 }
 
-const getCalendarData = () => {
-    const now = new Date()
-    // 计算出今天前183天和后182天的日期时间戳数组 182
-    const from = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 182, 0, 0, 0, 0).getTime()
-    const to = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 182, 0, 0, 0, 0).getTime()
+const getCalendarData = (timeZone: string) => {
+    const now = dayjs.tz(new Date().getTime(), timeZone)
+
+    const timeStr = `${now.year()}-${now.month() + 1}-${now.date()} 00:00`
+    const _nowZero =dayjs(timeStr, timeZone)
+    const _from = _nowZero.subtract(182, 'day')
+
 
     // 获得 from 和 to  之间所以天0点的时间戳数组
     const dayArray = []
-    for (let i = from; i <= to; i += 24 * 60 * 60 * 1000) {
+    for (let i = 0; i < 365; i ++) {
+        let time = _from
+        if (i!==0) {
+            time = _from.add(i, 'day')
+        }
         dayArray.push({
-            date: new Date(i).getDate(),
-            timestamp: i,
-            dayName: dayName[new Date(i).getDay()],
-            day: new Date(i).getDate(),
-            month: new Date(i).getMonth(),
-            year: new Date(i).getFullYear(),
+            date: time.date(),
+            timestamp: time.valueOf(),
+            dayName: dayName[time.day()],
+            day: time.day(),
+            month:  time.month(),
+            year: time.year(),
             events: [] as Event[]
         })
     }
+    console.log('dayArray length', dayArray.length)
     return dayArray as DateItem[]
 }
 
-const _dayList = getCalendarData()
 
 function ComponentName(props: { group: Group }) {
     const eventGroup = props.group
@@ -70,7 +76,6 @@ function ComponentName(props: { group: Group }) {
     const scroll1Ref = useRef<any>(null)
     const scroll2Ref = useRef<any>(null)
     const eventListRef = useRef<Event[]>([])
-    const dayList = useRef(_dayList)
     const lock = useRef(false)
     const searchParams = useSearchParams()
 
@@ -79,14 +84,14 @@ function ComponentName(props: { group: Group }) {
     const [showJoined, setShowJoined] = useState(false)
     const {lang} = useContext(LangContext)
 
-
+    const [dayList, setDayList] = useState<DateItem[]>([])
     const [eventList, setEventList] = useState<Event[]>([])
     const [showList, setShowList] = useState<DateItem[]>([])
     const [ready, setReady] = useState(false)
     const [currMonth, setCurrMonth] = useState(new Date().getMonth())
     const [currYear, setCurrYear] = useState(new Date().getFullYear())
     const [currTag, setCurrTag] = useState<string[]>([])
-    const [timezoneSelected, setTimezoneSelected] = useState<{ label: string, id: string }[]>([timezoneInfo])
+    const [timezoneSelected, setTimezoneSelected] = useState<{ label: string, id: string }[]>([])
 
     // touch on pc
     const touchStart = useRef(false)
@@ -99,19 +104,19 @@ function ComponentName(props: { group: Group }) {
         const scrollBar1 = scroll1Ref.current
         const scrollBar2 = scroll2Ref.current
 
-        let targetDate = now
+        let targetDate = dayjs.tz(new Date().getTime(), timezoneSelected[0].id)
 
         const initDateString = searchParams?.get('date')
-        if (!!initDateString && init) {
-            const dateRegex = /^\d{4}-\d{1,2}-\d{1,2}$/
-            targetDate = dateRegex.test(initDateString) ? new Date(initDateString) : now
+        const dateRegex = /^\d{4}-\d{1,2}-\d{1,2}$/
+        if (!!initDateString && init && dateRegex.test(initDateString)) {
+            targetDate =  dayjs.tz(initDateString, timezoneSelected[0].id)
         }
 
-        setCurrMonth(targetDate.getMonth())
-        setCurrYear(targetDate.getFullYear())
+        setCurrMonth(targetDate.month())
+        setCurrYear(targetDate.year())
 
-        const targetColumnIndex = dayList.current.findIndex((item: DateItem) => {
-            return item.year === targetDate.getFullYear() && item.month === targetDate.getMonth() && item.date === targetDate.getDate()
+        const targetColumnIndex = dayList.findIndex((item: DateItem) => {
+            return item.year === targetDate.year() && item.month === targetDate.month() && item.date === targetDate.date()
         })
 
         const offset = targetColumnIndex * 256
@@ -120,51 +125,49 @@ function ComponentName(props: { group: Group }) {
             scrollBar1.scrollLeft = offset
             scrollBar2.scrollLeft = offset
 
-            if (init) {
-                setTimeout(() => {
-                    // if (observer) {
-                    //     observer.disconnect()
-                    //     observer = null
-                    // }
-                    //
-                    // observer = new IntersectionObserver((entries, observer) => {
-                    //     entries.forEach(entry => {
-                    //         if (_offsetX === 0) return
-                    //         console.log(_offsetX)
-                    //         // 横向滚动时动态改变显示月份
-                    //         if (entry.isIntersecting) {
-                    //             if (_offsetX < 0) {
-                    //                 console.log('======entry.target add')
-                    //                 const month = Number(entry.target.getAttribute('data-month'))
-                    //                 const year = Number(entry.target.getAttribute('data-year'))
-                    //                 document.querySelector('.curr-month')!.innerHTML = `${mouthName[month]} ${year}`
-                    //                 // setCurrYear(year)
-                    //                 // setCurrMonth(month)
-                    //             }
-                    //         } else {
-                    //             if (_offsetX > 0) {
-                    //                 console.log('======entry.target del')
-                    //                 const month = Number(entry.target.getAttribute('data-month'))
-                    //                 const year = Number(entry.target.getAttribute('data-year'))
-                    //                 document.querySelector('.curr-month')!.innerHTML = `${mouthName[month === 0 ? 11 : month - 1]} ${month === 0 ? year - 1 : year}`
-                    //                 // setCurrMonth(month === 0 ? 11 : month - 1)
-                    //                 // setCurrYear(month === 0 ? year - 1 : year)
-                    //             }
-                    //
-                    //         }
-                    //     })
-                    // }, {threshold: 0.9})
-                    //
-                    // const target = document.querySelectorAll('.month-begin')
-                    // if (target.length > 0) {
-                    //     target.forEach((item: any) => {
-                    //         observer.observe(item)
-                    //     })
-                    // }
+            setTimeout(() => {
+                // if (observer) {
+                //     observer.disconnect()
+                //     observer = null
+                // }
+                //
+                // observer = new IntersectionObserver((entries, observer) => {
+                //     entries.forEach(entry => {
+                //         if (_offsetX === 0) return
+                //         console.log(_offsetX)
+                //         // 横向滚动时动态改变显示月份
+                //         if (entry.isIntersecting) {
+                //             if (_offsetX < 0) {
+                //                 console.log('======entry.target add')
+                //                 const month = Number(entry.target.getAttribute('data-month'))
+                //                 const year = Number(entry.target.getAttribute('data-year'))
+                //                 document.querySelector('.curr-month')!.innerHTML = `${mouthName[month]} ${year}`
+                //                 // setCurrYear(year)
+                //                 // setCurrMonth(month)
+                //             }
+                //         } else {
+                //             if (_offsetX > 0) {
+                //                 console.log('======entry.target del')
+                //                 const month = Number(entry.target.getAttribute('data-month'))
+                //                 const year = Number(entry.target.getAttribute('data-year'))
+                //                 document.querySelector('.curr-month')!.innerHTML = `${mouthName[month === 0 ? 11 : month - 1]} ${month === 0 ? year - 1 : year}`
+                //                 // setCurrMonth(month === 0 ? 11 : month - 1)
+                //                 // setCurrYear(month === 0 ? year - 1 : year)
+                //             }
+                //
+                //         }
+                //     })
+                // }, {threshold: 0.9})
+                //
+                // const target = document.querySelectorAll('.month-begin')
+                // if (target.length > 0) {
+                //     target.forEach((item: any) => {
+                //         observer.observe(item)
+                //     })
+                // }
 
-                    slideToToday(true)
-                }, 100)
-            }
+                slideToToday(true)
+            }, 100)
         } else {
             scrollBar1.scrollLeft = offset
             scrollBar2.scrollLeft = offset
@@ -172,11 +175,34 @@ function ComponentName(props: { group: Group }) {
     }
 
     useEffect(() => {
+        const historyTimeZone = localStorage.getItem('schedule-timezone')
+        try {
+            if (historyTimeZone) {
+                setTimezoneSelected(JSON.parse(historyTimeZone))
+            } else {
+                setTimezoneSelected([timezoneInfo])
+            }
+        } catch (e: any) {
+        }
+    }, [])
+
+    useEffect(() => {
+        if (timezoneSelected.length) {
+            setDayList(getCalendarData(timezoneSelected[0].id))
+        }
+    }, [timezoneSelected])
+
+    useEffect(() => {
         const getEventList = async () => {
+            // if (eventList.length!==0) {
+            //     setEventList([...eventList])
+            //     return
+            // }
+
             const events = await queryEvent({
                 group_id: eventGroup.id,
-                start_time_from: new Date(dayList.current[0].timestamp).toISOString(),
-                start_time_to: new Date(dayList.current[dayList.current.length - 1].timestamp).toISOString(),
+                start_time_from: new Date(dayList[0].timestamp).toISOString(),
+                start_time_to: new Date(dayList[dayList.length - 1].timestamp).toISOString(),
                 page: 1,
                 event_order: 'asc',
                 page_size: 1000
@@ -186,18 +212,14 @@ function ComponentName(props: { group: Group }) {
             eventListRef.current = events
             setReady(true)
         }
-        const historyTimeZone = localStorage.getItem('schedule-timezone')
-        try {
-            if (historyTimeZone) {
-                setTimezoneSelected(JSON.parse(historyTimeZone))
-            }
-        } catch (e: any) {
+
+        if (dayList.length) {
+            getEventList()
         }
-        getEventList()
-    }, [])
+    }, [dayList])
 
     useEffect(() => {
-        const list = JSON.parse(JSON.stringify(dayList.current))
+        const list = JSON.parse(JSON.stringify(dayList))
         eventList.forEach(item => {
             const eventStarTime = dayjs.tz(new Date(item.start_time!).getTime(), timezoneSelected[0].id)
             const targetIndex = list.findIndex((i: DateItem) => {
@@ -209,9 +231,10 @@ function ComponentName(props: { group: Group }) {
         })
         setShowList(list)
         setReady(true)
-    }, [eventList, timezoneSelected])
+    }, [eventList])
 
     useEffect(() => {
+        if (!showList.length) return
         const checkScroll = (e: any) => {
             const offset = e.target.scrollLeft
             const target = window.document.querySelector('.event-wrapper')
@@ -241,7 +264,6 @@ function ComponentName(props: { group: Group }) {
 
         const checkMousedown = (e: any) => {
             e.preventDefault()
-            console.log('down')
             touchStart.current = true
             touchStartX.current = e.clientX
             touchStartY.current = e.clientY
@@ -364,7 +386,7 @@ function ComponentName(props: { group: Group }) {
                 }
             }
         }
-    }, [scroll1Ref, scroll2Ref])
+    }, [scroll1Ref, scroll2Ref, showList])
 
     useEffect(() => {
         let res: any = []
@@ -432,22 +454,27 @@ function ComponentName(props: { group: Group }) {
                     <div className={styles['schedule-menu-center']}>
                         <div className={styles['mouth']}>
                             <div className={'curr-month'}>{mouthName[currMonth]} {currYear}</div>
-                            <div className={styles['to-today']} onClick={e => {
-                                slideToToday()
-                            }}>Today
-                            </div>
-                            <div className={`${styles['timezone-selected']} input-disable`}>
-                                <Select
-                                    value={timezoneSelected}
-                                    clearable={false}
-                                    searchable={false}
-                                    options={timezoneList}
-                                    onChange={(params) => {
-                                        localStorage.setItem('schedule-timezone', JSON.stringify(params.value))
-                                        setTimezoneSelected(params.value as any)
-                                    }}
-                                />
-                            </div>
+                            {  timezoneSelected.length !== 0 &&
+                                <>
+                                <div className={styles['to-today']} onClick={e => {
+                                    slideToToday()
+                                }}>Today
+                                </div>
+                                <div className={`${styles['timezone-selected']} input-disable`}>
+                                    <Select
+                                        value={timezoneSelected}
+                                        clearable={false}
+                                        searchable={false}
+                                        options={timezoneList}
+                                        onChange={(params) => {
+                                            localStorage.setItem('schedule-timezone', JSON.stringify(params.value))
+                                            setTimezoneSelected(params.value as any)
+                                        }}
+                                    />
+                                </div>
+                            </>
+
+                            }
                         </div>
                         {!!user.id &&
                             <div className={styles['show-joined']} onClick={e => {
@@ -497,7 +524,7 @@ function ComponentName(props: { group: Group }) {
                                 }
                                 <span>{item.dayName}</span>
                                 <span
-                                    className={item.date === now.getDate() && item.year === now.getFullYear() && item.month === now.getMonth()
+                                    className={item.date === dayjs.tz(new Date().getTime(), timezoneSelected[0]!.id).date() && item.year === dayjs.tz(new Date().getTime(), timezoneSelected[0]!.id).year() && item.month === dayjs.tz(new Date().getTime(), timezoneSelected[0]!.id).month()
                                         ? styles['date-active'] : styles['date']}>{item.date}</span>
                             </div>
                         </div>
