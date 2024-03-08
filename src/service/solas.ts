@@ -4867,7 +4867,7 @@ export async function queryTickets (props: {
     }`
 
     const res: any = await request(graphUrl, doc)
-    return res.tickets.map(item => {
+    return res.tickets.map((item: any) => {
         return {
             ...item,
             end_time: item.end_time ?
