@@ -10,7 +10,7 @@ import Erc20TokenPaymentHandler from "@/components/base/Erc20TokenPaymentHandler
 import Erc20TokenApproveHandler from "@/components/base/Erc20TokenApproveHandler/Erc20TokenApproveHandler";
 import Erc20Balance from "@/components/base/Erc20Balance/Erc20Balance";
 import EventDefaultCover from "@/components/base/EventDefaultCover";
-import {Event, joinEvent, queryBadgeDetail, Ticket, Badge, queryBadgelet, queryBadgeletDetail} from '@/service/solas'
+import {Badge, Event, joinEvent, queryBadgeDetail, queryBadgelet, Ticket} from '@/service/solas'
 import useTime from "@/hooks/formatTime";
 import {paymentTokenList} from "@/payment_settring";
 import UserContext from "@/components/provider/UserProvider/UserContext";
@@ -41,7 +41,7 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
     useEffect(() => {
         if (!!user.id && !!badge) {
             queryBadgelet({owner_id: user.id, badge_id: badge.id, page: 1}).then((res) => {
-               setOwnedBadge(!!res.length)
+                setOwnedBadge(!!res.length)
             })
         } else {
             setOwnedBadge(false)
@@ -49,9 +49,7 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
     }, [user.id, badge])
 
     useEffect(() => {
-        if (props.ticket.payment_token_name) {
-            setSoldOut(props.ticket.quantity === 0)
-        }
+        setSoldOut(props.ticket.quantity === 0)
 
         if (props.ticket.check_badge_id) {
             queryBadgeDetail({id: props.ticket.check_badge_id}).then((res) => {
@@ -76,15 +74,15 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
         return address.slice(0, 6) + '...' + address.slice(len - 6, len)
     }
 
-    const handleJoin = async (isFree=false) => {
+    const handleJoin = async (isFree = false) => {
         const unload = showLoading()
 
         try {
-            const join =  await joinEvent(
+            const join = await joinEvent(
                 {
                     id: props.event.id,
                     auth_token: user.authToken || '',
-                    ticket_id:  props.ticket.id,
+                    ticket_id: props.ticket.id,
                 }
             )
 
@@ -125,8 +123,8 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
         <div className={styles['dialog-event']}>
             {
                 props.event.cover_url ?
-                    <img className={styles['cover']} src={props.event.cover_url} alt="" />
-                    : <EventDefaultCover width={53} height={74} event={props.event} />
+                    <img className={styles['cover']} src={props.event.cover_url} alt=""/>
+                    : <EventDefaultCover width={53} height={74} event={props.event}/>
 
             }
             <div className={styles['info']}>
@@ -148,13 +146,13 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
                             <img src={badge.image_url} alt=""/>
                             <div>{badge.title}</div>
                         </div>
-                        { OwnedBadge && <div className={styles['owned']}>Owned</div>}
-                        { !OwnedBadge && user.id && <div className={styles['owned']}>Not Collected</div>}
+                        {OwnedBadge && <div className={styles['owned']}>Owned</div>}
+                        {!OwnedBadge && user.id && <div className={styles['owned']}>Not Collected</div>}
                     </div>
                 </div>
             }
 
-            { props.ticket.payment_target_address &&
+            {props.ticket.payment_target_address &&
                 <div className={styles['receiver']}>
                     <div className={styles['receiver-des']}>Payments will be sent to</div>
                     <div className={styles['address']}>
@@ -176,31 +174,32 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
             }
         </div>
 
-        { props.ticket.payment_token_price !== null && !!token && !!chain &&
+        {props.ticket.payment_token_price !== null && !!token && !!chain &&
             <>
                 <div className={styles['payment-title']}>Payment</div>
                 <div className={styles['price']}>
                     <div className={styles['label']}>Price</div>
-                    <div className={styles['value']}>{formatUnits(BigInt(props.ticket.payment_token_price),token.decimals!)} {props.ticket.payment_token_name?.toUpperCase()}</div>
+                    <div
+                        className={styles['value']}>{formatUnits(BigInt(props.ticket.payment_token_price), token.decimals!)} {props.ticket.payment_token_name?.toUpperCase()}</div>
                 </div>
                 <div className={styles['balance']}>
                     <div className={styles['label']}>Balance</div>
                     <div className={styles['value']}>
                         {
-                        !!address ? <Erc20Balance
-                                chanId={chain.chainId}
-                                account={address}
-                                token={props.ticket.payment_token_address!}
-                                decimals={token.decimals}/>
-                            : '--'
-                    }
+                            !!address ? <Erc20Balance
+                                    chanId={chain.chainId}
+                                    account={address}
+                                    token={props.ticket.payment_token_address!}
+                                    decimals={token.decimals}/>
+                                : '--'
+                        }
                         <span>{props.ticket.payment_token_name?.toUpperCase()}</span>
                     </div>
                 </div>
             </>
         }
 
-        { !!errorMsg &&
+        {!!errorMsg &&
             <div className={styles['error-msg']}>{errorMsg}</div>
         }
 
@@ -256,16 +255,29 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
                     showToast('Payment successful')
                     props.close()
                 }}
-                content={(trigger, busy) => <AppButton
-                    disabled={busy || !!errorMsg}
-                    special={!busy && !errorMsg}
-                    onClick={ async (e) => {
-                        const loading = showLoading()
-                        const participant = await handleJoin()
-                        loading()
-                        setErrorMsg('')
-                        trigger?.(participant!.id)
-                    }}>{'Pay'}</AppButton>}
+                content={(trigger, busy, sending, verifying) => {
+                    return errorMsg ? <AppButton special onClick={e => {
+                            setErrorMsg('')
+                            setApproved(false)
+                        }
+                        }>{'Retry'}</AppButton>
+                        : <AppButton
+                            disabled={busy || !!errorMsg}
+                            special={!busy && !errorMsg}
+                            onClick={async (e) => {
+                                const loading = showLoading()
+                                const participant = await handleJoin()
+                                loading()
+                                setErrorMsg('')
+                                trigger?.(participant!.id)
+                            }}>{
+                            sending ?
+                                'Sending Transaction...' :
+                                verifying ?
+                                    'Verifying...' :
+                                    'Pay'
+                        }</AppButton>
+                }}
             />
         }
 
@@ -284,10 +296,10 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
                 decimals={token.decimals}
                 chainId={chain.chainId}
                 onErrMsg={(errMsg: string) => {
-                   setErrorMsg(errMsg)
+                    setErrorMsg(errMsg)
                 }}
                 onSuccess={(txHash: string) => {
-                   setApproved(true)
+                    setApproved(true)
                 }}
                 content={(trigger, busy) => <AppButton
                     disabled={busy || !!errorMsg}
@@ -299,10 +311,10 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
             />
         }
 
-        { !!user.id && !chain && hasBadgePermission && !stopSales &&
+        {!!user.id && !chain && hasBadgePermission && !stopSales && !soldOut &&
             <AppButton special onClick={e => {
-               handleJoin(true)
-           }}>{'Get A Ticket'}</AppButton>
+                handleJoin(true)
+            }}>{'Get A Ticket'}</AppButton>
         }
     </div>)
 }

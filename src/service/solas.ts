@@ -4867,7 +4867,16 @@ export async function queryTickets (props: {
     }`
 
     const res: any = await request(graphUrl, doc)
-    return res.tickets as Ticket[]
+    return res.tickets.map(item => {
+        return {
+            ...item,
+            end_time: item.end_time ?
+                item.end_time.endsWith('Z') ?
+                    item.end_time :
+                    item.end_time + 'Z'
+                : null,
+        }
+    }) as Ticket[]
 }
 
 export interface Activity {
@@ -4938,7 +4947,7 @@ export async function setActivityRead (props: {ids: number[], auth_token: string
     })
 }
 
-export async function getParticipantDetail (props: {id?: number, event_id?: number, profile_id?: number}) {
+export async function getParticipantDetail (props: {id?: number, event_id?: number, profile_id?: number, ticket_id?: number}) {
     let variables = ''
     if (props.id) {
         variables += `id: {_eq: ${props.id}}, `
@@ -4950,6 +4959,10 @@ export async function getParticipantDetail (props: {id?: number, event_id?: numb
 
     if (props.profile_id) {
         variables += `profile_id: {_eq: ${props.profile_id}}, `
+    }
+
+    if (props.ticket_id) {
+        variables += `ticket_id: {_eq: ${props.ticket_id}}, `
     }
 
     const doc = gql`query MyQuery {

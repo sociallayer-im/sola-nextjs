@@ -9,7 +9,11 @@ let loadingRef: any = null
 
 function Erc20TokenPaymentHandler(
     props: {
-        content?: (trigger: ((participant_id: number) => void) | undefined, busy: boolean) => ReactNode
+        content?: (
+            trigger: ((participant_id: number) => void) | undefined,
+            busy: boolean,
+            sending: boolean,
+            verifying: boolean) => ReactNode
         token: string
         decimals: number
         amount: string
@@ -29,10 +33,12 @@ function Erc20TokenPaymentHandler(
     const { chain } = useNetwork()
 
     const [busy, setBusy] = useState(false)
+    const [sending, setSending] = useState(false)
+    const [verifying, setVerifying] = useState(false)
 
     const verifyPayment = async (participant_id: number) => {
         return new Promise((resolve, reject) => {
-            let remainTimes = 60
+            let remainTimes = 10
             const checkParticipant = async () => {
                 try {
                     const participant = await getParticipantDetail({id: participant_id})
@@ -67,11 +73,11 @@ function Erc20TokenPaymentHandler(
     const handlePay = async (participant_id: number) => {
         try {
             setBusy(true)
+            setSending(true)
 
             if (chain?.id !== props.chainId) {
                 await switchNetworkAsync?.(props.chainId)
             }
-
 
             const payhubContract = paymentTokenList.find((item) => item.chainId === props.chainId)?.payHub
             const opt = {
@@ -99,7 +105,10 @@ function Erc20TokenPaymentHandler(
                 {hash}
             )
 
+            setSending(false)
+            setVerifying(true)
             const verify = await verifyPayment(participant_id)
+            setVerifying(false)
 
             loadingRef?.()
             console.log('transaction====', transaction)
@@ -113,6 +122,8 @@ function Erc20TokenPaymentHandler(
         } finally {
             loadingRef?.()
             setBusy(false)
+            setSending(false)
+            setVerifying(false)
         }
     }
 
@@ -120,7 +131,7 @@ function Erc20TokenPaymentHandler(
         {props.content ? props.content(async (participant_id) => {
             loadingRef = showLoading()
             await handlePay(participant_id)
-        }, busy) : null}
+        }, busy, sending, verifying) : null}
     </>)
 }
 

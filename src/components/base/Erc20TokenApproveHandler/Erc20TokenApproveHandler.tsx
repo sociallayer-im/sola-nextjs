@@ -77,6 +77,7 @@ function Erc20TokenApproveHandler(
 
     useEffect(() => {
         if (address) {
+            setBusy(true)
             publicClient.readContract({
                 address: props.token as any,
                 abi: erc20_abi,
@@ -90,6 +91,8 @@ function Erc20TokenApproveHandler(
                 if (res !== undefined && res >= BigInt(props.amount)) {
                     props.onSuccess?.('')
                 }
+            }).finally(() => {
+                setBusy(false)
             })
         }
     }, [address])
