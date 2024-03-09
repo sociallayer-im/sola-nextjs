@@ -258,7 +258,7 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
                 content={(trigger, busy, sending, verifying) => {
                     return errorMsg ? <AppButton special onClick={e => {
                             setErrorMsg('')
-                            setApproved(false)
+                            setApproved(true)
                         }
                         }>{'Retry'}</AppButton>
                         : <AppButton

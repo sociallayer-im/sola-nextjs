@@ -1,7 +1,6 @@
 import {ReactNode, useContext, useState} from 'react'
 import {useAccount, usePublicClient, useWalletClient, useSwitchNetwork, useNetwork} from "wagmi";
 import {payhub_abi, paymentTokenList} from "@/payment_settring";
-import {parseUnits} from "viem/utils";
 import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
 import {getParticipantDetail} from "@/service/solas";
 
@@ -36,9 +35,9 @@ function Erc20TokenPaymentHandler(
     const [sending, setSending] = useState(false)
     const [verifying, setVerifying] = useState(false)
 
-    const verifyPayment = async (participant_id: number) => {
+    const verifyPayment = async (participant_id: number, once = false) => {
         return new Promise((resolve, reject) => {
-            let remainTimes = 10
+            let remainTimes = 60
             const checkParticipant = async () => {
                 try {
                     const participant = await getParticipantDetail({id: participant_id})
@@ -46,9 +45,15 @@ function Erc20TokenPaymentHandler(
                         reject(new Error('Participant not found'))
                     }
 
+                    if (once){
+                        // just check once
+                        resolve(participant?.payment_status === 'success')
+                    }
+
                     if (participant?.payment_status === 'fail') {
                         reject(new Error('Fail for verify'))
                     }
+
 
                     if (participant?.payment_status !== 'success') {
                         remainTimes--
@@ -74,6 +79,16 @@ function Erc20TokenPaymentHandler(
         try {
             setBusy(true)
             setSending(true)
+
+            const alreadyPay = await verifyPayment(participant_id, true)
+
+            if (alreadyPay) {
+                setBusy(false)
+                setSending(false)
+                setVerifying(false)
+                !!props.onSuccess && props.onSuccess('')
+                return
+            }
 
             if (chain?.id !== props.chainId) {
                 await switchNetworkAsync?.(props.chainId)
@@ -126,6 +141,7 @@ function Erc20TokenPaymentHandler(
             setVerifying(false)
         }
     }
+
 
     return (<>
         {props.content ? props.content(async (participant_id) => {
