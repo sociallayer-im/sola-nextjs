@@ -25,7 +25,7 @@ function CardPopupCity({popupCity}: { popupCity: PopupCity }) {
         {/*<div className={styles['citizens']}>321 citizens joined</div>*/}
         <div className={styles['cover']}>
             {!!popupCity.image_url ?
-                <ImgLazy src={popupCity.image_url} alt="" width={220} height={148}/> :
+                <ImgLazy src={popupCity.image_url} alt="" width={440} height={296}/> :
                 <div className={styles['default-cover']}><span>{popupCity.title}</span></div>
             }
         </div>

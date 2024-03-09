@@ -17,6 +17,9 @@ import solas, {
 import usePicture from "@/hooks/pictrue";
 import {useTime3} from "@/hooks/formatTime";
 import LangContext from "@/components/provider/LangProvider/LangContext";
+import { Swiper, SwiperSlide } from 'swiper/react'
+import { Virtual, Pagination, Autoplay, Navigation } from 'swiper'
+import 'swiper/css';
 
 export interface GroupWithMemberCount extends Group {
     member_count: number
@@ -31,7 +34,7 @@ function Discover({eventGroups, popupCities } : {eventGroups: Group[], popupCiti
     const [timeStr, setTimeString] = useState('')
     const {lang} = useContext(LangContext)
 
-    const featured = popupCities.find(item => item.group_tags?.includes(':featured'))
+    const featureds = popupCities.filter(item => item.group_tags?.includes(':featured'))
 
     useEffect(() => {
         if (popupCities.length > 0) {
@@ -69,36 +72,56 @@ function Discover({eventGroups, popupCities } : {eventGroups: Group[], popupCiti
 
     return <div className={styles['discover-page']}>
         <div className={styles['center']}>
-            { !!featured &&
+            { featureds.length > 0 &&
                 <>
-                    <h2 className={styles['page-title']}>{lang['Featured']}</h2>
-                    <Link href={`/popup-city/${featured.id}`} className={styles['card-featured']}>
-                        <div className={styles['cover']}>
-                            { !!featured.image_url ?
-                                    <ImgLazy width={318} height={184} src={featured.image_url!}/> :
-                                    <div className={styles['default-cover']}><span>{featured.title}</span></div>
-                            }
-                        </div>
-                        <div className={styles['detail']}>
-                            <div className={styles['title']}>{featured.title}</div>
-                            <div className={styles['des']}></div>
+                 <h2 className={styles['page-title']}>{lang['Featured']}</h2>
+                    <Swiper
+                        autoplay={{
+                            delay: 3000,
+                            disableOnInteraction: true,
+                        }}
+                        loop={true}
+                        pagination={{
+                            clickable: true,
+                        }}
+                        data-testid='AppSwiper'
+                        modules={[Virtual, Autoplay, Pagination, Navigation]}
+                        spaceBetween={ 0 }
+                        slidesPerView={'auto'} >
+                        {
+                            featureds.map((featured, index) => {
+                                return  <SwiperSlide key={featured.id}>
+                                    <Link  href={`/popup-city/${featured.id}`} className={styles['card-featured']}>
+                                        <div className={styles['cover']}>
+                                            { !!featured.image_url ?
+                                                <ImgLazy width={636} height={368} src={featured.image_url!}/> :
+                                                <div className={styles['default-cover']}><span>{featured.title}</span></div>
+                                            }
+                                        </div>
+                                        <div className={styles['detail']}>
+                                            <div className={styles['title']}>{featured.title}</div>
+                                            <div className={styles['des']}></div>
 
-                            <div className={styles['item']}>
-                                <i className={'icon-Outline'}/>
-                                <div>{featured.location}</div>
-                            </div>
+                                            <div className={styles['item']}>
+                                                <i className={'icon-Outline'}/>
+                                                <div>{featured.location}</div>
+                                            </div>
 
-                            <div className={styles['item']}>
-                                <i className={'icon-calendar'}/>
-                                <div>{timeStr}</div>
-                            </div>
+                                            <div className={styles['item']}>
+                                                <i className={'icon-calendar'}/>
+                                                <div>{timeStr}</div>
+                                            </div>
 
-                            <div className={styles['item']}>
-                                <ImgLazy width={32} height={32} src={featured.group.image_url || defaultAvatar(featured.group_id)}/>
-                                <div>by {featured.group.nickname || featured.group.username}</div>
-                            </div>
-                        </div>
-                    </Link>
+                                            <div className={styles['item']}>
+                                                <ImgLazy width={32} height={32} src={featured.group.image_url || defaultAvatar(featured.group_id)}/>
+                                                <div>by {featured.group.nickname || featured.group.username}</div>
+                                            </div>
+                                        </div>
+                                    </Link>
+                                </SwiperSlide>
+                            })
+                        }
+                    </Swiper>
                 </>
             }
 

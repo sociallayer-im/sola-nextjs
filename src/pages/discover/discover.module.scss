@@ -1,6 +1,20 @@
 .discover-page {
   background: var(--color-page-bg-1);
 
+  :global {
+    .swiper-slide {
+      padding: 3px;
+      box-sizing: border-box;
+    }
+
+    .swiper-pagination-bullet {
+      width: 20px;
+      height: 5px;
+      border-radius: 3px;
+      transform: translateY(5px);
+    }
+  }
+
   .center {
     max-width: 1024px;
     padding: 0 12px;
@@ -50,16 +64,13 @@
 .card-featured {
   min-height: 216px;
   border-radius: 8px;
-  box-shadow: 0 4px 16px 0 #0000001F;
+  box-shadow: 0 0 5px 0 #0000001F;
   box-sizing: border-box;
   padding: 16px;
   display: flex;
   flex-flow: row nowrap;
   text-decoration: none;
   color: var(--color-text-main);
-
-
-
 
   .cover {
     max-width: 318px;
@@ -90,9 +101,11 @@
     }
 
     img {
-      width: 100%;
+      min-width: 100%;
+      width: auto;
       min-height: 184px;
-      height: auto;
+      height: 184px;
+        object-fit: cover;
     }
   }
 
@@ -117,6 +130,12 @@
       -webkit-box-orient: vertical;
       overflow: hidden;
       margin-bottom: 30px;
+    }
+
+    @media (max-width: 650px){
+      .des {
+        display: none;
+      }
     }
   }
 
