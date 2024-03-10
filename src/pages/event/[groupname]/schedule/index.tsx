@@ -413,6 +413,8 @@ function ComponentName(props: { group: Group }) {
         })
     }, [])
 
+    const creatEventPatch = eventGroup?.username === 'web3festival' ? `/event/${eventGroup.username}/custom-create`: `/event/${eventGroup.username}/create`
+
     return (<div className={styles['schedule-page']}>
         <div className={`${styles['schedule-head']} schedule-head`}>
             <div className={styles['page-center']}>
@@ -420,7 +422,7 @@ function ComponentName(props: { group: Group }) {
                     <div className={styles['schedule-title-left']}>
                         <div className={'group-name'}>{lang['Activity_Calendar']}</div>
                     </div>
-                    <Link className={styles['create-btn']} href={`/event/${eventGroup.username}/create`}
+                    <Link className={styles['create-btn']} href={creatEventPatch}
                           target={'_blank'}>
                         <svg xmlns="http://www.w3.org/2000/svg" width="17" height="16" viewBox="0 0 17 16" fill="none">
                             <path
@@ -429,7 +431,7 @@ function ComponentName(props: { group: Group }) {
                         </svg>
                         Create an event
                     </Link>
-                    <Link className={styles['create-btn-2']} href={`/event/${eventGroup.username}/create`}
+                    <Link className={styles['create-btn-2']} href={creatEventPatch}
                           target={'_blank'}>
                         <svg xmlns="http://www.w3.org/2000/svg" width="17" height="16" viewBox="0 0 17 16"
                              fill="none">
