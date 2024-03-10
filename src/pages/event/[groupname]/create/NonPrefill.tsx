@@ -84,7 +84,8 @@ export interface CreateEventPageProps {
 const getNearestTime = () => {
     const now = new Date()
     const minutes = now.getMinutes()
-    const minuteRange = [0, 15, 30, 45, 60]
+    // const minuteRange = [0, 15, 30, 45, 60]
+    const minuteRange = [0, 30, 60]
     const nearestMinute = minuteRange.find((item) => {
         return item >= minutes
     })
@@ -159,6 +160,11 @@ function CreateEvent(props: CreateEventPageProps) {
 
     const [enableNotes, setEnableNotes] = useState(false)
     const [notes, setNotes] = useState('')
+
+
+    // for themu official event
+    const [isLimit, setIsLimit] = useState(false)
+    const [timeOutOfRandError, setTimeOutOfRandError] = useState('')
 
     const toNumber = (value: string, set: any) => {
         if (!value) {
@@ -361,6 +367,24 @@ function CreateEvent(props: CreateEventPageProps) {
             setFormReady(true)
         }
     }
+
+    useEffect(() => {
+        if (eventSite && eventSite.id === 23) {
+            setIsLimit(true)
+        }
+    }, [eventSite])
+
+    useEffect(() => {
+        if (isLimit) {
+            if (new Date(start).getHours() < 6) {
+                setTimeOutOfRandError('The available time for events is from 8:00 to 18:00.')
+            } else if (new Date(ending).getHours() < 6) {
+                setTimeOutOfRandError('The available time for events is from 8:00 to 18:00.')
+            } else {
+                setTimeOutOfRandError('')
+            }
+        }
+    },[start, ending, isLimit])
 
     useEffect(() => {
         if (props?.eventId) {
@@ -1163,7 +1187,9 @@ function CreateEvent(props: CreateEventPageProps) {
                                         to: ending,
                                         timezone: timezone
                                     }}
-                                    allowRepeat={isManager}
+                                    arrowAllDay={false}
+                                    allowRepeat={!isLimit}
+                                    isLimited={isLimit}
                                     onChange={e => {
                                         setStart(e.from)
                                         setEnding(e.to)
@@ -1183,6 +1209,10 @@ function CreateEvent(props: CreateEventPageProps) {
 
                         {startTimeError && <div className={'start-time-error'}>
                             {lang['Activity_Form_Ending_Time_Error']}
+                        </div>}
+
+                        {timeOutOfRandError && <div className={'start-time-error'}>
+                            {timeOutOfRandError}
                         </div>}
 
                         {!!eventGroup && ((isEditMode && formReady) || !isEditMode) &&

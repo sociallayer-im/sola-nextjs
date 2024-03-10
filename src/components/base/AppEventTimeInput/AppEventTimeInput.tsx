@@ -57,6 +57,8 @@ interface AppDateInputProps {
         timezone: string,
     }
     allowRepeat?: boolean,
+    arrowAllDay?: boolean,
+    isLimited?: boolean,
     onChange: (value: {
         from: string,
         to: string,
@@ -67,7 +69,7 @@ interface AppDateInputProps {
     }) => any
 }
 
-function AppDateInput({allowRepeat = true, initData, ...props}: AppDateInputProps) {
+function AppDateInput({allowRepeat = true, initData, arrowAllDay = true, isLimited = false, ...props}: AppDateInputProps) {
     const {lang} = useContext(LangContext)
     const [from, setFrom] = useState(input(initData.from, initData.timezone))
     const [to, setTo] = useState(input(initData.to, initData.timezone))
@@ -199,10 +201,14 @@ function AppDateInput({allowRepeat = true, initData, ...props}: AppDateInputProp
 
     useEffect(() => {
         const isAllDay = dayjs.tz(new Date(initData.from).getTime(), initData.timezone).hour() === 0 && (new Date(initData.to).getTime() - new Date(initData.from).getTime() + 60000) % 8640000 === 0
-        setAllDay(isAllDay)
+        if (arrowAllDay) {
+            setAllDay(isAllDay)
+        }
+
         setFrom(input(initData.from, initData.timezone))
         setTo(input(initData.to, initData.timezone))
-    }, [])
+
+    }, [isLimited])
 
     useEffect(() => {
         if (initData.timezone !== timezone[0]!.id) {
@@ -231,11 +237,25 @@ function AppDateInput({allowRepeat = true, initData, ...props}: AppDateInputProp
             {!allDay &&
                 <div className={'time-input time-input-start'}>
                     <TimePicker
-                        step={60 * 15}
+                        minTime={ isLimited ? new Date(from.getFullYear(), from.getMonth(), from.getDate(), 8, 0) : undefined}
+                        maxTime={ isLimited ? new Date(from.getFullYear(), from.getMonth(), from.getDate(), 17, 30): undefined}
+                        step={isLimited ? 60 * 30 : 60 * 15}
                         value={from}
                         format={'24'}
                         onChange={date => {
-                            changeFromTime(date as any)
+                            if (!isLimited) {
+                                changeFromTime(date as any)
+                            } else {
+                                if ((date as any).getTime() > to.getTime()) {
+                                   changeFromTime(to as any)
+                                   changeToTime(date as any)
+                                } else if ((date as any).getTime() === to.getTime()) {
+                                    changeFromTime(date as any)
+                                    changeToTime(new Date((date as any).getTime() + (30 * 60 * 1000)) as any)
+                                } else {
+                                    changeFromTime(date as any)
+                                }
+                            }
                         }}/>
                 </div>
             }
@@ -251,12 +271,15 @@ function AppDateInput({allowRepeat = true, initData, ...props}: AppDateInputProp
                 !allDay &&
                 <div className={'time-input time-input-ending'}>
                     <TimePicker
-                        step={60 * 15}
+                        minTime={ isLimited ? new Date(from.getFullYear(), from.getMonth(), from.getDate(), from.getHours(), from.getMinutes() + 30) : undefined}
+                        maxTime={ isLimited ? new Date(from.getFullYear(), from.getMonth(), from.getDate(), 18, 0): undefined}
+                        step={isLimited ? 60 * 30 : 60 * 15}
                         value={to}
                         format={'24'}
                         onChange={date => {
                             changeToTime(date as any)
                         }}/>
+
                 </div>
             }
 
@@ -301,27 +324,29 @@ function AppDateInput({allowRepeat = true, initData, ...props}: AppDateInputProp
         </div>
 
         <div className={'all-day-repeat'}>
-            <div className={'all-day'}>
-                <Toggle checked={allDay} onChange={e => {
-                    if (e.target.checked) {
-                        history.current = [from, to]
-                        const year = from.getFullYear()
-                        const mouth = from.getMonth()
-                        const day = from.getDate()
-                        setFrom(new Date(year, mouth, day, 0, 0))
-                        setTo(new Date(year, mouth, day, 23, 59))
-                    } else {
-                        setFrom(history.current[0])
-                        setTo(history.current[1])
-                    }
+            { arrowAllDay &&
+                <div className={'all-day'}>
+                    <Toggle checked={allDay} onChange={e => {
+                        if (e.target.checked) {
+                            history.current = [from, to]
+                            const year = from.getFullYear()
+                            const mouth = from.getMonth()
+                            const day = from.getDate()
+                            setFrom(new Date(year, mouth, day, 0, 0))
+                            setTo(new Date(year, mouth, day, 23, 59))
+                        } else {
+                            setFrom(history.current[0])
+                            setTo(history.current[1])
+                        }
 
-                    setAllDay(e.target.checked)
-                }}></Toggle>
-                <span onClick={e => {
-                    const target = document.querySelector('.all-day label[data-baseweb="checkbox"]') as HTMLDivElement
-                    target.click()
-                }}>{lang['Form_All_Day']}</span>
-            </div>
+                        setAllDay(e.target.checked)
+                    }}></Toggle>
+                    <span onClick={e => {
+                        const target = document.querySelector('.all-day label[data-baseweb="checkbox"]') as HTMLDivElement
+                        target.click()
+                    }}>{lang['Form_All_Day']}</span>
+                </div>
+            }
             {allowRepeat &&
                 <Select
                     clearable={false}
