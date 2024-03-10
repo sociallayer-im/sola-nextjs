@@ -50,8 +50,18 @@ const ReasonText = forwardRef(function (props: ReasonTextProps, ref: any) {
         //     })
         // }
 
-        var linkRegex = /(\bhttps?:\/\/\S+\b)/g;
-        newShowText = newShowText.replace(linkRegex, '<a href="$1" target="_blank">$1</a>');
+
+        // 匹配链接，域名
+        var linkRegex = /(?:https?:\/\/)?(?:www\.)?(\S+\.\S+)/g;
+
+        newShowText = newShowText.replace(linkRegex, function(matchedLink) {
+            // 如果链接已经包含 "http://" 或 "https://"，则不添加前缀
+            if (/^https?:\/\//.test(matchedLink)) {
+                return '<a href="' + matchedLink + '" target="_blank">' + matchedLink + '</a>';
+            } else {
+                return '<a href="https://' + matchedLink + '" target="_blank">' + matchedLink + '</a>';
+            }
+        });
     }
 
     return (<div className={(props.className || '') + ' showText'} dangerouslySetInnerHTML={{__html: newShowText }} ref={ref}/>)
