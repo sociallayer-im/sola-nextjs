@@ -257,7 +257,7 @@ function CreateEvent(props: CreateEventPageProps) {
                 unloading()
                 if (redirect) {
                     showToast('Cancel success')
-                    router.push(`/event`)
+                    router.push(`/event/${eventGroup?.username}`)
                 }
             } catch (e) {
                 unloading()
@@ -448,10 +448,13 @@ function CreateEvent(props: CreateEventPageProps) {
             setCover(event.cover_url)
             setTitle(event.title)
             setContent(event.content)
+            // The time zone must be set before configuring the start and end times.
+            if (event.timezone) {
+                setTimezone(event.timezone)
+            }
             if (event.start_time) {
                 setStart(event.start_time)
             }
-
             if (event.end_time) {
                 setEnding(event.end_time)
                 setHasDuration(true)
@@ -535,9 +538,7 @@ function CreateEvent(props: CreateEventPageProps) {
             //     setLocationDetail(event.formatted_address)
             // }
 
-            if (event.timezone) {
-                setTimezone(event.timezone)
-            }
+
 
             if (event.notes) {
                 setEnableNotes(true)
@@ -562,7 +563,8 @@ function CreateEvent(props: CreateEventPageProps) {
                     router.push('/error')
                 }
             } else {
-                prefillDraft()
+               // prefillDraft()
+                setFormReady(true)
             }
         }
 
@@ -570,7 +572,7 @@ function CreateEvent(props: CreateEventPageProps) {
     }, [isEditMode])
 
     useEffect(() => {
-        SaveDraft()
+        // SaveDraft()
     }, [
         cover,
         title,
@@ -840,7 +842,6 @@ function CreateEvent(props: CreateEventPageProps) {
         try {
             if (props.interval) {
                 const newEvent = await createRepeatEvent(props)
-
                 if (badgeId) {
                     const setBadge = await RepeatEventSetBadge({
                         recurring_event_id: newEvent.recurring_event_id!,
@@ -1144,10 +1145,12 @@ function CreateEvent(props: CreateEventPageProps) {
                             <div className='input-area'>
                                 <div className='input-area-title'>{lang['Activity_Form_Starttime']}</div>
                                 <AppEventTimeInput
-                                    from={start}
-                                    to={ending}
+                                    initData={{
+                                        from: start,
+                                        to: ending,
+                                        timezone: timezone
+                                    }}
                                     allowRepeat={isManager}
-                                    timezone={timezone}
                                     onChange={e => {
                                         setStart(e.from)
                                         setEnding(e.to)
@@ -1162,26 +1165,6 @@ function CreateEvent(props: CreateEventPageProps) {
                         {repeatCounterError &&
                             <div className={'start-time-error'}>
                                 {'The number of times the event repeats must be greater than 0 and less than 100'}
-                            </div>
-                        }
-
-                        {false &&
-                            <div className='input-area'>
-                                <div className='input-area-title'>{lang['Activity_Form_Starttime']}</div>
-                                <AppDateInput value={start} onChange={(data) => {
-                                    console.log('start', data)
-                                    setStart(data as string)
-                                }}/>
-                            </div>
-                        }
-
-                        {false &&
-                            <div className='input-area'>
-                                <div className='input-area-title'>{lang['Activity_Form_Ending']}</div>
-                                <AppDateInput value={ending} onChange={(data) => {
-                                    console.log('ending', data)
-                                    setEnding(data as string)
-                                }}/>
                             </div>
                         }
 
