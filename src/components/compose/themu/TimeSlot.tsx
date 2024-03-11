@@ -18,7 +18,7 @@ export interface Slot {
 }
 
 export interface Slots {
-    [index: any]: Array<Slot>
+    [index: string]: Array<Slot>
 }
 
 const config: Slots = {

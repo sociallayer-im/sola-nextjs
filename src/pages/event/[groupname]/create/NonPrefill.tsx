@@ -1226,8 +1226,8 @@ function CreateEvent(props: CreateEventPageProps) {
                                     if (values.customLocation === eventSite?.location) {return}
                                     if (!values.eventSite && !values.customLocation && !values.metaData) {
                                         setEventSite(null)
-                                        setLocationDetail(null)
-                                        setCustomLocation(null)
+                                        setLocationDetail('')
+                                        setCustomLocation('')
                                         return
                                     }
 
@@ -1241,13 +1241,13 @@ function CreateEvent(props: CreateEventPageProps) {
                                     if (values.customLocation) {
                                         setCustomLocation(values.customLocation)
                                     } else {
-                                        setLocationDetail(null)
+                                        setLocationDetail('')
                                     }
 
                                     if (values.metaData) {
                                         setLocationDetail(values.metaData)
                                     } else {
-                                        setLocationDetail(null)
+                                        setLocationDetail('')
                                     }
                                 }}/>
                         }
