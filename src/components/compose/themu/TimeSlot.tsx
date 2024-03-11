@@ -31,9 +31,9 @@ const config: Slots = {
         },
         {
             id: 2,
-            label: '16:00-15:30 (Presentaion)',
+            label: '16:00-17:30 (Presentaion)',
             from: '16:00',
-            to: '15:30'
+            to: '17:30'
         },
         {
             id: 3,
