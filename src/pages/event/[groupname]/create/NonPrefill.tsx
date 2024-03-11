@@ -1179,10 +1179,9 @@ function CreateEvent(props: CreateEventPageProps) {
                                               setTimezone(timezone)
                                           }} />
                             </div>
-
                         }
 
-                        {(!isEditMode || (!!currEvent && !currEvent.recurring_event_id)) && !isSlot && formReady && start &&
+                        {(!isEditMode || (!!currEvent && !currEvent.recurring_event_id)) && !isSlot && formReady && !!start &&
                             <div className='input-area'>
                                 <div className='input-area-title'>{lang['Activity_Form_Starttime']}</div>
                                 <AppEventTimeInput
