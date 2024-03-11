@@ -374,9 +374,10 @@ function CreateEvent(props: CreateEventPageProps) {
             console.log('===========slot true')
         } else {
             console.log('===========slot false')
-            setStart(currEvent ? currEvent.start_time! : initTime[0].toISOString())
-            setEnding(currEvent ?  currEvent.end_time! : initTime[1].toISOString())
-            setTimezone(currEvent ? currEvent.timezone! : Intl.DateTimeFormat().resolvedOptions().timeZone)
+            if (!start || !ending) {
+                setStart(currEvent ? currEvent.start_time! : initTime[0].toISOString())
+                setEnding(currEvent ?  currEvent.end_time! : initTime[1].toISOString())
+            }
             setIsSlot(false)
         }
     }, [eventSite, formReady, start])
