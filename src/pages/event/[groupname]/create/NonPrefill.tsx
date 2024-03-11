@@ -1154,7 +1154,7 @@ function CreateEvent(props: CreateEventPageProps) {
                             </div>
                         }
 
-                        {(!isEditMode || (!!currEvent && !currEvent.recurring_event_id)) &&
+                        {(!isEditMode || (!!currEvent && !currEvent.recurring_event_id)) && formReady && !!start &&
                             <div className='input-area'>
                                 <div className='input-area-title'>{lang['Activity_Form_Starttime']}</div>
                                 <AppEventTimeInput
