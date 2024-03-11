@@ -231,7 +231,7 @@ function AppDateInput({allowRepeat = true, initData, ...props}: AppDateInputProp
             {!allDay &&
                 <div className={'time-input time-input-start'}>
                     <TimePicker
-                        step={60 * 15}
+                        step={60 * 30}
                         value={from}
                         format={'24'}
                         onChange={date => {
@@ -251,7 +251,7 @@ function AppDateInput({allowRepeat = true, initData, ...props}: AppDateInputProp
                 !allDay &&
                 <div className={'time-input time-input-ending'}>
                     <TimePicker
-                        step={60 * 15}
+                        step={60 * 30}
                         value={to}
                         format={'24'}
                         onChange={date => {

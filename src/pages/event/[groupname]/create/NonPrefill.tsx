@@ -47,6 +47,8 @@ import AppFlexTextArea from "@/components/base/AppFlexTextArea/AppFlexTextArea";
 import AppEventTimeInput from "@/components/base/AppEventTimeInput/AppEventTimeInput";
 import IssuesInput from "@/components/base/IssuesInput/IssuesInput";
 import * as dayjsLib from "dayjs";
+import TimeSlot from "@/components/compose/themu/TimeSlot";
+import fa from "@walletconnect/legacy-modal/dist/cjs/browser/languages/fa";
 
 const utc = require('dayjs/plugin/utc')
 const timezone = require('dayjs/plugin/timezone')
@@ -84,7 +86,7 @@ export interface CreateEventPageProps {
 const getNearestTime = () => {
     const now = new Date()
     const minutes = now.getMinutes()
-    const minuteRange = [0, 15, 30, 45, 60]
+    const minuteRange = [0, 30, 60]
     const nearestMinute = minuteRange.find((item) => {
         return item >= minutes
     })
@@ -159,6 +161,8 @@ function CreateEvent(props: CreateEventPageProps) {
 
     const [enableNotes, setEnableNotes] = useState(false)
     const [notes, setNotes] = useState('')
+
+    const [isSlot, setIsSlot] = useState(false)
 
     const toNumber = (value: string, set: any) => {
         if (!value) {
@@ -361,6 +365,15 @@ function CreateEvent(props: CreateEventPageProps) {
             setFormReady(true)
         }
     }
+
+    useEffect(() => {
+        const slotList = [82, 81, 80, 79, 78]
+        if (start && formReady && eventSite?.id && slotList.includes(eventSite!.id)) {
+            setIsSlot(true)
+        } else {
+            setIsSlot(false)
+        }
+    }, [eventSite, formReady, start])
 
     useEffect(() => {
         if (props?.eventId) {
@@ -1154,7 +1167,22 @@ function CreateEvent(props: CreateEventPageProps) {
                             </div>
                         }
 
-                        {(!isEditMode || (!!currEvent && !currEvent.recurring_event_id)) &&
+                        { isSlot && eventSite && start && ending &&
+                            <div className='input-area'>
+                                <div className='input-area-title'>{lang['Activity_Form_Starttime']}</div>
+                                <TimeSlot eventSiteId={eventSite.id}
+                                          from={start}
+                                          to={ending}
+                                          onChange={(from, to, timezone) => {
+                                              setStart(from)
+                                              setEnding(to)
+                                              setTimezone(timezone)
+                                          }} />
+                            </div>
+
+                        }
+
+                        {(!isEditMode || (!!currEvent && !currEvent.recurring_event_id)) && !isSlot && formReady && start &&
                             <div className='input-area'>
                                 <div className='input-area-title'>{lang['Activity_Form_Starttime']}</div>
                                 <AppEventTimeInput
@@ -1185,7 +1213,7 @@ function CreateEvent(props: CreateEventPageProps) {
                             {lang['Activity_Form_Ending_Time_Error']}
                         </div>}
 
-                        {!!eventGroup && ((isEditMode && formReady) || !isEditMode) &&
+                        {!!eventGroup && ((isEditMode && formReady) || !isEditMode) && !!start &&
                             <LocationInput
                                 errorMsg={occupiedError}
                                 initValue={isEditMode ? {
@@ -1195,17 +1223,31 @@ function CreateEvent(props: CreateEventPageProps) {
                                 } as any : undefined}
                                 eventGroup={eventGroup}
                                 onChange={values => {
+                                    if (values.customLocation === eventSite?.location) {return}
+                                    if (!values.eventSite && !values.customLocation && !values.metaData) {
+                                        setEventSite(null)
+                                        setLocationDetail(null)
+                                        setCustomLocation(null)
+                                        return
+                                    }
+
                                     if (values.eventSite) {
                                         setEventSite(values.eventSite?.id ? values.eventSite : null)
                                         setCustomLocation(values.eventSite?.title!)
+                                    } else {
+                                        setEventSite(null)
                                     }
 
                                     if (values.customLocation) {
                                         setCustomLocation(values.customLocation)
+                                    } else {
+                                        setLocationDetail(null)
                                     }
 
                                     if (values.metaData) {
                                         setLocationDetail(values.metaData)
+                                    } else {
+                                        setLocationDetail(null)
                                     }
                                 }}/>
                         }

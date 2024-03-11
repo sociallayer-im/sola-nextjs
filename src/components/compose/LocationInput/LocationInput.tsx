@@ -131,7 +131,6 @@ function LocationInput({arrowAlias = true, cleanable = true, ...props}: Location
             eventSite: null,
             metaData: customLocationDetail ? JSON.stringify(customLocationDetail) : null
         }
-        console.log('location value', res)
         if (props.onChange) {
             props.onChange(res)
         }
@@ -146,12 +145,11 @@ function LocationInput({arrowAlias = true, cleanable = true, ...props}: Location
             eventSite: eventSiteList.find((site) => site.id === eventSite[0]?.id) || null,
             metaData: null
         }
-        console.log('location value', res)
         if (props.onChange) {
             props.onChange(res)
         }
     }, [
-        eventSite,
+        eventSite, eventSiteList
     ])
 
     useEffect(() => {
