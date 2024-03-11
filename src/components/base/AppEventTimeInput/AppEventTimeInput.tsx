@@ -210,10 +210,6 @@ function AppDateInput({allowRepeat = true, initData, ...props}: AppDateInputProp
         }
     }, [initData.timezone])
 
-    useEffect(() => {
-       console.warn('from', from)
-    }, [from])
-
     return (<>
         <div className={'app-date-input-v2'}>
             <div className={'date-input'}>

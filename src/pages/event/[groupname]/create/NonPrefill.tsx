@@ -1174,6 +1174,7 @@ function CreateEvent(props: CreateEventPageProps) {
                                           from={start}
                                           to={ending}
                                           onChange={(from, to, timezone) => {
+                                              console.log('========res', from, to)
                                               setStart(from)
                                               setEnding(to)
                                               setTimezone(timezone)

@@ -133,9 +133,9 @@ const config: Slots = {
 
 function TimeSlot(props: { eventSiteId: number, from: string, to: string, onChange?: (from: string, to: string, timezone: string) => any }) {
     const {lang} = useContext(LangContext)
-    const [date, setDate] = useState<Date>(new Date())
-    // const timezone = 'America/Argentina/Buenos_Aires'
-    const timezone = 'Asia/Shanghai'
+    const timezone = 'America/Argentina/Buenos_Aires'
+    const [date, setDate] = useState<Date>(dayjs.tz(new Date(props.from).getTime(), timezone).toDate())
+    //const timezone = 'Asia/Shanghai'
     const [slot, setSlot] = useState<Slot[] | null>(null)
 
     useEffect(() => {
@@ -144,13 +144,10 @@ function TimeSlot(props: { eventSiteId: number, from: string, to: string, onChan
         })
     }, [])
 
-
-
     useEffect(() => {
         if (props.eventSiteId) {
             const _id = props.eventSiteId + ''
             const slot1List = config[_id]
-
 
             const fromHour = dayjs.tz(new Date(props.from).getTime(), timezone).hour()
             const fromMinute = dayjs.tz(new Date(props.from).getTime(), timezone).minute()
@@ -163,11 +160,17 @@ function TimeSlot(props: { eventSiteId: number, from: string, to: string, onChan
                 return item.from === fromStr && item.to === toStr
             })
 
+            if (!!slot && initTarget?.id === slot[0].id) {
+                return
+            }
+
             if (initTarget) {
-                setDate(dayjs.tz(props.from, timezone).toDate())
+                console.log('======= initTarget', initTarget)
+                setDate(dayjs.tz(new Date(props.from).getTime(), timezone).toDate())
                 setSlot([initTarget])
             } else {
                 console.log('======= reset', slot1List[0])
+                setDate(dayjs.tz(props.from, timezone).toDate())
                 setSlot([slot1List[0]])
             }
         }
@@ -176,6 +179,7 @@ function TimeSlot(props: { eventSiteId: number, from: string, to: string, onChan
 
     useEffect(() => {
         if (slot && slot[0] && date) {
+            console.log('======= update')
             const from_str = slot[0].from
             const to_str = slot[0].to
             const from = dayjs.tz(`${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()} ${from_str}`, timezone).toISOString()
