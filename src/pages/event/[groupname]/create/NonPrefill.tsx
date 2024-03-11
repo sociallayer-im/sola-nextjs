@@ -35,7 +35,6 @@ import {
 import DialogsContext from '@/components/provider/DialogProvider/DialogsContext'
 import ReasonInput from '@/components/base/ReasonInput/ReasonInput'
 import SelectCreator from '@/components/compose/SelectCreator/SelectCreator'
-import AppDateInput from "@/components/base/AppDateInput/AppDateInput";
 import {Delete} from "baseui/icon";
 import Toggle from "@/components/base/Toggle/Toggle";
 import EventLabels from "@/components/base/EventLabels/EventLabels";
@@ -46,7 +45,6 @@ import EventHomeContext from "@/components/provider/EventHomeProvider/EventHomeC
 import LocationInput from "@/components/compose/LocationInput/LocationInput";
 import AppFlexTextArea from "@/components/base/AppFlexTextArea/AppFlexTextArea";
 import AppEventTimeInput from "@/components/base/AppEventTimeInput/AppEventTimeInput";
-import {useTime3} from "@/hooks/formatTime";
 import IssuesInput from "@/components/base/IssuesInput/IssuesInput";
 import * as dayjsLib from "dayjs";
 
@@ -77,8 +75,9 @@ interface Draft {
     telegram_contact_group: string,
 }
 
-interface CreateEventPageProps {
+export interface CreateEventPageProps {
     eventId?: number
+    groupname?: string
 }
 
 // 函数，一天24小时分成若干时间时间点，步进为15分钟, 然后找出和当前时间最近的时间点,而且时间点必须大于等于当前时间
@@ -95,8 +94,6 @@ const getNearestTime = () => {
     return [initStartTime, initEndTime]
 }
 
-const initTime = getNearestTime()
-
 const repeatEventEditOptions = [
     {label: 'Only this event', value: 'one'},
     {label: 'This and following events', value: 'after'},
@@ -110,8 +107,7 @@ function CreateEvent(props: CreateEventPageProps) {
     const {showLoading, showToast, openDialog, openConfirmDialog, openConnectWalletDialog} = useContext(DialogsContext)
     const [creator, setCreator] = useState<Group | Profile | null>(null)
     const {lang, langType} = useContext(LangContext)
-    const {eventGroup, joined, isManager} = useContext(EventHomeContext)
-    const formatTime = useTime3()
+    const {eventGroup, joined, isManager, setEventGroup} = useContext(EventHomeContext)
 
     const [currEvent, setCurrEvent] = useState<Event | null>(null)
 
@@ -449,12 +445,18 @@ function CreateEvent(props: CreateEventPageProps) {
             setTitle(event.title)
             setContent(event.content)
             // The time zone must be set before configuring the start and end times.
+
+            const group = await queryGroupDetail(event.group_id as number)
+            setEventGroup(group as any)
+
+
             if (event.timezone) {
                 setTimezone(event.timezone)
             }
             if (event.start_time) {
                 setStart(event.start_time)
             }
+
             if (event.end_time) {
                 setEnding(event.end_time)
                 setHasDuration(true)
@@ -564,7 +566,18 @@ function CreateEvent(props: CreateEventPageProps) {
                 }
             } else {
                // prefillDraft()
-                setFormReady(true)
+                const groupname = props?.groupname
+                if (!!groupname) {
+                    await queryGroupDetail(undefined, groupname as string).then(
+                        res => {
+                            setEventGroup(res as any)
+                            setFormReady(true)
+                        }
+                    )
+                } else {
+                    console.warn('groupname not found')
+                    router.push('/')
+                }
             }
         }
 
@@ -1466,3 +1479,4 @@ function CreateEvent(props: CreateEventPageProps) {
 }
 
 export default CreateEvent
+

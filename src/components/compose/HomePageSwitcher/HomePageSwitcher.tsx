@@ -39,11 +39,9 @@ function HomePageSwitcher() {
         if (ready && params?.groupname) {
             if (location?.includes('event')) {
                 const group = findGroup(params?.groupname as string)
-                if (!group && location.includes('event')) {
-                    router.push('/event')
-                    return
+                if (group) {
+                    setEventGroup(group)
                 }
-                setEventGroup(group)
                 return
             } else {
                 setEventGroup(groupList[0])

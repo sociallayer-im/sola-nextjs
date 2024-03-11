@@ -1,9 +1,21 @@
 import { useParams } from 'next/navigation'
-import CreateBadgeNonPrefill from './NonPrefill'
+import CreateBadgeNonPrefill, {CreateEventPageProps} from './NonPrefill'
 
-function CreateEvent() {
+function CreateEvent(props: CreateEventPageProps) {
     const params = useParams()
-    return  <CreateBadgeNonPrefill eventId={params?.eventid ? Number(params?.eventid) : undefined}/>
+    return  <CreateBadgeNonPrefill groupname={props?.groupname as any} eventId={params?.eventid ? Number(params?.eventid) : undefined}/>
 }
 
 export default CreateEvent
+
+export const getServerSideProps: any = async (context: any) => {
+    const {params} = context
+    const groupname = params?.groupname as string
+    return {
+        props: {
+            groupname
+        }
+    }
+}
+
+

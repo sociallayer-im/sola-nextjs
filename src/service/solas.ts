@@ -459,8 +459,8 @@ export async function getGroups(props: GetGroupProps): Promise<Group[]> {
     return res as Group[]
 }
 
-export async function queryGroupDetail(id: number): Promise<Group | null> {
-    const res = await getGroups({id})
+export async function queryGroupDetail(id?: number, username?: string): Promise<Group | null> {
+    const res = id ? await getGroups({id}) : await getGroups({username})
     return res[0] ?
         {
             ...res[0],
