@@ -47,8 +47,8 @@ import AppFlexTextArea from "@/components/base/AppFlexTextArea/AppFlexTextArea";
 import AppEventTimeInput from "@/components/base/AppEventTimeInput/AppEventTimeInput";
 import IssuesInput from "@/components/base/IssuesInput/IssuesInput";
 import * as dayjsLib from "dayjs";
-import TimeSlot from "@/components/compose/themu/TimeSlot";
-import fa from "@walletconnect/legacy-modal/dist/cjs/browser/languages/fa";
+import TimeSlot from "@/components/compose/themu/TimeSlotNew";
+import EventDefaultCover from "@/components/base/EventDefaultCover";
 
 const utc = require('dayjs/plugin/utc')
 const timezone = require('dayjs/plugin/timezone')
@@ -163,6 +163,7 @@ function CreateEvent(props: CreateEventPageProps) {
     const [notes, setNotes] = useState('')
 
     const [isSlot, setIsSlot] = useState(false)
+    const uploadCoverRef = useRef<any>(null)
 
     const toNumber = (value: string, set: any) => {
         if (!value) {
@@ -368,9 +369,14 @@ function CreateEvent(props: CreateEventPageProps) {
 
     useEffect(() => {
         const slotList = [82, 81, 80, 79, 78]
-        if (start && formReady && eventSite?.id && slotList.includes(eventSite!.id)) {
+        if (formReady && eventSite?.id && slotList.includes(eventSite!.id)) {
             setIsSlot(true)
+            console.log('===========slot true')
         } else {
+            console.log('===========slot false')
+            setStart(currEvent ? currEvent.start_time! : initTime[0].toISOString())
+            setEnding(currEvent ?  currEvent.end_time! : initTime[1].toISOString())
+            setTimezone(currEvent ? currEvent.timezone! : Intl.DateTimeFormat().resolvedOptions().timeZone)
             setIsSlot(false)
         }
     }, [eventSite, formReady, start])
@@ -432,11 +438,13 @@ function CreateEvent(props: CreateEventPageProps) {
 
     useEffect(() => {
         if (start && ending) {
-            if (start > ending) {
+            if (start >= ending) {
                 setStartTimeError(lang['Activity_Form_Ending_Time_Error'])
             } else {
                 setStartTimeError('')
             }
+        } else {
+            setStartTimeError('Please select a time slot')
         }
     }, [start, ending])
 
@@ -774,7 +782,7 @@ function CreateEvent(props: CreateEventPageProps) {
         }
 
         if (startTimeError) {
-            showToast(lang['Activity_Form_Ending_Time_Error'])
+            showToast(startTimeError)
             return false
         }
 
@@ -934,7 +942,7 @@ function CreateEvent(props: CreateEventPageProps) {
         }
 
         if (startTimeError) {
-            showToast(lang['Activity_Form_Ending_Time_Error'])
+            showToast(startTimeError)
             return
         }
 
@@ -1140,12 +1148,34 @@ function CreateEvent(props: CreateEventPageProps) {
 
                         <div className='input-area'>
                             <div className='input-area-title'>{lang['Activity_Form_Cover']}</div>
-                            <UploadImage
-                                cropper={false}
-                                imageSelect={cover || undefined}
-                                confirm={(coverUrl) => {
-                                    setCover(coverUrl)
-                                }}/>
+                            <div style={{display: !cover ? "block" : 'none'}}>
+                                <EventDefaultCover
+                                    event={
+                                        {
+                                            title: title,
+                                            start_time: start,
+                                            end_time: ending,
+                                            timezone: timezone,
+                                            location: customLocation || eventSite?.title || ''
+                                        }  as Event
+                                    }
+                                    width={328}
+                                    height={328} />
+                                <AppButton style={{width: "328px", marginTop: '12px'}} onClick={() => {
+                                    uploadCoverRef.current?.selectFile()
+                                }}>{"Upload"}</AppButton>
+                            </div>
+
+
+                            <div style={{display: !!cover ? "block" : 'none'}}>
+                                <UploadImage
+                                    ref={uploadCoverRef}
+                                    cropper={false}
+                                    imageSelect={cover || undefined}
+                                    confirm={(coverUrl) => {
+                                        setCover(coverUrl)
+                                    }}/>
+                            </div>
                         </div>
 
                         {/*<div className={'default-post'}>*/}
@@ -1167,7 +1197,46 @@ function CreateEvent(props: CreateEventPageProps) {
                             </div>
                         }
 
-                        { isSlot && eventSite && start && ending &&
+                        {!!eventGroup && ((isEditMode && formReady) || !isEditMode) &&
+                            <LocationInput
+                                errorMsg={occupiedError}
+                                initValue={isEditMode ? {
+                                    eventSite: eventSite,
+                                    location: currEvent!.location || '',
+                                    formatted_address: currEvent!.formatted_address || ''
+                                } as any : undefined}
+                                eventGroup={eventGroup}
+                                onChange={values => {
+                                    if (values.customLocation === eventSite?.location) {return}
+                                    if (!values.eventSite && !values.customLocation && !values.metaData) {
+                                        setEventSite(null)
+                                        setLocationDetail('')
+                                        setCustomLocation('')
+                                        return
+                                    }
+
+                                    if (values.eventSite) {
+                                        setEventSite(values.eventSite?.id ? values.eventSite : null)
+                                        setCustomLocation(values.eventSite?.title!)
+                                    } else {
+                                        setEventSite(null)
+                                    }
+
+                                    if (values.customLocation) {
+                                        setCustomLocation(values.customLocation)
+                                    } else {
+                                        setLocationDetail('')
+                                    }
+
+                                    if (values.metaData) {
+                                        setLocationDetail(values.metaData)
+                                    } else {
+                                        setLocationDetail('')
+                                    }
+                                }}/>
+                        }
+
+                        { eventSite && isSlot &&
                             <div className='input-area'>
                                 <div className='input-area-title'>{lang['Activity_Form_Starttime']}</div>
                                 <TimeSlot eventSiteId={eventSite.id}
@@ -1210,47 +1279,9 @@ function CreateEvent(props: CreateEventPageProps) {
                         }
 
                         {startTimeError && <div className={'start-time-error'}>
-                            {lang['Activity_Form_Ending_Time_Error']}
+                            {startTimeError}
                         </div>}
 
-                        {!!eventGroup && ((isEditMode && formReady) || !isEditMode) && !!start &&
-                            <LocationInput
-                                errorMsg={occupiedError}
-                                initValue={isEditMode ? {
-                                    eventSite: eventSite,
-                                    location: currEvent!.location || '',
-                                    formatted_address: currEvent!.formatted_address || ''
-                                } as any : undefined}
-                                eventGroup={eventGroup}
-                                onChange={values => {
-                                    if (values.customLocation === eventSite?.location) {return}
-                                    if (!values.eventSite && !values.customLocation && !values.metaData) {
-                                        setEventSite(null)
-                                        setLocationDetail('')
-                                        setCustomLocation('')
-                                        return
-                                    }
-
-                                    if (values.eventSite) {
-                                        setEventSite(values.eventSite?.id ? values.eventSite : null)
-                                        setCustomLocation(values.eventSite?.title!)
-                                    } else {
-                                        setEventSite(null)
-                                    }
-
-                                    if (values.customLocation) {
-                                        setCustomLocation(values.customLocation)
-                                    } else {
-                                        setLocationDetail('')
-                                    }
-
-                                    if (values.metaData) {
-                                        setLocationDetail(values.metaData)
-                                    } else {
-                                        setLocationDetail('')
-                                    }
-                                }}/>
-                        }
 
                         {eventType === 'event' &&
                             <div className='input-area'>
