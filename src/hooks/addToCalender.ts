@@ -1,3 +1,5 @@
+import removeMarkdown from "markdown-to-text"
+
 interface AddToCalenderProps {
     name: string;
     location: string;
@@ -13,7 +15,7 @@ const useCalender = function () {
         const timeStr = new Date(props.startTime).toISOString().replace(/-|:|\.\d\d\d/g, '')
         const timeStrNow = new Date().toISOString().replace(/-|:|\.\d\d\d/g, '')
         // 去除空格回车
-        const description = props.details.replace(/\s+/g, '').replace(/\n/g, '')
+        const description = removeMarkdown(props.details).replace(/\n/g, ' ')
         const ics = `BEGIN:VCALENDAR
 VERSION:2.0
 CALSCALE:GREGORIAN

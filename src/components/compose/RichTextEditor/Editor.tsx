@@ -1,4 +1,4 @@
-import {useContext, useEffect, useRef, useState} from 'react'
+import {useContext, useEffect, useRef, useState, useId} from 'react'
 import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
 import userContext from "@/components/provider/UserProvider/UserContext";
 import chooseFile from "@/utils/chooseFile";
@@ -73,6 +73,7 @@ function RichTextEditor({
     })
     const {openDialog, showLoading, showToast} = useContext(DialogsContext)
     const {user} = useContext(userContext)
+    const editorId = useId()
 
     const selectFile = async (cb: (url: string) => any) => {
         try {
@@ -308,7 +309,7 @@ function RichTextEditor({
                 }
             ]
 
-            editorViewRef.current = new EditorView(document.querySelector("#editor"), {
+            editorViewRef.current = new EditorView(document.querySelector(`#${CSS.escape(editorId)}`), {
                 state: EditorState.create({
                     doc: defaultMarkdownParser.parse(initText || '')!,
                     plugins: [UpdateEditorView, ...editorSetup({schema: markdownSchema})],
@@ -380,7 +381,8 @@ function RichTextEditor({
                     <div className={'menu-item'}><i className={'editor-icon-photo'}/></div>
                 </StatefulPopover>
             </div>
-            <div ref={editorRef} id={"editor"}
+            <div ref={editorRef} id={editorId}
+                 className={styles['editor']}
                  style={{minHeight: `${height}px`, maxHeight: maxHeight ? `${maxHeight}px` : 'initial'}}/>
         </div>
     </div>)

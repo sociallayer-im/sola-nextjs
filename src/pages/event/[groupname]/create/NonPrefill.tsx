@@ -1250,10 +1250,12 @@ function CreateEvent(props: CreateEventPageProps) {
                                 </div>
                             </div>
                             {enableNotes &&
-                                <AppTextArea maxLength={2000} placeholder={lang['Input_Notes']} value={notes}
-                                             onChange={(e) => {
-                                                 setNotes(e.target.value)
-                                             }}/>
+                                <RichTextEditor
+                                height={150}
+                                maxHeight={300}
+                                initText={notes} onChange={text => {
+                                setNotes(text)
+                            }}></RichTextEditor>
                             }
                         </div>
 
