@@ -6,7 +6,6 @@ import UploadImage from '@/components/compose/UploadImage/UploadImage'
 import AppInput from '@/components/base/AppInput'
 import UserContext from '@/components/provider/UserProvider/UserContext'
 import AppButton, {BTN_KIND} from '@/components/base/AppButton/AppButton'
-import AppTextArea from "@/components/base/AppTextArea/AppTextArea";
 import {
     Badge,
     cancelEvent,

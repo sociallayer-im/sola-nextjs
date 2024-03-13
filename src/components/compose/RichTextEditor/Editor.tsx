@@ -382,7 +382,7 @@ function RichTextEditor({
                 </StatefulPopover>
             </div>
             <div ref={editorRef} id={editorId}
-                 className={styles['editor']}
+                 className={'editor'}
                  style={{minHeight: `${height}px`, maxHeight: maxHeight ? `${maxHeight}px` : 'initial'}}/>
         </div>
     </div>)
