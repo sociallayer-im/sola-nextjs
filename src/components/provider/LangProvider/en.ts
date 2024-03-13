@@ -192,7 +192,7 @@ const langEN = {
     Activity_Greeting_Afternoon: 'Good Afternoon',
     Activity_Greeting_Evening: 'Good Evening',
     Activity_My_Register: 'My register',
-    Activity_My_Event: 'My Event',
+    Activity_My_Event: 'My Events',
     Activity_All_Activity: 'All Event',
     Activity_Btn_Create: 'Create Event',
     Activity_Btn_Modify: 'Modify Event',
@@ -613,7 +613,22 @@ const langEN = {
     Back_To_Event_Home: 'Back to event home',
     Event_Notes: 'Event Notes',
     Event_Notes_: 'Event Note (Display after confirming attendance)',
-    Input_Notes: 'Input the note of the event'
+    Input_Notes: 'Input the note of the event',
+    Featured: 'Featured',
+    Events_Of_Popup_Cities: 'Events of Pop-up Cities',
+    Communities: 'Communities',
+    See_All_Communities: 'See all communities',
+    See_All_Popup_Cities_Events: 'See all Pop-up Cities events',
+    Go_to: 'Go to',
+    My_Badges: 'My badges',
+    My_Groups: 'My groups',
+    About_Us: 'About us',
+    What_s_badge: 'What\'s badge?',
+    Development_Doc: 'Development Doc',
+    Attended: 'Attended',
+    Pending_Requests: 'Pending requests',
+    My_Communities: 'My communities',
+    My_Subscriptions: 'My subscriptions',
 }
 
 

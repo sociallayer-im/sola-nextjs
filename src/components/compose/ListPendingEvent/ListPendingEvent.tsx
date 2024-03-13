@@ -7,7 +7,7 @@ import AppButton from "@/components/base/AppButton/AppButton";
 import userContext from "@/components/provider/UserProvider/UserContext";
 import EventHomeContext from "@/components/provider/EventHomeProvider/EventHomeContext";
 
-function ListPendingEvent(props: { onload?: (pendingEvent: Event[]) => any}) {
+function ListPendingEvent(props: { onload?: (pendingEvent: Event[]) => any, groupIds?: number[] }) {
     const {lang} = useContext(LangContext)
     const {user} = useContext(userContext)
     const {eventGroup} = useContext(EventHomeContext)
@@ -22,7 +22,12 @@ function ListPendingEvent(props: { onload?: (pendingEvent: Event[]) => any}) {
         setLoading(true)
         try {
             pageRef.current = init ? 1: pageRef.current + 1
-            let res = await queryPendingEvent({group_id: eventGroup!.id, page: pageRef.current})
+            const opts = {
+                group_id: props.groupIds ? undefined : eventGroup!.id,
+                page: pageRef.current,
+                group_ids: props.groupIds,
+            }
+            let res = await queryPendingEvent(opts)
             setList(init ? res : [...list, ...res])
 
             if (res.length < 10) {
@@ -37,14 +42,14 @@ function ListPendingEvent(props: { onload?: (pendingEvent: Event[]) => any}) {
     }
 
     useEffect(() => {
-        if (eventGroup) {
+        if (eventGroup || props.groupIds?.length) {
             getEvent(true)
         } else if (!loading) {
             setList([])
             setIsLoadAll(true)
             pageRef.current = 0
         }
-    }, [eventGroup])
+    }, [eventGroup, props.groupIds])
 
     useEffect(() => {
         props.onload && props.onload(list)

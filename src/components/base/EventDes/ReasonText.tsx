@@ -13,23 +13,23 @@ const ReasonText = forwardRef(function (props: ReasonTextProps, ref: any) {
     }
 
     if (newShowText) {
-        const tags = newShowText.match(/#[^\s\p{P}]+/gu)
+        // const tags = newShowText.match(/#[^\s\p{P}]+/gu)
 
-        if (tags) {
-            // 去重
-            const _tags = [...new Set(tags)]
-            // 按长度排序,防止长的tag被短的tag替换，比如#test和#test1，不处理的话，#test1会被#test替换
-            const _tagsSorted = _tags.sort((a, b) => {
-                return b.length - a.length
-            })
-            console.log('tags', _tags)
-            // 生成正则表达式
-            const r = new RegExp(`${_tagsSorted.join('|')}`, 'g')
-            // 全局顺序匹配
-            newShowText = newShowText.replace(r, (tagtext) => {
-                return `<a class="event" href="/event/${tagtext.replace('#', '')}" target="_blank">${tagtext}</a>`
-            })
-        }
+        // if (tags) {
+        //     // 去重
+        //     const _tags = [...new Set(tags)]
+        //     // 按长度排序,防止长的tag被短的tag替换，比如#test和#test1，不处理的话，#test1会被#test替换
+        //     const _tagsSorted = _tags.sort((a, b) => {
+        //         return b.length - a.length
+        //     })
+        //     console.log('tags', _tags)
+        //     // 生成正则表达式
+        //     const r = new RegExp(`${_tagsSorted.join('|')}`, 'g')
+        //     // 全局顺序匹配
+        //     newShowText = newShowText.replace(r, (tagtext) => {
+        //         return `<a class="event" href="/event/${tagtext.replace('#', '')}" target="_blank">${tagtext}</a>`
+        //     })
+        // }
 
         // const links = newShowText.match(/@[^\s]+/g)
         // if (links) {
@@ -49,6 +49,19 @@ const ReasonText = forwardRef(function (props: ReasonTextProps, ref: any) {
         //  </svg>${linktext.replace('@', '')}</a>`
         //     })
         // }
+
+
+        // 匹配链接，域名
+        var linkRegex = /(?:https?:\/\/)?(?:www\.)?(\S+\.\S+)/g;
+
+        newShowText = newShowText.replace(linkRegex, function(matchedLink) {
+            // 如果链接已经包含 "http://" 或 "https://"，则不添加前缀
+            if (/^https?:\/\//.test(matchedLink)) {
+                return '<a href="' + matchedLink + '" target="_blank">' + matchedLink + '</a>';
+            } else {
+                return '<a href="https://' + matchedLink + '" target="_blank">' + matchedLink + '</a>';
+            }
+        });
     }
 
     return (<div className={(props.className || '') + ' showText'} dangerouslySetInnerHTML={{__html: newShowText }} ref={ref}/>)

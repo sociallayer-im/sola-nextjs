@@ -138,8 +138,6 @@ function ActivityItem({activity}: { activity: Activity }) {
 
             if (activity.action === 'voucher/send_badge' && activity.data) {
                 const voucher = await queryVoucherDetail(Number(activity.data.split(':')[1]))
-                console.log('voucher====', voucher)
-                console.log('activity====', activity)
                 if (voucher) {
                     showVoucher(voucher, undefined, false)
                 }

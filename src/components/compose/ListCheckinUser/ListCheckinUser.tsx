@@ -55,7 +55,9 @@ function ListCheckinUser({editable=true, ...props}: ListCheckinUserProps) {
     }
 
     const goToProfile = (username: string) => {
-        window.location.href = `/profile/${username}`
+        if (username) {
+            window.location.href = `/profile/${username}`
+        }
     }
 
     const handleUnJoin = async () => {
@@ -91,7 +93,7 @@ function ListCheckinUser({editable=true, ...props}: ListCheckinUserProps) {
                     <div className={'left'}
                          onClick={e => {goToProfile(item.profile.username!)}}>
                         <img src={item.profile.image_url || defaultAvatar(item.profile.id)} alt=""/>
-                        {item.profile.username!}
+                        {item.profile.username! || `user #${item.profile.id}`}
                     </div>
                     <div className={'right'}>
                         {props.isHost && !checked &&

@@ -13,6 +13,29 @@
   box-shadow: 0 2px 12px rgba(0,0,0,0.1)
   z-index: 999
   position: relative
+  .pager-header-center
+    display: flex
+    max-width: 1020px
+    width: 100vw
+    box-sizing: border-box
+    margin: 0 auto
+    flex-flow: row nowrap
+    justify-content: space-between
+    align-items: center
+    .nav-link
+      color: var(--Text-4-Headline, #272928)
+      font-size: 14px
+      font-style: normal
+      font-weight: 600
+      line-height: 22px
+      margin-left: 20px
+      white-space: nowrap
+      text-decoration: none
+      border-bottom: 2px solid rgba(0,0,0,0)
+    .nav-link.active
+      color: #6CD7B2
+      border-bottom: 2px solid #6CD7B2
+
   .pager-header-right-menu
     display: flex
     flex-flow: row nowrap

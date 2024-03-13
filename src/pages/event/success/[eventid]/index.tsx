@@ -155,7 +155,7 @@ function CreateEventSuccess() {
             {ready && event &&
                 <>
                     <div className={'center'}>
-                        <Link className={'done'} href={`/event/detail/${params?.eventid}`}>Done</Link>
+                        <Link className={'done'} href={eventGroup?.username === 'web3festival' ? `/event/${eventGroup.username}` : `/event/detail/${params?.eventid}`}>Done</Link>
                     </div>
                     <div className={'title'}>{lang['IssueFinish_Title']}</div>
                 </>

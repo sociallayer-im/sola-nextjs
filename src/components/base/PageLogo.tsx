@@ -3,7 +3,8 @@ import Link from 'next/link'
 import HomePageSwitcher from "../compose/HomePageSwitcher/HomePageSwitcher";
 import {ColorSchemeContext} from "@/components/provider/ColorSchemeProvider";
 import {useContext, useEffect, useState} from "react";
-import MapEntry from "@/components/base/MapEntry/MapEntry";
+import {usePathname} from "next/navigation";
+import UserContext from "@/components/provider/UserProvider/UserContext";
 
 
 const isMaodao = process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'maodao'
@@ -21,6 +22,8 @@ function PageLogo() {
     const [css] = useStyletron()
     const {theme} = useContext(ColorSchemeContext)
     const [isMobile, setIsMobile] = useState(false)
+    const pathname = usePathname()
+    const {user} = useContext(UserContext)
 
     const imgStyle = {
         height: '32px',
@@ -86,7 +89,14 @@ function PageLogo() {
                 { process.env.NEXT_PUBLIC_SPECIAL_VERSION !== 'seedao' &&
                     <HomePageSwitcher/>
                 }
-                <MapEntry/>
+                {/*<MapEntry/>*/}
+
+                { !process.env.NEXT_PUBLIC_LEADING_EVENT_GROUP_ID &&
+                    <Link href={'/'} className={(pathname?.includes('discover') || pathname === '/') ? 'nav-link active' : 'nav-link'}>Discover</Link>
+                }
+
+                <Link href={'/my-event'} className={pathname?.includes('my-event') ? 'nav-link active' : 'nav-link'}>My Events</Link>
+
             </>
             : <>
                 <Link href={'/'} className={'maodao-logo'}>

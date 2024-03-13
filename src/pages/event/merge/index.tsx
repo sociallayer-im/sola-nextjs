@@ -114,9 +114,9 @@ function Merge() {
                     <div className={'left'}>
                         <a href={'https://app.sola.day'}><img src={'/images/logo.svg'} alt={''} /></a>
                         <i className={'split'}/>
-                        <Link href={'/event'} className={'home'}>
+                        <Link href={'/'} className={'home'}>
                             <svg onClick={e => {
-                                router.push('/event')
+                                router.push('/')
                             }}
                                  width="47" height="20"
                                  viewBox="0 0 47 20"
@@ -236,7 +236,7 @@ function Merge() {
                                     </div>
                                 })
                             }
-                            <Link className={'show-more'} href={'/event'}>查看更多 <ChevronDown  size={16}/></Link>
+                            <Link className={'show-more'} href={'/'}>查看更多 <ChevronDown  size={16}/></Link>
                         </div>
                     </Panel>
                 </div>
