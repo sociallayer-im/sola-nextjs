@@ -1237,17 +1237,20 @@ function CreateEvent(props: CreateEventPageProps) {
                                 }}/>
                         }
 
-                        { eventSite && isSlot &&
+                        { eventSite && isSlot && (!isEditMode || (!!currEvent && !currEvent.recurring_event_id)) &&
                             <div className='input-area'>
                                 <div className='input-area-title'>{lang['Activity_Form_Starttime']}</div>
                                 <TimeSlot eventSiteId={eventSite.id}
                                           from={start}
                                           to={ending}
-                                          onChange={(from, to, timezone) => {
-                                              console.log('========res', from, to)
+                                          allowRepeat={isManager}
+                                          onChange={(from, to, timezone,repeat, counter) => {
+                                              console.log('========res', from, to, timezone, repeat, counter)
                                               setStart(from)
                                               setEnding(to)
                                               setTimezone(timezone)
+                                              setRepeat(repeat as any || null)
+                                              setRepeatCounter(counter)
                                           }} />
                             </div>
                         }
@@ -1295,6 +1298,20 @@ function CreateEvent(props: CreateEventPageProps) {
                                         setOnlineUrl(value)
                                     }}
                                     placeholder={'Url...'}/>
+                            </div>
+                        }
+
+                        {!!eventGroup && (eventGroup as Group).event_tags &&
+                            <div className={'input-area'}>
+                                <div className={'input-area-title'}>{lang['Activity_Form_Label']}</div>
+                                <EventLabels
+                                    data={(eventGroup as Group).event_tags!} onChange={e => {
+                                    setLabel(e)
+                                }} value={label} />
+
+                                { labelError &&
+                                    <div className={'label-error'}>{'The maximum number of tags is 3'}</div>
+                                }
                             </div>
                         }
 
@@ -1383,21 +1400,6 @@ function CreateEvent(props: CreateEventPageProps) {
                                     }}/>
                             }
                         </div>
-
-
-                        {!!eventGroup && (eventGroup as Group).event_tags &&
-                            <div className={'input-area'}>
-                                <div className={'input-area-title'}>{lang['Activity_Form_Label']}</div>
-                                <EventLabels
-                                    data={(eventGroup as Group).event_tags!} onChange={e => {
-                                    setLabel(e)
-                                }} value={label} />
-
-                                { labelError &&
-                                    <div className={'label-error'}>{'The maximum number of tags is 3'}</div>
-                                }
-                            </div>
-                        }
 
 
                         {eventType === 'event' &&

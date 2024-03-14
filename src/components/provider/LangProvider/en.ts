@@ -227,7 +227,7 @@ const langEN = {
     Activity_Form_Duration: 'Set Duration',
     Activity_Form_Duration_Cancel: 'Cancel set Duration',
     Activity_Form_Hoster: 'Host',
-    Activity_Form_Label: 'Label',
+    Activity_Form_Label: 'Tags',
     Activity_Form_Badge: 'Event badge (Optional)',
     Activity_Form_Wechat: 'Event WeChat group',
     Activity_Form_Wechat_Des: "The QR code is displayed after the participant's successful registration.",
