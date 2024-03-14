@@ -541,6 +541,7 @@ function ComponentName(props: { group: Group }) {
                             <div className={`${styles['events']}`}>
                                 {item.events.map((e: Event) => {
                                     return <EventCard
+                                        blank={location.href.includes('iframe')}
                                         key={Math.random() + e.title}
                                         timezone={timezoneSelected[0].id}
                                         event={e}
