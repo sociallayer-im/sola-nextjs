@@ -300,7 +300,7 @@ export async function queryProfileByGraph(props: { type: keyof GetProfileProps, 
 }
 
 export async function queryProfileByEmail(email: string) {
-    const res = await fetch.post({
+    const res = await fetch.get({
         url: `${apiUrl}/profile/get_by_email`,
         data: {email}
     })
