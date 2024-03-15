@@ -27,9 +27,6 @@ let _offsetY = 0
 
 let observer: any = null
 
-const localTimezone = dayjs.tz.guess()
-const timezoneInfo = timezoneList.find(item => item.id === localTimezone) || {id: 'UTC', label: 'UTC+00:00'}
-
 interface DateItem {
     date: number,
     timestamp: number,
@@ -180,6 +177,8 @@ function ComponentName(props: { group: Group }) {
             if (historyTimeZone) {
                 setTimezoneSelected(JSON.parse(historyTimeZone))
             } else {
+                const localTimezone = dayjs.tz.guess()
+                const timezoneInfo = timezoneList.find(item => item.id === localTimezone) || {id: 'UTC', label: 'UTC+00:00'}
                 setTimezoneSelected([timezoneInfo])
             }
         } catch (e: any) {
