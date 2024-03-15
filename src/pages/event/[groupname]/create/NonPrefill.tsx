@@ -156,6 +156,7 @@ function CreateEvent(props: CreateEventPageProps) {
     const [repeatCounter, setRepeatCounter] = useState(1)
     const [repeatCounterError, setRepeatCounterError] = useState(false)
     const [externalUrl, setExternalUrl] = useState<string | null>(null)
+    const [padgeLink, setPadgeLink] = useState<string | null>(null)
 
     const [needPublish, setNeedPublish] = useState(false)
 
@@ -475,6 +476,7 @@ function CreateEvent(props: CreateEventPageProps) {
             if (event.timezone) {
                 setTimezone(event.timezone)
             }
+
             if (event.start_time) {
                 setStart(event.start_time)
             }
@@ -509,6 +511,7 @@ function CreateEvent(props: CreateEventPageProps) {
             setLabel(event.tags ? event.tags : [])
             setBadgeId(event.badge_id)
             setEventType(event.event_type || 'event')
+            setPadgeLink(event.padge_link || null)
 
             if (event.host_info) {
                 if (event.host_info.startsWith('{')) {
@@ -871,6 +874,7 @@ function CreateEvent(props: CreateEventPageProps) {
             repeat_start_time: start  as any,
             event_count: repeatCounter,
             external_url: externalUrl,
+            padge_link: padgeLink,
             notes: enableNotes ? notes : null,
         }
 
@@ -991,6 +995,7 @@ function CreateEvent(props: CreateEventPageProps) {
             geo_lng: lng,
             geo_lat: lat,
             external_url: externalUrl,
+            padge_link: padgeLink,
             notes: enableNotes ? notes : null,
         }
 
@@ -1344,6 +1349,16 @@ function CreateEvent(props: CreateEventPageProps) {
                                         onChange={(e) => {
                                             setExternalUrl(e.target.value)
                                         }}/>
+                        </div>
+
+                        <div className='input-area'>
+                            <div className='input-area-title'>{"Padge Link"}</div>
+                            <AppInput clearable={false}
+                                      value={padgeLink || ''}
+                                      placeholder={lang['External_Url']}
+                                      onChange={(e) => {
+                                          setPadgeLink(e.target.value)
+                                      }}/>
                         </div>
 
                         {

@@ -529,6 +529,15 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                     </div>
                                 }
 
+                                {!!event.padge_link &&
+                                    <div className={'event-login-status'}>
+                                        <Link className={'link'} href={event.padge_link} target={"_blank"}>
+                                            Click and get a badge of .bit
+                                            <ImgLazy src={'https://ik.imagekit.io/soladata/ag4z4mmm_oJ33HdkUX'} width={100} height={100} />
+                                        </Link>
+                                    </div>
+                                }
+
                                 {user.userName && canAccess && !event.external_url && event.status !== 'pending' &&
                                     <div className={'event-login-status'}>
                                         <div className={'user-info'}>
@@ -613,6 +622,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                         }
                                     </div>
                                 }
+
 
                                 {!user.userName &&
                                     <div className={'center'}>
@@ -832,6 +842,15 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                             </div>
                                         </div>
                                     }
+                                </div>
+                            }
+
+                            {!!event.padge_link &&
+                                <div className={'event-login-status'}>
+                                    <Link className={'link'} href={event.padge_link} target={"_blank"}>
+                                        Click and get a badge of .bit
+                                        <ImgLazy src={'https://ik.imagekit.io/soladata/ag4z4mmm_oJ33HdkUX'} width={100} height={100} />
+                                    </Link>
                                 </div>
                             }
 
