@@ -369,7 +369,7 @@ function CreateEvent(props: CreateEventPageProps) {
     }
 
     useEffect(() => {
-        const slotList = [82, 81, 80, 79, 78]
+        const slotList = [82, 81, 80, 79, 78, 87, 86]
         if (formReady && eventSite?.id && slotList.includes(eventSite!.id)) {
             setIsSlot(true)
             console.log('===========slot true')
