@@ -24,6 +24,8 @@ export interface GMapSearchResult {
 
 export interface LocationInputProps {
     initValue?: {
+        lat?: number,
+        lng?: number,
         eventSite: EventSites | null,
         location: string,
         formatted_address: string
@@ -35,14 +37,17 @@ export interface LocationInputProps {
     cleanable?: boolean,
 }
 
+
+
 function LocationInput({arrowAlias = true, cleanable = true, ...props}: LocationInputProps) {
     const {showToast, showLoading} = useContext(DialogsContext)
     const {langType, lang} = useContext(langContext)
     const {AutoComplete, Section, MapLibReady, MapReady, MapError} = useContext(MapContext)
 
+    const historyRef = useRef('')
 
     const [eventSiteList, setEventSiteList] = useState<EventSites[]>([])
-    const [isCustom, setIsCustom] = useState(!!props?.initValue?.location && !props?.initValue?.eventSite)
+    const [isCustom, setIsCustom] = useState(!!props?.initValue?.location && !!props.initValue.formatted_address && !props?.initValue?.eventSite)
 
     const [eventSite, setEventSite] = useState<{ id: number, title: string, isCreatable?: boolean, formatted_address: string }[]>(props?.initValue?.eventSite ? [{
         id: props?.initValue.eventSite.id,
@@ -126,30 +131,24 @@ function LocationInput({arrowAlias = true, cleanable = true, ...props}: Location
     }, [searchKeyword, showSearchRes])
 
     useEffect(() => {
-        const res = {
-            customLocation,
-            eventSite: null,
-            metaData: customLocationDetail ? JSON.stringify(customLocationDetail) : null
-        }
-        if (props.onChange) {
-            props.onChange(res)
-        }
+       if (eventSite.length && eventSiteList.length) {
+           const target = eventSiteList.find((site) => site.id === eventSite[0]?.id)
+           const res = {
+               customLocation: '',
+               eventSite: target || null,
+               metaData: null
+           }
+           props.onChange &&  props.onChange(res)
+       } else {
+              const res = {
+                customLocation,
+                eventSite: null,
+                metaData: customLocationDetail ? JSON.stringify(customLocationDetail) : null
+              }
+              props.onChange &&  props.onChange(res)
+       }
     }, [
-        customLocation,
-        customLocationDetail
-    ])
-
-    useEffect(() => {
-        const res = {
-            customLocation: '',
-            eventSite: eventSiteList.find((site) => site.id === eventSite[0]?.id) || null,
-            metaData: null
-        }
-        if (props.onChange) {
-            props.onChange(res)
-        }
-    }, [
-        eventSite, eventSiteList
+        eventSite, eventSiteList, customLocation, customLocationDetail
     ])
 
     useEffect(() => {
@@ -205,6 +204,22 @@ function LocationInput({arrowAlias = true, cleanable = true, ...props}: Location
         }
     }
 
+    useEffect(() => {
+        if (isCustom && MapReady && !historyRef.current) {
+            setCustomLocationDetail({
+                formatted_address: props.initValue?.formatted_address,
+                geometry: {
+                    location: {
+                        lat: props.initValue?.lat,
+                        lng: props.initValue?.lng
+                    }
+                },
+                name: props.initValue?.formatted_address
+            })
+            historyRef.current = props.initValue?.formatted_address!
+        }
+    }, [isCustom, MapReady])
+
     return (<div className={'input-area event-location-input'}>
         <input type="text" id={'map'}/>
         {arrowAlias &&
@@ -229,6 +244,11 @@ function LocationInput({arrowAlias = true, cleanable = true, ...props}: Location
                     options={eventSiteList}
                     value={eventSite}
                     onChange={(params) => {
+                        if (params.type === 'clear') {
+                            reset()
+                            return
+                        }
+
                         if (params.value.length && params.value[0].isCreatable) {
                             setIsCustom(true)
                             setEventSite([])
@@ -283,7 +303,7 @@ function LocationInput({arrowAlias = true, cleanable = true, ...props}: Location
                                 endEnhancer={() => cleanable ?
                                     <Delete size={24} onClick={reset} className={'delete'}/> : <></>}
                                 placeholder={'Select location'}
-                                value={customLocationDetail?.formatted_address || props.initValue?.formatted_address || ''}
+                                value={customLocationDetail?.formatted_address || ''}
                             />
 
                             {showSearchRes &&

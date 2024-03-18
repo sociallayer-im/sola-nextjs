@@ -1203,10 +1203,12 @@ function CreateEvent(props: CreateEventPageProps) {
                             </div>
                         }
 
-                        {!!eventGroup && ((isEditMode && formReady) || !isEditMode) &&
+                        {!!eventGroup && ((isEditMode && formReady && !!currEvent) || !isEditMode) &&
                             <LocationInput
                                 errorMsg={occupiedError}
                                 initValue={isEditMode ? {
+                                    lat: currEvent!.geo_lat || '',
+                                    lng: currEvent!.geo_lng || '',
                                     eventSite: eventSite,
                                     location: currEvent!.location || '',
                                     formatted_address: currEvent!.formatted_address || ''
