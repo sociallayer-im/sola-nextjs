@@ -1213,7 +1213,7 @@ function CreateEvent(props: CreateEventPageProps) {
                                 } as any : undefined}
                                 eventGroup={eventGroup}
                                 onChange={values => {
-                                    if (values.customLocation === eventSite?.location) {return}
+                                    if ((values.customLocation === eventSite?.location) && !!values.customLocation) {return}
                                     if (!values.eventSite && !values.customLocation && !values.metaData) {
                                         setEventSite(null)
                                         setLocationDetail('')
