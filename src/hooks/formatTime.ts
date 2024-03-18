@@ -25,9 +25,16 @@ export const formatTimeWithTimezone = (dateString: string, timezone: string) => 
         timezone = 'America/Tegucigalpa'
     }
 
+    const localeTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone
     dateString = dateString.endsWith('Z') ? dateString : dateString + 'Z'
-    const diff = dayjs.tz('2023-01-01 00:00', timezone).diff(dayjs.tz('2023-01-01 00:00'), 'millisecond')
+    const offse1 = dayjs.tz(new Date(dateString).getTime() , localeTimezone).utcOffset()
+    const offse2 = dayjs.tz(new Date(dateString).getTime(), timezone).utcOffset()
+    const diff = (offse1 - offse2) * 60 * 1000
     return dayjs(new Date(new Date(dateString).getTime() - diff).toString()).format("YYYY.MM.DD HH:mm")
+
+    // dateString = dateString.endsWith('Z') ? dateString : dateString + 'Z'
+    // const diff = dayjs.tz(new Date(dateString).getTime(), timezone).diff(new Date(dateString).getTime(), 'millisecond')
+    // return dayjs(new Date(new Date(dateString).getTime() + diff).toString()).format("YYYY.MM.DD HH:mm")
 }
 
 function useTime() {
@@ -166,6 +173,7 @@ export function useTime3() {
 export function useTime4 (from: string, to: string, timezone: string = 'UTC') {
     const fromStr = from.endsWith('Z') ? from : from + 'Z'
     const toStr = to.endsWith('Z') ? to : to + 'Z'
+
 
     if (process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'vitalia') {
         timezone = 'America/Tegucigalpa'
