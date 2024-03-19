@@ -237,8 +237,8 @@ function LocationInput({arrowAlias = true, cleanable = true, ...props}: Location
                     valueKey={'id'}
                     clearable
                     creatable
-                    getOptionLabel={(option: any) => <div style={{paddingTop: '14px'}}>
-                        <div style={{fontSize: '16px', color: '#272928'}}> {option.option.title}</div>
+                    getOptionLabel={(option: any) => <div style={{padding: '7px'}}>
+                        <div style={{fontSize: '16px', color: '#272928'}}><span>{option.option.isCreatable ? 'Create: ' : ''}</span> {option.option.title}</div>
                         <div style={{fontSize: '14px', color: '#7B7C7B', fontWeight: 'normal', whiteSpace: 'pre-wrap'}}>{option.option.about}</div>
                     </div> }
                     options={eventSiteList}
