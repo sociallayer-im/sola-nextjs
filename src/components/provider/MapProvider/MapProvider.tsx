@@ -6,7 +6,7 @@ function MapProvider(props: { children: any }) {
     const [MapReady, setMapReady] = useState(false)
     const [MapError, setMapError] = useState('')
     const initZoom = useRef(14);
-    const listenTimes = useRef(20);
+    const listenTimes = useRef(30);
 
     const map = useRef<typeof google.maps.Map | null>(null)
     const Marker = useRef<typeof google.maps.marker.AdvancedMarkerElement | null>(null)
@@ -53,6 +53,15 @@ function MapProvider(props: { children: any }) {
     }
 
     useEffect(() => {
+        const lib = document.querySelector('#gmaplib')
+        if (!lib) {
+            const script = document.createElement('script')
+            script.id = 'gmaplib'
+            script.src = '/jslib/google.map.js'
+            script.async = true
+            document.head.appendChild(script)
+        }
+
         interVal.current = setInterval(() => {
             if (window.google && window.google.maps) {
                 setMapLibReady(true)

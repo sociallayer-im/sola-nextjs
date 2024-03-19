@@ -20,6 +20,8 @@ import LangContext from "@/components/provider/LangProvider/LangContext";
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { Virtual, Pagination, Autoplay, Navigation } from 'swiper'
 import 'swiper/css';
+import discoverData from "@/data/discover.data";
+import Footer from "@/components/base/Footer";
 
 export interface GroupWithMemberCount extends Group {
     member_count: number
@@ -91,7 +93,7 @@ function Discover({eventGroups, popupCities } : {eventGroups: Group[], popupCiti
                         {
                             featureds.map((featured, index) => {
                                 return  <SwiperSlide key={featured.id}>
-                                    <Link  href={`/popup-city/${featured.id}`} className={styles['card-featured']}>
+                                    <Link  href={`/event/${featured.group.username}`} className={styles['card-featured']}>
                                         <div className={styles['cover']}>
                                             { !!featured.image_url ?
                                                 <ImgLazy width={636} height={368} src={featured.image_url!}/> :
@@ -251,6 +253,8 @@ function Discover({eventGroups, popupCities } : {eventGroups: Group[], popupCiti
                     <div className={styles['name']}>@SocialLayer_im</div>
                 </Link>
             </div>
+
+            <Footer />
         </div>
     </div>
 }
@@ -258,17 +262,5 @@ function Discover({eventGroups, popupCities } : {eventGroups: Group[], popupCiti
 export default Discover
 
 export const getServerSideProps: any  = async (context: any) => {
-    const groups = getEventGroup()
-    const popupCities = queryPopupCity({page: 1, page_size: 8})
-
-    const req1 = await Promise.all([groups, popupCities])
-    const groupIds = req1[0].map((item: Group) => item.id)
-    const req2 = await memberCount(groupIds)
-
-    return {
-        props: {
-            eventGroups: req1[0],
-            popupCities: req1[1],
-        }
-    }
+   return await discoverData(context)
 }

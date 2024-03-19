@@ -16,6 +16,7 @@ import {
     queryPopupCity
 } from "@/service/solas";
 import SeedaoHome from "@/pages/seedao";
+import discoverData from "@/data/discover.data";
 
 export default function HomePage(props: { badges?: Badge[], eventGroups?: Group[], initEvent?: Group, initList?: Event[], popupCities?: PopupCity[], membership?: Membership[] }) {
     return <>
@@ -99,20 +100,6 @@ export const getServerSideProps: any = (async (context: any) => {
             }
         }
     } else {
-        console.time('discover page fetch data')
-        const task = [
-            queryPopupCity({page: 1, page_size: 8}),
-            getEventGroup(),
-        ]
-
-        const [popupCities, eventGroups] = await Promise.all(task)
-
-        console.timeEnd('discover page fetch data')
-        return  {
-            props: {
-                popupCities,
-                eventGroups
-            }
-        }
+        return await discoverData(context)
     }
 })

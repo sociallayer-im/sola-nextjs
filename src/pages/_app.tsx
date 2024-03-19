@@ -86,7 +86,6 @@ function MyApp({Component, pageProps, ...props}: any) {
                       content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
                 <title>{process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'maodao' ? 'Ready Player Club' : 'Social Layer'}</title>
             </Head>
-            <Script src={'/jslib/google.map.js'} async />
             <WagmiConfig config={config as any}>
                 <AuthKitProvider config={farcasterConfig}>
                 <SolanaWalletProvider>
