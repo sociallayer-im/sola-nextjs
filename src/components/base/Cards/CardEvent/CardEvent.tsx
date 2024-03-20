@@ -334,8 +334,15 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
             <div className={(fixed || hasMarker && !fixed) ? 'post marker' : 'post'}>
                 {
                     props.event.cover_url ?
-                        <ImgLazy src={props.event.cover_url} width={300} alt=""/>
-                        : <EventDefaultCover event={props.event} width={170} height={170}/>
+                        <ImgLazy src={props.event.cover_url} width={280} alt=""/>
+                        : <EventDefaultCover event={props.event} width={140} height={140}/>
+                }
+            </div>
+            <div className={(fixed || hasMarker && !fixed) ? 'post marker mobile' : 'post mobile'}>
+                {
+                    props.event.cover_url ?
+                        <ImgLazy src={props.event.cover_url} width={280} alt=""/>
+                        : <EventDefaultCover event={props.event} width={100} height={100}/>
                 }
             </div>
         </div>

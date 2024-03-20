@@ -8,6 +8,14 @@
   cursor: pointer;
   display: block;
   text-decoration: none;
+  min-height: 170px;
+
+  @media (max-width: 450px) {
+    & {
+      min-height: initial;
+    }
+  }
+
 
   & > .markers {
     display: none;
@@ -87,15 +95,28 @@
 
   .post {
     position: absolute;
-    width: 109px;
-    max-width: 33%;
-    height: 88%;
-    bottom: 0;
-    right: 0;
+    width: 140px;
+    height: 140px;
+    top: 16px;
+    right: 16px;
     overflow: hidden;
-    border-radius: 6px;
-    border-top-right-radius:0 ;
-    border-bottom-left-radius:0 ;
+
+    &.mobile {
+      display: none;
+    }
+
+    @media (max-width: 450px) {
+      & {
+        display: none;
+      }
+
+      &.mobile {
+        display: block;
+        width: 100px;
+        height: 100px;
+      }
+    }
+
 
     .lazyload-wrapper {
       width: 100%;
@@ -117,7 +138,7 @@
   .left {
     min-width: 180px;
     margin-left: 18px;
-    width: 58%;
+    width: 52%;
 
     .details {
       min-height: 113px;
