@@ -12,7 +12,6 @@ import {erc20_abi, payhub_abi, paymentTokenList} from "@/payment_settring";
 import {parseUnits} from "viem/utils";
 import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
 
-let loadingRef: any = null
 
 function Erc20TokenApproveHandler(
     props: {
@@ -70,7 +69,6 @@ function Erc20TokenApproveHandler(
                 props.onErrMsg?.(e.message)
             }
         } finally {
-            loadingRef?.()
             setBusy(false)
         }
     }
@@ -99,7 +97,6 @@ function Erc20TokenApproveHandler(
 
     return (<>
         {props.content ? props.content(() => {
-            loadingRef = showLoading()
             handleApprove()
         }, busy) : null
         }

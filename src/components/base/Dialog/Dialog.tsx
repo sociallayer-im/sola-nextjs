@@ -7,10 +7,11 @@ export interface DialogProps {
     minSize?: string[]
     noShell?: boolean
     handleClose?: (...rest: any[]) => any
+    closeable?: boolean
     position?: 'center' | 'bottom' | ''
 }
 
-function Dialog ({ position = '', ...props }: DialogProps) {
+function Dialog ({ position = '', closeable = true, ...props }: DialogProps) {
     const { children } = props
     const dialogContent = useRef<HTMLDivElement | null>(null)
     const [contentClassName, setContentClassName] = useState('dialog-content' + ' ' + position)
@@ -69,7 +70,7 @@ function Dialog ({ position = '', ...props }: DialogProps) {
     }, [])
 
     return (<div data-testid='AppDialog' className='dialog' style={{height: `${height}px`}}>
-        <div className={ `dialog-shell ${ props.noShell ? 'light': '' }` } onClick={ close }></div>
+        <div className={ `dialog-shell ${ props.noShell ? 'light': '' }` } onClick={ (e) => { closeable && close() }}></div>
         <div className={ contentClassName }  style={ sizeStyle } ref={ dialogContent! }>
             { children && children(close) }
         </div>

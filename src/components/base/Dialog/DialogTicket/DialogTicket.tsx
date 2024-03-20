@@ -10,12 +10,14 @@ import Erc20TokenPaymentHandler from "@/components/base/Erc20TokenPaymentHandler
 import Erc20TokenApproveHandler from "@/components/base/Erc20TokenApproveHandler/Erc20TokenApproveHandler";
 import Erc20Balance from "@/components/base/Erc20Balance/Erc20Balance";
 import EventDefaultCover from "@/components/base/EventDefaultCover";
-import {Badge, Event, joinEvent, queryBadgeDetail, queryBadgelet, Ticket} from '@/service/solas'
+import {Badge, Event, getParticipantDetail, joinEvent, queryBadgeDetail, queryBadgelet, Ticket} from '@/service/solas'
 import useTime from "@/hooks/formatTime";
 import {paymentTokenList} from "@/payment_settring";
 import UserContext from "@/components/provider/UserProvider/UserContext";
 import useEvent, {EVENT} from "@/hooks/globalEvent";
 import {formatUnits} from "viem/utils";
+import { Spinner } from 'baseui/icon'
+import ButtonLoading from "@/components/base/ButtonLoading";
 
 
 function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket }) {
@@ -34,9 +36,9 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
     const {address} = useAccount()
     const formatTime = useTime()
 
-    const hasBadgePermission = !props.ticket.check_badge_id || (!!props.ticket.check_badge_id && OwnedBadge)
+    const [busy, setBusy] = useState(false)
 
-    console.log('ticket====', props.ticket)
+    const hasBadgePermission = !props.ticket.check_badge_id || (!!props.ticket.check_badge_id && OwnedBadge)
 
     useEffect(() => {
         if (!!user.id && !!badge) {
@@ -47,6 +49,14 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
             setOwnedBadge(false)
         }
     }, [user.id, badge])
+
+    useEffect(() => {
+       if (user.id) {
+           getParticipantDetail({profile_id: user.id, ticket_id: props.ticket.id}).then((res) => {
+               res && setApproved(true)
+           })
+       }
+    }, [user.id])
 
     useEffect(() => {
         setSoldOut(props.ticket.quantity === 0)
@@ -109,15 +119,17 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
     return (<div className={styles['dialog-ticket']}>
         <div className={styles['dialog-title']}>
             <div>{'Event'}</div>
-            <svg
-                onClick={props.close}
-                className={styles['close']} xmlns="http://www.w3.org/2000/svg" width="14" height="15"
-                viewBox="0 0 14 15" fill="none">
-                <rect x="0.93335" y="0.311127" width="18.479" height="1.31993" rx="0.659966"
-                      transform="rotate(45 0.93335 0.311127)" fill="#7B7C7B"/>
-                <rect x="14" y="0.933319" width="18.479" height="1.31993" rx="0.659966"
-                      transform="rotate(135 14 0.933319)" fill="#7B7C7B"/>
-            </svg>
+            { !busy &&
+                <svg
+                    onClick={props.close}
+                    className={styles['close']} xmlns="http://www.w3.org/2000/svg" width="14" height="15"
+                    viewBox="0 0 14 15" fill="none">
+                    <rect x="0.93335" y="0.311127" width="18.479" height="1.31993" rx="0.659966"
+                          transform="rotate(45 0.93335 0.311127)" fill="#7B7C7B"/>
+                    <rect x="14" y="0.933319" width="18.479" height="1.31993" rx="0.659966"
+                          transform="rotate(135 14 0.933319)" fill="#7B7C7B"/>
+                </svg>
+            }
         </div>
 
         <div className={styles['dialog-event']}>
@@ -256,6 +268,7 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
                     props.close()
                 }}
                 content={(trigger, busy, sending, verifying) => {
+                    setBusy(busy || verifying)
                     return errorMsg ? <AppButton special onClick={e => {
                             setErrorMsg('')
                             setApproved(true)
@@ -263,18 +276,16 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
                         }>{'Retry'}</AppButton>
                         : <AppButton
                             disabled={busy || !!errorMsg}
-                            special={!busy && !errorMsg}
+                            special
                             onClick={async (e) => {
-                                const loading = showLoading()
                                 const participant = await handleJoin()
-                                loading()
                                 setErrorMsg('')
                                 trigger?.(participant!.id)
                             }}>{
                             sending ?
-                                'Sending Transaction...' :
+                                <ButtonLoading>Sending Transaction</ButtonLoading> :
                                 verifying ?
-                                    'Verifying...' :
+                                    <ButtonLoading>Verifying</ButtonLoading> :
                                     'Pay'
                         }</AppButton>
                 }}
@@ -301,13 +312,18 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
                 onSuccess={(txHash: string) => {
                     setApproved(true)
                 }}
-                content={(trigger, busy) => <AppButton
-                    disabled={busy || !!errorMsg}
-                    special={!busy && !errorMsg}
-                    onClick={async (e) => {
-                        setErrorMsg('')
-                        trigger?.()
-                    }}>{'Approve'}</AppButton>}
+                content={(trigger, busy) => {
+                    setBusy(busy)
+                    return <AppButton
+                        disabled={busy || !!errorMsg}
+                        special
+                        onClick={async (e) => {
+                            setErrorMsg('')
+                            trigger?.()
+                        }}>{busy ?
+                        <ButtonLoading>Approving</ButtonLoading>
+                        : 'Approve'}</AppButton>
+                }}
             />
         }
 

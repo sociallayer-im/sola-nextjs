@@ -24,7 +24,6 @@ function Erc20TokenPaymentHandler(
         onErrMsg?: (message: string) => any
     }
 ) {
-    const {showLoading} = useContext(DialogsContext)
     const {address} = useAccount()
     const {data: walletClient}: any = useWalletClient({chainId: props.chainId})
     const publicClient: any = usePublicClient({chainId: props.chainId})
@@ -35,7 +34,7 @@ function Erc20TokenPaymentHandler(
     const [sending, setSending] = useState(false)
     const [verifying, setVerifying] = useState(false)
 
-    const verifyPayment = async (participant_id: number, once = false) => {
+    const verifyPayment = async (participant_id: number) => {
         return new Promise((resolve, reject) => {
             let remainTimes = 60
             const checkParticipant = async () => {
@@ -43,11 +42,6 @@ function Erc20TokenPaymentHandler(
                     const participant = await getParticipantDetail({id: participant_id})
                     if (!participant) {
                         reject(new Error('Participant not found'))
-                    }
-
-                    if (once){
-                        // just check once
-                        resolve(participant?.payment_status === 'success')
                     }
 
                     if (participant?.payment_status === 'fail') {
@@ -60,7 +54,7 @@ function Erc20TokenPaymentHandler(
                         if (remainTimes > 0) {
                             setTimeout(checkParticipant, 1000)
                         } else {
-                            reject(new Error('Verify timeout'))
+                            reject(new Error('Error: Verify timeout'))
                         }
                     } else {
                         resolve(true)
@@ -79,16 +73,30 @@ function Erc20TokenPaymentHandler(
         try {
             setBusy(true)
             setSending(true)
+            const participant = await getParticipantDetail({id: participant_id})
 
-            const alreadyPay = await verifyPayment(participant_id, true)
-
-            if (alreadyPay) {
-                setBusy(false)
-                setSending(false)
-                setVerifying(false)
-                !!props.onSuccess && props.onSuccess('')
-                return
+            if (participant) {
+                if (participant.payment_status === 'success') {
+                    setBusy(false)
+                    setSending(false)
+                    setVerifying(false)
+                    !!props.onSuccess && props.onSuccess('')
+                    return
+                } else {
+                    setBusy(true)
+                    setSending(false)
+                    setVerifying(true)
+                    const verify = await verifyPayment(participant_id)
+                    if (verify) {
+                        setBusy(false)
+                        setSending(false)
+                        setVerifying(false)
+                        !!props.onSuccess && props.onSuccess('')
+                        return
+                    }
+                }
             }
+
 
             if (chain?.id !== props.chainId) {
                 await switchNetworkAsync?.(props.chainId)
@@ -135,17 +143,17 @@ function Erc20TokenPaymentHandler(
             }
 
         } finally {
-            loadingRef?.()
-            setBusy(false)
-            setSending(false)
-            setVerifying(false)
+            setTimeout(() => {
+                setBusy(false)
+                setSending(false)
+                setVerifying(false)
+            }, 300)
         }
     }
 
 
     return (<>
         {props.content ? props.content(async (participant_id) => {
-            loadingRef = showLoading()
             await handlePay(participant_id)
         }, busy, sending, verifying) : null}
     </>)

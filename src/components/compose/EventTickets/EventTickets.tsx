@@ -107,7 +107,8 @@ function EventTickets({canAccess = true, ...props}: { event: Event, tickets: Tic
                 event={props.event}
                 close={close}/>,
             size: [400, 'auto'],
-            position: 'bottom'
+            position: 'bottom',
+            closeable: false
         })
     }
 
