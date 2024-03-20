@@ -28,7 +28,7 @@ import NotificationsProvider from "@/components/provider/NotificationsProvider/N
 import {SolanaWalletProvider} from '@/components/provider/SolanaWalletProvider/SolanaWalletProvider'
 
 import '@farcaster/auth-kit/styles.css';
-import { AuthKitProvider } from '@farcaster/auth-kit';
+// import { AuthKitProvider } from '@farcaster/auth-kit';
 
 const farcasterConfig = {
     rpcUrl: 'https://mainnet.optimism.io',
@@ -87,7 +87,7 @@ function MyApp({Component, pageProps, ...props}: any) {
                 <title>{process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'maodao' ? 'Ready Player Club' : 'Social Layer'}</title>
             </Head>
             <WagmiConfig config={config as any}>
-                <AuthKitProvider config={farcasterConfig}>
+                {/*<AuthKitProvider config={farcasterConfig}>*/}
                 <SolanaWalletProvider>
                     <ColorSchemeProvider>
                         <StyletronProvider value={styletron}>
@@ -116,7 +116,7 @@ function MyApp({Component, pageProps, ...props}: any) {
                         </StyletronProvider>
                     </ColorSchemeProvider>
                 </SolanaWalletProvider>
-                    </AuthKitProvider>
+                    {/*</AuthKitProvider>*/}
             </WagmiConfig>
         </PageBacProvider>
     );

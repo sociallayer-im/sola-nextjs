@@ -6,7 +6,7 @@ import DialogsContext from '../../../provider/DialogProvider/DialogsContext'
 import UserContext from '../../../provider/UserProvider/UserContext'
 import {useRouter} from 'next/navigation'
 import {WalletContext as solanaWalletContext} from '@solana/wallet-adapter-react'
-import {SignInButton} from '@farcaster/auth-kit';
+// import {SignInButton} from '@farcaster/auth-kit';
 
 interface DialogConnectWalletProps {
     handleClose: (...rest: any[]) => any
@@ -138,7 +138,7 @@ function DialogConnectWallet(props: DialogConnectWalletProps) {
                 <div className='connect-name'>Zupass</div>
             </div>
 
-            {solanaWallet.wallets && solanaWallet.wallets.length > 0 &&
+            {solanaWallet.wallets && solanaWallet.wallets.length > 0 ?
                 <>
                     {
                         solanaWallet.wallets.map((wallet: any, idx: number) => {
@@ -150,19 +150,27 @@ function DialogConnectWallet(props: DialogConnectWalletProps) {
                                     <div className='connect-name'>{wallet.adapter.name}</div>
                                     <img className='chain-icon' src="/images/solana.png" alt=""/>
                                 </div>
-                                : <div key={idx}></div>
+                                : <div className='connect-item disable'>
+                                    <img src={wallet.adapter.icon} alt="solana"/>
+                                    <div className='connect-name'>{wallet.adapter.name}</div>
+                                    <img className='chain-icon' src="/images/solana.png" alt=""/>
+                                </div>
                         })
                     }
-                </>
+                </>:
+                <div className='connect-item disable'>
+                    <img src={'/images/solana.png'} alt="email"/>
+                    <div className='connect-name'>{'Solana'}</div>
+                </div>
             }
 
-            <div className='connect-item' onClick={async () => {
-                hadleFarcasterLogin()
-            }}>
-                <SignInButton/>
-                <img src="/images/farcaster.svg" alt="farcaster"/>
-                <div className='connect-name'>Farcaster</div>
-            </div>
+            {/*<div className='connect-item' onClick={async () => {*/}
+            {/*    hadleFarcasterLogin()*/}
+            {/*}}>*/}
+            {/*    <SignInButton/>*/}
+            {/*    <img src="/images/farcaster.svg" alt="farcaster"/>*/}
+            {/*    <div className='connect-name'>Farcaster</div>*/}
+            {/*</div>*/}
         </div>
     )
 }
