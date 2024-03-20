@@ -27,9 +27,6 @@ let _offsetY = 0
 
 let observer: any = null
 
-const localTimezone = dayjs.tz.guess()
-const timezoneInfo = timezoneList.find(item => item.id === localTimezone) || {id: 'UTC', label: 'UTC+00:00'}
-
 interface DateItem {
     date: number,
     timestamp: number,
@@ -40,28 +37,35 @@ interface DateItem {
     events: Event[]
 }
 
-const getCalendarData = () => {
-    const now = new Date()
-    // 计算出今天前183天和后182天的日期时间戳数组 182
-    const from = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 183, 0, 0, 0, 0).getTime()
-    const to = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 182, 0, 0, 0, 0).getTime()
+const getCalendarData = (timeZone: string) => {
+    const now = dayjs.tz(new Date().getTime(), timeZone)
+
+    const timeStr = `${now.year()}-${now.month() + 1}-${now.date()} 00:00`
+    const _nowZero =dayjs(timeStr, timeZone)
+    const _from = _nowZero.subtract(182, 'day')
+
 
     // 获得 from 和 to  之间所以天0点的时间戳数组
     const dayArray = []
-    for (let i = from; i <= to; i += 24 * 60 * 60 * 1000) {
+    for (let i = 0; i < 365; i ++) {
+        let time = _from
+        if (i!==0) {
+            time = _from.add(i, 'day')
+        }
         dayArray.push({
-            date: new Date(i).getDate(),
-            timestamp: i,
-            dayName: dayName[new Date(i).getDay()],
-            day: new Date(i).getDate(),
-            month: new Date(i).getMonth(),
-            year: new Date(i).getFullYear(),
+            date: time.date(),
+            timestamp: time.valueOf(),
+            dayName: dayName[time.day()],
+            day: time.day(),
+            month:  time.month(),
+            year: time.year(),
             events: [] as Event[]
         })
     }
-
+    console.log('dayArray length', dayArray.length)
     return dayArray as DateItem[]
 }
+
 
 function ComponentName(props: { group: Group }) {
     const eventGroup = props.group
@@ -69,7 +73,6 @@ function ComponentName(props: { group: Group }) {
     const scroll1Ref = useRef<any>(null)
     const scroll2Ref = useRef<any>(null)
     const eventListRef = useRef<Event[]>([])
-    const dayList = useRef(getCalendarData())
     const lock = useRef(false)
     const searchParams = useSearchParams()
 
@@ -78,14 +81,14 @@ function ComponentName(props: { group: Group }) {
     const [showJoined, setShowJoined] = useState(false)
     const {lang} = useContext(LangContext)
 
-
+    const [dayList, setDayList] = useState<DateItem[]>([])
     const [eventList, setEventList] = useState<Event[]>([])
     const [showList, setShowList] = useState<DateItem[]>([])
     const [ready, setReady] = useState(false)
     const [currMonth, setCurrMonth] = useState(new Date().getMonth())
     const [currYear, setCurrYear] = useState(new Date().getFullYear())
     const [currTag, setCurrTag] = useState<string[]>([])
-    const [timezoneSelected, setTimezoneSelected] = useState<{ label: string, id: string }[]>([timezoneInfo])
+    const [timezoneSelected, setTimezoneSelected] = useState<{ label: string, id: string }[]>([])
 
     // touch on pc
     const touchStart = useRef(false)
@@ -98,19 +101,19 @@ function ComponentName(props: { group: Group }) {
         const scrollBar1 = scroll1Ref.current
         const scrollBar2 = scroll2Ref.current
 
-        let targetDate = now
+        let targetDate = dayjs.tz(new Date().getTime(), timezoneSelected[0].id)
 
         const initDateString = searchParams?.get('date')
-        if (!!initDateString && init) {
-            const dateRegex = /^\d{4}-\d{1,2}-\d{1,2}$/
-            targetDate = dateRegex.test(initDateString) ? new Date(initDateString) : now
+        const dateRegex = /^\d{4}-\d{1,2}-\d{1,2}$/
+        if (!!initDateString && init && dateRegex.test(initDateString)) {
+            targetDate =  dayjs.tz(initDateString, timezoneSelected[0].id)
         }
 
-        setCurrMonth(targetDate.getMonth())
-        setCurrYear(targetDate.getFullYear())
+        setCurrMonth(targetDate.month())
+        setCurrYear(targetDate.year())
 
-        const targetColumnIndex = dayList.current.findIndex((item: DateItem) => {
-            return item.year === targetDate.getFullYear() && item.month === targetDate.getMonth() && item.date === targetDate.getDate()
+        const targetColumnIndex = dayList.findIndex((item: DateItem) => {
+            return item.year === targetDate.year() && item.month === targetDate.month() && item.date === targetDate.date()
         })
 
         const offset = targetColumnIndex * 256
@@ -119,59 +122,86 @@ function ComponentName(props: { group: Group }) {
             scrollBar1.scrollLeft = offset
             scrollBar2.scrollLeft = offset
 
-            if (init) {
-                setTimeout(() => {
-                    if (observer) {
-                        observer.disconnect()
-                        observer = null
-                    }
+            setTimeout(() => {
+                // if (observer) {
+                //     observer.disconnect()
+                //     observer = null
+                // }
+                //
+                // observer = new IntersectionObserver((entries, observer) => {
+                //     entries.forEach(entry => {
+                //         if (_offsetX === 0) return
+                //         console.log(_offsetX)
+                //         // 横向滚动时动态改变显示月份
+                //         if (entry.isIntersecting) {
+                //             if (_offsetX < 0) {
+                //                 console.log('======entry.target add')
+                //                 const month = Number(entry.target.getAttribute('data-month'))
+                //                 const year = Number(entry.target.getAttribute('data-year'))
+                //                 document.querySelector('.curr-month')!.innerHTML = `${mouthName[month]} ${year}`
+                //                 // setCurrYear(year)
+                //                 // setCurrMonth(month)
+                //             }
+                //         } else {
+                //             if (_offsetX > 0) {
+                //                 console.log('======entry.target del')
+                //                 const month = Number(entry.target.getAttribute('data-month'))
+                //                 const year = Number(entry.target.getAttribute('data-year'))
+                //                 document.querySelector('.curr-month')!.innerHTML = `${mouthName[month === 0 ? 11 : month - 1]} ${month === 0 ? year - 1 : year}`
+                //                 // setCurrMonth(month === 0 ? 11 : month - 1)
+                //                 // setCurrYear(month === 0 ? year - 1 : year)
+                //             }
+                //
+                //         }
+                //     })
+                // }, {threshold: 0.9})
+                //
+                // const target = document.querySelectorAll('.month-begin')
+                // if (target.length > 0) {
+                //     target.forEach((item: any) => {
+                //         observer.observe(item)
+                //     })
+                // }
 
-                    observer = new IntersectionObserver((entries, observer) => {
-                        entries.forEach(entry => {
-                            if (_offsetX === 0) return
-
-                            // 横向滚动时动态改变显示月份
-                            if (entry.isIntersecting) {
-                                const month = Number(entry.target.getAttribute('data-month'))
-                                const year = Number(entry.target.getAttribute('data-year'))
-                                if (_offsetX < 0) {
-                                    setCurrYear(year)
-                                    setCurrMonth(month)
-                                }
-                            } else {
-                                const month = Number(entry.target.getAttribute('data-month'))
-                                const year = Number(entry.target.getAttribute('data-year'))
-                                if (_offsetX > 0) {
-                                    setCurrMonth(month === 1 ? 12 : month - 1)
-                                    setCurrYear(month === 1 ? year - 1 : year)
-                                }
-                            }
-                        })
-                    }, {threshold: 0.9})
-
-                    const target = document.querySelectorAll('.month-begin')
-                    if (target.length > 0) {
-                        target.forEach((item: any) => {
-                            observer.observe(item)
-                        })
-                    }
-
-                    slideToToday(true)
-                }, 100)
-            }
+                slideToToday(true)
+            }, 100)
         } else {
             scrollBar1.scrollLeft = offset
             scrollBar2.scrollLeft = offset
         }
     }
 
+    useEffect(() => {
+        const historyTimeZone = localStorage.getItem('schedule-timezone')
+        try {
+            if (historyTimeZone) {
+                setTimezoneSelected(JSON.parse(historyTimeZone))
+            } else {
+                const localTimezone = dayjs.tz.guess()
+                const timezoneInfo = timezoneList.find(item => item.id === localTimezone) || {id: 'UTC', label: 'UTC+00:00'}
+                setTimezoneSelected([timezoneInfo])
+            }
+        } catch (e: any) {
+        }
+    }, [])
+
+    useEffect(() => {
+        if (timezoneSelected.length) {
+            setDayList(getCalendarData(timezoneSelected[0].id))
+        }
+    }, [timezoneSelected])
 
     useEffect(() => {
         const getEventList = async () => {
+            // if (eventList.length!==0) {
+            //     setEventList([...eventList])
+            //     return
+            // }
+
             const events = await queryEvent({
                 group_id: eventGroup.id,
-                start_time_from: new Date(dayList.current[0].timestamp).toISOString(),
-                start_time_to: new Date(dayList.current[dayList.current.length - 1].timestamp).toISOString(),
+                start_time_from: new Date(dayList[0].timestamp).toISOString(),
+                start_time_to: new Date(dayList[dayList.length - 1].timestamp).toISOString(),
                 page: 1,
                 event_order: 'asc',
                 page_size: 1000
@@ -181,11 +211,14 @@ function ComponentName(props: { group: Group }) {
             eventListRef.current = events
             setReady(true)
         }
-        getEventList()
-    }, [])
+
+        if (dayList.length) {
+            getEventList()
+        }
+    }, [dayList])
 
     useEffect(() => {
-        const list = JSON.parse(JSON.stringify(dayList.current))
+        const list = JSON.parse(JSON.stringify(dayList))
         eventList.forEach(item => {
             const eventStarTime = dayjs.tz(new Date(item.start_time!).getTime(), timezoneSelected[0].id)
             const targetIndex = list.findIndex((i: DateItem) => {
@@ -197,9 +230,10 @@ function ComponentName(props: { group: Group }) {
         })
         setShowList(list)
         setReady(true)
-    }, [eventList, timezoneSelected])
+    }, [eventList])
 
     useEffect(() => {
+        if (!showList.length) return
         const checkScroll = (e: any) => {
             const offset = e.target.scrollLeft
             const target = window.document.querySelector('.event-wrapper')
@@ -229,7 +263,6 @@ function ComponentName(props: { group: Group }) {
 
         const checkMousedown = (e: any) => {
             e.preventDefault()
-            console.log('down')
             touchStart.current = true
             touchStartX.current = e.clientX
             touchStartY.current = e.clientY
@@ -352,7 +385,7 @@ function ComponentName(props: { group: Group }) {
                 }
             }
         }
-    }, [scroll1Ref, scroll2Ref])
+    }, [scroll1Ref, scroll2Ref, showList])
 
     useEffect(() => {
         let res: any = []
@@ -379,6 +412,8 @@ function ComponentName(props: { group: Group }) {
         })
     }, [])
 
+    const creatEventPatch = eventGroup?.username === 'web3festival' ? `/event/${eventGroup.username}/custom-create`: `/event/${eventGroup.username}/create`
+
     return (<div className={styles['schedule-page']}>
         <div className={`${styles['schedule-head']} schedule-head`}>
             <div className={styles['page-center']}>
@@ -386,7 +421,8 @@ function ComponentName(props: { group: Group }) {
                     <div className={styles['schedule-title-left']}>
                         <div className={'group-name'}>{lang['Activity_Calendar']}</div>
                     </div>
-                    <Link className={styles['create-btn']} href={`/event/${eventGroup.username}/create`}>
+                    <Link className={styles['create-btn']} href={creatEventPatch}
+                          target={'_blank'}>
                         <svg xmlns="http://www.w3.org/2000/svg" width="17" height="16" viewBox="0 0 17 16" fill="none">
                             <path
                                 d="M13.1667 7.33335H9.16675V3.33335C9.16675 3.15654 9.09651 2.98697 8.97149 2.86195C8.84646 2.73693 8.67689 2.66669 8.50008 2.66669C8.32327 2.66669 8.1537 2.73693 8.02868 2.86195C7.90365 2.98697 7.83341 3.15654 7.83341 3.33335V7.33335H3.83341C3.6566 7.33335 3.48703 7.40359 3.36201 7.52862C3.23699 7.65364 3.16675 7.82321 3.16675 8.00002C3.16675 8.17683 3.23699 8.3464 3.36201 8.47142C3.48703 8.59645 3.6566 8.66669 3.83341 8.66669H7.83341V12.6667C7.83341 12.8435 7.90365 13.0131 8.02868 13.1381C8.1537 13.2631 8.32327 13.3334 8.50008 13.3334C8.67689 13.3334 8.84646 13.2631 8.97149 13.1381C9.09651 13.0131 9.16675 12.8435 9.16675 12.6667V8.66669H13.1667C13.3436 8.66669 13.5131 8.59645 13.6382 8.47142C13.7632 8.3464 13.8334 8.17683 13.8334 8.00002C13.8334 7.82321 13.7632 7.65364 13.6382 7.52862C13.5131 7.40359 13.3436 7.33335 13.1667 7.33335Z"
@@ -394,7 +430,8 @@ function ComponentName(props: { group: Group }) {
                         </svg>
                         Create an event
                     </Link>
-                    <Link className={styles['create-btn-2']} href={`/event/${eventGroup.username}/create`}>
+                    <Link className={styles['create-btn-2']} href={creatEventPatch}
+                          target={'_blank'}>
                         <svg xmlns="http://www.w3.org/2000/svg" width="17" height="16" viewBox="0 0 17 16"
                              fill="none">
                             <path
@@ -417,22 +454,28 @@ function ComponentName(props: { group: Group }) {
                 <div className={styles['schedule-menu-2']}>
                     <div className={styles['schedule-menu-center']}>
                         <div className={styles['mouth']}>
-                            <div>{mouthName[currMonth]} {currYear}</div>
-                            <div className={styles['to-today']} onClick={e => {
-                                slideToToday()
-                            }}>Today
-                            </div>
-                            <div className={`${styles['timezone-selected']} input-disable`}>
-                                <Select
-                                    value={timezoneSelected}
-                                    clearable={false}
-                                    searchable={false}
-                                    options={timezoneList}
-                                    onChange={(params) => {
-                                        setTimezoneSelected(params.value as any)
-                                    }}
-                                />
-                            </div>
+                            <div className={'curr-month'}>{mouthName[currMonth]} {currYear}</div>
+                            {  timezoneSelected.length !== 0 &&
+                                <>
+                                <div className={styles['to-today']} onClick={e => {
+                                    slideToToday()
+                                }}>Today
+                                </div>
+                                <div className={`${styles['timezone-selected']} input-disable`}>
+                                    <Select
+                                        value={timezoneSelected}
+                                        clearable={false}
+                                        searchable={false}
+                                        options={timezoneList}
+                                        onChange={(params) => {
+                                            localStorage.setItem('schedule-timezone', JSON.stringify(params.value))
+                                            setTimezoneSelected(params.value as any)
+                                        }}
+                                    />
+                                </div>
+                            </>
+
+                            }
                         </div>
                         {!!user.id &&
                             <div className={styles['show-joined']} onClick={e => {
@@ -474,11 +517,15 @@ function ComponentName(props: { group: Group }) {
                         return <div key={index + ''}
                                     data-month={item.month}
                                     data-year={item.year}
-                                    className={isMonthBegin ? `month-begin ${styles['date-column']}` :  styles['date-column']}>
+                                    className={isMonthBegin ? `month-begin ${styles['date-column']}` : styles['date-column']}>
                             <div className={styles['date-day']}>
+                                {
+                                    isMonthBegin &&
+                                    <span className={styles['month']}>{lang['Month_Name'][item.month]} </span>
+                                }
                                 <span>{item.dayName}</span>
                                 <span
-                                    className={item.date === now.getDate() && item.year === now.getFullYear() && item.month === now.getMonth()
+                                    className={item.date === dayjs.tz(new Date().getTime(), timezoneSelected[0]!.id).date() && item.year === dayjs.tz(new Date().getTime(), timezoneSelected[0]!.id).year() && item.month === dayjs.tz(new Date().getTime(), timezoneSelected[0]!.id).month()
                                         ? styles['date-active'] : styles['date']}>{item.date}</span>
                             </div>
                         </div>
@@ -493,6 +540,7 @@ function ComponentName(props: { group: Group }) {
                             <div className={`${styles['events']}`}>
                                 {item.events.map((e: Event) => {
                                     return <EventCard
+                                        blank={location.href.includes('iframe')}
                                         key={Math.random() + e.title}
                                         timezone={timezoneSelected[0].id}
                                         event={e}
@@ -567,14 +615,14 @@ function EventCard({
     return <Link className={styles['schedule-event-card']}
                  href={`/event/detail/${event.id}`}
                  onClick={e => {
-                     if (Math.abs(_offsetX) > 5 || Math.abs(_offsetY) > 5) {
+                     if (_offsetX !==0 || _offsetX!==0) {
                          e.preventDefault()
                      }
 
                  }}
                  onTouchEnd={e => {
                      e.preventDefault()
-                     if (Math.abs(_offsetX) < 10 && Math.abs(_offsetY) < 10) {
+                     if (_offsetX===0 && _offsetX===0) {
                          router.push(`/event/detail/${event.id}`)
                      }
                  }}

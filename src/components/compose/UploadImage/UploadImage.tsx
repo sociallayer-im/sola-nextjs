@@ -1,5 +1,5 @@
 import { styled } from 'baseui'
-import { useState, useContext, useEffect } from 'react'
+import { useState, useContext, useEffect, forwardRef , useImperativeHandle } from 'react'
 import LangContext from '../../provider/LangProvider/LangContext'
 import chooseFile from '../../../utils/chooseFile'
 import solas from '../../../service/solas'
@@ -47,12 +47,19 @@ export interface UploadImageProps {
     cropper?: boolean
 }
 
-function UploadImage ({cropper=true, ...props}: UploadImageProps) {
+function UploadImage ({cropper=true, ...props}: UploadImageProps, ref: any) {
     const defaultImg = '/images/upload_default.png'
     const [imageSelect, setImageSelect] = useState(props.imageSelect)
     const { lang } = useContext(LangContext)
     const { user } = useContext(UserContext)
     const { showToast, showLoading, showCropper, openDialog } = useContext(DialogsContext)
+
+    useImperativeHandle(ref, () => {
+        return {
+            selectFile
+        }
+    })
+
 
     const selectFile = async () => {
         try {
@@ -121,4 +128,4 @@ function UploadImage ({cropper=true, ...props}: UploadImageProps) {
     </Wrapper>)
 }
 
-export default UploadImage
+export default forwardRef(UploadImage)

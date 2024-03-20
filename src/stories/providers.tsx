@@ -49,9 +49,6 @@ function MyApp(props: {children: any}) {
             </Head>
             <Script src={'/jslib/google.map.js'} async></Script>
 
-            { process.env.NODE_ENV === 'production' &&
-                <Script src="/jslib/trackjs.min.js" async></Script>
-            }
             <WagmiConfig config={config as any}>
                 <ColorSchemeProvider>
                     <StyletronProvider value={styletron}>

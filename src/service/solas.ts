@@ -233,6 +233,7 @@ export interface Profile {
             "industry": string
         }
     }
+    far_address: null | string
 }
 
 export interface ProfileSimple {
@@ -270,7 +271,9 @@ export async function queryProfileByGraph(props: { type: keyof GetProfileProps, 
         website
         zupass
         permissions,
-        sol_address
+        sol_address,
+        far_fid,
+        far_address
       }
     }`
 
@@ -297,7 +300,7 @@ export async function queryProfileByGraph(props: { type: keyof GetProfileProps, 
 }
 
 export async function queryProfileByEmail(email: string) {
-    const res = await fetch.post({
+    const res = await fetch.get({
         url: `${apiUrl}/profile/get_by_email`,
         data: {email}
     })
@@ -401,6 +404,9 @@ export async function getGroups(props: GetGroupProps): Promise<Group[]> {
 
     const doc = gql`query MyQuery {
       groups(${condition}) {
+        events_count
+        memberships_count
+        group_tags
         about
         banner_image_url
         banner_link_url
@@ -453,8 +459,8 @@ export async function getGroups(props: GetGroupProps): Promise<Group[]> {
     return res as Group[]
 }
 
-export async function queryGroupDetail(id: number): Promise<Group | null> {
-    const res = await getGroups({id})
+export async function queryGroupDetail(id?: number, username?: string): Promise<Group | null> {
+    const res = id ? await getGroups({id}) : await getGroups({username})
     return res[0] ?
         {
             ...res[0],
@@ -1037,6 +1043,9 @@ export interface Group extends Profile {
     can_publish_event: string
     can_join_event: string
     can_view_event: string
+    events_count: number
+    memberships_count: number
+    group_tags :string | null
 }
 
 export interface QueryUserGroupProps {
@@ -1046,6 +1055,9 @@ export interface QueryUserGroupProps {
 export async function queryGroupsUserJoined(props: QueryUserGroupProps): Promise<Group[]> {
     const doc = gql`query MyQuery {
       groups(where: {status: {_neq: "freezed"}, memberships: {role: {_neq: "owner"}, profile: {id: {_eq: "${props.profile_id}"}}}}) {
+        events_count
+        memberships_count
+        group_tags
         about
         permissions
         banner_image_url
@@ -1092,6 +1104,9 @@ export async function queryGroupsUserJoined(props: QueryUserGroupProps): Promise
 export async function queryGroupsUserCreated(props: QueryUserGroupProps): Promise<Group[]> {
     const doc = gql`query MyQuery {
       groups(where: {status: {_neq: "freezed"}, memberships: {role: {_eq: "owner"}, profile: {id: {_eq: "${props.profile_id}"}}}}) {
+        events_count
+        memberships_count
+        group_tags
         about
         permissions
         banner_image_url
@@ -1138,6 +1153,9 @@ export async function queryGroupsUserCreated(props: QueryUserGroupProps): Promis
 export async function queryGroupsUserManager(props: QueryUserGroupProps): Promise<Group[]> {
     const doc = gql`query MyQuery {
       groups(where: {status: {_neq: "freezed"}, memberships: {role: {_eq: "manager"}, profile: {id: {_eq: "${props.profile_id}"}}}}) {
+        events_count
+        memberships_count
+        group_tags
         about
         permissions
         banner_image_url
@@ -2904,6 +2922,7 @@ export interface Participants {
 }
 
 export interface Event {
+    padge_link: string | null,
     id: number,
     title: string,
     content: string,
@@ -3000,6 +3019,8 @@ export interface QueryEventProps {
     show_pending_event?: boolean,
     show_rejected_event?: boolean,
     recurring_event_id?: number,
+    show_cancel_event?: boolean,
+    group_ids?: number[]
 }
 
 
@@ -3062,10 +3083,15 @@ export async function queryEvent(props: QueryEventProps): Promise<Event[]> {
         status = status + ', "rejected"'
     }
 
+    if(props.show_cancel_event) {
+        status = status + ', "cancel"'
+    }
+
     variables = variables.replace(/,$/, '')
 
     const doc = gql`query MyQuery {
       events (where: {${variables}, status: {_in: [${status}]}} ${order} limit: ${page_size}, offset: ${(props.page - 1) * page_size}) {
+        padge_link
         badge_id
         notes
         geo_lat
@@ -3202,12 +3228,17 @@ export async function queryPendingEvent(props: QueryEventProps): Promise<Event[]
         variables += `group_id: {_eq: ${props.group_id}}, `
     }
 
+    if (props.group_ids) {
+        variables += `group_id: {_in: [${props.group_ids.join(',')}]}, `
+    }
+
 
     variables = variables.replace(/,$/, '')
 
 
     const doc = gql`query MyQuery {
       events (where: {${variables} status: {_eq: "pending"}}, ${order} limit: ${page_size}, offset: ${(props.page - 1) * page_size}) {
+        padge_link
         badge_id
         notes
         external_url
@@ -3324,7 +3355,7 @@ export interface QueryEventDetailProps {
 }
 
 export async function queryEventDetail(props: QueryEventDetailProps) {
-    const res = await queryEvent({id: props.id, page: 1, show_pending_event: true})
+    const res = await queryEvent({id: props.id, page: 1, show_pending_event: true, show_cancel_event: true})
 
     return res[0] as Event || null
 }
@@ -3477,6 +3508,7 @@ export async function unJoinEvent(props: JoinEventProps) {
 export async function searchEvent(keyword: string) {
     const doc = gql`query MyQuery {
       events (where: {title: {_iregex: "${keyword}"} , status: {_neq: "closed"}}, limit: 10) {
+        padge_link
         badge_id
         notes
         external_url
@@ -3776,6 +3808,9 @@ export async function divineBeastRemerge(props: DivineBeastRmergeProps) {
 export async function getEventGroup() {
     const doc = gql`query MyQuery {
       groups(where: {event_enabled: {_eq: true}, status: {_neq: "freezed"}}) {
+        events_count
+        memberships_count
+        group_tags
         about
         permissions
         banner_image_url
@@ -4444,6 +4479,24 @@ export async function zupassLogin(props: {
     return res.data.auth_token as string
 }
 
+export async function farcasterLogin(props: {
+    far_fid: number,
+    far_address: string,
+    next_token: string
+    host?: string,
+}) {
+    const res = await fetch.post({
+        url: `${apiUrl}/profile/signin_with_farcaster`,
+        data: {...props, app: props.host, address_source: 'farcaster'}
+    })
+
+    if (res.data.result === 'error') {
+        throw new Error(res.data.message)
+    }
+
+    return res.data.auth_token as string
+}
+
 export async function solanaLogin(props: {
     sol_address: string,
     next_token: string,
@@ -4986,11 +5039,151 @@ export async function getParticipantDetail (props: {id?: number, event_id?: numb
           event {
             id
           }
+          }
+          }`
+    const res: any = await request(graphUrl, doc)
+
+    return res.participants[0] as Participants || null
+}
+
+export interface PopupCity {
+    id: number
+    image_url: string | null
+    location: string | null
+    start_date: string | null
+    title: string
+    updated_at:  string | null
+    website: string | null
+    created_at: string | null
+    end_date: string | null
+    group_id: string | null,
+    group: ProfileSimple
+    group_tags: string[] | null
+}
+
+export async function queryPopupCity ({page = 1, page_size = 10}: {page?: number, page_size?: number}) {
+    const doc = gql`
+        query MyQuery {
+          popup_cities(offset: ${(page - 1 ) * page_size}, limit: ${page_size}, order_by: {id: desc}) {
+            id
+            group_tags
+            image_url
+            location
+            start_date
+            title
+            updated_at
+            website
+            created_at
+            end_date
+            group_id
+            group {
+              image_url
+              id
+              nickname
+              username
+              banner_image_url
+              map_enabled
+            }
+          }
+    }
+    `
+
+    const res: any = await request(graphUrl, doc)
+    return res.popup_cities as PopupCity[]
+}
+
+export async function popupCityDetail (id: number) {
+    const doc = gql`
+        query MyQuery {
+          popup_cities(where: {id: {_eq: ${id}}}, order_by: {id: desc}) {
+            id
+            image_url
+            location
+            start_date
+            title
+            updated_at
+            website
+            created_at
+            end_date
+            group_id
+            group {
+              image_url
+              id
+              nickname
+              username
+              banner_image_url
+              map_enabled
+            }
+        }
+    }
+    `
+
+    const res: any = await request(graphUrl, doc)
+    return res.popup_cities[0] as PopupCity || null
+}
+
+export async function memberCount (group_ids: number[]) {
+    let queryItem = ''
+    group_ids.forEach((item) => {
+        queryItem = queryItem + `_${item}: memberships_aggregate(where: {group: {id: {_eq: "${item}"}}}) {aggregate {count}}
+        `
+    })
+
+    const doc = `query MyQuery @cached {
+        ${queryItem}
+    }`
+
+    const res: any = await request(graphUrl, doc)
+    const keys = Object.keys(res)
+
+    const res_format = keys.map((item, index) => {
+        return {
+            group_id: Number(item.replace('_', '')),
+            count: res[item].aggregate.count
+        }
+    })
+
+    return res_format
+}
+
+export async function groupComingEventCount (group_ids: number[]) {
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    let queryItem = ''
+    group_ids.forEach((item) => {
+        queryItem = queryItem + `_${item}: events_aggregate(where: {group: {id: {_eq: "${item}"}}, end_time: {_gt: "${today.toISOString()}"}}) {aggregate {count}}
+        `
+    })
+
+    const doc = `query MyQuery @cached {
+        ${queryItem}
+    }`
+
+    const res: any = await request(graphUrl, doc)
+    const keys = Object.keys(res)
+
+    const res_format = keys.map((item, index) => {
+        return {
+            group_id: Number(item.replace('_', '')),
+            count: res[item].aggregate.count
+        }
+    })
+
+    return res_format
+}
+
+export async function userManageGroups (userid: number) {
+    const doc = `query MyQuery {
+        memberships(where: {profile_id: {_eq: ${userid}}, role: {_in: ["owner", "manager"]}}) {
+            group {
+                id
+                }
         }
     }`
 
     const res: any = await request(graphUrl, doc)
-    return res.participants[0] as Participants || null
+
+    return res.memberships.map((item: any) => item.group.id) as number[]
 }
 
 export default {

@@ -1,5 +1,6 @@
 import React from 'react';
 import '@/styles/index.sass'
+import 'swiper/css'
 import NextNProgress from 'nextjs-progressbar';
 import Script from 'next/script'
 import {Analytics} from '@vercel/analytics/react';
@@ -26,6 +27,16 @@ import Subscriber from '@/components/base/Subscriber'
 import {JoyIdConnector} from '@/libs/joid'
 import NotificationsProvider from "@/components/provider/NotificationsProvider/NotificationsProvider";
 import {SolanaWalletProvider} from '@/components/provider/SolanaWalletProvider/SolanaWalletProvider'
+
+import '@farcaster/auth-kit/styles.css';
+// import { AuthKitProvider } from '@farcaster/auth-kit';
+
+const farcasterConfig = {
+    rpcUrl: 'https://mainnet.optimism.io',
+    domain: process.env.NEXT_PUBLIC_HOST!.split('//')[1],
+    siweUri: process.env.NEXT_PUBLIC_HOST,
+};
+
 
 const inject = new InjectedConnector({
     chains: [polygon, avalancheFuji],
@@ -76,12 +87,8 @@ function MyApp({Component, pageProps, ...props}: any) {
                       content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
                 <title>{process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'maodao' ? 'Ready Player Club' : 'Social Layer'}</title>
             </Head>
-            <Script src={'/jslib/google.map.js'} async></Script>
-
-            {process.env.NODE_ENV === 'production' &&
-                <Script src="/jslib/trackjs.min.js" async></Script>
-            }
             <WagmiConfig config={config as any}>
+                {/*<AuthKitProvider config={farcasterConfig}>*/}
                 <SolanaWalletProvider>
                     <ColorSchemeProvider>
                         <StyletronProvider value={styletron}>
@@ -110,6 +117,7 @@ function MyApp({Component, pageProps, ...props}: any) {
                         </StyletronProvider>
                     </ColorSchemeProvider>
                 </SolanaWalletProvider>
+                    {/*</AuthKitProvider>*/}
             </WagmiConfig>
         </PageBacProvider>
     );

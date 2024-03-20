@@ -209,8 +209,8 @@ function IssueSuccessPage(props: any) {
                 </div>
                 <div className='cards'>
                     {!!info && <AppButton special onClick={e => {
-                        window.location.href = (props.invite || props.badge.group_id) ? `/group/${group?.username}` : (user.userName ? `/profile/${user.userName}` : '/')
-                    }}>{(props.invite || props.badge.group_id) ? lang['Back_To_Group_Page'] : lang['Back_To_Profile_Page']}</AppButton> }
+                        window.location.href = group ? `/group/${group?.username}` : (user.userName ? `/profile/${user.userName}` : '/')
+                    }}>{group ? lang['Back_To_Group_Page'] : lang['Back_To_Profile_Page']}</AppButton> }
                 </div>
             </div>
         </>

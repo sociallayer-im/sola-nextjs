@@ -65,10 +65,10 @@ function ReasonInput(props: ReasonInputProps) {
                 {/*    <i className='icon icon-hash'></i>*/}
                 {/*    { lang['IssueBadge_Eventbtn'] }*/}
                 {/*</div>*/}
-                <div className='btn' onClick={() => { addLink() }}>
-                    <i className='icon icon-link'></i>
-                    { lang['IssueBadge_linkbtn'] }
-                </div>
+                {/*<div className='btn' onClick={() => { addLink() }}>*/}
+                {/*    <i className='icon icon-link'></i>*/}
+                {/*    { lang['IssueBadge_linkbtn'] }*/}
+                {/*</div>*/}
             </div>
             { !props.unlimited && <div>{ value ? value.length : 0 }/200</div> }
 

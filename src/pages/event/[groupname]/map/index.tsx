@@ -10,7 +10,8 @@ import {
     markersCheckinList,
     Participants, queryCheckInList, queryEvent,
     queryMarkers,
-    queryMyEvent
+    queryMyEvent,
+    Group
 } from "@/service/solas";
 import {Swiper, SwiperSlide} from 'swiper/react'
 import {Mousewheel, Virtual} from 'swiper'
@@ -27,9 +28,9 @@ const menuList = markerTypeList2
 
 const defaultZoom = 17
 
-function ComponentName(props: { markerType: string | null }) {
+function ComponentName(props: { markerType: string | null, group?: Group, isIframe?: boolean }) {
     const {Map, MapEvent, Marker, MapError, MapReady} = useContext(MapContext)
-    const {eventGroup, isManager} = useContext(EventHomeContext)
+    const {eventGroup, isManager, setEventGroup} = useContext(EventHomeContext)
     const {openConnectWalletDialog} = useContext(DialogsContext)
     const {user} = useContext(userContext)
     const {history} = useContext(PageBackContext)
@@ -342,6 +343,12 @@ function ComponentName(props: { markerType: string | null }) {
         }
     }, [user.id])
 
+    useEffect(()=> {
+        if (props.group) {
+            setEventGroup(props.group)
+        }
+    }, [props.group])
+
     useEffect(() => {
         if (typeof window !== 'undefined' && !GoogleMapRef.current && MapReady && Map && MapEvent && mapDomRef.current && eventGroup?.id) {
             GoogleMapRef.current = new Map(mapDomRef.current as HTMLElement, {
@@ -353,6 +360,7 @@ function ComponentName(props: { markerType: string | null }) {
                 // e696c45661cb505d 特殊色
                 // e2f9ddc0facd5a80 普通
                 mapId: process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'zumap' ? 'e696c45661cb505d' : 'e2f9ddc0facd5a80',
+                disableDefaultUI: props.isIframe,
             })
         }
     }, [MapReady, mapDomRef, eventGroup])
@@ -399,55 +407,57 @@ function ComponentName(props: { markerType: string | null }) {
         <div className={styles['follow-window']}>
             <DialogGuideFollow/>
         </div>
-        <div id={'gmap'} className={styles['map-container']} ref={mapDomRef as any}/>
+        <div id={'gmap'} className={`${styles['map-container']} ${props.isIframe ? styles['iframe']: ''}`} ref={mapDomRef as any}/>
         {selectedType === 'Zugame' &&
             <GameMenu/>
         }
 
-        <div className={styles['top-menu']}>
-            { (isMember || isManager) &&
-                <div className={styles['menu-item-create']} onClick={() => {
-                    if (!user.id) {
-                        openConnectWalletDialog()
-                        return
-                    }
-                    router.push(`/event/${eventGroup?.username}/create-marker`)
-                }}>Create a Marker +
-                </div>
-            }
-            { (isMember || isManager) &&
-                <div className={styles['menu-item-create']} onClick={() => {
-                    if (!user.id) {
-                        openConnectWalletDialog()
-                        return
-                    }
-                    router.push(`/event/${eventGroup?.username}/create-share-me`)
-                }}>Share me + </div>
-            }
+        { !props.isIframe &&
+            <div className={styles['top-menu']}>
+                { (isMember || isManager) &&
+                    <div className={styles['menu-item-create']} onClick={() => {
+                        if (!user.id) {
+                            openConnectWalletDialog()
+                            return
+                        }
+                        router.push(`/event/${eventGroup?.username}/create-marker`)
+                    }}>Create a Marker +
+                    </div>
+                }
+                { (isMember || isManager) &&
+                    <div className={styles['menu-item-create']} onClick={() => {
+                        if (!user.id) {
+                            openConnectWalletDialog()
+                            return
+                        }
+                        router.push(`/event/${eventGroup?.username}/create-share-me`)
+                    }}>Share me + </div>
+                }
 
-            {/*<div className={`${styles['menu-item']} ${!selectedType ? styles['menu-item-active'] : ''}`}*/}
-            {/*     onClick={() => {*/}
-            {/*         setSelectedType('')*/}
-            {/*         router.push(`/event/${eventGroup?.username}/map`)*/}
-            {/*     }}>All*/}
-            {/*</div>*/}
-            {
-                menuList.map((item, index) => {
-                    const isSelected = selectedType === item.category
-                    return <div key={index}
-                                onClick={() => {
-                                    const patch = `/event/${eventGroup?.username}/map?type=${item.category}`
-                                    setSelectedType(item.category)
-                                    history.push(patch)
-                                    window.history.pushState({}, '', patch)
-                                    // router.push(`/event/${eventGroup?.username}/map?type=${item.category}`)
-                                }}
-                                className={`${styles['menu-item']} ${isSelected ? styles['menu-item-active'] : ''}`}>{item.label}</div>
-                })
-            }
-        </div>
+                {/*<div className={`${styles['menu-item']} ${!selectedType ? styles['menu-item-active'] : ''}`}*/}
+                {/*     onClick={() => {*/}
+                {/*         setSelectedType('')*/}
+                {/*         router.push(`/event/${eventGroup?.username}/map`)*/}
+                {/*     }}>All*/}
+                {/*</div>*/}
+                {
+                    menuList.map((item, index) => {
+                        const isSelected = selectedType === item.category
+                        return <div key={index}
+                                    onClick={() => {
+                                        const patch = `/event/${eventGroup?.username}/map?type=${item.category}`
+                                        setSelectedType(item.category)
+                                        history.push(patch)
+                                        window.history.pushState({}, '', patch)
+                                        // router.push(`/event/${eventGroup?.username}/map?type=${item.category}`)
+                                    }}
+                                    className={`${styles['menu-item']} ${isSelected ? styles['menu-item-active'] : ''}`}>{item.label}</div>
+                    })
+                }
+            </div>
+        }
 
-        {showList && !!eventGroup &&
+        {showList && !!eventGroup && !props.isIframe &&
             <div className={styles['marker-list']}>
                 {markers.length > 0 ?
                     <Swiper
@@ -518,6 +528,6 @@ export default ComponentName
 
 export const getServerSideProps: any = (async (context: any) => {
     const type = context.query?.type
-    return {props: {markerType: type || null}}
+    return {props: {markerType: type || null, groupname: null}}
 })
 

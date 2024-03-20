@@ -15,7 +15,7 @@ import {
     queryUserGroup, Ticket
 } from "@/service/solas";
 import LangContext from "@/components/provider/LangProvider/LangContext";
-import {useTime3, useTime2} from "@/hooks/formatTime";
+import {useTime2, useTime3} from "@/hooks/formatTime";
 import EventLabels from "@/components/base/EventLabels/EventLabels";
 import usePicture from "@/hooks/pictrue";
 import ReasonText from "@/components/base/EventDes/ReasonText";
@@ -66,7 +66,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
     const {addToCalender} = useCalender()
     const {showImage} = useShowImage()
     const {copy} = useCopy()
-    const {eventGroups, setEventGroup, eventGroup, ready, isManager} = useContext(EventHomeContext)
+    const {setEventGroup, eventGroup, ready, isManager} = useContext(EventHomeContext)
     const {getMeetingName, getUrl} = useGetMeetingName()
     const {MapReady} = useContext(MapContext)
     const [needUpdate, _] = useEvent(EVENT.participantUpdate)
@@ -207,26 +207,29 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
 
     useEffect(() => {
         if (event && event.group_id && ready) {
-            const group: any = eventGroups.find(item => item.id === event.group_id)
-            if (!group) {
-                router.push('/error')
-                return
-            }
+            queryGroupDetail(event.group_id).then((group) => {
+                if (!group) {
+                    console.warn('no group found')
+                    router.push('/')
+                    return
+                }
 
-            setEventGroup(group as Group)
+                setEventGroup(group as Group)
 
-            const selectedGroup = group as Group
-            if ((selectedGroup as Group).can_join_event === 'everyone') {
-                setCanAccess(true)
-                return
-            } else if (user.id && (selectedGroup as Group).can_join_event === 'member') {
-                const myGroup = queryUserGroup({profile_id: user.id}).then(res => {
-                    const joined = res.find(item => item.id === selectedGroup.id)
-                    setCanAccess(!!joined)
-                })
-            } else {
-                setCanAccess(false)
-            }
+                const selectedGroup = group as Group
+                if ((selectedGroup as Group).can_join_event === 'everyone') {
+                    setCanAccess(true)
+                    return
+                } else if (user.id && (selectedGroup as Group).can_join_event === 'member') {
+                    const myGroup = queryUserGroup({profile_id: user.id}).then(res => {
+                        const joined = res.find(item => item.id === selectedGroup.id)
+                        setCanAccess(!!joined)
+                    })
+                } else {
+                    setCanAccess(false)
+                }
+            })
+
         }
 
     }, [event, ready, user.id])
@@ -307,16 +310,17 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
 
             {
                 !!event &&
-                    <>
-                        <meta name="fc:frame" content="vNext" />
-                        { !!event.cover_url &&
-                            <meta name="fc:frame:image" content={event.cover_url!} />
-                        }
-                        <meta name="fc:frame:input:text" content={event.title + ' 📅' + formatTime2(event.start_time!, event.timezone!) + `${event.location ? ` 📍${event.location}` : ''}`} />
-                        <meta name="fc:frame:button:1" content="Join" />
-                        <meta name="fc:frame:button:1:action" content="post_redirect" />
-                        <meta name="fc:frame:post_url" content={`${process.env.NEXT_PUBLIC_HOST}/api/frame/${event.id}`} />
-                    </>
+                <>
+                    <meta name="fc:frame" content="vNext"/>
+                    {!!event.cover_url &&
+                        <meta name="fc:frame:image" content={event.cover_url!}/>
+                    }
+                    <meta name="fc:frame:input:text"
+                          content={event.title + ' 📅' + formatTime2(event.start_time!, event.timezone!) + `${event.location ? ` 📍${event.location}` : ''}`}/>
+                    <meta name="fc:frame:button:1" content="Join"/>
+                    <meta name="fc:frame:button:1:action" content="post_redirect"/>
+                    <meta name="fc:frame:post_url" content={`${process.env.NEXT_PUBLIC_HOST}/api/frame/${event.id}`}/>
+                </>
             }
             <title>{`${event?.title} | ${props.appName}`}</title>
         </Head>
@@ -326,13 +330,14 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
             <div className={'event-detail'}>
                 <div className={'event-detail-head'}>
                     <PageBack
+                        to={`/event/${eventGroup?.username}`}
                         menu={() =>
                             <div className={'event-top-btn'}>
                                 {(isHoster || isManager) && !canceled &&
                                     <Link href={`/event/${eventGroup?.username}/edit/${event?.id}`}>
                                         <i className={'icon-edit'}></i>{lang['Activity_Detail_Btn_Modify']}</Link>
                                 }
-                                { event?.status !== 'pending' &&
+                                {event?.status !== 'pending' &&
                                     <Link href={`/event/success/${event?.id}`}>
                                         <img src="/images/icon_share.svg" alt=""/>{lang['IssueFinish_Title']}</Link>
                                 }
@@ -353,6 +358,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                             <div className={'center'}>
                                 <div className={'name'}>
                                     {event.status === 'pending' && <span className={'pending'}>Pending</span>}
+                                    {event.status === 'cancel' && <span className={'cancel'}>Canceled</span>}
                                     {event.title}
                                 </div>
 
@@ -385,9 +391,9 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                 </div>
                                                 {cohost.map((item, index) => {
                                                     return <div className={'host-item'} key={item.username! + index}
-                                                                   onClick={e => {
-                                                                       !!item?.username && goToProfile(item.username)
-                                                                   }}>
+                                                                onClick={e => {
+                                                                    !!item?.username && goToProfile(item.username)
+                                                                }}>
                                                         <img src={item.image_url || defaultAvatar(item.id)} alt=""/>
                                                         <div>
                                                             <div
@@ -400,9 +406,9 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
 
                                                 {speaker.map((item, index) => {
                                                     return <div className={'host-item'} key={item.username! + index}
-                                                                  onClick={e => {
-                                                                      !!item?.username && goToProfile(item.username)
-                                                                  }}>
+                                                                onClick={e => {
+                                                                    !!item?.username && goToProfile(item.username)
+                                                                }}>
                                                         <img src={item.image_url || defaultAvatar(item.id)} alt=""/>
                                                         <div>
                                                             <div
@@ -412,8 +418,6 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                     </div>
                                                 })}
                                             </SwiperSlide>
-
-
 
 
                                         </Swiper>
@@ -539,7 +543,16 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                     </div>
                                 }
 
-                                {user.userName && canAccess && !event.external_url &&  event.status !== 'pending' &&
+                                {!!event.padge_link &&
+                                    <div className={'event-login-status'}>
+                                        <Link className={'link'} href={event.padge_link} target={"_blank"}>
+                                            Click and get a badge of .bit
+                                            <ImgLazy src={'https://ik.imagekit.io/soladata/ag4z4mmm_oJ33HdkUX'} width={100} height={100} />
+                                        </Link>
+                                    </div>
+                                }
+
+                                {user.userName && canAccess && !event.external_url && event.status !== 'pending' &&
                                     <div className={'event-login-status'}>
                                         <div className={'user-info'}>
                                             <img src={user.avatar || defaultAvatar(user.id!)} alt=""/>
@@ -622,6 +635,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                         }
                                     </div>
                                 }
+
 
                                 {!user.userName &&
                                     <div className={'center'}>
@@ -713,8 +727,8 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                 }
                                                 <ReasonText className={'event-des'} text={event.content}/>
 
-                                                { !!event.notes &&
-                                                    <EventNotes hide={!isJoined && !isHoster} notes={event.notes} />
+                                                {!!event.notes &&
+                                                    <EventNotes hide={!isJoined && !isHoster} notes={event.notes}/>
                                                 }
                                             </div>
                                         </div>}
@@ -858,6 +872,15 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                             </div>
                                         </div>
                                     }
+                                </div>
+                            }
+
+                            {!!event.padge_link &&
+                                <div className={'event-login-status'}>
+                                    <Link className={'link'} href={event.padge_link} target={"_blank"}>
+                                        Click and get a badge of .bit
+                                        <ImgLazy src={'https://ik.imagekit.io/soladata/ag4z4mmm_oJ33HdkUX'} width={100} height={100} />
+                                    </Link>
                                 </div>
                             }
 

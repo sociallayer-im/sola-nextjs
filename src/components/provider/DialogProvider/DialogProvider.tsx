@@ -1,6 +1,6 @@
 'use client'
 
-import { ReactNode, useEffect, useState } from 'react'
+import React, { ReactNode, useEffect, useState } from 'react'
 import {
     Badge,
     Badgelet,
@@ -18,27 +18,106 @@ import DialogDomainConfirm, { DialogConfirmDomainProps } from '../../base/Dialog
 import DialogConfirm, { DialogConfirmProps } from '../../base/Dialog/DialogConfirm/DialogConfirm'
 import Dialog from '../../base/Dialog/Dialog'
 import Toast from '../../base/Toast'
-import DialogConnectWallet from '../../base/Dialog/DialogConnectWallet/DialogConnectWallet'
+import DynamicLoading from "@/components/base/DynamicLoading";
+// import DialogConnectWallet from '../../base/Dialog/DialogConnectWallet/DialogConnectWallet'
 import ToastLoading from '../../base/ToastLoading'
-import DetailBadgelet from '../../compose/Detail/DetailBadgelet'
-import DetailPresend from '../../compose/Detail/DetailPresend'
-import DetailBadge from '../../compose/Detail/DetailBadge/DetailBadge'
-import DialogAvatar from '../../base/Dialog/DialogAvatar'
-import DialogCropper from '../../base/Dialog/DialogCropper/DialogCropper'
+// import DetailBadgelet from '../../compose/Detail/DetailBadgelet'
+// import DetailPresend from '../../compose/Detail/DetailPresend'
+// import DetailBadge from '../../compose/Detail/DetailBadge/DetailBadge'
+// import DialogAvatar from '../../base/Dialog/DialogAvatar'
+// import DialogCropper from '../../base/Dialog/DialogCropper/DialogCropper'
 import DetailInvite from '../../compose/Detail/DetailInvite'
-import DialogGroupSetting from '../../base/Dialog/DialogGroupSetting/DialogGroupSetting'
-import DetailNftpass from "../../compose/Detail/DetailNftpass/DetailNftpass";
-import DetailNftpasslet from "../../compose/Detail/DetailNftpasslet";
-import DetailPoint from "../../compose/Detail/DetailPoint";
-import DetailPointItem from "../../compose/Detail/DetailPointItem";
-import DialogNftCheckIn from "../../base/Dialog/DialogNftCheckIn/DialogNftCheckIn";
-import DetailGift from "../../compose/Detail/DetailGift/DetailGift";
-import DialogGiftCheckIn from "../../base/Dialog/DialogGiftCheckIn/DialogGiftCheckIn";
-import DetailGiftItem from "../../compose/Detail/DetailGiftItem/DetailGiftItem";
-import DialogTransferAccept, {DialogTransferAcceptProps} from "../../base/Dialog/DialogTransferAccept/DialogTransferAccept";
-import DialogRevoke from "../../base/Dialog/DialogBurn/DialogBurn";
-import DialogEventCheckIn from "@/components/base/Dialog/DialogEventCheckIn/DialogEventCheckIn";
-import DetailVoucher from "@/components/compose/Detail/DetailVoucher";
+// import DialogGroupSetting from '../../base/Dialog/DialogGroupSetting/DialogGroupSetting'
+// import DetailNftpass from "../../compose/Detail/DetailNftpass/DetailNftpass";
+// import DetailNftpasslet from "../../compose/Detail/DetailNftpasslet";
+// import DetailPoint from "../../compose/Detail/DetailPoint";
+// import DetailPointItem from "../../compose/Detail/DetailPointItem";
+// import DialogNftCheckIn from "../../base/Dialog/DialogNftCheckIn/DialogNftCheckIn";
+// import DetailGift from "../../compose/Detail/DetailGift/DetailGift";
+// import DialogGiftCheckIn from "../../base/Dialog/DialogGiftCheckIn/DialogGiftCheckIn";
+// import DetailGiftItem from "../../compose/Detail/DetailGiftItem/DetailGiftItem";
+// import DialogTransferAccept, {DialogTransferAcceptProps} from "../../base/Dialog/DialogTransferAccept/DialogTransferAccept";
+// import DialogRevoke from "../../base/Dialog/DialogBurn/DialogBurn";
+// import DialogEventCheckIn from "@/components/base/Dialog/DialogEventCheckIn/DialogEventCheckIn";
+// import DetailVoucher from "@/components/compose/Detail/DetailVoucher";
+
+import dynamic from 'next/dynamic'
+
+const DialogConnectWallet = dynamic(() => import('../../base/Dialog/DialogConnectWallet/DialogConnectWallet'), {
+    loading: () => <DynamicLoading />,
+})
+
+const DetailBadgelet = dynamic(() => import('../../compose/Detail/DetailBadgelet'), {
+    loading: () => <DynamicLoading />,
+})
+
+const DetailPresend = dynamic(() => import('../../compose/Detail/DetailPresend'), {
+    loading: () => <DynamicLoading />,
+})
+
+const DetailVoucher = dynamic(() => import('@/components/compose/Detail/DetailVoucher'), {
+    loading: () => <DynamicLoading />,
+})
+
+const DetailBadge = dynamic(() => import('../../compose/Detail/DetailBadge/DetailBadge'), {
+    loading: () => <DynamicLoading />,
+})
+
+const DialogEventCheckIn = dynamic(() => import('@/components/base/Dialog/DialogEventCheckIn/DialogEventCheckIn'), {
+    loading: () => <DynamicLoading />,
+})
+
+const DialogRevoke = dynamic(() => import('../../base/Dialog/DialogBurn/DialogBurn'), {
+    loading: () => <DynamicLoading />,
+})
+
+const DialogTransferAccept = dynamic(() => import('../../base/Dialog/DialogTransferAccept/DialogTransferAccept'), {
+    loading: () => <DynamicLoading />,
+})
+
+const DetailGiftItem = dynamic(() => import('../../compose/Detail/DetailGiftItem/DetailGiftItem'), {
+    loading: () => <DynamicLoading />,
+})
+
+const DialogGiftCheckIn = dynamic(() => import('../../base/Dialog/DialogGiftCheckIn/DialogGiftCheckIn'), {
+    loading: () => <DynamicLoading />,
+})
+
+const DetailGift = dynamic(() => import('../../compose/Detail/DetailGift/DetailGift'), {
+    loading: () => <DynamicLoading />,
+})
+
+const DialogNftCheckIn = dynamic(() => import('../../base/Dialog/DialogNftCheckIn/DialogNftCheckIn'), {
+    loading: () => <DynamicLoading />,
+})
+
+const DetailPointItem = dynamic(() => import('../../compose/Detail/DetailPointItem'), {
+    loading: () => <DynamicLoading />,
+})
+
+const DetailPoint = dynamic(() => import('../../compose/Detail/DetailPoint'), {
+    loading: () => <DynamicLoading />,
+})
+
+const DetailNftpasslet = dynamic(() => import('../../compose/Detail/DetailNftpasslet'), {
+    loading: () => <DynamicLoading />,
+})
+
+const DetailNftpass = dynamic(() => import('../../compose/Detail/DetailNftpass/DetailNftpass'), {
+    loading: () => <DynamicLoading />,
+})
+
+const DialogGroupSetting = dynamic(() => import('../../base/Dialog/DialogGroupSetting/DialogGroupSetting'), {
+    loading: () => <DynamicLoading />,
+})
+
+const DialogCropper = dynamic(() => import('../../base/Dialog/DialogCropper/DialogCropper'), {
+    loading: () => <DynamicLoading />,
+})
+
+const DialogAvatar = dynamic(() => import('../../base/Dialog/DialogAvatar'), {
+    loading: () => <DynamicLoading />,
+})
 
 export interface DialogProviderProps {
     children: ReactNode

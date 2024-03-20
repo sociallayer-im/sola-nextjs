@@ -10,9 +10,9 @@ interface AppSwiperProps {
 
 function AppSwiper(props: AppSwiperProps) {
     return (<Swiper
-        data-testid='AppSwiper'
+        autoplay
         modules={[Virtual]}
-        spaceBetween={ props.space }
+        spaceBetween={ 0 }
         freeMode={ true }
         slidesPerView={'auto'} >
         { props.items.map((item, index) => {

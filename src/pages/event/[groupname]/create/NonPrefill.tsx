@@ -36,7 +36,6 @@ import {
 import DialogsContext from '@/components/provider/DialogProvider/DialogsContext'
 import ReasonInput from '@/components/base/ReasonInput/ReasonInput'
 import SelectCreator from '@/components/compose/SelectCreator/SelectCreator'
-import AppDateInput from "@/components/base/AppDateInput/AppDateInput";
 import {Delete} from "baseui/icon";
 import Toggle from "@/components/base/Toggle/Toggle";
 import EventLabels from "@/components/base/EventLabels/EventLabels";
@@ -47,10 +46,11 @@ import EventHomeContext from "@/components/provider/EventHomeProvider/EventHomeC
 import LocationInput from "@/components/compose/LocationInput/LocationInput";
 import AppFlexTextArea from "@/components/base/AppFlexTextArea/AppFlexTextArea";
 import AppEventTimeInput from "@/components/base/AppEventTimeInput/AppEventTimeInput";
-import {useTime3} from "@/hooks/formatTime";
 import IssuesInput from "@/components/base/IssuesInput/IssuesInput";
 import * as dayjsLib from "dayjs";
 import TicketSetting from "@/components/compose/TicketSetting/TicketSetting";
+import TimeSlot from "@/components/compose/themu/TimeSlotNew";
+import EventDefaultCover from "@/components/base/EventDefaultCover";
 
 
 const utc = require('dayjs/plugin/utc')
@@ -80,15 +80,16 @@ interface Draft {
     telegram_contact_group: string,
 }
 
-interface CreateEventPageProps {
+export interface CreateEventPageProps {
     eventId?: number
+    groupname?: string
 }
 
 // 函数，一天24小时分成若干时间时间点，步进为15分钟, 然后找出和当前时间最近的时间点,而且时间点必须大于等于当前时间
 const getNearestTime = () => {
     const now = new Date()
     const minutes = now.getMinutes()
-    const minuteRange = [0, 15, 30, 45, 60]
+    const minuteRange = [0, 30, 60]
     const nearestMinute = minuteRange.find((item) => {
         return item >= minutes
     })
@@ -97,8 +98,6 @@ const getNearestTime = () => {
     const initEndTime = new Date(initStartTime.getTime() + 60 * 60 * 1000)
     return [initStartTime, initEndTime]
 }
-
-const initTime = getNearestTime()
 
 const repeatEventEditOptions = [
     {label: 'Only this event', value: 'one'},
@@ -113,8 +112,7 @@ function CreateEvent(props: CreateEventPageProps) {
     const {showLoading, showToast, openDialog, openConfirmDialog, openConnectWalletDialog} = useContext(DialogsContext)
     const [creator, setCreator] = useState<Group | Profile | null>(null)
     const {lang, langType} = useContext(LangContext)
-    const {eventGroup, joined, isManager} = useContext(EventHomeContext)
-    const formatTime = useTime3()
+    const {eventGroup, joined, isManager, setEventGroup} = useContext(EventHomeContext)
 
     const [currEvent, setCurrEvent] = useState<Event | null>(null)
 
@@ -161,6 +159,7 @@ function CreateEvent(props: CreateEventPageProps) {
     const [repeatCounter, setRepeatCounter] = useState(1)
     const [repeatCounterError, setRepeatCounterError] = useState(false)
     const [externalUrl, setExternalUrl] = useState<string | null>(null)
+    const [padgeLink, setPadgeLink] = useState<string | null>(null)
 
     const [needPublish, setNeedPublish] = useState(false)
 
@@ -171,6 +170,8 @@ function CreateEvent(props: CreateEventPageProps) {
     const [enableNotes, setEnableNotes] = useState(false)
     const [notes, setNotes] = useState('')
 
+    const [isSlot, setIsSlot] = useState(false)
+    const uploadCoverRef = useRef<any>(null)
 
     const toNumber = (value: string, set: any) => {
         if (!value) {
@@ -265,7 +266,7 @@ function CreateEvent(props: CreateEventPageProps) {
                 unloading()
                 if (redirect) {
                     showToast('Cancel success')
-                    router.push(`/event`)
+                    router.push(`/event/${eventGroup?.username}`)
                 }
             } catch (e) {
                 unloading()
@@ -375,6 +376,21 @@ function CreateEvent(props: CreateEventPageProps) {
     }
 
     useEffect(() => {
+        const slotList = [82, 81, 80, 79, 78, 87, 86]
+        if (formReady && eventSite?.id && slotList.includes(eventSite!.id)) {
+            setIsSlot(true)
+            console.log('===========slot true')
+        } else {
+            console.log('===========slot false')
+            if (!start || !ending) {
+                setStart(currEvent ? currEvent.start_time! : initTime[0].toISOString())
+                setEnding(currEvent ?  currEvent.end_time! : initTime[1].toISOString())
+            }
+            setIsSlot(false)
+        }
+    }, [eventSite, formReady, start])
+
+    useEffect(() => {
         if (props?.eventId) {
             setIsEditMode(!!props.eventId)
         }
@@ -403,7 +419,8 @@ function CreateEvent(props: CreateEventPageProps) {
     }, [telegram])
 
     useEffect(() => {
-        if (!user.userName) {
+        const authStorage = window.localStorage.getItem('auth_sola') || ''
+        if (!authStorage) {
             openConnectWalletDialog()
         }
     }, [user.userName])
@@ -430,11 +447,13 @@ function CreateEvent(props: CreateEventPageProps) {
 
     useEffect(() => {
         if (start && ending) {
-            if (start > ending) {
+            if (start >= ending) {
                 setStartTimeError(lang['Activity_Form_Ending_Time_Error'])
             } else {
                 setStartTimeError('')
             }
+        } else {
+            setStartTimeError('Please select a time slot')
         }
     }, [start, ending])
 
@@ -455,6 +474,16 @@ function CreateEvent(props: CreateEventPageProps) {
             setCover(event.cover_url)
             setTitle(event.title)
             setContent(event.content)
+            // The time zone must be set before configuring the start and end times.
+
+            const group = await queryGroupDetail(event.group_id as number)
+            setEventGroup(group as any)
+
+
+            if (event.timezone) {
+                setTimezone(event.timezone)
+            }
+
             if (event.start_time) {
                 setStart(event.start_time)
             }
@@ -498,6 +527,7 @@ function CreateEvent(props: CreateEventPageProps) {
             setLabel(event.tags ? event.tags : [])
             setBadgeId(event.badge_id)
             setEventType(event.event_type || 'event')
+            setPadgeLink(event.padge_link || null)
 
             if (event.host_info) {
                 if (event.host_info.startsWith('{')) {
@@ -551,9 +581,7 @@ function CreateEvent(props: CreateEventPageProps) {
             //     setLocationDetail(event.formatted_address)
             // }
 
-            if (event.timezone) {
-                setTimezone(event.timezone)
-            }
+
 
             if (event.notes) {
                 setEnableNotes(true)
@@ -578,7 +606,19 @@ function CreateEvent(props: CreateEventPageProps) {
                     router.push('/error')
                 }
             } else {
-                prefillDraft()
+               // prefillDraft()
+                const groupname = props?.groupname
+                if (!!groupname) {
+                    await queryGroupDetail(undefined, groupname as string).then(
+                        res => {
+                            setEventGroup(res as any)
+                            setFormReady(true)
+                        }
+                    )
+                } else {
+                    console.warn('groupname not found')
+                    router.push('/')
+                }
             }
         }
 
@@ -586,7 +626,7 @@ function CreateEvent(props: CreateEventPageProps) {
     }, [isEditMode])
 
     useEffect(() => {
-        SaveDraft()
+        // SaveDraft()
     }, [
         cover,
         title,
@@ -767,7 +807,7 @@ function CreateEvent(props: CreateEventPageProps) {
         }
 
         if (startTimeError) {
-            showToast(lang['Activity_Form_Ending_Time_Error'])
+            showToast(startTimeError)
             return false
         }
 
@@ -856,13 +896,13 @@ function CreateEvent(props: CreateEventPageProps) {
             event_count: repeatCounter,
             tickets: enableTicket && tickets.length ? tickets : null,
             external_url: externalUrl,
+            padge_link: padgeLink,
             notes: enableNotes ? notes : null,
         }
 
         try {
             if (props.interval) {
                 const newEvent = await createRepeatEvent(props)
-
                 if (badgeId) {
                     const setBadge = await RepeatEventSetBadge({
                         recurring_event_id: newEvent.recurring_event_id!,
@@ -909,6 +949,7 @@ function CreateEvent(props: CreateEventPageProps) {
         const check = checkForm()
         if (!check) return
 
+
         let lng: string | null = null
         let lat: string | null = null
 
@@ -944,6 +985,7 @@ function CreateEvent(props: CreateEventPageProps) {
             geo_lat: lat,
             tickets: enableTicket && tickets.length ? tickets : null,
             external_url: externalUrl,
+            padge_link: padgeLink,
             notes: enableNotes ? notes : null,
 
         }
@@ -1103,12 +1145,34 @@ function CreateEvent(props: CreateEventPageProps) {
 
                         <div className='input-area'>
                             <div className='input-area-title'>{lang['Activity_Form_Cover']}</div>
-                            <UploadImage
-                                cropper={false}
-                                imageSelect={cover || undefined}
-                                confirm={(coverUrl) => {
-                                    setCover(coverUrl)
-                                }}/>
+                            <div style={{display: !cover ? "block" : 'none'}}>
+                                <EventDefaultCover
+                                    event={
+                                        {
+                                            title: title,
+                                            start_time: start,
+                                            end_time: ending,
+                                            timezone: timezone,
+                                            location: customLocation || eventSite?.title || ''
+                                        }  as Event
+                                    }
+                                    width={328}
+                                    height={328} />
+                                <AppButton style={{width: "328px", marginTop: '12px'}} onClick={() => {
+                                    uploadCoverRef.current?.selectFile()
+                                }}>{"Upload"}</AppButton>
+                            </div>
+
+
+                            <div style={{display: !!cover ? "block" : 'none'}}>
+                                <UploadImage
+                                    ref={uploadCoverRef}
+                                    cropper={false}
+                                    imageSelect={cover || undefined}
+                                    confirm={(coverUrl) => {
+                                        setCover(coverUrl)
+                                    }}/>
+                            </div>
                         </div>
 
                         {/*<div className={'default-post'}>*/}
@@ -1130,14 +1194,75 @@ function CreateEvent(props: CreateEventPageProps) {
                             </div>
                         }
 
-                        {(!isEditMode || (!!currEvent && !currEvent.recurring_event_id)) &&
+                        {!!eventGroup && ((isEditMode && formReady && !!currEvent) || !isEditMode) &&
+                            <LocationInput
+                                errorMsg={occupiedError}
+                                initValue={isEditMode ? {
+                                    lat: currEvent!.geo_lat || '',
+                                    lng: currEvent!.geo_lng || '',
+                                    eventSite: eventSite,
+                                    location: currEvent!.location || '',
+                                    formatted_address: currEvent!.formatted_address || ''
+                                } as any : undefined}
+                                eventGroup={eventGroup}
+                                onChange={values => {
+                                    if ((values.customLocation === eventSite?.location) && !!values.customLocation) {return}
+                                    if (!values.eventSite && !values.customLocation && !values.metaData) {
+                                        setEventSite(null)
+                                        setLocationDetail('')
+                                        setCustomLocation('')
+                                        return
+                                    }
+
+                                    if (values.eventSite) {
+                                        setEventSite(values.eventSite?.id ? values.eventSite : null)
+                                        setCustomLocation(values.eventSite?.title!)
+                                    } else {
+                                        setEventSite(null)
+                                    }
+
+                                    if (values.customLocation) {
+                                        setCustomLocation(values.customLocation)
+                                    } else {
+                                        setLocationDetail('')
+                                    }
+
+                                    if (values.metaData) {
+                                        setLocationDetail(values.metaData)
+                                    } else {
+                                        setLocationDetail('')
+                                    }
+                                }}/>
+                        }
+
+                        { eventSite && isSlot && (!isEditMode || (!!currEvent && !currEvent.recurring_event_id)) &&
+                            <div className='input-area'>
+                                <div className='input-area-title'>{lang['Activity_Form_Starttime']}</div>
+                                <TimeSlot eventSiteId={eventSite.id}
+                                          from={start}
+                                          to={ending}
+                                          allowRepeat={isManager}
+                                          onChange={(from, to, timezone,repeat, counter) => {
+                                              console.log('========res', from, to, timezone, repeat, counter)
+                                              setStart(from)
+                                              setEnding(to)
+                                              setTimezone(timezone)
+                                              setRepeat(repeat as any || null)
+                                              setRepeatCounter(counter)
+                                          }} />
+                            </div>
+                        }
+
+                        {(!isEditMode || (!!currEvent && !currEvent.recurring_event_id)) && !isSlot && formReady && !!start &&
                             <div className='input-area'>
                                 <div className='input-area-title'>{lang['Activity_Form_Starttime']}</div>
                                 <AppEventTimeInput
-                                    from={start}
-                                    to={ending}
+                                    initData={{
+                                        from: start,
+                                        to: ending,
+                                        timezone: timezone
+                                    }}
                                     allowRepeat={isManager}
-                                    timezone={timezone}
                                     onChange={e => {
                                         setStart(e.from)
                                         setEnding(e.to)
@@ -1155,54 +1280,10 @@ function CreateEvent(props: CreateEventPageProps) {
                             </div>
                         }
 
-                        {false &&
-                            <div className='input-area'>
-                                <div className='input-area-title'>{lang['Activity_Form_Starttime']}</div>
-                                <AppDateInput value={start} onChange={(data) => {
-                                    console.log('start', data)
-                                    setStart(data as string)
-                                }}/>
-                            </div>
-                        }
-
-                        {false &&
-                            <div className='input-area'>
-                                <div className='input-area-title'>{lang['Activity_Form_Ending']}</div>
-                                <AppDateInput value={ending} onChange={(data) => {
-                                    console.log('ending', data)
-                                    setEnding(data as string)
-                                }}/>
-                            </div>
-                        }
-
                         {startTimeError && <div className={'start-time-error'}>
-                            {lang['Activity_Form_Ending_Time_Error']}
+                            {startTimeError}
                         </div>}
 
-                        {!!eventGroup && ((isEditMode && formReady) || !isEditMode) &&
-                            <LocationInput
-                                errorMsg={occupiedError}
-                                initValue={isEditMode ? {
-                                    eventSite: eventSite,
-                                    location: currEvent!.location || '',
-                                    formatted_address: currEvent!.formatted_address || ''
-                                } as any : undefined}
-                                eventGroup={eventGroup}
-                                onChange={values => {
-                                    if (values.eventSite) {
-                                        setEventSite(values.eventSite?.id ? values.eventSite : null)
-                                        setCustomLocation(values.eventSite?.title!)
-                                    }
-
-                                    if (values.customLocation) {
-                                        setCustomLocation(values.customLocation)
-                                    }
-
-                                    if (values.metaData) {
-                                        setLocationDetail(values.metaData)
-                                    }
-                                }}/>
-                        }
 
                         {eventType === 'event' &&
                             <div className='input-area'>
@@ -1215,6 +1296,20 @@ function CreateEvent(props: CreateEventPageProps) {
                                         setOnlineUrl(value)
                                     }}
                                     placeholder={'Url...'}/>
+                            </div>
+                        }
+
+                        {!!eventGroup && (eventGroup as Group).event_tags &&
+                            <div className={'input-area'}>
+                                <div className={'input-area-title'}>{lang['Activity_Form_Label']}</div>
+                                <EventLabels
+                                    data={(eventGroup as Group).event_tags!} onChange={e => {
+                                    setLabel(e)
+                                }} value={label} />
+
+                                { labelError &&
+                                    <div className={'label-error'}>{'The maximum number of tags is 3'}</div>
+                                }
                             </div>
                         }
 
@@ -1247,6 +1342,16 @@ function CreateEvent(props: CreateEventPageProps) {
                                         onChange={(e) => {
                                             setExternalUrl(e.target.value)
                                         }}/>
+                        </div>
+
+                        <div className='input-area'>
+                            <div className='input-area-title'>{"Padge Link"}</div>
+                            <AppInput clearable={false}
+                                      value={padgeLink || ''}
+                                      placeholder={lang['External_Url']}
+                                      onChange={(e) => {
+                                          setPadgeLink(e.target.value)
+                                      }}/>
                         </div>
 
                         {
@@ -1303,21 +1408,6 @@ function CreateEvent(props: CreateEventPageProps) {
                                     }}/>
                             }
                         </div>
-
-
-                        {!!eventGroup && (eventGroup as Group).event_tags &&
-                            <div className={'input-area'}>
-                                <div className={'input-area-title'}>{lang['Activity_Form_Label']}</div>
-                                <EventLabels
-                                    data={(eventGroup as Group).event_tags!} onChange={e => {
-                                    setLabel(e)
-                                }} value={label} />
-
-                                { labelError &&
-                                    <div className={'label-error'}>{'The maximum number of tags is 3'}</div>
-                                }
-                            </div>
-                        }
 
 
                         {eventType === 'event' &&
@@ -1497,3 +1587,4 @@ function CreateEvent(props: CreateEventPageProps) {
 }
 
 export default CreateEvent
+
