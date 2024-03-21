@@ -1,6 +1,6 @@
 import {useContext, useEffect, useRef, useState} from 'react'
 import {Event, getGroups, Group, queryEvent, queryGroupDetail} from "@/service/solas";
-import styles from './schedulenew.module.scss'
+import styles from './schedule.module.scss'
 import EventLabels from "@/components/base/EventLabels/EventLabels";
 import Link from 'next/link'
 import UserContext from "@/components/provider/UserProvider/UserContext";
@@ -24,8 +24,6 @@ const mouthName = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'
 
 let _offsetX = 0
 let _offsetY = 0
-let _touchStartX = 0
-let _touchStartY = 0
 
 let observer: any = null
 
@@ -36,24 +34,22 @@ interface DateItem {
     day: number,
     month: number,
     year: number,
-    events: Event[],
-    timezone: string
-    o: any
+    events: Event[]
 }
 
 const getCalendarData = (timeZone: string) => {
     const now = dayjs.tz(new Date().getTime(), timeZone)
 
-    // const timeStr = `${now.year()}-${now.month() + 1}-${now.date()} 00:00`
-    // const _nowZero = dayjs(timeStr, timeZone)
-    const _from = now.subtract(182, 'day')
+    const timeStr = `${now.year()}-${now.month() + 1}-${now.date()} 00:00`
+    const _nowZero =dayjs(timeStr, timeZone)
+    const _from = _nowZero.subtract(182, 'day')
 
 
     // 获得 from 和 to  之间所以天0点的时间戳数组
     const dayArray = []
-    for (let i = 0; i < 365; i++) {
+    for (let i = 0; i < 365; i ++) {
         let time = _from
-        if (i !== 0) {
+        if (i!==0) {
             time = _from.add(i, 'day')
         }
         dayArray.push({
@@ -61,10 +57,9 @@ const getCalendarData = (timeZone: string) => {
             timestamp: time.valueOf(),
             dayName: dayName[time.day()],
             day: time.day(),
-            month: time.month(),
+            month:  time.month(),
             year: time.year(),
-            events: [] as Event[],
-            timezone: timeZone,
+            events: [] as Event[]
         })
     }
     console.log('dayArray length', dayArray.length)
@@ -89,62 +84,120 @@ function ComponentName(props: { group: Group }) {
     const [dayList, setDayList] = useState<DateItem[]>([])
     const [eventList, setEventList] = useState<Event[]>([])
     const [showList, setShowList] = useState<DateItem[]>([])
-    const [pageList, setPageList] = useState<DateItem[]>([])
     const [ready, setReady] = useState(false)
     const [currMonth, setCurrMonth] = useState(new Date().getMonth())
     const [currYear, setCurrYear] = useState(new Date().getFullYear())
     const [currTag, setCurrTag] = useState<string[]>([])
     const [timezoneSelected, setTimezoneSelected] = useState<{ label: string, id: string }[]>([])
 
-    const [pageSize, setPageSize] = useState(0)
-    const [currDate, setCurrDate] = useState<Date>(new Date())
-    const [isEnd, setIsEnd] = useState(false)
-    const [isStart, setIsStart] = useState(false)
-    const [page, setPage] = useState(0)
+    // touch on pc
+    const touchStart = useRef(false)
+    const touchStartX = useRef(0)
+    const touchStartY = useRef(0)
+    const touchStartScrollLeft = useRef(0)
+    const touchStartScrollTop = useRef(0)
 
-    const pageRef = useRef(0)
+    const slideToToday = (init = false) => {
+        const scrollBar1 = scroll1Ref.current
+        const scrollBar2 = scroll2Ref.current
 
-    const toToday = () => {
-        (window as any).day = dayjs
-        const now = new Date()
-        const date = dayjs.tz(now.getTime(), timezoneSelected[0].id)
-        const startIndex = showList.findIndex(i => {
-            return date.year() === i.year
-                && date.month() === i.month
-                && date.date() === i.date
+        let targetDate = dayjs.tz(new Date().getTime(), timezoneSelected[0].id)
+
+        const initDateString = searchParams?.get('date')
+        const dateRegex = /^\d{4}-\d{1,2}-\d{1,2}$/
+        if (!!initDateString && init && dateRegex.test(initDateString)) {
+            targetDate =  dayjs.tz(initDateString, timezoneSelected[0].id)
+        }
+
+        setCurrMonth(targetDate.month())
+        setCurrYear(targetDate.year())
+
+        const targetColumnIndex = dayList.findIndex((item: DateItem) => {
+            return item.year === targetDate.year() && item.month === targetDate.month() && item.date === targetDate.date()
         })
 
-        const targetPage = Math.ceil((startIndex + 1) / pageSize)
-        setPage(targetPage)
-        setIsStart(targetPage === 1)
-        setIsEnd(targetPage === Math.ceil(showList.length / pageSize))
+        const offset = targetColumnIndex * 256
+
+        if (scrollBar2.scrollLeft === 0 && init) {
+            scrollBar1.scrollLeft = offset
+            scrollBar2.scrollLeft = offset
+
+            setTimeout(() => {
+                // if (observer) {
+                //     observer.disconnect()
+                //     observer = null
+                // }
+                //
+                // observer = new IntersectionObserver((entries, observer) => {
+                //     entries.forEach(entry => {
+                //         if (_offsetX === 0) return
+                //         console.log(_offsetX)
+                //         // 横向滚动时动态改变显示月份
+                //         if (entry.isIntersecting) {
+                //             if (_offsetX < 0) {
+                //                 console.log('======entry.target add')
+                //                 const month = Number(entry.target.getAttribute('data-month'))
+                //                 const year = Number(entry.target.getAttribute('data-year'))
+                //                 document.querySelector('.curr-month')!.innerHTML = `${mouthName[month]} ${year}`
+                //                 // setCurrYear(year)
+                //                 // setCurrMonth(month)
+                //             }
+                //         } else {
+                //             if (_offsetX > 0) {
+                //                 console.log('======entry.target del')
+                //                 const month = Number(entry.target.getAttribute('data-month'))
+                //                 const year = Number(entry.target.getAttribute('data-year'))
+                //                 document.querySelector('.curr-month')!.innerHTML = `${mouthName[month === 0 ? 11 : month - 1]} ${month === 0 ? year - 1 : year}`
+                //                 // setCurrMonth(month === 0 ? 11 : month - 1)
+                //                 // setCurrYear(month === 0 ? year - 1 : year)
+                //             }
+                //
+                //         }
+                //     })
+                // }, {threshold: 0.9})
+                //
+                // const target = document.querySelectorAll('.month-begin')
+                // if (target.length > 0) {
+                //     target.forEach((item: any) => {
+                //         observer.observe(item)
+                //     })
+                // }
+
+                slideToToday(true)
+            }, 100)
+        } else {
+            scrollBar1.scrollLeft = offset
+            scrollBar2.scrollLeft = offset
+        }
     }
 
-    const nextPage = () => {
-        const targetPage = page + 1
-        setPage(targetPage)
-        setIsStart(targetPage === 1)
-        setIsEnd(targetPage === Math.ceil(showList.length / pageSize))
-    }
-
-    const lastPage = () => {
-        const targetPage = page - 1
-        setPage(targetPage)
-        setIsStart(targetPage === 1)
-        setIsEnd(targetPage === Math.ceil(showList.length / pageSize))
-    }
-
+    useEffect(() => {
+        const historyTimeZone = localStorage.getItem('schedule-timezone')
+        try {
+            if (historyTimeZone) {
+                setTimezoneSelected(JSON.parse(historyTimeZone))
+            } else {
+                const localTimezone = dayjs.tz.guess()
+                const timezoneInfo = timezoneList.find(item => item.id === localTimezone) || {id: 'UTC', label: 'UTC+00:00'}
+                setTimezoneSelected([timezoneInfo])
+            }
+        } catch (e: any) {
+        }
+    }, [])
 
     useEffect(() => {
         if (timezoneSelected.length) {
-            document.querySelector('.schedule-content')?.classList.add(styles['fade-out'])
-            setPage(0)
             setDayList(getCalendarData(timezoneSelected[0].id))
         }
     }, [timezoneSelected])
 
     useEffect(() => {
         const getEventList = async () => {
+            // if (eventList.length!==0) {
+            //     setEventList([...eventList])
+            //     return
+            // }
+
             const events = await queryEvent({
                 group_id: eventGroup.id,
                 start_time_from: new Date(dayList[0].timestamp).toISOString(),
@@ -171,18 +224,170 @@ function ComponentName(props: { group: Group }) {
             const targetIndex = list.findIndex((i: DateItem) => {
                 return i.year === eventStarTime.year() && i.date === eventStarTime.date() && i.month === eventStarTime.month()
             })
-            if (targetIndex !== -1) {
+            if (targetIndex > 0) {
                 list[targetIndex].events.push(item)
             }
         })
-
         setShowList(list)
         setReady(true)
     }, [eventList])
 
     useEffect(() => {
-        document.querySelector('.schedule-content')?.classList.add(styles['fade-out'])
-        setPage(0)
+        if (!showList.length) return
+        const checkScroll = (e: any) => {
+            const offset = e.target.scrollLeft
+            const target = window.document.querySelector('.event-wrapper')
+            if (target?.scrollLeft !== offset) {
+                target!.scrollLeft = offset
+            }
+        }
+
+        const checkScroll2 = (e: any) => {
+            const offset = e.target.scrollLeft
+            const target = window.document.querySelector('.date-bar-wrapper')
+            if (target?.scrollLeft !== offset) {
+                target!.scrollLeft = offset
+            }
+
+            const offsetTop = e.target.scrollTop
+            if (window.innerWidth < 450) {
+                if (offsetTop > 10) {
+                    (window.document.querySelector('.schedule-head') as any)!.style.height = '0';
+                    lock.current = true
+                    setTimeout(() => {
+                        lock.current = false
+                    }, 500)
+                }
+            }
+        }
+
+        const checkMousedown = (e: any) => {
+            e.preventDefault()
+            touchStart.current = true
+            touchStartX.current = e.clientX
+            touchStartY.current = e.clientY
+            touchStartScrollLeft.current = scroll2Ref.current.scrollLeft
+            touchStartScrollTop.current = scroll2Ref.current.scrollTop
+        }
+
+        const checkMouseup = (e: any) => {
+            e.preventDefault()
+            touchStart.current = false
+
+            setTimeout(() => {
+                _offsetX = 0
+                _offsetY = 0
+            }, 300)
+        }
+
+        const checkMousemove = (e: any) => {
+            e.preventDefault()
+            if (touchStart.current) {
+                const offsetX = e.clientX - touchStartX.current
+                const offsetY = e.clientY - touchStartY.current
+                scroll2Ref.current.scrollLeft = touchStartScrollLeft.current - offsetX
+                scroll2Ref.current.scrollTop = touchStartScrollTop.current - offsetY
+
+                _offsetX = offsetX
+                _offsetY = offsetY
+            }
+        }
+
+        const checkTouch = () => {
+            scroll2Ref.current.addEventListener('mousedown', checkMousedown)
+
+            scroll2Ref.current.addEventListener('mouseup', checkMouseup)
+
+            scroll2Ref.current.addEventListener('mousemove', checkMousemove)
+
+            scroll2Ref.current.addEventListener('mouseleave', checkMouseup)
+        }
+
+        checkTouch()
+
+        if (scroll1Ref.current && scroll2Ref.current) {
+            const scrollBar1 = scroll1Ref.current
+            const scrollBar2 = scroll2Ref.current
+
+            // check is ios
+            const isIos = () => {
+                const userAgent = window.navigator.userAgent.toLowerCase()
+                return /iphone|ipad|ipod/.test(userAgent)
+            }
+
+            let touchStar = false
+            let touchStartX = 0
+            let touchStartY = 0
+            let touchStartScrollLeft = 0
+            let touchStartScrollTop = 0
+
+            const touchstart = (e: any) => {
+                e.preventDefault()
+                touchStar = true
+                touchStartX = e.touches[0].clientX
+                touchStartY = e.touches[0].clientY
+                touchStartScrollLeft = scrollBar2.scrollLeft
+                touchStartScrollTop = scrollBar2.scrollTop
+            }
+
+            const touchmove = (e: any) => {
+                if (touchStar) {
+                    const offsetX = e.touches[0].clientX - touchStartX
+                    const offsetY = e.touches[0].clientY - touchStartY
+                    scrollBar1.scrollLeft = touchStartScrollLeft - offsetX
+                    scrollBar2.scrollLeft = touchStartScrollLeft - offsetX
+                    scrollBar2.scrollTop = touchStartScrollTop - offsetY
+
+                    _offsetX = offsetX
+                    _offsetY = offsetY
+
+                    if (_offsetY > 150 && scrollBar2.scrollTop === 0) {
+                        (window.document.querySelector('.schedule-head') as any)!.style.height = 'auto';
+                    }
+                }
+            }
+
+            const touchend = (e: any) => {
+                touchStar = false
+                setTimeout(() => {
+                    _offsetX = 0
+                    _offsetY = 0
+                }, 300)
+            }
+
+
+            scrollBar2.addEventListener('touchstart', touchstart)
+            scrollBar2.addEventListener('touchmove', touchmove)
+            scrollBar2.addEventListener('touchend', touchend)
+            scrollBar2.addEventListener('touchcancel', touchend)
+
+            scrollBar1.addEventListener('scroll', checkScroll)
+            scrollBar2.addEventListener('scroll', checkScroll2)
+
+            slideToToday(true)
+
+            return () => {
+                scrollBar1?.removeEventListener('scroll', checkScroll)
+                scrollBar2?.removeEventListener('scroll', checkScroll2)
+                scrollBar2?.removeEventListener('mousedown', checkMousedown)
+                scrollBar2?.removeEventListener('mouseup', checkMouseup)
+                scrollBar2?.removeEventListener('mousemove', checkMousemove)
+                scrollBar2?.removeEventListener('mouseleave', checkMouseup)
+
+                scrollBar2?.removeEventListener('touchstart', touchstart)
+                scrollBar2?.removeEventListener('touchmove', touchmove)
+                scrollBar2?.removeEventListener('touchend', touchend)
+                scrollBar2?.removeEventListener('touchcancel', touchend)
+
+                if (observer) {
+                    observer.disconnect()
+                    observer = null
+                }
+            }
+        }
+    }, [scroll1Ref, scroll2Ref, showList])
+
+    useEffect(() => {
         let res: any = []
         if (showJoined) {
             res = eventListRef.current.filter(item => {
@@ -202,131 +407,12 @@ function ComponentName(props: { group: Group }) {
     }, [showJoined, currTag])
 
     useEffect(() => {
-        if (pageSize && showList.length) {
-            toToday()
-        }
-    }, [pageSize, showList])
-
-    useEffect(() => {
-        if (page) {
-            const direction = page - pageRef.current > 0  ? 'left' : 'right'
-            document.querySelector('.schedule-content')?.classList.add(styles['fade-out'])
-            setTimeout(() => {
-                document.querySelector('.schedule-content')?.classList.add(styles[`move-${direction}`])
-                const list: DateItem[] = []
-                for (let i = 0; i < pageSize; i++) {
-                    !!showList[(page - 1) * pageSize + i] && list.push(showList[(page - 1) * pageSize + i])
-                }
-                setPageList(list)
-                setCurrMonth(dayjs.tz(list[0].timestamp, timezoneSelected[0].id).month())
-                setCurrYear(dayjs.tz(list[0].timestamp, timezoneSelected[0].id).year())
-                pageRef.current = page
-
-                setTimeout(() => {
-                    document.querySelector('.schedule-content')?.classList.remove(styles['fade-out'])
-                    document.querySelector('.schedule-content')?.classList.remove(styles[`move-${direction}`])
-                }, 200)
-            }, 100)
-        }
-    }, [page])
-
-    useEffect(() => {
         document.querySelectorAll('.input-disable input').forEach((input) => {
             input.setAttribute('readonly', 'readonly')
         })
-
-        const historyTimeZone = localStorage.getItem('schedule-timezone')
-        try {
-            if (historyTimeZone) {
-                setTimezoneSelected(JSON.parse(historyTimeZone))
-            } else {
-                const localTimezone = dayjs.tz.guess()
-                const timezoneInfo = timezoneList.find(item => item.id === localTimezone) || {
-                    id: 'UTC',
-                    label: 'UTC+00:00'
-                }
-                setTimezoneSelected([timezoneInfo])
-            }
-        } catch (e: any) { }
-
-        const calcPageSize = () => {
-            const win = window as any
-            const clientWidth = win.document.body.clientWidth
-            if (clientWidth >= 1025) {
-                setPageSize(5)
-            } else if (clientWidth >= 768) {
-                setPageSize(4)
-            } else if (clientWidth >= 576) {
-                setPageSize(3)
-            } else if (clientWidth >= 376) {
-                setPageSize(2)
-            } else {
-                setPageSize(1)
-            }
-        }
-
-        if (typeof window !== 'undefined') {
-            const win = window as any
-            calcPageSize()
-            win.addEventListener('resize', calcPageSize)
-        }
-
-        const scrollBar2 = scroll2Ref.current
-
-        const checkScroll = (e: any) => {
-            if (scrollBar2.scrollTop > 0) {
-                (window.document.querySelector('.schedule-head') as any)!.style.height = '0';
-                (window.document.querySelector('.event-list') as any)!.style.minHeight = `calc(100vh - 200px)`;
-            } else {
-               (window.document.querySelector('.schedule-head') as any)!.style.height = '232px';
-                (window.document.querySelector('.event-list') as any)!.style.minHeight = `100%`;
-            }
-        }
-
-        const touchstart = (e: any) => {
-            _touchStartX = e.touches[0].clientX
-            _touchStartY = e.touches[0].clientY
-        }
-
-        const touchmove = (e: any) => {
-            _offsetX = e.touches[0].clientX - _touchStartX
-            _offsetY = e.touches[0].clientY - _touchStartY
-            console.log('======_offsetY', _offsetY)
-            // if (_offsetY > 150 && scrollBar2.scrollTop === 0) {
-            //     (window.document.querySelector('.schedule-head') as any)!.style.height = 'auto';
-            // }
-        }
-
-        const touchend = (e: any) => {
-            setTimeout(() => {
-                _offsetX = 0
-                _offsetY = 0
-            }, 300)
-        }
-
-        scrollBar2 && scrollBar2.addEventListener('scroll', checkScroll)
-        scrollBar2 && scrollBar2.addEventListener('tou', checkScroll)
-
-        scrollBar2.addEventListener('touchstart', touchstart)
-        scrollBar2.addEventListener('touchmove', touchmove)
-        scrollBar2.addEventListener('touchend', touchend)
-        scrollBar2.addEventListener('touchcancel', touchend)
-
-        return () => {
-            if (typeof window !== 'undefined') {
-                const win = window as any
-                win.removeEventListener('resize', calcPageSize)
-
-                scrollBar2 && scrollBar2.removeEventListener('scroll', checkScroll)
-                scrollBar2.removeEventListener('touchstart', touchstart)
-                scrollBar2.removeEventListener('touchmove', touchmove)
-                scrollBar2.removeEventListener('touchend', touchend)
-                scrollBar2.removeEventListener('touchcancel', touchend)
-            }
-        }
     }, [])
 
-    const creatEventPatch = eventGroup?.username === 'web3festival' ? `/event/${eventGroup.username}/custom-create` : `/event/${eventGroup.username}/create`
+    const creatEventPatch = eventGroup?.username === 'web3festival' ? `/event/${eventGroup.username}/custom-create`: `/event/${eventGroup.username}/create`
 
     return (<div className={styles['schedule-page']}>
         <div className={`${styles['schedule-head']} schedule-head`}>
@@ -369,64 +455,25 @@ function ComponentName(props: { group: Group }) {
                     <div className={styles['schedule-menu-center']}>
                         <div className={styles['mouth']}>
                             <div className={'curr-month'}>{mouthName[currMonth]} {currYear}</div>
-                            {timezoneSelected.length !== 0 &&
+                            {  timezoneSelected.length !== 0 &&
                                 <>
-                                    <div className={styles['to-today']} onClick={e => {
-                                        toToday()
-                                    }}>Today
-                                    </div>
-
-                                    <div className={`${styles['timezone-selected']} input-disable`}>
-                                        <Select
-                                            value={timezoneSelected}
-                                            clearable={false}
-                                            searchable={false}
-                                            options={timezoneList}
-                                            onChange={(params) => {
-                                                localStorage.setItem('schedule-timezone', JSON.stringify(params.value))
-                                                setTimezoneSelected(params.value as any)
-                                            }}
-                                        />
-                                    </div>
-
-                                    <div className={styles['page-slide']}>
-                                        <svg
-                                            className={isStart ? styles['disable'] : ''}
-                                            onClick={lastPage}
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            width={20}
-                                            height={20}
-                                            viewBox="0 0 20 20"
-                                            fill="none">
-                                            <path
-                                                d="M7.8334 10.0013L14.2501 18.3346H11.0834L4.66675 10.0013L11.0834 1.66797H14.2501L7.8334 10.0013Z"
-                                                fill="#272928"
-                                            />
-                                        </svg>
-                                        <svg
-                                            onClick={toToday}
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            width={28}
-                                            height={40}
-                                            viewBox="0 0 28 40"
-                                            fill="none">
-                                            <circle cx={14} cy={20} r={3} fill="#272928"/>
-                                        </svg>
-                                        <svg
-                                            className={isEnd ? styles['disable'] : ''}
-                                            onClick={nextPage}
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            width={20}
-                                            height={20}
-                                            viewBox="0 0 20 20"
-                                            fill="none">
-                                            <path
-                                                d="M15.3332 10.0013L8.91659 18.3346H5.74991L12.1666 10.0013L5.74991 1.66797H8.91659L15.3332 10.0013Z"
-                                                fill="#272928"
-                                            />
-                                        </svg>
-                                    </div>
-                                </>
+                                <div className={styles['to-today']} onClick={e => {
+                                    slideToToday()
+                                }}>Today
+                                </div>
+                                <div className={`${styles['timezone-selected']} input-disable`}>
+                                    <Select
+                                        value={timezoneSelected}
+                                        clearable={false}
+                                        searchable={false}
+                                        options={timezoneList}
+                                        onChange={(params) => {
+                                            localStorage.setItem('schedule-timezone', JSON.stringify(params.value))
+                                            setTimezoneSelected(params.value as any)
+                                        }}
+                                    />
+                                </div>
+                            </>
 
                             }
                         </div>
@@ -454,96 +501,55 @@ function ComponentName(props: { group: Group }) {
                             searchable={false}
                             options={timezoneList}
                             onChange={(params) => {
-                                localStorage.setItem('schedule-timezone', JSON.stringify(params.value))
                                 setTimezoneSelected(params.value as any)
                             }}
                         />
                     </div>
-                    <div className={styles['page-slide']}>
-                        <svg
-                            className={isStart ? styles['disable'] : ''}
-                            onClick={lastPage}
-                            xmlns="http://www.w3.org/2000/svg"
-                            width={20}
-                            height={20}
-                            viewBox="0 0 20 20"
-                            fill="none">
-                            <path
-                                d="M7.8334 10.0013L14.2501 18.3346H11.0834L4.66675 10.0013L11.0834 1.66797H14.2501L7.8334 10.0013Z"
-                                fill="#272928"
-                            />
-                        </svg>
-                        <svg
-                            onClick={toToday}
-                            xmlns="http://www.w3.org/2000/svg"
-                            width={28}
-                            height={40}
-                            viewBox="0 0 28 40"
-                            fill="none">
-                            <circle cx={14} cy={20} r={3} fill="#272928"/>
-                        </svg>
-                        <svg
-                            className={isEnd ? styles['disable'] : ''}
-                            onClick={nextPage}
-                            xmlns="http://www.w3.org/2000/svg"
-                            width={20}
-                            height={20}
-                            viewBox="0 0 20 20"
-                            fill="none">
-                            <path
-                                d="M15.3332 10.0013L8.91659 18.3346H5.74991L12.1666 10.0013L5.74991 1.66797H8.91659L15.3332 10.0013Z"
-                                fill="#272928"
-                            />
-                        </svg>
-                    </div>
                 </div>
             </div>
         </div>
-        <div className={`${styles['content-bg']}`}>
-            <div className={`${styles['content-bg-2']}`}></div>
-            <div className={`${styles['content']} schedule-content`}>
-                <div className={`${styles['date-bar-wrapper']} date-bar-wrapper`} ref={scroll1Ref}>
-                    <div className={`${styles['date-bar']}`}>
-                        {pageList.map((item: any, index) => {
-                            const isMonthBegin = item.date === 1
+        <div className={`${styles['content']} schedule-content`}>
+            <div className={`${styles['date-bar-wrapper']} date-bar-wrapper`} ref={scroll1Ref}>
+                <div className={`${styles['date-bar']}`}>
+                    {showList.map((item: any, index) => {
+                        const isMonthBegin = item.date === 1
 
-                            return <div key={index + ''}
-                                        data-month={item.month}
-                                        data-year={item.year}
-                                        className={isMonthBegin ? `month-begin ${styles['date-column']}` : styles['date-column']}>
-                                <div className={styles['date-day']}>
-                                    {
-                                        isMonthBegin &&
-                                        <span className={styles['month']}>{lang['Month_Name'][item.month]} </span>
-                                    }
-                                    <span>{item.dayName}</span>
-                                    <span
-                                        className={item.date === dayjs.tz(new Date().getTime(), timezoneSelected[0]!.id).date() && item.year === dayjs.tz(new Date().getTime(), timezoneSelected[0]!.id).year() && item.month === dayjs.tz(new Date().getTime(), timezoneSelected[0]!.id).month()
-                                            ? styles['date-active'] : styles['date']}>{item.date}</span>
-                                </div>
+                        return <div key={index + ''}
+                                    data-month={item.month}
+                                    data-year={item.year}
+                                    className={isMonthBegin ? `month-begin ${styles['date-column']}` : styles['date-column']}>
+                            <div className={styles['date-day']}>
+                                {
+                                    isMonthBegin &&
+                                    <span className={styles['month']}>{lang['Month_Name'][item.month]} </span>
+                                }
+                                <span>{item.dayName}</span>
+                                <span
+                                    className={item.date === dayjs.tz(new Date().getTime(), timezoneSelected[0]!.id).date() && item.year === dayjs.tz(new Date().getTime(), timezoneSelected[0]!.id).year() && item.month === dayjs.tz(new Date().getTime(), timezoneSelected[0]!.id).month()
+                                        ? styles['date-active'] : styles['date']}>{item.date}</span>
                             </div>
-                        })
-                        }
-                    </div>
+                        </div>
+                    })
+                    }
                 </div>
-                <div className={`${styles['event-wrapper']} event-wrapper`} ref={scroll2Ref}>
-                    <div className={`${styles['event-list']} event-list`}>
-                        {pageList.map((item: any, index) => {
-                            return <div key={index + ''} className={`${styles['date-column']} date-column`}>
-                                <div className={`${styles['events']}`}>
-                                    {item.events.map((e: Event) => {
-                                        return <EventCard
-                                            blank={location.href.includes('iframe')}
-                                            key={Math.random() + e.title}
-                                            timezone={timezoneSelected[0].id}
-                                            event={e}
-                                            group={eventGroup}/>
-                                    })}
-                                </div>
+            </div>
+            <div className={`${styles['event-wrapper']} event-wrapper`} ref={scroll2Ref}>
+                <div className={`${styles['event-list']} event-list`}>
+                    {showList.map((item: any, index) => {
+                        return <div key={index + ''} className={`${styles['date-column']} date-column`}>
+                            <div className={`${styles['events']}`}>
+                                {item.events.map((e: Event) => {
+                                    return <EventCard
+                                        blank={location.href.includes('iframe')}
+                                        key={Math.random() + e.title}
+                                        timezone={timezoneSelected[0].id}
+                                        event={e}
+                                        group={eventGroup}/>
+                                })}
                             </div>
-                        })
-                        }
-                    </div>
+                        </div>
+                    })
+                    }
                 </div>
             </div>
         </div>
@@ -570,7 +576,6 @@ function EventCard({
     const isAllDay = dayjs.tz(new Date(event.start_time!).getTime(), showTimezone).hour() === 0 && ((new Date(event.end_time!).getTime() - new Date(event.start_time!).getTime() + 60000) % 8640000 === 0)
     const fromTime = dayjs.tz(new Date(event.start_time!).getTime(), showTimezone).format('HH:mm')
     const toTime = dayjs.tz(new Date(event.end_time!).getTime(), showTimezone).format('HH:mm')
-    const fromDate = dayjs.tz(new Date(event.start_time!).getTime(), showTimezone).format('YYYY-MM-DD')
 
     const offset = dayjs.tz(new Date(event.end_time!).getTime(), showTimezone).utcOffset()
     const utcOffset = offset >= 0 ?
@@ -610,20 +615,20 @@ function EventCard({
     return <Link className={styles['schedule-event-card']}
                  href={`/event/detail/${event.id}`}
                  onClick={e => {
-                     if (_offsetX !== 0 || _offsetX !== 0) {
+                     if (_offsetX !==0 || _offsetX!==0) {
                          e.preventDefault()
                      }
 
                  }}
                  onTouchEnd={e => {
                      e.preventDefault()
-                     if (_offsetX === 0 && _offsetX === 0) {
+                     if (_offsetX===0 && _offsetX===0) {
                          router.push(`/event/detail/${event.id}`)
                      }
                  }}
                  target={blank ? '_blank' : '_self'}>
         <div className={styles['schedule-event-card-time']}>
-            {isAllDay ? 'All Day' : `${fromTime}-${toTime} ${fromDate}`}
+            {isAllDay ? 'All Day' : `${fromTime}-${toTime}`}
         </div>
         <div className={styles['schedule-event-card-name']}>
             {event.title}
