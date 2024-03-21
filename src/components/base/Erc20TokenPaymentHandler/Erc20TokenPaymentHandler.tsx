@@ -2,14 +2,15 @@ import {ReactNode, useContext, useState} from 'react'
 import {useAccount, usePublicClient, useWalletClient, useSwitchNetwork, useNetwork} from "wagmi";
 import {payhub_abi, paymentTokenList} from "@/payment_settring";
 import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
-import {getParticipantDetail} from "@/service/solas";
+import {getParticipantDetail, joinEvent} from "@/service/solas";
+import UserContext from "@/components/provider/UserProvider/UserContext";
 
 let loadingRef: any = null
 
 function Erc20TokenPaymentHandler(
     props: {
         content?: (
-            trigger: ((participant_id: number) => void) | undefined,
+            trigger: (() => void) | undefined,
             busy: boolean,
             sending: boolean,
             verifying: boolean) => ReactNode
@@ -29,14 +30,16 @@ function Erc20TokenPaymentHandler(
     const publicClient: any = usePublicClient({chainId: props.chainId})
     const { switchNetworkAsync } = useSwitchNetwork()
     const { chain } = useNetwork()
+    const {user} = useContext(UserContext)
 
     const [busy, setBusy] = useState(false)
     const [sending, setSending] = useState(false)
     const [verifying, setVerifying] = useState(false)
 
+
     const verifyPayment = async (participant_id: number) => {
         return new Promise((resolve, reject) => {
-            let remainTimes = 60
+            let remainTimes = 30
             const checkParticipant = async () => {
                 try {
                     const participant = await getParticipantDetail({id: participant_id})
@@ -47,7 +50,6 @@ function Erc20TokenPaymentHandler(
                     if (participant?.payment_status === 'fail') {
                         reject(new Error('Fail for verify'))
                     }
-
 
                     if (participant?.payment_status !== 'success') {
                         remainTimes--
@@ -69,12 +71,13 @@ function Erc20TokenPaymentHandler(
     }
 
 
-    const handlePay = async (participant_id: number) => {
+    const handlePay = async () => {
         try {
             setBusy(true)
             setSending(true)
-            const participant = await getParticipantDetail({id: participant_id})
+            const participant = await getParticipantDetail({event_id: props.eventId, profile_id: user.id!})
 
+            // check already paid
             if (participant) {
                 if (participant.payment_status === 'success') {
                     setBusy(false)
@@ -86,7 +89,7 @@ function Erc20TokenPaymentHandler(
                     setBusy(true)
                     setSending(false)
                     setVerifying(true)
-                    const verify = await verifyPayment(participant_id)
+                    const verify = await verifyPayment(participant.id)
                     if (verify) {
                         setBusy(false)
                         setSending(false)
@@ -97,11 +100,20 @@ function Erc20TokenPaymentHandler(
                 }
             }
 
+            // create an order
+            const join = await joinEvent(
+                {
+                    id: props.eventId,
+                    auth_token: user.authToken || '',
+                    ticket_id: props.ticketId,
+                }
+            )
 
             if (chain?.id !== props.chainId) {
                 await switchNetworkAsync?.(props.chainId)
             }
 
+            // pay
             const payhubContract = paymentTokenList.find((item) => item.chainId === props.chainId)?.payHub
             const opt = {
                 address: payhubContract as any,
@@ -114,7 +126,7 @@ function Erc20TokenPaymentHandler(
                     props.token,
                     BigInt(props.amount),
                     props.ticketId,
-                    participant_id
+                    join.id
                 ]
             }
 
@@ -130,7 +142,7 @@ function Erc20TokenPaymentHandler(
 
             setSending(false)
             setVerifying(true)
-            const verify = await verifyPayment(participant_id)
+            const verify = await verifyPayment(join.id)
             setVerifying(false)
 
             loadingRef?.()
@@ -153,8 +165,8 @@ function Erc20TokenPaymentHandler(
 
 
     return (<>
-        {props.content ? props.content(async (participant_id) => {
-            await handlePay(participant_id)
+        {props.content ? props.content(async () => {
+            await handlePay()
         }, busy, sending, verifying) : null}
     </>)
 }

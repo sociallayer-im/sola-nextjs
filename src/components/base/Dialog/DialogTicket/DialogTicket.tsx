@@ -84,7 +84,7 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
         return address.slice(0, 6) + '...' + address.slice(len - 6, len)
     }
 
-    const handleJoin = async (isFree = false) => {
+    const freePay = async () => {
         const unload = showLoading()
 
         try {
@@ -96,11 +96,9 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
                 }
             )
 
-            if (isFree) {
-                emit(join)
-                props.close()
-                showToast('Purchase successful')
-            }
+            emit(join)
+            props.close()
+            showToast('Purchase successful')
 
             return join
         } catch (e: any) {
@@ -278,9 +276,8 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
                             disabled={busy || !!errorMsg}
                             special
                             onClick={async (e) => {
-                                const participant = await handleJoin()
                                 setErrorMsg('')
-                                trigger?.(participant!.id)
+                                trigger?.()
                             }}>{
                             sending ?
                                 <ButtonLoading>Sending Transaction</ButtonLoading> :
@@ -329,7 +326,7 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
 
         {!!user.id && !chain && hasBadgePermission && !stopSales && !soldOut &&
             <AppButton special onClick={e => {
-                handleJoin(true)
+                freePay()
             }}>{'Get A Ticket'}</AppButton>
         }
     </div>)
