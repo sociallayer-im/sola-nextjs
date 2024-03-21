@@ -291,10 +291,6 @@ function ComponentName(props: { group: Group }) {
         const touchmove = (e: any) => {
             _offsetX = e.touches[0].clientX - _touchStartX
             _offsetY = e.touches[0].clientY - _touchStartY
-            console.log('======_offsetY', _offsetY)
-            // if (_offsetY > 150 && scrollBar2.scrollTop === 0) {
-            //     (window.document.querySelector('.schedule-head') as any)!.style.height = 'auto';
-            // }
         }
 
         const touchend = (e: any) => {
@@ -304,24 +300,28 @@ function ComponentName(props: { group: Group }) {
             }, 300)
         }
 
-        scrollBar2 && scrollBar2.addEventListener('scroll', checkScroll)
-        scrollBar2 && scrollBar2.addEventListener('tou', checkScroll)
+        if (window.innerWidth < 450 ) {
+            scrollBar2 && scrollBar2.addEventListener('scroll', checkScroll)
+            scrollBar2 && scrollBar2.addEventListener('tou', checkScroll)
 
-        scrollBar2.addEventListener('touchstart', touchstart)
-        scrollBar2.addEventListener('touchmove', touchmove)
-        scrollBar2.addEventListener('touchend', touchend)
-        scrollBar2.addEventListener('touchcancel', touchend)
+            scrollBar2.addEventListener('touchstart', touchstart)
+            scrollBar2.addEventListener('touchmove', touchmove)
+            scrollBar2.addEventListener('touchend', touchend)
+            scrollBar2.addEventListener('touchcancel', touchend)
+        }
 
         return () => {
             if (typeof window !== 'undefined') {
                 const win = window as any
                 win.removeEventListener('resize', calcPageSize)
 
-                scrollBar2 && scrollBar2.removeEventListener('scroll', checkScroll)
-                scrollBar2.removeEventListener('touchstart', touchstart)
-                scrollBar2.removeEventListener('touchmove', touchmove)
-                scrollBar2.removeEventListener('touchend', touchend)
-                scrollBar2.removeEventListener('touchcancel', touchend)
+                if (window.innerWidth < 450 ) {
+                    scrollBar2 && scrollBar2.removeEventListener('scroll', checkScroll)
+                    scrollBar2.removeEventListener('touchstart', touchstart)
+                    scrollBar2.removeEventListener('touchmove', touchmove)
+                    scrollBar2.removeEventListener('touchend', touchend)
+                    scrollBar2.removeEventListener('touchcancel', touchend)
+                }
             }
         }
     }, [])
