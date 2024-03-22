@@ -276,10 +276,10 @@ function ComponentName(props: { group: Group }) {
         const checkScroll = (e: any) => {
             if (scrollBar2.scrollTop > 0) {
                 (window.document.querySelector('.schedule-head') as any)!.style.height = '0';
-                (window.document.querySelector('.event-list') as any)!.style.minHeight = `calc(100vh - 200px)`;
+                (window.document.querySelector('.event-list') as any)!.style.minHeight = `100vh`;
             } else {
                (window.document.querySelector('.schedule-head') as any)!.style.height = '232px';
-                (window.document.querySelector('.event-list') as any)!.style.minHeight = `100%`;
+                // (window.document.querySelector('.event-list') as any)!.style.minHeight = `100%`;
             }
         }
 
