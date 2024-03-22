@@ -247,6 +247,13 @@
       min-width: calc(100% / 5);
     }
   }
+
+  @media (min-width: 1200px) {
+    & {
+      max-width: calc(100% / 7);
+      min-width: calc(100% / 7);
+    }
+  }
 }
 
 .events {
@@ -423,7 +430,6 @@
   flex-flow: column nowrap;
   overflow: auto;
   width: 100vw;
-  max-width: 1025px;
   margin: 0 auto;
   transition: transform 0.2s, opacity 0.05s;
 

@@ -252,7 +252,9 @@ function ComponentName(props: { group: Group }) {
         const calcPageSize = () => {
             const win = window as any
             const clientWidth = win.document.body.clientWidth
-            if (clientWidth >= 1025) {
+            if (clientWidth >= 1200) {
+                setPageSize(7)
+            } else if (clientWidth >= 1025) {
                 setPageSize(5)
             } else if (clientWidth >= 768) {
                 setPageSize(4)
