@@ -62,7 +62,8 @@ function EventCheckIn() {
                     }
                 }) || [])
                 setHasCheckin(eventDetails?.participants?.filter(item => item.status === 'checked').map(item => item.profile.domain!) || [])
-                if (eventDetails?.operators?.findIndex(item => item  === user.id) > -1) {
+                // @ts-ignore
+                if (eventDetails && eventDetails.operators?.findIndex(item => item  === user.id) > -1) {
                     setIsOperator(true)
                 }
 
