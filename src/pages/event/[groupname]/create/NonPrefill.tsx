@@ -726,9 +726,17 @@ function CreateEvent(props: CreateEventPageProps) {
                         image_url: creator!.image_url,
                     }
                 }
-                return JSON.stringify(hostinfo)
+                return {
+                    json: JSON.stringify(hostinfo),
+                    cohostId: null,
+                    speakerId: null
+                }
             } else {
-                return null
+                return {
+                    json: null,
+                    cohostId: null,
+                    speakerId: null
+                }
             }
         }
 
@@ -755,7 +763,11 @@ function CreateEvent(props: CreateEventPageProps) {
             } : undefined,
         }
 
-        return JSON.stringify(hostinfo)
+        return {
+            json: JSON.stringify(hostinfo),
+            cohostId: enableCoHost ? cohostUser.map((p) => p.id) : null,
+            speakerId: enableSpeakers ? speakerUsers.map((p) => p.id): null
+        }
     }
 
     const checkForm = () => {
@@ -840,8 +852,11 @@ function CreateEvent(props: CreateEventPageProps) {
         const unloading = showLoading(true)
 
         let host_info: string | null = ''
+        let cohostIds: number[] | null = null
         try {
-            host_info = await parseHostInfo()
+            const info = await parseHostInfo()
+            host_info = info.json
+            cohostIds = info.cohostId
         } catch (e: any) {
             showToast(e.message)
             setCreating(false)
@@ -876,6 +891,7 @@ function CreateEvent(props: CreateEventPageProps) {
             external_url: externalUrl,
             padge_link: padgeLink,
             notes: enableNotes ? notes : null,
+            operators: cohostIds,
         }
 
         try {
@@ -1071,10 +1087,11 @@ function CreateEvent(props: CreateEventPageProps) {
         async function singleSave(redirect = true) {
             const unloading = showLoading(true)
             try {
-                const hostInfo = await parseHostInfo()
+                const info = await parseHostInfo()
                 const newEvent = await updateEvent({
                     ...saveProps,
-                    host_info: hostInfo
+                    host_info: info.json,
+                    operators: info.cohostId,
                 })
                 if (saveProps.badge_id) {
                     const setBadge = await setEventBadge({
@@ -1103,10 +1120,11 @@ function CreateEvent(props: CreateEventPageProps) {
                 await singleSave(false)
                 const unloading = showLoading(true)
                 try {
-                    const hostInfo = await parseHostInfo()
+                    const info = await parseHostInfo()
                     const newEvents = await RepeatEventUpdate({
                         ...saveProps,
-                        host_info: hostInfo,
+                        host_info: info.json,
+                        operators: info.cohostId,
                         event_id: currEvent!.id,
                         selector: repeatEventSelectorRef.current
                     })
