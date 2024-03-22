@@ -419,6 +419,11 @@ function CreateEvent(props: CreateEventPageProps) {
     }, [user.userName])
 
     useEffect(() => {
+        if (!!currEvent && user.userName && currEvent.operators?.includes(user!.id!)) {
+            setNeedPublish(false)
+            return
+        }
+
         if (!eventGroup || (eventGroup as Group).can_publish_event === 'everyone') {
             setNeedPublish(false)
             return
@@ -436,7 +441,7 @@ function CreateEvent(props: CreateEventPageProps) {
 
         setNeedPublish(false)
 
-    }, [joined, isManager, eventGroup, user.userName])
+    }, [joined, isManager, eventGroup, user.userName, currEvent])
 
     useEffect(() => {
         if (start && ending) {
