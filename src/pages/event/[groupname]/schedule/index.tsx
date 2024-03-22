@@ -96,17 +96,19 @@ function ComponentName(props: { group: Group }) {
     const [currTag, setCurrTag] = useState<string[]>([])
     const [timezoneSelected, setTimezoneSelected] = useState<{ label: string, id: string }[]>([])
 
+    const date = searchParams.get('date')
     const [pageSize, setPageSize] = useState(0)
-    const [currDate, setCurrDate] = useState<Date>(new Date())
     const [isEnd, setIsEnd] = useState(false)
     const [isStart, setIsStart] = useState(false)
     const [page, setPage] = useState(0)
 
     const pageRef = useRef(0)
+    const initedRef = useRef(false)
 
-    const toToday = () => {
-        (window as any).day = dayjs
-        const now = new Date()
+
+    const toToday = (initDate?: Date) => {
+        const now = initDate || new Date()
+        console.log('=================', now)
         const date = dayjs.tz(now.getTime(), timezoneSelected[0].id)
         const startIndex = showList.findIndex(i => {
             return date.year() === i.year
@@ -203,7 +205,13 @@ function ComponentName(props: { group: Group }) {
 
     useEffect(() => {
         if (pageSize && showList.length) {
-            toToday()
+            if (!initedRef.current) {
+                const initDate = searchParams.get('date')
+                toToday(initDate ? new Date(initDate) : undefined)
+                initedRef.current = true
+            } else {
+                toToday()
+            }
         }
     }, [pageSize, showList])
 
@@ -406,7 +414,7 @@ function ComponentName(props: { group: Group }) {
                                             />
                                         </svg>
                                         <svg
-                                            onClick={toToday}
+                                            onClick={ e => { toToday()}}
                                             xmlns="http://www.w3.org/2000/svg"
                                             width={28}
                                             height={40}
