@@ -96,7 +96,6 @@ function ComponentName(props: { group: Group }) {
     const [currTag, setCurrTag] = useState<string[]>([])
     const [timezoneSelected, setTimezoneSelected] = useState<{ label: string, id: string }[]>([])
 
-    const date = searchParams.get('date')
     const [pageSize, setPageSize] = useState(0)
     const [isEnd, setIsEnd] = useState(false)
     const [isStart, setIsStart] = useState(false)
@@ -206,7 +205,7 @@ function ComponentName(props: { group: Group }) {
     useEffect(() => {
         if (pageSize && showList.length) {
             if (!initedRef.current) {
-                const initDate = searchParams.get('date')
+                const initDate = searchParams?.get('date')
                 toToday(initDate ? new Date(initDate) : undefined)
                 initedRef.current = true
             } else {
@@ -484,7 +483,7 @@ function ComponentName(props: { group: Group }) {
                             />
                         </svg>
                         <svg
-                            onClick={toToday}
+                            onClick={() => {toToday()}}
                             xmlns="http://www.w3.org/2000/svg"
                             width={28}
                             height={40}
