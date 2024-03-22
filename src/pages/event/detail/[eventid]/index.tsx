@@ -584,7 +584,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                     }}>{lang['Activity_Detail_Btn_Attend']}</AppButton>
                                                 }
 
-                                                {!canceled && isJoined && !isHoster && !isManager && inCheckinTime &&
+                                                {!canceled && isJoined && !isHoster && !isManager && inCheckinTime && !isOperator &&
                                                     <AppButton
                                                         special
                                                         onClick={e => {
@@ -604,7 +604,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                             </div>
 
                                             <div className={'center'}>
-                                                {(isHoster || isManager) && !canceled &&
+                                                {(isHoster || isManager || isOperator) && !canceled &&
                                                     <AppButton
                                                         onClick={e => {
                                                             handleHostCheckIn()
@@ -828,7 +828,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                     </div>
 
                                     <div className={'event-action'}>
-                                        {(isHoster || isManager) && !canceled &&
+                                        {(isHoster || isManager || isOperator) && !canceled &&
                                             <AppButton
                                                 onClick={e => {
                                                     handleHostCheckIn()
