@@ -2964,6 +2964,7 @@ export interface Event {
     geo_lat: null | string,
     participants: null | Participants[],
     external_url: null | string,
+    operators: null | number[],
 }
 
 export interface CreateEventProps extends Partial<Event> {
@@ -3088,6 +3089,7 @@ export async function queryEvent(props: QueryEventProps): Promise<Event[]> {
 
     const doc = gql`query MyQuery {
       events (where: {${variables}, status: {_in: [${status}]}} ${order} limit: ${page_size}, offset: ${(props.page - 1) * page_size}) {
+        operators
         padge_link
         badge_id
         notes
@@ -3233,6 +3235,7 @@ export async function queryPendingEvent(props: QueryEventProps): Promise<Event[]
 
     const doc = gql`query MyQuery {
       events (where: {${variables} status: {_eq: "pending"}}, ${order} limit: ${page_size}, offset: ${(props.page - 1) * page_size}) {
+        operators
         padge_link
         badge_id
         notes
@@ -3496,6 +3499,7 @@ export async function unJoinEvent(props: JoinEventProps) {
 export async function searchEvent(keyword: string) {
     const doc = gql`query MyQuery {
       events (where: {title: {_iregex: "${keyword}"} , status: {_neq: "closed"}}, limit: 10) {
+        operators
         padge_link
         badge_id
         notes
