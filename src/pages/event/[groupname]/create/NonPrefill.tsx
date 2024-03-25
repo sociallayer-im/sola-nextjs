@@ -1162,7 +1162,6 @@ function CreateEvent(props: CreateEventPageProps) {
 
                         {!!eventGroup && ((isEditMode && formReady && !!currEvent) || !isEditMode) &&
                             <LocationInput
-                                errorMsg={occupiedError}
                                 initValue={locationInfo as any }
                                 eventGroup={eventGroup as Group}
                                 onChange={values => {

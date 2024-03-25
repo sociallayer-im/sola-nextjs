@@ -141,7 +141,7 @@ function LocationInput(props: LocationInputProps) {
                 sessionToken: sessionToken.current,
                 fields: ['geometry', 'formatted_address', 'name'],
                 placeId: result.place_id
-            }, (place, status: string) => {
+            }, (place: any, status: string) => {
                 const placeInfo = place as GMapPlaceRes
                 setShowSearchRes(false)
                 props.onChange && props.onChange({
@@ -162,7 +162,7 @@ function LocationInput(props: LocationInputProps) {
     useEffect(() => {
         if (props.initValue?.location && !props.initValue.eventSiteId) {
             setCreateMode(true)
-            setSearchKeyword(props.initValue.formatted_address)
+            setSearchKeyword(props.initValue.formatted_address || '')
         }
     }, [props.initValue])
 

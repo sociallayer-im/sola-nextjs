@@ -22,6 +22,7 @@ import UploadImage from "@/components/compose/UploadImage/UploadImage";
 import AppInput from "@/components/base/AppInput";
 import EventTagInput from "@/components/compose/EventTagInput/EventTagInput";
 import AppRadio from "@/components/base/AppRadio/AppRadio";
+import fa from "@walletconnect/legacy-modal/dist/cjs/browser/languages/fa";
 
 function Dashboard() {
     const params = useParams()
@@ -38,7 +39,7 @@ function Dashboard() {
     const [bannerUrl, setBannerUrl] = useState('')
     const [showSetBanner, setShowSetBanner] = useState(false)
     const [eventGroup, setEventGroup] = useState<Group | null>(null)
-    const [isManager, setIsManager] = useState<Group | null>(null)
+    const [isManager, setIsManager] = useState<boolean>(false)
 
     const [permissionCanJoin, setPermissionCanJoin] = useState<'everyone' | 'member'>('everyone')
     const [permissionCanCreate, setPermissionCanCreate] = useState<'everyone' | 'member' | 'manager'>('everyone')
