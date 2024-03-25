@@ -268,7 +268,7 @@ function LocationInput(props: LocationInputProps) {
                 <div className={'search-input'}>
                     <AppInput
                         startEnhancer={() => <i className={'icon-Outline'}/>}
-                        placeholder={'Set a location name, e.g. sport apace'}
+                        placeholder={'e.g. sport apace'}
                         onChange={e => {
                             props.onChange && props.onChange({
                                 ...props.initValue,
