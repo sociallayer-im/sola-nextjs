@@ -439,7 +439,6 @@ function ComponentName(props: { group: Group }) {
                                         <StatefulTooltip
                                             content={() => <div>Next Page</div>}>
                                             <svg
-                                                title={'Next Page'}
                                                 className={isEnd ? styles['disable'] : ''}
                                                 onClick={nextPage}
                                                 xmlns="http://www.w3.org/2000/svg"
