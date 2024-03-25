@@ -276,7 +276,7 @@ function ComponentName(props: { group: Group }) {
             }
 
             if (clientWidth >= 450) {
-                (window.document.querySelector('.schedule-head') as any)!.style.height = '208px';
+                (window.document.querySelector('.schedule-head') as any)!.style.height = 'auto';
             } else {
                 (window.document.querySelector('.schedule-head') as any)!.style.height = '173px';
             }
