@@ -12,7 +12,7 @@
   overflow: visible;
   max-width: 1028px;
   width: 100vw;
-  padding: 0 20px;
+  padding: 0 12px;
   box-sizing: border-box;
 }
 
@@ -51,6 +51,11 @@
   align-items: flex-start;
   padding-top: 36px;
 
+  @media (max-width: 450px) {
+    & {
+      padding-top: 20px;
+    }
+  }
 }
 
 .schedule-title-left {
@@ -63,16 +68,23 @@
   font-weight: 700;
   line-height: normal;
   position: relative;
+
+  :global(.group-name) {
+    margin-right: 12px;
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+
+    img {
+      margin-right: 12px;
+    }
+  }
 }
 
-.schedule-title-left:before {
-  content: url('/images/title.png');
-  position: absolute;
-  left: 0;
-  top: 0;
-  margin-left: -12px;
-  margin-top: -4px;
-}
+
+
+
+
 
 .schedule-title-left-name {
   margin-right: 0.2em;
@@ -103,9 +115,8 @@
 
 .create-btn {
   display: flex;
-  width: 160px;
   height: 32px;
-  padding: 4px 8px;
+  padding: 4px 12px;
   box-sizing: border-box;
   justify-content: center;
   align-items: center;
@@ -125,7 +136,7 @@
 .schedule-menu-1 {
   display: flex;
   flex-flow: row wrap;
-  margin-top: 20px;
+  margin-top: 10px;
   justify-content: space-between;
   align-items: flex-start;
 
@@ -151,7 +162,7 @@
   align-items: center;
   justify-content: space-between;
   background: #fff;
-  padding-top: 16px;
+  padding-top: 2px;
 }
 
 .mouth {
@@ -265,7 +276,7 @@
 .date-day {
   display: flex;
   width: 100%;
-  padding: 19px 12px;
+  padding: 12px 12px;
   align-items: center;
   box-sizing: border-box;
   color: var(--text-4-headline, #272928);
@@ -468,7 +479,7 @@
   position: absolute;
   left: 0;
   top: 0;
-  height: 66px;
+  height: 52px;
   z-index: 0;
 }
 
@@ -477,8 +488,8 @@
   flex-flow: row nowrap;
   align-items: center;
   box-sizing: border-box;
-  max-height: 64px;
-  min-height: 64px;
+  max-height: 50px;
+  min-height: 50px;
   background: #fff;
 }
 
@@ -498,8 +509,8 @@
 }
 
 .date-bar-wrapper {
-  max-height: 64px;
-  min-height: 64px;
+  max-height: 52px;
+  min-height: 52px;
   background: #fff;
   overflow: auto;
   user-select: none;

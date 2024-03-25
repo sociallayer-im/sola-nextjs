@@ -2944,6 +2944,7 @@ export interface Event {
     formatted_address: null | any,
     owner: ProfileSimple,
     notes: string | null,
+    display: string,
 
     owner_id: number,
     created_at: string,
@@ -3089,6 +3090,7 @@ export async function queryEvent(props: QueryEventProps): Promise<Event[]> {
 
     const doc = gql`query MyQuery {
       events (where: {${variables}, status: {_in: [${status}]}} ${order} limit: ${page_size}, offset: ${(props.page - 1) * page_size}) {
+        display
         operators
         padge_link
         badge_id
@@ -3235,6 +3237,7 @@ export async function queryPendingEvent(props: QueryEventProps): Promise<Event[]
 
     const doc = gql`query MyQuery {
       events (where: {${variables} status: {_eq: "pending"}}, ${order} limit: ${page_size}, offset: ${(props.page - 1) * page_size}) {
+        display
         operators
         padge_link
         badge_id
@@ -3499,6 +3502,7 @@ export async function unJoinEvent(props: JoinEventProps) {
 export async function searchEvent(keyword: string) {
     const doc = gql`query MyQuery {
       events (where: {title: {_iregex: "${keyword}"} , status: {_neq: "closed"}}, limit: 10) {
+        display
         operators
         padge_link
         badge_id

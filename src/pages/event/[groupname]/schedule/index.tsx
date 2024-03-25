@@ -7,9 +7,10 @@ import UserContext from "@/components/provider/UserProvider/UserContext";
 import LangContext from "@/components/provider/LangProvider/LangContext";
 import usePicture from "@/hooks/pictrue";
 import {getLabelColor} from "@/hooks/labelColor";
-import {useRouter, useSearchParams} from "next/navigation";
+import {useRouter, useSearchParams, usePathname} from "next/navigation";
 import timezoneList from "@/utils/timezone"
 import {Select} from "baseui/select";
+import { StatefulTooltip } from "baseui/tooltip"
 
 import * as dayjsLib from "dayjs";
 
@@ -80,6 +81,7 @@ function ComponentName(props: { group: Group }) {
     const eventListRef = useRef<Event[]>([])
     const lock = useRef(false)
     const searchParams = useSearchParams()
+    const pathname = usePathname()
 
 
     const {user} = useContext(UserContext)
@@ -272,6 +274,12 @@ function ComponentName(props: { group: Group }) {
             } else {
                 setPageSize(1)
             }
+
+            if (clientWidth >= 450) {
+                (window.document.querySelector('.schedule-head') as any)!.style.height = '208px';
+            } else {
+                (window.document.querySelector('.schedule-head') as any)!.style.height = '173px';
+            }
         }
 
         if (typeof window !== 'undefined') {
@@ -287,7 +295,7 @@ function ComponentName(props: { group: Group }) {
                 (window.document.querySelector('.schedule-head') as any)!.style.height = '0';
                 (window.document.querySelector('.event-list') as any)!.style.minHeight = `100vh`;
             } else {
-               (window.document.querySelector('.schedule-head') as any)!.style.height = '232px';
+               (window.document.querySelector('.schedule-head') as any)!.style.height = '173px';
                 // (window.document.querySelector('.event-list') as any)!.style.minHeight = `100%`;
             }
         }
@@ -342,7 +350,13 @@ function ComponentName(props: { group: Group }) {
             <div className={styles['page-center']}>
                 <div className={styles['schedule-title']}>
                     <div className={styles['schedule-title-left']}>
-                        <div className={'group-name'}>{lang['Activity_Calendar']}</div>
+                        <div className={'group-name'}>
+                            {
+                                pathname?.includes('iframe') &&
+                                <img src="/images/logo.svg" alt="" width={94} height={29}/>
+                            }
+                           <div> {lang['Activity_Calendar']}</div>
+                        </div>
                     </div>
                     <Link className={styles['create-btn']} href={creatEventPatch}
                           target={'_blank'}>
@@ -351,7 +365,7 @@ function ComponentName(props: { group: Group }) {
                                 d="M13.1667 7.33335H9.16675V3.33335C9.16675 3.15654 9.09651 2.98697 8.97149 2.86195C8.84646 2.73693 8.67689 2.66669 8.50008 2.66669C8.32327 2.66669 8.1537 2.73693 8.02868 2.86195C7.90365 2.98697 7.83341 3.15654 7.83341 3.33335V7.33335H3.83341C3.6566 7.33335 3.48703 7.40359 3.36201 7.52862C3.23699 7.65364 3.16675 7.82321 3.16675 8.00002C3.16675 8.17683 3.23699 8.3464 3.36201 8.47142C3.48703 8.59645 3.6566 8.66669 3.83341 8.66669H7.83341V12.6667C7.83341 12.8435 7.90365 13.0131 8.02868 13.1381C8.1537 13.2631 8.32327 13.3334 8.50008 13.3334C8.67689 13.3334 8.84646 13.2631 8.97149 13.1381C9.09651 13.0131 9.16675 12.8435 9.16675 12.6667V8.66669H13.1667C13.3436 8.66669 13.5131 8.59645 13.6382 8.47142C13.7632 8.3464 13.8334 8.17683 13.8334 8.00002C13.8334 7.82321 13.7632 7.65364 13.6382 7.52862C13.5131 7.40359 13.3436 7.33335 13.1667 7.33335Z"
                                 fill="#272928"/>
                         </svg>
-                        Create an event
+                        {`Create an event ${pathname?.includes('iframe') ? ' from Social Layer' : ''}`}
                     </Link>
                     <Link className={styles['create-btn-2']} href={creatEventPatch}
                           target={'_blank'}>
@@ -380,11 +394,6 @@ function ComponentName(props: { group: Group }) {
                             <div className={'curr-month'}>{mouthName[currMonth]} {currYear}</div>
                             {timezoneSelected.length !== 0 &&
                                 <>
-                                    <div className={styles['to-today']} onClick={e => {
-                                        toToday()
-                                    }}>Today
-                                    </div>
-
                                     <div className={`${styles['timezone-selected']} input-disable`}>
                                         <Select
                                             value={timezoneSelected}
@@ -399,41 +408,51 @@ function ComponentName(props: { group: Group }) {
                                     </div>
 
                                     <div className={styles['page-slide']}>
-                                        <svg
-                                            className={isStart ? styles['disable'] : ''}
-                                            onClick={lastPage}
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            width={20}
-                                            height={20}
-                                            viewBox="0 0 20 20"
-                                            fill="none">
-                                            <path
-                                                d="M7.8334 10.0013L14.2501 18.3346H11.0834L4.66675 10.0013L11.0834 1.66797H14.2501L7.8334 10.0013Z"
-                                                fill="#272928"
-                                            />
-                                        </svg>
-                                        <svg
-                                            onClick={ e => { toToday()}}
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            width={28}
-                                            height={40}
-                                            viewBox="0 0 28 40"
-                                            fill="none">
-                                            <circle cx={14} cy={20} r={3} fill="#272928"/>
-                                        </svg>
-                                        <svg
-                                            className={isEnd ? styles['disable'] : ''}
-                                            onClick={nextPage}
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            width={20}
-                                            height={20}
-                                            viewBox="0 0 20 20"
-                                            fill="none">
-                                            <path
-                                                d="M15.3332 10.0013L8.91659 18.3346H5.74991L12.1666 10.0013L5.74991 1.66797H8.91659L15.3332 10.0013Z"
-                                                fill="#272928"
-                                            />
-                                        </svg>
+                                        <StatefulTooltip
+                                            content={() => <div>Last Page</div>}>
+                                            <svg
+                                                className={isStart ? styles['disable'] : ''}
+                                                onClick={lastPage}
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                width={20}
+                                                height={20}
+                                                viewBox="0 0 20 20"
+                                                fill="none">
+                                                <path
+                                                    d="M7.8334 10.0013L14.2501 18.3346H11.0834L4.66675 10.0013L11.0834 1.66797H14.2501L7.8334 10.0013Z"
+                                                    fill="#272928"
+                                                />
+                                            </svg>
+                                        </StatefulTooltip>
+                                        <StatefulTooltip
+                                            content={() => <div>Today</div>}>
+                                            <svg
+                                                onClick={ e => { toToday()}}
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                width={28}
+                                                height={40}
+                                                viewBox="0 0 28 40"
+                                                fill="none">
+                                                <circle cx={14} cy={20} r={3} fill="#272928"/>
+                                            </svg>
+                                        </StatefulTooltip>
+                                        <StatefulTooltip
+                                            content={() => <div>Next Page</div>}>
+                                            <svg
+                                                title={'Next Page'}
+                                                className={isEnd ? styles['disable'] : ''}
+                                                onClick={nextPage}
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                width={20}
+                                                height={20}
+                                                viewBox="0 0 20 20"
+                                                fill="none">
+                                                <path
+                                                    d="M15.3332 10.0013L8.91659 18.3346H5.74991L12.1666 10.0013L5.74991 1.66797H8.91659L15.3332 10.0013Z"
+                                                    fill="#272928"
+                                                />
+                                            </svg>
+                                        </StatefulTooltip>
                                     </div>
                                 </>
 
@@ -555,6 +574,7 @@ function ComponentName(props: { group: Group }) {
                     </div>
                 </div>
             </div>
+
         </div>
     </div>)
 }
@@ -615,8 +635,12 @@ function EventCard({
         }
     }, [event.host_info])
 
+    const highlight = event.display && event.display.includes('color:') ?
+        {background: `linear-gradient(180deg, #fff -20%, ${event.display.split('color:')[1].split(';')[0]}`} : {}
+
     const {defaultAvatar} = usePicture()
     return <Link className={styles['schedule-event-card']}
+                 style={highlight}
                  href={`/event/detail/${event.id}`}
                  onClick={e => {
                      if (_offsetX !== 0 || _offsetX !== 0) {
