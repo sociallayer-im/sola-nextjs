@@ -76,13 +76,14 @@ function Invite() {
             }
 
             const invites = await Promise.all(tasks)
+            const firstInvite = invites[0]?.[0]
 
             unload()
-            if (invites.length === 0) {
+            if (!firstInvite) {
                 showToast('The user(s) you invited has already joined the group')
                 return
             }
-            router.push(`/issue-success?invite=${invites[0].id}`)
+            router.push(`/issue-success?invite=${firstInvite.id}`)
         } catch (e: any) {
             unload()
             console.log('[handleInvite]: ', e)
