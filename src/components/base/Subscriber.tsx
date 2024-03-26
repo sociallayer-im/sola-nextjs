@@ -1,7 +1,7 @@
 import {useContext, useEffect, useRef} from 'react'
 import UserContext from '../provider/UserProvider/UserContext'
 import DialogsContext from '../provider/DialogProvider/DialogsContext'
-import {voucherSchema} from '../../service/solas'
+import {voucherSchema} from '@/service/solas'
 import {createClient} from 'graphql-ws'
 
 export const wsClient = createClient({
@@ -16,16 +16,19 @@ let subscriptionInvite2: any = null
 function Subscriber() {
     const {user} = useContext(UserContext)
     const {showInvite, showVoucher} = useContext(DialogsContext)
-    const SubscriptionUserId = useRef(0)
+    const SubscriptionUserId = useRef<null | string>(null)
 
     // 实时接受badgelet
     useEffect(() => {
+        console.log('change subscription: ', user.userName)
         const clean = () => {
             // !!subscription && subscription()
             // !!subscriptionInvite && subscriptionInvite()
+            subscription && subscription()
             subscription = null
+            subscriptionInvite && subscriptionInvite()
             subscriptionInvite = null
-            SubscriptionUserId.current = 0
+            SubscriptionUserId.current = null
         }
         // unSubscribe
         if (!user.userName && SubscriptionUserId) {
@@ -33,9 +36,9 @@ function Subscriber() {
         }
 
         // handle subscribe
-        if (user.id && user.id !== SubscriptionUserId.current) {
+        if (user.userName && user.userName !== SubscriptionUserId.current) {
             clean()
-            SubscriptionUserId.current = user.id
+            SubscriptionUserId.current = user.userName
 
             // create new
             subscription = wsClient.subscribe({
@@ -85,11 +88,7 @@ function Subscriber() {
                         console.log('subscription invite: ', event)
                         if (event.data.group_invites || event.data.group_invites.length) {
                             event.data.group_invites.forEach((item: any) => {
-                                const history = window.sessionStorage.getItem('inviteHistory') || ''
-                                if (!history.split(',').includes(item.id + '')) {
-                                    showInvite(item)
-                                    window.sessionStorage.setItem('inviteHistory', `${history},${item.id}`)
-                                }
+                                showInvite(item)
                             })
                         }
                     },

@@ -1932,7 +1932,7 @@ export async function acceptInvite(props: AcceptInviteProps) {
         data: props
     })
 
-    if (res.data.result === 'error') {
+    if (res.data.result === 'error' && res.data.message !== 'membership exists') {
         throw new Error(res.data.message)
     }
 }
