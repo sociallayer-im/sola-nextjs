@@ -63,7 +63,7 @@ function Merge() {
     const router = useRouter()
     const {user} = useContext(UserContext)
     const {defaultAvatar} = usePicture()
-    const {openConnectWalletDialog, showLoading, showToast} = useContext(DialogsContext)
+    const {openConnectWalletDialog, showLoading, showToast, showBadgelet} = useContext(DialogsContext)
     const formatTime = useformatTime()
     const [events, setEvents] = useState<Event[]>([])
     const [myCards, setMyCards] = useState<Badgelet[]>([])
@@ -416,14 +416,14 @@ function Merge() {
                                 <div className={'my-card'}>
                                     {
                                         myMergedCards.map((card, index) => {
-                                            return <div className={'card'} key={index}>
+                                            return <div className={'card'} key={index} onClick={e => {showBadgelet(card)}}>
                                                 <img src={card.badge.image_url} alt=""/>
                                             </div>
                                         })
                                     }
                                     {
                                         myCards.map((card, index) => {
-                                            return <div className={'card'} key={index}>
+                                            return <div className={'card'} key={index} onClick={e => {showBadgelet(card)}}>
                                                 <img src={card.badge.image_url} alt=""/>
                                             </div>
                                         })
