@@ -231,7 +231,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
     }, [hoster, user.id])
 
     const gotoModify = () => {
-        router.push(`/event/${eventGroup?.username}/edit/${event?.id}`)
+        router.push(`/event/edit/${event?.id}`)
     }
 
     const goToProfile = (username: string, isGroup?: boolean) => {
@@ -324,7 +324,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                         menu={() =>
                             <div className={'event-top-btn'}>
                                 {(isHoster || isManager || isOperator) && !canceled &&
-                                    <Link href={`/event/${eventGroup?.username}/edit/${event?.id}`}>
+                                    <Link href={`/event/edit/${event?.id}`}>
                                         <i className={'icon-edit'}></i>{lang['Activity_Detail_Btn_Modify']}</Link>
                                 }
                                 {event?.status !== 'pending' &&
