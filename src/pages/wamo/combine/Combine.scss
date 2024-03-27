@@ -372,8 +372,10 @@
   }
 
   .beast-swiper {
-    width: calc(100vw - ((100vw - 375px) / 2) - 12px);
-    padding-left: 12px;
+    width: 100vw;
+    margin-left: calc((100vw - 375px) / 2 * -1);
+    padding-left: 0;
+    transform: translateX(-12px);
   }
 
   .combine-item {

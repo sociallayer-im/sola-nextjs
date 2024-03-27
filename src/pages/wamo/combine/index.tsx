@@ -401,6 +401,7 @@ function Merge() {
                         <div className={'beast-swiper'} style={{height: '520px'}}>
                             {
                                 !loading && <AppSwiper
+                                    centeredSlides={true}
                                     initIndex={swiperInitIndex}
                                     items={items}
                                     clickToSlide={false}
