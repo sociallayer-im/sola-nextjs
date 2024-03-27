@@ -2029,7 +2029,7 @@ export interface SearchDomainProps {
 
 export async function searchDomain(props: SearchDomainProps): Promise<Profile[]> {
     const doc = gql`query MyQuery {
-      profiles(where: {username: {_iregex: "${props.username}"}}, limit: 20, offset: ${(props.page - 1) * 20}) {
+      profiles(where: {_or: [{username: {_iregex: "${props.username}"}}, {nickname: {_iregex: "${props.username}"}}]}, limit: 20, offset: ${(props.page - 1) * 20}) {
         id
         username
         nickname
@@ -2045,6 +2045,7 @@ export async function searchDomain(props: SearchDomainProps): Promise<Profile[]>
         return item
     }) as Profile[]
 }
+
 
 export interface SearchBadgeProps {
     title: string,
