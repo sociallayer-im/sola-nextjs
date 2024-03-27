@@ -135,7 +135,7 @@ function Merge() {
 }
 `
 
-            const res = await request(process.env.NEXT_PUBLIC_GRAPH!, myBadgelet)
+            const res: any = await request(process.env.NEXT_PUBLIC_GRAPH!, myBadgelet)
             setMyCards(res.badgelets)
             setLoading(false)
         } else {
@@ -188,7 +188,7 @@ function Merge() {
 }
 `
 
-            const res = await request(process.env.NEXT_PUBLIC_GRAPH!, myBadgelet)
+            const res: any = await request(process.env.NEXT_PUBLIC_GRAPH!, myBadgelet)
             setMyMergedCards(res.badgelets)
             setLoading(false)
         } else {
@@ -214,7 +214,7 @@ function Merge() {
                         }
                     }`
 
-        const res = await request(process.env.NEXT_PUBLIC_GRAPH!, myBadge)
+        const res: any = await request(process.env.NEXT_PUBLIC_GRAPH!, myBadge)
         setTemples(res.badges)
         setLoading(false)
     }
@@ -234,7 +234,7 @@ function Merge() {
                   }
                 }`
 
-        const res = await request(process.env.NEXT_PUBLIC_GRAPH!, myBadgelet)
+        const res: any = await request(process.env.NEXT_PUBLIC_GRAPH!, myBadgelet)
         const rank: { user: ProfileSimple, count: number }[] = []
 
         res.badgelets.forEach((badgelet: any) => {
