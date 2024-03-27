@@ -16,6 +16,7 @@ import dynamic from 'next/dynamic'
 import MaodaoUserTab from "@/components/maodao/MaodaoUserTab/MaodaoUserTab";
 import fetch from "@/utils/fetch";
 import alchemy from "@/service/alchemy/alchemy";
+import useSafePush from "@/hooks/useSafePush";
 
 const UserTabs = dynamic(() => import('@/components/compose/ProfileTabs/ProfileTabs'), {
     loading: () => <p>Loading...</p>,
@@ -46,6 +47,7 @@ function Page(props: any) {
         position: string,
         tag: string,
     } | null>(null)
+    const {safePush} = useSafePush()
 
     useEffect(() => {
         if (newProfile && newProfile.id === profile?.id) {
@@ -88,7 +90,13 @@ function Page(props: any) {
             }
         }
 
-        getMaodaoProfile()
+        if (!profile) {
+            router.push('/error')
+            return
+        } else {
+            getMaodaoProfile()
+
+        }
     }, [profile])
 
     useEffect(() => {
@@ -105,7 +113,7 @@ function Page(props: any) {
 
         // 处理用户登录后但是未注册域名的情况，即有authToken和钱包地址,但是没有domain和username的情况
         if (user.wallet && user.authToken && !user.domain) {
-            router.push('/regist')
+            safePush('/regist')
             return
         }
 
@@ -151,10 +159,10 @@ function Page(props: any) {
                         </div>
                         <div className='slot_1'>
                             <ProfilePanel profile={profile}/>
-                            {!!maodaoprofile && maodaoprofile.company &&
+                            {!!maodaoprofile && maodaoprofile.company && isMaodao &&
                                 <div className={'maodao-tag'}>{maodaoprofile.company}</div>
                             }
-                            {!!maodaoprofile && maodaoprofile.tag &&
+                            {!!maodaoprofile && maodaoprofile.tag && isMaodao &&
                                 <div className={'maodao-tag'}>{maodaoprofile.tag}</div>
                             }
                         </div>
@@ -165,10 +173,10 @@ function Page(props: any) {
                                     size={BTN_SIZE.compact}
                                     onClick={handleMintOrIssue}>
                                     <span className='icon-sendfasong'></span>
-                                    {user.id === profile.id
+                                    <span className='name'>{user.id === profile.id
                                         ? lang['Profile_User_MindBadge']
                                         : lang['Profile_User_IssueBadge'] + (profile.nickname || profile.username)
-                                    }
+                                    }</span>
                                 </AppButton>
                             </div>
                         }

@@ -65,7 +65,6 @@ export default function AppButton(props: AppButtonProps) {
             onClick={props.onClick}
             kind={props.kind ? props.kind : KIND.secondary}
             size={props.size ? props.size : SIZE.default}
-            shape={SHAPE.pill}
             overrides={{
                 Root: {component: RootOverrides},
                 LoadingSpinner: {

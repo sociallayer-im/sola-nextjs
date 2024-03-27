@@ -1,5 +1,6 @@
 @import '@/styles/poppins.css'
 @import '@/styles/iconfont/style.css'
+@import "@/styles/farcasterLoginBtn.css"
 
 @import "@/components/base/AddressList/AddressList.sass"
 @import "@/components/base/AmountInput/AmountInput.sass"
@@ -224,14 +225,17 @@ body
 
 div[data-baseweb="tooltip"], div[data-baseweb="popover"]
   z-index: 9999
-  max-width: 80%
+  max-width: 100%
 
 div[data-baseweb="popover"]
-  max-width: 80%
+  max-width: 100%
   height: auto
 
 div[data-baseweb="popover"]
   height: auto
+  > div
+    > div
+      width: auto
 
 .swiper-pagination-bullet-active
   background: #9efedd!important

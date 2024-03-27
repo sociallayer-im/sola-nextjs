@@ -1,7 +1,7 @@
 import {useContext, useEffect, useRef} from 'react'
 import UserContext from '../provider/UserProvider/UserContext'
 import DialogsContext from '../provider/DialogProvider/DialogsContext'
-import {voucherSchema} from '../../service/solas'
+import {voucherSchema} from '@/service/solas'
 import {createClient} from 'graphql-ws'
 
 export const wsClient = createClient({
@@ -16,34 +16,43 @@ let subscriptionInvite2: any = null
 function Subscriber() {
     const {user} = useContext(UserContext)
     const {showInvite, showVoucher} = useContext(DialogsContext)
-    const SubscriptionUserId = useRef(0)
+    const SubscriptionUserId = useRef<null | string>(null)
 
     // 实时接受badgelet
     useEffect(() => {
+        console.log('change subscription: ', user.userName)
         const clean = () => {
-            !!subscription && subscription()
-            !!subscriptionInvite && subscriptionInvite()
-            SubscriptionUserId.current = 0
+            // !!subscription && subscription()
+            // !!subscriptionInvite && subscriptionInvite()
+            subscription && subscription()
+            subscription = null
+            subscriptionInvite && subscriptionInvite()
+            subscriptionInvite = null
+            SubscriptionUserId.current = null
         }
         // unSubscribe
-        if (!user.id && SubscriptionUserId) {
+        if (!user.userName && SubscriptionUserId) {
             clean()
         }
 
         // handle subscribe
-        if (user.id && user.id !== SubscriptionUserId.current) {
+        if (user.userName && user.userName !== SubscriptionUserId.current) {
             clean()
-            SubscriptionUserId.current = user.id
+            SubscriptionUserId.current = user.userName
 
             // create new
             subscription = wsClient.subscribe({
-                query: `subscription { ${voucherSchema({page: 1, receiver_id: user.id!})} }`,
+                query: `subscription { ${voucherSchema({page: 1, receiver_id: user.id!, address: user.wallet || undefined})} }`,
             }, {
                 next: (event: any) => {
                     console.log('subscription voucher: ', event)
                     if (event.data.vouchers || event.data.vouchers.length) {
                         event.data.vouchers.forEach((item: any) => {
-                            showVoucher(item)
+                            const history = window.sessionStorage.getItem('voucherHistory') || ''
+                            if (!history.split(',').includes(item.id + '')) {
+                                showVoucher(item)
+                                window.sessionStorage.setItem('voucherHistory', `${history},${item.id}`)
+                            }
                         })
                     }
                 },
@@ -95,7 +104,7 @@ function Subscriber() {
         return () => {
             clean()
         }
-    }, [user.id])
+    }, [user.userName])
 
     return (<></>)
 }

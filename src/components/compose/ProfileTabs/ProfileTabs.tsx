@@ -8,6 +8,7 @@ import UserContext from "@/components/provider/UserProvider/UserContext";
 import dynamic from 'next/dynamic'
 import ListUserCurrency from "@/components/compose/ListUserCurrency/ListUserCurrency";
 import ListNftAsset from "@/components/compose/ListNftAsset/ListNftAsset";
+import {PageBackContext} from "@/components/provider/PageBackProvider";
 
 const UserRecognition = dynamic(() => import('@/components/compose/ListUserRecognition/ListUserRecognition'), {
     loading: () => <p>Loading...</p>,
@@ -40,21 +41,22 @@ function ComponentName({profile}: {profile: Profile}) {
     const router = useRouter()
     const {user} = useContext(UserContext)
     const {lang} = useContext(LangContext)
-    const [selectedTab, setSelectedTab] = useState(searchParams.get('tab') || '0')
-    const [selectedSubtab, setSelectedSubtab] = useState(searchParams.get('subtab') || '0')
+    const [selectedTab, setSelectedTab] = useState(searchParams?.get('tab') || '0')
+    const [selectedSubtab, setSelectedSubtab] = useState(searchParams?.get('subtab') || '0')
+    const {history} = useContext(PageBackContext)
 
     // 为了实现切换tab时，url也跟着变化，而且浏览器的前进后退按钮也能切换tab
     useEffect(() => {
-        if (!searchParams.get('tab')) {
+        if (!searchParams?.get('tab')) {
             setSelectedTab('0')
         }
 
-        if (searchParams.get('tab')) {
-            setSelectedTab(searchParams.get('tab') || '0')
+        if (searchParams?.get('tab')) {
+            setSelectedTab(searchParams?.get('tab') || '0')
         }
 
-        if (searchParams.get('subtab')) {
-            setSelectedSubtab(searchParams.get('subtab') || '0')
+        if (searchParams?.get('subtab')) {
+            setSelectedSubtab(searchParams?.get('subtab') || '0')
         }
     }, [searchParams])
 
@@ -64,7 +66,9 @@ function ComponentName({profile}: {profile: Profile}) {
             activeKey={selectedTab}
             onChange={({activeKey}) => {
                 setSelectedTab(activeKey as any);
-                router.push(`/profile/${profile!.username}?tab=${activeKey}`, {scroll: false})
+
+                history.push(`/profile/${profile!.username}?tab=${activeKey}`)
+                window.history.pushState(null, '', `/profile/${profile!.username}?tab=${activeKey}`)
             }}>
             <Tab title={lang['Profile_Tab_Received']}>
                 <AppSubTabs
@@ -72,7 +76,8 @@ function ComponentName({profile}: {profile: Profile}) {
                     activeKey={selectedSubtab}
                     onChange={({activeKey}) => {
                         setSelectedSubtab(activeKey as any);
-                        router.push(`/profile/${profile!.username}?tab=${selectedTab}&subtab=${activeKey}`, {scroll: false})
+                        history.push(`/profile/${profile!.username}?tab=${selectedTab}&subtab=${activeKey}`)
+                        window.history.pushState(null, '', `/profile/${profile!.username}?tab=${selectedTab}&subtab=${activeKey}`)
                     }}>
                     <Tab title={lang['Profile_Tab_Basic']}>
                         <UserRecognition profile={profile}/>
@@ -114,7 +119,8 @@ function ComponentName({profile}: {profile: Profile}) {
                     activeKey={selectedSubtab}
                     onChange={({activeKey}) => {
                         setSelectedSubtab(activeKey as any);
-                        router.push(`/profile/${profile!.username}?tab=${selectedTab}&subtab=${activeKey}`, {scroll: false})
+                        history.push(`/profile/${profile!.username}?tab=${selectedTab}&subtab=${activeKey}`)
+                        window.history.pushState(null, '', `/profile/${profile!.username}?tab=${selectedTab}&subtab=${activeKey}`)
                     }}>
                     <Tab title={lang['Profile_Tab_Token']}>
                         <ListUserCurrency profile={profile}/>

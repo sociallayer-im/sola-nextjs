@@ -51,8 +51,8 @@ function SeedaoHome({group, members} : {group: Group, members: Membership[]}) {
 
     const requestToBeIssuer = () => {
         openDialog({
-            content: (close: any) => <DialogRequestTobeIssuer close={close}/>,
-            size: [340, 'auto'],
+            content: (close: any) => <DialogRequestTobeIssuer close={close} group_id={group!.id}/>,
+            size: [360, 'auto'],
         })
     }
 
@@ -117,10 +117,15 @@ function SeedaoHome({group, members} : {group: Group, members: Membership[]}) {
                         </Link>
                     }
 
-                    {/*<div className={styles['btn']} onClick={e=> {showNotification()}}>*/}
-                    {/*    {lang['Seedao_Notification']}*/}
-                    {/*    <div className={styles['is-new']} />*/}
-                    {/*</div>*/}
+                    <div className={styles['btn']} onClick={e=> {showNotification()}}>
+                        {lang['Seedao_Notification']}
+                        <div className={styles['is-new']} />
+                    </div>
+
+                    <div className={styles['btn']} onClick={e=> { requestToBeIssuer()}}>
+                        request to be issuer
+                        <div className={styles['is-new']} />
+                    </div>
             </div>
         }
     </div>)

@@ -33,6 +33,7 @@ function EventCheckIn() {
     const [isCheckLog, setIsCheckLog] = useState(false)
     const [needUpdate, _] = useEvent(EVENT.eventCheckin)
     const [isManager, setIsManager] = useState(false)
+    const [isOperator, setIsOperator] = useState(false)
     const [isGroupOwner, setIsGroupOwner] = useState(false)
 
     const {user} = useContext(userContext)
@@ -61,14 +62,26 @@ function EventCheckIn() {
                     }
                 }) || [])
                 setHasCheckin(eventDetails?.participants?.filter(item => item.status === 'checked').map(item => item.profile.domain!) || [])
+                // @ts-ignore
+                if (eventDetails && eventDetails.operators?.findIndex(item => item  === user.id) > -1) {
+                    setIsOperator(true)
+                }
+
 
                 if (eventDetails!.host_info || eventDetails!.group_id) {
-                    const isDomain = eventDetails!.host_info && eventDetails!.host_info.indexOf('.') > -1
-                    const profile = await getProfile(isDomain
-                        ? {username: eventDetails!.host_info!.replace(process.env.NEXT_PUBLIC_SOLAS_DOMAIN!, '')}
-                        : {id: eventDetails!.group_id || Number(eventDetails!.host_info)})
-                    if (profile) {
-                        setHoster(profile)
+                    if (eventDetails!.host_info?.startsWith('{')) {
+                        const hostInfo = JSON.parse(eventDetails!.host_info!)
+                        if (hostInfo.group_host) {
+                            setHoster(hostInfo.group_host)
+                        }
+                    } else {
+                        const isDomain = eventDetails!.host_info && eventDetails!.host_info.indexOf('.') > -1
+                        const profile = await getProfile(isDomain
+                            ? {username: eventDetails!.host_info!.replace(process.env.NEXT_PUBLIC_SOLAS_DOMAIN!, '')}
+                            : {id: eventDetails!.group_id || Number(eventDetails!.host_info)})
+                        if (profile) {
+                            setHoster(profile)
+                        }
                     }
                 } else {
                     const profile = await getProfile({id: Number(eventDetails!.owner_id)})
@@ -167,7 +180,7 @@ function EventCheckIn() {
                             </div>
                         }
 
-                        {(isHoster || isManager || isGroupOwner) &&
+                        {(isHoster || isManager || isGroupOwner || isOperator) &&
                             <div className={'checkin-checkin-btn'}>
                                 <AppButton special onClick={e => {
                                     showEventCheckIn(event.id)
@@ -186,7 +199,7 @@ function EventCheckIn() {
                             </div>
                         }
 
-                        {!!user.id && !isJoin && !isHoster && !isCheckLog && !isManager &&
+                        {!!user.id && !isJoin && !isHoster && !isCheckLog && !isManager && !isOperator &&
                             <div className={'checkin-checkin-btn'}>
                                 <AppButton disabled>{lang['Activity_Scan_checkin']}</AppButton>
                             </div>
@@ -206,7 +219,7 @@ function EventCheckIn() {
                                 } <span>({hasCheckin.length} / {participants.length})</span>
                                 </div>
                                 <ListCheckinUser
-                                    isHost={isHoster || isManager}
+                                    isHost={isHoster || isManager || isOperator}
                                     eventId={Number(params?.eventid || 0)}
                                     participants={participants}
                                     onChecked={(item) => {
@@ -218,7 +231,7 @@ function EventCheckIn() {
                     </div>
                 </div>
 
-                {(isHoster || isManager) && event.badge_id && !!hasCheckin.length &&
+                {(isHoster || isManager || isOperator) && event.badge_id && !!hasCheckin.length &&
                     <div className={'actions'}>
                         <div className={'center'}>
                             <AppButton special onClick={e => {

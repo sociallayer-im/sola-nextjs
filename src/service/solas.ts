@@ -3,7 +3,6 @@ import fetch from '../utils/fetch'
 import Alchemy from "@/service/alchemy/alchemy";
 import {gql, request} from 'graphql-request'
 
-// const api = process.env.NEXT_PUBLIC_SOLAS_API!
 const apiUrl = process.env.NEXT_PUBLIC_API!
 const graphUrl = process.env.NEXT_PUBLIC_GRAPH!
 
@@ -29,13 +28,18 @@ export const voucherSchema = (props: QueryPresendProps) => {
         variables += `id: {_eq: ${props.id}},`
     }
 
-    if (props.receiver_id) {
+    if (props.receiver_id && props.address) {
+        variables += `_or: [{receiver_id: {_eq: ${props.receiver_id}}}, {receiver_address: {_eq: "${props.address}"}}],`
+    } else if (props.receiver_id) {
         variables += `receiver_id: {_eq: ${props.receiver_id}},`
+    } else if (props.address) {
+        variables += `receiver_address: {_eq: "${props.address}"},`
     }
 
     return gql`vouchers(where: {counter: {_neq: 0}, ${variables}, expires_at: {_gt: "${new Date().toISOString()}"}} limit: 20, offset: ${props.page * 20 - 20}, order_by: {created_at: desc}) {
         id
         strategy
+        receiver_address
         badgelets {
           badge_id
           content
@@ -173,14 +177,15 @@ function checkAuth<K extends AuthProp>(props: K) {
     }
 }
 
-export async function login(signer: any) {
-    return await signInWithEthereum(signer)
+export async function login(signer: any, walletName?: string) {
+    return await signInWithEthereum(signer, walletName)
 }
 
 export interface Profile {
     id: number,
     username: string | null,
     address: string | null,
+    sol_address: string | null,
     email: string | null,
     phone: string | null,
     zupass: string | null,
@@ -228,6 +233,7 @@ export interface Profile {
             "industry": string
         }
     }
+    far_address: null | string
 }
 
 export interface ProfileSimple {
@@ -240,7 +246,7 @@ export interface ProfileSimple {
     username: string | null,
 }
 
-export async function queryProfileByGraph(props: { type: keyof GetProfileProps, address: string | number }) {
+export async function queryProfileByGraph(props: { type: keyof GetProfileProps, address: string | number, skip_maodao?: boolean }) {
     const condition = `where: {${props.type}: {_eq: ${props.type === 'id' ? props.address : `"${props.address}"`}}}`
 
     const doc = gql`query MyQuery {
@@ -264,7 +270,10 @@ export async function queryProfileByGraph(props: { type: keyof GetProfileProps, 
         username
         website
         zupass
-        permissions
+        permissions,
+        sol_address,
+        far_fid,
+        far_address
       }
     }`
 
@@ -275,7 +284,7 @@ export async function queryProfileByGraph(props: { type: keyof GetProfileProps, 
     }
 
     const isMaodao = process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'maodao'
-    if (isMaodao && resp.profiles[0].address) {
+    if (isMaodao && resp.profiles[0].address && !props.skip_maodao) {
         const profile = await getMaodaoProfile(resp.profiles[0])
         return {
             ...profile,
@@ -291,7 +300,7 @@ export async function queryProfileByGraph(props: { type: keyof GetProfileProps, 
 }
 
 export async function queryProfileByEmail(email: string) {
-    const res = await fetch.post({
+    const res = await fetch.get({
         url: `${apiUrl}/profile/get_by_email`,
         data: {email}
     })
@@ -318,7 +327,7 @@ export async function getProfile(props: GetProfileProps): Promise<Profile | null
     if (type === 'email') {
         profile = await queryProfileByEmail(props.email!)
     } else {
-        profile = await queryProfileByGraph({type, address})
+        profile = await queryProfileByGraph({type, address, skip_maodao: true})
     }
 
     if (process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'maodao' && profile?.address) {
@@ -395,6 +404,9 @@ export async function getGroups(props: GetGroupProps): Promise<Group[]> {
 
     const doc = gql`query MyQuery {
       groups(${condition}) {
+        events_count
+        memberships_count
+        group_tags
         about
         banner_image_url
         banner_link_url
@@ -447,8 +459,8 @@ export async function getGroups(props: GetGroupProps): Promise<Group[]> {
     return res as Group[]
 }
 
-export async function queryGroupDetail(id: number): Promise<Group | null> {
-    const res = await getGroups({id})
+export async function queryGroupDetail(id?: number, username?: string): Promise<Group | null> {
+    const res = id ? await getGroups({id}) : await getGroups({username})
     return res[0] ?
         {
             ...res[0],
@@ -479,7 +491,7 @@ export interface LoginRes {
 export async function emailLogin(email: string, code: string): Promise<LoginRes> {
     const res = await fetch.post({
         url: `${apiUrl}/profile/signin_with_email`,
-        data: {email, code}
+        data: {email, code, app: window.location.host, address_source: 'email'}
     })
     if (res.data.result === 'error') {
         throw new Error(res.data.message || 'Verify fail')
@@ -784,7 +796,8 @@ interface QueryPresendProps {
     page: number,
     group_id?: number,
     id?: number
-    receiver_id?: number
+    receiver_id?: number,
+    address?: string
 }
 
 export interface Presend extends Voucher {
@@ -1030,6 +1043,9 @@ export interface Group extends Profile {
     can_publish_event: string
     can_join_event: string
     can_view_event: string
+    events_count: number
+    memberships_count: number
+    group_tags :string | null
 }
 
 export interface QueryUserGroupProps {
@@ -1039,7 +1055,11 @@ export interface QueryUserGroupProps {
 export async function queryGroupsUserJoined(props: QueryUserGroupProps): Promise<Group[]> {
     const doc = gql`query MyQuery {
       groups(where: {status: {_neq: "freezed"}, memberships: {role: {_neq: "owner"}, profile: {id: {_eq: "${props.profile_id}"}}}}) {
+        events_count
+        memberships_count
+        group_tags
         about
+        permissions
         banner_image_url
         banner_link_url
         banner_text
@@ -1084,7 +1104,11 @@ export async function queryGroupsUserJoined(props: QueryUserGroupProps): Promise
 export async function queryGroupsUserCreated(props: QueryUserGroupProps): Promise<Group[]> {
     const doc = gql`query MyQuery {
       groups(where: {status: {_neq: "freezed"}, memberships: {role: {_eq: "owner"}, profile: {id: {_eq: "${props.profile_id}"}}}}) {
+        events_count
+        memberships_count
+        group_tags
         about
+        permissions
         banner_image_url
         banner_link_url
         banner_text
@@ -1129,7 +1153,11 @@ export async function queryGroupsUserCreated(props: QueryUserGroupProps): Promis
 export async function queryGroupsUserManager(props: QueryUserGroupProps): Promise<Group[]> {
     const doc = gql`query MyQuery {
       groups(where: {status: {_neq: "freezed"}, memberships: {role: {_eq: "manager"}, profile: {id: {_eq: "${props.profile_id}"}}}}) {
+        events_count
+        memberships_count
+        group_tags
         about
+        permissions
         banner_image_url
         banner_link_url
         banner_text
@@ -1519,7 +1547,8 @@ export async function getFollowers(userId: number): Promise<Profile[]> {
         id
         username
         nickname
-        image_url
+        image_url,
+        sol_address
       }
     }
     `)
@@ -1903,7 +1932,7 @@ export async function acceptInvite(props: AcceptInviteProps) {
         data: props
     })
 
-    if (res.data.result === 'error') {
+    if (res.data.result === 'error' && res.data.message !== 'membership exists') {
         throw new Error(res.data.message)
     }
 }
@@ -1956,7 +1985,7 @@ export async function queryInvites(props: {
     return res.group_invites as Invite[]
 }
 
-export interface UpdateGroupProps extends Partial<Profile> {
+export interface UpdateGroupProps extends Partial<Group> {
     id: number,
     auth_token: string
 }
@@ -2000,11 +2029,12 @@ export interface SearchDomainProps {
 
 export async function searchDomain(props: SearchDomainProps): Promise<Profile[]> {
     const doc = gql`query MyQuery {
-      profiles(where: {username: {_iregex: "${props.username}"}}, limit: 20, offset: ${(props.page - 1) * 20}) {
+      profiles(where: {_or: [{username: {_iregex: "${props.username}"}}, {nickname: {_iregex: "${props.username}"}}]}, limit: 20, offset: ${(props.page - 1) * 20}) {
         id
         username
         nickname
-        image_url
+        image_url,
+        sol_address
       }
     }`
 
@@ -2015,6 +2045,7 @@ export async function searchDomain(props: SearchDomainProps): Promise<Profile[]>
         return item
     }) as Profile[]
 }
+
 
 export interface SearchBadgeProps {
     title: string,
@@ -2483,7 +2514,7 @@ export async function setEmail(props: SetEmailProps) {
     })
 
     if (res.data.result === 'error') {
-        throw new Error(res.data.message || 'send email fail')
+        throw new Error(res.data.message || 'Set email fail')
     }
 }
 
@@ -2566,7 +2597,7 @@ export interface QueryUserActivityProps {
 }
 
 export interface Activity {
-    "id": null | number,
+    "id": number,
     "badge_id": null | number
     "badgelet_id": null | number,
     "point_id": null | number,
@@ -2890,6 +2921,7 @@ export interface Participants {
 }
 
 export interface Event {
+    padge_link: string | null,
     id: number,
     title: string,
     content: string,
@@ -2912,6 +2944,8 @@ export interface Event {
     group_id?: null | number,
     formatted_address: null | any,
     owner: ProfileSimple,
+    notes: string | null,
+    display: string,
 
     owner_id: number,
     created_at: string,
@@ -2931,6 +2965,8 @@ export interface Event {
     geo_lng: null | string,
     geo_lat: null | string,
     participants: null | Participants[],
+    external_url: null | string,
+    operators: null | number[],
 }
 
 export interface CreateEventProps extends Partial<Event> {
@@ -2975,15 +3011,23 @@ export interface QueryEventProps {
     event_site_id?: number,
     start_time_from?: string,
     start_time_to?: string,
+    end_time_gte?: string,
+    end_time_lte?: string,
     group_id?: number,
     event_order?: 'asc' | 'desc',
     page_size?: number,
+    show_pending_event?: boolean,
+    show_rejected_event?: boolean,
+    recurring_event_id?: number,
+    show_cancel_event?: boolean,
+    group_ids?: number[]
 }
 
 
 export async function queryEvent(props: QueryEventProps): Promise<Event[]> {
     const page_size = props.page_size || 10
     let variables = ''
+    let order = `order_by: {id: ${props.event_order || 'desc'}}, `
 
     if (props.id) {
         variables += `id: {_eq: ${props.id}},`
@@ -3001,35 +3045,63 @@ export async function queryEvent(props: QueryEventProps): Promise<Event[]> {
         variables += `event_site_id: {_eq: ${props.event_site_id}}, `
     }
 
+    if(props.recurring_event_id) {
+        variables += `recurring_event_id: {_eq: ${props.recurring_event_id}}, `
+    }
+
     if (props.start_time_from && props.start_time_to) {
+        order = `order_by: {start_time: ${props.event_order || 'desc'}}, `
         variables += `start_time: {_gte: "${props.start_time_from}"}, _and: {start_time: {_lte: "${props.start_time_to}"}}, `
     } else if (props.start_time_from) {
+        order = `order_by: {start_time: ${props.event_order || 'desc'}}, `
         variables += `start_time: {_gte: "${props.start_time_from}"}, `
     } else if (props.start_time_to) {
+        order = `order_by: {start_time: ${props.event_order || 'desc'}}, `
         variables += `start_time: {_lte: "${props.start_time_to}"}, `
+    }
+
+    if (props.end_time_gte) {
+        order = `order_by: {start_time: ${props.event_order || 'desc'}}, `
+        variables += `end_time: {_gte: "${props.end_time_gte}"}, `
+    }
+
+    if (props.end_time_lte) {
+        order = `order_by: {end_time: ${props.event_order || 'desc'}}, `
+        variables += `end_time: {_lte: "${props.end_time_lte}"}, `
     }
 
     if (props.group_id) {
         variables += `group_id: {_eq: ${props.group_id}}, `
     }
 
-    let order = `order_by: {id: desc}, `
+    let status = `"open", "new", "normal"`
+    if (props.show_pending_event) {
+        status = status + ', "pending"'
+    }
 
-    if (props.event_order) {
-        order = `order_by: {start_time: ${props.event_order}}, `
+    if(props.show_rejected_event) {
+        status = status + ', "rejected"'
+    }
+
+    if(props.show_cancel_event) {
+        status = status + ', "cancel"'
     }
 
     variables = variables.replace(/,$/, '')
 
-
     const doc = gql`query MyQuery {
-      events (where: {${variables}, status: {_in: ["open", "new", "normal"]}} ${order} limit: ${page_size}, offset: ${(props.page - 1) * page_size}) {
+      events (where: {${variables}, status: {_in: [${status}]}} ${order} limit: ${page_size}, offset: ${(props.page - 1) * page_size}) {
+        display
+        operators
+        padge_link
         badge_id
+        notes
         geo_lat
         geo_lng
         category
         content
         cover_url
+        external_url
         created_at
         display
         end_time
@@ -3106,6 +3178,153 @@ export async function queryEvent(props: QueryEventProps): Promise<Event[]> {
     }) as Event[]
 }
 
+export async function queryPendingEvent(props: QueryEventProps): Promise<Event[]> {
+    const page_size = props.page_size || 10
+    let variables = ''
+    let order = `order_by: {id: ${props.event_order || 'desc'}}, `
+
+    if (props.id) {
+        variables += `id: {_eq: ${props.id}},`
+    }
+
+    if (props.owner_id) {
+        variables += `owner_id: {_eq: ${props.owner_id}},`
+    }
+
+    if (props.tag) {
+        variables += `tags: {_contains:["${props.tag}"]}, `
+    }
+
+    if (props.event_site_id) {
+        variables += `event_site_id: {_eq: ${props.event_site_id}}, `
+    }
+
+    if(props.recurring_event_id) {
+        variables += `recurring_event_id: {_eq: ${props.recurring_event_id}}, `
+    }
+
+    if (props.start_time_from && props.start_time_to) {
+        order = `order_by: {start_time: ${props.event_order || 'desc'}}, `
+        variables += `start_time: {_gte: "${props.start_time_from}"}, _and: {start_time: {_lte: "${props.start_time_to}"}}, `
+    } else if (props.start_time_from) {
+        order = `order_by: {start_time: ${props.event_order || 'desc'}}, `
+        variables += `start_time: {_gte: "${props.start_time_from}"}, `
+    } else if (props.start_time_to) {
+        order = `order_by: {start_time: ${props.event_order || 'desc'}}, `
+        variables += `start_time: {_lte: "${props.start_time_to}"}, `
+    }
+
+    if (props.end_time_gte) {
+        order = `order_by: {end_time: ${props.event_order || 'desc'}}, `
+        variables += `end_time: {_gte: "${props.end_time_gte}"}, `
+    }
+
+    if (props.end_time_lte) {
+        order = `order_by: {end_time: ${props.event_order || 'desc'}}, `
+        variables += `end_time: {_lte: "${props.end_time_lte}"}, `
+    }
+
+    if (props.group_id) {
+        variables += `group_id: {_eq: ${props.group_id}}, `
+    }
+
+    if (props.group_ids) {
+        variables += `group_id: {_in: [${props.group_ids.join(',')}]}, `
+    }
+
+
+    variables = variables.replace(/,$/, '')
+
+
+    const doc = gql`query MyQuery {
+      events (where: {${variables} status: {_eq: "pending"}}, ${order} limit: ${page_size}, offset: ${(props.page - 1) * page_size}) {
+        display
+        operators
+        padge_link
+        badge_id
+        notes
+        external_url
+        geo_lat
+        geo_lng
+        category
+        content
+        cover_url
+        created_at
+        display
+        event_site_id
+        event_site {
+            id
+            title
+            location
+            about
+            group_id
+            owner_id
+            created_at
+            formatted_address
+            geo_lat
+            geo_lng
+        }
+        event_type
+        formatted_address
+        location
+        owner_id
+        owner {
+            id
+            username
+            nickname
+            image_url
+        }
+        title
+        timezone
+        status
+        tags
+        start_time
+        end_time
+        require_approval
+        participants_count
+        max_participant
+        meeting_url
+        group_id
+        host_info
+        id
+        location_viewport
+        min_participant
+        recurring_event {
+          id
+        }
+        recurring_event_id
+        participants(where: {status: {_neq: "cancel"}}) {
+          id
+          profile_id
+          profile {
+            id
+            username
+            nickname
+            image_url
+          }
+          role
+          status
+          voucher_id
+          check_time
+          created_at
+          message
+          event {
+            id
+          }
+        }
+      }
+    }`
+
+    const resp: any = await request(graphUrl, doc)
+    return resp.events.map((item: any) => {
+        return {
+            ...item,
+            end_time: item.end_time && !item.end_time.endsWith('Z') ? item.end_time + 'Z' : item.end_time,
+            start_time: item.end_time && !item.start_time.endsWith('Z') ? item.start_time + 'Z' : item.start_time,
+        }
+    }) as Event[]
+}
+
 export interface QueryRecommendEventProps {
     rec?: 'latest' | 'soon' | 'top'
     page: number,
@@ -3136,7 +3355,7 @@ export interface QueryEventDetailProps {
 }
 
 export async function queryEventDetail(props: QueryEventDetailProps) {
-    const res = await queryEvent({id: props.id, page: 1})
+    const res = await queryEvent({id: props.id, page: 1, show_pending_event: true, show_cancel_event: true})
 
     return res[0] as Event || null
 }
@@ -3144,14 +3363,15 @@ export async function queryEventDetail(props: QueryEventDetailProps) {
 export interface QueryMyEventProps {
     page?: number,
     profile_id?: number,
+    page_size?: number,
 }
 
-export async function queryMyEvent({page = 1, ...props}: QueryMyEventProps): Promise<Participants[]> {
+export async function queryMyEvent({page = 1, page_size = 10, ...props}: QueryMyEventProps): Promise<Participants[]> {
     const doc = gql`query MyQuery {
      participants(
        where: {profile_id: {_eq: ${props.profile_id}}, status: {_neq: "cancel"}}
-       limit: 20
-       offset: ${page * 20 - 20}
+       limit: ${page_size}
+       offset: ${page * page_size - page_size}
        order_by: {id: desc}
        ) {
         id
@@ -3160,11 +3380,19 @@ export async function queryMyEvent({page = 1, ...props}: QueryMyEventProps): Pro
         message
         check_time
         created_at
+        profile_id
+        profile {
+          id
+          image_url
+          nickname
+          username
+        }
         role
          event {
           cover_url
           content
           end_time
+          notes
           id
           location
           title
@@ -3172,6 +3400,25 @@ export async function queryMyEvent({page = 1, ...props}: QueryMyEventProps): Pro
           owner_id
           start_time
           status
+          participants(where: {status: {_neq: "cancel"}}) {
+          id
+          profile_id
+          profile {
+            id
+            username
+            nickname
+            image_url
+          }
+          role
+          status
+          voucher_id
+          check_time
+          created_at
+          message
+          event {
+            id
+          }
+        }
         }
       }
     }`
@@ -3208,6 +3455,7 @@ export async function getEventSide(groupId?: number): Promise<EventSites[]> {
         geo_lng
         group_id
         id
+        about
         location
         location_viewport
         owner_id
@@ -3255,7 +3503,12 @@ export async function unJoinEvent(props: JoinEventProps) {
 export async function searchEvent(keyword: string) {
     const doc = gql`query MyQuery {
       events (where: {title: {_iregex: "${keyword}"} , status: {_neq: "closed"}}, limit: 10) {
+        display
+        operators
+        padge_link
         badge_id
+        notes
+        external_url
         geo_lat
         geo_lng
         category
@@ -3550,7 +3803,11 @@ export async function divineBeastRemerge(props: DivineBeastRmergeProps) {
 export async function getEventGroup() {
     const doc = gql`query MyQuery {
       groups(where: {event_enabled: {_eq: true}, status: {_neq: "freezed"}}) {
+        events_count
+        memberships_count
+        group_tags
         about
+        permissions
         banner_image_url
         banner_link_url
         banner_text
@@ -3587,6 +3844,7 @@ export async function getEventGroup() {
 
     const res: any = await request(graphUrl, doc)
     return res.groups.map((item: any) => {
+        item.domain = item.username + process.env.NEXT_PUBLIC_SOLAS_DOMAIN
         item.creator = item.memberships[0]?.profile || null
         return item
     })
@@ -3683,7 +3941,7 @@ export async function requestPhoneCode(phone: string): Promise<void> {
 export async function phoneLogin(phone: string, code: string): Promise<LoginRes> {
     const res = await fetch.post({
         url: `${apiUrl}/profile/signin_with_phone`,
-        data: {phone, code}
+        data: {phone, code, app: window.location.host, address_source: 'phone'}
     })
     if (res.data.result === 'error') {
         throw new Error(res.data.message || 'Verify fail')
@@ -3733,45 +3991,43 @@ export async function eventCheckIn(props: EventCheckInProps) {
 export interface CancelRepeatProps {
     auth_token: string,
     selector: 'one' | 'after' | 'all',
-    repeat_event_id: number,
+    recurring_event_id: number,
     event_id?: number,
 }
 
 export async function cancelRepeatEvent(props: CancelRepeatProps) {
-    // checkAuth(props)
-    //
-    // const res = await fetch.post({
-    //     url: `${api}/repeat_event/cancel_event`,
-    //     data: props
-    // })
-    //
-    // if (res.data.result === 'error') {
-    //     throw new Error(res.data.message)
-    // }
-    //
-    // return res.data.events as Event[]
-    throw new Error('Not implement')
+    checkAuth(props)
+
+    const res = await fetch.post({
+        url: `${apiUrl}/recurring_event/cancel_event`,
+        data: props
+    })
+
+    if (res.data.result === 'error') {
+        throw new Error(res.data.message)
+    }
 }
 
 export interface CreateRepeatEventProps extends CreateEventProps {
     interval?: 'day' | 'week' | 'month',
-    repeat_ending_time?: string,
+    repeat_start_time?: string,
+    repeat_end_time?: string,
     event_count?: number,
 }
 
 export async function createRepeatEvent(props: CreateRepeatEventProps) {
-    // checkAuth(props)
-    // const res = await fetch.post({
-    //     url: `${api}/repeat_event/create`,
-    //     data: props
-    // })
-    //
-    // if (res.data.result === 'error') {
-    //     throw new Error(res.data.message)
-    // }
-    //
-    // return res.data.events as Event[]
-    throw new Error('Not implement')
+    checkAuth(props)
+    const res = await fetch.post({
+        url: `${apiUrl}/recurring_event/create`,
+        data: props
+    })
+
+    if (res.data.result === 'error') {
+        throw new Error(res.data.message)
+    }
+
+    const event = await queryEvent({recurring_event_id: res.data.recurring_event_id, page: 1})
+    return event[0]
 }
 
 export interface RepeatEventInviteProps {
@@ -3814,42 +4070,39 @@ export async function RepeatEventInvite(props: RepeatEventInviteProps) {
 export interface RepeatEventSetBadgeProps {
     auth_token: string,
     badge_id: number,
-    repeat_event_id: number,
+    recurring_event_id: number,
+    selector?: 'one' | 'after' | 'all'
 }
 
 export async function RepeatEventSetBadge(props: RepeatEventSetBadgeProps) {
-    // checkAuth(props)
-    // const res = await fetch.post({
-    //     url: `${api}/repeat_event/set_badge`,
-    //     data: props
-    // })
-    //
-    // if (res.data.result === 'error') {
-    //     throw new Error(res.data.message)
-    // }
-    // return res.data.events as Event[]
-    throw new Error('Not implement')
+    checkAuth(props)
+    const res = await fetch.post({
+        url: `${apiUrl}/recurring_event/set_badge`,
+        data: props
+    })
+
+    if (res.data.result === 'error') {
+        throw new Error(res.data.message)
+    }
+    return res.data.events as Event[]
 }
 
 export interface RepeatEventUpdateProps extends CreateEventProps {
-    selector: 'one' | 'after' | 'all',
     event_id?: number,
+    selector?: 'one' | 'after' | 'all',
 }
 
 
 export async function RepeatEventUpdate(props: RepeatEventUpdateProps) {
-    // checkAuth(props)
-    // const res = await fetch.post({
-    //     url: `${api}/repeat_event/update`,
-    //     data: props
-    // })
-    //
-    // if (res.data.result === 'error') {
-    //     throw new Error(res.data.message)
-    // }
-    //
-    // return res.data.events as Event[]
-    throw new Error('Not implement')
+    checkAuth(props)
+    const res = await fetch.post({
+        url: `${apiUrl}/recurring_event/update`,
+        data: props
+    })
+
+    if (res.data.result === 'error') {
+        throw new Error(res.data.message)
+    }
 }
 
 export interface Marker {
@@ -3994,7 +4247,7 @@ export async function queryMarkers(props: {
 
     const doc = gql`
         query MyQuery {
-          markers(where: {${variables}, status: {_neq: "removed"}} order_by: {${sortStr}}) {
+          markers(where: {${variables} ,status: {_nin: ["pending", "removed"]}} order_by: {${sortStr}}) {
           voucher_id
           voucher {
             id
@@ -4017,8 +4270,11 @@ export async function queryMarkers(props: {
             event {
               end_time
               start_time 
+              host_info
+              notes
               id
               tags
+              status
               location
               formatted_address
               participants {
@@ -4204,10 +4460,46 @@ export async function zupassLogin(props: {
     zupass_product_id: string,
     email: string,
     next_token: string
+    host?: string,
 }) {
     const res = await fetch.post({
         url: `${apiUrl}/profile/signin_with_zupass`,
-        data: props
+        data: {...props, app: props.host, address_source: 'zupass'}
+    })
+
+    if (res.data.result === 'error') {
+        throw new Error(res.data.message)
+    }
+
+    return res.data.auth_token as string
+}
+
+export async function farcasterLogin(props: {
+    far_fid: number,
+    far_address: string,
+    next_token: string
+    host?: string,
+}) {
+    const res = await fetch.post({
+        url: `${apiUrl}/profile/signin_with_farcaster`,
+        data: {...props, app: props.host, address_source: 'farcaster'}
+    })
+
+    if (res.data.result === 'error') {
+        throw new Error(res.data.message)
+    }
+
+    return res.data.auth_token as string
+}
+
+export async function solanaLogin(props: {
+    sol_address: string,
+    next_token: string,
+    host?: string
+}) {
+    const res = await fetch.post({
+        url: `${apiUrl}/profile/signin_with_solana`,
+        data: {...props, app: props.host, address_source: 'solana'}
     })
 
     if (res.data.result === 'error') {
@@ -4278,6 +4570,7 @@ export interface Voucher {
     sender_id: number,
     badgelets: Badgelet[]
     strategy: 'code' | 'account'
+    receiver_address: string | null
 }
 
 export async function getPendingBadges(profile_id: number, page = 1) {
@@ -4287,11 +4580,30 @@ export async function getPendingBadges(profile_id: number, page = 1) {
     return res.vouchers as Voucher[]
 }
 
-export async function queryVoucherDetail(id: number) {
+export async function queryVoucherDetail(id?: number, badge_id?: number, receiver_id?: number, canClaim?: boolean) {
+    let variables = ''
+
+    if (id) {
+        variables += `id: {_eq: "${id}"},`
+    }
+
+    if (badge_id) {
+        variables += `badge_id: {_eq: "${badge_id}"},`
+    }
+
+    if (receiver_id) {
+        variables += `receiver_id: {_eq: "${receiver_id}"},`
+    }
+
+    if (canClaim) {
+        variables += `counter: {_neq: 0},`
+    }
+
     const doc = gql`query MyQuery {
-      vouchers(where: {id: {_eq: "${id}"}}) {
+      vouchers(where: {${variables}}) {
         id
         strategy
+        receiver_address
         badge_id
         badge {
           badge_type
@@ -4501,6 +4813,271 @@ export async function queryComment(props: {
     const res: any = await request(graphUrl, doc)
 
     return res.chat_messages as Comment[]
+}
+
+export async function requestToBeIssuer(props: {
+    auth_token: string,
+    group_id: number,
+    message: string,
+    role: string
+}) {
+    checkAuth(props)
+
+    const res = await fetch.post({
+        url: `${apiUrl}/group/request_invite`,
+        data: props
+    })
+}
+
+
+export async function acceptRequest(props: {
+    auth_token: string,
+    group_invite_id: number,
+}) {
+    checkAuth(props)
+
+    const res = await fetch.post({
+        url: `${apiUrl}/group/accept_request`,
+        data: props
+    })
+}
+
+export async function getProfileBatch(usernames: string[]) {
+    const doc = gql`query MyQuery @cached {
+          profiles(where: {username: {_in:${JSON.stringify(usernames)}}}) {
+            id,
+            username,
+            nickname,
+            image_url,
+            sol_address
+          }
+        }
+        `
+    const res: any = await request(graphUrl, doc)
+    return res.profiles as ProfileSimple[]
+}
+
+export async function setEventStatus(props: {
+    auth_token: string,
+    id: number,
+    status: string
+}) {
+    checkAuth(props)
+
+    const res = await fetch.post({
+        url: `${apiUrl}/event/set_status`,
+        data: props
+    })
+
+    return res.data.event as Event
+}
+
+export interface Activity {
+    id: number,
+    created_at: string,
+    action: string,
+    has_read: boolean,
+    initiator: ProfileSimple,
+    item_id: number,
+    receiver_id: number | null
+}
+
+export async function queryActivities(props: {
+    page: number,
+    page_size?: number,
+    initiator_id?: number,
+    receiver_id?: number,
+    has_read?: boolean
+}) {
+    let variables = ''
+    if (props.initiator_id) {
+        variables += `, initiator_id: {_eq: ${props.initiator_id}},`
+    }
+    if (props.receiver_id) {
+        variables += `, receiver_id: {_eq: ${props.receiver_id}},`
+    }
+    if (props.has_read !== undefined) {
+        variables += `, has_read: {_eq: ${props.has_read}},`
+    }
+
+    const pageSize = props.page_size || 10
+
+    const doc = gql`query MyQuery {
+        activities(where: {${variables} _or: [{action: {_eq: "voucher/send_badge"}}]} limit: ${pageSize} offset: ${(props.page- 1) * pageSize}  order_by: {created_at: desc}) {
+                    data
+                    action
+                    created_at
+                    id
+                    has_read
+                    initiator {
+                      id
+                      image_url
+                      nickname
+                      username
+                    }
+                    item_class_id
+                    item_id
+                    item_type
+                    memo
+                    receiver_address
+                    receiver_id
+                    receiver_type
+                    target_id
+                    target_type
+                  }
+    }`
+
+    const res: any = await request(graphUrl, doc)
+    return res.activities as Activity[]
+}
+
+export async function setActivityRead (props: {ids: number[], auth_token: string}) {
+    checkAuth(props)
+
+    const res = await fetch.post({
+        url: `${apiUrl}/activity/set_read_status`,
+        data: props
+    })
+}
+
+export interface PopupCity {
+    id: number
+    image_url: string | null
+    location: string | null
+    start_date: string | null
+    title: string
+    updated_at:  string | null
+    website: string | null
+    created_at: string | null
+    end_date: string | null
+    group_id: string | null,
+    group: ProfileSimple
+    group_tags: string[] | null
+}
+
+export async function queryPopupCity ({page = 1, page_size = 10}: {page?: number, page_size?: number}) {
+    const doc = gql`
+        query MyQuery {
+          popup_cities(offset: ${(page - 1 ) * page_size}, limit: ${page_size}, order_by: {id: desc}) {
+            id
+            group_tags
+            image_url
+            location
+            start_date
+            title
+            updated_at
+            website
+            created_at
+            end_date
+            group_id
+            group {
+              image_url
+              id
+              nickname
+              username
+              banner_image_url
+              map_enabled
+            }
+          }
+    }
+    `
+
+    const res: any = await request(graphUrl, doc)
+    return res.popup_cities as PopupCity[]
+}
+
+export async function popupCityDetail (id: number) {
+    const doc = gql`
+        query MyQuery {
+          popup_cities(where: {id: {_eq: ${id}}}, order_by: {id: desc}) {
+            id
+            image_url
+            location
+            start_date
+            title
+            updated_at
+            website
+            created_at
+            end_date
+            group_id
+            group {
+              image_url
+              id
+              nickname
+              username
+              banner_image_url
+              map_enabled
+            }
+        }
+    }
+    `
+
+    const res: any = await request(graphUrl, doc)
+    return res.popup_cities[0] as PopupCity || null
+}
+
+export async function memberCount (group_ids: number[]) {
+    let queryItem = ''
+    group_ids.forEach((item) => {
+        queryItem = queryItem + `_${item}: memberships_aggregate(where: {group: {id: {_eq: "${item}"}}}) {aggregate {count}}
+        `
+    })
+
+    const doc = `query MyQuery @cached {
+        ${queryItem}
+    }`
+
+    const res: any = await request(graphUrl, doc)
+    const keys = Object.keys(res)
+
+    const res_format = keys.map((item, index) => {
+        return {
+            group_id: Number(item.replace('_', '')),
+            count: res[item].aggregate.count
+        }
+    })
+
+    return res_format
+}
+
+export async function groupComingEventCount (group_ids: number[]) {
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    let queryItem = ''
+    group_ids.forEach((item) => {
+        queryItem = queryItem + `_${item}: events_aggregate(where: {group: {id: {_eq: "${item}"}}, end_time: {_gt: "${today.toISOString()}"}}) {aggregate {count}}
+        `
+    })
+
+    const doc = `query MyQuery @cached {
+        ${queryItem}
+    }`
+
+    const res: any = await request(graphUrl, doc)
+    const keys = Object.keys(res)
+
+    const res_format = keys.map((item, index) => {
+        return {
+            group_id: Number(item.replace('_', '')),
+            count: res[item].aggregate.count
+        }
+    })
+
+    return res_format
+}
+
+export async function userManageGroups (userid: number) {
+    const doc = `query MyQuery {
+        memberships(where: {profile_id: {_eq: ${userid}}, role: {_in: ["owner", "manager"]}}) {
+            group {
+                id
+                }
+        }
+    }`
+
+    const res: any = await request(graphUrl, doc)
+
+    return res.memberships.map((item: any) => item.group.id) as number[]
 }
 
 export async function combine(props: {

@@ -7,6 +7,7 @@ import solas, {queryVoucherDetail} from '@/service/solas'
 import useIssueBadge from '@/hooks/useIssueBadge'
 import LangContext from '@/components/provider/LangProvider/LangContext'
 import {useRouter, useParams} from "next/navigation";
+import useSafePush  from "@/hooks/useSafePush";
 
 function Home() {
     const {user} = useContext(UserContext)
@@ -29,6 +30,7 @@ function Home() {
     const params = useParams()
     const startIssueBadge = useIssueBadge()
     const {lang} = useContext(LangContext)
+    const {safePush} = useSafePush()
 
     useEffect(() => {
         async function showBadgeletDetail() {
@@ -92,7 +94,7 @@ function Home() {
             }, 500)
         }
 
-        if (params?.groupId && params?.inviteId) {
+        if (params?.inviteId) {
             clean('show invite detail')
             setTimeout(() => {
                 showInviteDetail()
@@ -165,7 +167,7 @@ function Home() {
             unload()
             startIssueBadge({badges: badges.data})
         } else if (!user.userName && user.authToken) {
-            router.push('/regist')
+            safePush('/regist')
         } else {
             openConnectWalletDialog()
         }

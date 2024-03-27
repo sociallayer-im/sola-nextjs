@@ -8,5 +8,6 @@ export default function ProfilePage(props: any) {
 export const getServerSideProps: any = (async (context: any) => {
     const username = context.params?.username
     const profile = await getProfile({username})
+
     return { props: { username:  context.params.username, profile} }
 })

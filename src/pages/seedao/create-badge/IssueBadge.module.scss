@@ -63,6 +63,11 @@
   height: 30px;
   line-height: 30px;
   transition: background-color 0.2s ease-in-out;
+  cursor: pointer;
+
+  &:hover {
+    font-weight: 600;
+  }
 }
 
 .cover-type-item-active {
@@ -74,6 +79,7 @@
   background: #ECF2EE;
   font-weight: 600;
   transition: background-color 0.2s ease-in-out;
+  cursor: pointer;
 }
 
 .text-temp {

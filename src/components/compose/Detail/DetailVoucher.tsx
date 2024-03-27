@@ -24,12 +24,13 @@ import {useSearchParams, useRouter} from "next/navigation";
 
 
 export interface DetailBadgeletProps {
+    redirect?: boolean,
     voucher: Voucher,
     code?: string,
     handleClose: () => void
 }
 
-function DetailVoucher(props: DetailBadgeletProps) {
+function DetailVoucher({redirect=true, ...props}: DetailBadgeletProps) {
     const {lang} = useContext(LangContext)
     const {user} = useContext(UserContext)
     const router = useRouter()
@@ -42,7 +43,7 @@ function DetailVoucher(props: DetailBadgeletProps) {
 
     const isCreator = user.id === props.voucher.sender.id
     const isPresend = props.voucher.strategy === 'code'
-    const isBadgeletOwner = props.voucher.receiver && user.id === props.voucher.receiver.id
+    const isBadgeletOwner = (props.voucher.receiver && user.id === props.voucher.receiver.id) || props.voucher.receiver_address === user.wallet
 
     const formatTime = useTime()
 
@@ -106,7 +107,7 @@ function DetailVoucher(props: DetailBadgeletProps) {
             // emitUpdate(badgelet)
             props.handleClose()
             showToast('Accept success')
-            router.push(`/profile/${user.userName}`)
+            redirect && router.push(`/profile/${user.userName}`)
         } catch (e: any) {
             unload()
             console.log('[handleAccept]: ', e)
@@ -159,7 +160,7 @@ function DetailVoucher(props: DetailBadgeletProps) {
                 }}>
                 {lang['BadgeDialog_Btn_Accept']}
             </AppButton>
-        { !isPresend && !isBadgeletOwner &&
+        { isBadgeletOwner &&
             <AppButton onClick={() => {
                 handleReject()
             }}>

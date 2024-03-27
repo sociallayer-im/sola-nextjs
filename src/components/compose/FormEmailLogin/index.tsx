@@ -25,6 +25,10 @@ function EmailLoginForm (props: EmailLoginFormProps) {
     }
 
     const sendEmail  = async () => {
+        if (!account) {
+            return
+        }
+
         let requestFc: any = null
 
         if (props.inputType === 'binding') {

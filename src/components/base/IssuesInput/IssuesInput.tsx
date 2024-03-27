@@ -6,6 +6,7 @@ import DialogAddressList from '../Dialog/DialogAddressList/DialogAddressList'
 import DialogsContext from '../../provider/DialogProvider/DialogsContext'
 import usePicture from "../../../hooks/pictrue";
 import {Profile, searchDomain, getProfile} from "@/service/solas";
+import fetch from "@/utils/fetch";
 
 export interface IssuesInputProps {
     value: string[],
@@ -13,6 +14,33 @@ export interface IssuesInputProps {
     placeholder?: string
     allowAddressList?: boolean
     allowSearch?:boolean
+}
+
+interface ProfileWithSns  extends Profile {
+    sns?: string
+}
+
+const getProfileBySNS = async (params: string): Promise<ProfileWithSns | null> => {
+    params = params!.replace('.seedao', '') + '.seedao'
+    try {
+        const info = await fetch.get({
+            url: `https://sola.deno.dev/seedao/resolve/${params}`,
+            data: {}
+        })
+
+        if (info.data.address === '0x0000000000000000000000000000000000000000') {
+            return  null
+        }
+
+        const profile = await getProfile({address: info.data.address})
+
+        return profile ? {
+            ...profile,
+            sns: params
+        } : null
+    } catch (e: any) {
+        return null
+    }
 }
 
 function IssuesInput ({allowAddressList=true, allowSearch=true, ...props}: IssuesInputProps) {
@@ -52,26 +80,42 @@ function IssuesInput ({allowAddressList=true, allowSearch=true, ...props}: Issue
             }
 
             timeout.current = setTimeout(async () => {
-                const tast = [
+                const task = [
                     searchDomain({username: newValue.split('.')[0], page: 1}),
                     getProfile({username: newValue.split('.')[0]}),
-                    getProfile({email: newValue})
+                    // getProfileBySNS(newValue)
                 ]
 
-                const fetch = await Promise.all(tast)
+                const fetch = await Promise.all(task)
 
                 // const res1 = await searchDomain({username: newValue.split('.')[0], page: 1})
                 // const res2 = await getProfile({domain: newValue.split('.')[0]})
                 // const res3 = await getProfile({username: newValue.split('.')[0]})
                 // const res4 = await getProfile({email: newValue})
-                let res:Profile[] = []
-                const deduplication = [fetch[1], fetch[2], ...fetch[0] as any].map(item => {
+                let res:Profile[] = [];
+                [fetch[1], ...fetch[0] as any].map(item => {
                     if (item && !res.find(i => i.id === item.id)) {
                         res.push(item)
                     }
                 })
 
-                setSearchRes(res.splice(0,4) || [])
+                if (fetch[2]) {
+                    const target: any = fetch[2]
+                    let index = -1
+                    res.forEach((item, i) => {
+                        if (item.id === target.id) {
+                            index = i
+                        }
+                    })
+
+                    if (index !== -1) {
+                        res.splice(index, 1)
+                    }
+
+                    res = [target, ...res]
+                }
+
+                setSearchRes(res || [])
             }, 200)
         }
     }
@@ -142,9 +186,12 @@ function IssuesInput ({allowAddressList=true, allowSearch=true, ...props}: Issue
                         <div className={'shell'} onClick={e => { hideSearchRes() }}></div>
                         {
                             searchRes.map((item, index2) => {
-                                return <div className={'res-item'} key={index2} onClick={e => { onChange(item.domain || '', index); hideSearchRes()}}>
+                                const username = item.username?.startsWith('0x') ?
+                                    item.username!.substr(0, 6) + '...' + item.username!.substr(-4):
+                                    item.username
+                                return <div className={'res-item'} key={index2} onClick={e => { onChange(item.username || '', index); hideSearchRes()}}>
                                     <img src={item.image_url || defaultAvatar(item.id)} alt=""/>
-                                    <div>{item.nickname || item.username }({item.domain || item.email || item.address})</div>
+                                    <div>{ username }<span>{item.nickname ? `(${item.nickname})` : ''}</span><span>{(item as ProfileWithSns).sns ? `(${(item as ProfileWithSns).sns})` : ''}</span></div>
                                 </div>
                             })
                         }

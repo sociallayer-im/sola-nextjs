@@ -1,10 +1,8 @@
-import {useContext, useEffect, useState} from 'react'
+import React, {useContext, useEffect, useState} from 'react'
 import UserContext from '@/components/provider/UserProvider/UserContext'
 import {usePathname, useRouter} from 'next/navigation'
 import LangContext from '@/components/provider/LangProvider/LangContext'
 import HomeUserPanel from "@/components/base/HomeUserPanel/HomeUserPanel";
-import AppSubTabs from "@/components/base/AppSubTabs";
-import {Tab} from "baseui/tabs";
 import {
     Event,
     getGroupMembership,
@@ -17,14 +15,15 @@ import {
     queryMyEvent,
     Badge
 } from "@/service/solas";
-import ListMyAttentedEvent from "@/components/compose/ListMyAttentedEvent/ListMyAttentedEvent";
-import ListMyCreatedEvent from "@/components/compose/ListMyCreatedEvent/ListMyCreatedEvent";
 import ListEventVertical from "@/components/compose/ListEventVertical/ListEventVertical";
-import ListRecommendedEvent from "@/components/compose/ListRecommendedEvent/ListRecommendedEvent";
 import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
 import EventHomeContext from "@/components/provider/EventHomeProvider/EventHomeContext";
 import MaodaoListEventVertical from "@/components/maodao/MaodaoListEventVertical/ListEventVertical";
 import useIssueBadge from "@/hooks/useIssueBadge";
+import ListMyEvent from "@/components/compose/ListMyEvent/ListMyEvent";
+import ListPendingEvent from "@/components/compose/ListPendingEvent/ListPendingEvent";
+import Link from "next/link";
+import MapContext from "@/components/provider/MapProvider/MapContext";
 
 function Home(props: {badges: Badge[], initEvent?: Group, initList?: Event[], membership?: Membership[] }) {
     const {user} = useContext(UserContext)
@@ -35,45 +34,30 @@ function Home(props: {badges: Badge[], initEvent?: Group, initList?: Event[], me
     const {ready, joined, isManager, setEventGroup} = useContext(EventHomeContext)
     const eventGroup = useContext(EventHomeContext).eventGroup || props.initEvent || undefined
     const startIssueBadge = useIssueBadge()
+    const {MapReady} = useContext(MapContext)
 
-    const [tabIndex, setTabIndex] = useState('0')
-    const [showMyCreate, setShowMyCreate] = useState(true)
-    const [showMyAttend, setShowMyAttend] = useState(true)
-    const [myRegistered, setMyRegistered] = useState<Participants[]>([])
-
-    useEffect(() => {
-        const myEvent = async () => {
-            if (user.authToken) {
-                const res = await queryMyEvent({profile_id: user.id!})
-                const myRegistered = res.map((item: Participants) => item.event)
-                const res2 = await queryEvent({owner_id: user.id!, page: 1})
-                setMyRegistered(res)
-                setShowMyAttend(myRegistered.length > 0)
-                setShowMyCreate(res2.length > 0)
-                if (myRegistered.length > 0) {
-                    setTabIndex('0')
-                } else {
-                    setTabIndex('1')
-                }
-            } else {
-                setShowMyAttend(false)
-                setShowMyCreate(false)
-            }
-        }
-        myEvent()
-    }, [user.authToken])
+    const [mode, setMode] = useState<'public' | 'my' | 'request'>('public')
+    const [canPublish, setCanPublish] = useState(false)
+    const [pendingEvent, setPendingEvent] = useState<Event[]>([])
 
     useEffect(() => {
-        if (!showMyCreate) {
-            setTabIndex('0')
+        if (!user.userName) {
+            setCanPublish(false)
+            return
         }
-    }, [showMyCreate])
+
+        if (props.initEvent){
+            setCanPublish(isManager)
+        } else {
+            setCanPublish(false)
+        }
+    }, [joined, isManager, user.userName, props.initEvent])
 
     useEffect(() => {
-        if (!showMyAttend) {
-            setTabIndex('1')
+        if (!user.userName) {
+            setMode('public')
         }
-    }, [showMyAttend])
+    }, [user.userName])
 
     useEffect(() => {
         if (props.initEvent) {
@@ -95,7 +79,7 @@ function Home(props: {badges: Badge[], initEvent?: Group, initList?: Event[], me
     }
 
     const issueBadge = async () => {
-        if (user.userName) {
+        if (!user.userName) {
             openConnectWalletDialog()
             return
         }
@@ -109,54 +93,48 @@ function Home(props: {badges: Badge[], initEvent?: Group, initList?: Event[], me
     return <>
         <div className='home-page-event'>
             <div className={'home-page-event-wrapper'}>
-                <div className={'home-page-event-main'}>
-                    <HomeUserPanel membership={props.membership || []}/>
-                    {!!user.id &&
-                        <>
-                            {(showMyAttend || showMyCreate) &&
-                                <>
-                                    <div className={'center'}>
-                                        <div className={'module-title'} style={{marginBottom: '20px'}}>
-                                            {lang['Activity_My_Event']}
-                                        </div>
-                                    </div>
-                                    <div className={'center'}>
-                                        <AppSubTabs activeKey={tabIndex} renderAll onChange={({activeKey}) => {
-                                            setTabIndex(activeKey + '')
-                                        }}>
-                                            {showMyAttend ? <Tab title={lang['Activity_State_Registered']}>
-                                                <ListMyAttentedEvent/>
-                                            </Tab> : <></>}
+                <div className={`home-page-event-main`}>
+                    <HomeUserPanel group={props.initEvent} membership={props.membership || []}/>
 
-                                            {showMyCreate && !isMaodao ?
-                                                <Tab title={lang['Activity_State_Created']}>
-                                                    <ListMyCreatedEvent participants={myRegistered}/>
-                                                </Tab> : <></>
-                                            }
-                                        </AppSubTabs>
-                                    </div>
-                                </>
-                            }
-                        </>
-                    }
-                    {!!user.id &&
-                        <div className={'center'}>
-                            <ListRecommendedEvent/>
+
+                    { props.initEvent?.map_enabled && MapReady &&
+                        <div className="home-map">
+                            <iframe src={`/iframe/map?group=${props.initEvent?.username}`} frameBorder={0} width="100%" height="300" />
+                            <Link className={'map-link'} href={`/event/${props.initEvent?.username}/map`}>
+                                {'Browse in map'}
+                                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 15 15" fill="none">
+                                    <path d="M13.3637 8.4541V13.3632H8.45459" stroke="#333333" strokeWidth="1.63636" strokeLinecap="round" strokeLinejoin="round"/>
+                                    <path d="M1.00009 5.90918L1.00009 1.00009L5.90918 1.00009" stroke="#333333" strokeWidth="1.63636" strokeLinecap="round" strokeLinejoin="round"/>
+                                    <path d="M13.3637 13.3632L8.45459 8.4541" stroke="#333333" strokeWidth="1.63636" strokeLinecap="round" strokeLinejoin="round"/>
+                                    <path d="M1.00009 1.00009L5.90918 5.90918" stroke="#333333" strokeWidth="1.63636" strokeLinecap="round" strokeLinejoin="round"/>
+                                </svg>
+                            </Link>
                         </div>
                     }
 
-                    <div className={'center'}>
+                    <div className={`center ${mode === 'public' ? '' : 'hide'}`}>
                         {!isMaodao || pathname?.includes('event-home') ?
-                            <ListEventVertical participants={myRegistered} initData={props.initList || []}/>
-                            : <MaodaoListEventVertical participants={myRegistered}/>
+                            <ListEventVertical initData={props.initList || []}/>
+                            : <MaodaoListEventVertical />
                         }
                     </div>
+
+                    <div className={`center ${mode === 'my' ? '' : 'hide'}`}>
+                        <ListMyEvent />
+                    </div>
+
+                    { canPublish &&
+                        <div className={`center ${mode === 'request' ? '' : 'hide'}`}>
+                            <ListPendingEvent onload={(pendingEvent) => {
+                                setPendingEvent(pendingEvent)
+                            }}/>
+                        </div>
+                    }
 
                     {
                         !!user.id
                         && eventGroup
                         && ready
-                        && ((joined && (eventGroup as Group).can_publish_event === 'member') || (eventGroup as Group).can_publish_event === 'everyone' || isManager)
                         && <div className={'home-action-bar'}>
                             <div className={'create-event-btn'} onClick={e => {
                                 gotoCreateEvent()
@@ -179,8 +157,7 @@ function Home(props: {badges: Badge[], initEvent?: Group, initList?: Event[], me
                                        return <>
                                            {!!user.id
                                                && eventGroup
-                                               && ready
-                                               && ((joined && (eventGroup as Group).can_publish_event === 'member') || ((eventGroup as Group).can_publish_event === 'everyone' && user.userName) || isManager) &&
+                                               && ready &&
                                                <div className={'home-action-bar'}>
                                                    <div className={'create-event-btn'} onClick={e => {
                                                        gotoCreateEvent()
@@ -217,14 +194,14 @@ export const getServerSideProps: any = (async (context: any) => {
     if (tab === 'past') {
         res = await queryEvent({
             page: 1,
-            start_time_to: new Date().toISOString(),
+            end_time_lte: new Date().toISOString(),
             event_order: 'desc',
             group_id: targetGroup[0]?.id
         })
     } else {
         res = await queryEvent({
             page: 1,
-            start_time_from: new Date().toISOString(),
+            end_time_gte: new Date().toISOString(),
             event_order: 'asc',
             group_id: targetGroup[0]?.id
         })

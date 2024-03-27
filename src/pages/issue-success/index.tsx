@@ -9,6 +9,7 @@ import usePicture from '../../hooks/pictrue'
 import usePageHeight from '../../hooks/pageHeight'
 import DialogsContext from "../../components/provider/DialogProvider/DialogsContext";
 import ShareQrcode, {ShareQrcodeProp} from "../../components/compose/ShareQrcode/ShareQrcode";
+import AppButton from "@/components/base/AppButton/AppButton";
 
 function IssueSuccessPage(props: any) {
     const searchParams = useSearchParams()
@@ -22,10 +23,10 @@ function IssueSuccessPage(props: any) {
     const [group, setGroup] = useState<Group | null>(null)
 
     // presend成功传参
-    const voucher_id = props.voucher || searchParams.get('voucher')
-    const code = props.code || searchParams.get('code')
+    const voucher_id = props.voucher || searchParams?.get('voucher')
+    const code = props.code || searchParams?.get('code')
 
-    const inviteId = props.invite || searchParams.get('invite')
+    const inviteId = props.invite || searchParams?.get('invite')
 
     useEffect(() => {
         async function fetchInfo() {
@@ -205,6 +206,11 @@ function IssueSuccessPage(props: any) {
                             <span>{lang['IssueFinish_CopyLink']}</span>
                         </div>
                     </div>}
+                </div>
+                <div className='cards'>
+                    {!!info && <AppButton special onClick={e => {
+                        window.location.href = group ? `/group/${group?.username}` : (user.userName ? `/profile/${user.userName}` : '/')
+                    }}>{group ? lang['Back_To_Group_Page'] : lang['Back_To_Profile_Page']}</AppButton> }
                 </div>
             </div>
         </>

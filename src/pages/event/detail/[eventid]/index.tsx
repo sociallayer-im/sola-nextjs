@@ -7,6 +7,7 @@ import {
     joinEvent,
     Participants,
     Profile,
+    ProfileSimple,
     punchIn,
     queryBadgeDetail,
     queryEventDetail,
@@ -14,7 +15,7 @@ import {
     queryUserGroup
 } from "@/service/solas";
 import LangContext from "@/components/provider/LangProvider/LangContext";
-import {useTime3} from "@/hooks/formatTime";
+import {useTime2, useTime3} from "@/hooks/formatTime";
 import EventLabels from "@/components/base/EventLabels/EventLabels";
 import usePicture from "@/hooks/pictrue";
 import ReasonText from "@/components/base/EventDes/ReasonText";
@@ -34,6 +35,9 @@ import Link from "next/link";
 import MapContext from "@/components/provider/MapProvider/MapContext";
 import ImgLazy from "@/components/base/ImgLazy/ImgLazy";
 import EventDefaultCover from "@/components/base/EventDefaultCover";
+import {Swiper, SwiperSlide} from 'swiper/react'
+import {FreeMode, Mousewheel} from "swiper";
+import EventNotes from "@/components/base/EventNotes/EventNotes";
 
 import * as dayjsLib from "dayjs";
 import Empty from "@/components/base/Empty";
@@ -44,6 +48,7 @@ const dayjs: any = dayjsLib
 dayjs.extend(utc)
 dayjs.extend(timezone)
 
+
 function EventDetail(props: { event: Event | null, appName: string, host: string }) {
     const router = useRouter()
     const [event, setEvent] = useState<Event | null>(props.event || null)
@@ -51,19 +56,21 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
     const params = useParams()
     const {lang} = useContext(LangContext)
     const formatTime = useTime3()
+    const formatTime2 = useTime2()
     const {defaultAvatar} = usePicture()
     const {user} = useContext(userContext)
     const {showLoading, showToast, showEventCheckIn, openConnectWalletDialog} = useContext(DialogsContext)
     const {addToCalender} = useCalender()
     const {showImage} = useShowImage()
     const {copy} = useCopy()
-    const {eventGroups, setEventGroup, eventGroup, ready, isManager} = useContext(EventHomeContext)
+    const {setEventGroup, eventGroup, ready, isManager} = useContext(EventHomeContext)
     const {getMeetingName, getUrl} = useGetMeetingName()
     const {MapReady} = useContext(MapContext)
 
 
     const [tab, setTab] = useState(1)
     const [isHoster, setIsHoster] = useState(false)
+    const [isOperator, setIsOperator] = useState(false)
     const [isJoined, setIsJoined] = useState(false)
     const [canceled, setCanceled] = useState(false)
     const [outOfDate, setOutOfDate] = useState(false)
@@ -76,6 +83,9 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
     const [canAccess, setCanAccess] = useState(false)
     const [eventSite, setEventSite] = useState<any | null>(null)
     const [showMap, setShowMap] = useState(false)
+
+    const [cohost, setCohost] = useState<ProfileSimple[]>([])
+    const [speaker, setSpeaker] = useState<ProfileSimple[]>([])
 
     async function fetchData() {
         if (params?.eventid) {
@@ -136,14 +146,24 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
 
             let profile: Profile | Group | null = null
             if (res.host_info) {
-                const isDomain = res.host_info && res.host_info.indexOf('.') > -1
-
-                if (!isDomain) {
+                if (!res.host_info.startsWith('{')) {
                     profile = await queryGroupDetail(Number(res.host_info))
-                }
-
-                if (profile) {
-                    setHoster(profile)
+                    if (profile) {
+                        setHoster(profile)
+                    }
+                } else {
+                    const info = JSON.parse(res.host_info)
+                    if (info.speaker) {
+                        setSpeaker(info.speaker)
+                    }
+                    if (info.co_host) {
+                        setCohost(info.co_host)
+                    }
+                    if (info.group_host) {
+                        setHoster(info.group_host)
+                    } else {
+                        setHoster(res.owner as Profile)
+                    }
                 }
             } else {
                 setHoster(res.owner as Profile)
@@ -174,26 +194,32 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
 
     useEffect(() => {
         if (event && event.group_id && ready) {
-            const group: any = eventGroups.find(item => item.id === event.group_id)
-            if (!group) {
-                router.push('/error')
-                return
-            }
+            queryGroupDetail(event.group_id).then((group) => {
+                if (!group) {
+                    console.warn('no group found')
+                    router.push('/')
+                    return
+                }
 
-            setEventGroup(group as Group)
+                setEventGroup(group as Group)
 
-            const selectedGroup = group as Group
-            if ((selectedGroup as Group).can_join_event === 'everyone') {
-                setCanAccess(true)
-                return
-            } else if (user.id && (selectedGroup as Group).can_join_event === 'member') {
-                const myGroup = queryUserGroup({profile_id: user.id}).then(res => {
-                    const joined = res.find(item => item.id === selectedGroup.id)
-                    setCanAccess(!!joined)
-                })
-            } else {
-                setCanAccess(false)
-            }
+                const selectedGroup = group as Group
+                if (user.id && event.operators?.includes(user.id)) {
+                    setIsOperator(true)
+                    setCanAccess(true)
+                } else if ((selectedGroup as Group).can_join_event === 'everyone') {
+                    setCanAccess(true)
+                    return
+                } else if (user.id && (selectedGroup as Group).can_join_event === 'member') {
+                    const myGroup = queryUserGroup({profile_id: user.id}).then(res => {
+                        const joined = res.find(item => item.id === selectedGroup.id)
+                        setCanAccess(!!joined)
+                    })
+                } else {
+                    setCanAccess(false)
+                }
+            })
+
         }
 
     }, [event, ready, user.id])
@@ -205,7 +231,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
     }, [hoster, user.id])
 
     const gotoModify = () => {
-        router.push(`/event/${eventGroup?.username}/edit/${event?.id}`)
+        router.push(`/event/edit/${event?.id}`)
     }
 
     const goToProfile = (username: string, isGroup?: boolean) => {
@@ -271,6 +297,21 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
             {event?.content &&
                 <meta name="description" property="og:description" content={event?.content.slice(0, 300) + '...'}/>
             }
+
+            {
+                !!event &&
+                <>
+                    <meta name="fc:frame" content="vNext"/>
+                    {!!event.cover_url &&
+                        <meta name="fc:frame:image" content={event.cover_url!}/>
+                    }
+                    <meta name="fc:frame:input:text"
+                          content={event.title + ' 📅' + formatTime2(event.start_time!, event.timezone!) + `${event.location ? ` 📍${event.location}` : ''}`}/>
+                    <meta name="fc:frame:button:1" content="Join"/>
+                    <meta name="fc:frame:button:1:action" content="post_redirect"/>
+                    <meta name="fc:frame:post_url" content={`${process.env.NEXT_PUBLIC_HOST}/api/frame/${event.id}`}/>
+                </>
+            }
             <title>{`${event?.title} | ${props.appName}`}</title>
         </Head>
 
@@ -279,14 +320,17 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
             <div className={'event-detail'}>
                 <div className={'event-detail-head'}>
                     <PageBack
+                        to={`/event/${eventGroup?.username}`}
                         menu={() =>
                             <div className={'event-top-btn'}>
-                                {(isHoster || isManager) && !canceled &&
-                                    <Link href={`/event/${eventGroup?.username}/edit/${event?.id}`}>
+                                {(isHoster || isManager || isOperator) && !canceled &&
+                                    <Link href={`/event/edit/${event?.id}`}>
                                         <i className={'icon-edit'}></i>{lang['Activity_Detail_Btn_Modify']}</Link>
                                 }
-                                <Link href={`/event/success/${event?.id}`}>
-                                    <img src="/images/icon_share.svg" alt=""/>{lang['IssueFinish_Title']}</Link>
+                                {event?.status !== 'pending' &&
+                                    <Link href={`/event/success/${event?.id}`}>
+                                        <img src="/images/icon_share.svg" alt=""/>{lang['IssueFinish_Title']}</Link>
+                                }
                             </div>}
                     />
                 </div>
@@ -295,14 +339,18 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                         <div className={'cover'}>
                             {
                                 event.cover_url ?
-                                    <ImgLazy src={event.cover_url} alt="" width={624} />
-                                    : <EventDefaultCover  event={event} width={324} height={324}/>
+                                    <ImgLazy src={event.cover_url} alt="" width={624}/>
+                                    : <EventDefaultCover event={event} width={324} height={324}/>
                             }
                         </div>
 
                         <div className={'detail'}>
                             <div className={'center'}>
-                                <div className={'name'}>{event.title}</div>
+                                <div className={'name'}>
+                                    {event.status === 'pending' && <span className={'pending'}>Pending</span>}
+                                    {event.status === 'cancel' && <span className={'cancel'}>Canceled</span>}
+                                    {event.title}
+                                </div>
 
                                 {event.tags && !!event.tags.length &&
                                     <div className={'label'}>
@@ -312,19 +360,57 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
 
                                 {!!hoster &&
                                     <div className={'hoster'}>
-                                        <div className={'center'}>
-                                            <div className={'host-item'}
-                                                 onClick={e => {
-                                                     !!hoster?.username && goToProfile(hoster.username, !!(hoster as Group).creator || undefined)
-                                                 }}>
-                                                <img src={hoster.image_url || defaultAvatar(hoster.id)} alt=""/>
-                                                <div>
-                                                    <div
-                                                        className={'host-name'}>{hoster.nickname || hoster.username}</div>
-                                                    <div>{lang['Activity_Form_Hoster']}</div>
+                                        <Swiper
+                                            direction={'horizontal'}
+                                            slidesPerView={'auto'}
+                                            freeMode={true}
+                                            mousewheel={true}
+                                            modules={[FreeMode, Mousewheel]}
+                                            spaceBetween={12}>
+                                            <SwiperSlide className={'slide'}>
+                                                <div className={'host-item'}
+                                                     onClick={e => {
+                                                         !!hoster?.username && goToProfile(hoster.username, !!(hoster as Group).creator || undefined)
+                                                     }}>
+                                                    <img src={hoster.image_url || defaultAvatar(hoster.id)} alt=""/>
+                                                    <div>
+                                                        <div
+                                                            className={'host-name'}>{hoster.nickname || hoster.username}</div>
+                                                        <div>{lang['Activity_Form_Hoster']}</div>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        </div>
+                                                {cohost.map((item, index) => {
+                                                    return <div className={'host-item'} key={item.username! + index}
+                                                                onClick={e => {
+                                                                    !!item?.username && goToProfile(item.username)
+                                                                }}>
+                                                        <img src={item.image_url || defaultAvatar(item.id)} alt=""/>
+                                                        <div>
+                                                            <div
+                                                                className={'host-name'}>{item.nickname || item.username}</div>
+                                                            <div>{'Co-host'}</div>
+                                                        </div>
+                                                    </div>
+                                                })
+                                                }
+
+                                                {speaker.map((item, index) => {
+                                                    return <div className={'host-item'} key={item.username! + index}
+                                                                onClick={e => {
+                                                                    !!item?.username && goToProfile(item.username)
+                                                                }}>
+                                                        <img src={item.image_url || defaultAvatar(item.id)} alt=""/>
+                                                        <div>
+                                                            <div
+                                                                className={'host-name'}>{item.nickname || item.username}</div>
+                                                            <div>{'Speaker'}</div>
+                                                        </div>
+                                                    </div>
+                                                })}
+                                            </SwiperSlide>
+
+
+                                        </Swiper>
                                     </div>
                                 }
 
@@ -427,7 +513,36 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                             </div>
 
                             <div className={'center'}>
-                                {user.userName && canAccess &&
+                                {!!event.external_url &&
+                                    <div className={'event-login-status'}>
+                                        <div className={'user-info'}>
+                                            <div>{'External url'}</div>
+                                        </div>
+                                        <div className={'des'}>{event.external_url}</div>
+                                        <div className={'event-action'}>
+                                            <AppButton
+                                                special
+                                                onClick={e => {
+                                                    const url = (event as any).external_url
+                                                    if ((event as any).external_url) {
+                                                        location.href = url
+                                                    }
+                                                }}>
+                                                {lang['Go_to_Event_Page']}</AppButton>
+                                        </div>
+                                    </div>
+                                }
+
+                                {!!event.padge_link &&
+                                    <div className={'event-login-status'}>
+                                        <Link className={'link'} href={event.padge_link} target={"_blank"}>
+                                            Click and get a badge of .bit
+                                            <ImgLazy src={'https://ik.imagekit.io/soladata/ag4z4mmm_oJ33HdkUX'} width={100} height={100} />
+                                        </Link>
+                                    </div>
+                                }
+
+                                {user.userName && canAccess && !event.external_url && event.status !== 'pending' &&
                                     <div className={'event-login-status'}>
                                         <div className={'user-info'}>
                                             <img src={user.avatar || defaultAvatar(user.id!)} alt=""/>
@@ -447,7 +562,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                         disabled>{lang['Activity_Detail_Btn_has_Cancel']}</AppButton>
                                                 }
 
-                                                {!canceled && isJoined && !outOfDate && !isHoster &&
+                                                {!canceled &&
                                                     <AppButton
                                                         onClick={e => {
                                                             addToCalender({
@@ -469,19 +584,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                     }}>{lang['Activity_Detail_Btn_Attend']}</AppButton>
                                                 }
 
-
-                                                {(isHoster || isManager) && !canceled &&
-                                                    <AppButton
-                                                        onClick={e => {
-                                                            handleHostCheckIn()
-                                                        }}>{
-                                                        event.badge_id
-                                                            ? lang['Activity_Host_Check_And_Send']
-                                                            : lang['Activity_Detail_Btn_Checkin']
-                                                    }</AppButton>
-                                                }
-
-                                                {!canceled && isJoined && !isHoster && !isManager && inCheckinTime &&
+                                                {!canceled && isJoined && !isHoster && !isManager && inCheckinTime && !isOperator &&
                                                     <AppButton
                                                         special
                                                         onClick={e => {
@@ -499,6 +602,19 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                         special>{lang['Activity_Detail_Btn_AttendOnline']}</AppButton>
                                                 }
                                             </div>
+
+                                            <div className={'center'}>
+                                                {(isHoster || isManager || isOperator) && !canceled &&
+                                                    <AppButton
+                                                        onClick={e => {
+                                                            handleHostCheckIn()
+                                                        }}>{
+                                                        event.badge_id
+                                                            ? lang['Activity_Host_Check_And_Send']
+                                                            : lang['Activity_Detail_Btn_Checkin']
+                                                    }</AppButton>
+                                                }
+                                            </div>
                                         </div>
 
                                         {!canAccess &&
@@ -510,6 +626,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                         }
                                     </div>
                                 }
+
 
                                 {!user.userName &&
                                     <div className={'center'}>
@@ -524,19 +641,21 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                 }
                             </div>
 
-
                             <div className={'event-tab'}>
                                 <div className={'tab-titles'}>
                                     <div className={'center'}>
                                         <div className={tab === 1 ? 'tab-title active' : 'tab-title'}
                                              onClick={e => {
                                                  setTab(1)
-                                             }}><div>{lang['Activity_Des']}</div></div>
-                                        <div className={'split'} />
+                                             }}>
+                                            <div>{lang['Activity_Des']}</div>
+                                        </div>
+                                        <div className={'split'}/>
                                         <div className={tab === 2 ? 'tab-title active' : 'tab-title'}
                                              onClick={e => {
                                                  setTab(2)
-                                             }}><div>{lang['Activity_Participants']}({participants.length})</div>
+                                             }}>
+                                            <div>{lang['Activity_Participants']}({participants.length})</div>
                                         </div>
                                     </div>
                                 </div>
@@ -587,6 +706,10 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                     </div>
                                                 }
                                                 <ReasonText className={'event-des'} text={event.content}/>
+
+                                                {!!event.notes &&
+                                                    <EventNotes hide={!isJoined && !isHoster} notes={event.notes}/>
+                                                }
                                             </div>
                                         </div>}
                                     {tab === 2 &&
@@ -609,7 +732,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                 }
 
                                                 {!participants.length &&
-                                                    <Empty />
+                                                    <Empty/>
                                                 }
                                             </div>
                                         </div>
@@ -628,12 +751,34 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                         <div className={'cover'}>
                             {
                                 event.cover_url ?
-                                    <ImgLazy src={event.cover_url} alt="" width={624} />
-                                    : <EventDefaultCover  event={event} width={324} height={324}/>
+                                    <ImgLazy src={event.cover_url} alt="" width={624}/>
+                                    : <EventDefaultCover event={event} width={324} height={324}/>
                             }
                         </div>
                         <div className={'center'}>
-                            {user.userName && canAccess &&
+
+                            {!!event.external_url &&
+                                <div className={'event-login-status'}>
+                                    <div className={'user-info'}>
+                                        <div>{'External url'}</div>
+                                    </div>
+                                    <div className={'des'}>{event.external_url}</div>
+                                    <div className={'event-action'}>
+                                        <AppButton
+                                            special
+                                            onClick={e => {
+                                                const url = (event as any).external_url
+                                                if ((event as any).external_url) {
+                                                    location.href = url
+                                                }
+                                            }}>
+                                            {lang['Go_to_Event_Page']}</AppButton>
+                                    </div>
+                                </div>
+                            }
+
+
+                            {user.userName && canAccess && event.status !== 'pending' && !props.event?.external_url &&
                                 <div className={'event-login-status'}>
                                     <div className={'user-info'}>
                                         <img src={user.avatar || defaultAvatar(user.id!)} alt=""/>
@@ -645,61 +790,54 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                     }
 
                                     <div className={'event-action'}>
-                                            {canceled &&
-                                                <AppButton disabled>{lang['Activity_Detail_Btn_has_Cancel']}</AppButton>
-                                            }
+                                        {canceled &&
+                                            <AppButton disabled>{lang['Activity_Detail_Btn_has_Cancel']}</AppButton>
+                                        }
 
-                                            {!canceled && isJoined && !outOfDate && !isHoster &&
-                                                <AppButton
-                                                    onClick={e => {
-                                                        addToCalender({
-                                                            name: event!.title,
-                                                            startTime: event!.start_time!,
-                                                            endTime: event!.end_time!,
-                                                            location: eventSite?.title || event!.location || '',
-                                                            details: event!.content,
-                                                            url: window.location.href
-                                                        })
-                                                    }}>
-                                                    <i className="icon-calendar" style={{marginRight: '8px'}}/>
-                                                    {lang['Activity_Detail_Btn_add_Calender']}</AppButton>
-                                            }
+                                        {!canceled &&
+                                            <AppButton
+                                                onClick={e => {
+                                                    addToCalender({
+                                                        name: event!.title,
+                                                        startTime: event!.start_time!,
+                                                        endTime: event!.end_time!,
+                                                        location: eventSite?.title || event!.location || '',
+                                                        details: event!.content,
+                                                        url: window.location.href
+                                                    })
+                                                }}>
+                                                <i className="icon-calendar" style={{marginRight: '8px'}}/>
+                                                {lang['Activity_Detail_Btn_add_Calender']}</AppButton>
+                                        }
 
-                                            {!isJoined && !canceled && (inCheckinTime || notStart) &&
-                                                <AppButton special onClick={e => {
-                                                    handleJoin()
-                                                }}>{lang['Activity_Detail_Btn_Attend']}</AppButton>
-                                            }
+                                        {!isJoined && !canceled && (inCheckinTime || notStart) &&
+                                            <AppButton special onClick={e => {
+                                                handleJoin()
+                                            }}>{lang['Activity_Detail_Btn_Attend']}</AppButton>
+                                        }
 
+                                        {!canceled && isJoined && inProgress && !!event.meeting_url &&
+                                            <AppButton
+                                                onClick={e => {
+                                                    copy(event!.meeting_url!);
+                                                    showToast('Online location has been copied!')
+                                                    // window.open(getUrl(event!.online_location!) || '#', '_blank')
+                                                }}
+                                                special>{lang['Activity_Detail_Btn_AttendOnline']}</AppButton>
+                                        }
+                                    </div>
 
-                                            {(isHoster || isManager) && !canceled &&
-                                                <AppButton
-                                                    onClick={e => {
-                                                        handleHostCheckIn()
-                                                    }}>{
-                                                    event.badge_id
-                                                        ? lang['Activity_Host_Check_And_Send']
-                                                        : lang['Activity_Detail_Btn_Checkin']
-                                                }</AppButton>
-                                            }
-
-                                            {!canceled && isJoined && !isHoster && !isManager && inCheckinTime &&
-                                                <AppButton
-                                                    special
-                                                    onClick={e => {
-                                                        handleUserCheckIn()
-                                                    }}>{lang['Activity_Detail_Btn_Checkin']}</AppButton>
-                                            }
-
-                                            {!canceled && isJoined && inProgress && !!event.meeting_url &&
-                                                <AppButton
-                                                    onClick={e => {
-                                                        copy(event!.meeting_url!);
-                                                        showToast('Online location has been copied!')
-                                                        // window.open(getUrl(event!.online_location!) || '#', '_blank')
-                                                    }}
-                                                    special>{lang['Activity_Detail_Btn_AttendOnline']}</AppButton>
-                                            }
+                                    <div className={'event-action'}>
+                                        {(isHoster || isManager || isOperator) && !canceled &&
+                                            <AppButton
+                                                onClick={e => {
+                                                    handleHostCheckIn()
+                                                }}>{
+                                                event.badge_id
+                                                    ? lang['Activity_Host_Check_And_Send']
+                                                    : lang['Activity_Detail_Btn_Checkin']
+                                            }</AppButton>
+                                        }
                                     </div>
 
                                     {!canAccess &&
@@ -708,6 +846,15 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                             </div>
                                         </div>
                                     }
+                                </div>
+                            }
+
+                            {!!event.padge_link &&
+                                <div className={'event-login-status'}>
+                                    <Link className={'link'} href={event.padge_link} target={"_blank"}>
+                                        Click and get a badge of .bit
+                                        <ImgLazy src={'https://ik.imagekit.io/soladata/ag4z4mmm_oJ33HdkUX'} width={100} height={100} />
+                                    </Link>
                                 </div>
                             }
 

@@ -13,6 +13,8 @@ function ImgLazy(props: React.DetailedHTMLProps<React.ImgHTMLAttributes<HTMLImag
         if (inView) {
             setReady(true)
         }
+
+        setReady(true)
     }, [inView])
 
     const getSrc = (src?: string) => {
@@ -35,7 +37,7 @@ function ImgLazy(props: React.DetailedHTMLProps<React.ImgHTMLAttributes<HTMLImag
         }
     }
 
-    return (<img ref={ref} {...props} src={ready ? getSrc(props.src) : '/images/loading_image.jpg'} loading={'lazy'}/>)
+    return (<img ref={ref} {...props} src={ready ? getSrc(props.src) : '/images/loading_image.jpg'} />)
 }
 
 export default ImgLazy

@@ -21,38 +21,40 @@ function PageHeader () {
 
     return (
         <header className="pager-header">
-            <PageLogo />
-            <div className='pager-header-right-menu'>
+          <div className={'pager-header-center'}>
+              <PageLogo />
+              <div className='pager-header-right-menu'>
 
-                { showSearch &&
-                    <div className="header-search">
-                        <HeaderSearch onClose={() => {
-                            setShowSearch(false)
-                            const ifFallback = window.localStorage.getItem('searchfallback')
-                            if (ifFallback) {
-                                window.localStorage.removeItem('searchfallback')
-                                router.push(ifFallback)
-                            }
-                        }} />
-                    </div>
-                }
+                  { showSearch &&
+                      <div className="header-search">
+                          <HeaderSearch onClose={() => {
+                              setShowSearch(false)
+                              const ifFallback = window.localStorage.getItem('searchfallback')
+                              if (ifFallback) {
+                                  window.localStorage.removeItem('searchfallback')
+                                  router.push(ifFallback)
+                              }
+                          }} />
+                      </div>
+                  }
 
-                { !showSearch &&
-                    <>
-                        <div className="header-search">
-                            <i className='icon-search' onClick={() => { setShowSearch(true) } }></i>
-                        </div>
+                  { !showSearch &&
+                      <>
+                          <div className="header-search">
+                              <i className='icon-search' onClick={() => { setShowSearch(true) } }></i>
+                          </div>
 
-                        <div className='split'></div>
+                          <div className='split'></div>
 
-                        <LangSwitch />
+                          <LangSwitch />
 
-                        <div className='split'></div>
+                          <div className='split'></div>
 
-                        { !user.id ? <LoginBtn /> : <ProfileMenu />}
-                    </>
-                }
-            </div>
+                          { !user.id ? <LoginBtn /> : <ProfileMenu />}
+                      </>
+                  }
+              </div>
+          </div>
         </header>
     )
 }

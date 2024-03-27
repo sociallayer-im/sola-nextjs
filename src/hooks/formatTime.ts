@@ -21,9 +21,20 @@ export const formatTime = (dateString: string) => {
 }
 
 export const formatTimeWithTimezone = (dateString: string, timezone: string) => {
+    if (process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'vitalia') {
+        timezone = 'America/Tegucigalpa'
+    }
+
+    const localeTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone
     dateString = dateString.endsWith('Z') ? dateString : dateString + 'Z'
-    const diff = dayjs.tz('2023-01-01 00:00', timezone).diff(dayjs.tz('2023-01-01 00:00'), 'millisecond')
+    const offse1 = dayjs.tz(new Date(dateString).getTime() , localeTimezone).utcOffset()
+    const offse2 = dayjs.tz(new Date(dateString).getTime(), timezone).utcOffset()
+    const diff = (offse1 - offse2) * 60 * 1000
     return dayjs(new Date(new Date(dateString).getTime() - diff).toString()).format("YYYY.MM.DD HH:mm")
+
+    // dateString = dateString.endsWith('Z') ? dateString : dateString + 'Z'
+    // const diff = dayjs.tz(new Date(dateString).getTime(), timezone).diff(new Date(dateString).getTime(), 'millisecond')
+    // return dayjs(new Date(new Date(dateString).getTime() + diff).toString()).format("YYYY.MM.DD HH:mm")
 }
 
 function useTime() {
@@ -65,11 +76,15 @@ export function useTime2() {
         dateString = dateString.endsWith('Z') ? dateString : dateString + 'Z'
         timezone = timezone || 'UTC'
 
+        if (process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'vitalia') {
+            timezone = 'America/Tegucigalpa'
+        }
+
         // format like:THU, SEP 26 AT 9 PM
         const target = dayjs.tz(new Date(dateString).getTime(), timezone)
         const now = dayjs.tz(new Date().getTime(), timezone)
-        const isToday = target.date() === now.date()
-        const isTomorrow = target.date() - now.date() === 1
+        const isToday = target.date() === now.date() && target.month() === now.month() && target.year() === now.year()
+        const isTomorrow = target.date() - now.date() === 1 && target.month() === now.month() && target.year() === now.year()
 
         const week = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT']
         const month = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL',
@@ -101,16 +116,19 @@ export function useTime3() {
     const {lang, langType} = useContext(LangContext)
 
     return (from: string, to: string, timezone: string = 'UTC') => {
-        const fromStr = from.endsWith('Z') ? from : from + 'Z'
-        const toStr = to.endsWith('Z') ? to : to + 'Z'
+        const fromStr = from.endsWith('Z') || !from.includes(":") ? from : from + 'Z'
+        const toStr = to.endsWith('Z') || !from.includes(":") ? to : to + 'Z'
+
+        if (process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'vitalia') {
+            timezone = 'America/Tegucigalpa'
+        }
 
         const fromDate = dayjs.tz(new Date(fromStr).getTime(), timezone)
         const toDate = dayjs.tz(new Date(toStr).getTime(), timezone)
 
         const now = dayjs.tz(new Date().getTime(), timezone)
-        const isToday = fromDate.date() === now.date()
-        const isTomorrow = fromDate.date() - now.date() === 1
-
+        const isToday = fromDate.date() === now.date() && fromDate.month() === now.month() && fromDate.year() === now.year()
+        const isTomorrow = fromDate.date() - now.date() === 1 && fromDate.month() === now.month() && fromDate.year() === now.year()
 
         const f_mon = lang['Month_Name'][fromDate.month()].toUpperCase()
         const f_date = fromDate.date() + ''
@@ -119,8 +137,18 @@ export function useTime3() {
         const f_year = fromDate.year() + ''
         const f_day = lang['Day_Name'][fromDate.day()]
 
+        const t_mon = lang['Month_Name'][toDate.month()].toUpperCase()
+        const t_date = toDate.date() + ''
         const t_hour = toDate.hour() + ''
         const t_min = toDate.minute() + ''
+        const t_year = toDate.year() + ''
+        const t_day = lang['Day_Name'][toDate.day()]
+
+
+        const differentYear = f_year !== t_year
+        const differentMonth = t_mon !== f_mon || differentYear
+        const differentDate = t_date !== f_date || differentMonth || differentYear
+
 
         const utcOffset = fromDate.utcOffset() >= 0 ?
             '+' + fromDate.utcOffset() / 60 :
@@ -134,11 +162,57 @@ export function useTime3() {
 
         return {
             data: langType === 'cn'
-                ? `${todayOrTomorrow}${f_mon}${f_date.padStart(2, '0')}日 ${f_day}`
-                : `${todayOrTomorrow}${f_day}, ${f_mon} ${f_date.padStart(2, '0')}, ${f_year}`,
+                ? `${differentYear ? ' ' + f_year + ',': ''} ${todayOrTomorrow}${f_mon}${f_date.padStart(2, '0')}日 ${differentDate ? "" : f_day}${differentDate ? `- ${differentYear ? ' ' + t_year + ',': ''}${differentMonth ? t_mon : '' } ${t_date.padStart(2, '0')}日` : ''}`
+                : `${todayOrTomorrow}${f_day}, ${f_mon} ${f_date.padStart(2, '0')}${differentYear ? ' ,' + f_year : ''} ${differentDate ? `- ${t_day}, ${t_mon} ${t_date.padStart(2, '0')}${differentYear ? ' ,' + t_year: ''}` : ''}`,
 
             time: `${f_hour.padStart(2, '0')}:${f_min.padStart(2, '0')} — ${t_hour.padStart(2, '0')}:${t_min.padStart(2, '0')}  GMT${utcOffset}`
         }
+    }
+}
+
+export function useTime4 (from: string, to: string, timezone: string = 'UTC') {
+    const fromStr = from.endsWith('Z') ? from : from + 'Z'
+    const toStr = to.endsWith('Z') ? to : to + 'Z'
+
+
+    if (process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'vitalia') {
+        timezone = 'America/Tegucigalpa'
+    }
+
+    const fromDate = dayjs.tz(new Date(fromStr).getTime(), timezone)
+    const toDate = dayjs.tz(new Date(toStr).getTime(), timezone)
+
+    const now = dayjs.tz(new Date().getTime(), timezone)
+    const isToday = fromDate.date() === now.date() && fromDate.month() === now.month() && fromDate.year() === now.year()
+    const isTomorrow = fromDate.date() - now.date() === 1 && fromDate.month() === now.month() && fromDate.year() === now.year()
+
+    const week = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT']
+    const month = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL',
+        'AUG', 'SEP', 'OCT', 'NOV', 'DEC']
+
+    const f_mon = month[fromDate.month()].toUpperCase()
+    const f_date = fromDate.date() + ''
+    const f_hour = fromDate.hour() + ''
+    const f_min = fromDate.minute() + ''
+    const f_year = fromDate.year() + ''
+    const f_day = week[fromDate.day()]
+
+    const t_hour = toDate.hour() + ''
+    const t_min = toDate.minute() + ''
+
+    const utcOffset = fromDate.utcOffset() >= 0 ?
+        '+' + fromDate.utcOffset() / 60 :
+        fromDate.utcOffset() / 60
+
+    const todayOrTomorrow = isToday ?
+        'Today' + ' ' :
+        isTomorrow ?
+            'Tomorrow' + ' ':
+            ''
+
+    return {
+        data: `${todayOrTomorrow}${f_day}, ${f_mon} ${f_date.padStart(2, '0')}, ${f_year}`,
+        time: `${f_hour.padStart(2, '0')}:${f_min.padStart(2, '0')} — ${t_hour.padStart(2, '0')}:${t_min.padStart(2, '0')}  GMT${utcOffset}`
     }
 }
 

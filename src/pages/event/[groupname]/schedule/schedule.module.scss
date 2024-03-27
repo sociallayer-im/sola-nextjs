@@ -135,7 +135,7 @@
   align-items: center;
   justify-content: space-between;
   background: #fff;
-  padding-top: 20px;
+  padding-top: 16px;
 }
 
 .mouth {
@@ -197,8 +197,8 @@
 }
 
 .date-column {
-  max-width: 176px;
-  min-width: 176px;
+  max-width: 256px;
+  min-width: 256px;
   display: flex;
   flex-flow: column nowrap;
   min-height: 100%;
@@ -214,7 +214,7 @@
 
 .date-day {
   display: flex;
-  width: 181px;
+  width: 258px;
   padding: 19px 12px;
   align-items: center;
   box-sizing: border-box;
@@ -226,6 +226,10 @@
   line-height: 28px;
   justify-content: center;
   background: #fff;
+}
+
+.month {
+  margin-right: 10px;
 }
 
 .date {
@@ -334,7 +338,7 @@
 }
 
 .location-text {
-  max-width: 100px;
+  max-width: 80%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -413,6 +417,12 @@
   min-height: 100%;
 }
 
+.wap {
+  .timezone-selected {
+    display: none;
+  }
+}
+
 @media (max-width: 450px) {
   .create-btn-2 {
     display: flex;
@@ -434,5 +444,39 @@
 
   .create-btn {
     display: none;
+  }
+
+  .timezone-selected {
+    display: none;
+  }
+
+  .wap {
+    .timezone-selected {
+      display: block!important;
+      margin-left: 6px;
+    }
+  }
+}
+
+.timezone-selected {
+  :global(*) {
+    font-size: 12px!important;
+    padding-top: 0!important;
+    padding-bottom: 0!important;
+    background: none!important;
+    border: none!important;
+    outline: none;
+  }
+
+  :global(div[data-baseweb="select"]) {
+    align-items: center;
+    border-radius: 4px;
+    border: 0.5px solid var(--line-2-dark, #CECED3)!important;
+    background: var(--fill-1-light-disabled, #F8F9F8)!important;
+    color: var(--text-4-headline, #272928)!important;
+    font-size: 12px!important;;
+    cursor: pointer;
+    font-weight: 500;
+    margin-left: 8px;
   }
 }

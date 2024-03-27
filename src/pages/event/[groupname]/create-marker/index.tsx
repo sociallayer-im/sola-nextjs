@@ -47,8 +47,8 @@ function ComponentName() {
     const [titleError, setTitleError] = useState('')
     const [link, setLink] = useState('')
     const [cover, setCover] = useState('')
-    const [icon, setIcon] = useState<string | null>(markerTypeList2[0].pin)
-    const [category, setCategory] = useState<string>(markerTypeList2[0].category)
+    const [icon, setIcon] = useState<string | null>(markerTypeList2[2].pin)
+    const [category, setCategory] = useState<string>(markerTypeList2[2].category)
     const [content, setContent] = useState('')
     const [creator, setCreator] = useState<Profile | null>(null)
     const [badgeId, setBadgeId] = useState<number | null>(null)
@@ -67,6 +67,7 @@ function ComponentName() {
     const [formatAddress, setFormatAddress] = useState('')
     const [metadata, setMetadata] = useState('')
     const [ready, setReady] = useState(false)
+
 
     useEffect(() => {
         // owner 和 manager 可以使用 group badge
@@ -91,6 +92,7 @@ function ComponentName() {
             setIsOwner(false)
             setIsIssuer(false)
         }
+
 
     }, [eventGroup, user?.id])
 
@@ -188,7 +190,7 @@ function ComponentName() {
             setBusy(false)
             console.error(e)
             unload()
-            showToast('Create fail', 1000)
+            showToast('fail to create', 1000)
         }
     }
 
@@ -246,7 +248,7 @@ function ComponentName() {
         } catch (e: any) {
             console.error(e)
             unload()
-            showToast('Save fail', 1000)
+            showToast('fail to save', 1000)
             setBusy(false)
         }
     }
@@ -270,7 +272,7 @@ function ComponentName() {
                 } catch (e: any) {
                     console.error(e)
                     unload()
-                    showToast('Remove fail', 500)
+                    showToast('fail to remove', 500)
                 }
             }
         })
@@ -326,15 +328,12 @@ function ComponentName() {
         } else {
             setReady(true)
             if (searchParams?.get('type')) {
-                const key = searchParams.get('type') as string
+                const key = searchParams?.get('type') as string
                 const target = markerTypeList2.find((item) => item.category === key)
                 if (target) {
                     setIcon(target.pin)
                     setCategory(target.category)
                 }
-            } else {
-                setIcon(markerTypeList2[0].pin)
-                setCategory(markerTypeList2[0].category)
             }
         }
     }, [searchParams, params])
@@ -357,6 +356,7 @@ function ComponentName() {
                 <div className='create-badge-page-form'>
                     {!markerId &&
                         <SelectorMarkerType
+                            exclude={['share']}
                             onChange={(markerType) => {
                                 setCategory(markerType.category)
                                 setIcon(markerType.pin)

@@ -24,8 +24,8 @@ function GroupPage() {
     const {lang} = useContext(LangContext)
     const {user} = useContext(UserContext)
     const searchParams = useSearchParams()
-    const [selectedTab, setSelectedTab] = useState(searchParams.get('tab') || '0')
-    const [selectedSubtab, setSelectedSubtab] = useState(searchParams.get('subtab') || '0')
+    const [selectedTab, setSelectedTab] = useState(searchParams?.get('tab') || '0')
+    const [selectedSubtab, setSelectedSubtab] = useState(searchParams?.get('subtab') || '0')
     const [isGroupManager, setIsGroupManager] = useState(false)
     const [isGroupOwner, setIsGroupOwner] = useState(false)
     const {copyWithDialog} = useCopy()
@@ -33,16 +33,16 @@ function GroupPage() {
 
     // 为了实现切换tab时，url也跟着变化，而且浏览器的前进后退按钮也能切换tab
     useEffect(() => {
-        if (!searchParams.get('tab')) {
+        if (!searchParams?.get('tab')) {
             setSelectedTab('0')
         }
 
-        if (searchParams.get('tab')) {
-            setSelectedTab(searchParams.get('tab') || '0')
+        if (searchParams?.get('tab')) {
+            setSelectedTab(searchParams?.get('tab') || '0')
         }
 
-        if (searchParams.get('subtab')) {
-            setSelectedSubtab(searchParams.get('subtab') || '0')
+        if (searchParams?.get('subtab')) {
+            setSelectedSubtab(searchParams?.get('subtab') || '0')
         }
     }, [searchParams])
 

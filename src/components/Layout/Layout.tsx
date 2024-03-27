@@ -3,8 +3,8 @@ import { useStyletron } from 'baseui'
 import {useEffect, useContext} from 'react'
 import usePageHeight from '../../hooks/pageHeight'
 import userContext from "../provider/UserProvider/UserContext";
-import { useRouter } from 'next/navigation'
 import {ColorSchemeContext} from "@/components/provider/ColorSchemeProvider";
+import useSafePush from "@/hooks/useSafePush";
 
 const isMaodao = process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'maodao'
 
@@ -13,7 +13,7 @@ function Layout(props?: any) {
     const { windowHeight, heightWithoutNav } = usePageHeight()
     const { user } = useContext(userContext)
     const { theme } = useContext(ColorSchemeContext)
-    const router = useRouter()
+    const {safePush} = useSafePush()
 
     const wrapper = {
         width: '100%',
@@ -46,8 +46,11 @@ function Layout(props?: any) {
 
     // 如果用户已经登录，离开注册域名页面，将会被强制回到注册页面
     useEffect(() => {
-        if (!user.domain && user.authToken && !window.location.href.includes('regist')) {
-            router.push('/regist')
+        if (!user.userName && user.authToken && !window.location.href.includes('regist')) {
+            if (!window.location.href.includes('/login')) {
+                window.localStorage.setItem('fallback', window.location.href)
+            }
+            safePush('/regist')
         }
     })
 

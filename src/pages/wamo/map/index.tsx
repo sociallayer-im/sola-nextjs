@@ -310,7 +310,7 @@ function ComponentName(props: { markerType: string | null, eventGroup: Group} ) 
 
     useEffect(() => {
         if (user.id) {
-            queryMyEvent({profile_id: user.id || 0, page: 1}).then(res => {
+            queryMyEvent({profile_id: user.id || 0, page: 1, page_size: 100}).then(res => {
                 setParticipants(res)
             })
         }
@@ -349,7 +349,7 @@ function ComponentName(props: { markerType: string | null, eventGroup: Group} ) 
     }, [eventGroup?.id, selectedType, Marker, user.id])
 
     useEffect(() => {
-        if (searchParams && searchParams.get('type')) {
+        if (searchParams && searchParams?.get('type')) {
             setSelectedType(searchParams?.get('type')!)
         }
     }, [searchParams])

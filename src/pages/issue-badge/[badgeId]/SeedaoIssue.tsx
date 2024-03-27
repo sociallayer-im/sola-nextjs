@@ -1,16 +1,28 @@
 import styles from './IssueBadge.module.scss'
 import PageBack from "@/components/base/PageBack";
 import LangContext from "@/components/provider/LangProvider/LangContext";
-import {useContext, useEffect, useState} from "react";
+import {useContext, useEffect, useState, useRef} from "react";
 import AppInput from "@/components/base/AppInput";
 import AddressList from "@/components/base/AddressList/AddressList";
-import solas, {issueBatch, Profile, queryBadgeDetail, searchDomain, sendBadgeByWallet} from "@/service/solas";
+import solas, {
+    Badge,
+    getProfile,
+    issueBatch,
+    Profile,
+    queryBadgeDetail,
+    searchDomain,
+    sendBadgeByWallet
+} from "@/service/solas";
 import AppButton from "@/components/base/AppButton/AppButton";
 import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
 import {useParams, useRouter} from 'next/navigation'
 import userContext from "@/components/provider/UserProvider/UserContext";
 import {IssueTypeSelectorData} from "@/components/compose/IssueTypeSelectorBadge/IssueTypeSelectorBadge";
+import fetch from "@/utils/fetch";
 
+interface ProfileWithSns  extends Profile {
+    sns?: string
+}
 
 export function IssueBadge() {
     const {lang} = useContext(LangContext)
@@ -23,25 +35,89 @@ export function IssueBadge() {
     const [csvRow, setCsvRow] = useState<string[]>([])
     const [selectedCsvRow, setSelectedCsvRow] = useState<string[]>([])
     const [presendAmount, setPresendAmount] = useState(1)
+    const [badge, setBadge] = useState<Badge | null>(null)
+
+    const timeout = useRef<any>(null)
 
     const {showToast, showLoading} = useContext(DialogsContext)
     const {user} = useContext(userContext)
     const params = useParams()
     const router = useRouter()
 
-    useEffect(() => {
-        if (domainSearchKey) {
-            searchDomain({username: domainSearchKey, page: 1}).then(res => {
-                if (res) {
-                    setSearchRes(res)
-                }
+    const getProfileBySNS = async (params: string): Promise<ProfileWithSns | null> => {
+        params = params.replace('.seedao', '') + '.seedao'
+        try {
+            const info = await fetch.get({
+                url: `https://sola.deno.dev/seedao/resolve/${params}`,
+                data: {}
             })
+
+            if (info.data.address === '0x0000000000000000000000000000000000000000') {
+                return null
+            }
+
+            const profile = await getProfile({address: info.data.address})
+
+            return profile ? {
+                sns: params,
+                ...profile
+            } : null
+        } catch (e: any) {
+            return null
+        }
+    }
+
+    useEffect(() => {
+        timeout.current = setTimeout( async () => {
+            if (timeout.current) {
+                clearTimeout(timeout.current)
+            }
+
+            if (domainSearchKey) {
+                const task = [
+                    searchDomain({username: domainSearchKey, page: 1}),
+                    getProfile({username: domainSearchKey.split('.')[0]}),
+                    getProfileBySNS(domainSearchKey),
+                ]
+
+                const fetch = await Promise.all(task)
+                let res:Profile[] = [];
+                [fetch[1], ...fetch[0] as any].map(item => {
+                    if (item && !res.find(i => i.id === item.id)) {
+                        res.push(item)
+                    }
+                })
+
+                if (fetch[2]) {
+                    const target: any = fetch[2]
+                    let index = -1
+                    res.forEach((item, i) => {
+                        if (item.id === target.id) {
+                            index = i
+                        }
+                    })
+
+                    if (index !== -1) {
+                        res.splice(index, 1)
+                    }
+
+                    res = [target, ...res]
+                }
+
+                setSearchRes(res)
+            } else {
+                setSearchRes([])
+            }
+        }, 300)
+
+        return () => {
+            timeout.current && clearTimeout(timeout.current)
         }
     }, [domainSearchKey])
 
     useEffect(() => {
         if (params?.badgeId) {
-            const badge = queryBadgeDetail({id: Number(params.badgeId)})
+            const badge = queryBadgeDetail({id: Number(params!.badgeId)})
                 .then(res => {
                     setReason(res?.content || '')
                 })
@@ -54,7 +130,7 @@ export function IssueBadge() {
             return
         }
 
-        if (!params.badgeId) {
+        if (!params?.badgeId) {
             showToast('Invalid badge id')
             return
         }
@@ -62,7 +138,7 @@ export function IssueBadge() {
         const unload = showLoading()
         try {
             const vouchers = await issueBatch({
-                badgeId: Number(params.badgeId!),
+                badgeId: Number(params!.badgeId!),
                 issues: selectedProfiles.map(item => item.username!),
                 auth_token: user.authToken || '',
                 reason: reason
@@ -123,7 +199,7 @@ export function IssueBadge() {
             return
         }
 
-        if (!params.badgeId) {
+        if (!params?.badgeId) {
             showToast('Invalid badge id')
             return
         }
@@ -131,7 +207,7 @@ export function IssueBadge() {
         const unload = showLoading()
         try {
             const vouchers = await sendBadgeByWallet({
-                badge_id: Number(params.badgeId!),
+                badge_id: Number(params!.badgeId!),
                 receivers: selectedCsvRow,
                 auth_token: user.authToken || '',
                 reason: reason
@@ -152,7 +228,7 @@ export function IssueBadge() {
             return
         }
 
-        if (!params.badgeId) {
+        if (!params?.badgeId) {
             showToast('Invalid badge id')
             return
         }
@@ -161,7 +237,7 @@ export function IssueBadge() {
 
         try {
             const presend = await solas.createPresend({
-                badge_id: Number(params.badgeId!),
+                badge_id: Number(params!.badgeId!),
                 message: reason || '',
                 counter: presendAmount,
                 auth_token: user.authToken || ''
@@ -227,7 +303,7 @@ export function IssueBadge() {
                                                   setDomainSearchKey(e.target.value)
                                               }}
                                               clearable={true}
-                                              placeholder={'Please input the domain/username to search'}/>
+                                              placeholder={'Please input the domain/username/SeeDAO SNS to search'}/>
                                     {!!searchRes.length && domainSearchKey &&
                                         <div className={styles['search-res']}>
                                             <AddressList data={searchRes}
@@ -270,8 +346,17 @@ export function IssueBadge() {
                                             handleSend()
                                         }}>{lang['Send_The_Badge']}</AppButton>
                                         <div className={styles['later']} onClick={e => {
-                                            user.userName ? router.push(`/user/${user.userName}`)
-                                                : router.push(`/`)
+                                            if (badge && badge.group && badge.group.id) {
+                                                router.push(`/group/${badge.group.username}`)
+                                                return
+                                            }
+
+                                            if (user.userName) {
+                                                router.push(`/profile/${user.userName}`)
+                                                return
+                                            }
+
+                                            router.push(`/`)
                                         }}>
                                             {lang['MintFinish_Button_Later']}
                                         </div>

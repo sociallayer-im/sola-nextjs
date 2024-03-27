@@ -28,7 +28,7 @@ function EventHomeProvider(props: { children: any }) {
         console.log('leadingEventGroupIdleadingEventGroupId', leadingEventGroupId)
         if (leadingEventGroupId) {
             const leading = eventGroup.find((g : any) => g.id === Number(leadingEventGroupId))
-            console.log('leadingleadingleading', leading)
+            console.log('leading:', leading)
             if (leading) {
                 setLeadingEvent({
                     id: Number(leadingEventGroupId),
@@ -99,6 +99,8 @@ function EventHomeProvider(props: { children: any }) {
             })
 
             setJoined(!!joined)
+        } else {
+            setJoined(false)
         }
     }, [userGroup.length, selectedEventGroup])
 

@@ -23,7 +23,7 @@ function DetailBadgeMenu (props: DetalBadgeMenuProps) {
     const {revoke} = useTransferOrRevoke()
 
     const MenuContent = (handleClose: () => any) => <>
-        <MenuItem onClick={ () => { revoke({badge: props.badge}) } }>
+        <MenuItem onClick={ (e) => { handleClose(); revoke({badge: props.badge}) } }>
             { lang['Dialog_Revoke_Confirm'] }
         </MenuItem>
     </>
@@ -44,7 +44,7 @@ function DetailBadgeMenu (props: DetalBadgeMenuProps) {
 
     return (
         <>
-            { (user.id === props.badge.creator.id || props.isGroupManager ) &&
+            { (user.id === props.badge.creator.id) && false &&
                 <StatefulPopover
                     overrides={ overridesStyle }
                     placement={ PLACEMENT.bottomRight }

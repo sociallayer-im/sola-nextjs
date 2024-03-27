@@ -105,7 +105,8 @@ class Alchemy {
 
     async getEnsBalance(owner: string): Promise<NftDetail[]> {
         const list = await this.alchemy.forNetwork(Network.ETH_MAINNET).nft.getNftsForOwner(owner, {contractAddresses: ['0x57f1887a8BF19b14fC0dF6Fd9B2acc9Af147eA85']})
-        return list.ownedNfts.map((item: any) => {
+        const list2 = await this.alchemy.forNetwork(Network.ETH_MAINNET).nft.getNftsForOwner(owner, {contractAddresses: ['0xd4416b13d2b3a9abae7acd5d6c2bbdbe25686401']})
+        return [...list.ownedNfts, ...list2.ownedNfts].map((item: any) => {
             return {
                 title: item.title,
                 image: item.rawMetadata?.image_url,
@@ -155,7 +156,7 @@ class Alchemy {
 
     async getSeedaoNft(owner: string): Promise<NftDetail[]> {
         // toto replace owner address
-        const list = await this.alchemy.forNetwork(Network.ETH_MAINNET).nft.getNftsForOwner('0x332345477db00239f88ca2eb015b159750cf3c44', {contractAddresses: ['0x30093266e34a816a53e302be3e59a93b52792fd4']})
+        const list = await this.alchemy.forNetwork(Network.ETH_MAINNET).nft.getNftsForOwner(owner, {contractAddresses: ['0x30093266e34a816a53e302be3e59a93b52792fd4']})
         return list.ownedNfts.map((item: any) => {
             return {
                 title: `SeeDAO Seed NFT #${item.tokenId}`,

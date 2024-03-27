@@ -2,7 +2,16 @@ import {useParams} from "next/navigation"
 import {useContext, useEffect, useState, useRef} from 'react'
 import PageBack from "@/components/base/PageBack";
 import EventHomeContext from "@/components/provider/EventHomeProvider/EventHomeContext";
-import {Group, createEventSite, EventSites, getEventSide, updateEventSite, updateGroup, removeEventSite} from "@/service/solas";
+import {
+    Group,
+    createEventSite,
+    EventSites,
+    getEventSide,
+    updateEventSite,
+    updateGroup,
+    removeEventSite,
+    queryGroupDetail, getGroupMembers, getGroupMembership
+} from "@/service/solas";
 import LangContext from "@/components/provider/LangProvider/LangContext";
 import EventSiteInput from "@/components/compose/SiteEventInput/EventSiteInput";
 import AppButton from "@/components/base/AppButton/AppButton";
@@ -11,11 +20,11 @@ import UserContext from "@/components/provider/UserProvider/UserContext";
 import DashboardInfo from "@/components/base/DashboardInfo/DashboardInfo";
 import UploadImage from "@/components/compose/UploadImage/UploadImage";
 import AppInput from "@/components/base/AppInput";
-import LocationInput from "@/components/compose/LocationInput/LocationInput";
 import EventTagInput from "@/components/compose/EventTagInput/EventTagInput";
+import AppRadio from "@/components/base/AppRadio/AppRadio";
+import fa from "@walletconnect/legacy-modal/dist/cjs/browser/languages/fa";
 
 function Dashboard() {
-    const {eventGroup, availableList, findGroup, setEventGroup, reload} = useContext(EventHomeContext)
     const params = useParams()
     const {lang} = useContext(LangContext)
     const {showToast, showLoading} = useContext(DialogsContext)
@@ -29,8 +38,11 @@ function Dashboard() {
     const [banner, setBanner] = useState('')
     const [bannerUrl, setBannerUrl] = useState('')
     const [showSetBanner, setShowSetBanner] = useState(false)
+    const [eventGroup, setEventGroup] = useState<Group | null>(null)
+    const [isManager, setIsManager] = useState<boolean>(false)
 
-    const [permission, setPermission] = useState<null | 'public' | 'protected' | 'private'>(null)
+    const [permissionCanJoin, setPermissionCanJoin] = useState<'everyone' | 'member'>('everyone')
+    const [permissionCanCreate, setPermissionCanCreate] = useState<'everyone' | 'member' | 'manager'>('everyone')
     const [showPermission, setShowPermission] = useState(false)
 
     const [defaultLocation, setDefaultLocation] = useState<string | null>(null)
@@ -50,12 +62,27 @@ function Dashboard() {
     }
 
     useEffect(() => {
-        if (availableList.length && params?.groupname) {
-            const group = findGroup(params?.groupname as string)
-            setEventGroup(group)
-            setTags((group as Group).event_tags || [])
+        if (params?.groupname) {
+         queryGroupDetail(undefined, params.groupname as string).then(res => {
+                setEventGroup(res!)
+                setTags((res as Group).event_tags || [])
+             getGroupMembers({group_id: res!.id, role: 'all'}).then(m => {
+
+             })
+         })
         }
-    }, [availableList, params])
+    }, [params])
+
+    useEffect(() => {
+        if (!!eventGroup && user.id) {
+            getGroupMembership({group_id: eventGroup!.id, role: 'all'}).then(m => {
+                const target = m.find(i => {
+                    return i.profile.id === user.id && (i.role === 'owner' || i.role === 'manager')
+                })
+                setIsManager(!!target)
+            })
+        }
+    }, [eventGroup, user])
 
     useEffect(() => {
         document.querySelector('body')!.classList.add('dash-board-popover')
@@ -71,7 +98,8 @@ function Dashboard() {
             getEventSideBar(eventGroup.id)
             setBanner(eventGroup.banner_image_url || '')
             setBannerUrl(eventGroup.banner_link_url || '')
-            setPermission(eventGroup.group_event_visibility || null)
+            setPermissionCanJoin((eventGroup as Group)!.can_join_event as any || 'everyone')
+            setPermissionCanCreate((eventGroup as Group)!.can_publish_event as any || 'everyone')
             setDefaultLocation(eventGroup.group_location_details || null)
             setReady(true)
         }
@@ -125,7 +153,8 @@ function Dashboard() {
                     .filter(a => !!a) as Promise<any>[]
 
                 await Promise.all([...task, ...deleteTask])
-                await reload()
+                const newGroup = await queryGroupDetail(eventGroup!.id)
+                setEventGroup(newGroup)
                 unload()
                 showToast('Save event site success')
             } catch (e) {
@@ -161,10 +190,26 @@ function Dashboard() {
             id: eventGroup?.id || 1516,
             banner_image_url: banner,
             banner_link_url: bannerUrl,
-        })
-        await reload()
+        } as any)
+        const newGroup = await queryGroupDetail(eventGroup!.id)
+        setEventGroup(newGroup)
         unload()
         showToast('Update banner success')
+    }
+
+    const setPermission = async function () {
+        const unload = showLoading()
+        const update = await updateGroup({
+            ...eventGroup,
+            auth_token: user.authToken || '',
+            id: eventGroup?.id || 1516,
+            can_publish_event: permissionCanCreate ,
+            can_join_event: permissionCanJoin,
+        } as any)
+        const newGroup = await queryGroupDetail(eventGroup!.id)
+        setEventGroup(newGroup)
+        unload()
+        showToast('Update permission success')
     }
 
     const setLocation = async function () {
@@ -174,8 +219,9 @@ function Dashboard() {
             auth_token: user.authToken || '',
             id: eventGroup?.id || 1516,
             group_location_details: defaultLocation,
-        })
-        await reload()
+        } as any)
+        const newGroup = await queryGroupDetail(eventGroup!.id)
+        setEventGroup(newGroup)
         unload()
         showToast('Update success')
     }
@@ -187,8 +233,9 @@ function Dashboard() {
             auth_token: user.authToken || '',
             id: eventGroup?.id || 1516,
             event_tags: tags.filter(e => !!e),
-        })
-        await reload()
+        } as any)
+        const newGroup = await queryGroupDetail(eventGroup!.id)
+        setEventGroup(newGroup)
         unload()
         showToast('Update success')
     }
@@ -264,7 +311,7 @@ function Dashboard() {
                     }
 
 
-                    { false &&
+                    { isManager &&
                         <div className={'setting-form-item'} onClick={e => {
                             setShowPermission(true)
                         }}>
@@ -405,16 +452,33 @@ function Dashboard() {
                 <div className={'dashboard-dialog dashboard-event-site-list'}>
                     <div className={'center'}>
                         <div className={'dashboard-dialog-head'}>
-                            <PageBack title={lang['Setting_Permission']} onClose={() => {
+                            <PageBack title={lang['Permission']} onClose={() => {
                                 setShowPermission(false)
                                 switchOverflow(false)
                             }}/>
                         </div>
                         <div className={'dialog-inner'}>
+                            <div className={'permission-title'}>Publish</div>
+                            <div className={'permission-item'} onClick={e => {setPermissionCanCreate('everyone')}}>
+                                <AppRadio checked={permissionCanCreate === 'everyone'} /> Everyone
+                            </div>
+                            <div className={'permission-item'} data-test-id="member" onClick={e => {setPermissionCanCreate('member')}}>
+                                <AppRadio checked={permissionCanCreate === 'member'} /> Member, Manager, Owner
+                            </div>
+                            <div className={'permission-item'} data-test-id="manager" onClick={e => {setPermissionCanCreate('manager')}}>
+                                <AppRadio checked={permissionCanCreate === 'manager'} /> Manager, Owner
+                            </div>
 
+                            <div className={'permission-title'}>Apply</div>
+                            <div className={'permission-item'} onClick={e => {setPermissionCanJoin('everyone')}}>
+                                <AppRadio checked={permissionCanJoin === 'everyone'} /> Everyone
+                            </div>
+                            <div className={'permission-item'} onClick={e => {setPermissionCanJoin('member')}}>
+                                <AppRadio checked={permissionCanJoin === 'member'} /> Member
+                            </div>
                         </div>
                         <div className={'action-bar'}>
-                            <AppButton special onClick={setBannerImage}>Save</AppButton>
+                            <AppButton special onClick={setPermission}>Save</AppButton>
                         </div>
                     </div>
                 </div>

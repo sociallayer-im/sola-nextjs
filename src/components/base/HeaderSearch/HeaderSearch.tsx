@@ -1,7 +1,7 @@
 import { useState, useContext, useEffect } from 'react'
 import AppInput from '../AppInput'
 import LangContext from '../../provider/LangProvider/LangContext'
-import {useRouter} from "next/navigation";
+import {useRouter, useParams} from "next/navigation";
 
 interface HeaderSearchProps {
     onClose?: () => any
@@ -11,18 +11,14 @@ interface HeaderSearchProps {
 function HeaderSearch(props: HeaderSearchProps) {
     const router = useRouter()
     const [keyword, setKeyword] = useState('')
+    const params = useParams()
     const { lang } = useContext(LangContext)
 
     useEffect(() => {
-        const history = window.localStorage.getItem('search')
-        if (history) {
-            setKeyword(history)
-        }
+        params?.keyword && setKeyword(params?.keyword as string || '')
     }, [])
 
     const onConfirm = () => {
-        window.localStorage.setItem('search', keyword)
-
         if (!window.location.href.includes('/search/')) {
             window.localStorage.setItem('searchfallback', window.location.pathname + window.location.search)
         }

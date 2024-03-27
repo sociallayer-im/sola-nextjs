@@ -48,6 +48,7 @@ function Page(props: any) {
     useEffect(() => {
         const getProfile = async function () {
             const emptyProfile: Profile = {
+                sol_address: null,
                 id: 0,
                 username: '--',
                 address: null,
@@ -79,6 +80,7 @@ function Page(props: any) {
                 banner_image_url: null,
                 banner_link_url: null,
                 group_location_details: null,
+                far_address: null
             }
 
             if (!tokenId) {

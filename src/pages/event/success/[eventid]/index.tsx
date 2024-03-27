@@ -4,7 +4,7 @@ import Link from 'next/link'
 import {useContext, useEffect, useRef, useState} from 'react'
 import {Event, queryEventDetail} from "@/service/solas";
 import LangContext from "@/components/provider/LangProvider/LangContext";
-import {formatTimeWithTimezone, useTime3, formatTime} from "@/hooks/formatTime";
+import {formatTime, formatTimeWithTimezone, useTime4} from "@/hooks/formatTime";
 import QRcode from "@/components/base/QRcode";
 import AppButton from "@/components/base/AppButton/AppButton";
 import saveCard from "@/utils/html2png";
@@ -13,25 +13,38 @@ import DialogsContext from "@/components/provider/DialogProvider/DialogsContext"
 import EventHomeContext from "@/components/provider/EventHomeProvider/EventHomeContext";
 import useGetMeetingName from "@/hooks/getMeetingName";
 import {mapTimezone} from '@/components/base/AppEventTimeInput/AppEventTimeInput'
+import Empty from "@/components/base/Empty";
+import {useConnect} from "wagmi";
 
 function CreateEventSuccess() {
     const router = useRouter()
     const [event, setEvent] = useState<Event | null>(null)
     const params = useParams()
     const {lang} = useContext(LangContext)
-    const formatTime3 = useTime3()
+    const formatTime3 = useTime4
     const card = useRef<any>()
     const {showToast, showLoading} = useContext(DialogsContext)
-    const {availableList, setEventGroup} = useContext(EventHomeContext)
+    const {availableList, setEventGroup, eventGroup} = useContext(EventHomeContext)
     const {getMeetingName} = useGetMeetingName()
+    const {connectors} = useConnect()
 
     const [coverUrl, setCoverUrl] = useState('')
+    const [ready, setReady] = useState(false)
 
     useEffect(() => {
         async function fetchData() {
             const unload = showLoading()
             const res = await queryEventDetail({id: Number(params?.eventid)})
+
+            if (!res) {
+                unload()
+                // router.push('/error')
+                setReady(true)
+                return
+            }
+
             setEvent(res)
+            setReady(true)
 
             if (res!.cover_url) {
                 const image = new Image();
@@ -121,12 +134,12 @@ function CreateEventSuccess() {
     }, [event, availableList])
 
     const isMobile = () => {
-        return !!window.navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobile|BlackBerry|IEMobile|MQQBrowser|JUC|Fennec|wOSBrowser|BrowserNG|WebOS|Symbian|Windows Phone)/i);
+        return connectors.length && !!window.navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobile|BlackBerry|IEMobile|MQQBrowser|JUC|Fennec|wOSBrowser|BrowserNG|WebOS|Symbian|Windows Phone)/i);
     }
 
     const downloadCard = () => {
         if (card.current || event) {
-            const height = card.current.offsetHeight
+            const height = card.current.getBoundingClientRect().height
             saveCard(card.current, event?.title || '', [335, height])
         }
     }
@@ -139,9 +152,15 @@ function CreateEventSuccess() {
 
     return (<>
         <div className={'create-event-success-page'}>
-            <div className={'center'}><Link className={'done'} href={`/event/detail/${params?.eventid}`}>Done</Link>
-            </div>
-            <div className={'title'}>{lang['IssueFinish_Title']}</div>
+            {ready && event &&
+                <>
+                    <div className={'center'}>
+                        <Link className={'done'} href={eventGroup?.username === 'web3festival' ? `/event/${eventGroup.username}` : `/event/detail/${params?.eventid}`}>Done</Link>
+                    </div>
+                    <div className={'title'}>{lang['IssueFinish_Title']}</div>
+                </>
+            }
+
             {event && coverUrl &&
                 <>
                     <div className={'event-share-card-wrapper'}>
@@ -199,18 +218,39 @@ function CreateEventSuccess() {
                             </div>
                         </div>
                     </div>
+
+                    <div className={'center'}>
+                        <AppButton special onClick={e => {
+                            if (eventGroup) {
+                                router.push(`/event/${eventGroup.username}`)
+                            } else {
+                                router.push('/')
+                            }
+                        }}>{lang['Back_To_Event_Home']}</AppButton>
+
+                    </div>
+
                     {!isMobile() &&
                         <div className={'center'}>
-                            <AppButton special onClick={e => {
+                            <AppButton onClick={e => {
                                 downloadCard()
                             }}>{lang['Save_Card']}</AppButton>
                         </div>}
+
                     <div className={'center'}>
                         <AppButton onClick={e => {
                             copyLink()
                         }}>{lang['IssueFinish_CopyLink']}</AppButton>
+
                     </div>
                 </>
+            }
+            {!event && ready &&
+                <div className={'center'}>
+                    <Empty/>
+                    <div style={{textAlign: 'center'}}><b>Event cancelled or not exist </b> <br/><Link href="/">back to
+                        home</Link></div>
+                </div>
             }
         </div>
     </>)

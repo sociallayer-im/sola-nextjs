@@ -38,6 +38,7 @@ function ListGroupMember(props: ListGroupMemberProps) {
     const {defaultAvatar} = usePicture()
     const router = useRouter()
 
+    const [compact, setCompact] = useState(props.isSidebar || false)
 
     async function init() {
         await getOwner()
@@ -223,7 +224,7 @@ function ListGroupMember(props: ListGroupMemberProps) {
         router.push(`/profile/${profile.username}`, {scroll: false})
     }
 
-    const Action = (groupOwnerId === user.id || isManager)
+    const Action = (groupOwnerId === user.id)
         ? OwnerAction
         : currUserJoinedGroup
             ? MemberAction
@@ -255,7 +256,7 @@ function ListGroupMember(props: ListGroupMemberProps) {
                                 }}>
                         <div className={'left'}>
                             <img src={member.image_url || defaultAvatar(member.id)} alt=""/>
-                            <span>{member.nickname || member.username || member.domain?.split('.')[0]}</span>
+                            <span className={'name'}>{member.nickname || member.username || member.domain?.split('.')[0]}</span>
                             <span className={'role'}>{lang['Group_Role_Manager']}</span>
                             {member.id === user.id && <div className={'you-tag'}>
                                 You
@@ -285,8 +286,18 @@ function ListGroupMember(props: ListGroupMemberProps) {
                 })
             }
 
-            {!props.isSidebar && <>{
-                members.map((member, index) => {
+            { members
+                .filter((item, index)=> {
+                    if (!compact) {
+                        return true
+                    } else {
+                        const length = managers.length + issuer.length + 1
+                        if (length < 10) {
+                            return length + index < 10
+                        } else return false
+                    }
+                })
+                .map((member, index) => {
                     return <div className={'list-item'}
                                 key={index}
                                 onClick={(e) => {
@@ -302,10 +313,12 @@ function ListGroupMember(props: ListGroupMemberProps) {
                         </div>
                     </div>
                 })
-            }</>
             }
+
             {
-                props.isSidebar && <div className={'side-member-count'}>{`${members.length + managers.length + issuer.length + 1} ${lang['Group_detail_tabs_member']}`} </div>
+                props.isSidebar && <div className={'side-member-count'}
+                                        onClick={() => {setCompact(!compact)}}
+                >{`${members.length + managers.length + issuer.length + 1} ${lang['Group_detail_tabs_member']}`} </div>
             }
         </div>
     </div>

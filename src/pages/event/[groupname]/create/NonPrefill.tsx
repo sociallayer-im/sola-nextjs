@@ -6,6 +6,7 @@ import UploadImage from '@/components/compose/UploadImage/UploadImage'
 import AppInput from '@/components/base/AppInput'
 import UserContext from '@/components/provider/UserProvider/UserContext'
 import AppButton, {BTN_KIND} from '@/components/base/AppButton/AppButton'
+import AppTextArea from "@/components/base/AppTextArea/AppTextArea";
 import {
     Badge,
     cancelEvent,
@@ -16,22 +17,24 @@ import {
     Event,
     EventSites,
     getProfile,
+    getProfileBatch,
     Group,
     Profile,
+    ProfileSimple,
     queryBadge,
     queryBadgeDetail,
+    queryEvent,
     queryEventDetail,
     queryGroupDetail,
     RepeatEventUpdate,
     setEventBadge,
     updateEvent,
-    uploadImage,
-    queryEvent
+    createRepeatEvent,
+    RepeatEventSetBadge
 } from '@/service/solas'
 import DialogsContext from '@/components/provider/DialogProvider/DialogsContext'
 import ReasonInput from '@/components/base/ReasonInput/ReasonInput'
 import SelectCreator from '@/components/compose/SelectCreator/SelectCreator'
-import AppDateInput from "@/components/base/AppDateInput/AppDateInput";
 import {Delete} from "baseui/icon";
 import Toggle from "@/components/base/Toggle/Toggle";
 import EventLabels from "@/components/base/EventLabels/EventLabels";
@@ -39,12 +42,14 @@ import DialogIssuePrefill from "@/components/eventSpecial/DialogIssuePrefill/Dia
 import {OpenDialogProps} from "@/components/provider/DialogProvider/DialogProvider";
 import UploadWecatQrcode from "@/components/compose/UploadWecatQrcode/UploadWecatQrcode";
 import EventHomeContext from "@/components/provider/EventHomeProvider/EventHomeContext";
-import LocationInput from "@/components/compose/LocationInput/LocationInput";
+import LocationInput from "@/components/compose/LocationInput/LocationInputNew";
 import AppFlexTextArea from "@/components/base/AppFlexTextArea/AppFlexTextArea";
 import AppEventTimeInput from "@/components/base/AppEventTimeInput/AppEventTimeInput";
-import {useTime3} from "@/hooks/formatTime";
-import html2canvas from 'html2canvas'
+import IssuesInput from "@/components/base/IssuesInput/IssuesInput";
 import * as dayjsLib from "dayjs";
+import TimeSlot from "@/components/compose/themu/TimeSlotNew";
+import EventDefaultCover from "@/components/base/EventDefaultCover";
+
 const utc = require('dayjs/plugin/utc')
 const timezone = require('dayjs/plugin/timezone')
 const dayjs: any = dayjsLib
@@ -72,15 +77,16 @@ interface Draft {
     telegram_contact_group: string,
 }
 
-interface CreateEventPageProps {
+export interface CreateEventPageProps {
     eventId?: number
+    groupname?: string
 }
 
 // 函数，一天24小时分成若干时间时间点，步进为15分钟, 然后找出和当前时间最近的时间点,而且时间点必须大于等于当前时间
 const getNearestTime = () => {
     const now = new Date()
     const minutes = now.getMinutes()
-    const minuteRange = [0, 15, 30, 45, 60]
+    const minuteRange = [0, 30, 60]
     const nearestMinute = minuteRange.find((item) => {
         return item >= minutes
     })
@@ -90,23 +96,20 @@ const getNearestTime = () => {
     return [initStartTime, initEndTime]
 }
 
-const initTime = getNearestTime()
-
 const repeatEventEditOptions = [
     {label: 'Only this event', value: 'one'},
     {label: 'This and following events', value: 'after'},
-    {label: 'All events', value: 'all'},
+    {label: 'All recurring events', value: 'all'},
 ]
 
 function CreateEvent(props: CreateEventPageProps) {
     const initTime = getNearestTime()
     const router = useRouter()
     const {user} = useContext(UserContext)
-    const {showLoading, showToast, openDialog, openConfirmDialog} = useContext(DialogsContext)
+    const {showLoading, showToast, openDialog, openConfirmDialog, openConnectWalletDialog} = useContext(DialogsContext)
     const [creator, setCreator] = useState<Group | Profile | null>(null)
     const {lang, langType} = useContext(LangContext)
-    const {eventGroup, joined} = useContext(EventHomeContext)
-    const formatTime = useTime3()
+    const {eventGroup, joined, isManager, setEventGroup} = useContext(EventHomeContext)
 
     const [currEvent, setCurrEvent] = useState<Event | null>(null)
 
@@ -114,15 +117,13 @@ function CreateEvent(props: CreateEventPageProps) {
     const [title, setTitle] = useState('')
     const [content, setContent] = useState('')
     const [onlineUrl, setOnlineUrl] = useState('')
-    const [eventSite, setEventSite] = useState<EventSites | null>(null)
     const [maxParticipants, setMaxParticipants] = useState<number>(10) // default 10
     const [minParticipants, setMinParticipants] = useState<number>(3) // default 3
     const [label, setLabel] = useState<string[]>([])
+    const [labelError, setLabelError] = useState<boolean>(false)
     const [badgeId, setBadgeId] = useState<null | number>(null)
     const [wechatImage, setWechatImage] = useState('')
     const [wechatAccount, setWechatAccount] = useState('')
-    const [customLocation, setCustomLocation] = useState('')
-    const [locationDetail, setLocationDetail] = useState('')
     const [telegram, setTelegram] = useState('')
     const [telegramError, setTelegramError] = useState('')
     const [timezone, setTimezone] = useState<string>(Intl.DateTimeFormat().resolvedOptions().timeZone)
@@ -145,6 +146,31 @@ function CreateEvent(props: CreateEventPageProps) {
     const [repeatEnd, setRepeatEnd] = useState<string | null>(null)
     const repeatEventSelectorRef = useRef<'one' | 'after' | 'all'>('one')
 
+    const [enableCoHost, setEnableCoHost] = useState(false)
+    const [cohost, setCohost] = useState<string[]>([''])
+    const [enableSpeakers, setEnableSpeakers] = useState(false)
+    const [speakers, setSpeakers] = useState<string[]>([''])
+    const [repeatCounter, setRepeatCounter] = useState(1)
+    const [repeatCounterError, setRepeatCounterError] = useState(false)
+    const [externalUrl, setExternalUrl] = useState<string | null>(null)
+    const [padgeLink, setPadgeLink] = useState<string | null>(null)
+
+    const [needPublish, setNeedPublish] = useState(false)
+
+    const [enableNotes, setEnableNotes] = useState(false)
+    const [notes, setNotes] = useState('')
+
+    const [isSlot, setIsSlot] = useState(false)
+    const uploadCoverRef = useRef<any>(null)
+
+    const [locationInfo, setLocationInfo] = useState({
+        lat: null,
+        lng: null,
+        eventSiteId: null,
+        location: null,
+        formatted_address: null
+    })
+
     const toNumber = (value: string, set: any) => {
         if (!value) {
             set(0)
@@ -157,9 +183,24 @@ function CreateEvent(props: CreateEventPageProps) {
         }
     }
 
-    const cancel = async () => {
+    const handleCancel = () => {
+        openConfirmDialog({
+            title: 'Are you sure to cancel this event?',
+            confirmBtnColor: 'red',
+            confirmLabel: 'Yes',
+            confirmTextColor: '#fff',
+            cancelLabel: 'No',
+            onConfirm: (close: any) => {
+                close()
+                cancel()
+            }
+        })
+
+    }
+
+    const cancel = async (redirect= true) => {
         if (!currEvent?.recurring_event_id) {
-            await cancelOne()
+            await cancelOne(redirect)
         } else {
             const dialog = openConfirmDialog({
                 confirmLabel: 'Cancel event',
@@ -223,7 +264,7 @@ function CreateEvent(props: CreateEventPageProps) {
                 unloading()
                 if (redirect) {
                     showToast('Cancel success')
-                    router.push(`/event`)
+                    router.push(`/event/${eventGroup?.username}`)
                 }
             } catch (e) {
                 unloading()
@@ -242,7 +283,7 @@ function CreateEvent(props: CreateEventPageProps) {
                 try {
                     const cancel = await cancelRepeatEvent({
                         auth_token: user.authToken || '',
-                        repeat_event_id: currEvent?.recurring_event_id!,
+                        recurring_event_id: currEvent?.recurring_event_id!,
                         event_id: props.eventId!,
                         selector: repeatEventSelectorRef.current,
                     })
@@ -284,59 +325,38 @@ function CreateEvent(props: CreateEventPageProps) {
         }
     }
 
-    async function prefillDraft() {
-        const draftStr = window.localStorage.getItem('event_draft')
-        if (draftStr) {
-            try {
-                const draft = JSON.parse(draftStr) as Draft
-                setCover(draft.cover)
-                setTitle(draft.title)
-                setContent(draft.content)
-                setTelegram(draft.telegram_contact_group || '')
-
-                setOnlineUrl(draft.online_location || '')
-
-                if (draft.max_participants) {
-                    setMaxParticipants(draft.max_participants)
-                }
-
-                if (draft.min_participants) {
-                    setMinParticipants(draft.min_participants)
-                }
-
-                setEnableMinParticipants(draft.enable_min_participants)
-                setEnableMaxParticipants(draft.enable_max_participants)
-
-                setLabel(draft.tags ? draft.tags : [])
-                setBadgeId(draft.badge_id)
-                setEventType(draft.event_type || 'event')
-
-                if (draft.wechat_contact_group) {
-                    setWechatImage(draft.wechat_contact_group)
-                }
-
-                if (draft.wechat_contact_person) {
-                    setWechatAccount(draft.wechat_contact_person)
-                }
-
-                setTimeout(() => {
-                    // setStart(draft.start_time)
-                    // setEnding(draft.end_time)
-                    setFormReady(true)
-                }, 500)
-            } catch (e) {
-                console.log(e)
-            }
+    useEffect(() => {
+        const slotList = [82, 81, 80, 79, 78, 87, 86]
+        if (formReady && locationInfo.eventSiteId && slotList.includes(locationInfo.eventSiteId)) {
+            setIsSlot(true)
+            console.log('===========slot true')
         } else {
-            setFormReady(true)
+            console.log('===========slot false')
+            if (!start || !ending) {
+                setStart(currEvent ? currEvent.start_time! : initTime[0].toISOString())
+                setEnding(currEvent ?  currEvent.end_time! : initTime[1].toISOString())
+            }
+            setIsSlot(false)
         }
-    }
+    }, [locationInfo.eventSiteId, formReady, start])
 
     useEffect(() => {
         if (props?.eventId) {
             setIsEditMode(!!props.eventId)
         }
     }, [props])
+
+    useEffect(() => {
+        setLabelError(label.length > 3)
+    }, [label])
+
+    useEffect(() => {
+        if (repeat) {
+            setRepeatCounterError(repeatCounter < 1 || repeatCounter > 100)
+        } else {
+            setRepeatCounterError(false)
+        }
+    }, [repeatCounter, repeat])
 
     useEffect(() => {
         if (telegram) {
@@ -349,20 +369,46 @@ function CreateEvent(props: CreateEventPageProps) {
     }, [telegram])
 
     useEffect(() => {
-        if (eventGroup && (eventGroup as Group).can_publish_event !== 'everyone' && !joined) {
-            router.replace('/event')
+        const authStorage = window.localStorage.getItem('auth_sola') || ''
+        if (!authStorage) {
+            openConnectWalletDialog()
+        }
+    }, [user.userName])
+
+    useEffect(() => {
+        if (!!currEvent && user.userName && currEvent.operators?.includes(user!.id!)) {
+            setNeedPublish(false)
             return
         }
 
-    }, [joined, eventGroup])
+        if (!eventGroup || (eventGroup as Group).can_publish_event === 'everyone') {
+            setNeedPublish(false)
+            return
+        }
+
+        if ((eventGroup as Group).can_publish_event === 'member' && !joined) {
+            setNeedPublish(true)
+            return
+        }
+
+        if ((eventGroup as Group).can_publish_event === 'manager' && !isManager) {
+            setNeedPublish(true)
+            return
+        }
+
+        setNeedPublish(false)
+
+    }, [joined, isManager, eventGroup, user.userName, currEvent])
 
     useEffect(() => {
         if (start && ending) {
-            if (start > ending) {
+            if (start >= ending) {
                 setStartTimeError(lang['Activity_Form_Ending_Time_Error'])
             } else {
                 setStartTimeError('')
             }
+        } else {
+            setStartTimeError('Please select a time slot')
         }
     }, [start, ending])
 
@@ -383,6 +429,24 @@ function CreateEvent(props: CreateEventPageProps) {
             setCover(event.cover_url)
             setTitle(event.title)
             setContent(event.content)
+            // The time zone must be set before configuring the start and end times.
+
+            setLocationInfo({
+                lat: event.geo_lat,
+                lng: event.geo_lng,
+                eventSiteId: event.event_site_id,
+                location: event.location,
+                formatted_address: event.formatted_address
+            } as any)
+
+            const group = await queryGroupDetail(event.group_id as number)
+            setEventGroup(group as any)
+
+
+            if (event.timezone) {
+                setTimezone(event.timezone)
+            }
+
             if (event.start_time) {
                 setStart(event.start_time)
             }
@@ -391,10 +455,8 @@ function CreateEvent(props: CreateEventPageProps) {
                 setEnding(event.end_time)
                 setHasDuration(true)
             }
+
             setOnlineUrl(event.meeting_url || '')
-
-            setEventSite(event.event_site || null)
-
 
             if (event.max_participant) {
                 setMaxParticipants(event.max_participant)
@@ -411,15 +473,43 @@ function CreateEvent(props: CreateEventPageProps) {
             }
 
             setTelegram(event.telegram_contact_group || '')
-            setCustomLocation(event.location || '')
 
             setLabel(event.tags ? event.tags : [])
             setBadgeId(event.badge_id)
             setEventType(event.event_type || 'event')
+            setPadgeLink(event.padge_link || null)
 
             if (event.host_info) {
-                const profile = await queryGroupDetail(Number(event.host_info))
-                setCreator(profile)
+                if (event.host_info.startsWith('{')) {
+                    const info = JSON.parse(event.host_info)
+
+                    if (info.group_host) {
+                        setCreator(info.group_host)
+                    } else {
+                        const profile = await getProfile({id: event.owner_id})
+                        setCreator(profile)
+                    }
+
+                    if (info.speaker.length > 0) {
+                        setEnableSpeakers(true)
+                        setSpeakers(info.speaker.map((p: ProfileSimple) => p.username))
+                    } else {
+                        setEnableSpeakers(false)
+                        setSpeakers([''])
+                    }
+
+                    if (info.co_host.length > 0) {
+                        setEnableCoHost(true)
+                        setCohost(info.co_host.map((p: ProfileSimple) => p.username))
+                    } else {
+                        setEnableCoHost(false)
+                        setCohost([''])
+                    }
+
+                } else {
+                    const profile = await queryGroupDetail(Number(event.host_info))
+                    setCreator(profile)
+                }
             } else {
                 const profile = await getProfile({id: event.owner_id})
                 setCreator(profile)
@@ -433,12 +523,14 @@ function CreateEvent(props: CreateEventPageProps) {
                 setWechatAccount(event.wechat_contact_person)
             }
 
-            // if (event.formatted_address) {
-            //     setLocationDetail(event.formatted_address)
-            // }
+            if (event.external_url) {
+                setExternalUrl(event.external_url)
+            }
 
-            if (event.timezone) {
-                setTimezone(event.timezone)
+
+            if (event.notes) {
+                setEnableNotes(true)
+                setNotes(event.notes)
             }
 
             setFormReady(true)
@@ -459,7 +551,19 @@ function CreateEvent(props: CreateEventPageProps) {
                     router.push('/error')
                 }
             } else {
-                prefillDraft()
+               // prefillDraft()
+                const groupname = props?.groupname
+                if (!!groupname) {
+                    await queryGroupDetail(undefined, groupname as string).then(
+                        res => {
+                            setEventGroup(res as any)
+                            setFormReady(true)
+                        }
+                    )
+                } else {
+                    console.warn('groupname not found')
+                    router.push('/')
+                }
             }
         }
 
@@ -467,7 +571,7 @@ function CreateEvent(props: CreateEventPageProps) {
     }, [isEditMode])
 
     useEffect(() => {
-        SaveDraft()
+        // SaveDraft()
     }, [
         cover,
         title,
@@ -493,17 +597,16 @@ function CreateEvent(props: CreateEventPageProps) {
     useEffect(() => {
         async function checkOccupied() {
             // todo check occupied
-            if (eventSite && start && ending) {
+            if (locationInfo.eventSiteId && start && ending) {
                 const startDate = new Date(new Date(start).getFullYear(), new Date(start).getMonth(), new Date(start).getDate(), 0, 0, 0)
                 const endDate = new Date(new Date(ending).getFullYear(), new Date(ending).getMonth(), new Date(ending).getDate(), 23, 59, 59)
                 let events = await queryEvent({
-                    event_site_id: eventSite.id,
+                    event_site_id: locationInfo.eventSiteId,
                     start_time_from: startDate.toISOString(),
                     start_time_to: endDate.toISOString(),
                     page: 1,
                     page_size: 50
                 })
-                console.log('eventseventsevents', events)
 
                 // 排除自己
                 events = events.filter((e) => e.id !== props.eventId)
@@ -516,8 +619,8 @@ function CreateEvent(props: CreateEventPageProps) {
                     const eventIsAllDay = dayjs.tz(eventStartTime, timezone).hour() === 0 && (eventEndTime - eventStartTime + 60000) % 8640000 === 0
                     const selectedIsAllDay = dayjs.tz(selectedStartTime, timezone).hour() === 0 && (selectedEndTime - selectedStartTime + 60000) % 8640000 === 0
                     const res = ((selectedStartTime < eventStartTime && selectedEndTime > eventStartTime) ||
-                        (selectedStartTime >= eventStartTime && selectedEndTime <= eventEndTime) ||
-                        (selectedStartTime < eventEndTime && selectedEndTime > eventEndTime))  &&
+                            (selectedStartTime >= eventStartTime && selectedEndTime <= eventEndTime) ||
+                            (selectedStartTime < eventEndTime && selectedEndTime > eventEndTime)) &&
                         (!eventIsAllDay && !selectedIsAllDay)
 
 
@@ -538,7 +641,7 @@ function CreateEvent(props: CreateEventPageProps) {
         }
 
         checkOccupied()
-    }, [start, ending, eventSite])
+    }, [start, ending, locationInfo.eventSiteId])
 
     const showBadges = async () => {
         const props = !!(creator as Group)?.creator ? {
@@ -569,123 +672,146 @@ function CreateEvent(props: CreateEventPageProps) {
         } as OpenDialogProps)
     }
 
-    const genCover = async (): Promise<string> => {
-        return new Promise<string>((resolve, reject) => {
-            const unload = showLoading()
-
-            const img = new Image()
-
-            img.src = '/images/default_event_cover.jpg'
-
-            img.onload = () => {
-                const div1 = document.createElement('div')
-                div1.className = 'default-post'
-
-                if (start && ending) {
-                    const div2 = document.createElement('dev')
-                    div2.className = 'time'
-                    const timeInfo = formatTime(start, ending, timezone)
-                    div2.innerHTML = `${timeInfo.data} <br /> ${timeInfo.time}`
-                    div1.appendChild(div2)
+    const parseHostInfo = async () => {
+        const usernames = [...cohost, ...speakers].filter((u) => !!u)
+        if (!usernames.length) {
+            if (!!(creator as Group).creator) {
+                const hostinfo = {
+                    speaker: [],
+                    co_host: [],
+                    group_host: {
+                        id: creator!.id,
+                        creator: true,
+                        username: creator!.username,
+                        nickname: creator!.nickname,
+                        image_url: creator!.image_url,
+                    }
                 }
-
-                if (customLocation || eventSite?.title) {
-                    const div3 = document.createElement('div')
-                    div3.className = 'location'
-                    div3.innerHTML = `${customLocation || eventSite?.title!}`
-                    div1.appendChild(div3)
+                return {
+                    json: JSON.stringify(hostinfo),
+                    cohostId: null,
+                    speakerId: null
                 }
-
-                if (title) {
-                    const div4 = document.createElement('div')
-                    div4.className = 'title'
-                    div4.innerText = title
-                    div1.appendChild(div4)
+            } else {
+                return {
+                    json: null,
+                    cohostId: null,
+                    speakerId: null
                 }
-
-                document.querySelector('.create-event-page')!.appendChild(div1)
-
-                html2canvas(div1, {
-                    useCORS: true, // 【重要】开启跨域配置
-                    scale: 1,
-                    allowTaint: true,
-                    width: 452,
-                    height: 452,
-                    backgroundColor: null
-                }).then((canvas: HTMLCanvasElement) => {
-                    canvas.style.background = 'transparent'
-                    const imgData = canvas.toDataURL('image/jpeg')
-                    div1.remove()
-                    uploadImage({
-                        file: imgData,
-                        auth_token: user.authToken!,
-                        uploader: user.userName!
-                    })
-                        .then((res) => {
-                            unload()
-                            resolve(res)
-                        })
-                        .catch(e => {
-                            unload()
-                            reject(e)
-                        })
-
-                })
-                    .catch(function (e: any) {
-                        unload()
-                        console.error('oops, something went wrong!', e)
-                        reject(e)
-                    })
             }
-        })
+        }
+
+        const profiles = await getProfileBatch(usernames)
+        if (profiles.length !== usernames.length) {
+            const missing = usernames.find((u) => !profiles.find((p) => p.username === u))
+            if (missing) {
+                throw new Error(`User 「${missing}」 not exist`)
+            }
+        }
+
+        const cohostUser = profiles.filter((p) => cohost.some((u) => u === p.username))
+        const speakerUsers = profiles.filter((p) => speakers.some((u) => u === p.username))
+
+        const hostinfo = {
+            speaker: enableSpeakers ? speakerUsers : [],
+            co_host: enableCoHost ? cohostUser : [],
+            group_host: creator && !!(creator as Group).creator ? {
+                id: creator.id,
+                creator: true,
+                username: creator.username,
+                nickname: creator.nickname,
+                image_url: creator.image_url,
+            } : undefined,
+        }
+
+        return {
+            json: JSON.stringify(hostinfo),
+            cohostId: enableCoHost ? cohostUser.map((p) => p.id) : null,
+            speakerId: enableSpeakers ? speakerUsers.map((p) => p.id): null
+        }
     }
 
-    const handleCreate = async () => {
+    const checkForm = () => {
         if (!user.id) {
             showToast('Please login first')
-            return
+            return false
         }
 
         if (!eventGroup) {
             showToast('请选择一个组织')
-            return
+            return false
         }
 
         if (siteOccupied) {
             showToast(lang['Activity_Detail_site_Occupied'])
-            return
+            return false
         }
 
         if (new Date(start) > new Date(ending)) {
             showToast('start time should be earlier than ending time')
-            return
+            return false
         }
 
 
         if (!title) {
             showToast('please input title')
-            return
+            return false
         }
 
         if (startTimeError) {
-            showToast(lang['Activity_Form_Ending_Time_Error'])
-            return
+            showToast(startTimeError)
+            return false
         }
 
         if (telegramError) {
             showToast('Invalid telegram Group Url')
-            return
+            return false
         }
 
-        let lng: string | null = null
-        let lat: string | null = null
+        if (labelError) {
+            showToast('The maximum number of tags is 3')
+            return false
+        }
 
-        if (eventSite && eventSite.formatted_address) {
-            lng = eventSite.geo_lng
-            lat = eventSite.geo_lat
-        } else if (locationDetail) {
-            lng = JSON.parse(locationDetail).geometry.location.lng
-            lat = JSON.parse(locationDetail).geometry.location.lat
+        if (repeatCounterError && repeat) {
+            showToast('The number of times the event repeats must be greater than 0 and less than 100')
+            return false
+        }
+
+        return true
+    }
+
+    const showCreateConfirm = async () => {
+        const check = checkForm()
+        if (!check) return
+
+        openConfirmDialog({
+            title: 'The Event you posted needs to be reviewed by a manager. Would you like to send it?',
+            onConfirm: async (close: any) => {
+                close()
+                handleCreate()
+            }
+        })
+    }
+
+    const handleCreate = async () => {
+        const check = checkForm()
+        if (!check) return
+
+        setCreating(true)
+        const unloading = showLoading(true)
+
+        let host_info: string | null = ''
+        let cohostIds: number[] | null = null
+        try {
+            const info = await parseHostInfo()
+            host_info = info.json
+            cohostIds = info.cohostId
+        } catch (e: any) {
+            showToast(e.message)
+            setCreating(false)
+            unloading()
+            return
         }
 
         const props: CreateRepeatEventProps = {
@@ -698,40 +824,42 @@ function CreateEvent(props: CreateEventPageProps) {
             max_participant: enableMaxParticipants ? maxParticipants : null,
             min_participant: enableMinParticipants ? minParticipants : null,
             badge_id: badgeId,
-            group_id: eventGroup.id,
+            group_id: eventGroup?.id,
             meeting_url: onlineUrl || null,
-            event_site_id: eventSite?.id || null,
+            event_site_id: locationInfo.eventSiteId,
             event_type: eventType,
             auth_token: user.authToken || '',
-            location: customLocation || eventSite?.title || '',
-            formatted_address: locationDetail ? JSON.parse(locationDetail).formatted_address : (eventSite?.formatted_address || ''),
-            host_info: creator && !!(creator as Group).creator ? creator.id + '' : undefined,
-            interval: repeat || undefined,
-            repeat_ending_time: repeatEnd || undefined,
+            location: locationInfo.location,
+            formatted_address: locationInfo.formatted_address,
+            host_info: host_info,
             timezone,
-            geo_lng: lng,
-            geo_lat: lat
+            geo_lng: locationInfo.lng,
+            geo_lat: locationInfo.lat,
+            interval: repeat!,
+            repeat_start_time: start  as any,
+            event_count: repeatCounter,
+            external_url: externalUrl,
+            padge_link: padgeLink,
+            notes: enableNotes ? notes : null,
+            operators: cohostIds,
         }
 
-        setCreating(true)
-        const unloading = showLoading(true)
         try {
             if (props.interval) {
-                // const newEvents = await createRepeatEvent(props)
-                //
-                // if (badgeId) {
-                //     const setBadge = await RepeatEventSetBadge({
-                //         repeat_event_id: newEvents[0].recurring_event_id!,
-                //         badge_id: badgeId,
-                //         auth_token: user.authToken || ''
-                //     })
-                // }
-                //
-                // unloading()
-                // showToast('create success')
-                // window.localStorage.removeItem('event_draft')
-                // router.push(`/event/success/${newEvents[0].id}`)
-                // setCreating(false)
+                const newEvent = await createRepeatEvent(props)
+                if (badgeId) {
+                    const setBadge = await RepeatEventSetBadge({
+                        recurring_event_id: newEvent.recurring_event_id!,
+                        badge_id: badgeId,
+                        auth_token: user.authToken || ''
+                    })
+                }
+
+                 unloading()
+                 showToast('create success')
+                 window.localStorage.removeItem('event_draft')
+                 router.push(`/event/success/${newEvent.id}`)
+                 setCreating(false)
             } else {
                 const newEvent = await createEvent(props)
 
@@ -745,7 +873,12 @@ function CreateEvent(props: CreateEventPageProps) {
                 unloading()
                 showToast('create success')
                 window.localStorage.removeItem('event_draft')
-                router.push(`/event/success/${newEvent.id}`)
+                if (newEvent.status === 'pending') {
+                    router.push(`/event/detail/${newEvent.id}`)
+                } else {
+                    router.push(`/event/success/${newEvent.id}`)
+
+                }
                 setCreating(false)
             }
         } catch (e: any) {
@@ -780,7 +913,7 @@ function CreateEvent(props: CreateEventPageProps) {
         }
 
         if (startTimeError) {
-            showToast(lang['Activity_Form_Ending_Time_Error'])
+            showToast(startTimeError)
             return
         }
 
@@ -789,15 +922,9 @@ function CreateEvent(props: CreateEventPageProps) {
             return
         }
 
-        let lng: string | null = null
-        let lat: string | null = null
-
-        if (eventSite && eventSite.formatted_address) {
-            lng = eventSite.geo_lng
-            lat = eventSite.geo_lat
-        } else if (locationDetail) {
-            lng = JSON.parse(locationDetail).geometry.location.lng
-            lat = JSON.parse(locationDetail).geometry.location.lat
+        if (labelError) {
+            showToast('The maximum number of tags is 3')
+            return
         }
 
         const saveProps: CreateEventProps = {
@@ -808,20 +935,23 @@ function CreateEvent(props: CreateEventPageProps) {
             tags: label,
             start_time: start,
             end_time: hasDuration ? ending : null,
-            event_site_id: eventSite?.id || null,
+            event_site_id: locationInfo.eventSiteId,
             max_participant: enableMaxParticipants ? maxParticipants : null,
             min_participant: enableMinParticipants ? minParticipants : null,
             badge_id: badgeId,
             meeting_url: onlineUrl || null,
             auth_token: user.authToken || '',
             event_type: eventType,
-            host_info: creator && !!(creator as Group).creator ? creator.id + '' : undefined,
-            location: customLocation || eventSite?.title || '',
-            formatted_address: locationDetail ? JSON.parse(locationDetail).formatted_address : (eventSite?.formatted_address || ''),
+            host_info: null,
+            location: locationInfo.location,
+            formatted_address: locationInfo.formatted_address,
             recurring_event_id: currEvent!.recurring_event_id || undefined,
             timezone,
-            geo_lng: lng,
-            geo_lat: lat
+            geo_lng: locationInfo.lng,
+            geo_lat: locationInfo.lat,
+            external_url: externalUrl,
+            padge_link: padgeLink,
+            notes: enableNotes ? notes : null,
         }
 
         if (currEvent?.recurring_event_id) {
@@ -879,13 +1009,29 @@ function CreateEvent(props: CreateEventPageProps) {
                 }
             })
         } else {
-            await singleSave()
+            if (!!repeat) {
+                // from single event switch to repeat event, cancel the old one, create a new one
+               try {
+                   await cancel(false)
+                   await handleCreate()
+               } catch (e: any) {
+                     console.error(e)
+                     showToast(e.message)
+               }
+            } else {
+                await singleSave()
+            }
         }
 
         async function singleSave(redirect = true) {
             const unloading = showLoading(true)
             try {
-                const newEvent = await updateEvent(saveProps)
+                const info = await parseHostInfo()
+                const newEvent = await updateEvent({
+                    ...saveProps,
+                    host_info: info.json,
+                    operators: info.cohostId,
+                })
                 if (saveProps.badge_id) {
                     const setBadge = await setEventBadge({
                         id: saveProps.id!,
@@ -913,15 +1059,27 @@ function CreateEvent(props: CreateEventPageProps) {
                 await singleSave(false)
                 const unloading = showLoading(true)
                 try {
+                    const info = await parseHostInfo()
                     const newEvents = await RepeatEventUpdate({
                         ...saveProps,
+                        host_info: info.json,
+                        operators: info.cohostId,
                         event_id: currEvent!.id,
                         selector: repeatEventSelectorRef.current
                     })
 
+                    if (saveProps.badge_id) {
+                        const setBadge = await RepeatEventSetBadge({
+                            auth_token: user.authToken || '',
+                            badge_id: saveProps.badge_id,
+                            recurring_event_id: saveProps.recurring_event_id!,
+                            selector: repeatEventSelectorRef.current
+                        })
+                    }
+
                     unloading()
                     showToast('update success')
-                    // router.replace(`/event/detail/${newEvents[0].id}`)
+                    router.replace(`/event/detail/${currEvent!.id}`)
                 } catch (e: any) {
                     unloading()
                     console.error(e)
@@ -942,7 +1100,7 @@ function CreateEvent(props: CreateEventPageProps) {
                             <div className='input-area-title'>{lang['Activity_Form_Name']}</div>
                             <AppInput
                                 clearable
-                                maxLength={30}
+                                maxLength={100}
                                 value={title}
                                 errorMsg={''}
                                 placeholder={lang['Activity_Form_Name']}
@@ -953,12 +1111,34 @@ function CreateEvent(props: CreateEventPageProps) {
 
                         <div className='input-area'>
                             <div className='input-area-title'>{lang['Activity_Form_Cover']}</div>
-                            <UploadImage
-                                cropper={false}
-                                imageSelect={cover || undefined}
-                                confirm={(coverUrl) => {
-                                    setCover(coverUrl)
-                                }}/>
+                            <div style={{display: !cover ? "block" : 'none'}}>
+                                <EventDefaultCover
+                                    event={
+                                        {
+                                            title: title,
+                                            start_time: start,
+                                            end_time: ending,
+                                            timezone: timezone,
+                                            location: locationInfo.location
+                                        }  as Event
+                                    }
+                                    width={328}
+                                    height={328} />
+                                <AppButton style={{width: "328px", marginTop: '12px'}} onClick={() => {
+                                    uploadCoverRef.current?.selectFile()
+                                }}>{"Upload"}</AppButton>
+                            </div>
+
+
+                            <div style={{display: !!cover ? "block" : 'none'}}>
+                                <UploadImage
+                                    ref={uploadCoverRef}
+                                    cropper={false}
+                                    imageSelect={cover || undefined}
+                                    confirm={(coverUrl) => {
+                                        setCover(coverUrl)
+                                    }}/>
+                            </div>
                         </div>
 
                         {/*<div className={'default-post'}>*/}
@@ -980,72 +1160,67 @@ function CreateEvent(props: CreateEventPageProps) {
                             </div>
                         }
 
-                        {(!isEditMode || (!!currEvent && !currEvent.recurring_event_id)) &&
+                        {!!eventGroup && ((isEditMode && formReady && !!currEvent) || !isEditMode) &&
+                            <LocationInput
+                                initValue={locationInfo as any }
+                                eventGroup={eventGroup as Group}
+                                onChange={values => {
+                                   console.log('locationInput=====', values)
+                                    setLocationInfo(values as any)
+                                }}/>
+                        }
+
+                        {!!occupiedError && <div className={'start-time-error'}>{occupiedError}</div>}
+
+                        { locationInfo.eventSiteId && isSlot && (!isEditMode || (!!currEvent && !currEvent.recurring_event_id)) &&
+                            <div className='input-area'>
+                                <div className='input-area-title'>{lang['Activity_Form_Starttime']}</div>
+                                <TimeSlot eventSiteId={locationInfo.eventSiteId}
+                                          from={start}
+                                          to={ending}
+                                          allowRepeat={isManager}
+                                          onChange={(from, to, timezone,repeat, counter) => {
+                                              console.log('========res', from, to, timezone, repeat, counter)
+                                              setStart(from)
+                                              setEnding(to)
+                                              setTimezone(timezone)
+                                              setRepeat(repeat as any || null)
+                                              setRepeatCounter(counter)
+                                          }} />
+                            </div>
+                        }
+
+                        {(!isEditMode || (!!currEvent && !currEvent.recurring_event_id)) && !isSlot && formReady && !!start &&
                             <div className='input-area'>
                                 <div className='input-area-title'>{lang['Activity_Form_Starttime']}</div>
                                 <AppEventTimeInput
-                                    from={start}
-                                    to={ending}
-                                    allowRepeat={false}
-                                    timezone={timezone}
+                                    initData={{
+                                        from: start,
+                                        to: ending,
+                                        timezone: timezone
+                                    }}
+                                    allowRepeat={isManager}
                                     onChange={e => {
                                         setStart(e.from)
                                         setEnding(e.to)
                                         setRepeat(e.repeat as any || null)
                                         setRepeatEnd(e.repeatEndingTime as any || null)
                                         setTimezone(e.timezone as any || null)
+                                        setRepeatCounter(e.counter)
                                     }}/>
                             </div>
                         }
 
-                        {false &&
-                            <div className='input-area'>
-                                <div className='input-area-title'>{lang['Activity_Form_Starttime']}</div>
-                                <AppDateInput value={start} onChange={(data) => {
-                                    console.log('start', data)
-                                    setStart(data as string)
-                                }}/>
-                            </div>
-                        }
-
-                        {false &&
-                            <div className='input-area'>
-                                <div className='input-area-title'>{lang['Activity_Form_Ending']}</div>
-                                <AppDateInput value={ending} onChange={(data) => {
-                                    console.log('ending', data)
-                                    setEnding(data as string)
-                                }}/>
+                        {repeatCounterError &&
+                            <div className={'start-time-error'}>
+                                {'The number of times the event repeats must be greater than 0 and less than 100'}
                             </div>
                         }
 
                         {startTimeError && <div className={'start-time-error'}>
-                            {lang['Activity_Form_Ending_Time_Error']}
+                            {startTimeError}
                         </div>}
 
-                        {!!eventGroup && ((isEditMode && formReady) || !isEditMode) &&
-                            <LocationInput
-                                errorMsg={occupiedError}
-                                initValue={isEditMode ? {
-                                    eventSite: eventSite,
-                                    location: currEvent!.location || '',
-                                    formatted_address: currEvent!.formatted_address || ''
-                                } as any : undefined}
-                                eventGroup={eventGroup}
-                                onChange={values => {
-                                    if (values.eventSite) {
-                                        setEventSite(values.eventSite?.id ? values.eventSite : null)
-                                        setCustomLocation(values.eventSite?.title!)
-                                    }
-
-                                    if (values.customLocation) {
-                                        setCustomLocation(values.customLocation)
-                                    }
-
-                                    if (values.metaData) {
-                                        setLocationDetail(values.metaData)
-                                    }
-                                }}/>
-                        }
 
                         {eventType === 'event' &&
                             <div className='input-area'>
@@ -1061,12 +1236,140 @@ function CreateEvent(props: CreateEventPageProps) {
                             </div>
                         }
 
+                        {!!eventGroup && (eventGroup as Group).event_tags &&
+                            <div className={'input-area'}>
+                                <div className={'input-area-title'}>{lang['Activity_Form_Label']}</div>
+                                <EventLabels
+                                    data={(eventGroup as Group).event_tags!} onChange={e => {
+                                    setLabel(e)
+                                }} value={label} />
+
+                                { labelError &&
+                                    <div className={'label-error'}>{'The maximum number of tags is 3'}</div>
+                                }
+                            </div>
+                        }
+
                         <div className='input-area'>
                             <div className='input-area-title'>{lang['Activity_Form_Details']}</div>
                             <ReasonInput unlimited value={content} onChange={(value) => {
                                 setContent(value)
                             }}/>
                         </div>
+
+                        <div className={'input-area'}>
+                            <div className={'toggle'}>
+                                <div className={'item-title main'}>{lang['Event_Notes_']}</div>
+                                <div className={'item-value'}>
+                                    <Toggle checked={enableNotes} onChange={e => {
+                                        setEnableNotes(!enableNotes)
+                                    }}/>
+                                </div>
+                            </div>
+                            { enableNotes &&
+                                <AppTextArea maxLength={2000} placeholder={lang['Input_Notes']} value={notes} onChange={(e) => {setNotes(e.target.value)}}/>
+                            }
+                        </div>
+
+                        <div className='input-area'>
+                            <div className='input-area-title'>{lang['External_Url']}</div>
+                            <AppInput clearable={false}
+                                      value={externalUrl || ''}
+                                      placeholder={lang['External_Url']}
+                                        onChange={(e) => {
+                                            setExternalUrl(e.target.value)
+                                        }}/>
+                        </div>
+
+                        <div className='input-area'>
+                            <div className='input-area-title'>{"Padge Link"}</div>
+                            <AppInput clearable={false}
+                                      value={padgeLink || ''}
+                                      placeholder={lang['External_Url']}
+                                      onChange={(e) => {
+                                          setPadgeLink(e.target.value)
+                                      }}/>
+                        </div>
+
+                        {
+                            formReady &&
+                            <div className='input-area' data-test-id="host">
+                                <div className='input-area-title'>{lang['Activity_originators']}</div>
+                                <SelectCreator
+                                    autoSet={!creator}
+                                    value={creator}
+                                    onChange={(res) => {
+                                        console.log('switch creator', res)
+                                        setCreator(res)
+                                    }}/>
+                            </div>
+                        }
+
+
+                        <div className={'input-area'}>
+                            <div className={'toggle'}>
+                                <div className={'item-title'}>{'Invite a Co-host'}</div>
+                                <div className={'item-value'}>
+                                    <Toggle checked={enableCoHost} onChange={e => {
+                                        setEnableCoHost(!enableCoHost)
+                                    }}/>
+                                </div>
+                            </div>
+
+                            {enableCoHost &&
+                                <IssuesInput
+                                    value={cohost as any}
+                                    placeholder={`Co-host`}
+                                    onChange={(newIssues) => {
+                                        setCohost(newIssues)
+                                    }}/>
+                            }
+                        </div>
+
+                        <div className={'input-area'}>
+                            <div className={'toggle'}>
+                                <div className={'item-title'}>{'Invite a speaker to the event'}</div>
+                                <div className={'item-value'}>
+                                    <Toggle checked={enableSpeakers} onChange={e => {
+                                        setEnableSpeakers(!enableSpeakers)
+                                    }}/>
+                                </div>
+                            </div>
+
+                            {enableSpeakers &&
+                                <IssuesInput
+                                    value={speakers as any}
+                                    placeholder={`speaker`}
+                                    onChange={(newIssues) => {
+                                        setSpeakers(newIssues)
+                                    }}/>
+                            }
+                        </div>
+
+
+                        {eventType === 'event' &&
+                            <div className={'input-area'}>
+                                <div className={'input-area-title'}>{lang['Activity_Form_Badge']}</div>
+                                <div className={'input-area-des'}>{lang['Activity_Form_Badge_Des']}</div>
+                                {!badgeId &&
+                                    <div className={'add-badge'} onClick={async () => {
+                                        await showBadges()
+                                    }}>{lang['Activity_Form_Badge_Select']}</div>
+                                }
+
+                                {
+                                    !!badgeDetail &&
+                                    <div className={'banded-badge'}>
+                                        <Delete size={22} onClick={e => {
+                                            setBadgeId(null)
+                                            setBadgeDetail(null)
+                                        }
+                                        }/>
+                                        <img src={badgeDetail.image_url} alt=""/>
+                                        <div>{badgeDetail.title}</div>
+                                    </div>
+                                }
+                            </div>}
 
                         {eventType === 'event' &&
                             <div className={'input-area'} data-testid={'input-event-participants'}>
@@ -1093,6 +1396,7 @@ function CreateEvent(props: CreateEventPageProps) {
                             </div>
                         }
 
+
                         {eventType === 'event' &&
                             <div className={'input-area'}>
                                 <div className={'toggle'}>
@@ -1117,55 +1421,6 @@ function CreateEvent(props: CreateEventPageProps) {
                                 </div>
                             </div>
                         }
-
-                        {
-                            formReady &&
-                            <div className='input-area'>
-                                <div className='input-area-title'>{lang['Activity_originators']}</div>
-                                <SelectCreator
-                                    autoSet={!creator}
-                                    value={creator}
-                                    onChange={(res) => {
-                                        console.log('switch creator', res)
-                                        setCreator(res)
-                                    }}/>
-                            </div>
-                        }
-
-                        {!!eventGroup && (eventGroup as Group).event_tags &&
-                            <div className={'input-area'}>
-                                <div className={'input-area-title'}>{lang['Activity_Form_Label']}</div>
-                                <EventLabels
-                                    data={(eventGroup as Group).event_tags!} onChange={e => {
-                                    setLabel(e)
-                                }} value={label}/>
-                            </div>
-                        }
-
-
-                        {eventType === 'event' &&
-                            <div className={'input-area'}>
-                                <div className={'input-area-title'}>{lang['Activity_Form_Badge']}</div>
-                                <div className={'input-area-des'}>{lang['Activity_Form_Badge_Des']}</div>
-                                {!badgeId &&
-                                    <div className={'add-badge'} onClick={async () => {
-                                        await showBadges()
-                                    }}>{lang['Activity_Form_Badge_Select']}</div>
-                                }
-
-                                {
-                                    !!badgeDetail &&
-                                    <div className={'banded-badge'}>
-                                        <Delete size={22} onClick={e => {
-                                            setBadgeId(null)
-                                            setBadgeDetail(null)
-                                        }
-                                        }/>
-                                        <img src={badgeDetail.image_url} alt=""/>
-                                        <div>{badgeDetail.title}</div>
-                                    </div>
-                                }
-                            </div>}
 
 
                         {langType === 'cn' && false &&
@@ -1222,7 +1477,9 @@ function CreateEvent(props: CreateEventPageProps) {
                                        disabled={creating}
                                        special
                                        onClick={() => {
-                                           handleCreate()
+                                           needPublish
+                                               ? showCreateConfirm()
+                                               : handleCreate()
                                        }}>
                                 {lang['Activity_Btn_Create']}
                             </AppButton>
@@ -1230,10 +1487,11 @@ function CreateEvent(props: CreateEventPageProps) {
                         {
                             isEditMode && <div style={{marginTop: '12px'}}>
                                 <AppButton onClick={e => {
-                                    cancel()
+                                    handleCancel()
                                 }}>{lang['Activity_Detail_Btn_Cancel']}</AppButton>
                             </div>
                         }
+
                     </div>
                 </div>
             </div>
@@ -1242,3 +1500,4 @@ function CreateEvent(props: CreateEventPageProps) {
 }
 
 export default CreateEvent
+

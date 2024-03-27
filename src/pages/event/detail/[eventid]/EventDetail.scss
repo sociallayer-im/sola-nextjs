@@ -1,8 +1,9 @@
 .event-detail {
   position: relative;
   background: var(--color-page-bg-1);
-  padding-bottom: 60px;
   min-height: 100vh;
+  display: flex;
+  flex-flow: column nowrap;
 
   .event-detail-content {
     padding: 12px;
@@ -10,6 +11,11 @@
     flex-flow: row nowrap;
     max-width: 1020px;
     margin: 0 auto;
+    box-sizing: border-box;
+    overflow: auto;
+    width: 100vw;
+    flex: 1;
+    padding-bottom: 60px;
     box-sizing: border-box;
   }
 
@@ -47,6 +53,36 @@
 
   .detail {
     padding: 23px 0;
+
+    .pending {
+      color: #E7C54E;
+      background: #FFF7E8;
+      font-weight: normal;
+      padding: 4px 8px;
+      font-size: 16px;
+      border-radius: 6px;
+      margin-right: 12px;
+      position: relative;
+      display: inline-block;
+      height: 20px;
+      transform: translateY(-5px);
+      line-height: 20px;
+    }
+
+    .cancel {
+      color: #ffffff;
+      background: #bdbdbd;
+      font-weight: normal;
+      padding: 4px 8px;
+      font-size: 16px;
+      border-radius: 6px;
+      margin-right: 12px;
+      position: relative;
+      display: inline-block;
+      height: 20px;
+      transform: translateY(-5px);
+      line-height: 20px;
+    }
 
     @media (min-width: 450px) {
       & {
@@ -125,44 +161,38 @@
       border-bottom: 1px solid var(--color-box-border);
       padding: 13px 0;
 
-      .center {
-        display: flex;
+      .slide {
+        display: block;
         flex-flow: row nowrap;
-        align-items: center;
-        overflow: auto;
-
-        &::-webkit-scrollbar {
-          display: none;
-        }
-
-        .host-item {
-          display: flex;
-          flex-flow: row nowrap;
-          align-items: center;
-          white-space: nowrap;
-          margin-right: 30px;
-          cursor: pointer;
-          color: var(--color-text-sub);
-
-
-          img {
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            margin-right: 8px;
-          }
-
-          .host-name {
-            color: var(--color-text-main);
-            font-size: 14px;
-            font-style: normal;
-            font-weight: 600;
-            line-height: 22px;
-          }
-        }
+        width: auto;
+        white-space: nowrap;
       }
 
+      .host-item {
+        display: inline-flex;
+        flex-flow: row nowrap;
+        align-items: center;
+        white-space: nowrap;
+        margin-right: 30px;
+        cursor: pointer;
+        color: var(--color-text-sub);
 
+
+        img {
+          width: 44px;
+          height: 44px;
+          border-radius: 50%;
+          margin-right: 8px;
+        }
+
+        .host-name {
+          color: var(--color-text-main);
+          font-size: 14px;
+          font-style: normal;
+          font-weight: 600;
+          line-height: 22px;
+        }
+      }
     }
 
     .event-badge {
@@ -195,7 +225,7 @@
       font-weight: 400;
       line-height: 24px;
       white-space: pre-wrap;
-      word-break: break-all;
+      word-break: break-word;
     }
 
     .event-tab {
@@ -310,7 +340,6 @@
     }
 
     .event-action {
-      height: 50px;
       width: 100%;
       padding: 10px 0;
 
@@ -326,6 +355,7 @@
 
       .center {
         display: flex;
+        margin-top: 12px;
 
         button {
           margin: 0 6px;
@@ -431,6 +461,30 @@
   margin-top: 30px;
   margin-bottom: 30px;
 
+  .link {
+    color: var(--Flowkit-Charcoal, #222);
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 24px;
+    text-decoration: none;
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    justify-content: space-between;
+
+    &:hover {
+        text-decoration: underline;
+    }
+
+    img {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      margin-left: 11px;
+    }
+  }
+
   .user-info {
     display: flex;
     flex-flow: row nowrap;
@@ -455,7 +509,8 @@
     font-style: normal;
     font-weight: 400;
     line-height: 24px;
-    margin: 16px 0
+    margin: 16px 0;
+    word-break: break-word;
   }
 }
 
@@ -468,6 +523,10 @@
   }
 
   @media (min-width: 450px) {
+    & {
+      max-width: 637px;
+    }
+
     .cover {
       display: none;
     }
@@ -511,8 +570,21 @@
 
   .event-login-status {
     .event-action {
+      justify-content: space-between;
+
       button {
         margin-bottom: 12px;
+        margin-left: 0;
+        margin-right: 0;
+        white-space: nowrap;
+      }
+
+      button:not(:first-child) {
+        margin-left: 12px;
+      }
+
+      button:nth-child(3) {
+       min-width: 100%;
       }
     }
   }

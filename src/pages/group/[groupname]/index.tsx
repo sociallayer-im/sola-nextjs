@@ -22,6 +22,9 @@ import ListGroupEvent from "@/components/compose/ListGroupEvent/ListGroupEvent";
 import dynamic from 'next/dynamic'
 import {Swiper, SwiperSlide} from 'swiper/react'
 import {Mousewheel} from "swiper";
+import DialogRequestTobeIssuer from "@/components/base/Dialog/DialogRequestTobeIssuer/DialogRequestTobeIssuer";
+import useSafePush from "@/hooks/useSafePush";
+import {PageBackContext} from "@/components/provider/PageBackProvider";
 
 
 const ListUserPresend = dynamic(() => import('@/components/compose/ListUserPresend'), {
@@ -44,12 +47,13 @@ function GroupPage(props: any) {
     const params = useParams()
     const groupname = props.groupname || params?.groupname
     const [profile, setProfile] = useState<Profile | null>(props.group)
-    const {showLoading, openConnectWalletDialog} = useContext(DialogsContext)
+    const {showLoading, openConnectWalletDialog, openDialog} = useContext(DialogsContext)
     const {lang} = useContext(LangContext)
     const {user, logOut} = useContext(UserContext)
+    const {history} = useContext(PageBackContext)
     const searchParams = useSearchParams()
-    const [selectedTab, setSelectedTab] = useState(searchParams.get('tab') || '0')
-    const [selectedSubtab, setSelectedSubtab] = useState(searchParams.get('subtab') || '0')
+    const [selectedTab, setSelectedTab] = useState(searchParams?.get('tab') || '0')
+    const [selectedSubtab, setSelectedSubtab] = useState(searchParams?.get('subtab') || '0')
     const [isGroupManager, setIsGroupManager] = useState(false)
     const [isIssuer, setIssuer] = useState(false)
     const [isGroupOwner, setIsGroupOwner] = useState(false)
@@ -60,23 +64,24 @@ function GroupPage(props: any) {
     const startIssue = useIssueBadge()
     const {copyWithDialog} = useCopy()
     const router = useRouter()
+    const {safePush} = useSafePush()
 
     const loadedTabRrf = useRef<Set<string>>(new Set())
 
     // 为了实现切换tab时，url也跟着变化，而且浏览器的前进后退按钮也能切换tab
     useEffect(() => {
-        if (!searchParams.get('tab')) {
+        if (!searchParams?.get('tab')) {
             setSelectedTab('0')
             loadedTabRrf.current.add('0')
         }
 
-        if (searchParams.get('tab')) {
-            setSelectedTab(searchParams.get('tab') || '0')
-            loadedTabRrf.current.add(searchParams.get('tab') || '0')
+        if (searchParams?.get('tab')) {
+            setSelectedTab(searchParams?.get('tab') || '0')
+            loadedTabRrf.current.add(searchParams?.get('tab') || '0')
         }
 
-        if (searchParams.get('subtab')) {
-            setSelectedSubtab(searchParams.get('subtab') || '0')
+        if (searchParams?.get('subtab')) {
+            setSelectedSubtab(searchParams?.get('subtab') || '0')
         }
     }, [searchParams])
 
@@ -135,6 +140,7 @@ function GroupPage(props: any) {
                 (isJoined && (profile as Group).can_publish_event === 'member')
                 || ((profile as Group).can_publish_event === 'everyone' && !!user.userName)
                 || isGroupManager
+                || user.id === (profile as Group).creator.id
             )
         } else {
             setCanCreateEvent(false)
@@ -149,7 +155,7 @@ function GroupPage(props: any) {
 
         // 处理用户登录后但是未注册域名的情况，即有authToken和钱包地址,但是没有domain和username的情况
         if (!user.userName) {
-            router.push('/regist')
+            safePush('/regist')
             return
         }
 
@@ -196,7 +202,15 @@ function GroupPage(props: any) {
     const setTab = (tab: string) => {
         loadedTabRrf.current.add(tab)
         setSelectedTab(tab as any);
+        history.push(`/group/${groupname}?tab=${tab}`)
         window.history.pushState(null, '', `/group/${groupname}?tab=${tab}`)
+    }
+
+    const requestToBeIssuer = () => {
+        openDialog({
+            content: (close: any) => <DialogRequestTobeIssuer close={close} group_id={profile!.id}/>,
+            size: [360, 'auto'],
+        })
     }
 
     return <>
@@ -308,7 +322,9 @@ function GroupPage(props: any) {
                                                 </AppButton>
                                             }
                                             {canCreateEvent &&
-                                                <AppButton special size={BTN_SIZE.compact} onClick={handleMintOrIssue}>
+                                                <AppButton special size={BTN_SIZE.compact} onClick={e => {
+                                                    router.push(`/event/${profile?.username}/create`)
+                                                }}>
                                                     {`+ ${lang['Activity_Create_title']}`}
                                                 </AppButton>
                                             }
@@ -332,6 +348,13 @@ function GroupPage(props: any) {
                                                         {process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'seedao' ?
                                                             lang['Send_SeeDAO_Badge']
                                                             : lang['Follow_detail_btn_mint']}
+                                                    </AppButton>
+                                                </div>
+                                            }
+                                            {isJoined && !isGroupOwner && !isGroupManager && !isIssuer &&
+                                                <div className={'right'}>
+                                                    <AppButton size={BTN_SIZE.compact} onClick={requestToBeIssuer}>
+                                                        <div>{lang['Request_To_Be_Issuer']}</div>
                                                     </AppButton>
                                                 </div>
                                             }
@@ -362,6 +385,7 @@ function GroupPage(props: any) {
                                                     <ListUserGift profile={profile}/>
                                                 </Tab> : <></>
                                         }
+
 
                                         {isGroupOwner || isGroupManager ?
                                             <Tab title={lang['Group_detail_tabs_Invite']}>

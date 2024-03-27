@@ -97,7 +97,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             email: user.attendeeEmail as string,
             zupass_product_id: user.productId || '',
             zupass_event_id: user.eventId || '',
-            next_token: process.env.NEXT_TOKEN || ''
+            next_token: process.env.NEXT_TOKEN || '',
+            host: req.headers.host || ''
         })
 
         res.status(200).send({

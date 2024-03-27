@@ -23,6 +23,7 @@
     align-items: center;
     height: 44px;
     margin-bottom: 12px;
+    cursor: pointer;
 
     .label {
       color: var(--color-text-main);
@@ -56,6 +57,27 @@
   background: var(--color-card-bg);
   padding: 0 0 12px 0;
   box-sizing: border-box;
+
+  .permission-item {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    margin-top: 8px;
+    cursor: pointer;
+
+    color: var(--Text-4-Headline, #272928);
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 400;
+  }
+
+  .permission-title {
+    color: #272928;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 600;
+    margin-top: 20px;
+  }
 
   .center {
     display: flex;
