@@ -521,7 +521,6 @@ function CreateEvent(props: CreateEventPageProps) {
                         setEnableCoHost(false)
                         setCohost([''])
                     }
-
                 } else {
                     const profile = await queryGroupDetail(Number(event.host_info))
                     setCreator(profile)
@@ -542,7 +541,6 @@ function CreateEvent(props: CreateEventPageProps) {
             if (event.external_url) {
                 setExternalUrl(event.external_url)
             }
-
 
             if (event.notes) {
                 setEnableNotes(true)

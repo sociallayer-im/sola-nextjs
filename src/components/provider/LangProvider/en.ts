@@ -614,7 +614,7 @@ const langEN = {
     Qualification: 'Qualification (Optional)',
     Tickets: 'Tickets',
     Select_A_Badge: 'Select a badge',
-    Get_A_Ticket: 'Get a ticket',
+    Get_A_Ticket: 'RSVP',
     External_Url: 'External Url',
     Notifications: 'Notifications',
     Send_You_A_Badge: 'Send you a badge.',

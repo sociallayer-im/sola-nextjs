@@ -670,7 +670,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                      onClick={e => {
                                                          setTab(4)
                                                      }}>
-                                                    <div>{'Tickets'}</div>
+                                                    <div>{lang['Tickets']}</div>
                                                 </div>
                                             </>
                                         }

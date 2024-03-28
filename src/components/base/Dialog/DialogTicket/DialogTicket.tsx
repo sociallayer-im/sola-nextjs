@@ -327,7 +327,7 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
         {!!user.id && !chain && hasBadgePermission && !stopSales && !soldOut &&
             <AppButton special onClick={e => {
                 freePay()
-            }}>{'Get A Ticket'}</AppButton>
+            }}>{lang['Get_A_Ticket']}</AppButton>
         }
     </div>)
 }
