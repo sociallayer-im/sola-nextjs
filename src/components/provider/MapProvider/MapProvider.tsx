@@ -1,5 +1,11 @@
 import {useEffect, useRef, useState} from 'react'
 import MapContext from "./MapContext";
+import {usePathname} from "next/navigation";
+
+const routerWhiteList = [
+    '/event/',
+    '/map'
+]
 
 function MapProvider(props: { children: any }) {
     const [MapLibReady, setMapLibReady] = useState(false)
@@ -7,6 +13,7 @@ function MapProvider(props: { children: any }) {
     const [MapError, setMapError] = useState('')
     const initZoom = useRef(14);
     const listenTimes = useRef(30);
+    const pathname = usePathname()
 
     const map = useRef<typeof google.maps.Map | null>(null)
     const Marker = useRef<typeof google.maps.marker.AdvancedMarkerElement | null>(null)
@@ -53,6 +60,11 @@ function MapProvider(props: { children: any }) {
     }
 
     useEffect(() => {
+        if (!routerWhiteList.some((path) => pathname?.includes(path))) {
+            return
+        }
+
+        console.log('load map: ', pathname)
         const lib = document.querySelector('#gmaplib')
         if (!lib) {
             const script = document.createElement('script')
@@ -74,7 +86,7 @@ function MapProvider(props: { children: any }) {
                 }
             }
         }, 500)
-    }, [])
+    }, [pathname])
 
     useEffect(() => {
         if (MapLibReady) {

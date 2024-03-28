@@ -2,7 +2,16 @@ import {useParams} from "next/navigation"
 import {useContext, useEffect, useState, useRef} from 'react'
 import PageBack from "@/components/base/PageBack";
 import EventHomeContext from "@/components/provider/EventHomeProvider/EventHomeContext";
-import {Group, createEventSite, EventSites, getEventSide, updateEventSite, updateGroup, removeEventSite} from "@/service/solas";
+import {
+    Group,
+    createEventSite,
+    EventSites,
+    getEventSide,
+    updateEventSite,
+    updateGroup,
+    removeEventSite,
+    queryGroupDetail, getGroupMembers, getGroupMembership
+} from "@/service/solas";
 import LangContext from "@/components/provider/LangProvider/LangContext";
 import EventSiteInput from "@/components/compose/SiteEventInput/EventSiteInput";
 import AppButton from "@/components/base/AppButton/AppButton";
@@ -11,12 +20,11 @@ import UserContext from "@/components/provider/UserProvider/UserContext";
 import DashboardInfo from "@/components/base/DashboardInfo/DashboardInfo";
 import UploadImage from "@/components/compose/UploadImage/UploadImage";
 import AppInput from "@/components/base/AppInput";
-import LocationInput from "@/components/compose/LocationInput/LocationInput";
 import EventTagInput from "@/components/compose/EventTagInput/EventTagInput";
 import AppRadio from "@/components/base/AppRadio/AppRadio";
+import fa from "@walletconnect/legacy-modal/dist/cjs/browser/languages/fa";
 
 function Dashboard() {
-    const {eventGroup, availableList, findGroup, setEventGroup, reload, isManager} = useContext(EventHomeContext)
     const params = useParams()
     const {lang} = useContext(LangContext)
     const {showToast, showLoading} = useContext(DialogsContext)
@@ -30,6 +38,8 @@ function Dashboard() {
     const [banner, setBanner] = useState('')
     const [bannerUrl, setBannerUrl] = useState('')
     const [showSetBanner, setShowSetBanner] = useState(false)
+    const [eventGroup, setEventGroup] = useState<Group | null>(null)
+    const [isManager, setIsManager] = useState<boolean>(false)
 
     const [permissionCanJoin, setPermissionCanJoin] = useState<'everyone' | 'member'>('everyone')
     const [permissionCanCreate, setPermissionCanCreate] = useState<'everyone' | 'member' | 'manager'>('everyone')
@@ -52,12 +62,27 @@ function Dashboard() {
     }
 
     useEffect(() => {
-        if (availableList.length && params?.groupname) {
-            const group = findGroup(params?.groupname as string)
-            setEventGroup(group)
-            setTags((group as Group).event_tags || [])
+        if (params?.groupname) {
+         queryGroupDetail(undefined, params.groupname as string).then(res => {
+                setEventGroup(res!)
+                setTags((res as Group).event_tags || [])
+             getGroupMembers({group_id: res!.id, role: 'all'}).then(m => {
+
+             })
+         })
         }
-    }, [availableList, params])
+    }, [params])
+
+    useEffect(() => {
+        if (!!eventGroup && user.id) {
+            getGroupMembership({group_id: eventGroup!.id, role: 'all'}).then(m => {
+                const target = m.find(i => {
+                    return i.profile.id === user.id && (i.role === 'owner' || i.role === 'manager')
+                })
+                setIsManager(!!target)
+            })
+        }
+    }, [eventGroup, user])
 
     useEffect(() => {
         document.querySelector('body')!.classList.add('dash-board-popover')
@@ -128,7 +153,8 @@ function Dashboard() {
                     .filter(a => !!a) as Promise<any>[]
 
                 await Promise.all([...task, ...deleteTask])
-                await reload()
+                const newGroup = await queryGroupDetail(eventGroup!.id)
+                setEventGroup(newGroup)
                 unload()
                 showToast('Save event site success')
             } catch (e) {
@@ -165,7 +191,8 @@ function Dashboard() {
             banner_image_url: banner,
             banner_link_url: bannerUrl,
         } as any)
-        await reload()
+        const newGroup = await queryGroupDetail(eventGroup!.id)
+        setEventGroup(newGroup)
         unload()
         showToast('Update banner success')
     }
@@ -179,7 +206,8 @@ function Dashboard() {
             can_publish_event: permissionCanCreate ,
             can_join_event: permissionCanJoin,
         } as any)
-        await reload()
+        const newGroup = await queryGroupDetail(eventGroup!.id)
+        setEventGroup(newGroup)
         unload()
         showToast('Update permission success')
     }
@@ -192,7 +220,8 @@ function Dashboard() {
             id: eventGroup?.id || 1516,
             group_location_details: defaultLocation,
         } as any)
-        await reload()
+        const newGroup = await queryGroupDetail(eventGroup!.id)
+        setEventGroup(newGroup)
         unload()
         showToast('Update success')
     }
@@ -205,7 +234,8 @@ function Dashboard() {
             id: eventGroup?.id || 1516,
             event_tags: tags.filter(e => !!e),
         } as any)
-        await reload()
+        const newGroup = await queryGroupDetail(eventGroup!.id)
+        setEventGroup(newGroup)
         unload()
         showToast('Update success')
     }

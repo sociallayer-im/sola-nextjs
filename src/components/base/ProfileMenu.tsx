@@ -27,7 +27,7 @@ const style = {
         maxWidth: '40px',
         overflow: 'hidden',
         'text-overflow': 'ellipsis',
-        whitespace: 'nowrap',
+        whiteSpace: 'nowrap',
         color: 'var(--color-text-main)'
     },
     dot: {

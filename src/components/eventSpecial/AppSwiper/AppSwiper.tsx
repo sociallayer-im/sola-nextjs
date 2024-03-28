@@ -11,7 +11,8 @@ interface AppSwiperProps {
     initIndex?: number,
     endEnhancer?: ReactNode,
     clickToSlide?: boolean,
-    boxWidth?: number
+    boxWidth?: number,
+    centeredSlides?: boolean
 }
 
 function Wrapper(props: { children: ReactNode, index: number, width: number, space: number, clickToSlide: boolean, boxWidth?: number }) {
@@ -33,6 +34,7 @@ function Wrapper(props: { children: ReactNode, index: number, width: number, spa
 
 function AppSwiper(props: AppSwiperProps) {
     return (<Swiper
+        centeredSlides={props.centeredSlides || undefined}
         data-testid='AppSwiper'
         modules={[Virtual]}
         spaceBetween={props.space}

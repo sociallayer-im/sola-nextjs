@@ -3,8 +3,6 @@ import UserContext from '@/components/provider/UserProvider/UserContext'
 import {usePathname, useRouter} from 'next/navigation'
 import LangContext from '@/components/provider/LangProvider/LangContext'
 import HomeUserPanel from "@/components/base/HomeUserPanel/HomeUserPanel";
-import AppSubTabs from "@/components/base/AppSubTabs";
-import {Tab} from "baseui/tabs";
 import {
     Event,
     getGroupMembership,

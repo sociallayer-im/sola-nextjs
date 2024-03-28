@@ -112,10 +112,14 @@ function ListEventVertical(props: { initData?: Event[], patch?: string }) {
     }
 
     useEffect(() => {
+        if (!props.initData?.length && eventGroup) {
+            changeTab('past')
+        }
+
         if (props.initData) {
             setIsLoadAll(props.initData.length < 10)
         }
-    }, [props.initData])
+    }, [props.initData, eventGroup])
 
     return (
         <div className={'module-tabs'}>
