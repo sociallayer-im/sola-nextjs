@@ -75,6 +75,8 @@ function Erc20TokenPaymentHandler(
         try {
             setBusy(true)
             setSending(true)
+
+            const payhubContract = paymentTokenList.find((item) => item.chainId === props.chainId)?.payHub
             const participant = await getParticipantDetail({event_id: props.eventId, profile_id: user.id!})
 
             // check already paid
@@ -86,16 +88,34 @@ function Erc20TokenPaymentHandler(
                     !!props.onSuccess && props.onSuccess('')
                     return
                 } else {
-                    setBusy(true)
-                    setSending(false)
-                    setVerifying(true)
-                    const verify = await verifyPayment(participant.id)
-                    if (verify) {
-                        setBusy(false)
+                    const log = await publicClient.getContractEvents({
+                        address: payhubContract as any,
+                        abi: payhub_abi,
+                        fromBlock: 52948018n,
+                        toBlock: 'latest',
+                        eventName: 'PaymentTrasnfered',
+                        args: {
+                            productId : props.ticketId,
+                            itemId : participant.id
+                        },
+                    })
+
+                    console.log('log====', log)
+
+                    if (log.length > 0) {
+                        setBusy(true)
                         setSending(false)
-                        setVerifying(false)
-                        !!props.onSuccess && props.onSuccess('')
-                        return
+                        setVerifying(true)
+                        const verify = await verifyPayment(participant.id)
+                        if (verify) {
+                            setBusy(false)
+                            setSending(false)
+                            setVerifying(false)
+                            !!props.onSuccess && props.onSuccess('')
+                            return
+                        }
+                    } else {
+                        throw new Error('Payment failed')
                     }
                 }
             }
@@ -109,12 +129,7 @@ function Erc20TokenPaymentHandler(
                 }
             )
 
-            if (chain?.id !== props.chainId) {
-                await switchNetworkAsync?.(props.chainId)
-            }
-
             // pay
-            const payhubContract = paymentTokenList.find((item) => item.chainId === props.chainId)?.payHub
             const opt = {
                 address: payhubContract as any,
                 abi: payhub_abi,

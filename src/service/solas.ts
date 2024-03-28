@@ -5052,7 +5052,9 @@ export async function getParticipantDetail (props: {id?: number, event_id?: numb
           }`
     const res: any = await request(graphUrl, doc)
 
-    return res.participants[0] as Participants || null
+    // return res.participants[0] as Participants || null
+   return res.participants[0]?
+       {...res.participants[0], payment_status: false} as Participants : null
 }
 
 export interface PopupCity {
