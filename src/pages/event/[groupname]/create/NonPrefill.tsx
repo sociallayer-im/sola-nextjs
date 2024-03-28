@@ -1249,15 +1249,17 @@ function CreateEvent(props: CreateEventPageProps) {
                             </div>
                         }
 
-                        <div className='input-area'>
-                            <div className='input-area-title'>{lang['Activity_Form_Details']}</div>
-                            <RichTextEditor
-                                height={150}
-                                maxHeight={300}
-                                initText={content} onChange={text => {
-                                setContent(text)
-                            }}></RichTextEditor>
-                        </div>
+                        { formReady &&
+                            <div className='input-area'>
+                                <div className='input-area-title'>{lang['Activity_Form_Details']}</div>
+                                <RichTextEditor
+                                    height={150}
+                                    maxHeight={300}
+                                    initText={content} onChange={text => {
+                                    setContent(text)
+                                }}></RichTextEditor>
+                            </div>
+                        }
 
                         <div className={'input-area'}>
                             <div className={'toggle'}>
