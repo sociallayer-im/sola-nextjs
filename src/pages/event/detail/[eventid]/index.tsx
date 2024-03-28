@@ -71,6 +71,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
 
     const [tab, setTab] = useState(1)
     const [isHoster, setIsHoster] = useState(false)
+    const [isOperator, setIsOperator] = useState(false)
     const [isJoined, setIsJoined] = useState(false)
     const [canceled, setCanceled] = useState(false)
     const [outOfDate, setOutOfDate] = useState(false)
@@ -204,7 +205,10 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                 setEventGroup(group as Group)
 
                 const selectedGroup = group as Group
-                if ((selectedGroup as Group).can_join_event === 'everyone') {
+                if (user.id && event.operators?.includes(user.id)) {
+                    setIsOperator(true)
+                    setCanAccess(true)
+                } else if ((selectedGroup as Group).can_join_event === 'everyone') {
                     setCanAccess(true)
                     return
                 } else if (user.id && (selectedGroup as Group).can_join_event === 'member') {
@@ -228,7 +232,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
     }, [hoster, user.id])
 
     const gotoModify = () => {
-        router.push(`/event/${eventGroup?.username}/edit/${event?.id}`)
+        router.push(`/event/edit/${event?.id}`)
     }
 
     const goToProfile = (username: string, isGroup?: boolean) => {
@@ -320,8 +324,8 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                         to={`/event/${eventGroup?.username}`}
                         menu={() =>
                             <div className={'event-top-btn'}>
-                                {(isHoster || isManager) && !canceled &&
-                                    <Link href={`/event/${eventGroup?.username}/edit/${event?.id}`}>
+                                {(isHoster || isManager || isOperator) && !canceled &&
+                                    <Link href={`/event/edit/${event?.id}`}>
                                         <i className={'icon-edit'}></i>{lang['Activity_Detail_Btn_Modify']}</Link>
                                 }
                                 {event?.status !== 'pending' &&
@@ -530,6 +534,15 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                     </div>
                                 }
 
+                                {!!event.padge_link &&
+                                    <div className={'event-login-status'}>
+                                        <Link className={'link'} href={event.padge_link} target={"_blank"}>
+                                            Click and get a badge of .bit
+                                            <ImgLazy src={'https://ik.imagekit.io/soladata/ag4z4mmm_oJ33HdkUX'} width={100} height={100} />
+                                        </Link>
+                                    </div>
+                                }
+
                                 {user.userName && canAccess && !event.external_url && event.status !== 'pending' &&
                                     <div className={'event-login-status'}>
                                         <div className={'user-info'}>
@@ -572,7 +585,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                     }}>{lang['Activity_Detail_Btn_Attend']}</AppButton>
                                                 }
 
-                                                {!canceled && isJoined && !isHoster && !isManager && inCheckinTime &&
+                                                {!canceled && isJoined && !isHoster && !isManager && inCheckinTime && !isOperator &&
                                                     <AppButton
                                                         special
                                                         onClick={e => {
@@ -592,7 +605,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                             </div>
 
                                             <div className={'center'}>
-                                                {(isHoster || isManager) && !canceled &&
+                                                {(isHoster || isManager || isOperator) && !canceled &&
                                                     <AppButton
                                                         onClick={e => {
                                                             handleHostCheckIn()
@@ -614,6 +627,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                         }
                                     </div>
                                 }
+
 
                                 {!user.userName &&
                                     <div className={'center'}>
@@ -815,7 +829,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                     </div>
 
                                     <div className={'event-action'}>
-                                        {(isHoster || isManager) && !canceled &&
+                                        {(isHoster || isManager || isOperator) && !canceled &&
                                             <AppButton
                                                 onClick={e => {
                                                     handleHostCheckIn()
@@ -833,6 +847,15 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                             </div>
                                         </div>
                                     }
+                                </div>
+                            }
+
+                            {!!event.padge_link &&
+                                <div className={'event-login-status'}>
+                                    <Link className={'link'} href={event.padge_link} target={"_blank"}>
+                                        Click and get a badge of .bit
+                                        <ImgLazy src={'https://ik.imagekit.io/soladata/ag4z4mmm_oJ33HdkUX'} width={100} height={100} />
+                                    </Link>
                                 </div>
                             }
 

@@ -461,6 +461,30 @@
   margin-top: 30px;
   margin-bottom: 30px;
 
+  .link {
+    color: var(--Flowkit-Charcoal, #222);
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 24px;
+    text-decoration: none;
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    justify-content: space-between;
+
+    &:hover {
+        text-decoration: underline;
+    }
+
+    img {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      margin-left: 11px;
+    }
+  }
+
   .user-info {
     display: flex;
     flex-flow: row nowrap;

@@ -13,7 +13,7 @@ import {WalletContext as solanaWalletContext} from '@solana/wallet-adapter-react
 import {SolanaSignInInput} from "@solana/wallet-standard-features";
 import fetch from "@/utils/fetch";
 import {createSignInMessage} from '@solana/wallet-standard-util';
-import { useProfile as useFarcasterProfile, useSignInMessage, useSignIn } from '@farcaster/auth-kit';
+// import { useProfile as useFarcasterProfile, useSignInMessage, useSignIn } from '@farcaster/auth-kit';
 
 
 export interface User {
@@ -69,9 +69,9 @@ function UserProvider(props: UserProviderProps) {
     const showRoleDialog = useShowRole()
     const {safePush} = useSafePush()
     const solanaWallet: any = useContext(solanaWalletContext)
-    const {isAuthenticated, profile } = useFarcasterProfile()
-    const { signature, message } = useSignInMessage()
-    const { signOut } = useSignIn({})
+    // const {isAuthenticated, profile } = useFarcasterProfile()
+    // const { signature, message } = useSignInMessage()
+    // const { signOut } = useSignIn({})
 
     const setUser = (data: Partial<Record<keyof User, any>>) => {
         const copyUserInfo = {...userInfo, ...data}
@@ -131,7 +131,7 @@ function UserProvider(props: UserProviderProps) {
     const logOut = () => {
         disconnect()
         solanaWallet.disconnect()
-        signOut && signOut()
+        // signOut && signOut()
 
         if (userInfo.wallet) {
             AuthStorage.burnAuth(userInfo.wallet)
@@ -312,32 +312,32 @@ function UserProvider(props: UserProviderProps) {
         setAuth(address, authToken!)
     }
 
-    const farcasterLogin = async () => {
-        console.log('facasterLogin ...', profile)
-        console.log(signature, message)
-        const unloading = showLoading()
-       try {
-           const login = await fetch.post({
-               url: '/api/farcaster/login',
-               data: {
-                   signature,
-                   message,
-                   custody: profile.custody
-               }
-           }) as any
-
-           console.log('Storage token: ', login.data.auth_token)
-           await setProfile({authToken: login.data.auth_token})
-           setAuth(profile!.fid! + '', login.data.auth_token)
-       } catch (e) {
-              console.error(e)
-              showToast('Login fail', 3000)
-              logOut()
-              return
-       } finally {
-              unloading()
-       }
-    }
+    // const farcasterLogin = async () => {
+    //     console.log('facasterLogin ...', profile)
+    //     console.log(signature, message)
+    //     const unloading = showLoading()
+    //    try {
+    //        const login = await fetch.post({
+    //            url: '/api/farcaster/login',
+    //            data: {
+    //                signature,
+    //                message,
+    //                custody: profile.custody
+    //            }
+    //        }) as any
+    //
+    //        console.log('Storage token: ', login.data.auth_token)
+    //        await setProfile({authToken: login.data.auth_token})
+    //        setAuth(profile!.fid! + '', login.data.auth_token)
+    //    } catch (e) {
+    //           console.error(e)
+    //           showToast('Login fail', 3000)
+    //           logOut()
+    //           return
+    //    } finally {
+    //           unloading()
+    //    }
+    // }
 
     const login = async () => {
         const loginType = AuthStorage.getLastLoginType()
@@ -375,11 +375,11 @@ function UserProvider(props: UserProviderProps) {
         solanaWallet.connected && solanaLogin()
     }, [solanaWallet.connected])
 
-    useEffect(() => {
-        if (isAuthenticated) {
-            farcasterLogin()
-        }
-    }, [isAuthenticated])
+    // useEffect(() => {
+    //     if (isAuthenticated) {
+    //         farcasterLogin()
+    //     }
+    // }, [isAuthenticated])
 
     // update profile from event
     useEffect(() => {

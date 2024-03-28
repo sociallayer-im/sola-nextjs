@@ -27,6 +27,10 @@ const config: Slots = {
         des: 'Kitchen',
         slots: [
             [
+                {label: '10:00', id: '10:00'},
+                {label: '10:30', id: '10:30'},
+                {label: '11:00', id: '10:00'},
+                {label: '11:30', id: '10:30'},
                 {label: '12:00', id: '12:00'},
                 {label: '12:30', id: '12:30'},
                 {label: '13:00', id: '13:00'},
@@ -63,6 +67,9 @@ const config: Slots = {
                 {label: '16:30', id: '16:30'},
                 {label: '17:00', id: '17:00'},
                 {label: '17:30', id: '17:30'},
+                {label: '18:00', id: '18:00'},
+                {label: '18:30', id: '18:30'},
+                {label: '19:00', id: '19:00'},
             ]
         ]
     },
@@ -82,6 +89,9 @@ const config: Slots = {
                 {label: '16:30', id: '16:30'},
                 {label: '17:00', id: '17:00'},
                 {label: '17:30', id: '17:30'},
+                {label: '18:00', id: '18:00'},
+                {label: '18:30', id: '18:30'},
+                {label: '19:00', id: '19:00'},
             ]
         ]
     },
@@ -99,6 +109,11 @@ const config: Slots = {
                 {label: '15:30', id: '15:30'},
                 {label: '16:00', id: '16:00'},
                 {label: '16:30', id: '16:30'},
+                {label: '17:00', id: '17:00'},
+                {label: '17:30', id: '17:30'},
+                {label: '18:00', id: '18:00'},
+                {label: '18:30', id: '18:30'},
+                {label: '19:00', id: '19:00'},
             ]
         ]
     },
@@ -133,23 +148,88 @@ const config: Slots = {
                 {label: '20:30', id: '20:30'},
             ]
         ]
+    },
+    "87": {
+        des: "Movie Theater",
+        slots: [
+            [
+                {label: '10:00', id: '10:00'},
+                {label: '10:30', id: '10:30'},
+                {label: '11:00', id: '11:00'},
+                {label: '11:30', id: '11:30'},
+                {label: '12:00', id: '11:00'},
+                {label: '12:30', id: '11:30'},
+                {label: '13:00', id: '13:00'},
+                {label: '13:30', id: '13:30'},
+                {label: '14:00', id: '14:00'},
+                {label: '14:30', id: '14:30'},
+                {label: '15:00', id: '15:00'},
+                {label: '15:30', id: '15:30'},
+                {label: '16:00', id: '16:00'},
+                {label: '16:30', id: '16:30'},
+                {label: '17:00', id: '16:00'},
+                {label: '17:30', id: '16:30'},
+                {label: '18:00', id: '18:00'},
+                {label: '18:30', id: '18:30'},
+                {label: '19:00', id: '19:00'},
+            ]
+        ]
+    },
+    "86": {
+        des: "Classroom, 12 seats",
+        slots: [
+            [
+                {label: '10:00', id: '10:00'},
+                {label: '10:30', id: '10:30'},
+                {label: '11:00', id: '11:00'},
+                {label: '11:30', id: '11:30'},
+                {label: '12:00', id: '12:00'},
+                {label: '12:30', id: '12:30'},
+            ],
+            [
+                {label: '15:00', id: '15:00'},
+                {label: '15:30', id: '15:30'},
+                {label: '16:00', id: '16:00'},
+                {label: '16:30', id: '16:30'},
+                {label: '17:00', id: '16:00'},
+                {label: '17:30', id: '16:30'},
+                {label: '18:00', id: '18:00'},
+                {label: '18:30', id: '18:30'},
+                {label: '19:00', id: '19:00'},
+                {label: '19:30', id: '19:30'},
+                {label: '20:00', id: '20:00'},
+            ]
+        ]
     }
 }
 
-function TimeSlot(props: { eventSiteId: number, from: string, to: string, onChange?: (from: string, to: string, timezone: string) => any }) {
+function TimeSlot(props: {
+    eventSiteId: number,
+    from: string,
+    to: string,
+    allowRepeat?: boolean,
+    onChange?: (from: string, to: string, timezone: string, repeat: string, counter: number) => any }) {
     const {lang} = useContext(LangContext)
     // const timezone = 'Asia/Shanghai'
     const timezone = 'America/Argentina/Buenos_Aires'
-    const [date, setDate] = useState<Date>(new Date())
-    const [from, setFrom] = useState<Slot[] | null>(null)
-    const [to, setTo] = useState<Slot[] | null>(null)
     const [evenSiteId, setEvenSiteId] = useState<number | null>(null)
-
     const [data, setData] = useState<{from: Slot[] | null, to: Slot[] | null, date: Date}>({
         from: null,
         to: null,
         date: new Date()
     })
+
+    const repeatOptions: any = [
+        {label: lang['Form_Repeat_Not'], id: ''},
+        {label: lang['Form_Repeat_Day'], id: "day"},
+        {label: lang['Form_Repeat_Week'], id: "week"},
+        {label: lang['Form_Repeat_Month'], id: "month"},
+    ]
+
+    let repeatDefault: { label: string, id: string }[] = [repeatOptions[0]]
+    const [repeat, setRepeat] = useState<{ label: string, id: string }[]>(repeatDefault)
+    const [counter, setCounter] = useState(1)
+
 
     useEffect(() => {
         document.querySelectorAll('.slots input').forEach((input) => {
@@ -208,7 +288,7 @@ function TimeSlot(props: { eventSiteId: number, from: string, to: string, onChan
                     to: null,
                     date: new Date()
                 })
-                props.onChange && props.onChange('', '', timezone)
+                props.onChange && props.onChange('', '', timezone, repeat.length? repeat[0].id : '', counter)
             }
         }
     }, [props.from, props.to, props.eventSiteId])
@@ -222,11 +302,11 @@ function TimeSlot(props: { eventSiteId: number, from: string, to: string, onChan
             const date = data.date
             const fromRes = dayjs.tz(`${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()} ${from_str}`, timezone).toISOString()
             const toRes = dayjs.tz(`${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()} ${to_str}`, timezone).toISOString()
-            props.onChange && props.onChange(fromRes, toRes, timezone)
+            props.onChange && props.onChange(fromRes, toRes, timezone, repeat.length? repeat[0].id : '', counter)
         } else {
-            props.onChange && props.onChange('', '', timezone)
+            props.onChange && props.onChange('', '', timezone, repeat.length? repeat[0].id : '', counter)
         }
-    }, [data])
+    }, [data, repeat, counter])
 
 
     function showDate(data: Date) {
@@ -337,6 +417,36 @@ function TimeSlot(props: { eventSiteId: number, from: string, to: string, onChan
                     />
                 </div>
             </div>
+
+            { props.allowRepeat &&
+                <div className={'all-day-repeat time-slot'}>
+                    <Select
+                        clearable={false}
+                        searchable={false}
+                        options={repeatOptions}
+                        value={repeat}
+                        placeholder="Select repeat"
+                        onChange={params => setRepeat(params.value as any)}
+                    />
+                </div>
+            }
+
+            {
+                !!repeat[0] && !!repeat[0].id &&
+                <div className={'repeat-counter'}>
+                    <div className={'title'}>How many times does it repeat?</div>
+                    <div className={'repeat-counter-input'}>
+                        <input type="number"
+                               value={Boolean(counter) ? counter : ''}
+                               onChange={e => {
+                                   setCounter(e.target.value as any * 1)
+                               }}/>
+                        <span>times</span>
+                    </div>
+                </div>
+            }
+
+
         </>: <></>
 }
 

@@ -300,7 +300,7 @@ export async function queryProfileByGraph(props: { type: keyof GetProfileProps, 
 }
 
 export async function queryProfileByEmail(email: string) {
-    const res = await fetch.post({
+    const res = await fetch.get({
         url: `${apiUrl}/profile/get_by_email`,
         data: {email}
     })
@@ -1932,7 +1932,7 @@ export async function acceptInvite(props: AcceptInviteProps) {
         data: props
     })
 
-    if (res.data.result === 'error') {
+    if (res.data.result === 'error' && res.data.message !== 'membership exists') {
         throw new Error(res.data.message)
     }
 }
@@ -2029,7 +2029,7 @@ export interface SearchDomainProps {
 
 export async function searchDomain(props: SearchDomainProps): Promise<Profile[]> {
     const doc = gql`query MyQuery {
-      profiles(where: {username: {_iregex: "${props.username}"}}, limit: 20, offset: ${(props.page - 1) * 20}) {
+      profiles(where: {_or: [{username: {_iregex: "${props.username}"}}, {nickname: {_iregex: "${props.username}"}}]}, limit: 20, offset: ${(props.page - 1) * 20}) {
         id
         username
         nickname
@@ -2045,6 +2045,7 @@ export async function searchDomain(props: SearchDomainProps): Promise<Profile[]>
         return item
     }) as Profile[]
 }
+
 
 export interface SearchBadgeProps {
     title: string,
@@ -2920,6 +2921,7 @@ export interface Participants {
 }
 
 export interface Event {
+    padge_link: string | null,
     id: number,
     title: string,
     content: string,
@@ -2943,6 +2945,7 @@ export interface Event {
     formatted_address: null | any,
     owner: ProfileSimple,
     notes: string | null,
+    display: string,
 
     owner_id: number,
     created_at: string,
@@ -2963,6 +2966,7 @@ export interface Event {
     geo_lat: null | string,
     participants: null | Participants[],
     external_url: null | string,
+    operators: null | number[],
 }
 
 export interface CreateEventProps extends Partial<Event> {
@@ -3087,6 +3091,9 @@ export async function queryEvent(props: QueryEventProps): Promise<Event[]> {
 
     const doc = gql`query MyQuery {
       events (where: {${variables}, status: {_in: [${status}]}} ${order} limit: ${page_size}, offset: ${(props.page - 1) * page_size}) {
+        display
+        operators
+        padge_link
         badge_id
         notes
         geo_lat
@@ -3231,6 +3238,9 @@ export async function queryPendingEvent(props: QueryEventProps): Promise<Event[]
 
     const doc = gql`query MyQuery {
       events (where: {${variables} status: {_eq: "pending"}}, ${order} limit: ${page_size}, offset: ${(props.page - 1) * page_size}) {
+        display
+        operators
+        padge_link
         badge_id
         notes
         external_url
@@ -3493,6 +3503,9 @@ export async function unJoinEvent(props: JoinEventProps) {
 export async function searchEvent(keyword: string) {
     const doc = gql`query MyQuery {
       events (where: {title: {_iregex: "${keyword}"} , status: {_neq: "closed"}}, limit: 10) {
+        display
+        operators
+        padge_link
         badge_id
         notes
         external_url
@@ -4013,8 +4026,8 @@ export async function createRepeatEvent(props: CreateRepeatEventProps) {
         throw new Error(res.data.message)
     }
 
-  const event = await queryEvent({recurring_event_id: res.data.recurring_event_id, page: 1})
-  return event[0]
+    const event = await queryEvent({recurring_event_id: res.data.recurring_event_id, page: 1})
+    return event[0]
 }
 
 export interface RepeatEventInviteProps {
@@ -5066,6 +5079,23 @@ export async function userManageGroups (userid: number) {
 
     return res.memberships.map((item: any) => item.group.id) as number[]
 }
+
+export async function combine(props: {
+    badgelet_ids: number[],
+    auth_token: string,
+    color: string,
+    new_badge_id: number
+}) {
+    checkAuth(props)
+
+    const res = await fetch.post({
+        url: `${apiUrl}/badgelet/wamo_go_merge`,
+        data: props
+    })
+
+    return res.data.badgelet_id as number
+}
+
 
 export default {
     removeMarker,

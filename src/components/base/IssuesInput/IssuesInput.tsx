@@ -83,7 +83,7 @@ function IssuesInput ({allowAddressList=true, allowSearch=true, ...props}: Issue
                 const task = [
                     searchDomain({username: newValue.split('.')[0], page: 1}),
                     getProfile({username: newValue.split('.')[0]}),
-                    getProfileBySNS(newValue)
+                    // getProfileBySNS(newValue)
                 ]
 
                 const fetch = await Promise.all(task)
@@ -115,7 +115,7 @@ function IssuesInput ({allowAddressList=true, allowSearch=true, ...props}: Issue
                     res = [target, ...res]
                 }
 
-                setSearchRes(res.splice(0,4) || [])
+                setSearchRes(res || [])
             }, 200)
         }
     }

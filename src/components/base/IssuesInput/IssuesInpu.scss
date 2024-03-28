@@ -17,6 +17,8 @@
     box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.10);
     left: 0;
     z-index: 1;
+    max-height: 200px;
+    overflow: auto;
 
     .shell {
       position: fixed;
