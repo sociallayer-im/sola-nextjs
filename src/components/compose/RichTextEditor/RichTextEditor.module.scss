@@ -485,6 +485,11 @@
   padding: 16px;
   box-sizing: border-box;
 
+  .err {
+    color: #FF4D4F;
+    font-size: 12px;
+  }
+
   .title {
     font-size: 16px;
     font-weight: 600;

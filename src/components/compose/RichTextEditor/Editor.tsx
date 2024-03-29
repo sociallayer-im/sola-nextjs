@@ -422,6 +422,7 @@ function MenuButton({
 function DialogInsertLink(props: { close?: () => any, onConfig?: (href: string, title: string) => any }) {
     const [href, setHref] = useState<string>('')
     const [title, setTitle] = useState<string>('')
+    const [errMsg, setErrMsg] = useState<string>('')
 
     return <div className={styles['dialog-insert-link']}>
         <div className={styles['title']}>Insert Link</div>
@@ -429,6 +430,7 @@ function DialogInsertLink(props: { close?: () => any, onConfig?: (href: string, 
         <AppInput autoFocus value={href} onChange={e => {
             setHref(e.target.value)
         }}/>
+        <div className={styles['err']}>{errMsg}</div>
         <div className={styles['sub-title']}>Tittle (Optional)</div>
         <AppInput value={title} onChange={e => {
             setTitle(e.target.value)
@@ -440,7 +442,12 @@ function DialogInsertLink(props: { close?: () => any, onConfig?: (href: string, 
             <AppButton
                 disabled={!href}
                 special onClick={e => {
-                props.onConfig && props.onConfig(href, title)
+                if (!href.match(/^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/)) {
+                    setErrMsg('Invalid url')
+                } else {
+                    setErrMsg('')
+                    props.onConfig && props.onConfig(href, title)
+                }
             }}>Confirm</AppButton>
         </div>
     </div>
@@ -450,6 +457,7 @@ function DialogInsertImage(props: { close?: () => any, onConfig?: (src: string, 
 
     const [src, setSrc] = useState<string>('')
     const [title, setTitle] = useState<string>('')
+    const [errMsg, setErrMsg] = useState<string>('')
 
     return <div className={styles['dialog-insert-link']}>
         <div className={styles['title']}>Insert Image</div>
@@ -457,6 +465,7 @@ function DialogInsertImage(props: { close?: () => any, onConfig?: (src: string, 
         <AppInput autoFocus value={src} onChange={e => {
             setSrc(e.target.value)
         }}/>
+        <div className={styles['err']}>{errMsg}</div>
 
         <div className={styles['sub-title']}>Tittle (Optional)</div>
         <AppInput value={title} onChange={e => {
@@ -470,7 +479,12 @@ function DialogInsertImage(props: { close?: () => any, onConfig?: (src: string, 
             <AppButton
                 disabled={!src}
                 special onClick={e => {
-                props.onConfig && props.onConfig(src, title)
+                if (!src.match(/^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/)) {
+                    setErrMsg('Invalid url')
+                } else {
+                    setErrMsg('')
+                    props.onConfig && props.onConfig(src, title)
+                }
             }}>Confirm</AppButton>
         </div>
     </div>
