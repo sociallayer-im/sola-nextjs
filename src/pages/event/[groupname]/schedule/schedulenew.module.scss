@@ -91,6 +91,11 @@
   text-transform: capitalize;
 }
 
+.schedule-x {
+  width: 100vw;
+  height: calc(100vh - 46px);
+}
+
 .schedule-title-right {
   display: flex;
   flex-flow: row nowrap;
