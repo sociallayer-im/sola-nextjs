@@ -6857,6 +6857,11 @@
   resolved "https://registry.npmmirror.com/@types/find-cache-dir/-/find-cache-dir-3.2.1.tgz#7b959a4b9643a1e6a1a5fe49032693cc36773501"
   integrity sha512-frsJrz2t/CeGifcu/6uRo4b+SzAwT4NYCVPu1GN8IB9XTzrpPkGuV0tmh9mN+/L0PklAlsC3u5Fxt0ju00LXIw==
 
+"@types/frappe-gantt@^0.6.4":
+  version "0.6.4"
+  resolved "https://registry.npmmirror.com/@types/frappe-gantt/-/frappe-gantt-0.6.4.tgz#c090dee176bcd83031d9e8ba5620f277c3dddd5b"
+  integrity sha512-HvF+ED1gwhyuN/pvJW5VdEL+JP95q3xyX3NMFcF6R0NJLukXVg/yz4znzSTd81mqzPABABa4Pj6YoQCUHiZa+A==
+
 "@types/glob@*":
   version "8.1.0"
   resolved "https://registry.npmmirror.com/@types/glob/-/glob-8.1.0.tgz#b63e70155391b0584dce44e7ea25190bbc38f2fc"
@@ -13417,6 +13422,11 @@ fragment-cache@^0.2.1:
   integrity sha512-GMBAbW9antB8iZRHLoGw0b3HANt57diZYFO/HL1JGIC1MjKrdmhxvrJbupnVvpys0zsz7yBApXdQyfepKly2kA==
   dependencies:
     map-cache "^0.2.2"
+
+frappe-gantt@^0.6.1:
+  version "0.6.1"
+  resolved "https://registry.npmmirror.com/frappe-gantt/-/frappe-gantt-0.6.1.tgz#57ae0b5f024101fc7cd5ba92f605de97dba9c9a1"
+  integrity sha512-1cSU9vLbwypjzaxnCfnEE03Xr3HlAV2S8dRtjxw62o+amkx1A8bBIFd2jp84mcDdTCM77Ij4LzZBslAKZB8oMg==
 
 fresh@0.5.2:
   version "0.5.2"
