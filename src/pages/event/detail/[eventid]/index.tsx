@@ -552,7 +552,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                             <div className={'des'}>Welcome! To join the event, please attend
                                                 below.</div>
                                             :
-                                            <div className={'des'}>You're attended, we’d love to have you join us.</div>
+                                            <div className={'des'}>You have registered, we’d love to have you join us.</div>
                                         }
 
                                         <div className={'event-action'}>
@@ -786,7 +786,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                     </div>
                                     {!isJoined ?
                                         <div className={'des'}>Welcome! To join the event, please attend below.</div>
-                                        : <div className={'des'}>You're attended, we’d love to have you join us.</div>
+                                        : <div className={'des'}>You have registered, we’d love to have you join us.</div>
                                     }
 
                                     <div className={'event-action'}>
