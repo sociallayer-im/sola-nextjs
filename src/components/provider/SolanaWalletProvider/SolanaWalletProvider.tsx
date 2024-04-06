@@ -15,9 +15,14 @@ const WalletContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
 
     // Can be set to 'devnet', 'testnet', or 'mainnet-beta'
     const network = WalletAdapterNetwork.Mainnet;
+    // const network = 'devnet';
 
     // You can also provide a custom RPC endpoint
-    const endpoint = useMemo(() => clusterApiUrl(network), [network]);
+    // const endpoint = useMemo(() => clusterApiUrl(network), [network]);
+    // https://rpc.ankr.com/solana_devnet
+    // http://localhost:8899
+    // https://solana-devnet.g.alchemy.com/v2/1UAaWELx7H9MNYPmMUwxGTLssmWjsbh_
+    const endpoint = useMemo(() => 'https://solana-devnet.g.alchemy.com/v2/1UAaWELx7H9MNYPmMUwxGTLssmWjsbh_', [network]);
 
     const wallets = useMemo(
         () => [

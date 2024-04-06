@@ -85,8 +85,6 @@ function IssueTypeSelectorBadge(props: IssueTypeSelectorProps) {
             </div>
         }
 
-
-
         <div className={'actions'}>
             <AppButton
                 kind={'primary'}

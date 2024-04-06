@@ -45,6 +45,8 @@ function BadgeDetail(props: { badge: Badge, memberships: Membership[] }) {
     const [isGroupOwner, setIsGroupOwner] = useState(false)
     const [loginUserIsSender, setLoginUserIsSender] = useState(false)
 
+    const isSolana = props.badge.metadata ? JSON.parse(props.badge.metadata).solanabadge : false
+
     useEffect(() => {
         setLoginUserIsSender(badge.creator.id === user.id)
 
@@ -57,7 +59,9 @@ function BadgeDetail(props: { badge: Badge, memberships: Membership[] }) {
     }, [user.id, props.memberships])
 
     const handleIssue = async () => {
-        router.push(`/issue-badge/${badge.id}`)
+        isSolana ?
+            router.push(`/issue-solanabadge/${badge.id}`) :
+            router.push(`/issue-badge/${badge.id}`)
     }
 
     const metadata = props.badge.metadata ? JSON.parse(props.badge.metadata) : {}
@@ -67,6 +71,7 @@ function BadgeDetail(props: { badge: Badge, memberships: Membership[] }) {
         : loginUserIsSender ? badge.title
             : ' 🔒 '
 
+
     return (<div className={styles['badge-detail-page']}>
         <Head>
             <title>{`${title} | Social Layer`}</title>
@@ -74,7 +79,7 @@ function BadgeDetail(props: { badge: Badge, memberships: Membership[] }) {
         <div className={styles['center']}>
             <PageBack menu={() => <div className={styles['wap-menu']}><DetailBadgeMenu isGroupManager={isGroupManager}
                                                                                        badge={props.badge}/></div>}/>
-            { badge.badge_type !== 'private' || loginUserIsSender ?
+            {badge.badge_type !== 'private' || loginUserIsSender ?
                 <div className={styles['content']}>
                     <div className={styles['left']}>
                         <DetailCover className={styles['cover']} src={badge.image_url}/>
@@ -96,7 +101,12 @@ function BadgeDetail(props: { badge: Badge, memberships: Membership[] }) {
                     </div>
                     <div className={styles['right']}>
                         <div className={styles['head']}>
-                            <h1 className={styles['name']}>{badge.title}</h1>
+                            <h1 className={styles['name']}>
+                                { isSolana &&
+                                    <img className={styles['solana-logo']} src="/images/solana.png" alt=""/>
+                                }
+                                {badge.title}
+                            </h1>
                             <DetailBadgeMenu isGroupManager={isGroupManager} badge={props.badge}/>
                         </div>
                         {

@@ -136,7 +136,6 @@ function DetailBadge(props: DetailBadgeProps) {
                 </>
                 : <>
                     <DetailCover src={props.badge.image_url}></DetailCover>
-
                     <DetailName> {props.badge.name} </DetailName>
                     <DetailRow>
                         <DetailCreator isGroup={!!props.badge.group}

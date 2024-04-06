@@ -1,8 +1,8 @@
-import {useState, useEffect, useContext} from 'react'
-import solas, { Badge, Profile } from '../service/solas'
+import {useContext} from 'react'
+import {Badge} from '../service/solas'
 import DialogsContext from '../components/provider/DialogProvider/DialogsContext'
-import { OpenDialogProps } from '../components/provider/DialogProvider/DialogProvider'
-import DialogIssuePrefill, { BadgeBookDialogRes } from '../components/base/Dialog/DialogIssuePrefill/DialogIssuePrefill'
+import {OpenDialogProps} from '@/components/provider/DialogProvider/DialogProvider'
+import DialogIssuePrefill, {BadgeBookDialogRes} from '../components/base/Dialog/DialogIssuePrefill/DialogIssuePrefill'
 import UserContext from '../components/provider/UserProvider/UserContext'
 import {useRouter} from 'next/navigation'
 
@@ -12,20 +12,20 @@ export interface StartIssueBadgeProps {
     group_id?: number
 }
 
-function useIssueBadge () {
-    const { user } = useContext(UserContext)
-    const { openDialog } = useContext(DialogsContext)
+function useIssueBadge() {
+    const {user} = useContext(UserContext)
+    const {openDialog} = useContext(DialogsContext)
     const router = useRouter()
 
-    function toIssuePage (props: BadgeBookDialogRes, to?: string, group_id?: number) {
+    function toIssuePage(props: BadgeBookDialogRes, to?: string, group_id?: number) {
         let path = `/create-${props.type}`
 
-        if (props.type=== 'private') {
+        if (props.type === 'private') {
             path = `/create-badge?type=private`
         }
 
         const split = (path: string) => {
-            return  path.includes('?') ? '&' : '?'
+            return path.includes('?') ? '&' : '?'
         }
 
         if (group_id) {
@@ -54,11 +54,13 @@ function useIssueBadge () {
 
         openDialog({
             content: (close: any) => <DialogIssuePrefill
-                badges={ props.badges }
-                profileId={ user.id! }
+                badges={props.badges}
+                profileId={user.id!}
                 group_id={props?.group_id}
-                onSelect= { (res) => { toIssuePage(res, props.to, props.group_id) } }
-                handleClose={ close } />,
+                onSelect={(res) => {
+                    toIssuePage(res, props.to, props.group_id)
+                }}
+                handleClose={close}/>,
             position: 'bottom',
             size: [360, 'auto']
         } as OpenDialogProps)

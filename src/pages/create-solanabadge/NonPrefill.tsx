@@ -11,6 +11,7 @@ import solas, {Group, Profile} from '../../service/solas'
 import DialogsContext from '../../components/provider/DialogProvider/DialogsContext'
 import ReasonInput from '../../components/base/ReasonInput/ReasonInput'
 import SelectCreator from '../../components/compose/SelectCreator/SelectCreator'
+import useMintSolanaBadge from "@/hooks/useMintSolanaBadge";
 
 function CreateBadgeNonPrefill() {
     const router = useRouter()
@@ -26,18 +27,20 @@ function CreateBadgeNonPrefill() {
     const {verifyDomain} = useVerify()
     const searchParams = useSearchParams()
     const presetAcceptor = searchParams?.get('to')
+    const {registBadge, ready} = useMintSolanaBadge()
 
-    const type = searchParams?.get('type')
-    const badgeType = !type ?
-        'badge'
-        : ['private', 'badge', 'gift', 'nftpass'].includes(type as string) ?
-            type : 'badge'
+    const badgeType = 'badge'
 
     const {lang} = useContext(LangContext)
 
     const handleCreate = async () => {
         setDomainError('')
         setBadgeNameError('')
+
+        if (!ready) {
+            showToast('Please wait for the wallet to connect')
+            return
+        }
 
         if (!badgeName) {
             setBadgeNameError('badge name must not empty')
@@ -70,25 +73,16 @@ function CreateBadgeNonPrefill() {
                 auth_token: user.authToken || '',
                 content: reason || '',
                 group_id: groupId || undefined,
-                badge_type: badgeType
+                badge_type: badgeType,
+                metadata: JSON.stringify({solanabadge: true})
             })
 
-            if (presetAcceptor) {
-                const badgelets = await solas.issueBatch({
-                    badgeId: newBadge.id!,
-                    reason: reason || '',
-                    issues: [presetAcceptor],
-                    auth_token: user.authToken || ''
-                })
-                unload()
-                router.push(`/issue-success?voucher=${badgelets[0].id}`)
+            const registClassIdOnSolana = await registBadge(newBadge, user.id!)
+
+            if (reason) {
+                router.push(`/issue-solanabadge/${newBadge.id}?reason=${encodeURI(reason)}`)
             } else {
-                const patch = searchParams?.get('chain') === 'solanabadge' ? `issue-solanabadge` : 'issue-badge'
-                if (reason) {
-                    router.push(`/${patch}/${newBadge.id}?reason=${encodeURI(reason)}`)
-                } else {
-                    router.push(`/${patch}/${newBadge.id}`)
-                }
+                router.push(`/issue-solanabadge/${newBadge.id}`)
             }
             unload()
         } catch (e: any) {
@@ -104,10 +98,6 @@ function CreateBadgeNonPrefill() {
                 <PageBack title={lang['MintBadge_Title']}/>
 
                 <div className='create-badge-page-form'>
-                    {badgeType === 'private' &&
-                        <div className={'form-tips'}>{lang['Create_Privacy_Tips']}</div>
-                    }
-
                     <div className='input-area'>
                         <div className='input-area-title'>{lang['MintBadge_Upload']}</div>
                         <UploadImage

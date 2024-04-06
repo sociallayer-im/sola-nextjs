@@ -1,11 +1,11 @@
-import { useContext, useRef, useState } from 'react'
+import {useContext, useRef, useState} from 'react'
 import AppInput from '../AppInput'
 import LangContext from '../../provider/LangProvider/LangContext'
-import { Plus, CheckIndeterminate } from 'baseui/icon'
+import {CheckIndeterminate, Plus} from 'baseui/icon'
 import DialogAddressList from '../Dialog/DialogAddressList/DialogAddressList'
 import DialogsContext from '../../provider/DialogProvider/DialogsContext'
 import usePicture from "../../../hooks/pictrue";
-import {Profile, searchDomain, getProfile} from "@/service/solas";
+import {getProfile, Profile, searchDomain} from "@/service/solas";
 import fetch from "@/utils/fetch";
 
 export interface IssuesInputProps {
@@ -13,10 +13,11 @@ export interface IssuesInputProps {
     onChange: (value: string[]) => any,
     placeholder?: string
     allowAddressList?: boolean
-    allowSearch?:boolean
+    allowSearch?: boolean
+    isSingle?: boolean
 }
 
-interface ProfileWithSns  extends Profile {
+interface ProfileWithSns extends Profile {
     sns?: string
 }
 
@@ -29,7 +30,7 @@ const getProfileBySNS = async (params: string): Promise<ProfileWithSns | null> =
         })
 
         if (info.data.address === '0x0000000000000000000000000000000000000000') {
-            return  null
+            return null
         }
 
         const profile = await getProfile({address: info.data.address})
@@ -43,10 +44,10 @@ const getProfileBySNS = async (params: string): Promise<ProfileWithSns | null> =
     }
 }
 
-function IssuesInput ({allowAddressList=true, allowSearch=true, ...props}: IssuesInputProps) {
-    const { lang } = useContext(LangContext)
-    const { openDialog } = useContext(DialogsContext)
-    const { defaultAvatar } = usePicture()
+function IssuesInput({allowAddressList = true, allowSearch = true, isSingle = false, ...props}: IssuesInputProps) {
+    const {lang} = useContext(LangContext)
+    const {openDialog} = useContext(DialogsContext)
+    const {defaultAvatar} = usePicture()
     const timeout = useRef<any>(null)
     const [showSearchRes, setShowSearchRes] = useState<null | number>(null)
     const [searchRes, setSearchRes] = useState<Profile[]>([])
@@ -92,7 +93,7 @@ function IssuesInput ({allowAddressList=true, allowSearch=true, ...props}: Issue
                 // const res2 = await getProfile({domain: newValue.split('.')[0]})
                 // const res3 = await getProfile({username: newValue.split('.')[0]})
                 // const res4 = await getProfile({email: newValue})
-                let res:Profile[] = [];
+                let res: Profile[] = [];
                 [fetch[1], ...fetch[0] as any].map(item => {
                     if (item && !res.find(i => i.id === item.id)) {
                         res.push(item)
@@ -132,8 +133,8 @@ function IssuesInput ({allowAddressList=true, allowSearch=true, ...props}: Issue
     }
 
     const removeItem = (index: number) => {
-        if (props.value.length === 1 ) return
-        const copyValue =  [...props.value]
+        if (props.value.length === 1) return
+        const copyValue = [...props.value]
         copyValue.splice(index, 1)
         props.onChange(copyValue)
     }
@@ -146,16 +147,18 @@ function IssuesInput ({allowAddressList=true, allowSearch=true, ...props}: Issue
                 }
 
                 return <DialogAddressList
-                    value={ props.value }
-                    onChange={(selected: string[]) => { handleChange(selected) }}
-                    handleClose={ close }/>
+                    value={props.value}
+                    onChange={(selected: string[]) => {
+                        handleChange(selected)
+                    }}
+                    handleClose={close}/>
             },
             size: ['100%', '100%']
         })
     }
 
     const addressListBtn = () => {
-        return <span onClick={showAddressList} className='icon-address-list' />
+        return <span onClick={showAddressList} className='icon-address-list'/>
     }
 
     const InputItem = (value: string, index: number) => {
@@ -164,34 +167,50 @@ function IssuesInput ({allowAddressList=true, allowSearch=true, ...props}: Issue
         return (
             <div className='issue-input-item' key={index.toString()}>
                 <AppInput
-                    endEnhancer={ allowAddressList ? addressListBtn: undefined }
+                    endEnhancer={allowAddressList ? addressListBtn : undefined}
                     placeholder={props.placeholder || lang['IssueBadge_IssueesPlaceholder']}
-                    value={ value.replace('.sociallayer.im', '') }
-                    onChange={(e) => { onChange(e.target.value, index)} }
+                    value={value.replace('.sociallayer.im', '')}
+                    onChange={(e) => {
+                        onChange(e.target.value, index)
+                    }}
                     key={index.toString()}
-                    onFocus={(e) => { onChange(e.target.value, index)}}
+                    onFocus={(e) => {
+                        onChange(e.target.value, index)
+                    }}
                 />
 
-                { index != props.value.length - 1 ?
-                    <div className='issue-input-remove-btn' onClick={ () => { removeItem(index) } }>
-                        <CheckIndeterminate />
-                    </div> :
-                    <div className='issue-input-add-btn'  onClick={ addItem }>
-                        <Plus />
-                    </div>
+                {!isSingle && <>
+                    {index != props.value.length - 1 ?
+                        <div className='issue-input-remove-btn' onClick={() => {
+                            removeItem(index)
+                        }}>
+                            <CheckIndeterminate/>
+                        </div> :
+                        <div className='issue-input-add-btn' onClick={addItem}>
+                            <Plus/>
+                        </div>
+                    }
+                </>
                 }
 
-                {  showSearchRes === index &&
+
+                {showSearchRes === index &&
                     <div className={'search-res'}>
-                        <div className={'shell'} onClick={e => { hideSearchRes() }}></div>
+                        <div className={'shell'} onClick={e => {
+                            hideSearchRes()
+                        }}></div>
                         {
                             searchRes.map((item, index2) => {
                                 const username = item.username?.startsWith('0x') ?
-                                    item.username!.substr(0, 6) + '...' + item.username!.substr(-4):
+                                    item.username!.substr(0, 6) + '...' + item.username!.substr(-4) :
                                     item.username
-                                return <div className={'res-item'} key={index2} onClick={e => { onChange(item.username || '', index); hideSearchRes()}}>
+                                return <div className={'res-item'} key={index2} onClick={e => {
+                                    onChange(item.username || '', index);
+                                    hideSearchRes()
+                                }}>
                                     <img src={item.image_url || defaultAvatar(item.id)} alt=""/>
-                                    <div>{ username }<span>{item.nickname ? `(${item.nickname})` : ''}</span><span>{(item as ProfileWithSns).sns ? `(${(item as ProfileWithSns).sns})` : ''}</span></div>
+                                    <div>{username}<span>{item.nickname ? `(${item.nickname})` : ''}</span><span>{(item as ProfileWithSns).sns ? `(${(item as ProfileWithSns).sns})` : ''}</span>
+                                    </div>
                                 </div>
                             })
                         }

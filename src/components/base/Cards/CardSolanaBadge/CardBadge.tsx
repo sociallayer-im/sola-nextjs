@@ -1,10 +1,11 @@
-import { useStyletron } from 'baseui'
-import { useContext } from 'react'
-import { Badge } from '@/service/solas'
-import DialogsContext from '../../../provider/DialogProvider/DialogsContext'
+import {useStyletron} from 'baseui'
+import {useContext} from 'react'
 import UserContext from '../../../provider/UserProvider/UserContext'
 import {useRouter} from "next/navigation";
 import ImgLazy from "@/components/base/ImgLazy/ImgLazy";
+import {SolanaBadgeLet} from "@/hooks/useMintSolanaBadge";
+import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
+import {Badge, getProfileBatch, Group, ProfileSimple, queryBadgeDetail} from "@/service/solas";
 
 const style = {
     wrapper: {
@@ -22,14 +23,14 @@ const style = {
         marginBottom: '10px',
         boxSizing: 'border-box' as const,
         transition: 'all 0.12s linear',
-        ':hover' : {
+        ':hover': {
             transform: 'translateY(-8px)'
         },
-        ':active' : {
+        ':active': {
             boxShadow: '0px 1.9878px 3px rgba(0, 0, 0, 0.1)'
         }
-    },
-    img:  {
+    } as any,
+    img: {
         width: '90px',
         height: '90px',
         borderRadius: '50%',
@@ -87,19 +88,20 @@ const style = {
         width: '18px',
         height: '18px',
         borderRadius: '50%',
-    }
+    } as any
 }
 
 export interface CardBadgeProps {
-    badge: Badge
+    badge: SolanaBadgeLet
 }
 
-function CardBadge (props: CardBadgeProps) {
+function CardBadge(props: CardBadgeProps) {
     const [css] = useStyletron()
     const {user} = useContext(UserContext)
     const router = useRouter()
+    const {showLoading, showBadgelet} = useContext(DialogsContext)
 
-    const showDialog = () => {
+    const showDialog = async () => {
         // if (props.badge.badge_type === 'nftpass') {
         //     showNftpass(props.badge)
         // } else if (props.badge.badge_type === 'gift') {
@@ -108,29 +110,58 @@ function CardBadge (props: CardBadgeProps) {
         //     showBadge(props.badge)
         // }
         //
-        router.push(`/badge/${props.badge.id}`)
+        // router.push(`/badge/${props.badge.id}`)
+
+        const badgeId = props.badge.metadataDetail.badge_id
+        if (!badgeId) return
+
+        const unload = showLoading()
+        const task: any[] = [queryBadgeDetail({id: badgeId})]
+
+        if (props.badge.metadataDetail.owner) {
+            task.push(getProfileBatch([props.badge.metadataDetail.owner]))
+        }
+
+        if (props.badge.metadataDetail.creator) {
+            task.push(getProfileBatch([props.badge.metadataDetail.creator]))
+        }
+
+        const [badge, owner, creator] = await Promise.all(task)
+
+        const badgelet = {
+            id: 0,
+            badge_id: badgeId,
+            content: props.badge.metadataDetail.description,
+            domain: '',
+            display: 'normal',
+            owner: owner[0],
+            creator: creator[0],
+            status: 'accepted',
+            token_id: null,
+            badge: badge,
+            chain_data: null,
+            group: badge.group,
+            created_at: props.badge.metadataDetail.create_at || null,
+            last_consumed_at: null,
+            metadata: null
+        }
+
+        unload()
+        console.log('badgelet => ', badgelet)
+        showBadgelet(badgelet)
     }
 
-    const isSolana = props.badge.metadata ? JSON.parse(props.badge.metadata).solanabadge : false
+    const isSolana = true
 
-    return (<div data-testid='CardBadge' className={ css(style.wrapper as any) } onClick={() => { showDialog() }}>
-        {
-            (props.badge.badge_type === 'private' && props.badge.creator.id !== user.id) ?
-                <>
-                    <div className={ css(style.coverBg) }>
-                        <img className={ css(style.img) } src={ '/images/badge_private.png'} alt=""/>
-                    </div>
-                    <div className={ css(style.name) }>🔒</div>
-                </>
-               : <>
-                    <div className={ css(style.coverBg) }>
-                        <ImgLazy className={ css(style.img) } width={180} height={180} src={ props.badge.image_url } alt="" />
-                    </div>
-                    { isSolana && <img  className={ css(style.solana as any) } src={'/images/solana.png'} alt={'solana badge'} /> }
-                    <div className={ css(style.name) }>{ props.badge.name }</div>
-                </>
-        }
-            </div>)
+    return (<div data-testid='CardBadge' className={css(style.wrapper)} onClick={() => {
+        showDialog()
+    }}>
+        <div className={css(style.coverBg)}>
+            <ImgLazy className={css(style.img)} width={180} height={180} src={props.badge.metadataDetail.image || '/images/solana.png'} alt=""/>
+        </div>
+        {isSolana && <img className={css(style.solana as any)} src={'/images/solana.png'} alt={'solana badge'}/>}
+        <div className={css(style.name)}>{props.badge.metadataDetail.name}</div>
+    </div>)
 }
 
 export default CardBadge

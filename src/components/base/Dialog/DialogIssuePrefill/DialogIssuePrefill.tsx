@@ -5,7 +5,7 @@ import LangContext from '../../../provider/LangProvider/LangContext'
 import {getProfile, Profile, Badge, queryGroupDetail} from "@/service/solas";
 import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
 
-export type CreateType = 'badge' | 'point' | 'nftpass' | 'private' | 'gift'
+export type CreateType = 'badge' | 'point' | 'nftpass' | 'private' | 'gift' | 'solanabadge'
 
 export interface BadgeBookDialogRes {
     badgeId?: number
@@ -76,7 +76,16 @@ function DialogIssuePrefill(props: DialogIssuePrefillProps) {
                             <img src="/images/badge_type/basic.png" alt=""/>
                             <div>
                                 <div>{lang['Badgebook_Dialog_Recognition_Badge']}</div>
-                                <div className={'des'}>{lang['Badgebook_Dialog_Recognition_Des']}</div>
+                                <div className={'des'}>{lang['Badgebook_Dialog_Recognition_Des']} </div>
+                            </div>
+                        </div>
+                        <div className='create-badge-btn' onClick={e => {
+                            gotoCreateBadge('solanabadge')
+                        }}>
+                            <img src="/images/solana.png" alt=""/>
+                            <div>
+                                <div>{'Solana Badge'} <span className={'new-mark'}>NEW</span></div>
+                                <div className={'des'}>{'Create a badge on Solana network'} </div>
                             </div>
                         </div>
                         <div className='create-badge-btn' onClick={e => {

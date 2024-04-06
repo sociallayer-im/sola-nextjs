@@ -34,6 +34,11 @@ const UserGroup = dynamic(() => import('@/components/compose/ListUserGroup'), {
     loading: () => <p>Loading...</p>,
 })
 
+const UserSolanaNFT = dynamic(() => import('@/components/compose/ListUserSolanaNFT/ListUserSolanaNFT'), {
+    loading: () => <p>Loading...</p>,
+})
+
+
 
 
 function ComponentName({profile}: {profile: Profile}) {
@@ -82,6 +87,11 @@ function ComponentName({profile}: {profile: Profile}) {
                     <Tab title={lang['Profile_Tab_Basic']}>
                         <UserRecognition profile={profile}/>
                     </Tab>
+                    { !!profile.sol_address ?
+                        <Tab title={'Solana'}>
+                            <UserSolanaNFT profile={profile}/>
+                        </Tab> : <></>
+                    }
                     {
                         !!profile?.permissions.includes('nftpass') ?
                             <Tab title={lang['Profile_Tab_NFTPASS']}>

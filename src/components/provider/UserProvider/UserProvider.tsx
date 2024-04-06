@@ -30,6 +30,7 @@ export interface User {
     permissions: string[],
     phone: string | null,
     maodaoid?: number | null,
+    sol_address?: string | null
 
 }
 
@@ -55,7 +56,8 @@ const emptyUser: User = {
     nickname: null,
     permissions: [],
     phone: null,
-    far_address: null
+    far_address: null,
+    sol_address: null
 }
 
 function UserProvider(props: UserProviderProps) {
@@ -94,6 +96,7 @@ function UserProvider(props: UserProviderProps) {
                 permissions: profileInfo?.permissions || [],
                 maodaoid: profileInfo?.maodaoid,
                 far_address: profileInfo?.far_address,
+                sol_address: profileInfo?.sol_address,
             })
 
             // if (!profileInfo!.username) {
@@ -250,6 +253,7 @@ function UserProvider(props: UserProviderProps) {
     }
 
     const solanaLogin = async () => {
+        console.log('==============solanaWallet', solanaWallet)
         const loginType = AuthStorage.getLastLoginType()
         if (!loginType) return
         if (loginType !== 'solana') return
