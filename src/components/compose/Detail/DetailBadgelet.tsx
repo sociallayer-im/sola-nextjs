@@ -162,7 +162,7 @@ function DetailBadgelet(props: DetailBadgeletProps) {
                     <DetailCover src={'/images/badge_private.png'}/>
                     <DetailName> 🔒 </DetailName>
                     <DetailRow>
-                        { !!badgelet.badge.group || !!badgelet.creator &&
+                        { (!!badgelet.badge.group || !!badgelet.creator) &&
                             <DetailCreator isGroup={!!badgelet.badge.group}
                                            profile={badgelet.badge.group || badgelet.creator}/>
                         }
@@ -194,7 +194,7 @@ function DetailBadgelet(props: DetailBadgeletProps) {
                     <DetailCover src={metadata?.image || badgelet.badge.image_url}></DetailCover>
                     <DetailName> {metadata?.name || badgelet.badge.name} </DetailName>
                     <DetailRow>
-                        { !!badgelet.badge.group || !!badgelet.creator &&
+                        { (!!badgelet.badge.group || !!badgelet.creator) &&
                             <DetailCreator isGroup={!!badgelet.badge.group}
                                            profile={badgelet.badge.group || badgelet.creator}/>
                         }
