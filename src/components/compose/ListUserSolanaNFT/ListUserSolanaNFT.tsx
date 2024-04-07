@@ -30,10 +30,8 @@ function ListUserRecognition(props: ListUserRecognitionProps) {
 
     const listWrapperRefBadge = React.createRef<ListUserAssetsMethods>()
     useEffect(() => {
-        if (solanaReady) {
-            !!listWrapperRefBadge.current && listWrapperRefBadge.current!.refresh()
-        }
-    }, [props.profile, solanaReady])
+        !!listWrapperRefBadge.current && listWrapperRefBadge.current!.refresh()
+    }, [props.profile])
 
     return (<div className={'list-user-recognition'}>
         <div className={'list-title'}>{lang['Badgelet_List_Title']}</div>

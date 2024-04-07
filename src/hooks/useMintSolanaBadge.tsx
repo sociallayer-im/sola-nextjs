@@ -12,7 +12,7 @@ import {
 import * as anchor from "@coral-xyz/anchor";
 import fetch from "@/utils/fetch";
 import UserContext from "@/components/provider/UserProvider/UserContext";
-import {PublicKey, Transaction, ComputeBudgetProgram} from "@solana/web3.js";
+import {PublicKey, Transaction, ComputeBudgetProgram, Connection} from "@solana/web3.js";
 import * as registry from "@/service/solana/src/registry";
 import {Badge, uploadImage} from "@/service/solas";
 import {BN} from "bn.js";
@@ -270,7 +270,14 @@ function useMintSolana() {
     }
 
     const getUserBadgelet = async (pubkeyStr: string) => {
-        const badgeProgram = new BadgeProgram(programRef.current);
+        const provider = new anchor.AnchorProvider(
+            new Connection('https://solana-devnet.g.alchemy.com/v2/1UAaWELx7H9MNYPmMUwxGTLssmWjsbh_'),
+            solanaWallet,
+            anchor.AnchorProvider.defaultOptions()
+        );
+
+        const program = new anchor.Program(IDL, PROGRAM_ID, provider);
+        const badgeProgram = new BadgeProgram(program);
         const badgelet: any = await badgeProgram.featchBadges(new PublicKey(pubkeyStr));
         console.log('badgelet => ', badgelet)
         return badgelet as SolanaBadgeLet[]
