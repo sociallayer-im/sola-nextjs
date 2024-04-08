@@ -123,7 +123,7 @@ function useMintSolana() {
             ],
             "curator": user.sol_address,
             "sellerFeeBasisPoints": 100,
-            "symbol": user.userName,
+            "symbol": 'USER',
             "uri": `${location.origin}/profile/${user.id}`,
             "isMutable": true,
             "to": user.sol_address
