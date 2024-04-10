@@ -172,7 +172,118 @@ function RichTextEditor({
                 {
                     name: 'Ordered List',
                     title: 'Ordered List',
-                    command:  wrapInList(markdownSchema.nodes.ordered_list),
+                    command: (state, dispatch) => {
+                        let {from, $from, to, empty} = state.selection
+                        const selectedNodes: any = (state.selection.content() as any)
+                        const currNodes: any = state.doc?.nodeAt(from)
+
+
+                        let isInBulletList = false
+                        let isInOrderList = false
+                        let pos = undefined
+                        try {
+                            pos = $from.before(-2) || 0;
+                        } catch (e) {
+                            pos = 0
+                        }
+
+                        console.log('pospos', pos)
+
+                        if (pos !== undefined) {
+                            isInBulletList = state.doc?.nodeAt(pos)?.type.name === 'bullet_list'
+                            isInOrderList = state.doc?.nodeAt(pos)?.type.name === 'ordered_list'
+                        }
+
+                        console.log('selected info: ', {
+                            isInBulletList,
+                            isInOrderList,
+                            selectedNodes,
+                            currNodes,
+                            empty,
+                            pos,
+                            from,
+                            to,
+                            selectionL: state.selection
+                        })
+
+                        const isListFirstItem = (listNode: any, target: any):boolean => {
+                            if (!listNode) return false
+
+                            if (listNode.content?.content?.[0]) {
+                                return isListFirstItem(listNode.content?.content?.[0], target)
+                            } else {
+                                return listNode === target
+                            }
+                        }
+
+                        if (empty) {
+                            if (isInOrderList) {
+                                const orderListNode = state.doc?.nodeAt(pos)
+                                 if (isListFirstItem(orderListNode, currNodes)) {
+                                    // 光标在其中一个有序列表 item 中，且是第一个item：脱离有序列表
+                                    lift(state, dispatch)
+                                } else {
+                                    // 光标在其中一个有序列表 item 中，且不是第一个item：往上合并
+                                    joinUp(state, dispatch)
+                                }
+                            } else {
+                                // 光标在其中一个无序列表 item 中，该item变成子有序列表
+                                // 光标在其中一个无序列表 item 中，该item变成子有序列表
+                                wrapInList(markdownSchema.nodes.ordered_list)(state, dispatch)
+                            }
+                        } else {
+                            const selectedNodeList: any = (state.selection.content().content as any).content
+                            const hasBulletList = selectedNodeList.some((node: any) => node.type.name === 'bullet_list')
+                            const hasOrderedList = selectedNodeList.some((node: any) => node.type.name === 'ordered_list')
+
+                            isInBulletList = selectedNodeList.length === 1 && hasBulletList
+                            isInOrderList = selectedNodeList.length === 1 && hasOrderedList
+                            console.log({
+                                isInBulletList,
+                                isInOrderList
+                            })
+                            if (isInBulletList) {
+                                const bulletListNode = selectedNodeList[0]
+                                const orderListNodeChildren = (bulletListNode?.content as any).content
+                                console.log('bulletListNode', bulletListNode)
+                                console.log('orderListNodeChildren', orderListNodeChildren)
+                                if (selectedNodes.content?.content[0]?.childCount === orderListNodeChildren.length) {
+                                    // 选中的是整个无序列表，变成有序列表
+                                    console.log('===1')
+                                    console.log('==pos', pos)
+                                    dispatch && dispatch(state.tr.setNodeMarkup(pos, markdownSchema.nodes.ordered_list))
+                                    moveToEnd(editorViewRef.current.state, dispatch)
+                                } else if (selectedNodes.content?.content[0]?.childCount === 1) {
+                                    // 选中的是无序列表中的一个item，变成有序列表
+                                    console.log('===2')
+                                    wrapInList(markdownSchema.nodes.ordered_list)(state, dispatch)
+                                } else {
+                                    // 选中的是无序列表中的一部分，变成有序列表
+                                    console.log('===3')
+                                    liftListItem(markdownSchema.nodes.ordered_list)(state, dispatch)
+                                    // 使用新的state来执行command
+                                    wrapInList(markdownSchema.nodes.ordered_list)(editorViewRef.current.state, dispatch)
+                                }
+                            } else if (isInOrderList) {
+                                const orderListNode = selectedNodeList[0]
+                                const orderListNodeChildren = (orderListNode?.content as any).content
+                                if (selectedNodes.content?.content[0]?.childCount === orderListNodeChildren.length) {
+                                    // 选中的是整个有序列表，变成Paragraph
+                                    console.log('lift', markdownSchema.nodes)
+                                    console.log('orderListNode', orderListNode)
+                                    liftListItem(markdownSchema.nodes.ordered_list)(state, dispatch)
+                                    // splitBlockKeepMarks(state, dispatch)
+                                    // wrapInList(markdownSchema.nodes.ordered_list)(state, dispatch)
+                                    // dispatch && dispatch(state.tr.setNodeMarkup(pos, markdownSchema.nodes.paragraph))
+                                }
+                            } else {
+                                wrapInList(markdownSchema.nodes.ordered_list)(state, dispatch)
+                            }
+                        }
+
+
+                        return true
+                    },
                     icon: 'editor-icon-ordered-list'
                 },
                 {
