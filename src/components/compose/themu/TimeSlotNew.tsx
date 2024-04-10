@@ -24,7 +24,7 @@ export interface Slots {
 
 const config: Slots = {
     "80": {
-        des: 'Kitchen',
+        des: 'Stage',
         slots: [
             [
                 {label: '10:00', id: '10:00'},
@@ -39,6 +39,8 @@ const config: Slots = {
                 {label: '14:30', id: '14:30'},
             ],
             [
+                {label: '15:00', id: '15:00'},
+                {label: '15:30', id: '15:30'},
                 {label: '16:00', id: '16:00'},
                 {label: '16:30', id: '16:30'},
                 {label: '17:00', id: '17:00'},
@@ -61,6 +63,8 @@ const config: Slots = {
                 {label: '12:00', id: '12:00'},
             ],
             [
+                {label: '14:00', id: '14:00'},
+                {label: '14:30', id: '14:30'},
                 {label: '15:00', id: '15:00'},
                 {label: '15:30', id: '15:30'},
                 {label: '16:00', id: '16:00'},
@@ -189,6 +193,8 @@ const config: Slots = {
                 {label: '12:30', id: '12:30'},
             ],
             [
+                {label: '14:00', id: '14:00'},
+                {label: '14:30', id: '14:30'},
                 {label: '15:00', id: '15:00'},
                 {label: '15:30', id: '15:30'},
                 {label: '16:00', id: '16:00'},
