@@ -1,10 +1,8 @@
 import {Event, getGroups, Group, queryEvent} from "@/service/solas";
-import {useEffect, useRef, useState, useContext} from "react";
+import {useContext, useEffect, useRef, useState} from "react";
 import styles from './schedulenew.module.scss';
 import Gantt from '@/libs/frappe-fantt/index'
-import AppButton from "@/components/base/AppButton/AppButton";
 import usePicture from "@/hooks/pictrue";
-import EventLabels from "@/components/base/EventLabels/EventLabels";
 import {Select} from "baseui/select";
 import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
 
@@ -90,14 +88,14 @@ function Gan(props: { group: Group }) {
     const [tag, setTag] = useState([{id: 'All', label: 'All'}])
 
     const tags = props.group.event_tags?.map((item: string) => {
-      return {
-          id: item,
-          label: item
-      }
+        return {
+            id: item,
+            label: item
+        }
     })
 
 
-    useEffect(()=> {
+    useEffect(() => {
         try {
             const historyTimeZone = localStorage.getItem('schedule-timezone')
             if (historyTimeZone) {
@@ -110,7 +108,8 @@ function Gan(props: { group: Group }) {
                 }
                 setTimezoneSelected([timezoneInfo])
             }
-        } catch (e: any) { }
+        } catch (e: any) {
+        }
     }, [])
 
 
@@ -124,7 +123,7 @@ function Gan(props: { group: Group }) {
             console.log('end', end)
 
             const unload = showLoading()
-         queryEvent({
+            queryEvent({
                 group_id: eventGroup.id,
                 start_time_from: dayjs.tz(new Date().getTime(), timezoneSelected[0].id).startOf('month').toISOString(),
                 start_time_to: dayjs.tz(new Date().getTime(), timezoneSelected[0].id).endOf('month').toISOString(),
@@ -135,58 +134,58 @@ function Gan(props: { group: Group }) {
             }).then(res => {
                 const eventList = res
                     .map((event: Event) => {
-                    let host = [event.owner.username]
-                    if (event.host_info) {
-                        const _host = JSON.parse(event.host_info)
-                        if (_host.group_host) {
-                            host = [_host.group_host.username]
+                        let host = [event.owner.username]
+                        if (event.host_info) {
+                            const _host = JSON.parse(event.host_info)
+                            if (_host.group_host) {
+                                host = [_host.group_host.username]
+                            }
                         }
-                    }
 
-                    let progress = 0
-                    if (new Date() > new Date(event.start_time!) && new Date() < new Date(event.end_time!)) {
-                        progress = (new Date().getTime() - new Date(event.start_time!).getTime()) / (new Date(event.end_time!).getTime() - new Date(event.start_time!).getTime()) * 100
-                    } else if (new Date() > new Date(event.end_time!)) {
-                        progress = 100
-                    }
+                        let progress = 0
+                        if (new Date() > new Date(event.start_time!) && new Date() < new Date(event.end_time!)) {
+                            progress = (new Date().getTime() - new Date(event.start_time!).getTime()) / (new Date(event.end_time!).getTime() - new Date(event.start_time!).getTime()) * 100
+                        } else if (new Date() > new Date(event.end_time!)) {
+                            progress = 100
+                        }
 
-                    return {
-                        id: event.id.toString(),
-                        name: event.title,
-                        // name: dayjs.tz(new Date(event.start_time!).getTime(), timezoneSelected[0].id).format('YYYY-MM-DD HH:mm') + ' - ' + dayjs.tz(new Date(event.end_time!).getTime(), timezoneSelected[0].id).format('YYYY-MM-DD HH:mm'),
-                        start: dayjs.tz(new Date(event.start_time!).getTime(), timezoneSelected[0].id).format('YYYY-MM-DD HH:mm'),
-                        end: dayjs.tz(new Date(event.end_time!).getTime(), timezoneSelected[0].id).format('YYYY-MM-DD HH:mm'),
-                        progress: progress,
-                        location: event.location,
-                        avatar: event.owner.image_url || defaultAvatar(event.owner.id),
-                        host: event.owner.username
-                    }
-                })
+                        return {
+                            id: event.id.toString(),
+                            name: event.title,
+                            // name: dayjs.tz(new Date(event.start_time!).getTime(), timezoneSelected[0].id).format('YYYY-MM-DD HH:mm') + ' - ' + dayjs.tz(new Date(event.end_time!).getTime(), timezoneSelected[0].id).format('YYYY-MM-DD HH:mm'),
+                            start: dayjs.tz(new Date(event.start_time!).getTime(), timezoneSelected[0].id).format('YYYY-MM-DD HH:mm'),
+                            end: dayjs.tz(new Date(event.end_time!).getTime(), timezoneSelected[0].id).format('YYYY-MM-DD HH:mm'),
+                            progress: progress,
+                            location: event.location,
+                            avatar: event.owner.image_url || defaultAvatar(event.owner.id),
+                            host: event.owner.username
+                        }
+                    })
 
-             console.log('eventList', eventList)
-             if (!ganttRef.current) {
-                 ganttRef.current = new Gantt('#gantt', eventList, {
-                     view_mode: 'Day',
-                     date_format: 'YYYY-MM-DD',
-                     scrollToday: true,
-                     custom_popup_html: function(task) {
-                         return `<div class="${styles['gantt-popup']}">
+                console.log('eventList', eventList)
+                if (!ganttRef.current) {
+                    ganttRef.current = new Gantt('#gantt', eventList, {
+                        view_mode: 'Day',
+                        date_format: 'YYYY-MM-DD',
+                        scrollToday: true,
+                        custom_popup_html: function (task: any) {
+                            return `<div class="${styles['gantt-popup']}">
                                     <div class="${styles['name']}">${task.name}</div>
                                     <div class="${styles['detail']}"> <img src="${task.avatar}" alt=""><span>by ${task.host}</span></div>
                                     <div class="${styles['detail']}"><i class="icon-calendar"></i><span>${task.start.replace('-', '.')} - ${task.end.replace('-', '.')}</span></div>
-                                    ${task.location ? `<div class="${styles['detail']}"><i class="icon-Outline"></i><span>${task.location}</span></div>`: ''}
+                                    ${task.location ? `<div class="${styles['detail']}"><i class="icon-Outline"></i><span>${task.location}</span></div>` : ''}
                                     <a href="/event/detail/${task.id}" class="${styles['link']}" target="_blank">View Event</a>
                                 <div>`
-                     }
-                 })
-             } else {
-                 ganttRef.current.setup_tasks(eventList)
-                 ganttRef.current.change_view_mode()
-             }
+                        }
+                    })
+                } else {
+                    ganttRef.current.setup_tasks(eventList)
+                    ganttRef.current.change_view_mode()
+                }
             })
-             .finally(() => {
-                 unload()
-             })
+                .finally(() => {
+                    unload()
+                })
         }
     }, [timezoneSelected, tag])
 
@@ -200,9 +199,9 @@ function Gan(props: { group: Group }) {
                     creatable={false}
                     searchable={false}
                     value={tag}
-                    options={[{id: 'All', label: 'All'}, ...tags]}
+                    options={[{id: 'All', label: 'All'}, ...tags as any]}
                     onChange={({option}) => {
-                       setTag([option] as any)
+                        setTag([option] as any)
                     }}
                 />
             </div>
@@ -223,9 +222,9 @@ function Gan(props: { group: Group }) {
                 />
             </div>
         </div>
-       <div className={styles['gantt-warp']}>
-           <svg id={'gantt'} className={styles['gantt']} />
-       </div>
+        <div className={styles['gantt-warp']}>
+            <svg id={'gantt'} className={styles['gantt']}/>
+        </div>
     </div>
 }
 

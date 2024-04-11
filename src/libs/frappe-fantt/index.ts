@@ -936,6 +936,9 @@ export default class Gantt {
         if (!this.tasks.length || this.options.scrollToday) {
             const date = new Date()
             date.setHours(0,0,0)
+            if (!this.view_is(VIEW_MODE.QUARTER_DAY)) {
+                date.setDate(date.getDate() - 2)
+            }
             return date
         }
 
