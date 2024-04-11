@@ -1,6 +1,6 @@
 // @ts-nocheck
 import date_utils from './src/date_utils';
-import { $, createSVG } from './src/svg_utils';
+import {$, createSVG} from './src/svg_utils';
 import Bar from './src/bar';
 import Arrow from './src/arrow';
 import Popup from './src/popup';
@@ -226,7 +226,13 @@ export default class Gantt {
     }
 
     setup_gantt_dates() {
-        this.gantt_start = this.gantt_end = null;
+        let currentDate = new Date();
+        const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+        let lastDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1);
+        lastDayOfMonth.setDate(lastDayOfMonth.getDate() - 1);
+
+        this.gantt_start = firstDayOfMonth
+        this.gantt_end = lastDayOfMonth
 
         for (let task of this.tasks) {
             // set global start and end date
@@ -342,8 +348,8 @@ export default class Gantt {
     }
 
     make_grid_rows() {
-        const rows_layer = createSVG('g', { append_to: this.layers.grid });
-        const lines_layer = createSVG('g', { append_to: this.layers.grid });
+        const rows_layer = createSVG('g', {append_to: this.layers.grid});
+        const lines_layer = createSVG('g', {append_to: this.layers.grid});
 
         const row_width = this.dates.length * this.options.column_width;
         const row_height = this.options.bar_height + this.options.padding;
@@ -588,7 +594,7 @@ export default class Gantt {
 
     make_bars() {
         this.bars = this.tasks.map((task) => {
-            const bar:any = new Bar(this, task);
+            const bar: any = new Bar(this, task);
             this.layers.bar.appendChild(bar.group);
             return bar;
         });
@@ -628,9 +634,8 @@ export default class Gantt {
 
     set_width() {
         const cur_width = this.$svg.getBoundingClientRect().width;
-        const actual_width = this.$svg
-            .querySelector('.grid .grid-row')
-            .getAttribute('width');
+        const row = this.$svg.querySelector('.grid .grid-row')
+        const actual_width = row ? row.getAttribute('width') : 0
         if (cur_width < actual_width) {
             this.$svg.setAttribute('width', actual_width);
         }
@@ -742,7 +747,7 @@ export default class Gantt {
                         });
                     }
                 } else if (is_dragging) {
-                    bar.update_bar_position({ x: $bar.ox + $bar.finaldx });
+                    bar.update_bar_position({x: $bar.ox + $bar.finaldx});
                 }
             });
         });
@@ -928,6 +933,12 @@ export default class Gantt {
      * @memberof Gantt
      */
     get_oldest_starting_date() {
+        if (!this.tasks.length || this.options.scrollToday) {
+            const date = new Date()
+            date.setHours(0,0,0)
+            return date
+        }
+
         return this.tasks
             .map((task) => task._start)
             .reduce((prev_date, cur_date) =>

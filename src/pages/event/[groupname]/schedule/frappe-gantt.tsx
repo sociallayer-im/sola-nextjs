@@ -1,8 +1,12 @@
 import {Event, getGroups, Group, queryEvent} from "@/service/solas";
-import {useEffect, useRef, useState} from "react";
+import {useEffect, useRef, useState, useContext} from "react";
 import styles from './schedulenew.module.scss';
 import Gantt from '@/libs/frappe-fantt/index'
 import AppButton from "@/components/base/AppButton/AppButton";
+import usePicture from "@/hooks/pictrue";
+import EventLabels from "@/components/base/EventLabels/EventLabels";
+import {Select} from "baseui/select";
+import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
 
 import * as dayjsLib from "dayjs";
 import timezoneList from "@/utils/timezone";
@@ -15,6 +19,21 @@ dayjs.extend(timezone)
 
 const dayName = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 const mouthName = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+
+const views = [
+    {
+        id: 'Day',
+        label: 'Day',
+    },
+    {
+        label: 'Hour',
+        id: 'Quarter Day'
+    },
+    {
+        label: 'Month',
+        id: 'Month'
+    }
+]
 
 interface DateItem {
     date: number,
@@ -62,8 +81,20 @@ function Gan(props: { group: Group }) {
     const eventGroup = props.group
     const calendarRef = useRef<any>(null)
     const ganttRef = useRef<any>(null)
+    const {defaultAvatar} = usePicture()
+    const {showLoading} = useContext(DialogsContext)
 
+    const [currTag, setCurrTag] = useState<string[]>([])
     const [timezoneSelected, setTimezoneSelected] = useState<{ label: string, id: string }[]>([])
+    const [viewMode, setViewMode] = useState([views[0]])
+    const [tag, setTag] = useState([{id: 'All', label: 'All'}])
+
+    const tags = props.group.event_tags?.map((item: string) => {
+      return {
+          id: item,
+          label: item
+      }
+    })
 
 
     useEffect(()=> {
@@ -82,6 +113,7 @@ function Gan(props: { group: Group }) {
         } catch (e: any) { }
     }, [])
 
+
     useEffect(() => {
         if (timezoneSelected[0]) {
             const dayList = getCalendarData(timezoneSelected[0].id)
@@ -91,15 +123,18 @@ function Gan(props: { group: Group }) {
             console.log('start', start)
             console.log('end', end)
 
+            const unload = showLoading()
          queryEvent({
                 group_id: eventGroup.id,
                 start_time_from: dayjs.tz(new Date().getTime(), timezoneSelected[0].id).startOf('month').toISOString(),
                 start_time_to: dayjs.tz(new Date().getTime(), timezoneSelected[0].id).endOf('month').toISOString(),
                 page: 1,
                 event_order: 'asc',
-                page_size: 1000
+                page_size: 1000,
+                tag: tag[0].id === 'All' ? undefined : tag[0].id
             }).then(res => {
-                const eventList = res.map((event: Event) => {
+                const eventList = res
+                    .map((event: Event) => {
                     let host = [event.owner.username]
                     if (event.host_info) {
                         const _host = JSON.parse(event.host_info)
@@ -121,22 +156,72 @@ function Gan(props: { group: Group }) {
                         // name: dayjs.tz(new Date(event.start_time!).getTime(), timezoneSelected[0].id).format('YYYY-MM-DD HH:mm') + ' - ' + dayjs.tz(new Date(event.end_time!).getTime(), timezoneSelected[0].id).format('YYYY-MM-DD HH:mm'),
                         start: dayjs.tz(new Date(event.start_time!).getTime(), timezoneSelected[0].id).format('YYYY-MM-DD HH:mm'),
                         end: dayjs.tz(new Date(event.end_time!).getTime(), timezoneSelected[0].id).format('YYYY-MM-DD HH:mm'),
-                        progress: progress
+                        progress: progress,
+                        location: event.location,
+                        avatar: event.owner.image_url || defaultAvatar(event.owner.id),
+                        host: event.owner.username
                     }
                 })
 
-             ganttRef.current = new Gantt('#gantt', eventList, {
-                    view_mode: 'Quarter Day',
-                })
+             console.log('eventList', eventList)
+             if (!ganttRef.current) {
+                 ganttRef.current = new Gantt('#gantt', eventList, {
+                     view_mode: 'Day',
+                     date_format: 'YYYY-MM-DD',
+                     scrollToday: true,
+                     custom_popup_html: function(task) {
+                         return `<div class="${styles['gantt-popup']}">
+                                    <div class="${styles['name']}">${task.name}</div>
+                                    <div class="${styles['detail']}"> <img src="${task.avatar}" alt=""><span>by ${task.host}</span></div>
+                                    <div class="${styles['detail']}"><i class="icon-calendar"></i><span>${task.start.replace('-', '.')} - ${task.end.replace('-', '.')}</span></div>
+                                    ${task.location ? `<div class="${styles['detail']}"><i class="icon-Outline"></i><span>${task.location}</span></div>`: ''}
+                                    <a href="/event/detail/${task.id}" class="${styles['link']}" target="_blank">View Event</a>
+                                <div>`
+                     }
+                 })
+             } else {
+                 ganttRef.current.setup_tasks(eventList)
+                 ganttRef.current.change_view_mode()
+             }
             })
+             .finally(() => {
+                 unload()
+             })
         }
-    }, [timezoneSelected])
+    }, [timezoneSelected, tag])
 
     return <div>
         <div className={styles['gant-menu']}>
-            <AppButton size={'compact'} onClick={e => {ganttRef.current && ganttRef.current.change_view_mode('Quarter Day')}}>Hour</AppButton>
-            <AppButton size={'compact'} onClick={e => {ganttRef.current && ganttRef.current.change_view_mode('Day')}}>Day</AppButton>
-            <AppButton size={'compact'} onClick={e => {ganttRef.current && ganttRef.current.change_view_mode('Month')}}>Month</AppButton>
+            <div className={styles['menu-item']}>
+                <Select
+                    labelKey={'label'}
+                    valueKey={'id'}
+                    clearable={false}
+                    creatable={false}
+                    searchable={false}
+                    value={tag}
+                    options={[{id: 'All', label: 'All'}, ...tags]}
+                    onChange={({option}) => {
+                       setTag([option] as any)
+                    }}
+                />
+            </div>
+
+            <div className={styles['menu-item']}>
+                <Select
+                    labelKey={'label'}
+                    valueKey={'id'}
+                    clearable={false}
+                    creatable={false}
+                    searchable={false}
+                    value={viewMode}
+                    options={views}
+                    onChange={({option}) => {
+                        setViewMode([option] as any)
+                        ganttRef.current && ganttRef.current.change_view_mode(option!.id)
+                    }}
+                />
+            </div>
         </div>
        <div className={styles['gantt-warp']}>
            <svg id={'gantt'} className={styles['gantt']} />
