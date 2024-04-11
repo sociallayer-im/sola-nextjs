@@ -49,3 +49,10 @@
 .editor-icon-bold:before {
   content: "\e907";
 }
+.editor-icon-redo:before {
+  content: "\e908";
+}
+.editor-icon-undo:before {
+  content: "\e909";
+}
+

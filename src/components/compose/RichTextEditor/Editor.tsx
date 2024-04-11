@@ -5,6 +5,7 @@ import chooseFile from "@/utils/chooseFile";
 import solas from "@/service/solas";
 import {Command, EditorState, Plugin, TextSelection, Transaction} from "prosemirror-state";
 import {Attrs, NodeSpec, Schema, Slice } from "prosemirror-model";
+import {undo, redo} from "prosemirror-history";
 import {addListNodes, liftListItem, splitListItem, wrapInList} from "./schema-list";
 import {joinUp, lift, setBlockType, splitBlock, splitBlockKeepMarks, toggleMark, wrapIn} from "prosemirror-commands";
 import {EditorView} from "prosemirror-view";
@@ -83,11 +84,12 @@ function RichTextEditor({
     const editorRef = useRef<any>(null)
     const editorViewRef = useRef<any>(null)
     const [editorState, setEditorState] = useState<any>(null)
-    const [editorMenuCommand, setEditorMenuCommand] = useState<{ markerMenu: MenuItemForm[], listMenu: MenuItemForm[], insertMenu: MenuItemForm[], otherMenu: MenuItemForm[] }>({
+    const [editorMenuCommand, setEditorMenuCommand] = useState<{ markerMenu: MenuItemForm[], listMenu: MenuItemForm[], insertMenu: MenuItemForm[], historyMenu: MenuItemForm[], otherMenu: MenuItemForm[] }>({
         markerMenu: [],
         listMenu: [],
         insertMenu: [],
-        otherMenu: []
+        otherMenu: [],
+        historyMenu: []
     })
     const {openDialog, showLoading, showToast} = useContext(DialogsContext)
     const {user} = useContext(userContext)
@@ -298,6 +300,25 @@ function RichTextEditor({
                 }
             ]
 
+            const historyMenu: MenuItemForm[] = [
+                {
+                    name: 'Undo',
+                    title: 'Undo',
+                    icon: 'editor-icon-undo',
+                    command: (state, dispatch) => {
+                        return undo(state, dispatch)
+                    }
+                },
+                {
+                    name: 'Redo',
+                    title: 'Redo',
+                    icon: 'editor-icon-redo',
+                    command: (state, dispatch) => {
+                        return redo(state, dispatch)
+                    }
+                }
+            ]
+
             const otherMenu: MenuItemForm[] = [
                 {hide: true, name: 'Code', title: 'Code', command: toggleMark(markdownSchema.marks.code)},
                 {
@@ -341,6 +362,7 @@ function RichTextEditor({
                 }
             ]
 
+
             editorViewRef.current = new EditorView(document.querySelector(`#${CSS.escape(editorId)}`), {
                 state: EditorState.create({
                     doc: defaultMarkdownParser.parse(initText || '')!,
@@ -352,6 +374,7 @@ function RichTextEditor({
                 markerMenu,
                 listMenu,
                 insertMenu,
+                historyMenu,
                 otherMenu
             })
         }
@@ -412,6 +435,14 @@ function RichTextEditor({
                         ]}/>}>
                     <div className={'menu-item'}><i className={'editor-icon-photo'}/></div>
                 </StatefulPopover>
+                <span className={'split'}/>
+                {editorMenuCommand.historyMenu.length > 0 &&
+                    editorMenuCommand.historyMenu.filter(item => !item.hide).map((item, index) => {
+                        return <MenuButton menuItemForm={item} key={index}
+                                           editorView={editorViewRef.current || undefined}
+                                           editorState={editorState || undefined}/>
+                    })
+                }
             </div>
             <div ref={editorRef} id={editorId}
                  className={'editor'}
