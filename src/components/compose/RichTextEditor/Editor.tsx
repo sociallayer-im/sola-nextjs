@@ -505,7 +505,7 @@ function DialogInsertLink(props: { close?: () => any, onConfig?: (href: string, 
             <AppButton
                 disabled={!href}
                 special onClick={e => {
-                if (!href.match(/^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/)) {
+                if (!href.startsWith('https://') && !href.startsWith('http://')) {
                     setErrMsg('Invalid url')
                 } else {
                     setErrMsg('')
@@ -542,7 +542,7 @@ function DialogInsertImage(props: { close?: () => any, onConfig?: (src: string, 
             <AppButton
                 disabled={!src}
                 special onClick={e => {
-                if (!src.match(/^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/)) {
+                if (!src.startsWith('https://') && !src.startsWith('http://')) {
                     setErrMsg('Invalid url')
                 } else {
                     setErrMsg('')
