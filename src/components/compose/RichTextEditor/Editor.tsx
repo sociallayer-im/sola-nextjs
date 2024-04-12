@@ -489,12 +489,12 @@ function DialogInsertLink(props: { close?: () => any, onConfig?: (href: string, 
 
     return <div className={styles['dialog-insert-link']}>
         <div className={styles['title']}>Insert Link</div>
-        <div className={styles['sub-title']}>Href</div>
+        <div className={styles['sub-title']}>Link</div>
         <AppInput autoFocus value={href} onChange={e => {
             setHref(e.target.value)
         }}/>
         <div className={styles['err']}>{errMsg}</div>
-        <div className={styles['sub-title']}>Tittle (Optional)</div>
+        <div className={styles['sub-title']}>Text (Optional)</div>
         <AppInput value={title} onChange={e => {
             setTitle(e.target.value)
         }}/>
@@ -509,7 +509,7 @@ function DialogInsertLink(props: { close?: () => any, onConfig?: (href: string, 
                     setErrMsg('Invalid url')
                 } else {
                     setErrMsg('')
-                    props.onConfig && props.onConfig(href, title)
+                    props.onConfig && props.onConfig(href, title || href)
                 }
             }}>Confirm</AppButton>
         </div>
