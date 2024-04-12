@@ -248,6 +248,11 @@ function ComponentName(props: { group: Group }) {
         try {
             if (historyTimeZone) {
                 setTimezoneSelected(JSON.parse(historyTimeZone))
+            } else if (props.group.timezone) {
+                setTimezoneSelected([{
+                    id: props.group.timezone,
+                    label: timezoneList.find(item => item.id === props.group.timezone)!.label
+                }])
             } else {
                 const localTimezone = dayjs.tz.guess()
                 const timezoneInfo = timezoneList.find(item => item.id === localTimezone) || {
