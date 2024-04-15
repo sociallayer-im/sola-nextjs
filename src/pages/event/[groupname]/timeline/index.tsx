@@ -1,7 +1,7 @@
 import {Event, getGroups, Group, queryEvent} from "@/service/solas";
 import {useContext, useEffect, useRef, useState} from "react";
-import styles from './schedulenew.module.scss';
-import Gantt from '@/libs/frappe-fantt/index'
+import styles from '../schedule/schedulenew.module.scss';
+import Gantt from '@/libs/frappe-fantt'
 import usePicture from "@/hooks/pictrue";
 import {Select} from "baseui/select";
 import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
@@ -82,7 +82,6 @@ function Gan(props: { group: Group }) {
     const {defaultAvatar} = usePicture()
     const {showLoading} = useContext(DialogsContext)
 
-    const [currTag, setCurrTag] = useState<string[]>([])
     const [timezoneSelected, setTimezoneSelected] = useState<{ label: string, id: string }[]>([])
     const [viewMode, setViewMode] = useState([views[0]])
     const [tag, setTag] = useState([{id: 'All', label: 'All'}])
@@ -96,10 +95,19 @@ function Gan(props: { group: Group }) {
 
 
     useEffect(() => {
+        document.querySelectorAll('.input-disable input').forEach((input) => {
+            input.setAttribute('readonly', 'readonly')
+        })
+
         try {
             const historyTimeZone = localStorage.getItem('schedule-timezone')
             if (historyTimeZone) {
                 setTimezoneSelected(JSON.parse(historyTimeZone))
+            } else if (props.group.timezone) {
+                setTimezoneSelected([{
+                    id: props.group.timezone,
+                    label: timezoneList.find(item => item.id === props.group.timezone)!.label
+                }])
             } else {
                 const localTimezone = dayjs.tz.guess()
                 const timezoneInfo = timezoneList.find(item => item.id === localTimezone) || {
@@ -191,7 +199,7 @@ function Gan(props: { group: Group }) {
 
     return <div>
         <div className={styles['gant-menu']}>
-            <div className={styles['menu-item']}>
+            <div className={styles['menu-item'] + ' input-disable'}>
                 <Select
                     labelKey={'label'}
                     valueKey={'id'}
@@ -206,7 +214,7 @@ function Gan(props: { group: Group }) {
                 />
             </div>
 
-            <div className={styles['menu-item']}>
+            <div className={styles['menu-item'] + ' input-disable'}>
                 <Select
                     labelKey={'label'}
                     valueKey={'id'}

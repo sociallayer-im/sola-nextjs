@@ -109,7 +109,6 @@ function ComponentName(props: { group: Group }) {
 
     const toToday = (initDate?: Date) => {
         const now = initDate || new Date()
-        console.log('=================', now)
         const date = dayjs.tz(now.getTime(), timezoneSelected[0].id)
         const startIndex = showList.findIndex(i => {
             return date.year() === i.year
@@ -244,8 +243,8 @@ function ComponentName(props: { group: Group }) {
             input.setAttribute('readonly', 'readonly')
         })
 
-        const historyTimeZone = localStorage.getItem('schedule-timezone')
         try {
+            const historyTimeZone = localStorage.getItem('schedule-timezone')
             if (historyTimeZone) {
                 setTimezoneSelected(JSON.parse(historyTimeZone))
             } else if (props.group.timezone) {
