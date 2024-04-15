@@ -631,6 +631,9 @@ const langEN = {
     My_Subscriptions: 'My subscriptions',
     Timezone: 'Timezone',
     Select_A_Timezone: 'Select a timezone',
+    Calendar_View: 'Calendar view',
+    Schedule_View: 'Schedule view',
+    Timeline_View: 'Timeline view',
 }
 
 

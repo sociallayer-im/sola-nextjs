@@ -356,8 +356,9 @@ function ComponentName(props: { group: Group }) {
                     <div className={styles['schedule-title-left']}>
                         <div className={'group-name'}>
                             {
-                                pathname?.includes('iframe') &&
-                                <img src="/images/logo.svg" alt="" width={94} height={29}/>
+                                pathname?.includes('iframe') ?
+                                <img src="/images/logo.svg" alt="" width={94} height={29}/>:
+                                <Link href={'/'}>{(eventGroup.nickname || eventGroup.username)}</Link>
                             }
                            <div> {lang['Activity_Calendar']}</div>
                         </div>

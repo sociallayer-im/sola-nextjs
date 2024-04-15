@@ -627,6 +627,9 @@ const langCN: LangConfig = {
   My_Subscriptions: '我的订阅',
   Timezone: '时区',
   Select_A_Timezone: '选择一个时区',
+  Calendar_View: '日历视图',
+  Schedule_View: '日程表视图',
+  Timeline_View: '时间轴视图',
 }
 
 
