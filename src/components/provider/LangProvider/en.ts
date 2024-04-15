@@ -629,6 +629,8 @@ const langEN = {
     Pending_Requests: 'Pending requests',
     My_Communities: 'My communities',
     My_Subscriptions: 'My subscriptions',
+    Timezone: 'Timezone',
+    Select_A_Timezone: 'Select a timezone',
 }
 
 

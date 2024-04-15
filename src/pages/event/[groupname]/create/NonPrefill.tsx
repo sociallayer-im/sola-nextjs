@@ -557,6 +557,9 @@ function CreateEvent(props: CreateEventPageProps) {
                         res => {
                             setEventGroup(res as any)
                             setFormReady(true)
+                            if (res?.timezone) {
+                                setTimezone(res.timezone)
+                            }
                         }
                     )
                 } else {

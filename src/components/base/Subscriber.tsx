@@ -64,7 +64,7 @@ function Subscriber() {
 
             subscriptionInvite = wsClient.subscribe({
                     query: `subscription { 
-                        group_invites(where: {status: {_eq: "sending"}, _or: [{receiver_address: {_eq: "${user.wallet || user.email}"}}, {receiver_id: {_eq: ${user.id}}}]}) 
+                        group_invites(where: {status: {_eq: "sending"}, expires_at: {_gt: "${new Date().toISOString()}"}, _or: [{receiver_address: {_eq: "${user.wallet || user.email}"}}, {receiver_id: {_eq: ${user.id}}}]}) 
                         {
                             message
                             id
@@ -74,6 +74,7 @@ function Subscriber() {
                             created_at
                             status
                             receiver_address
+                            expires_at
                             receiver {
                                 id
                                 image_url

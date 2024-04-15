@@ -294,7 +294,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
             <meta property="og:title" content={`${event?.title} | ${props.appName}`}/>
             <meta property="og:type" content="website"/>
             <meta property="og:url" content={`${props.host}/event/detail/${event?.id}`}/>
-            <meta property="og:image" content={event?.cover_url || ''}/>
+            <meta property="og:image" content={event?.cover_url || 'https://app.sola.day/images/facaster_default_cover.png'}/>
             {event?.content &&
                 <meta name="description" property="og:description" content={props.des.slice(0, 300) + '...'}/>
             }
@@ -303,11 +303,9 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                 !!event &&
                 <>
                     <meta name="fc:frame" content="vNext"/>
-                    {!!event.cover_url &&
-                        <meta name="fc:frame:image" content={event.cover_url!}/>
-                    }
+                    <meta name="fc:frame:image" content={event.cover_url || 'https://app.sola.day/images/facaster_default_cover.png'}/>
                     <meta name="fc:frame:input:text"
-                          content={event.title + ' 📅' + formatTime2(event.start_time!, event.timezone!) + `${event.location ? ` 📍${event.location}` : ''}`}/>
+                          content={event.title.slice(0, 32).trim()}/>
                     <meta name="fc:frame:button:1" content="Join"/>
                     <meta name="fc:frame:button:1:action" content="post_redirect"/>
                     <meta name="fc:frame:post_url" content={`${process.env.NEXT_PUBLIC_HOST}/api/frame/${event.id}`}/>
@@ -553,7 +551,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                             <div className={'des'}>Welcome! To join the event, please attend
                                                 below.</div>
                                             :
-                                            <div className={'des'}>You're attended, we’d love to have you join us.</div>
+                                            <div className={'des'}>You have registered, we’d love to have you join us.</div>
                                         }
 
                                         <div className={'event-action'}>
@@ -787,7 +785,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                     </div>
                                     {!isJoined ?
                                         <div className={'des'}>Welcome! To join the event, please attend below.</div>
-                                        : <div className={'des'}>You're attended, we’d love to have you join us.</div>
+                                        : <div className={'des'}>You have registered, we’d love to have you join us.</div>
                                     }
 
                                     <div className={'event-action'}>

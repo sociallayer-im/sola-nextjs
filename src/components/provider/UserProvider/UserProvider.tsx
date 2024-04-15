@@ -10,7 +10,6 @@ import {setAuth} from "@/utils/authStorage";
 import useShowRole from "@/components/zugame/RoleDialog/RoleDialog";
 import useSafePush from "@/hooks/useSafePush";
 import {WalletContext as solanaWalletContext} from '@solana/wallet-adapter-react'
-import {SolanaSignInInput} from "@solana/wallet-standard-features";
 import fetch from "@/utils/fetch";
 import {createSignInMessage} from '@solana/wallet-standard-util';
 // import { useProfile as useFarcasterProfile, useSignInMessage, useSignIn } from '@farcaster/auth-kit';

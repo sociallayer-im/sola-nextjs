@@ -3352,6 +3352,18 @@
   resolved "https://registry.npmmirror.com/@polka/url/-/url-1.0.0-next.24.tgz#58601079e11784d20f82d0585865bb42305c4df3"
   integrity sha512-2LuNTFBIO0m7kKIQvvPHN6UE63VjpmL9rnEEaOOaiSPbZK+zUOYIzBAWcED+3XYzhYsd/0mD57VdxAEqqV52CQ==
 
+"@preact/signals-core@^1.6.0":
+  version "1.6.0"
+  resolved "https://registry.npmmirror.com/@preact/signals-core/-/signals-core-1.6.0.tgz#f3e47b7cddab60e61a087c9b422a28f52e58ce20"
+  integrity sha512-O/XGxwP85h1F7+ouqTMOIZ3+V1whfaV9ToIVcuyGriD4JkSD00cQo54BKdqjvBJxbenvp7ynfqRHEwI6e+NIhw==
+
+"@preact/signals@^1.2.3":
+  version "1.2.3"
+  resolved "https://registry.npmmirror.com/@preact/signals/-/signals-1.2.3.tgz#df186e6a9b786b7d1bf8405fdcc926393b5ff98f"
+  integrity sha512-M2DXse3Wi8HwjI1d2vQWOLJ3lHogvqTsJYvl4ofXRXgMFQzJ7kmlZvlt5i8x5S5VwgZu0ghru4HkLqOoFfU2JQ==
+  dependencies:
+    "@preact/signals-core" "^1.6.0"
+
 "@project-serum/sol-wallet-adapter@^0.2.6":
   version "0.2.6"
   resolved "https://registry.npmmirror.com/@project-serum/sol-wallet-adapter/-/sol-wallet-adapter-0.2.6.tgz#b4cd25a566294354427c97c26d716112b91a0107"
@@ -3753,6 +3765,21 @@
   version "3.14.0"
   resolved "https://registry.npmmirror.com/@safe-global/safe-gateway-typescript-sdk/-/safe-gateway-typescript-sdk-3.14.0.tgz#9581c524c1ea4956555f40761eb6b4007392aa82"
   integrity sha512-/dqU66RvHw50n+7x3nwnJedq8V6iLQyoWitNdjx5cFTBmae+rpP+LvHq+LqZfXJVkB1qNytMdjFjdyES0t79gQ==
+
+"@schedule-x/calendar@^1.27.0":
+  version "1.27.0"
+  resolved "https://registry.npmmirror.com/@schedule-x/calendar/-/calendar-1.27.0.tgz#d06f07ad7513f047292f6f435f5cfa94bf327250"
+  integrity sha512-KK5H12ygG/+nqkiEo5XdpAcdJzqteNt6g/djBvY7YBa4TccQEwyjkrWscHV42e0lFvyB2McePQmW1vrmyymU/A==
+
+"@schedule-x/event-modal@^1.27.0":
+  version "1.27.0"
+  resolved "https://registry.npmmirror.com/@schedule-x/event-modal/-/event-modal-1.27.0.tgz#53c3f2248dd872005abf1cde2b6e3e023ccb0eb1"
+  integrity sha512-LIsIGj12SktaAJ55q2LhRtDqt72CnJrYaicpWusj5kAmrCiK8Ac5u7N6fupknF7Qu7kTqYPkxWVeVLBs478D5w==
+
+"@schedule-x/theme-default@^1.27.0":
+  version "1.27.0"
+  resolved "https://registry.npmmirror.com/@schedule-x/theme-default/-/theme-default-1.27.0.tgz#aeb9ba96f29dafc2d62f1f813e6483986a82cbab"
+  integrity sha512-hf/cF11JGq4O/R5DJJoB6sS2MibU4QCsmr4v91C/Eko/5U95+/9YsBZ1TNAP7bWdWUBoS7JeMVAPtRtzIRmQWA==
 
 "@scure/base@~1.1.0", "@scure/base@~1.1.2", "@scure/base@~1.1.4":
   version "1.1.5"
@@ -6834,6 +6861,11 @@
   version "3.2.1"
   resolved "https://registry.npmmirror.com/@types/find-cache-dir/-/find-cache-dir-3.2.1.tgz#7b959a4b9643a1e6a1a5fe49032693cc36773501"
   integrity sha512-frsJrz2t/CeGifcu/6uRo4b+SzAwT4NYCVPu1GN8IB9XTzrpPkGuV0tmh9mN+/L0PklAlsC3u5Fxt0ju00LXIw==
+
+"@types/frappe-gantt@^0.6.4":
+  version "0.6.4"
+  resolved "https://registry.npmmirror.com/@types/frappe-gantt/-/frappe-gantt-0.6.4.tgz#c090dee176bcd83031d9e8ba5620f277c3dddd5b"
+  integrity sha512-HvF+ED1gwhyuN/pvJW5VdEL+JP95q3xyX3NMFcF6R0NJLukXVg/yz4znzSTd81mqzPABABa4Pj6YoQCUHiZa+A==
 
 "@types/glob@*":
   version "8.1.0"
@@ -13405,6 +13437,11 @@ fragment-cache@^0.2.1:
   integrity sha512-GMBAbW9antB8iZRHLoGw0b3HANt57diZYFO/HL1JGIC1MjKrdmhxvrJbupnVvpys0zsz7yBApXdQyfepKly2kA==
   dependencies:
     map-cache "^0.2.2"
+
+frappe-gantt@^0.6.1:
+  version "0.6.1"
+  resolved "https://registry.npmmirror.com/frappe-gantt/-/frappe-gantt-0.6.1.tgz#57ae0b5f024101fc7cd5ba92f605de97dba9c9a1"
+  integrity sha512-1cSU9vLbwypjzaxnCfnEE03Xr3HlAV2S8dRtjxw62o+amkx1A8bBIFd2jp84mcDdTCM77Ij4LzZBslAKZB8oMg==
 
 fresh@0.5.2:
   version "0.5.2"
