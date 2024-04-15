@@ -282,7 +282,7 @@ function ComponentName(props: { group: Group }) {
             if (clientWidth >= 450) {
                 (window.document.querySelector('.schedule-head') as any)!.style.height = 'auto';
             } else {
-                (window.document.querySelector('.schedule-head') as any)!.style.height = '173px';
+                (window.document.querySelector('.schedule-head') as any)!.style.height = '208px';
             }
         }
 
@@ -299,7 +299,7 @@ function ComponentName(props: { group: Group }) {
                 (window.document.querySelector('.schedule-head') as any)!.style.height = '0';
                 (window.document.querySelector('.event-list') as any)!.style.minHeight = `100vh`;
             } else {
-               (window.document.querySelector('.schedule-head') as any)!.style.height = '173px';
+               (window.document.querySelector('.schedule-head') as any)!.style.height = '208px';
                 // (window.document.querySelector('.event-list') as any)!.style.minHeight = `100%`;
             }
         }
@@ -358,7 +358,7 @@ function ComponentName(props: { group: Group }) {
                             {
                                 pathname?.includes('iframe') ?
                                 <img src="/images/logo.svg" alt="" width={94} height={29}/>:
-                                <Link href={'/'}>{(eventGroup.nickname || eventGroup.username)}</Link>
+                                <Link href={`/event/${eventGroup.username}`}>{(eventGroup.nickname || eventGroup.username)}</Link>
                             }
                            <div> {lang['Activity_Calendar']}</div>
                         </div>

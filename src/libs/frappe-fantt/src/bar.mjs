@@ -81,7 +81,7 @@ export default class Bar {
             height: this.height,
             rx: this.corner_radius,
             ry: this.corner_radius,
-            class: 'bar',
+            class: this.task.hide ? 'bar hide' : 'bar',
             append_to: this.bar_group,
         });
 
@@ -321,7 +321,7 @@ export default class Bar {
     compute_y() {
         return (
             this.gantt.options.header_height +
-            this.gantt.options.padding +
+            this.gantt.options.padding / 2 +
             this.task._index * (this.height + this.gantt.options.padding)
         );
     }

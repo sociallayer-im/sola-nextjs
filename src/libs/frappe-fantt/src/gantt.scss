@@ -10,7 +10,7 @@ $text-color: #333 !default;
 $blue: #a3a3ff !default;
 $handle-color: #ddd !default;
 
-.gantt {
+.gantt, .gantt-header  {
 	.grid-background {
 		fill: none;
 	}
@@ -53,6 +53,11 @@ $handle-color: #ddd !default;
 		transition: stroke-width .3s ease;
 		user-select: none;
 	}
+
+	.bar.hide {
+		display: none;
+	}
+
 	.bar-progress {
 		fill: $blue;
 	}
