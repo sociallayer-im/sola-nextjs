@@ -24,7 +24,7 @@ import DialogsContext from "@/components/provider/DialogProvider/DialogsContext"
 import PageBack from "@/components/base/PageBack";
 import ListCheckLog from "@/components/compose/ListCheckLog/ListCheckLog";
 import useCalender from "@/hooks/addToCalender";
-import ListCheckinUser from "@/components/compose/ListCheckinUser/ListCheckinUser";
+import ListEventParticipants from "@/components/compose/ListEventParticipants/ListEventParticipants";
 import useShowImage from "@/hooks/showImage/showImage";
 import useCopy from "@/hooks/copy";
 import EventHomeContext from "@/components/provider/EventHomeProvider/EventHomeContext";
@@ -718,12 +718,12 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                     <div
                                                         className={'min-participants-alert'}>{lang['Activity_Detail_min_participants_Alert']([event.min_participant])}</div>
                                                 }
+
                                                 {!!hoster &&
-                                                    <ListCheckinUser
+                                                    <ListEventParticipants
                                                         onChange={e => {
                                                             fetchData()
                                                         }}
-                                                        editable={false}
                                                         participants={participants}
                                                         isHost={isHoster}
                                                         eventId={Number(params?.eventid)}

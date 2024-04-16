@@ -3156,6 +3156,7 @@ export async function queryEvent(props: QueryEventProps): Promise<Event[]> {
           profile_id
           profile {
             id
+            address
             username
             nickname
             image_url
