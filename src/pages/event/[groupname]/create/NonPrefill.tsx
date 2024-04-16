@@ -26,11 +26,9 @@ import {
     queryEvent,
     queryEventDetail,
     queryGroupDetail,
-    RepeatEventSetBadge,
     RepeatEventUpdate,
     setEventBadge,
     updateEvent,
-    createRepeatEvent,
     RepeatEventSetBadge,
     Ticket, queryTickets,
 } from '@/service/solas'

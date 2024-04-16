@@ -91,7 +91,7 @@ function Erc20TokenPaymentHandler(
                     const log = await publicClient.getContractEvents({
                         address: payhubContract as any,
                         abi: payhub_abi,
-                        fromBlock: 52948018n,
+                        fromBlock: 0,
                         toBlock: 'latest',
                         eventName: 'PaymentTrasnfered',
                         args: {
