@@ -630,6 +630,7 @@ const langCN: LangConfig = {
   Calendar_View: '日历视图',
   Schedule_View: '日程表视图',
   Timeline_View: '时间轴视图',
+  Download_the_list_of_all_participants: '下载所有参与者名单',
 }
 
 

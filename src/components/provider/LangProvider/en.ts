@@ -634,6 +634,7 @@ const langEN = {
     Calendar_View: 'Calendar view',
     Schedule_View: 'Schedule view',
     Timeline_View: 'Timeline view',
+    Download_the_list_of_all_participants: 'Download the list of all participants',
 }
 
 
