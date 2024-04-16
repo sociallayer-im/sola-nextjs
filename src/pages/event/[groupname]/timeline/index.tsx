@@ -1,4 +1,4 @@
-import {Event, getGroups, Group, queryEvent} from "@/service/solas";
+import {Event, getGroups, Group, queryEvent, queryTimeLineEvent} from "@/service/solas";
 import {useContext, useEffect, useRef, useState} from "react";
 import styles from '../schedule/schedulenew.module.scss';
 import Gantt from '@/libs/frappe-fantt'
@@ -59,6 +59,7 @@ function Gan(props: { group: Group }) {
     const [page, setPage] = useState(1)
     const [start, setStart] = useState(new Date())
     const [end, setEnd] = useState(new Date())
+    const [firstDate, setFirstDate] = useState<Date | null>(null)
 
     const tags = props.group.event_tags?.map((item: string) => {
         return {
@@ -74,51 +75,71 @@ function Gan(props: { group: Group }) {
         })
 
         try {
+            let timezone: { label: string, id: string }[]
             const historyTimeZone = localStorage.getItem('schedule-timezone')
             if (historyTimeZone) {
-                setTimezoneSelected(JSON.parse(historyTimeZone))
+                timezone = JSON.parse(historyTimeZone)
             } else if (props.group.timezone) {
-                setTimezoneSelected([{
+                timezone = [{
                     id: props.group.timezone,
                     label: timezoneList.find(item => item.id === props.group.timezone)!.label
-                }])
+                }]
             } else {
                 const localTimezone = dayjs.tz.guess()
                 const timezoneInfo = timezoneList.find(item => item.id === localTimezone) || {
                     id: 'UTC',
                     label: 'UTC+00:00'
                 }
-                setTimezoneSelected([timezoneInfo])
+                timezone = [timezoneInfo]
             }
+
+            setTimezoneSelected(timezone)
+
+            const now = new Date()
+            const {start, end} = getDuration(new Date(), timezone[0].id)
+            let first: Date
+
+            queryTimeLineEvent(eventGroup.id, start, end).then(res => {
+                if (res.latest.length && !res.curr.length) {
+                    first = new Date(res.latest[0].start_time!)
+                } else if (res.first.length && !res.curr.length && !res.latest.length) {
+                    first = new Date(res.first[0].start_time!)
+                } else {
+                    first = now
+                }
+                setFirstDate(first)
+            })
         } catch (e: any) {
+            console.error(e)
         }
     }, [])
 
+    const getDuration = (date: Date, timezone) => {
+        let start: string, end: string
+        if (viewMode[0].id === 'Quarter Day') {
+            start = dayjs.tz(date.getTime(), timezone).add(page - 1, 'month').startOf('month').toISOString()
+            end = dayjs.tz(date.getTime(), timezoneSelected[0].id).add(page - 1, 'month').endOf('month').toISOString()
+        } else if (viewMode[0].id === 'Day') {
+            start = dayjs.tz(date.getTime(), timezone).add(page - 1, 'month').startOf('month').toISOString()
+            end = dayjs.tz(date.getTime(), timezone).add(page - 1, 'month').endOf('month').toISOString()
+        } else  {
+            start = dayjs.tz(date.getTime(), timezone).add(page - 1, 'year').startOf('year').toISOString()
+            end = dayjs.tz(date.getTime(), timezone).add(page - 1, 'year').endOf('year').toISOString()
+        }
+
+        return {start, end}
+    }
+
 
     useEffect(() => {
-        let start: string, end: string
-
-        if (timezoneSelected[0]) {
-            const now = new Date()
-            if (viewMode[0].id === 'Quarter Day') {
-                 start = dayjs.tz(now.getTime(), timezoneSelected[0].id).add(page - 1, 'month').startOf('month').toISOString()
-                 end = dayjs.tz(now.getTime(), timezoneSelected[0].id).add(page - 1, 'month').endOf('month').toISOString()
-            } else if (viewMode[0].id === 'Day') {
-                 start = dayjs.tz(now.getTime(), timezoneSelected[0].id).add(page - 1, 'month').startOf('month').toISOString()
-                 end = dayjs.tz(now.getTime(), timezoneSelected[0].id).add(page - 1, 'month').endOf('month').toISOString()
-            } else  {
-                 start = dayjs.tz(now.getTime(), timezoneSelected[0].id).add(page - 1, 'year').startOf('year').toISOString()
-                 end = dayjs.tz(now.getTime(), timezoneSelected[0].id).add(page - 1, 'year').endOf('year').toISOString()
-            }
-
+        if (timezoneSelected[0] && firstDate) {
+            const now = firstDate
+            const {start, end} = getDuration(now, timezoneSelected[0].id)
             const unload = showLoading()
-            console.log('start, end', new Date(start), new Date(end), viewMode[0].id, timezoneSelected[0].id)
             setStart(new Date(start))
             setEnd(new Date(end))
             queryEvent({
                 group_id: eventGroup.id,
-                // start_time_from: dayjs.tz(new Date().getTime(), timezoneSelected[0].id).startOf('month').toISOString(),
-                // start_time_to: dayjs.tz(new Date().getTime(), timezoneSelected[0].id).endOf('month').toISOString(),
                 start_time_from: start,
                 start_time_to: end,
                 page: 1,
@@ -158,14 +179,32 @@ function Gan(props: { group: Group }) {
                         }
                     })
 
-                if (eventList.length < 30) {
-                    const pad = 30 - eventList.length
+
+                if (!eventList.length) {
+                    const pad = 30
                     for (let i = 0; i < pad; i++) {
                         eventList.push({
                             id: i + '',
                             name: '',
                             start: dayjs.tz(new Date(start).getTime(), timezoneSelected[0].id).format('YYYY-MM-DD HH:mm'),
                             end: dayjs.tz(new Date(end).getTime(), timezoneSelected[0].id).add(1, 'day').format('YYYY-MM-DD HH:mm'),
+                            progress: 0,
+                            location: '',
+                            avatar: '',
+                            host: '',
+                            hide: true
+                        })
+                    }
+                } else if (eventList.length < 30) {
+                    const pad = 30 - eventList.length
+                    const padStartDate = eventList[eventList.length - 1].start
+                    console.log('padStartDate', eventList[eventList.length - 1])
+                    for (let i = 0; i < pad; i++) {
+                        eventList.push({
+                            id: i + '',
+                            name: '',
+                            start: dayjs.tz(new Date(padStartDate).getTime(), timezoneSelected[0].id).add(1, 'day').format('YYYY-MM-DD HH:mm'),
+                            end: dayjs.tz(new Date(padStartDate).getTime(), timezoneSelected[0].id).add(2, 'day').format('YYYY-MM-DD HH:mm'),
                             progress: 0,
                             location: '',
                             avatar: '',
@@ -185,7 +224,7 @@ function Gan(props: { group: Group }) {
                     date_format: 'YYYY-MM-DD',
                     start: new Date(start),
                     end: new Date(end),
-                    scrollToday: page === 1,
+                    scrollToday: true,
                     gantt_head: '#gantt-head',
                     custom_popup_html: function (task: any) {
                         return `<div class="${styles['gantt-popup']}">
@@ -202,7 +241,7 @@ function Gan(props: { group: Group }) {
                     unload()
                 })
         }
-    }, [timezoneSelected, tag, page, viewMode])
+    }, [firstDate, timezoneSelected, tag, page, viewMode])
 
     const toToday = () => {
         if (ganttRef.current) {
@@ -221,9 +260,9 @@ function Gan(props: { group: Group }) {
         <div className={styles['gant-menu']}>
             <div className={styles['left']}>
                 <div className={styles['menu-item'] + ' input-disable'}>
-                    <div className={styles[`year`]}>{new Date().getFullYear()}
+                    <div className={styles[`year`]}>{(firstDate || new Date()).getFullYear()}
                         { viewMode[0].id !== 'Month' &&
-                            <span>{lang['Month_Name'][new Date(start).getMonth()]}</span>
+                            <span>{lang['Month_Name'][(firstDate || new Date()).getMonth()]}</span>
                         }
                     </div>
                     <div className={styles['page-slide']}>

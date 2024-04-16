@@ -786,27 +786,13 @@ export default class Gantt {
     }
 
     set_scroll_position() {
+        if (!this.options.scrollToday) {
+            return;
+        }
+
         const parent_element = this.$svg.parentElement;
         const header_parent_element = this.$header.parentElement;
         if (!parent_element || !header_parent_element) return;
-
-        const hours_before_first_task = date_utils.diff(
-            this.get_oldest_starting_date(),
-            this.gantt_start,
-            'hour'
-        );
-
-        let scroll_pos =
-            (hours_before_first_task / this.options.step) *
-            this.options.column_width
-
-        if (this.view_is(VIEW_MODE.QUARTER_DAY)) {
-            const currHour = new Date().getHours()
-            scroll_pos += currHour * this.options.column_width
-        }
-
-        parent_element.scrollLeft = scroll_pos;
-        header_parent_element.scrollLeft = scroll_pos;
 
         const nowDate = new Date()
         const currDateTask = this.bars.find((bar: any) => {
@@ -816,7 +802,31 @@ export default class Gantt {
                 new Date(task.start).getFullYear() === nowDate.getFullYear()
         })
 
-        parent_element.scrollTop = currDateTask  ? currDateTask.y - (this.options.padding / 2): 0;
+        if (currDateTask) {
+            console.log('currDateTask.x', currDateTask.x)
+            parent_element.scrollLeft = currDateTask.x;
+            header_parent_element.scrollLeft = currDateTask.x;
+            parent_element.scrollTop = currDateTask.y - (this.options.padding / 2)
+        } else {
+            const target_date = this.get_oldest_starting_date()
+            const hours_before_first_task = date_utils.diff(
+                target_date,
+                this.gantt_start,
+                'hour'
+            );
+
+            let scroll_pos =
+                (hours_before_first_task / this.options.step) *
+                this.options.column_width
+
+            if (this.view_is(VIEW_MODE.QUARTER_DAY)) {
+                const currHour = new Date().getHours()
+                scroll_pos += currHour * this.options.column_width
+            }
+            console.log('scroll_pos', scroll_pos, target_date)
+            parent_element.scrollLeft = scroll_pos;
+            header_parent_element.scrollLeft = scroll_pos;
+        }
     }
 
     bind_grid_click() {
@@ -1100,14 +1110,16 @@ export default class Gantt {
      * @memberof Gantt
      */
     get_oldest_starting_date() {
-        if (!this.tasks.length || this.options.scrollToday) {
+        if (!this.tasks.length) {
             const date = new Date()
             date.setHours(0,0,0)
             if (!this.view_is(VIEW_MODE.QUARTER_DAY)) {
                 date.setDate(date.getDate() - 2)
             }
+            console.log('!task')
             return date
         }
+
 
         return this.tasks
             .map((task) => task._start)
