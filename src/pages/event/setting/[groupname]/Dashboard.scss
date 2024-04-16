@@ -58,6 +58,23 @@
   padding: 0 0 12px 0;
   box-sizing: border-box;
 
+  div[data-baseweb="select"] {
+
+    >div {
+      font-size: 14px;
+      border: 0;
+      color: var(--color-text-main);
+      padding-left: 12px;
+      border-radius: 12px;
+      background: var(--color-input-bg);
+    }
+    div[value], input {
+      font-size: 14px;
+      border: 0;
+      color: var(--color-text-main);
+    }
+  }
+
   .permission-item {
     display: flex;
     flex-flow: row nowrap;

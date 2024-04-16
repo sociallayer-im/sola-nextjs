@@ -18,6 +18,7 @@ import QRcode from "@/components/base/QRcode";
 import langContext from "@/components/provider/LangProvider/LangContext";
 import AppButton from "@/components/base/AppButton/AppButton";
 import ListCheckinUser from "@/components/compose/ListCheckinUser/ListCheckinUser";
+import ListEventParticipants from "@/components/compose/ListEventParticipants/ListEventParticipants";
 import ListCheckLog from "@/components/compose/ListCheckLog/ListCheckLog";
 import useEvent, {EVENT} from "@/hooks/globalEvent";
 
@@ -141,6 +142,11 @@ function EventCheckIn() {
                 return item.profile.id === user.id
             })
             setIsJoin(!!isJoin)
+        } else {
+            setIsHoster(false)
+            setIsJoin(false)
+            setIsOperator(false)
+            setIsManager(false)
         }
     }, [user.id, hoster, event])
 
@@ -180,7 +186,7 @@ function EventCheckIn() {
                             </div>
                         }
 
-                        {(isHoster || isManager || isGroupOwner || isOperator) &&
+                        {!!user.id && (isHoster || isManager || isGroupOwner || isOperator) &&
                             <div className={'checkin-checkin-btn'}>
                                 <AppButton special onClick={e => {
                                     showEventCheckIn(event.id)
@@ -188,7 +194,7 @@ function EventCheckIn() {
                             </div>
                         }
 
-                        {isJoin && !isHoster &&
+                        {!!user.id && isJoin && !isHoster && !isManager && !isOperator &&
                             <div className={'checkin-qrcode'}>
                                 <QRcode text={`${params?.eventid}#${user.id}` || ''} size={[155, 155]}/>
                                 {
@@ -218,7 +224,7 @@ function EventCheckIn() {
                                     lang['Activity_Registered_participants']
                                 } <span>({hasCheckin.length} / {participants.length})</span>
                                 </div>
-                                <ListCheckinUser
+                                <ListEventParticipants
                                     isHost={isHoster || isManager || isOperator}
                                     eventId={Number(params?.eventid || 0)}
                                     participants={participants}

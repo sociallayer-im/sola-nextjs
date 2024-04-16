@@ -18,14 +18,13 @@ import LangContext from "@/components/provider/LangProvider/LangContext";
 import {useTime2, useTime3} from "@/hooks/formatTime";
 import EventLabels from "@/components/base/EventLabels/EventLabels";
 import usePicture from "@/hooks/pictrue";
-import ReasonText from "@/components/base/EventDes/ReasonText";
 import AppButton from "@/components/base/AppButton/AppButton";
 import userContext from "@/components/provider/UserProvider/UserContext";
 import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
 import PageBack from "@/components/base/PageBack";
 import ListCheckLog from "@/components/compose/ListCheckLog/ListCheckLog";
 import useCalender from "@/hooks/addToCalender";
-import ListCheckinUser from "@/components/compose/ListCheckinUser/ListCheckinUser";
+import ListEventParticipants from "@/components/compose/ListEventParticipants/ListEventParticipants";
 import useShowImage from "@/hooks/showImage/showImage";
 import useCopy from "@/hooks/copy";
 import EventHomeContext from "@/components/provider/EventHomeProvider/EventHomeContext";
@@ -39,6 +38,8 @@ import {Swiper, SwiperSlide} from 'swiper/react'
 import {Mousewheel, FreeMode} from "swiper";
 import EventTickets from "@/components/compose/EventTickets/EventTickets";
 import EventNotes from "@/components/base/EventNotes/EventNotes";
+import RichTextDisplayer from "@/components/compose/RichTextEditor/Displayer";
+import removeMarkdown from "markdown-to-text"
 
 
 import * as dayjsLib from "dayjs";
@@ -52,7 +53,7 @@ dayjs.extend(utc)
 dayjs.extend(timezone)
 
 
-function EventDetail(props: { event: Event | null, appName: string, host: string }) {
+function EventDetail(props: { event: Event | null, appName: string, host: string, des: string }) {
     const router = useRouter()
     const [event, setEvent] = useState<Event | null>(props.event || null)
     const [hoster, setHoster] = useState<Profile | null>(null)
@@ -307,20 +308,18 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
             <meta property="og:title" content={`${event?.title} | ${props.appName}`}/>
             <meta property="og:type" content="website"/>
             <meta property="og:url" content={`${props.host}/event/detail/${event?.id}`}/>
-            <meta property="og:image" content={event?.cover_url || ''}/>
+            <meta property="og:image" content={event?.cover_url || 'https://app.sola.day/images/facaster_default_cover.png'}/>
             {event?.content &&
-                <meta name="description" property="og:description" content={event?.content.slice(0, 300) + '...'}/>
+                <meta name="description" property="og:description" content={props.des.slice(0, 300) + '...'}/>
             }
 
             {
                 !!event &&
                 <>
                     <meta name="fc:frame" content="vNext"/>
-                    {!!event.cover_url &&
-                        <meta name="fc:frame:image" content={event.cover_url!}/>
-                    }
+                    <meta name="fc:frame:image" content={event.cover_url || 'https://app.sola.day/images/facaster_default_cover.png'}/>
                     <meta name="fc:frame:input:text"
-                          content={event.title + ' 📅' + formatTime2(event.start_time!, event.timezone!) + `${event.location ? ` 📍${event.location}` : ''}`}/>
+                          content={event.title.slice(0, 32).trim()}/>
                     <meta name="fc:frame:button:1" content="Join"/>
                     <meta name="fc:frame:button:1:action" content="post_redirect"/>
                     <meta name="fc:frame:post_url" content={`${process.env.NEXT_PUBLIC_HOST}/api/frame/${event.id}`}/>
@@ -565,7 +564,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                         {!isJoined ?
                                             <div className={'des'}>Welcome to join the event.</div>
                                             :
-                                            <div className={'des'}>You're attended, we’d love to have you join us.</div>
+                                            <div className={'des'}>You have registered, we’d love to have you join us.</div>
                                         }
 
                                         <div className={'event-action'}>
@@ -729,7 +728,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                         </a>
                                                     </div>
                                                 }
-                                                <ReasonText className={'event-des'} text={event.content}/>
+                                                <RichTextDisplayer markdownStr={event.content} />
 
                                                 {!!event.notes &&
                                                     <EventNotes hide={!isJoined && !isHoster} notes={event.notes}/>
@@ -743,13 +742,12 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                     <div
                                                         className={'min-participants-alert'}>{lang['Activity_Detail_min_participants_Alert']([event.min_participant])}</div>
                                                 }
+
                                                 {!!hoster &&
-                                                    <ListCheckinUser
+                                                    <ListEventParticipants
                                                         onChange={e => {
                                                             fetchData()
                                                         }}
-                                                        cancelable={tickets.length === 0}
-                                                        editable={false}
                                                         participants={participants}
                                                         isHost={isHoster}
                                                         eventId={Number(params?.eventid)}
@@ -815,8 +813,9 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                         <div>{user.nickname || user.userName}</div>
                                     </div>
                                     {!isJoined ?
-                                        <div className={'des'}>Welcome To join the event.</div>
-                                        : <div className={'des'}>You're attended, we’d love to have you join us.</div>
+
+                                        <div className={'des'}>Welcome! To join the event, please attend below.</div>
+                                        : <div className={'des'}>You have registered, we’d love to have you join us.</div>
                                     }
 
                                     <div className={'event-action'}>
@@ -921,10 +920,11 @@ export const getServerSideProps: any = (async (context: any) => {
             props: {
                 event: detail || null,
                 host: process.env.NEXT_PUBLIC_HOST,
-                appName: process.env.NEXT_PUBLIC_APP_NAME
+                appName: process.env.NEXT_PUBLIC_APP_NAME,
+                des: removeMarkdown(detail?.content || '')
             },
         }
     } else {
-        return {props: {event: null, host: process.env.NEXT_PUBLIC_HOST, appName: process.env.NEXT_PUBLIC_APP_NAME}}
+        return {props: {des: '', event: null, host: process.env.NEXT_PUBLIC_HOST, appName: process.env.NEXT_PUBLIC_APP_NAME}}
     }
 })

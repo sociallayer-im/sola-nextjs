@@ -636,6 +636,12 @@ const langCN: LangConfig = {
   Pending_Requests: '审核请求',
   My_Communities: '我的社区',
   My_Subscriptions: '我的订阅',
+  Timezone: '时区',
+  Select_A_Timezone: '选择一个时区',
+  Calendar_View: '日历视图',
+  Schedule_View: '日程表视图',
+  Timeline_View: '时间轴视图',
+  Download_the_list_of_all_participants: '下载所有参与者名单',
 }
 
 

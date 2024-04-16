@@ -1,5 +1,6 @@
 @import '@/styles/poppins.css'
 @import '@/styles/iconfont/style.css'
+@import '@/styles/editor-munu/style.css'
 @import "@/styles/farcasterLoginBtn.css"
 
 @import "@/components/base/AddressList/AddressList.sass"
@@ -145,6 +146,9 @@
 $width-page-max: 620px
 $width-page-edge: 20px
 $height-nav: 48px
+
+ul[role="listbox"]
+  outline: none!important
 
 body
   font-family: 'Poppins', 'Noto Sans SC', sans-serif
@@ -329,4 +333,13 @@ div.gmnoprint.gm-bundled-control.gm-bundled-control-on-bottom > *
       left: 76px
       top: 240px
 
+
+
+.gantt-container
+  .popup-wrapper
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.3)
+    overflow: hidden
+    border-radius: 8px
+    .pointer
+      display: none
 

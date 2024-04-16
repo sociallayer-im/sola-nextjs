@@ -109,7 +109,6 @@ function ComponentName(props: { group: Group }) {
 
     const toToday = (initDate?: Date) => {
         const now = initDate || new Date()
-        console.log('=================', now)
         const date = dayjs.tz(now.getTime(), timezoneSelected[0].id)
         const startIndex = showList.findIndex(i => {
             return date.year() === i.year
@@ -244,10 +243,15 @@ function ComponentName(props: { group: Group }) {
             input.setAttribute('readonly', 'readonly')
         })
 
-        const historyTimeZone = localStorage.getItem('schedule-timezone')
         try {
+            const historyTimeZone = localStorage.getItem('schedule-timezone')
             if (historyTimeZone) {
                 setTimezoneSelected(JSON.parse(historyTimeZone))
+            } else if (props.group.timezone) {
+                setTimezoneSelected([{
+                    id: props.group.timezone,
+                    label: timezoneList.find(item => item.id === props.group.timezone)!.label
+                }])
             } else {
                 const localTimezone = dayjs.tz.guess()
                 const timezoneInfo = timezoneList.find(item => item.id === localTimezone) || {
@@ -278,7 +282,7 @@ function ComponentName(props: { group: Group }) {
             if (clientWidth >= 450) {
                 (window.document.querySelector('.schedule-head') as any)!.style.height = 'auto';
             } else {
-                (window.document.querySelector('.schedule-head') as any)!.style.height = '173px';
+                (window.document.querySelector('.schedule-head') as any)!.style.height = '208px';
             }
         }
 
@@ -295,7 +299,7 @@ function ComponentName(props: { group: Group }) {
                 (window.document.querySelector('.schedule-head') as any)!.style.height = '0';
                 (window.document.querySelector('.event-list') as any)!.style.minHeight = `100vh`;
             } else {
-               (window.document.querySelector('.schedule-head') as any)!.style.height = '173px';
+               (window.document.querySelector('.schedule-head') as any)!.style.height = '208px';
                 // (window.document.querySelector('.event-list') as any)!.style.minHeight = `100%`;
             }
         }
@@ -352,8 +356,9 @@ function ComponentName(props: { group: Group }) {
                     <div className={styles['schedule-title-left']}>
                         <div className={'group-name'}>
                             {
-                                pathname?.includes('iframe') &&
-                                <img src="/images/logo.svg" alt="" width={94} height={29}/>
+                                pathname?.includes('iframe') ?
+                                <img src="/images/logo.svg" alt="" width={94} height={29}/>:
+                                <Link href={`/event/${eventGroup.username}`}>{(eventGroup.nickname || eventGroup.username)}</Link>
                             }
                            <div> {lang['Activity_Calendar']}</div>
                         </div>

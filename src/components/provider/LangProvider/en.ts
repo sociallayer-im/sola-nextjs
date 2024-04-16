@@ -640,6 +640,12 @@ const langEN = {
     Pending_Requests: 'Pending requests',
     My_Communities: 'My communities',
     My_Subscriptions: 'My subscriptions',
+    Timezone: 'Timezone',
+    Select_A_Timezone: 'Select a timezone',
+    Calendar_View: 'Calendar view',
+    Schedule_View: 'Schedule view',
+    Timeline_View: 'Timeline view',
+    Download_the_list_of_all_participants: 'Download the list of all participants',
 }
 
 

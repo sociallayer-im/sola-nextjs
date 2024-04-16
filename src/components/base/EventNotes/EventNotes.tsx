@@ -1,20 +1,10 @@
 import {useContext, useEffect, useState} from 'react'
 import styles from './EventNotes.module.scss'
 import LangContext from "@/components/provider/LangProvider/LangContext";
+import RichTextDisplayer from "@/components/compose/RichTextEditor/Displayer";
 
 function EventNotes(props: { notes: string, hide: boolean }) {
-    const [text, setText] = useState('')
     const {lang} = useContext(LangContext)
-
-    useEffect(() => {
-        const linkRegex = /(?:https?:\/\/\S+)/gi;
-
-        const replacedString = props.notes.replace(linkRegex, (match) => {
-            return `<a href="${match}" target="_blank">${match}</a>`;
-        });
-
-        setText(replacedString)
-    }, [props.notes])
 
     return (<div className={styles['event-notes']} >
         { props.hide ?
@@ -28,7 +18,7 @@ function EventNotes(props: { notes: string, hide: boolean }) {
             </div> :
             <div className={styles['text']}>
                 <div className={styles['title']}>{lang['Event_Notes']}</div>
-                <div dangerouslySetInnerHTML={{__html: text}}></div>
+                <RichTextDisplayer markdownStr={props.notes} />
             </div>
         }
     </div>)

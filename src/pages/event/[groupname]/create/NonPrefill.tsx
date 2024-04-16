@@ -6,13 +6,13 @@ import UploadImage from '@/components/compose/UploadImage/UploadImage'
 import AppInput from '@/components/base/AppInput'
 import UserContext from '@/components/provider/UserProvider/UserContext'
 import AppButton, {BTN_KIND} from '@/components/base/AppButton/AppButton'
-import AppTextArea from "@/components/base/AppTextArea/AppTextArea";
 import {
     Badge,
     cancelEvent,
     cancelRepeatEvent,
     createEvent,
     CreateEventProps,
+    createRepeatEvent,
     CreateRepeatEventProps,
     Event,
     EventSites,
@@ -26,6 +26,7 @@ import {
     queryEvent,
     queryEventDetail,
     queryGroupDetail,
+    RepeatEventSetBadge,
     RepeatEventUpdate,
     setEventBadge,
     updateEvent,
@@ -34,7 +35,6 @@ import {
     Ticket, queryTickets,
 } from '@/service/solas'
 import DialogsContext from '@/components/provider/DialogProvider/DialogsContext'
-import ReasonInput from '@/components/base/ReasonInput/ReasonInput'
 import SelectCreator from '@/components/compose/SelectCreator/SelectCreator'
 import {Delete} from "baseui/icon";
 import Toggle from "@/components/base/Toggle/Toggle";
@@ -49,6 +49,7 @@ import AppEventTimeInput from "@/components/base/AppEventTimeInput/AppEventTimeI
 import IssuesInput from "@/components/base/IssuesInput/IssuesInput";
 import * as dayjsLib from "dayjs";
 import TicketSetting from "@/components/compose/TicketSetting/TicketSetting";
+import RichTextEditor from "@/components/compose/RichTextEditor/Editor";
 import TimeSlot from "@/components/compose/themu/TimeSlotNew";
 import EventDefaultCover from "@/components/base/EventDefaultCover";
 
@@ -205,7 +206,7 @@ function CreateEvent(props: CreateEventPageProps) {
 
     }
 
-    const cancel = async (redirect= true) => {
+    const cancel = async (redirect = true) => {
         if (!currEvent?.recurring_event_id) {
             await cancelOne(redirect)
         } else {
@@ -572,6 +573,9 @@ function CreateEvent(props: CreateEventPageProps) {
                         res => {
                             setEventGroup(res as any)
                             setFormReady(true)
+                            if (res?.timezone) {
+                                setTimezone(res.timezone)
+                            }
                         }
                     )
                 } else {
@@ -855,7 +859,7 @@ function CreateEvent(props: CreateEventPageProps) {
             geo_lng: locationInfo.lng,
             geo_lat: locationInfo.lat,
             interval: repeat!,
-            repeat_start_time: start  as any,
+            repeat_start_time: start as any,
             event_count: repeatCounter,
             tickets: enableTicket && tickets.length ? tickets : null,
             external_url: externalUrl,
@@ -875,11 +879,11 @@ function CreateEvent(props: CreateEventPageProps) {
                     })
                 }
 
-                 unloading()
-                 showToast('create success')
-                 window.localStorage.removeItem('event_draft')
-                 router.push(`/event/success/${newEvent.id}`)
-                 setCreating(false)
+                unloading()
+                showToast('create success')
+                window.localStorage.removeItem('event_draft')
+                router.push(`/event/success/${newEvent.id}`)
+                setCreating(false)
             } else {
                 const newEvent = await createEvent(props)
 
@@ -1000,13 +1004,13 @@ function CreateEvent(props: CreateEventPageProps) {
         } else {
             if (!!repeat) {
                 // from single event switch to repeat event, cancel the old one, create a new one
-               try {
-                   await cancel(false)
-                   await handleCreate()
-               } catch (e: any) {
-                     console.error(e)
-                     showToast(e.message)
-               }
+                try {
+                    await cancel(false)
+                    await handleCreate()
+                } catch (e: any) {
+                    console.error(e)
+                    showToast(e.message)
+                }
             } else {
                 await singleSave()
             }
@@ -1225,7 +1229,7 @@ function CreateEvent(props: CreateEventPageProps) {
                             </div>
                         }
 
-                        {!!eventGroup && (eventGroup as Group).event_tags &&
+            {!!eventGroup && (eventGroup as Group).event_tags &&
                             <div className={'input-area'}>
                                 <div className={'input-area-title'}>{lang['Activity_Form_Label']}</div>
                                 <EventLabels
@@ -1239,12 +1243,17 @@ function CreateEvent(props: CreateEventPageProps) {
                             </div>
                         }
 
-                        <div className='input-area'>
-                            <div className='input-area-title'>{lang['Activity_Form_Details']}</div>
-                            <ReasonInput unlimited value={content} onChange={(value) => {
-                                setContent(value)
-                            }}/>
-                        </div>
+                        { formReady &&
+                            <div className='input-area'>
+                                <div className='input-area-title'>{lang['Activity_Form_Details']}</div>
+                                <RichTextEditor
+                                    height={150}
+                                    maxHeight={300}
+                                    initText={content} onChange={text => {
+                                    setContent(text)
+                                }}></RichTextEditor>
+                            </div>
+                        }
 
                         <div className={'input-area'}>
                             <div className={'toggle'}>
@@ -1255,8 +1264,13 @@ function CreateEvent(props: CreateEventPageProps) {
                                     }}/>
                                 </div>
                             </div>
-                            { enableNotes &&
-                                <AppTextArea maxLength={2000} placeholder={lang['Input_Notes']} value={notes} onChange={(e) => {setNotes(e.target.value)}}/>
+                            {enableNotes &&
+                                <RichTextEditor
+                                height={150}
+                                maxHeight={300}
+                                initText={notes} onChange={text => {
+                                setNotes(text)
+                            }}></RichTextEditor>
                             }
                         </div>
 
@@ -1265,9 +1279,9 @@ function CreateEvent(props: CreateEventPageProps) {
                             <AppInput clearable={false}
                                       value={externalUrl || ''}
                                       placeholder={lang['External_Url']}
-                                        onChange={(e) => {
-                                            setExternalUrl(e.target.value)
-                                        }}/>
+                                      onChange={(e) => {
+                                          setExternalUrl(e.target.value)
+                                      }}/>
                         </div>
 
                         <div className='input-area'>
@@ -1334,6 +1348,20 @@ function CreateEvent(props: CreateEventPageProps) {
                                     }}/>
                             }
                         </div>
+
+                        {!!eventGroup && (eventGroup as Group).event_tags &&
+                            <div className={'input-area'}>
+                                <div className={'input-area-title'}>{lang['Activity_Form_Label']}</div>
+                                <EventLabels
+                                    data={(eventGroup as Group).event_tags!} onChange={e => {
+                                    setLabel(e)
+                                }} value={label}/>
+
+                                {labelError &&
+                                    <div className={'label-error'}>{'The maximum number of tags is 3'}</div>
+                                }
+                            </div>
+                        }
 
 
                         {eventType === 'event' &&

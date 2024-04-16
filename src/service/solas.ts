@@ -404,6 +404,7 @@ export async function getGroups(props: GetGroupProps): Promise<Group[]> {
 
     const doc = gql`query MyQuery {
       groups(${condition}) {
+        timezone
         events_count
         memberships_count
         group_tags
@@ -1046,6 +1047,7 @@ export interface Group extends Profile {
     events_count: number
     memberships_count: number
     group_tags :string | null
+    timezone: string | null
 }
 
 export interface QueryUserGroupProps {
@@ -1055,6 +1057,7 @@ export interface QueryUserGroupProps {
 export async function queryGroupsUserJoined(props: QueryUserGroupProps): Promise<Group[]> {
     const doc = gql`query MyQuery {
       groups(where: {status: {_neq: "freezed"}, memberships: {role: {_neq: "owner"}, profile: {id: {_eq: "${props.profile_id}"}}}}) {
+        timezone
         events_count
         memberships_count
         group_tags
@@ -1104,6 +1107,7 @@ export async function queryGroupsUserJoined(props: QueryUserGroupProps): Promise
 export async function queryGroupsUserCreated(props: QueryUserGroupProps): Promise<Group[]> {
     const doc = gql`query MyQuery {
       groups(where: {status: {_neq: "freezed"}, memberships: {role: {_eq: "owner"}, profile: {id: {_eq: "${props.profile_id}"}}}}) {
+        timezone
         events_count
         memberships_count
         group_tags
@@ -1153,6 +1157,7 @@ export async function queryGroupsUserCreated(props: QueryUserGroupProps): Promis
 export async function queryGroupsUserManager(props: QueryUserGroupProps): Promise<Group[]> {
     const doc = gql`query MyQuery {
       groups(where: {status: {_neq: "freezed"}, memberships: {role: {_eq: "manager"}, profile: {id: {_eq: "${props.profile_id}"}}}}) {
+        timezone
         events_count
         memberships_count
         group_tags
@@ -3154,6 +3159,7 @@ export async function queryEvent(props: QueryEventProps): Promise<Event[]> {
           profile_id
           profile {
             id
+            address
             username
             nickname
             image_url
@@ -3817,6 +3823,7 @@ export async function divineBeastRemerge(props: DivineBeastRmergeProps) {
 export async function getEventGroup() {
     const doc = gql`query MyQuery {
       groups(where: {event_enabled: {_eq: true}, status: {_neq: "freezed"}}) {
+        timezone
         events_count
         memberships_count
         group_tags
@@ -5211,6 +5218,48 @@ export async function combine(props: {
     })
 
     return res.data.badgelet_id as number
+}
+
+export async function queryTimeLineEvent(groupid: number, from: string, to: string): Promise<{latest: Event[], curr: Event[], first: Event[]}> {
+   let condition1: string, condition2: string, condition3: string
+    condition1 = `where: {group_id: {_eq: ${groupid}}, status: {_in: ["open", "new", "normal"]}, end_time: {_gte: "${new Date().toISOString()}"}} , order_by: {start_time: asc}, limit: 1`
+    condition2 = `where: {group_id: {_eq: ${groupid}}, status: {_in: ["open", "new", "normal"]}, start_time: {_gte: "${from}"}, _and: {start_time: {_lte: "${to}"}}, } , order_by: {start_time: asc}, limit: 1`
+    condition3 = `where: {group_id: {_eq: ${groupid}}, status: {_in: ["open", "new", "normal"]} } , order_by: {id: asc}, limit: 1`
+
+
+    const doc = gql`query MyQuery {
+      latest: events (${condition1}) {
+        start_time
+      },
+      curr: events (${condition2}) {
+         start_time
+      }
+      first: events (${condition3}) {
+         start_time
+      }
+    }`
+
+    const resp: any = await request(graphUrl, doc)
+    return {
+        latest: resp.latest.map((item: any) => {
+            return {
+                ...item,
+                start_time: item.end_time && !item.start_time.endsWith('Z') ? item.start_time + 'Z' : item.start_time,
+            }
+        }) ,
+        curr: resp.curr.map((item: any) => {
+            return {
+                ...item,
+                start_time: item.end_time && !item.start_time.endsWith('Z') ? item.start_time + 'Z' : item.start_time,
+            }
+        }),
+        first: resp.first.map((item: any) => {
+            return {
+                ...item,
+                start_time: item.end_time && !item.start_time.endsWith('Z') ? item.start_time + 'Z' : item.start_time,
+            }
+        })
+    }
 }
 
 

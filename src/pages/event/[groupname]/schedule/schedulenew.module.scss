@@ -60,35 +60,184 @@
 
 .schedule-title-left {
   display: flex;
-  flex-flow: row nowrap;
+  flex-flow: row wrap;
   align-items: center;
   color: var(--text-4-headline, #272928);
   font-size: 24px;
   font-style: normal;
-  font-weight: 700;
+  font-weight: 400;
   line-height: normal;
   position: relative;
 
   :global(.group-name) {
     margin-right: 12px;
     display: flex;
-    flex-flow: row nowrap;
+    flex-flow: row wrap;
     align-items: center;
+    white-space: nowrap;
 
     img {
       margin-right: 12px;
     }
+
+    & > a{
+      margin-right: 0.3em;
+      text-decoration: none;
+      color: #6CD7B2;
+      font-size: 24px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    & > a::first-letter {
+      text-transform: uppercase;
+    }
+
+    @media (max-width: 450px) {
+      & {
+        font-size: 20px;
+        flex-flow: column wrap;
+        align-items: flex-start;
+      }
+      & a {
+        font-size: 20px;
+      }
+    }
   }
 }
-
-
-
-
-
 
 .schedule-title-left-name {
   margin-right: 0.2em;
   text-transform: capitalize;
+}
+
+.schedule-x {
+  width: 100vw;
+  height: calc(100vh - 46px);
+}
+
+.gant-menu {
+  display: flex;
+  flex-flow: row wrap;
+  padding: 12px;
+  background: #fff;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  .page-slide {
+    display: flex!important;
+  }
+
+  .year {
+    font-size: 20px;
+    margin-right: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+
+    span {
+      margin-left: 8px;
+    }
+  }
+
+  .left, .right {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+  }
+
+  .menu-item {
+    max-width: 70%;
+    margin-right: 16px;
+    align-items: center;
+    display: flex;
+    flex-flow: row nowrap;
+  }
+
+  :global {
+    div[data-baseweb="select"] {
+      width: auto;
+      display: inline-block;
+      line-height: initial;
+      cursor: pointer;
+
+      > div {
+        background: none;
+        font-size: 14px;
+        border-width: 1px !important;
+        border-color: var(--color-item-border);
+
+        > div {
+          padding: 6px 12px;
+          font-size: 12px;
+          font-weight: 500;
+          color: var(--color-text-main);
+
+        }
+      }
+    }
+
+    .event-label-list {
+      display: flex;
+      flex-flow: row nowrap;
+      overflow: auto;
+      margin-right: 30px;
+
+      &::-webkit-scrollbar {
+        display: none;
+      }
+
+      .event-label-item {
+        white-space: nowrap;
+      }
+    }
+  }
+
+  & > button {
+    margin-right: 10px;
+  }
+}
+
+$border-color: #e0e0e0 !default;
+.gantt-warp {
+  :global {
+    #gantt-head {
+      width: 100vw;
+      background: #fff;
+      z-index: 9;
+      height: 60px;
+      border-bottom: 1px solid $border-color;
+      border-top: 1px solid $border-color;
+
+      .gantt-container::-webkit-scrollbar {
+        display: none;
+      }
+
+      .gantt-container {
+      }
+    }
+
+    #gantt .gantt-container {
+      width: 100vw;
+      height: calc(100vh - 48px - 64px - 60px);
+
+
+      &::-webkit-scrollbar-thumb {
+        background: #bebebe;
+        width: 20px;
+      }
+
+      &::-webkit-scrollbar {
+        width: 12px;
+        height: 12px;
+      }
+    }
+
+  }
+}
+
+.gantt {
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .schedule-title-right {
@@ -569,11 +718,11 @@
   }
 
   .timezone-selected {
-    display: none!important;
+    display: none !important;
   }
 
   .page-slide {
-    display: none!important;
+    display: none !important;
   }
 
 
@@ -639,5 +788,62 @@
   svg:nth-child(2) {
     cursor: pointer;
     margin: 0 10px;
+  }
+}
+
+.gantt-popup {
+  width: 300px;
+  max-height: 160px;
+  background: #fff;
+  box-sizing: border-box;
+  overflow: auto;
+  padding: 12px;
+
+  .link {
+    display: block;
+    float: right;
+    text-decoration: none;
+    padding: 4px 8px;
+    color: #0D0D0D;
+    background: #63f5c2;
+    border-radius: 4px;
+    margin-top: 6px;
+    font-weight: 600;
+
+    &:hover {
+      background: #9efedd;
+    }
+  }
+
+  .name {
+    color: #0D0D0D;
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .detail {
+    margin: 2px;
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+
+    span {
+      width: calc(100% - 20px);
+      text-overflow: ellipsis;
+      color: #0D0D0D;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+
+    img {
+      height: 18px;
+      width: 18px;
+      border-radius: 50px;
+      margin-right: 6px;
+    }
+
+    i {
+      margin-right: 6px;
+    }
   }
 }
