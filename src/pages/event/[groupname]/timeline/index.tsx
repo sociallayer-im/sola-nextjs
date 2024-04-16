@@ -114,7 +114,7 @@ function Gan(props: { group: Group }) {
         }
     }, [])
 
-    const getDuration = (date: Date, timezone) => {
+    const getDuration = (date: Date, timezone: string) => {
         let start: string, end: string
         if (viewMode[0].id === 'Quarter Day') {
             start = dayjs.tz(date.getTime(), timezone).add(page - 1, 'month').startOf('month').toISOString()
