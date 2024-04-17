@@ -175,6 +175,7 @@ function Gan(props: { group: Group }) {
                             location: event.location,
                             avatar: event.owner.image_url || defaultAvatar(event.owner.id),
                             host: event.owner.username,
+                            host_info: event.host_info,
                             hide: false
                         }
                     })
@@ -192,6 +193,7 @@ function Gan(props: { group: Group }) {
                             location: '',
                             avatar: '',
                             host: '',
+                            host_info: null,
                             hide: true
                         })
                     }
@@ -227,9 +229,19 @@ function Gan(props: { group: Group }) {
                     scrollToday: true,
                     gantt_head: '#gantt-head',
                     custom_popup_html: function (task: any) {
+                        let host = task.host
+                        let avatar = task.avatar
+                        if (task.host_info) {
+                            const info = JSON.parse(task.host_info)
+                            if (info.group_host) {
+                                host = info.group_host.username
+                                avatar = info.group_host.image_url || defaultAvatar(info.group_host.id)
+                            }
+                        }
+
                         return `<div class="${styles['gantt-popup']}">
                                     <div class="${styles['name']}">${task.name}</div>
-                                    <div class="${styles['detail']}"> <img src="${task.avatar}" alt=""><span>by ${task.host}</span></div>
+                                    <div class="${styles['detail']}"> <img src="${avatar}" alt=""><span>by ${host}</span></div>
                                     <div class="${styles['detail']}"><i class="icon-calendar"></i><span>${task.start.replace('-', '.')} - ${task.end.replace('-', '.')}</span></div>
                                     ${task.location ? `<div class="${styles['detail']}"><i class="icon-Outline"></i><span>${task.location}</span></div>` : ''}
                                     <a href="/event/detail/${task.id}" class="${styles['link']}" target="_blank">View Event</a>
