@@ -8,9 +8,9 @@ import langContext from "../../provider/LangProvider/LangContext";
 import MapContext from "../../provider/MapProvider/MapContext";
 
 export interface LocationInputValue {
-    lat: number | null,
-    lng: number | null,
-    eventSiteId: number | null,
+    geo_lat: number | null,
+    geo_lng: number | null,
+    event_site_id: number | null,
     location: string | null,
     formatted_address: string | null
 }
@@ -66,12 +66,12 @@ function LocationInput(props: LocationInputProps) {
     const sessionToken = useRef<any>(null)
 
     useEffect(() => {
-        if (!!eventSiteList.length && !!props.initValue?.eventSiteId) {
-            const eventSite = eventSiteList.find(e => e.id === props.initValue?.eventSiteId)
+        if (!!eventSiteList.length && !!props.initValue?.event_site_id) {
+            const eventSite = eventSiteList.find(e => e.id === props.initValue?.event_site_id)
             eventSite && setEventSite([eventSite] as any)
         }
 
-    }, [eventSiteList, props.initValue?.eventSiteId])
+    }, [eventSiteList, props.initValue?.event_site_id])
 
     useEffect(() => {
         async function fetchLocation() {
@@ -160,7 +160,7 @@ function LocationInput(props: LocationInputProps) {
     }
 
     useEffect(() => {
-        if (props.initValue?.location && !props.initValue.eventSiteId) {
+        if (props.initValue?.location && !props.initValue.event_site_id) {
             setCreateMode(true)
             setSearchKeyword(props.initValue.formatted_address || '')
         }
@@ -196,9 +196,9 @@ function LocationInput(props: LocationInputProps) {
                         if (params.value[0].id) {
                             setEventSite(params.value as any)
                             props.onChange && props.onChange({
-                                lat: params.value[0].geo_lat,
-                                lng: params.value[0].geo_lng,
-                                eventSiteId: params.value[0].id,
+                                geo_lat: params.value[0].geo_lat,
+                                geo_lng: params.value[0].geo_lng,
+                                event_site_id: params.value[0].id,
                                 location: params.value[0].title,
                                 formatted_address: params.value[0].formatted_address
                             })
@@ -208,9 +208,9 @@ function LocationInput(props: LocationInputProps) {
                             setGmapSearchResult([])
                             setEventSite(null)
                             props.onChange && props.onChange({
-                                lat: null,
-                                lng: null,
-                                eventSiteId: null,
+                                geo_lat: null,
+                                geo_lng: null,
+                                event_site_id: null,
                                 formatted_address: null,
                                 location: null
                             })
@@ -231,9 +231,9 @@ function LocationInput(props: LocationInputProps) {
                         endEnhancer={() => <Delete size={24} className={'delete'} onClick={() => {
                             setCreateMode(false)
                             props.onChange && props.onChange({
-                                lat: null,
-                                lng: null,
-                                eventSiteId: null,
+                                geo_lat: null,
+                                geo_lng: null,
+                                event_site_id: null,
                                 formatted_address: null,
                                 location: null
                             })
