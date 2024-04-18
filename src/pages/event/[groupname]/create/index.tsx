@@ -159,6 +159,7 @@ function EditEvent({initEvent, group, initCreator}: {initEvent?: Event, group?: 
         if (initEvent) {
             // prefill
             setEnableMaxParticipants(!!initEvent.max_participant)
+            setEnableNotes(!!initEvent.notes)
 
 
             if (initEvent.host_info) {
@@ -911,6 +912,7 @@ function EditEvent({initEvent, group, initCreator}: {initEvent?: Event, group?: 
                                     }}
                                     allowRepeat={isManager}
                                     onChange={e => {
+                                        console.log('eee', e)
                                         setRepeatCounter(e.counter)
                                         setRepeat(e.repeat as any || null)
                                         setEvent({

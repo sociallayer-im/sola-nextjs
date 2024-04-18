@@ -15,9 +15,12 @@ const timezoneList = list.map((item) => {
     const cmtStr = offset >= 0 ? `GMT+${offset / 60}` : `GMT${offset / 60}`
 
     return {
+        offset,
         id: item,
-        label: `${item} ${cmtStr} `,
+        label: `${cmtStr} ${item}`,
     }
+}).sort((a, b) => {
+    return a.offset - b.offset
 })
 
 export function locateTimeTransfer(time: Date, timezone: string) {
