@@ -811,7 +811,18 @@ export default class Gantt {
         const header_parent_element = this.$header.parentElement;
         if (!parent_element || !header_parent_element) return;
 
-        console.log('this.options.scrollToday', this.header_layers.date)
+        const nowDate = new Date()
+        const currDateTask = this.bars.find((bar: any) => {
+            const task = bar.task as Task
+            return new Date(task.start).getDate() === nowDate.getDate() &&
+                new Date(task.start).getMonth() === nowDate.getMonth() &&
+                new Date(task.start).getFullYear() === nowDate.getFullYear()
+        })
+
+        if (currDateTask) {
+            parent_element.scrollTop = currDateTask.y - (this.options.padding / 2)
+        }
+
         const target_date = this.options.scrollToday && this.gantt_start.getMonth() === new Date().getMonth()
             ? new Date()
             : this.get_oldest_starting_date()
