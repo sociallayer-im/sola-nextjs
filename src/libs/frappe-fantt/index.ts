@@ -453,7 +453,7 @@ export default class Gantt {
 
     make_grid_ticks() {
         let tick_x = 0;
-        let tick_y = this.options.header_height + this.options.padding / 2;
+        let tick_y = this.options.header_height;
         let tick_height =
             (this.options.bar_height + this.options.padding) *
             this.tasks.length;
@@ -478,6 +478,29 @@ export default class Gantt {
                 (date.getMonth() + 1) % 3 === 0
             ) {
                 tick_class += ' thick';
+            }
+
+            // show weekends
+            if (date.getDay() === 0 || date.getDay() === 6) {
+                createSVG('rect', {
+                    width: this.options.column_width,
+                    height: tick_height,
+                    fill: 'rgba(0,0,0,0.01)',
+                    class: 'weekend',
+                    x: tick_x,
+                    y: tick_y,
+                    append_to: this.layers.grid,
+                });
+
+                createSVG('rect', {
+                    width: this.options.column_width,
+                    height: tick_height,
+                    fill: 'rgba(0,0,0,0.01)',
+                    class: 'weekend',
+                    x: tick_x,
+                    y: tick_y,
+                    append_to: this.header_layers.grid,
+                });
             }
 
             createSVG('path', {
@@ -650,6 +673,7 @@ export default class Gantt {
         }
 
         console.log('date.getMonth() !== last_date.getMonth()', date.getMonth(), last_date.getMonth())
+        const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
         const date_text = {
             'Quarter Day_lower': date_utils.format(
                 date,
@@ -663,7 +687,7 @@ export default class Gantt {
             ),
             Day_lower:
                 date.getDate() !== last_date.getDate()
-                    ? date_utils.format(date, 'D MMM', this.options.language)
+                    ? date_utils.format(date, `D ${dayNames[date.getDay()].toUpperCase()}`, this.options.language)
                     : '',
             Week_lower:
                 date.getMonth() !== last_date.getMonth()
@@ -786,10 +810,6 @@ export default class Gantt {
     }
 
     set_scroll_position() {
-        if (!this.options.scrollToday) {
-            return;
-        }
-
         const parent_element = this.$svg.parentElement;
         const header_parent_element = this.$header.parentElement;
         if (!parent_element || !header_parent_element) return;
@@ -808,7 +828,8 @@ export default class Gantt {
             header_parent_element.scrollLeft = currDateTask.x;
             parent_element.scrollTop = currDateTask.y - (this.options.padding / 2)
         } else {
-            const target_date = this.get_oldest_starting_date()
+            const target_date = this.options.scrollToday ? new Date() :
+            this.get_oldest_starting_date()
             const hours_before_first_task = date_utils.diff(
                 target_date,
                 this.gantt_start,
@@ -823,6 +844,7 @@ export default class Gantt {
                 const currHour = new Date().getHours()
                 scroll_pos += currHour * this.options.column_width
             }
+
             console.log('scroll_pos', scroll_pos, target_date)
             parent_element.scrollLeft = scroll_pos;
             header_parent_element.scrollLeft = scroll_pos;
@@ -1090,7 +1112,15 @@ export default class Gantt {
                 this.options.custom_popup_html
             ) as any;
         }
+
+        if (this.popup.parent.getBoundingClientRect() > window.innerWidth - 400) {
+            this.popup_wrapper.style.transform = 'translateX(-100%)'
+        } else {
+            this.popup_wrapper.style.transform = undefined
+        }
+
         this.popup.show(options);
+
     }
 
     hide_popup() {

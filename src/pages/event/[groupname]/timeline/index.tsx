@@ -6,9 +6,17 @@ import usePicture from "@/hooks/pictrue";
 import {Select} from "baseui/select";
 import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
 import LangContext from "@/components/provider/LangProvider/LangContext";
+import { renderToStaticMarkup } from 'react-dom/server'
+import CardEvent from "@/components/base/Cards/CardEvent/CardEvent";
+
 
 import * as dayjsLib from "dayjs";
 import timezoneList from "@/utils/timezone";
+import {getLabelColor} from "@/hooks/labelColor";
+import Link from "next/link";
+import ImgLazy from "@/components/base/ImgLazy/ImgLazy";
+import AppButton from "@/components/base/AppButton/AppButton";
+import EventDefaultCover from "@/components/base/EventDefaultCover";
 
 const utc = require('dayjs/plugin/utc')
 const timezone = require('dayjs/plugin/timezone')
@@ -18,6 +26,26 @@ dayjs.extend(timezone)
 
 const dayName = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 const mouthName = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+
+function formatDate(dateStr: string, timezone: string) {
+    const time = dayjs.tz(dateStr, timezone)
+    const date = time.date();
+    const month = mouthName[time.month()];
+    const hour = time.hour() + ''
+    const minute = time.minute() + '';
+
+    let suffix = 'th';
+
+    if (date === 1 || date === 21 || date === 31) {
+        suffix = 'st';
+    } else if (date === 2 || date === 22) {
+        suffix = 'nd';
+    } else if (date === 3 || date === 23) {
+        suffix = 'rd';
+    }
+
+    return `${month} ${date}${suffix} ${hour.padStart(2, '0')}:${minute.padStart(2, '0')}`;
+}
 
 const views = [
     {
@@ -55,7 +83,7 @@ function Gan(props: { group: Group }) {
 
     const [timezoneSelected, setTimezoneSelected] = useState<{ label: string, id: string }[]>([])
     const [viewMode, setViewMode] = useState([views[0]])
-    const [tag, setTag] = useState([{id: 'All', label: 'All'}])
+    const [tag, setTag] = useState([{id: 'All', label: 'All', color: null}])
     const [page, setPage] = useState(1)
     const [start, setStart] = useState(new Date())
     const [end, setEnd] = useState(new Date())
@@ -64,7 +92,8 @@ function Gan(props: { group: Group }) {
     const tags = props.group.event_tags?.map((item: string) => {
         return {
             id: item,
-            label: item
+            label: item,
+            color: getLabelColor(item)
         }
     }) || []
 
@@ -176,7 +205,10 @@ function Gan(props: { group: Group }) {
                             avatar: event.owner.image_url || defaultAvatar(event.owner.id),
                             host: event.owner.username,
                             host_info: event.host_info,
-                            hide: false
+                            hide: false,
+                            color: event.tags?.length ? getLabelColor(event.tags[0]) : '#a3a3ff',
+                            tag: event.tags,
+                            event: event
                         }
                     })
 
@@ -194,13 +226,15 @@ function Gan(props: { group: Group }) {
                             avatar: '',
                             host: '',
                             host_info: null,
-                            hide: true
+                            hide: true,
+                            color: '#a3a3ff',
+                            tag: [],
+                            event: null as any
                         })
                     }
                 } else if (eventList.length < 30) {
                     const pad = 30 - eventList.length
                     const padStartDate = eventList[eventList.length - 1].start
-                    console.log('padStartDate', eventList[eventList.length - 1])
                     for (let i = 0; i < pad; i++) {
                         eventList.push({
                             id: i + '',
@@ -211,7 +245,11 @@ function Gan(props: { group: Group }) {
                             location: '',
                             avatar: '',
                             host: '',
-                            hide: true
+                            hide: true,
+                            color: '#a3a3ff',
+                            host_info: '',
+                            tag: [],
+                            event: null as any
                         })
                     }
                 }
@@ -226,8 +264,9 @@ function Gan(props: { group: Group }) {
                     date_format: 'YYYY-MM-DD',
                     start: new Date(start),
                     end: new Date(end),
-                    scrollToday: true,
+                    scrollToday: page === 1,
                     gantt_head: '#gantt-head',
+                    popup_trigger: 'click',
                     custom_popup_html: function (task: any) {
                         let host = task.host
                         let avatar = task.avatar
@@ -239,13 +278,65 @@ function Gan(props: { group: Group }) {
                             }
                         }
 
-                        return `<div class="${styles['gantt-popup']}">
-                                    <div class="${styles['name']}">${task.name}</div>
-                                    <div class="${styles['detail']}"> <img src="${avatar}" alt=""><span>by ${host}</span></div>
-                                    <div class="${styles['detail']}"><i class="icon-calendar"></i><span>${task.start.replace('-', '.')} - ${task.end.replace('-', '.')}</span></div>
-                                    ${task.location ? `<div class="${styles['detail']}"><i class="icon-Outline"></i><span>${task.location}</span></div>` : ''}
-                                    <a href="/event/detail/${task.id}" class="${styles['link']}" target="_blank">View Event</a>
-                                <div>`
+                        // return `<div class="${styles['gantt-popup']}">
+                        //            <div>
+                        //                <div class="${styles['name']}">${task.name}</div>
+                        //                <div class="${styles['detail']}"> <img src="${avatar}" alt=""><span>by ${host}</span></div>
+                        //                <div class="${styles['detail']}"><i class="icon-calendar"></i><span>${formatDate(task.start, timezoneSelected[0].id)} - ${formatDate(task.end, timezoneSelected[0].id)}</span></div>
+                        //                     ${task.location ? `<div class="${styles['detail']}"><i class="icon-Outline"></i><span>${task.location}</span></div>` : ''}
+                        //                <a href="/event/detail/${task.id}" class="${styles['link']}" target="_blank">View Event</a>
+                        //            </div>
+                        //         </div>`
+                        return renderToStaticMarkup(
+                            <Link href={`/event/detail/${task.event.id}`} className={'event-card'} style={{width: '380px'}} target={'_blank'}>
+                                <div className={'info'}>
+                                    <div className={'left'}>
+                                        <div className={'details'}>
+                                            <div style={{color: '#272928'}}>{`${formatDate(task.start, timezoneSelected[0].id)} - ${formatDate(task.end, timezoneSelected[0].id)}`}</div>
+                                            <div className={'title'}>
+                                                {task.event.title}
+                                            </div>
+                                            <div className={'tags'}>
+                                                {
+                                                    task.tags?.map((tag: string) => {
+                                                        return <div key={tag} className={'tag'}>
+                                                            <i className={'dot'} style={{background: getLabelColor(tag)}}/>
+                                                            {tag}
+                                                        </div>
+                                                    })
+                                                }
+                                            </div>
+
+                                            <div className={'detail'}>
+                                                <img src={avatar} width={16} height={16} alt=""/>
+                                                <span>host by {host}</span>
+                                            </div>
+
+                                            {!!task.location &&
+                                                <div className={'detail'}>
+                                                    <i className={'icon-Outline'}/>
+                                                    <span>{task.location}</span>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                    <div className={'post'}>
+                                        {
+                                            task.event.cover_url ?
+                                                <img src={task.event.cover_url} width={280} alt=""/>
+                                                : <EventDefaultCover event={task.event} width={140} height={140}/>
+                                        }
+                                    </div>
+                                    <div className={'post mobile'}>
+                                        {
+                                            task.event.cover_url ?
+                                                <img src={task.event.cover_url} width={280} alt=""/>
+                                                : <EventDefaultCover event={task.event} width={100} height={100}/>
+                                        }
+                                    </div>
+                                </div>
+                            </Link>
+                        )
                     }
                 })
             })
@@ -268,7 +359,7 @@ function Gan(props: { group: Group }) {
         setPage(page + 1)
     }
 
-    return <div>
+    return <div className={styles['gant-page']}>
         <div className={styles['gant-menu']}>
             <div className={styles['left']}>
                 <div className={styles['menu-item'] + ' input-disable'}>
@@ -325,7 +416,19 @@ function Gan(props: { group: Group }) {
                         creatable={false}
                         searchable={false}
                         value={tag}
-                        options={[{id: 'All', label: 'All'}, ...tags as any]}
+                        getOptionLabel={(opt: any) => {
+                            return <div className={styles['label-item']}>
+                                <i className={styles['label-color']} style={{background: opt.option.color || '#f1f1f1'}}/>
+                                {opt.option.label}
+                            </div>
+                        }}
+                        getValueLabel={(opt: any) => {
+                            return <div className={styles['label-item']}>
+                                <i className={styles['label-color']} style={{background: opt.option.color || '#f1f1f1'}}/>
+                                {opt.option.label}
+                            </div>
+                        }}
+                        options={[{id: 'All', label: 'All', color: null}, ...tags as any]}
                         onChange={({option}) => {
                             setTag([option] as any)
                         }}
@@ -351,7 +454,7 @@ function Gan(props: { group: Group }) {
         </div>
 
         <div className={styles['gantt-warp']}>
-            <div id={'gantt-head'} className={styles['gantt']}/>
+            <div id={'gantt-head'} className={`${styles['gantt']} ${styles['gantt-head']}`}/>
             <div id={'gantt'} className={styles['gantt']}/>
         </div>
     </div>
