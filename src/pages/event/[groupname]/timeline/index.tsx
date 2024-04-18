@@ -6,17 +6,13 @@ import usePicture from "@/hooks/pictrue";
 import {Select} from "baseui/select";
 import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
 import LangContext from "@/components/provider/LangProvider/LangContext";
-import { renderToStaticMarkup } from 'react-dom/server'
-import CardEvent from "@/components/base/Cards/CardEvent/CardEvent";
-
-
+import {renderToStaticMarkup} from 'react-dom/server'
 import * as dayjsLib from "dayjs";
 import timezoneList from "@/utils/timezone";
 import {getLabelColor} from "@/hooks/labelColor";
 import Link from "next/link";
-import ImgLazy from "@/components/base/ImgLazy/ImgLazy";
-import AppButton from "@/components/base/AppButton/AppButton";
 import EventDefaultCover from "@/components/base/EventDefaultCover";
+import removeMarkdown from "markdown-to-text"
 
 const utc = require('dayjs/plugin/utc')
 const timezone = require('dayjs/plugin/timezone')
@@ -151,7 +147,7 @@ function Gan(props: { group: Group }) {
         } else if (viewMode[0].id === 'Day') {
             start = dayjs.tz(date.getTime(), timezone).add(page - 1, 'month').startOf('month').toISOString()
             end = dayjs.tz(date.getTime(), timezone).add(page - 1, 'month').endOf('month').toISOString()
-        } else  {
+        } else {
             start = dayjs.tz(date.getTime(), timezone).add(page - 1, 'year').startOf('year').toISOString()
             end = dayjs.tz(date.getTime(), timezone).add(page - 1, 'year').endOf('year').toISOString()
         }
@@ -177,7 +173,7 @@ function Gan(props: { group: Group }) {
                 tag: tag[0].id === 'All' ? undefined : tag[0].id
             }).then(res => {
                 let eventList = []
-                 eventList = res
+                eventList = res
                     .map((event: Event) => {
                         let host = [event.owner.username]
                         if (event.host_info) {
@@ -288,19 +284,25 @@ function Gan(props: { group: Group }) {
                         //            </div>
                         //         </div>`
                         return renderToStaticMarkup(
-                            <Link href={`/event/detail/${task.event.id}`} className={'event-card'} style={{width: '380px'}} target={'_blank'}>
+                            <Link href={`/event/detail/${task.event.id}`} className={'event-card'}
+                                  style={{width: '380px'}} target={'_blank'}>
                                 <div className={'info'}>
                                     <div className={'left'}>
                                         <div className={'details'}>
-                                            <div style={{color: '#272928'}}>{`${formatDate(task.start, timezoneSelected[0].id)} - ${formatDate(task.end, timezoneSelected[0].id)}`}</div>
+                                            <div
+                                                style={{color: '#272928'}}>{`${formatDate(task.start, timezoneSelected[0].id)} - ${formatDate(task.end, timezoneSelected[0].id)}`}</div>
                                             <div className={'title'}>
                                                 {task.event.title}
+                                            </div>
+                                            <div className={'des'} style={{color: '#272928', wordBreak: 'break-word'}}>
+                                                {removeMarkdown(task.event.content).slice(0, 50) + `${task.event.content.length > 50 ? '...' : ''}`}
                                             </div>
                                             <div className={'tags'}>
                                                 {
                                                     task.tags?.map((tag: string) => {
                                                         return <div key={tag} className={'tag'}>
-                                                            <i className={'dot'} style={{background: getLabelColor(tag)}}/>
+                                                            <i className={'dot'}
+                                                               style={{background: getLabelColor(tag)}}/>
                                                             {tag}
                                                         </div>
                                                     })
@@ -364,7 +366,7 @@ function Gan(props: { group: Group }) {
             <div className={styles['left']}>
                 <div className={styles['menu-item'] + ' input-disable'}>
                     <div className={styles[`year`]}>{(firstDate || new Date()).getFullYear()}
-                        { viewMode[0].id !== 'Month' &&
+                        {viewMode[0].id !== 'Month' &&
                             <span>{lang['Month_Name'][(firstDate || new Date()).getMonth()]}</span>
                         }
                     </div>
@@ -383,7 +385,9 @@ function Gan(props: { group: Group }) {
                             />
                         </svg>
                         <svg
-                            onClick={() => {toToday()}}
+                            onClick={() => {
+                                toToday()
+                            }}
                             xmlns="http://www.w3.org/2000/svg"
                             width={28}
                             height={40}
@@ -392,7 +396,7 @@ function Gan(props: { group: Group }) {
                             <circle cx={14} cy={20} r={3} fill="#272928"/>
                         </svg>
                         <svg
-                            className={viewMode[0].id === 'Month'  ? styles['disable'] : ''}
+                            className={viewMode[0].id === 'Month' ? styles['disable'] : ''}
                             onClick={nextPage}
                             xmlns="http://www.w3.org/2000/svg"
                             width={20}
@@ -418,13 +422,15 @@ function Gan(props: { group: Group }) {
                         value={tag}
                         getOptionLabel={(opt: any) => {
                             return <div className={styles['label-item']}>
-                                <i className={styles['label-color']} style={{background: opt.option.color || '#f1f1f1'}}/>
+                                <i className={styles['label-color']}
+                                   style={{background: opt.option.color || '#f1f1f1'}}/>
                                 {opt.option.label}
                             </div>
                         }}
                         getValueLabel={(opt: any) => {
                             return <div className={styles['label-item']}>
-                                <i className={styles['label-color']} style={{background: opt.option.color || '#f1f1f1'}}/>
+                                <i className={styles['label-color']}
+                                   style={{background: opt.option.color || '#f1f1f1'}}/>
                                 {opt.option.label}
                             </div>
                         }}
