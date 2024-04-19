@@ -539,7 +539,7 @@ const langEN = {
     Form_Repeat_Not: 'Does not Repeat',
     Form_Repeat_Day: 'Every day',
     Form_Repeat_Week: 'Every week',
-    Form_Repeat_Month: 'Every Month',
+    Form_Repeat_Month: 'Every month',
     Form_Marker_Title: 'Create a marker',
     Form_Marker_Category: 'Category',
     Form_Marker_Title_Label: 'Title',
@@ -635,6 +635,7 @@ const langEN = {
     Schedule_View: 'Schedule view',
     Timeline_View: 'Timeline view',
     Download_the_list_of_all_participants: 'Download the list of all participants',
+    More_Settings: 'More_Settings',
 }
 
 

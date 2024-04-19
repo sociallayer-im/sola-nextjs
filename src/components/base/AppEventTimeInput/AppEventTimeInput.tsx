@@ -1,11 +1,15 @@
-import {useContext, useEffect, useRef, useState} from 'react'
+import {useContext, useEffect, useState} from 'react'
 import {DatePicker, TimePicker} from "baseui/datepicker";
 import LangContext from "../../provider/LangProvider/LangContext";
+import langContext from "../../provider/LangProvider/LangContext";
 import {Select} from "baseui/select";
 import timezoneList from "@/utils/timezone";
 import * as dayjsLib from 'dayjs'
 import styles from './AppEventTimeInput.module.scss'
 import {TimezonePicker} from "baseui/timezonepicker";
+import TriangleDown from 'baseui/icon/triangle-down'
+import dialogsContext from "@/components/provider/DialogProvider/DialogsContext";
+import AppButton from '@/components/base/AppButton/AppButton'
 
 const utc = require('dayjs/plugin/utc')
 const timezone = require('dayjs/plugin/timezone')
@@ -13,6 +17,8 @@ const dayjs: any = dayjsLib
 dayjs.extend(utc)
 dayjs.extend(timezone)
 
+const dayName = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+const mouthName = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
 export function mapTimezone(value: any) {
     const target = timezoneList.find((item) => {
@@ -51,13 +57,30 @@ function input(dateStr: string, timezone: string) {
 
 const localeTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone
 
+function calculateDuration(start: Date, end: Date) {
+    if (end < start) return ''
+    const duration = end.getTime() - start.getTime()
+    const day = Math.floor(duration / (1000 * 60 * 60 * 24))
+    const hour = Math.floor((duration % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
+    const minute = Math.floor((duration % (1000 * 60 * 60)) / (1000 * 60))
+    return `${day ? `${day}d ` : ''}` + `${hour ? `${hour}h ` : ''}` + `${minute ? `${minute}m` : ''}`
+}
+
+const getOffset = (timezone: string) => {
+    const offset = dayjs.tz(new Date().getTime(), timezone).utcOffset() / 60
+    return `GMT${offset > 0 ? `+${offset}` : (offset + '')}`
+}
+
 interface AppDateInputProps {
     initData: {
         from: string
         to: string
         timezone: string,
     }
+    repeatCount: number,
+    repeat: string | null
     allowRepeat?: boolean,
+    disabled?: boolean,
     onChange: (value: {
         from: string,
         to: string,
@@ -70,11 +93,13 @@ interface AppDateInputProps {
 
 function AppDateInput({allowRepeat = true, initData, ...props}: AppDateInputProps) {
     const {lang} = useContext(LangContext)
+    const {openDialog} = useContext(dialogsContext)
+
+
     const [from, setFrom] = useState(input(initData.from, initData.timezone))
     const [to, setTo] = useState(input(initData.to, initData.timezone))
     const [timezone, setTimezone] = useState(initData.timezone)
     const [counter, setCounter] = useState(1)
-    const history = useRef<[Date, Date]>([from, to])
 
     const repeatOptions: any = [
         {label: lang['Form_Repeat_Not'], id: ''},
@@ -85,30 +110,6 @@ function AppDateInput({allowRepeat = true, initData, ...props}: AppDateInputProp
 
     let repeatDefault: { label: string, id: string }[] = [repeatOptions[0]]
     const [repeat, setRepeat] = useState<{ label: string, id: string }[]>(repeatDefault)
-
-    const getOffset = (timezone: string) => {
-        const offset = dayjs.tz(new Date().getTime(), timezone).utcOffset() / 60
-        return `GMT${offset > 0 ? `+${offset}` : (offset + '')}`
-    }
-
-    // function calculateDuration(start: Date, end: Date) {
-    //     // calculate duration
-    //     const duration = end.getTime() - start.getTime()
-    //     return Math.floor(duration / (1000 * 60)) + lang['Minute']
-    // }
-
-    // calculate duration, input two date, caculate the duration, format to xxday xxhour xxminute
-    function calculateDuration(start: Date, end: Date) {
-        // calculate duration
-        if (end < start) return ''
-
-        const duration = end.getTime() - start.getTime()
-        const day = Math.floor(duration / (1000 * 60 * 60 * 24))
-        const hour = Math.floor((duration % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
-        const minute = Math.floor((duration % (1000 * 60 * 60)) / (1000 * 60))
-        // return `${day || ''} ${lang['Day']} ${hour} ${lang['Hour']} ${minute} ${lang['Minute']}`
-        return `${day ? `${day }d ` : ''}` + `${hour ? `${hour}h `: ''}` + `${minute ? `${minute}m` : ''}`
-    }
 
     function showDate(data: Date) {
         const month = data.getMonth()
@@ -152,6 +153,26 @@ function AppDateInput({allowRepeat = true, initData, ...props}: AppDateInputProp
         setTo(date)
     }
 
+    const showRepeatOption = async () => {
+        openDialog({
+            size: [316, 'auto'],
+            position: 'bottom',
+            content: (close: any) => {
+                return <DialogRepeatOption
+                    disabled={!allowRepeat}
+                    from={from}
+                    to={to}
+                    close={close}
+                    initRepeat={repeat}
+                    times={counter}
+                    onChange={(repeatValue, times) => {
+                        setRepeat(repeatValue)
+                        setCounter(times)
+                    }}/>
+            },
+        })
+    }
+
     useEffect(() => {
         // repeatEndingTime 是to的一年后
         const toTime = new Date(output(to, timezone))
@@ -173,6 +194,19 @@ function AppDateInput({allowRepeat = true, initData, ...props}: AppDateInputProp
         setFrom(input(initData.from, initData.timezone))
         setTo(input(initData.to, initData.timezone))
     }, [])
+
+    useEffect(() => {
+        if (props.repeat) {
+            const repeatTarget = repeatOptions.find((item: any) => {
+                return item.id === props.repeat
+            })
+            setRepeat(repeatTarget ? [repeatTarget] : [repeatOptions[0]])
+        } else {
+            setRepeat([repeatOptions[0]])
+        }
+
+        setCounter(props.repeatCount)
+    }, [props.repeatCount, props.repeat])
 
     useEffect(() => {
         if (initData.timezone !== timezone) {
@@ -209,7 +243,8 @@ function AppDateInput({allowRepeat = true, initData, ...props}: AppDateInputProp
                             Select: {
                                 props: {
                                     getOptionLabel: (option: any) => {
-                                        return <div className={`${styles['end-time-dropdown-label']} ${option.optionState.$selected ? styles['active'] : ''}`}>{option.option.label}</div>
+                                        return <div
+                                            className={`${styles['end-time-dropdown-label']} ${option.optionState.$selected ? styles['active'] : ''}`}>{option.option.label}</div>
                                     },
                                     overrides: {
                                         StatefulMenu: {
@@ -270,8 +305,10 @@ function AppDateInput({allowRepeat = true, initData, ...props}: AppDateInputProp
                                         const newDate = new Date(to.getTime())
                                         newDate.setHours(Number(hour))
                                         newDate.setMinutes(Number(minute))
-                                        const dulation = calculateDuration(from, newDate)
-                                        return <div className={`${styles['end-time-dropdown-label']} ${option.optionState.$selected ? styles['active'] : ''}`}>{option.option.label} <span>{dulation}</span></div>
+                                        const duration = calculateDuration(from, newDate)
+                                        return <div
+                                            className={`${styles['end-time-dropdown-label']} ${option.optionState.$selected ? styles['active'] : ''}`}>{option.option.label}
+                                            <span>{duration}</span></div>
                                     },
                                     overrides: {
                                         StatefulMenu: {
@@ -301,21 +338,13 @@ function AppDateInput({allowRepeat = true, initData, ...props}: AppDateInputProp
             </div>
         </div>
 
-
-
         <div className={styles['all-day-repeat']}>
-            {allowRepeat &&
-                <div className={styles['repeat']}>
-                    <Select
-                        clearable={false}
-                        searchable={false}
-                        options={repeatOptions}
-                        value={repeat}
-                        placeholder="Select repeat"
-                        onChange={params => setRepeat(params.value as any)}
-                    />
+            <div className={styles['repeat']}>
+                <div className={styles['select-repeat']} onClick={showRepeatOption}>
+                    <span>{repeat[0].label}</span>
+                    <TriangleDown size={18}/>
                 </div>
-            }
+            </div>
 
             <div className={styles['timezone']}>
                 <div className={styles['offset']}>{getOffset(timezone)}</div>
@@ -324,17 +353,18 @@ function AppDateInput({allowRepeat = true, initData, ...props}: AppDateInputProp
                         Select: {
                             props: {
                                 getOptionLabel: (option: any) => {
-                                    return <div className={`${styles['end-time-dropdown-label']} ${option.optionState.$selected ? styles['active'] : ''}`}>{option.option.label}</div>
+                                    return <div
+                                        className={`${styles['end-time-dropdown-label']} ${option.optionState.$selected ? styles['active'] : ''}`}>{option.option.label}</div>
                                 },
                                 getValueLabel: (option: any) => {
-                                    return  option.option.label ? option.option.label.split(')')[1] : option.option.id
+                                    return option.option.label ? option.option.label.split(')')[1] : option.option.id
                                 },
                                 overrides: {
                                     Root: {
                                         style: ({$isFocused}: any) => {
                                             return {
                                                 borderRadius: '4px',
-                                                background: $isFocused ? '#E8E9E8': 'none',
+                                                background: $isFocused ? '#E8E9E8' : 'none',
                                                 paddingLeft: '8px',
                                                 paddingRight: '4px',
                                                 border: $isFocused ? '1px solid rgba(0, 0, 0, 0)' : '1px solid #CECED3',
@@ -344,6 +374,13 @@ function AppDateInput({allowRepeat = true, initData, ...props}: AppDateInputProp
                                     ControlContainer: {
                                         style: () => ({
                                             minWidth: 'inherit',
+                                            borderRadius: 0,
+                                        })
+                                    },
+                                    ValueContainer: {
+                                        style: ({$isFocused}: any) => ({
+                                            borderRadius: 0,
+                                            backgroundColor: $isFocused ? 'rgba(127, 247, 206, 0.4)!important' : 'none',
                                         })
                                     }
                                 }
@@ -359,22 +396,190 @@ function AppDateInput({allowRepeat = true, initData, ...props}: AppDateInputProp
 
 
         </div>
-
-        {
-            !!repeat[0] && !!repeat[0].id &&
-            <div className={styles['repeat-counter']}>
-                <div className={styles['title']}>How many times does it repeat?</div>
-                <div className={styles['repeat-counter-input']}>
-                    <input type="number"
-                           value={Boolean(counter) ? counter : ''}
-                           onChange={e => {
-                               setCounter(e.target.value as any * 1)
-                           }}/>
-                    <span>times</span>
-                </div>
-            </div>
-        }
     </>)
+}
+
+function DialogRepeatOption({from, to, close, initRepeat, times, onChange, disabled}:
+                                {
+                                    disabled?: boolean,
+                                    from: Date,
+                                    to: Date
+                                    close: any,
+                                    initRepeat: any,
+                                    times: number,
+                                    onChange?: (repeat: any, timesValue: number) => any
+                                }) {
+    const {lang} = useContext(langContext)
+
+    const repeatOptions: any = [
+        {label: lang['Form_Repeat_Not'], id: ''},
+        {label: lang['Form_Repeat_Day'], id: "day"},
+        {label: lang['Form_Repeat_Week'], id: "week"},
+        {label: lang['Form_Repeat_Month'], id: "month"},
+    ]
+    const [repeat, setRepeat] = useState<any>(initRepeat)
+    const [counter, setCounter] = useState<number>(times)
+
+    const calculatePreview = () => {
+        if (repeat[0].id == '') {
+            return []
+        }
+
+        const format = (fromTime: Date, toTime: Date) => {
+            const fromYear = fromTime.getFullYear()
+            const fromMonth = fromTime.getMonth()
+            const fromDate = fromTime.getDate()
+            const fromHour = fromTime.getHours().toString().padStart(2, '0')
+            const fromMinute = fromTime.getMinutes().toString().padStart(2, '0')
+
+            const toYear = toTime.getFullYear()
+            const toMonth = toTime.getMonth()
+            const toDate = toTime.getDate()
+            const toHour = toTime.getHours().toString().padStart(2, '0')
+            const toMinute = toTime.getMinutes().toString().padStart(2, '0')
+
+            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+            if (toYear === fromYear && toMonth === fromMonth && toDate === fromDate) {
+                // April 18 2024 20:00-21:00
+                return `${monthNames[fromMonth]} ${fromDate}, ${fromYear} (${fromHour}:${fromMinute}-${toHour}:${toMinute})`
+            } else if (toYear !== fromYear) {
+                // April 18 2024 20:00- April 18 2025 21:00
+                return `${monthNames[fromMonth]} ${fromDate}, ${fromYear} ${fromHour}:${fromMinute} - ${monthNames[toMonth]} ${toDate}, ${toYear} ${toHour}:${toMinute}`
+            } else {
+                // April 18 20:00 - April 19 20:00, 2024
+                return `${monthNames[fromMonth]} ${fromDate} ${fromHour}:${fromMinute}-${monthNames[toMonth]} ${toDate} ${toHour}:${toMinute}, ${fromYear}`
+            }
+        }
+
+        let res = [], initFrom = new Date(from.getTime()), initTo = new Date(to.getTime())
+        if (repeat[0].id === 'day') {
+            for (let i = 0; i < counter; i++) {
+                const offset = i === 0 ? 0 : 1
+                initFrom.setDate(initFrom.getDate() + offset)
+                initTo.setDate(initTo.getDate() + offset)
+                res.push(format(initFrom, initTo))
+
+            }
+        } else if (repeat[0].id === 'week') {
+            for (let i = 0; i < counter; i++) {
+                const offset = i === 0 ? 0 : 1
+                initFrom = dayjs(initFrom.getTime()).add(offset, 'week').toDate()
+                initTo = dayjs(initTo.getTime()).add(offset, 'week').toDate()
+                res.push(format(initFrom, initTo))
+            }
+        } else if (repeat[0].id === 'month') {
+            for (let i = 0; i < counter; i++) {
+                const offset = i === 0 ? 0 : 1
+                initFrom.setMonth(initFrom.getMonth() + offset)
+                initTo.setMonth(initTo.getMonth() + offset)
+                res.push(format(initFrom, initTo))
+            }
+        }
+
+        return res
+    }
+
+    const getDateWord = (date: number) => {
+        let suffix = 'th';
+
+        if (date === 1 || date === 21 || date === 31) {
+            suffix = 'st';
+        } else if (date === 2 || date === 22) {
+            suffix = 'nd';
+        } else if (date === 3 || date === 23) {
+            suffix = 'rd';
+        }
+        return `${date}${suffix}`
+    }
+
+    return <div className={styles['dialog-repeat-option']}>
+        <i className={`${styles['close-btn']} icon-close`} onClick={close}/>
+        <div className={styles['title']}>Repeat</div>
+
+        <div className={styles['select-label']}>Repeat period</div>
+        <Select
+            disabled={disabled}
+            clearable={false}
+            searchable={false}
+            options={repeatOptions}
+            getOptionLabel={({option}: any) => {
+                let time = option.id === 'month' ?
+                    'on ' + getDateWord(from.getDate())
+                    : option.id === 'week' ?
+                        'on ' + dayName[from.getDay()] : ''
+
+                return `${option.label} ${time}`
+            }}
+            getValueLabel={({option}: any) => {
+                let time = option.id === 'month' ?
+                    'on ' + getDateWord(from.getDate())
+                    : option.id === 'week' ?
+                        'on ' + dayName[from.getDay()] : ''
+
+                return `${option.label} ${time}`
+            }}
+            value={repeat}
+            placeholder="Select repeat"
+            onChange={params => {
+                setRepeat(params.value as any)
+                onChange && onChange(params.value, counter)
+            }
+            }
+        />
+
+        <div className={styles['select-label']}>Ends</div>
+        <div className={'ends-input'}>
+            <div className={styles['repeat-counter-input']}>
+                <input disabled={repeat[0].id === '' || disabled}
+                       type={'number'}
+                       value={Number(counter) + ''}
+                       onChange={e => {
+                           let value = e.target.value as any
+                           if (isNaN(Number(value))) return
+                           if (!value) {
+                               value = 0
+                           } else if (Number(value) < 0) {
+                               value = 1
+                           } else if (value.includes('.')) {
+                               value = value.split('.')[0]
+                           } else if (Number(value) > 100) {
+                               value = 100
+                           }
+
+                           setCounter(Number(value))
+                           onChange && onChange(repeat, Number(value))
+                       }}/>
+                <span>times</span>
+            </div>
+        </div>
+        <div className={styles['err-msg']}>
+            {counter === 0 ? 'The number of times the event repeats must be greater than 0' : ''}
+        </div>
+
+        <div className={styles['time-preview']}>
+            <div className={styles['time-preview-title']}>
+                Event time
+            </div>
+            {repeat[0].id !== '' && counter !== 0 ?
+                <div className={styles['time-preview-list']}>
+                    {
+                        calculatePreview().map((item: string, index) => {
+                            return <div key={item}>
+                                <span>{index + 1}.</span> {item}
+                            </div>
+                        })
+                    }
+                </div> : <div className={styles['time-preview-list']}>No preview</div>
+
+            }
+        </div>
+
+
+        <div className={styles['btns']}>
+            <AppButton size={'compact'} onClick={close}>Cancel</AppButton>
+            <AppButton special size={'compact'} onClick={close}>Done</AppButton>
+        </div>
+    </div>
 }
 
 export default AppDateInput

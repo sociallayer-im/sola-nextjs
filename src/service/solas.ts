@@ -5145,6 +5145,31 @@ export async function queryTimeLineEvent(groupid: number, from: string, to: stri
     }
 }
 
+export interface RecurringEvent {
+    id: number,
+    start_time: string,
+    end_time: string,
+    interval: string | 'day' | 'week' | 'month',
+    event_count: number,
+    timezone: string
+}
+
+export async function getRecurringEvents (id: number) {
+    const doc = `query MyQuery{
+      recurring_events(where: {id: {_eq: ${id}}}) {
+        end_time
+        event_count
+        id
+        interval
+        start_time
+        timezone
+      }
+    }`
+
+    const res: any = await request(graphUrl, doc)
+    return res.recurring_events[0] ? res.recurring_events[0] as RecurringEvent : null
+}
+
 
 export default {
     removeMarker,

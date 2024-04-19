@@ -257,10 +257,34 @@
       }
     }
 
+    .dropdown {
+      display: flex;
+      flex-flow: row nowrap;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      padding: 12px;
+      color: #7B7C7B;
+      margin: 4px 0;
+      transition: background-color 0.2s;
+      border-radius: 12px;
+
+
+      &:hover {
+        background: #f1f1f1;
+      }
+
+      .item-title {
+        font-weight: 600;
+        color: #272928;
+        font-size: 14px;
+      }
+    }
+
     .toggle {
       display: flex;
       flex-flow: row nowrap;
-      margin-top: 19px;
+      margin-top: 8px;
       justify-content: space-between;
       align-items: center;
       min-height: 32px;

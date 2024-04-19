@@ -7,11 +7,11 @@ import {
     Badge, cancelEvent, cancelRepeatEvent, createEvent, CreateEventProps, createRepeatEvent, CreateRepeatEventProps,
     Event,
     getGroupMemberShips,
-    getProfile, getProfileBatch,
+    getProfile, getProfileBatch, getRecurringEvents,
     Group,
     Profile, ProfileSimple, queryBadge, queryBadgeDetail,
     queryEvent,
-    queryGroupDetail, RepeatEventSetBadge, RepeatEventUpdate, setEventBadge, updateEvent
+    queryGroupDetail, RecurringEvent, RepeatEventSetBadge, RepeatEventUpdate, setEventBadge, updateEvent
 } from "@/service/solas";
 import EventDefaultCover from "@/components/base/EventDefaultCover";
 import AppButton, {BTN_KIND} from "@/components/base/AppButton/AppButton";
@@ -32,6 +32,8 @@ import DialogsContext from "@/components/provider/DialogProvider/DialogsContext"
 import IssuesInput from "@/components/base/IssuesInput/IssuesInput";
 import {useRouter} from "next/navigation";
 import * as dayjsLib from "dayjs";
+import TriangleDown from 'baseui/icon/triangle-down'
+import TriangleUp from 'baseui/icon/triangle-up'
 
 const utc = require('dayjs/plugin/utc')
 const timezone = require('dayjs/plugin/timezone')
@@ -81,6 +83,7 @@ function EditEvent({initEvent, group, initCreator}: {initEvent?: Event, group?: 
     const [badgeDetail, setBadgeDetail] = useState<Badge | null>(null)
     const [creating, setCreating] = useState(false)
     const [needPublish, setNeedPublish] = useState(true)
+    const [enableOtherOpt, setEnableOtherOpt] = useState(false)
 
     // refs
     const uploadCoverRef = useRef<any>()
@@ -88,8 +91,8 @@ function EditEvent({initEvent, group, initCreator}: {initEvent?: Event, group?: 
 
     // switch
     const [enableNotes, setEnableNotes] = useState(false)
-    const [enableCoHost, setEnableCoHost] = useState(false)
-    const [enableSpeakers, setEnableSpeakers] = useState(false)
+    const [enableCoHost, setEnableCoHost] = useState(true)
+    const [enableSpeakers, setEnableSpeakers] = useState(true)
     const [enableMaxParticipants, setEnableMaxParticipants] = useState(false)
 
     //errors
@@ -101,6 +104,7 @@ function EditEvent({initEvent, group, initCreator}: {initEvent?: Event, group?: 
 
     // data
     const [cohost, setCohost] = useState<string[]>([''])
+    const [repeatEventDetail, setRepeatEventDetail] = useState<null | RecurringEvent>(null)
     const [speakers, setSpeakers] = useState<string[]>([''])
     const [creator, setCreator] = useState<Group | Profile | undefined>(initCreator)
     const [eventGroup, setEventGroup] = useState<Group | undefined>(group)
@@ -165,19 +169,27 @@ function EditEvent({initEvent, group, initCreator}: {initEvent?: Event, group?: 
             if (initEvent.host_info) {
                 const info = JSON.parse(initEvent.host_info)
                 if (info.co_host.length > 0) {
-                    setEnableCoHost(true)
+                    // setEnableCoHost(true)
                     setCohost(info.co_host.map((p: ProfileSimple) => p.username))
                 } else {
-                    setEnableCoHost(false)
+                    // setEnableCoHost(false)
                     setCohost([''])
                 }
 
                 if (info.speaker.length > 0) {
-                    setEnableSpeakers(true)
+                    // setEnableSpeakers(true)
                     setSpeakers(info.speaker.map((p: ProfileSimple) => p.username))
                 } else {
-                    setEnableSpeakers(false)
+                    // setEnableSpeakers(false)
                     setSpeakers([''])
+                }
+            }
+
+            if (initEvent.recurring_event_id) {
+                const recurring_event = await getRecurringEvents(initEvent.recurring_event_id)
+                if (recurring_event) {
+                    setRepeatCounter(recurring_event.event_count)
+                    setRepeat(recurring_event.interval)
                 }
             }
         }
@@ -832,27 +844,30 @@ function EditEvent({initEvent, group, initCreator}: {initEvent?: Event, group?: 
 
                                         setEvent(newEvent())
                                 }} />
-                            </div>
-                        }
 
-                        <div className={styles['input-area']}>
-                            <div className={styles['toggle']}>
-                                <div className={styles['item-title main']}>{lang['Event_Notes_']}</div>
-                                <div className={styles['item-value']}>
-                                    <Toggle checked={enableNotes} onChange={e => {
+                                <div className={styles['input-area']}>
+                                    <div className={styles['dropdown']} onClick={e => {
                                         setEnableNotes(!enableNotes)
-                                    }}/>
+                                    }}>
+                                        <div className={styles['item-title main']}>{lang['Event_Notes_']}</div>
+                                        <div className={styles['item-value']}>
+                                            { enableNotes ?
+                                                <TriangleUp size={18} />:
+                                                <TriangleDown size={18} />
+                                            }
+                                        </div>
+                                    </div>
+                                    {enableNotes &&
+                                        <RichTextEditor
+                                            height={150}
+                                            maxHeight={300}
+                                            initText={event.notes || ''} onChange={text => {
+                                            setEvent({...event, notes: text})
+                                        }}></RichTextEditor>
+                                    }
                                 </div>
                             </div>
-                            {enableNotes &&
-                                <RichTextEditor
-                                    height={150}
-                                    maxHeight={300}
-                                    initText={event.notes || ''} onChange={text => {
-                                    setEvent({...event, notes: text})
-                                }}></RichTextEditor>
-                            }
-                        </div>
+                        }
 
                         <div className={styles['input-area']}>
                             <div className={styles['input-area-title']}>{lang['External_Url']}</div>
@@ -910,7 +925,9 @@ function EditEvent({initEvent, group, initCreator}: {initEvent?: Event, group?: 
                                         to: event.end_time!,
                                         timezone: event.timezone!
                                     }}
-                                    allowRepeat={isManager}
+                                    repeatCount={repeatCounter}
+                                    repeat={repeat}
+                                    allowRepeat={isManager && !initEvent?.recurring_event_id}
                                     onChange={e => {
                                         console.log('eee', e)
                                         setRepeatCounter(e.counter)
@@ -951,6 +968,18 @@ function EditEvent({initEvent, group, initCreator}: {initEvent?: Event, group?: 
                                 placeholder={'Url...'}/>
                         </div>
 
+                        <div className={styles['input-area']} data-test-id="host">
+                            <div className={styles['input-area-title']}>{lang['Activity_originators']}</div>
+                            <SelectCreator
+                                autoSet={!creator}
+                                value={creator || null}
+                                onChange={(res) => {
+                                    console.log('switch creator', res)
+                                    setCreator(res)
+                                }}/>
+                        </div>
+
+
                         {eventGroup?.event_tags &&
                             <div className={styles['input-area']}>
                                 <div className={styles['input-area-title']} >{lang['Activity_Form_Label']}</div>
@@ -967,17 +996,6 @@ function EditEvent({initEvent, group, initCreator}: {initEvent?: Event, group?: 
                                 }
                             </div>
                         }
-
-                        <div className={styles['input-area']} data-test-id="host">
-                            <div className={styles['input-area-title']}>{lang['Activity_originators']}</div>
-                            <SelectCreator
-                                autoSet={!creator}
-                                value={creator || null}
-                                onChange={(res) => {
-                                    console.log('switch creator', res)
-                                    setCreator(res)
-                                }}/>
-                        </div>
 
                         <div className={styles['input-area']}>
                             <div className={styles['input-area-title']} >{lang['Activity_Form_Badge']}</div>
@@ -1006,73 +1024,82 @@ function EditEvent({initEvent, group, initCreator}: {initEvent?: Event, group?: 
                         </div>
 
                         <div className={styles['input-area']}>
-                            <div className={styles['toggle']}>
-                                <div className={styles['item-title']}>{'Invite a Co-host'}</div>
+                            <div className={styles['dropdown']} onClick={e => {
+                                setEnableOtherOpt(!enableOtherOpt)
+                            }}>
+                                <div className={styles['item-title']}>{lang['More_Settings']}</div>
                                 <div className={styles['item-value']}>
-                                    <Toggle checked={enableCoHost} onChange={e => {
-                                        setEnableCoHost(!enableCoHost)
-                                    }}/>
+                                    { enableOtherOpt ?
+                                        <TriangleUp size={18} />:
+                                        <TriangleDown size={18} />
+                                    }
                                 </div>
                             </div>
-
-                            {enableCoHost &&
-                                <IssuesInput
-                                    value={cohost as any}
-                                    placeholder={`Co-host`}
-                                    onChange={(newIssues) => {
-                                        setCohost(newIssues)
-                                    }}/>
-                            }
                         </div>
 
-                        <div className={styles['input-area']}>
-                            <div className={styles['toggle']}>
-                                <div className={styles['item-title']}>{'Invite a speaker to the event'}</div>
-                                <div className={'item-value'}>
-                                    <Toggle checked={enableSpeakers} onChange={e => {
-                                        setEnableSpeakers(!enableSpeakers)
-                                    }}/>
+                        {
+                            enableOtherOpt &&
+                            <>
+                                <div className={styles['input-area']}>
+                                    <div className={styles['toggle']}>
+                                        <div className={styles['item-title']}>{'Invite a Co-host'}</div>
+                                    </div>
+
+                                    {enableCoHost &&
+                                        <IssuesInput
+                                            value={cohost as any}
+                                            placeholder={`Co-host`}
+                                            onChange={(newIssues) => {
+                                                setCohost(newIssues)
+                                            }}/>
+                                    }
                                 </div>
-                            </div>
 
-                            {enableSpeakers &&
-                                <IssuesInput
-                                    value={speakers as any}
-                                    placeholder={`Speaker`}
-                                    onChange={(newIssues) => {
-                                        setSpeakers(newIssues)
-                                    }}/>
-                            }
-                        </div>
+                                <div className={styles['input-area']}>
+                                    <div className={styles['toggle']}>
+                                        <div className={styles['item-title']}>{'Invite a speaker to the event'}</div>
+                                    </div>
 
-                        <div className={styles['input-area']} data-testid={'input-event-participants'}>
-                            <div className={styles['toggle']}>
-                                <div className={styles['item-title']}>{lang['Activity_Form_participants']}</div>
-                                <div className={styles['item-value']}>
-                                    {enableMaxParticipants &&
-                                        <input value={event.max_participant || 0} onChange={
-                                            e => {
-                                                const value = e.target.value!.trim()
-                                                const number = parseInt(value)
-                                                if (!value || isNaN(number)) {
-                                                    setEvent({...event, max_participant: null})
-                                                } else {
-                                                    setEvent({...event, max_participant: number})
-                                                }
+                                    {enableSpeakers &&
+                                        <IssuesInput
+                                            value={speakers as any}
+                                            placeholder={`Speaker`}
+                                            onChange={(newIssues) => {
+                                                setSpeakers(newIssues)
+                                            }}/>
+                                    }
+                                </div>
+
+                                <div className={styles['input-area']} data-testid={'input-event-participants'}>
+                                    <div className={styles['toggle']}>
+                                        <div className={styles['item-title']}>{lang['Activity_Form_participants']}</div>
+                                        <div className={styles['item-value']}>
+                                            {enableMaxParticipants &&
+                                                <input value={event.max_participant || 0} onChange={
+                                                    e => {
+                                                        const value = e.target.value!.trim()
+                                                        const number = parseInt(value)
+                                                        if (!value || isNaN(number)) {
+                                                            setEvent({...event, max_participant: null})
+                                                        } else {
+                                                            setEvent({...event, max_participant: number})
+                                                        }
+                                                    }
+                                                }/>
                                             }
-                                        }/>
-                                    }
 
-                                    {!enableMaxParticipants &&
-                                        <div className={styles['unlimited']}>Unlimited</div>
-                                    }
+                                            {!enableMaxParticipants &&
+                                                <div className={styles['unlimited']}>Unlimited</div>
+                                            }
 
-                                    <Toggle checked={enableMaxParticipants} onChange={e => {
-                                        setEnableMaxParticipants(!enableMaxParticipants)
-                                    }}/>
+                                            <Toggle checked={enableMaxParticipants} onChange={e => {
+                                                setEnableMaxParticipants(!enableMaxParticipants)
+                                            }}/>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                        </div>
+                            </>
+                        }
 
                         {isEditMode ?
                             <AppButton kind={BTN_KIND.primary}
@@ -1103,6 +1130,7 @@ function EditEvent({initEvent, group, initCreator}: {initEvent?: Event, group?: 
                         }
 
                     </div>
+
                     <div className={styles['event-cover']}>
                         { !!event.cover_url &&
                             <div className={styles['cover-preview']}>
