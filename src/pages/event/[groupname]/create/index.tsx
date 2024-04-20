@@ -1,17 +1,32 @@
 import styles from './CreateEvent.module.scss'
 import PageBack from "@/components/base/PageBack";
 import LangContext from "@/components/provider/LangProvider/LangContext";
-import {useContext, useState, useRef, useEffect} from "react";
+import {useContext, useEffect, useRef, useState} from "react";
 import AppInput from "@/components/base/AppInput";
 import {
-    Badge, cancelEvent, cancelRepeatEvent, createEvent, CreateEventProps, createRepeatEvent, CreateRepeatEventProps,
+    Badge,
+    cancelEvent,
+    cancelRepeatEvent,
+    createEvent,
+    createRepeatEvent,
+    CreateRepeatEventProps,
     Event,
     getGroupMemberShips,
-    getProfile, getProfileBatch, getRecurringEvents,
+    getProfile,
+    getProfileBatch,
+    getRecurringEvents,
     Group,
-    Profile, ProfileSimple, queryBadge, queryBadgeDetail,
+    Profile,
+    ProfileSimple,
+    queryBadge,
+    queryBadgeDetail,
     queryEvent,
-    queryGroupDetail, RecurringEvent, RepeatEventSetBadge, RepeatEventUpdate, setEventBadge, updateEvent
+    queryGroupDetail,
+    RecurringEvent,
+    RepeatEventSetBadge,
+    RepeatEventUpdate,
+    setEventBadge,
+    updateEvent
 } from "@/service/solas";
 import EventDefaultCover from "@/components/base/EventDefaultCover";
 import AppButton, {BTN_KIND} from "@/components/base/AppButton/AppButton";
@@ -62,7 +77,11 @@ const getNearestTime = () => {
     return [initStartTime, initEndTime]
 }
 
-function EditEvent({initEvent, group, initCreator}: {initEvent?: Event, group?: Group, initCreator?: Profile | Group}) {
+function EditEvent({
+                       initEvent,
+                       group,
+                       initCreator
+                   }: { initEvent?: Event, group?: Group, initCreator?: Profile | Group }) {
     if (!group && !initEvent) {
         throw new Error('group or event is required')
     }
@@ -124,7 +143,7 @@ function EditEvent({initEvent, group, initCreator}: {initEvent?: Event, group?: 
         end_time: initTime[1].toISOString(),
         timezone: group?.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone,
         meeting_url: '',
-        tags:[],
+        tags: [],
         host_info: null,
         badge_id: null,
         max_participant: null,
@@ -140,7 +159,7 @@ function EditEvent({initEvent, group, initCreator}: {initEvent?: Event, group?: 
             const isJoined = !!membership && membership.role === 'member'
             const isManager = !!membership && membership.role === 'manager'
 
-            setIsManager( isManager || group.creator.id === user.id)
+            setIsManager(isManager || group.creator.id === user.id)
             if (!!initEvent && user.userName && initEvent.operators?.includes(user!.id!)) {
                 setNeedPublish(false)
             } else if (!eventGroup || (eventGroup as Group).can_publish_event === 'everyone') {
@@ -195,7 +214,7 @@ function EditEvent({initEvent, group, initCreator}: {initEvent?: Event, group?: 
         }
     }
 
-    useEffect(()=> {
+    useEffect(() => {
         init()
     }, [user.id, group, initEvent])
 
@@ -205,17 +224,17 @@ function EditEvent({initEvent, group, initCreator}: {initEvent?: Event, group?: 
             setIsSlot(true)
         } else {
             if (!event.start_time || !event.end_time) {
-               setEvent({
-                   ...event,
-                   start_time: initEvent ? initEvent.start_time! : initTime[0].toISOString(),
-                   end_time: initEvent ? initEvent.end_time! : initTime[1].toISOString()
-               })
+                setEvent({
+                    ...event,
+                    start_time: initEvent ? initEvent.start_time! : initTime[0].toISOString(),
+                    end_time: initEvent ? initEvent.end_time! : initTime[1].toISOString()
+                })
             }
             setIsSlot(false)
         }
     }, [event.event_site_id])
 
-    useEffect(()=> {
+    useEffect(() => {
         if (event.badge_id) {
             queryBadgeDetail({id: event.badge_id}).then(res => {
                 setBadgeDetail(res)
@@ -223,7 +242,7 @@ function EditEvent({initEvent, group, initCreator}: {initEvent?: Event, group?: 
         }
     }, [event.badge_id])
 
-    useEffect(()=> {
+    useEffect(() => {
         if (event.badge_id) {
             queryBadgeDetail({id: event.badge_id}).then(res => {
                 setBadgeDetail(res)
@@ -234,7 +253,7 @@ function EditEvent({initEvent, group, initCreator}: {initEvent?: Event, group?: 
     // check time
     useEffect(() => {
         if (event.start_time && event.end_time) {
-            if (new Date(event.start_time) >= new Date(event.end_time) ) {
+            if (new Date(event.start_time) >= new Date(event.end_time)) {
                 setStartTimeError(lang['Activity_Form_Ending_Time_Error'])
             } else {
                 setStartTimeError('')
@@ -291,6 +310,7 @@ function EditEvent({initEvent, group, initCreator}: {initEvent?: Event, group?: 
                 setOccupiedError('')
             }
         }
+
         checkOccupied()
     }, [event.event_site_id, event.start_time, event.end_time])
 
@@ -434,7 +454,7 @@ function EditEvent({initEvent, group, initCreator}: {initEvent?: Event, group?: 
         return {
             json: JSON.stringify(hostinfo),
             cohostId: enableCoHost ? cohostUser.map((p) => p.id) : null,
-            speakerId: enableSpeakers ? speakerUsers.map((p) => p.id): null
+            speakerId: enableSpeakers ? speakerUsers.map((p) => p.id) : null
         }
     }
 
@@ -623,7 +643,7 @@ function EditEvent({initEvent, group, initCreator}: {initEvent?: Event, group?: 
             return
         }
 
-        const props =  {
+        const props = {
             ...event,
             operators: cohostIds,
             host_info: host_info,
@@ -810,367 +830,371 @@ function EditEvent({initEvent, group, initCreator}: {initEvent?: Event, group?: 
     }
 
     return (
-    <>
-        <div className={styles['create-event-page']}>
-            <div className={styles['create-page-wrapper']}>
-                <PageBack title={lang['Activity_Create_title']}/>
-                <div className={styles['flex']}>
-                    <div className={styles['create-form']}>
+        <>
+            <div className={styles['create-event-page']}>
+                <div className={styles['create-page-wrapper']}>
+                    <PageBack title={lang['Activity_Create_title']}/>
+                    <div className={styles['flex']}>
+                        <div className={styles['create-form']}>
 
-                        <div className={styles['input-area']}>
-                            <div className={styles['input-area-title']}>{lang['Activity_Form_Name']}</div>
-                            <AppInput
-                                clearable
-                                maxLength={100}
-                                value={event.title || ''}
-                                errorMsg={''}
-                                placeholder={lang['Activity_Form_Name']}
-                                onChange={(e) => {
-                                    setEvent({...event, title: e.target.value})
-                                }}/>
-                        </div>
-
-                        { formReady &&
                             <div className={styles['input-area']}>
-                                <div className={styles['input-area-title']}>{lang['Activity_Form_Details']}</div>
-                                <RichTextEditor
-                                    height={150}
-                                    maxHeight={300}
-                                    initText={event.content || ''}
-                                    onChange={text => {
-                                      const newEvent = () => {
-                                            return {...event, content: text}
-                                      }
+                                <div className={styles['input-area-title']}>{lang['Activity_Form_Name']}</div>
+                                <AppInput
+                                    clearable
+                                    maxLength={100}
+                                    value={event.title || ''}
+                                    errorMsg={''}
+                                    placeholder={lang['Activity_Form_Name']}
+                                    onChange={(e) => {
+                                        setEvent({...event, title: e.target.value})
+                                    }}/>
+                            </div>
 
-                                        setEvent(newEvent())
-                                }} />
-
+                            {formReady &&
                                 <div className={styles['input-area']}>
-                                    <div className={styles['dropdown']} onClick={e => {
-                                        setEnableNotes(!enableNotes)
-                                    }}>
-                                        <div className={styles['item-title main']}>{lang['Event_Notes_']}</div>
-                                        <div className={styles['item-value']}>
-                                            { enableNotes ?
-                                                <TriangleUp size={18} />:
-                                                <TriangleDown size={18} />
+                                    <div className={styles['input-area-title']}>{lang['Activity_Form_Details']}</div>
+                                    <RichTextEditor
+                                        height={150}
+                                        maxHeight={300}
+                                        initText={event.content || ''}
+                                        onChange={text => {
+                                            const newEvent = () => {
+                                                return {...event, content: text}
                                             }
+
+                                            setEvent(newEvent())
+                                        }}/>
+
+                                    <div className={styles['input-area']}>
+                                        <div className={styles['dropdown']} onClick={e => {
+                                            setEnableNotes(!enableNotes)
+                                        }}>
+                                            <div className={styles['item-title main']}>{lang['Event_Notes_']}</div>
+                                            <div className={styles['item-value']}>
+                                                {enableNotes ?
+                                                    <TriangleUp size={18}/> :
+                                                    <TriangleDown size={18}/>
+                                                }
+                                            </div>
                                         </div>
+                                        {enableNotes &&
+                                            <RichTextEditor
+                                                height={150}
+                                                maxHeight={300}
+                                                initText={event.notes || ''} onChange={text => {
+                                                setEvent({...event, notes: text})
+                                            }}></RichTextEditor>
+                                        }
                                     </div>
-                                    {enableNotes &&
-                                        <RichTextEditor
-                                            height={150}
-                                            maxHeight={300}
-                                            initText={event.notes || ''} onChange={text => {
-                                            setEvent({...event, notes: text})
-                                        }}></RichTextEditor>
+                                </div>
+                            }
+
+                            <div className={styles['input-area']}>
+                                <div className={styles['input-area-title']}>{lang['External_Url']}</div>
+                                <AppInput clearable={false}
+                                          value={event.external_url || ''}
+                                          placeholder={lang['External_Url']}
+                                          onChange={(e) => {
+                                              setEvent({...event, external_url: e.target.value})
+                                          }}/>
+                            </div>
+
+                            {!!eventGroup &&
+                                <div className={styles['input-area']}>
+                                    <LocationInput
+                                        initValue={event as any}
+                                        eventGroup={eventGroup as Group}
+                                        onChange={values => {
+                                            setEvent({
+                                                ...event,
+                                                ...values
+                                            } as any)
+                                        }}/>
+                                </div>
+                            }
+
+                            {!!occupiedError && <div className={styles['start-time-error']}>{occupiedError}</div>}
+
+                            {event.event_site_id && isSlot &&
+                                <div className={styles['input-area']}>
+                                    <div className={styles['input-area-title']}>{lang['Activity_Form_Starttime']}</div>
+                                    <TimeSlot eventSiteId={event.event_site_id}
+                                              from={event.start_time!}
+                                              to={event.end_time!}
+                                              allowRepeat={isManager}
+                                              onChange={(from, to, timezone, repeat, counter) => {
+                                                  console.log('========res', from, to, timezone, repeat, counter)
+                                                  setRepeat(repeat as any || null)
+                                                  setRepeatCounter(counter)
+                                                  setEvent({
+                                                      ...event,
+                                                      start_time: from,
+                                                      end_time: to,
+                                                      timezone: timezone
+                                                  })
+                                              }}/>
+                                </div>
+                            }
+
+                            {!isSlot &&
+                                <div className={styles['input-area']}>
+                                    <div className={styles['input-area-title']}>{lang['Activity_Form_Starttime']}</div>
+                                    <AppEventTimeInput
+                                        initData={{
+                                            from: event.start_time!,
+                                            to: event.end_time!,
+                                            timezone: event.timezone!
+                                        }}
+                                        repeatCount={repeatCounter}
+                                        repeat={repeat}
+                                        allowRepeat={isManager && !initEvent?.recurring_event_id}
+                                        onChange={e => {
+                                            console.log('eee', e)
+                                            setRepeatCounter(e.counter)
+                                            setRepeat(e.repeat as any || null)
+                                            setEvent({
+                                                ...event,
+                                                start_time: e.from,
+                                                end_time: e.to,
+                                                timezone: e.timezone
+                                            })
+                                        }}/>
+                                </div>
+                            }
+
+                            {repeatCounterError &&
+                                <div className={styles['start-time-error']}>
+                                    {'The number of times the event repeats must be greater than 0 and less than 100'}
+                                </div>
+                            }
+
+                            {startTimeError && <div className={styles['start-time-error']}>
+                                {startTimeError}
+                            </div>
+                            }
+
+                            <div className={styles['input-area']}>
+                                <div className={styles['input-area-title']}>{lang['Activity_Form_online_address']}</div>
+                                <AppFlexTextArea
+                                    icon={<i className={'icon-link'}/>}
+                                    value={event.meeting_url || ''}
+                                    maxHeight={80}
+                                    onChange={(value) => {
+                                        setEvent({
+                                            ...event,
+                                            meeting_url: value
+                                        })
+                                    }}
+                                    placeholder={'Url...'}/>
+                            </div>
+
+                            <div className={styles['input-area']} data-test-id="host">
+                                <div className={styles['input-area-title']}>{lang['Activity_originators']}</div>
+                                <SelectCreator
+                                    autoSet={!creator}
+                                    value={creator || null}
+                                    onChange={(res) => {
+                                        console.log('switch creator', res)
+                                        setCreator(res)
+                                    }}/>
+                            </div>
+
+
+                            {eventGroup?.event_tags &&
+                                <div className={styles['input-area']}>
+                                    <div className={styles['input-area-title']}>{lang['Activity_Form_Label']}</div>
+                                    <EventLabels
+                                        data={eventGroup.event_tags} onChange={e => {
+                                        setEvent({
+                                            ...event,
+                                            tags: e
+                                        })
+                                    }} value={event.tags!}/>
+
+                                    {labelError &&
+                                        <div className={styles['label-error']}>{'The maximum number of tags is 3'}</div>
                                     }
                                 </div>
-                            </div>
-                        }
+                            }
 
-                        <div className={styles['input-area']}>
-                            <div className={styles['input-area-title']}>{lang['External_Url']}</div>
-                            <AppInput clearable={false}
-                                      value={event.external_url || ''}
-                                      placeholder={lang['External_Url']}
-                                      onChange={(e) => {
-                                         setEvent({...event, external_url: e.target.value})
-                                      }}/>
-                        </div>
-
-                        {!!eventGroup &&
                             <div className={styles['input-area']}>
-                                <LocationInput
-                                    initValue={event as any }
-                                    eventGroup={eventGroup as Group}
-                                    onChange={values => {
-                                        setEvent({
-                                            ...event,
-                                            ...values
-                                        } as any)
-                                    }}/>
-                            </div>
-                        }
+                                <div className={styles['input-area-title']}>{lang['Activity_Form_Badge']}</div>
+                                <div className={styles['input-area-des']}>{lang['Activity_Form_Badge_Des']}</div>
+                                {!event.badge_id &&
+                                    <div className={styles['add-badge']} onClick={async () => {
+                                        await showBadges()
+                                    }}>{lang['Activity_Form_Badge_Select']}</div>
+                                }
 
-                        {!!occupiedError && <div className={styles['start-time-error']}>{occupiedError}</div>}
-
-                        {event.event_site_id && isSlot &&
-                            <div className={styles['input-area']}>
-                                <div className={styles['input-area-title']}>{lang['Activity_Form_Starttime']}</div>
-                                <TimeSlot eventSiteId={event.event_site_id}
-                                          from={event.start_time!}
-                                          to={event.end_time!}
-                                          allowRepeat={isManager}
-                                          onChange={(from, to, timezone,repeat, counter) => {
-                                              console.log('========res', from, to, timezone, repeat, counter)
-                                              setRepeat(repeat as any || null)
-                                              setRepeatCounter(counter)
-                                              setEvent({
-                                                    ...event,
-                                                    start_time: from,
-                                                    end_time: to,
-                                                    timezone: timezone
-                                                })
-                                          }} />
-                            </div>
-                        }
-
-                        {!isSlot &&
-                            <div className={styles['input-area']}>
-                                <div className={styles['input-area-title']}>{lang['Activity_Form_Starttime']}</div>
-                                <AppEventTimeInput
-                                    initData={{
-                                        from: event.start_time!,
-                                        to: event.end_time!,
-                                        timezone: event.timezone!
-                                    }}
-                                    repeatCount={repeatCounter}
-                                    repeat={repeat}
-                                    allowRepeat={isManager && !initEvent?.recurring_event_id}
-                                    onChange={e => {
-                                        console.log('eee', e)
-                                        setRepeatCounter(e.counter)
-                                        setRepeat(e.repeat as any || null)
-                                        setEvent({
-                                            ...event,
-                                            start_time: e.from,
-                                            end_time: e.to,
-                                            timezone: e.timezone
-                                        })
-                                    }}/>
-                            </div>
-                        }
-
-                        { repeatCounterError &&
-                            <div className={styles['start-time-error']}>
-                                {'The number of times the event repeats must be greater than 0 and less than 100'}
-                            </div>
-                        }
-
-                        { startTimeError && <div  className={styles['start-time-error']}>
-                            {startTimeError}
-                            </div>
-                        }
-
-                        <div className={styles['input-area']}>
-                            <div className={styles['input-area-title']}>{lang['Activity_Form_online_address']}</div>
-                            <AppFlexTextArea
-                                icon={<i className={'icon-link'}/>}
-                                value={event.meeting_url || ''}
-                                maxHeight={80}
-                                onChange={(value) => {
-                                    setEvent({
-                                        ...event,
-                                        meeting_url: value
-                                    })
-                                }}
-                                placeholder={'Url...'}/>
-                        </div>
-
-                        <div className={styles['input-area']} data-test-id="host">
-                            <div className={styles['input-area-title']}>{lang['Activity_originators']}</div>
-                            <SelectCreator
-                                autoSet={!creator}
-                                value={creator || null}
-                                onChange={(res) => {
-                                    console.log('switch creator', res)
-                                    setCreator(res)
-                                }}/>
-                        </div>
-
-
-                        {eventGroup?.event_tags &&
-                            <div className={styles['input-area']}>
-                                <div className={styles['input-area-title']} >{lang['Activity_Form_Label']}</div>
-                                <EventLabels
-                                    data={eventGroup.event_tags} onChange={e => {
-                                    setEvent({
-                                        ...event,
-                                        tags: e
-                                    })
-                                }} value={event.tags!} />
-
-                                { labelError &&
-                                    <div className={styles['label-error']}>{'The maximum number of tags is 3'}</div>
+                                {
+                                    !!badgeDetail &&
+                                    <div className={styles['banded-badge']}>
+                                        <Delete size={22} onClick={e => {
+                                            setEvent({
+                                                ...event,
+                                                badge_id: null
+                                            })
+                                            setBadgeDetail(null)
+                                        }
+                                        }/>
+                                        <img src={badgeDetail.image_url} alt=""/>
+                                        <div>{badgeDetail.title}</div>
+                                    </div>
                                 }
                             </div>
-                        }
 
-                        <div className={styles['input-area']}>
-                            <div className={styles['input-area-title']} >{lang['Activity_Form_Badge']}</div>
-                            <div className={styles['input-area-des']} >{lang['Activity_Form_Badge_Des']}</div>
-                            {!event.badge_id &&
-                                <div className={styles['add-badge']} onClick={async () => {
-                                    await showBadges()
-                                }}>{lang['Activity_Form_Badge_Select']}</div>
-                            }
+                            <div className={styles['input-area']}>
+                                <div className={styles['dropdown']} onClick={e => {
+                                    setEnableOtherOpt(!enableOtherOpt)
+                                }}>
+                                    <div className={styles['item-title']}>{lang['More_Settings']}</div>
+                                    <div className={styles['item-value']}>
+                                        {enableOtherOpt ?
+                                            <TriangleUp size={18}/> :
+                                            <TriangleDown size={18}/>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
 
                             {
-                                !!badgeDetail &&
-                                <div className={styles['banded-badge']}>
-                                    <Delete size={22} onClick={e => {
-                                        setEvent({
-                                            ...event,
-                                            badge_id: null
-                                        })
-                                        setBadgeDetail(null)
-                                    }
-                                    }/>
-                                    <img src={badgeDetail.image_url} alt=""/>
-                                    <div>{badgeDetail.title}</div>
-                                </div>
-                            }
-                        </div>
+                                enableOtherOpt &&
+                                <>
+                                    <div className={styles['input-area']}>
+                                        <div className={styles['toggle']}>
+                                            <div className={styles['item-title']}>{'Invite a Co-host'}</div>
+                                        </div>
 
-                        <div className={styles['input-area']}>
-                            <div className={styles['dropdown']} onClick={e => {
-                                setEnableOtherOpt(!enableOtherOpt)
-                            }}>
-                                <div className={styles['item-title']}>{lang['More_Settings']}</div>
-                                <div className={styles['item-value']}>
-                                    { enableOtherOpt ?
-                                        <TriangleUp size={18} />:
-                                        <TriangleDown size={18} />
-                                    }
-                                </div>
-                            </div>
-                        </div>
-
-                        {
-                            enableOtherOpt &&
-                            <>
-                                <div className={styles['input-area']}>
-                                    <div className={styles['toggle']}>
-                                        <div className={styles['item-title']}>{'Invite a Co-host'}</div>
+                                        {enableCoHost &&
+                                            <IssuesInput
+                                                value={cohost as any}
+                                                placeholder={`Co-host`}
+                                                onChange={(newIssues) => {
+                                                    setCohost(newIssues)
+                                                }}/>
+                                        }
                                     </div>
 
-                                    {enableCoHost &&
-                                        <IssuesInput
-                                            value={cohost as any}
-                                            placeholder={`Co-host`}
-                                            onChange={(newIssues) => {
-                                                setCohost(newIssues)
-                                            }}/>
-                                    }
-                                </div>
+                                    <div className={styles['input-area']}>
+                                        <div className={styles['toggle']}>
+                                            <div
+                                                className={styles['item-title']}>{'Invite a speaker to the event'}</div>
+                                        </div>
 
-                                <div className={styles['input-area']}>
-                                    <div className={styles['toggle']}>
-                                        <div className={styles['item-title']}>{'Invite a speaker to the event'}</div>
+                                        {enableSpeakers &&
+                                            <IssuesInput
+                                                value={speakers as any}
+                                                placeholder={`Speaker`}
+                                                onChange={(newIssues) => {
+                                                    setSpeakers(newIssues)
+                                                }}/>
+                                        }
                                     </div>
 
-                                    {enableSpeakers &&
-                                        <IssuesInput
-                                            value={speakers as any}
-                                            placeholder={`Speaker`}
-                                            onChange={(newIssues) => {
-                                                setSpeakers(newIssues)
-                                            }}/>
-                                    }
-                                </div>
-
-                                <div className={styles['input-area']} data-testid={'input-event-participants'}>
-                                    <div className={styles['toggle']}>
-                                        <div className={styles['item-title']}>{lang['Activity_Form_participants']}</div>
-                                        <div className={styles['item-value']}>
-                                            {enableMaxParticipants &&
-                                                <input value={event.max_participant || 0} onChange={
-                                                    e => {
-                                                        const value = e.target.value!.trim()
-                                                        const number = parseInt(value)
-                                                        if (!value || isNaN(number)) {
-                                                            setEvent({...event, max_participant: null})
-                                                        } else {
-                                                            setEvent({...event, max_participant: number})
+                                    <div className={styles['input-area']} data-testid={'input-event-participants'}>
+                                        <div className={styles['toggle']}>
+                                            <div
+                                                className={styles['item-title']}>{lang['Activity_Form_participants']}</div>
+                                            <div className={styles['item-value']}>
+                                                {enableMaxParticipants &&
+                                                    <input value={event.max_participant || 0} onChange={
+                                                        e => {
+                                                            const value = e.target.value!.trim()
+                                                            const number = parseInt(value)
+                                                            if (!value || isNaN(number)) {
+                                                                setEvent({...event, max_participant: null})
+                                                            } else {
+                                                                setEvent({...event, max_participant: number})
+                                                            }
                                                         }
-                                                    }
-                                                }/>
-                                            }
+                                                    }/>
+                                                }
 
-                                            {!enableMaxParticipants &&
-                                                <div className={styles['unlimited']}>Unlimited</div>
-                                            }
+                                                {!enableMaxParticipants &&
+                                                    <div className={styles['unlimited']}>Unlimited</div>
+                                                }
 
-                                            <Toggle checked={enableMaxParticipants} onChange={e => {
-                                                setEnableMaxParticipants(!enableMaxParticipants)
-                                            }}/>
+                                                <Toggle checked={enableMaxParticipants} onChange={e => {
+                                                    setEnableMaxParticipants(!enableMaxParticipants)
+                                                }}/>
+                                            </div>
                                         </div>
                                     </div>
+                                </>
+                            }
+                            <div className={styles['btns']}>
+
+                                {isEditMode ?
+                                    <AppButton kind={BTN_KIND.primary}
+                                               special
+                                               onClick={() => {
+                                                   handleSave()
+                                               }}>
+                                        {lang['Profile_Edit_Save']}
+                                    </AppButton>
+                                    :
+                                    <AppButton kind={BTN_KIND.primary}
+                                               disabled={creating}
+                                               special
+                                               onClick={() => {
+                                                   needPublish
+                                                       ? showCreateConfirm()
+                                                       : handleCreate()
+                                               }}>
+                                        {lang['Activity_Btn_Create']}
+                                    </AppButton>
+                                }
+                                {
+                                    isEditMode && <div>
+                                        <AppButton onClick={e => {
+                                            handleCancel()
+                                        }}>{lang['Activity_Detail_Btn_Cancel']}</AppButton>
+                                    </div>
+                                }
+                            </div>
+
+                        </div>
+
+                        <div className={styles['event-cover']}>
+                            {!!event.cover_url &&
+                                <div className={styles['cover-preview']}>
+                                    <img src={event.cover_url} alt=""/>
+                                    <i className={'icon-close ' + styles['delete-cover']}
+                                       onClick={e => {
+                                           setEvent({
+                                               ...event,
+                                               cover_url: ''
+                                           })
+                                       }}
+                                    />
                                 </div>
-                            </>
-                        }
-
-                        {isEditMode ?
-                            <AppButton kind={BTN_KIND.primary}
-                                       special
-                                       onClick={() => {
-                                           handleSave()
-                                       }}>
-                                {lang['Profile_Edit_Save']}
-                            </AppButton>
-                            :
-                            <AppButton kind={BTN_KIND.primary}
-                                       disabled={creating}
-                                       special
-                                       onClick={() => {
-                                           needPublish
-                                               ? showCreateConfirm()
-                                               : handleCreate()
-                                       }}>
-                                {lang['Activity_Btn_Create']}
-                            </AppButton>
-                        }
-                        {
-                            isEditMode && <div style={{marginTop: '12px'}}>
-                                <AppButton onClick={e => {
-                                    handleCancel()
-                                }}>{lang['Activity_Detail_Btn_Cancel']}</AppButton>
+                            }
+                            <div style={{display: !event.cover_url ? "block" : 'none'}}>
+                                <EventDefaultCover
+                                    event={event as Event}
+                                    width={328}
+                                    height={328}/>
                             </div>
-                        }
+                            <div style={{display: 'none'}}>
+                                <UploadImage
+                                    ref={uploadCoverRef}
+                                    cropper={false}
+                                    imageSelect={event.cover_url || undefined}
+                                    confirm={(coverUrl) => {
+                                        setEvent({...event, cover_url: coverUrl})
+                                    }}/>
+                            </div>
 
+                            <AppButton style={{width: "328px", marginTop: '12px'}} onClick={() => {
+                                uploadCoverRef.current?.selectFile()
+                            }}>{"Upload"}</AppButton>
+                        </div>
                     </div>
 
-                    <div className={styles['event-cover']}>
-                        { !!event.cover_url &&
-                            <div className={styles['cover-preview']}>
-                                <img  src={event.cover_url} alt=""/>
-                                <i className={'icon-close '+ styles['delete-cover']}
-                                onClick={e => {
-                                    setEvent({
-                                        ...event,
-                                        cover_url: ''
-                                    })
-                                }}
-                                />
-                            </div>
-                        }
-                        <div style={{display: !event.cover_url ? "block" : 'none'}}>
-                            <EventDefaultCover
-                                event={event as Event}
-                                width={328}
-                                height={328} />
-                        </div>
-                        <div style={{display: 'none'}}>
-                            <UploadImage
-                                ref={uploadCoverRef}
-                                cropper={false}
-                                imageSelect={event.cover_url || undefined}
-                                confirm={(coverUrl) => {
-                                    setEvent({...event, cover_url: coverUrl})
-                                }}/>
-                        </div>
-
-                        <AppButton style={{width: "328px", marginTop: '12px'}} onClick={() => {
-                            uploadCoverRef.current?.selectFile()
-                        }}>{"Upload"}</AppButton>
-                    </div>
                 </div>
-
             </div>
-        </div>
-    </>
-  );
+        </>
+    );
 }
 
 export default EditEvent;
@@ -1183,7 +1207,12 @@ export const getServerSideProps: any = async (context: any) => {
         const group = await queryGroupDetail(undefined, groupname)
         return {props: {group}}
     } else if (eventid) {
-        const events = await queryEvent({id: Number(eventid), page: 1, show_pending_event: true, show_cancel_event: true})
+        const events = await queryEvent({
+            id: Number(eventid),
+            page: 1,
+            show_pending_event: true,
+            show_cancel_event: true
+        })
         if (!events[0]) {
             return {props: {}}
         } else {

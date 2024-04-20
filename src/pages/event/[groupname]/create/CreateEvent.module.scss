@@ -2,9 +2,28 @@
   position: relative;
   background: var(--color-page-bg-1);
 
+  .btns {
+    display: flex;
+    flex-flow: row nowrap;
+    margin-top: 30px;
+    align-items: center;
+
+    button {
+      flex: 1;
+    }
+
+    >div {
+      flex: 1;
+    }
+
+    >div:not(:first-child) {
+      margin-left: 12px;
+    }
+  }
+
 
   .event-cover {
-   width: 328px;
+    width: 328px;
   }
 
   .cover-preview {

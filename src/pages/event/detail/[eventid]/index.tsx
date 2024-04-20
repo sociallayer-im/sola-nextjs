@@ -2,17 +2,17 @@ import {useParams, useRouter} from 'next/navigation'
 import {useContext, useEffect, useState} from 'react'
 import {
     Badge,
-    Event,
+    Event, getRecurringEvents,
     Group,
     joinEvent,
     Participants,
     Profile,
     ProfileSimple,
     punchIn,
-    queryBadgeDetail,
+    queryBadgeDetail, queryEvent,
     queryEventDetail,
     queryGroupDetail,
-    queryUserGroup
+    queryUserGroup, RecurringEvent
 } from "@/service/solas";
 import LangContext from "@/components/provider/LangProvider/LangContext";
 import {useTime2, useTime3} from "@/hooks/formatTime";
@@ -60,7 +60,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
     const formatTime2 = useTime2()
     const {defaultAvatar} = usePicture()
     const {user} = useContext(userContext)
-    const {showLoading, showToast, showEventCheckIn, openConnectWalletDialog} = useContext(DialogsContext)
+    const {showLoading, showToast, openDialog, openConnectWalletDialog} = useContext(DialogsContext)
     const {addToCalender} = useCalender()
     const {showImage} = useShowImage()
     const {copy} = useCopy()
@@ -87,6 +87,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
 
     const [cohost, setCohost] = useState<ProfileSimple[]>([])
     const [speaker, setSpeaker] = useState<ProfileSimple[]>([])
+    const [repeatEventDetail, setRepeatEventDetail] = useState<RecurringEvent | null>(null)
 
     async function fetchData() {
         if (params?.eventid) {
@@ -174,6 +175,11 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                 const badge = await queryBadgeDetail({id: res.badge_id})
                 setBadge(badge)
             }
+
+            if (res?.recurring_event_id) {
+                const repeatEvent = await getRecurringEvents(res.recurring_event_id)
+                setRepeatEventDetail(repeatEvent as RecurringEvent)
+            }
         } else {
             router.push('/error')
         }
@@ -185,6 +191,83 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
             const joined = eventParticipants.find((item: Participants) => item.profile.id === user.id && item.status !== 'cancel')
             setIsJoined(!!joined)
         }
+    }
+
+    function getRepeatText(startDate: Date, repeatType: string, timezones: string) {
+        const getDateWord = (date: number) => {
+            let suffix = 'th';
+
+            if (date === 1 || date === 21 || date === 31) {
+                suffix = 'st';
+            } else if (date === 2 || date === 22) {
+                suffix = 'nd';
+            } else if (date === 3 || date === 23) {
+                suffix = 'rd';
+            }
+            return `${date}${suffix}`
+        }
+
+        const date = dayjs.tz(startDate.getTime(), timezones).date()
+        const day = dayjs.tz(startDate.getTime(), timezones).day()
+        return  repeatType === 'month' ?
+            'Every month on ' + getDateWord(date)
+            : repeatType === 'week' ?
+                'Every week on ' + lang['Day_Name'][day] : 'Every day'
+    }
+
+    async function showAllRepeatEvent() {
+        const unloading = showLoading()
+        const events = await queryEvent({recurring_event_id: event!.recurring_event_id!, page: 1, page_size: 1000})
+        unloading()
+
+        openDialog({
+            content: (close: any) => {
+                return <div className={'dialog-repeat-event-list'}>
+                    <i className={'icon-close close-btn'} onClick={close}></i>
+                    <div className={'title'}>Event time</div>
+                    <div className={'repeat-event-list'}>
+                        {
+                            events.sort((a, b) => a.id - b.id).map((event, index: number) => {
+                                const format = (from: string, to: string, timezone: string) => {
+                                    const fromTime = dayjs.tz(new Date(from).getTime(),timezone)
+                                    const toTime = dayjs.tz(new Date(to).getTime(),timezone)
+
+                                    const fromYear = fromTime.year()
+                                    const fromMonth = fromTime.month()
+                                    const fromDate = fromTime.date()
+                                    const fromHour = fromTime.hour().toString().padStart(2, '0')
+                                    const fromMinute = fromTime.minute().toString().padStart(2, '0')
+
+                                    const toYear = toTime.year()
+                                    const toMonth = toTime.month()
+                                    const toDate = toTime.date()
+                                    const toHour = toTime.hour().toString().padStart(2, '0')
+                                    const toMinute = toTime.minute().toString().padStart(2, '0')
+
+                                    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+                                    if (toYear === fromYear && toMonth === fromMonth && toDate === fromDate) {
+                                        // April 18 2024 20:00-21:00
+                                        return `${monthNames[fromMonth]} ${fromDate}, ${fromYear} (${fromHour}:${fromMinute}-${toHour}:${toMinute})`
+                                    } else if (toYear !== fromYear) {
+                                        // April 18 2024 20:00- April 18 2025 21:00
+                                        return `${monthNames[fromMonth]} ${fromDate}, ${fromYear} ${fromHour}:${fromMinute} - ${monthNames[toMonth]} ${toDate}, ${toYear} ${toHour}:${toMinute}`
+                                    } else {
+                                        // April 18 20:00 - April 19 20:00, 2024
+                                        return `${monthNames[fromMonth]} ${fromDate} ${fromHour}:${fromMinute}-${monthNames[toMonth]} ${toDate} ${toHour}:${toMinute}, ${fromYear}`
+                                    }
+                                }
+
+                                return <Link target={'_blank'} href={`/event/detail/${event.id}`} key={event.id} className={event.id === props.event!.id ? 'active': ''}>
+                                    {index + 1}.  <span>{format(event.start_time!, event.end_time!, event.timezone!)}</span>
+                                </Link>
+                            })
+                        }
+                    </div>
+                </div>
+            },
+            size: [310, 'auto'],
+            position: 'bottom'
+        })
     }
 
     useEffect(() => {
@@ -421,6 +504,10 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                 className={'main'}>{formatTime(event.start_time, event.end_time!, event.timezone!).data}</div>
                                             <div
                                                 className={'sub'}>{formatTime(event.start_time, event.end_time!, event.timezone!).time}</div>
+                                            {
+                                                repeatEventDetail &&
+                                                <div className={'repeat'} onClick={showAllRepeatEvent}>{`Repeat event (${getRepeatText(new Date(repeatEventDetail.start_time), repeatEventDetail.interval, repeatEventDetail.timezone)})`}</div>
+                                            }
                                         </div>
                                     </div>
                                 }

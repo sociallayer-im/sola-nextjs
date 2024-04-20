@@ -137,6 +137,19 @@
           overflow: hidden;
           text-overflow: ellipsis;
         }
+
+        .repeat {
+          color: var(--Text-2-Secondary, #7B7C7B);
+          font-size: 16px;
+          font-style: normal;
+          font-weight: 400;
+          line-height: 24px;
+          cursor: pointer;
+
+          &:hover {
+            color: #6CD7B2;
+          }
+        }
       }
 
       i {
@@ -474,7 +487,7 @@
     justify-content: space-between;
 
     &:hover {
-        text-decoration: underline;
+      text-decoration: underline;
     }
 
     img {
@@ -518,7 +531,7 @@
   flex: 1px;
   max-width: 100%;
 
-  .event-login-status , .home-login-panel {
+  .event-login-status, .home-login-panel {
     display: none;
   }
 
@@ -538,7 +551,7 @@
     }
 
     .home-login-panel {
-        display: flex;
+      display: flex;
     }
 
   }
@@ -584,7 +597,7 @@
       }
 
       button:nth-child(3) {
-       min-width: 100%;
+        min-width: 100%;
       }
     }
   }
@@ -598,4 +611,81 @@
   padding-left: 12px;
   padding-right: 12px;
   box-sizing: border-box;
+}
+
+.dialog-repeat-event-list {
+  width: 100%;
+  height: 100%;
+  border-radius: 12px;
+  background: #fff;
+  padding: 16px;
+  box-sizing: border-box;
+  box-shadow: 0px 4px 16px 0px rgba(0, 0, 0, 0.12);
+
+  .close-btn {
+    height: 24px;
+    width: 24px;
+    border-radius: 50%;
+    background: #F8F8F8;
+    position: absolute;
+    right: 16px;
+    top: 16px;
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    color: #9B9B9B;
+  }
+
+  .title {
+    margin-top: 10px;
+    color: #333;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 24px; /* 150% */
+  }
+
+  .repeat-event-list {
+    max-height: 300px;
+    overflow: auto;
+    display: flex;
+    flex-flow: column nowrap;
+    margin-top: 12px;
+
+    a {
+      padding: 18px;
+      border-radius: 16px;
+      background: var(--Fill-2-Medium, #F5F8F6);
+      margin-bottom: 8px;
+
+      color: #272928;
+      font-size: 12.794px;
+      font-style: normal;
+      font-weight: 600;
+      text-decoration: none;
+
+      &.active {
+        color: #6CD7B2;
+      }
+
+      &:hover {
+        background-color: #f1f1f1;
+      }
+    }
+  }
+}
+
+.btns {
+  display: flex;
+  flex-flow: row nowrap;
+
+  button {
+    flex: 1;
+  }
+
+  button:not(:first-child) {
+    margin-left: 8px;
+  }
 }

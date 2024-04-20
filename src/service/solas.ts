@@ -5167,7 +5167,10 @@ export async function getRecurringEvents (id: number) {
     }`
 
     const res: any = await request(graphUrl, doc)
-    return res.recurring_events[0] ? res.recurring_events[0] as RecurringEvent : null
+    return res.recurring_events[0] ? {
+        ...res.recurring_events[0],
+        start_time: res.recurring_events[0].start_time + 'z'
+    } as RecurringEvent : null
 }
 
 
