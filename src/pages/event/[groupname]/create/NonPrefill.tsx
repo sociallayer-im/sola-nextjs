@@ -1203,7 +1203,7 @@ function CreateEvent(props: CreateEventPageProps) {
                                         to: ending,
                                         timezone: timezone
                                     }}
-                                    allowRepeat={isManager}
+                                    showRepeat={isManager}
                                     onChange={e => {
                                         setStart(e.from)
                                         setEnding(e.to)

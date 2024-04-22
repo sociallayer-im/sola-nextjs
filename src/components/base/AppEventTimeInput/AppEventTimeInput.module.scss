@@ -26,7 +26,6 @@
     margin-right: 12px;
   }
 
-
   &.time-slot {
     margin-top: 8px;
     padding-left: 44px;
@@ -173,6 +172,10 @@
     height: 44px;
     margin-left: 8px;
 
+    &.disabled *[disabled] {
+      opacity: 0.18;
+    }
+
     div[data-baseweb="select"] {
       > div {
         border: 0;
@@ -215,6 +218,10 @@
       font-size: 14px;
       font-weight: 400;
       width: 130px;
+
+      &.disable {
+        opacity: 0.2;
+      }
     }
 
     > svg {
@@ -240,6 +247,10 @@
   display: flex;
   flex-flow: row nowrap;
   align-items: center;
+
+  &.disabled {
+    opacity: 0.5;
+  }
 
   .offset {
     color: #7B7C7B;
@@ -312,6 +323,12 @@
   padding: 10px;
   box-sizing: border-box;
   position: relative;
+
+  .scroll {
+    max-height: 330px;
+    overflow: auto;
+    margin-bottom: 10px;
+  }
 
   .err-msg {
     color: #ff8c8c;
@@ -389,7 +406,6 @@
       font-style: normal;
       font-weight: 400;
       line-height: 26px;
-      height: 90px;
       overflow: auto;
       white-space: nowrap;
       margin-bottom: 12px;
