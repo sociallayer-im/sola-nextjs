@@ -820,7 +820,7 @@ function EditEvent({
     const handleCancel = () => {
         openConfirmDialog({
             title: 'Are you sure to cancel this event?',
-            confirmBtnColor: 'red',
+            confirmBtnColor: '#F64F4F',
             confirmLabel: 'Yes',
             confirmTextColor: '#fff',
             cancelLabel: 'No',
@@ -1136,7 +1136,14 @@ function EditEvent({
 
                                 {
                                     isEditMode && <div>
-                                        <AppButton onClick={e => {
+                                        <AppButton
+                                            style={{
+                                                color: '#F64F4F',
+                                                ':hover': {
+                                                    opacity: '0.8'
+                                                }
+                                            }}
+                                            onClick={e => {
                                             handleCancel()
                                         }}>{lang['Activity_Detail_Btn_Cancel']}</AppButton>
                                     </div>
@@ -1145,6 +1152,11 @@ function EditEvent({
                                 {isEditMode ?
                                     <AppButton kind={BTN_KIND.primary}
                                                special
+                                               style={{
+                                                   ':hover': {
+                                                       opacity: '0.8'
+                                                   }
+                                               }}
                                                onClick={() => {
                                                    handleSave()
                                                }}>
