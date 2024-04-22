@@ -77,7 +77,7 @@ function ComponentName(props: { markerType: string | null, group?: Group, isIfra
             // })
             res = (await queryEvent({
                 page: 1,
-                start_time_from: todayZero,
+                end_time_gte: new Date().toISOString(),
                 event_order: 'asc',
                 page_size: 50,
                 group_id: eventGroup?.id || undefined,
