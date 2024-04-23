@@ -5,6 +5,7 @@ import NextNProgress from 'nextjs-progressbar';
 import Script from 'next/script'
 import {Analytics} from '@vercel/analytics/react';
 import Layout from "@/components/Layout/Layout";
+import fetch from "@/utils/fetch";
 
 // providers
 import LangProvider from "@/components/provider/LangProvider/LangProvider"
@@ -36,7 +37,6 @@ const farcasterConfig = {
     domain: process.env.NEXT_PUBLIC_HOST!.split('//')[1],
     siweUri: process.env.NEXT_PUBLIC_HOST,
 };
-
 
 const inject = new InjectedConnector({
     chains: [mainnet, moonbeam],
@@ -72,6 +72,22 @@ const config = createConfig({
 })
 
 function MyApp({Component, pageProps, ...props}: any) {
+    if (typeof window !== 'undefined') {
+        window.onerror = function (message, source, lineno, colno, error) {
+            fetch.post({
+                url: '/api/catch',
+                data: {
+                    message,
+                    detail: {
+                        source,
+                        lineno,
+                        colno,
+                        error
+                    }
+                }
+            })
+        }
+    }
 
     function DisplayLay(params: { children: any }) {
         return props.router.pathname.includes('/wamo/') || props.router.pathname.includes('/iframe/')

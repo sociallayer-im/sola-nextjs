@@ -150,7 +150,7 @@ function DialogConnectWallet(props: DialogConnectWalletProps) {
                                     <div className='connect-name'>{wallet.adapter.name}</div>
                                     <img className='chain-icon' src="/images/solana.png" alt=""/>
                                 </div>
-                                : <div className='connect-item disable'>
+                                : <div className='connect-item disable' key={idx}>
                                     <img src={wallet.adapter.icon} alt="solana"/>
                                     <div className='connect-name'>{wallet.adapter.name}</div>
                                     <img className='chain-icon' src="/images/solana.png" alt=""/>
