@@ -44,19 +44,19 @@ function DetailBadgeletMenu (props: DetalBadgeletMenuProps) {
 
     const MenuContent = (handleClose: () => any) => <>
         {
-            props.badgelet.display === 'hide' &&
+            props.badgelet.display === 'hide' && false &&
                 <MenuItem onClick={ () => { setStatus('normal', handleClose) } }>
                     { lang['BadgeDialog_Label_action_public'] }
                   </MenuItem>
         }
         {
-            props.badgelet.display === 'top' &&
+            props.badgelet.display === 'top' && false &&
                 <MenuItem onClick={ () => { setStatus('normal', handleClose) } }>
                     { lang['BadgeDialog_Label_action_untop'] }
                   </MenuItem>
         }
         {
-            props.badgelet.display === 'normal' &&
+            props.badgelet.display === 'normal' && false &&
                 <>
                     <MenuItem onClick={ () => { setStatus('top', handleClose) } }>
                         { lang['BadgeDialog_Label_action_top'] }
