@@ -59,8 +59,9 @@ $handle-color: #ddd !default;
 	}
 
 	.bar-progress {
-		fill: $blue;
+		//fill: $blue;
 	}
+
 	.bar-invalid {
 		fill: transparent;
 		stroke: $bar-stroke;
@@ -102,7 +103,7 @@ $handle-color: #ddd !default;
 			}
 
 			.bar-progress {
-				fill: darken($blue, 5);
+				opacity: 0.5;
 			}
 
 			.handle {
@@ -117,7 +118,7 @@ $handle-color: #ddd !default;
 			}
 
 			.bar-progress {
-				fill: darken($blue, 5);
+				opacity: 0.5;
 			}
 		}
 	}
@@ -128,7 +129,10 @@ $handle-color: #ddd !default;
 	}
 	.upper-text {
 		fill: $text-light;
+		font-weight: bold;
+		font-size: 14px;
 	}
+
 	.lower-text {
 		fill: $text-color;
 	}
@@ -147,27 +151,27 @@ $handle-color: #ddd !default;
 		position: absolute;
 		top: 0;
 		left: 0;
-		background: rgba(0, 0, 0, 0.8);
+		background: rgba(0, 0, 0, 0);
 		padding: 0;
 		color: #959da5;
 		border-radius: 3px;
 
-		.title {
-			border-bottom: 3px solid $blue;
-			padding: 10px;
-		}
-
-		.subtitle {
-			padding: 10px;
-			color: #dfe2e5;
-		}
-
-		.pointer {
-			position: absolute;
-			height: 5px;
-			margin: 0 0 0 -5px;
-			border: 5px solid transparent;
-			border-top-color: rgba(0, 0, 0, 0.8);
-		}
+		//.title {
+		//	border-bottom: 3px solid $blue;
+		//	padding: 10px;
+		//}
+		//
+		//.subtitle {
+		//	padding: 10px;
+		//	color: #dfe2e5;
+		//}
+		//
+		//.pointer {
+		//	position: absolute;
+		//	height: 5px;
+		//	margin: 0 0 0 -5px;
+		//	border: 5px solid transparent;
+		//	border-top-color: rgba(0, 0, 0, 0.8);
+		//}
 	}
 }

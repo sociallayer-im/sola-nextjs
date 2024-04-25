@@ -37,7 +37,7 @@ export const getLabelColor = (label?: string) => {
         if (defaultLabels.indexOf(label) !== -1) {
             return labelColors[defaultLabels.indexOf(label)]
         } else {
-            return labelColors[label[0].charCodeAt(0) % labelColors.length]
+            return labelColors[(label[0].charCodeAt(0) + label[label.length - 1].charCodeAt(0)) % labelColors.length]
         }
     } else {
         return labelColors[0]

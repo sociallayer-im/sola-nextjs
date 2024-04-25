@@ -103,6 +103,7 @@ export default class Bar {
             ry: this.corner_radius,
             class: 'bar-progress',
             append_to: this.bar_group,
+            fill: this.task.color
         });
 
         animateSVG(this.$bar_progress, 'width', 0, this.progress_width);
@@ -176,10 +177,10 @@ export default class Bar {
 
     setup_click_event() {
         $.on(this.group, 'focus ' + this.gantt.options.popup_trigger, (e) => {
-            if (this.action_completed) {
-                // just finished a move action, wait for a few seconds
-                return;
-            }
+            // if (this.action_completed) {
+            //     // just finished a move action, wait for a few seconds
+            //     return;
+            // }
 
             this.show_popup();
             this.gantt.unselect_all();
@@ -384,7 +385,7 @@ export default class Bar {
             label.setAttribute('x', bar.getX() + bar.getWidth() + 5);
         } else {
             label.classList.remove('big');
-            label.setAttribute('x', bar.getX() + bar.getWidth() / 2);
+            label.setAttribute('x', bar.getX() + label.getBBox().width / 2 + 5);
         }
     }
 
