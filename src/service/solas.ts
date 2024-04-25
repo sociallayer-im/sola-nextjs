@@ -892,8 +892,9 @@ export async function queryBadgelet(props: QueryBadgeletProps): Promise<Badgelet
         variables += `badge_id: {_eq: "${props.badge_id}"},`
     }
 
+    let status = `status: {_neq: "burned"}`
     if (props.status) {
-        variables += `status: {_eq: "${props.status}"},`
+        status = `status: {_eq: "${props.status}"},`
     }
 
     if (props.badge_type) {
@@ -915,7 +916,7 @@ export async function queryBadgelet(props: QueryBadgeletProps): Promise<Badgelet
     }
 
     const doc = gql`query MyQuery {
-      badgelets(where: {${variables}, status: {_neq: "burned"}}, limit: 20, offset: ${props.page * 20 - 20}, order_by: {id: desc}) {
+      badgelets(where: {${variables}, ${status}}, limit: 20, offset: ${props.page * 20 - 20}, order_by: {id: desc}) {
         metadata
         badge_id
         content
@@ -1299,9 +1300,9 @@ export interface SetBadgeletStatusProps {
 export async function setBadgeletStatus(props: SetBadgeletStatusProps) {
     checkAuth(props)
     const res = await fetch.post({
-        url: `${apiUrl}/badge/${props.type}`,
+        url: `${apiUrl}/badgelet/update`,
         data: {
-            badgelet_id: props.id,
+            id: props.id,
             auth_token: props.auth_token,
             display: props.type
         }
@@ -5173,6 +5174,98 @@ export async function getRecurringEvents (id: number) {
         ...res.recurring_events[0],
         start_time: res.recurring_events[0].start_time + 'z'
     } as RecurringEvent : null
+}
+
+export async function queryBadgeletWithTop(props: {owner_id: number, page: number}): Promise<{top: Badgelet[], others: Badgelet[]}> {
+    const doc = gql`query MyQuery {
+      top: badgelets(where: {owner_id: {_eq: "${props.owner_id}"}, status: {_neq: "burned"}, display: {_eq: "top"}}, order_by: {id: desc}) {
+        metadata
+        badge_id
+        content
+        created_at
+        display
+        badge {
+          image_url
+          title
+          content
+          badge_type
+          group_id
+          group {
+            id
+            nickname
+            username
+            image_url
+          }
+        }
+        id
+        status
+        title
+        value
+        voucher_id
+        content
+        creator_id
+        creator {
+          id
+          nickname
+          image_url
+          username
+        }
+        owner_id
+        owner {
+          image_url
+          id
+          nickname
+          username
+        }
+      },
+      others: badgelets(where: {owner_id: {_eq: "${props.owner_id}"}, status: {_neq: "burned"}, display: {_neq: "top"}}, limit: 20, offset: ${props.page * 20 - 20}, order_by: {id: desc}) {
+        metadata
+        badge_id
+        content
+        created_at
+        display
+        badge {
+          image_url
+          title
+          content
+          badge_type
+          group_id
+          group {
+            id
+            nickname
+            username
+            image_url
+          }
+        }
+        id
+        status
+        title
+        value
+        voucher_id
+        content
+        creator_id
+        creator {
+          id
+          nickname
+          image_url
+          username
+        }
+        owner_id
+        owner {
+          image_url
+          id
+          nickname
+          username
+        }
+      }
+    }`
+
+    const res: any = await request(graphUrl, doc)
+
+    return {
+        top: res.top as Badgelet[],
+        others: res.others as Badgelet[]
+    }
 }
 
 

@@ -1,7 +1,7 @@
 import { StatefulPopover, PLACEMENT } from 'baseui/popover'
 import { Overflow } from 'baseui/icon'
 import { useState, useContext } from 'react'
-import { Badgelet, setBadgeletStatus, SetBadgeletStatusType } from '../../../../service/solas'
+import { Badgelet, setBadgeletStatus, SetBadgeletStatusType } from '@/service/solas'
 import MenuItem from '../../../base/MenuItem'
 import LangContext from '../../../provider/LangProvider/LangContext'
 import UserContext from '../../../provider/UserProvider/UserContext'
@@ -44,19 +44,19 @@ function DetailBadgeletMenu (props: DetalBadgeletMenuProps) {
 
     const MenuContent = (handleClose: () => any) => <>
         {
-            props.badgelet.display === 'hide' && false &&
+            props.badgelet.display === 'hide' &&
                 <MenuItem onClick={ () => { setStatus('normal', handleClose) } }>
                     { lang['BadgeDialog_Label_action_public'] }
                   </MenuItem>
         }
         {
-            props.badgelet.display === 'top' && false &&
+            props.badgelet.display === 'top' &&
                 <MenuItem onClick={ () => { setStatus('normal', handleClose) } }>
                     { lang['BadgeDialog_Label_action_untop'] }
                   </MenuItem>
         }
         {
-            props.badgelet.display === 'normal' && false &&
+            props.badgelet.display === 'normal' &&
                 <>
                     <MenuItem onClick={ () => { setStatus('top', handleClose) } }>
                         { lang['BadgeDialog_Label_action_top'] }

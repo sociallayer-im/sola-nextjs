@@ -617,10 +617,10 @@ function EditEvent({
                     const newEvents = await RepeatEventUpdate({
                         ...saveProps,
                         selector: repeatEventSelectorRef.current,
-                        start_time_diff: saveProps.start_time !== initEvent.start_time ?
-                            Math.floor((new Date(saveProps.start_time!).getTime() - new Date(initEvent.start_time!).getTime()) / 1000) : 0,
-                        end_time_diff: saveProps.end_time !== initEvent.end_time ?
-                            Math.floor((new Date(saveProps.end_time!).getTime() - new Date(initEvent.end_time!).getTime()) / 1000) : 0
+                        start_time_diff: saveProps.start_time !== initEvent!.start_time ?
+                            Math.floor((new Date(saveProps.start_time!).getTime() - new Date(initEvent!.start_time!).getTime()) / 1000) : 0,
+                        end_time_diff: saveProps.end_time !== initEvent!.end_time ?
+                            Math.floor((new Date(saveProps.end_time!).getTime() - new Date(initEvent!.end_time!).getTime()) / 1000) : 0
                     } as any)
 
                     if (saveProps.badge_id) {
