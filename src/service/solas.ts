@@ -4097,6 +4097,8 @@ export async function RepeatEventSetBadge(props: RepeatEventSetBadgeProps) {
 export interface RepeatEventUpdateProps extends CreateEventProps {
     event_id?: number,
     selector?: 'one' | 'after' | 'all',
+    start_time_diff?: number,
+    end_time_diff?: number,
 }
 
 
