@@ -5,7 +5,6 @@ import { WalletModalProvider as ReactUIWalletModalProvider } from '@solana/walle
 import { type SolanaSignInInput } from '@solana/wallet-standard-features';
 import { verifySignIn } from '@solana/wallet-standard-util';
 import { clusterApiUrl } from '@solana/web3.js';
-import { TrustWalletAdapter } from '@solana/wallet-adapter-wallets';
 import { SnackbarProvider, useSnackbar } from 'notistack';
 import type { FC, ReactNode } from 'react';
 import React, { useCallback, useMemo } from 'react';
@@ -33,7 +32,6 @@ const WalletContextProvider: FC<{ children: ReactNode }> = ({ children }) => {
              * instantiate its legacy wallet adapter here. Common legacy adapters can be found
              * in the npm package `@solana/wallet-adapter-wallets`.
              */
-            new TrustWalletAdapter(),
         ],
         // eslint-disable-next-line react-hooks/exhaustive-deps
         [network]
