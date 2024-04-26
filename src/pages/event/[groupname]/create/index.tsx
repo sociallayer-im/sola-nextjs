@@ -217,7 +217,7 @@ function EditEvent({
 
     useEffect(() => {
         const slotList = [82, 81, 80, 79, 78, 87, 86]
-        if (event.event_site_id && group.id === 1516) {
+        if (event.event_site_id && group?.id === 1516) {
             // playground2
             setIsSlot(true)
         } else if (event.event_site_id && slotList.includes(event.event_site_id)) {
