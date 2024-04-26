@@ -942,7 +942,7 @@ function EditEvent({
                             {event.event_site_id && isSlot &&
                                 <div className={styles['input-area']}>
                                     <div className={styles['input-area-title']}>{lang['Activity_Form_Starttime']}</div>
-                                    <TimeSlot eventSiteId={event.event_site_id}
+                                    <TimeSlot eventSiteId={group.id === 1516 ? 1 : event.event_site_id}
                                               from={event.start_time!}
                                               to={event.end_time!}
                                               allowRepeat={isManager && !initEvent?.recurring_event_id}
