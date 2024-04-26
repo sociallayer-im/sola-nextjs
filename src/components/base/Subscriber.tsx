@@ -89,7 +89,12 @@ function Subscriber() {
                         console.log('subscription invite: ', event)
                         if (event.data.group_invites || event.data.group_invites.length) {
                             event.data.group_invites.forEach((item: any) => {
-                                showInvite(item)
+                                const history = window.sessionStorage.getItem('inviteHistory') || ''
+                                if (!history.split(',').includes(item.id + '')) {
+                                    showInvite(item)
+                                    window.sessionStorage.setItem('inviteHistory', `${history},${item.id}`)
+                                }
+
                             })
                         }
                     },
