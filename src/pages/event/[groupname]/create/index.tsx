@@ -217,7 +217,10 @@ function EditEvent({
 
     useEffect(() => {
         const slotList = [82, 81, 80, 79, 78, 87, 86]
-        if (event.event_site_id && slotList.includes(event.event_site_id)) {
+        if (event.event_site_id && group.id === 1516) {
+            // playground2
+            setIsSlot(true)
+        } else if (event.event_site_id && slotList.includes(event.event_site_id)) {
             setIsSlot(true)
         } else {
             if (!event.start_time || !event.end_time) {
@@ -942,7 +945,7 @@ function EditEvent({
                                     <TimeSlot eventSiteId={event.event_site_id}
                                               from={event.start_time!}
                                               to={event.end_time!}
-                                              allowRepeat={isManager}
+                                              allowRepeat={isManager && !initEvent?.recurring_event_id}
                                               onChange={(from, to, timezone, repeat, counter) => {
                                                   console.log('========res', from, to, timezone, repeat, counter)
                                                   setRepeat(repeat as any || null)
