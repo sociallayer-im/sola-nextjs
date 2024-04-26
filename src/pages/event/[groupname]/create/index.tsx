@@ -973,6 +973,7 @@ function EditEvent({
                                         repeat={repeat}
                                         showRepeat={isManager}
                                         repeatDisabled={!!initEvent?.recurring_event_id}
+                                        recurringEventId={initEvent?.recurring_event_id}
                                         disabled={false}
                                         onChange={e => {
                                             console.log('eee', e)
