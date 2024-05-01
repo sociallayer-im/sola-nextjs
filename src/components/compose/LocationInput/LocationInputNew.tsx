@@ -20,8 +20,8 @@ export interface GMapPlaceRes {
     formatted_address: string,
     geometry: {
         location: {
-            geo_lat: () => number,
-            geo_lng: () => number
+            lat: () => number,
+            lng: () => number
         }
     },
 }
