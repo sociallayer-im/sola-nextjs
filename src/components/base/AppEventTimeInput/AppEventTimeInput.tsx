@@ -64,7 +64,9 @@ function calculateDuration(start: Date, end: Date) {
     const day = Math.floor(duration / (1000 * 60 * 60 * 24))
     const hour = Math.floor((duration % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
     const minute = Math.floor((duration % (1000 * 60 * 60)) / (1000 * 60))
-    return `${day ? `${day}d ` : ''}` + `${hour ? `${hour}h ` : ''}` + `${minute ? `${minute}m` : ''}`
+    const res = `${day ? `${day}d ` : ''}` + `${hour ? `${hour}h ` : ''}` + `${minute ? `${minute}m` : ''}`
+    if (res === '23h 59m') return '1 day'
+    return res
 }
 
 const getOffset = (timezone: string) => {
@@ -160,6 +162,11 @@ function AppDateInput({
 
     function changeToTime(date: Date) {
         setTo(date)
+    }
+
+    function setAllDay() {
+        setFrom(new Date(from.getFullYear(), from.getMonth(), from.getDate(), 0, 0))
+        setTo(new Date(to.getFullYear(), to.getMonth(), to.getDate(), 23, 59))
     }
 
     const showRepeatOption = async () => {
@@ -361,6 +368,12 @@ function AppDateInput({
         </div>
 
         <div className={styles['all-day-repeat']}>
+            <div className={styles['repeat']}>
+                <div className={styles['select-repeat']} onClick={setAllDay}>
+                    <span>{"All day"}</span>
+                </div>
+            </div>
+
             {showRepeat &&
                 <div className={styles['repeat']}>
                     <div className={styles['select-repeat']} onClick={showRepeatOption}>
