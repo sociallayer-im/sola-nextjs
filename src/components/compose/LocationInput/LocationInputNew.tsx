@@ -20,8 +20,8 @@ export interface GMapPlaceRes {
     formatted_address: string,
     geometry: {
         location: {
-            lat: () => number,
-            lng: () => number
+            geo_lat: () => number,
+            geo_lng: () => number
         }
     },
 }
@@ -145,8 +145,8 @@ function LocationInput(props: LocationInputProps) {
                 const placeInfo = place as GMapPlaceRes
                 setShowSearchRes(false)
                 props.onChange && props.onChange({
-                    lat: placeInfo.geometry.location.lat(),
-                    lng: placeInfo.geometry.location.lng(),
+                    geo_lat: placeInfo.geometry.location.lat(),
+                    geo_lng: placeInfo.geometry.location.lng(),
                     formatted_address: placeInfo.formatted_address,
                     location: placeInfo.name
                 } as any)
