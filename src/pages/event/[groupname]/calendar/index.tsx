@@ -114,14 +114,20 @@ function ComponentName(props: { group: Group }) {
                         start: dayjs.tz(new Date(event.start_time!).getTime(), timezoneSelected[0].id).format('YYYY-MM-DD HH:mm'),
                         end: dayjs.tz(new Date(event.end_time!), timezoneSelected[0].id).format('YYYY-MM-DD HH:mm'),
                         people: host,
+                        start_time: event.start_time,
+                        end_time: event.end_time,
+                        location: event.location,
                     }
                 })
 
+                const selectedDate = eventList.length ?
+                    dayjs.tz(new Date(eventList[0].start_time!).getTime(), timezoneSelected[0].id).format('YYYY-MM-DD')
+                    : dayjs.tz(new Date().getTime(), timezoneSelected[0].id).format('YYYY-MM-DD')
                 const calendar = createCalendar({
                     views: [viewMonthGrid, viewMonthAgenda, viewDay, viewWeek],
                     minDate: dayjs.tz(dayList[0].timestamp, timezoneSelected[0].id).format('YYYY-MM-DD'),
                     maxDate: dayjs.tz(dayList[dayList.length - 1].timestamp, timezoneSelected[0].id).format('YYYY-MM-DD'),
-                    selectedDate: dayjs.tz(new Date().getTime(), timezoneSelected[0].id).format('YYYY-MM-DD'),
+                    selectedDate: dayjs.tz(selectedDate, timezoneSelected[0].id).format('YYYY-MM-DD'),
                     plugins:[createEventModalPlugin()],
                     calendars: {
                         sola: {
