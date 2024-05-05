@@ -60,7 +60,10 @@ function MapProvider(props: { children: any }) {
     }
 
     useEffect(() => {
-        if (!routerWhiteList.some((path) => pathname?.includes(path))) {
+        if (
+            !routerWhiteList.some((path) => pathname?.includes(path))
+            && !process.env.NEXT_PUBLIC_LEADING_EVENT_GROUP_ID
+        ) {
             return
         }
 

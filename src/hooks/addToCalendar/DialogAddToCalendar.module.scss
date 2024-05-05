@@ -1,0 +1,45 @@
+.dialog-add-to-calendar {
+  background: #fff;
+  width: 100%;
+  height: 100%;
+  box-shadow: 0 1px 3px #c0c0c0;
+  box-sizing: border-box;
+  border-radius: 12px;
+  padding: 20px;
+
+  .title {
+    color: var(--Text-4-Headline, #272928);
+    margin-bottom: 24px;
+    font-size: 20px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: normal;
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-between;
+  }
+
+  :global {
+    .icon-close {
+      padding: 4px;
+      border-radius: 50%;
+      background: #F8F8F8;
+      font-size: 12px;
+      height: 24px;
+      width: 24px;
+      min-width: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #9B9B9B;
+      cursor: pointer;
+    }
+  }
+
+  .calendar-item {
+    button {
+      margin-bottom: 6px;
+    }
+  }
+
+}

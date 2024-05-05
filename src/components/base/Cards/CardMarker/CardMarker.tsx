@@ -39,9 +39,10 @@ function CardMarker(props: { item: Marker, participants?: Participants[], isActi
     const {showToast, showLoading} = useContext(DialogsContext)
     const [groupHost, setGroupHost] = useState<Profile | null>(null)
 
-    const showBg = typeof window !== 'undefined'
-        && process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'zumap'
-        && props.isActive
+    // const showBg = typeof window !== 'undefined'
+    //     && process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'zumap'
+    //     && props.isActive
+    const showBg = props.isActive
 
     const handleJoin = async (e: any) => {
         e.stopPropagation()
@@ -134,7 +135,7 @@ function CardMarker(props: { item: Marker, participants?: Participants[], isActi
                     {groupHost.nickname || groupHost.username}
                 </div>
             }
-            {!props.item.event?.host_info &&
+            {!groupHost && props.item.owner &&
                 <div className={styles['creator']}>by<img
                     alt=""
                     className={styles['avatar']}

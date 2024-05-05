@@ -79,7 +79,7 @@ function ComponentName(props: { markerType: string | null, group?: Group, isIfra
                 page: 1,
                 end_time_gte: new Date().toISOString(),
                 event_order: 'asc',
-                page_size: 50,
+                page_size: 200,
                 group_id: eventGroup?.id || undefined,
             })).map(event => {
                 return {
@@ -100,6 +100,33 @@ function ComponentName(props: { markerType: string | null, group?: Group, isIfra
                     category: 'event',
                 } as any
             }).filter((marker: Marker) => !!marker.geo_lat)
+
+            if (searchParams?.get('target_event')) {
+                const targetEvent = res.find(item => item.id === Number(searchParams?.get('target_event')))
+                if (!targetEvent) {
+                    const targetEvent = await queryEvent({id: Number(searchParams?.get('target_event')), page: 1})
+                    if (targetEvent[0]) {
+                        const target =  {
+                            ...targetEvent[0],
+                            event: targetEvent[0],
+                            event_id: targetEvent[0].id,
+                            group_id: targetEvent[0].group_id,
+                            group: eventGroup,
+                            pin_image_url: '',
+                            cover_image_url: targetEvent[0].cover_url,
+                            about: targetEvent[0].content,
+                            message: targetEvent[0].content,
+                            status: targetEvent[0].status,
+                            marker_type: 'event',
+                            link: '',
+                            map_checkins_count: 0,
+                            voucher_id:null,
+                            category: 'event',
+                        } as any
+                        res = [target, ...res]
+                    }
+                }
+            }
         } else if (type === 'Zugame') {
             res = await queryMarkers({
                 group_id: eventGroup?.id || undefined,
@@ -320,7 +347,23 @@ function ComponentName(props: { markerType: string | null, group?: Group, isIfra
         })
 
         if (markers.length) {
-            showMarkerInMapCenter(markers[0], true)
+            if (searchParams?.get('target_event')) {
+                let target_index = 0
+                const target = markers.find((item, index) => {
+                    if (item.id === Number(searchParams?.get('target_event'))) {
+                        target_index = index
+                        return true
+                    }
+                })
+                showMarkerInMapCenter(target || markers[0], true)
+                setCurrSwiperIndex(target_index)
+                if (swiperRef.current) {
+                    swiperRef.current.slideTo(target_index, 0, false)
+                }
+            } else {
+                showMarkerInMapCenter(markers[0], true)
+            }
+
         }
     }
 

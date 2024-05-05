@@ -53,6 +53,7 @@
     "babyjubjub-ecdsa": "^1.1.2",
     "baseui": "^12.2.0",
     "bs58": "^5.0.0",
+    "calendar-link": "^2.6.0",
     "circomlibjs": "^0.1.7",
     "copy-to-clipboard": "^3.3.3",
     "cypress": "^13.5.1",

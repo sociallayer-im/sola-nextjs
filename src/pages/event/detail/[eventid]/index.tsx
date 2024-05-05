@@ -23,7 +23,7 @@ import userContext from "@/components/provider/UserProvider/UserContext";
 import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
 import PageBack from "@/components/base/PageBack";
 import ListCheckLog from "@/components/compose/ListCheckLog/ListCheckLog";
-import useCalender from "@/hooks/addToCalender";
+import useCalender from "@/hooks/addToCalendar/addToCalendar";
 import ListEventParticipants from "@/components/compose/ListEventParticipants/ListEventParticipants";
 import useShowImage from "@/hooks/showImage/showImage";
 import useCopy from "@/hooks/copy";
@@ -61,7 +61,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
     const {defaultAvatar} = usePicture()
     const {user} = useContext(userContext)
     const {showLoading, showToast, openDialog, openConnectWalletDialog} = useContext(DialogsContext)
-    const {addToCalender} = useCalender()
+    const {addToCalenderDialog} = useCalender()
     const {showImage} = useShowImage()
     const {copy} = useCopy()
     const {setEventGroup, eventGroup, ready, isManager} = useContext(EventHomeContext)
@@ -368,8 +368,8 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
         })
     }
 
-    const genGoogleMapUrl = (lng: string, lat: string) => {
-        return `https://www.google.com/maps/search/?api=1&query=${lat}%2C${lng}`
+    const genGoogleMapUrl = (id: number) => {
+        return `/event/${eventGroup?.username}/map/?target_event=${id}`
     }
 
     return (<>
@@ -517,7 +517,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                         <div className={'detail-item'}>
                                             <i className={'icon-Outline'}/>
                                             {event.formatted_address ?
-                                                <a href={genGoogleMapUrl(event.geo_lng!, event.geo_lat!)}
+                                                <a href={genGoogleMapUrl(event.id)}
                                                    target={'_blank'}>
                                                     <div className={'main'}>{event.location}</div>
                                                     <div className={'sub'}>{event.formatted_address}</div>
@@ -534,7 +534,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                      }
                                                 >{showMap ? 'Hide Map' : 'Show Map'}</div>
                                                 {showMap &&
-                                                    <Link href={genGoogleMapUrl(event.geo_lng!, event.geo_lat!)}
+                                                    <Link href={genGoogleMapUrl(event.id)}
                                                           target={'_blank'}
                                                           className={`map-preview`}>
                                                         <img
@@ -552,7 +552,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                     <>
                                         <div className={'detail-item'}>
                                             <i className={'icon-Outline'}/>
-                                            <a href={genGoogleMapUrl(event.event_site.geo_lng!, event.event_site.geo_lat!)}
+                                            <a href={genGoogleMapUrl(event.id)}
                                                target={'_blank'}>
                                                 <div className={'main'}>{event.event_site.title}</div>
                                                 <div className={'sub'}>{event.event_site.formatted_address}
@@ -568,7 +568,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                      }
                                                 >{showMap ? 'Hide Map' : ' Show Map'}</div>
                                                 {showMap &&
-                                                    <Link href={genGoogleMapUrl(event.geo_lng!, event.geo_lat!)}
+                                                    <Link href={genGoogleMapUrl(event.id)}
                                                           target={'_blank'}
                                                           className={`map-preview`}>
                                                         <img
@@ -651,7 +651,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                 {!canceled &&
                                                     <AppButton
                                                         onClick={e => {
-                                                            addToCalender({
+                                                            addToCalenderDialog({
                                                                 name: event!.title,
                                                                 startTime: event!.start_time!,
                                                                 endTime: event!.end_time!,
@@ -883,7 +883,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                         {!canceled &&
                                             <AppButton
                                                 onClick={e => {
-                                                    addToCalender({
+                                                    addToCalenderDialog({
                                                         name: event!.title,
                                                         startTime: event!.start_time!,
                                                         endTime: event!.end_time!,

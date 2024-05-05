@@ -18,7 +18,7 @@ import ImgLazy from "@/components/base/ImgLazy/ImgLazy";
 import EventDefaultCover from "@/components/base/EventDefaultCover";
 import EventHomeContext from "@/components/provider/EventHomeProvider/EventHomeContext";
 import {getLabelColor} from "@/hooks/labelColor";
-import useCalender from "@/hooks/addToCalender";
+import useCalender from "@/hooks/addToCalendar/addToCalendar";
 import AppButton from "@/components/base/AppButton/AppButton";
 import useEvent, {EVENT} from "@/hooks/globalEvent";
 import usePicture from "@/hooks/pictrue";
@@ -44,7 +44,7 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
     const {showToast, showLoading, openConfirmDialog} = useContext(DialogsContext)
     const [hasRegistered, setHasRegistered] = useState(false)
     const {eventGroups} = useContext(EventHomeContext)
-    const {addToCalender} = useCalender()
+    const {addToCalenderDialog} = useCalender()
     const [_, emit] = useEvent(EVENT.setEventStatus)
     const [groupHost, setGroupHost] = useState<Group>()
     const {defaultAvatar} = usePicture()
@@ -298,7 +298,7 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
                                 style={{maxWidth: '60px'}}
                                 onClick={e => {
                                     e.preventDefault()
-                                    addToCalender({
+                                    addToCalenderDialog({
                                         name: eventDetail!.title,
                                         startTime: eventDetail!.start_time!,
                                         endTime: eventDetail!.end_time!,
@@ -306,6 +306,14 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
                                         details: eventDetail!.content,
                                         url: `${window.location.origin}/event/detail/${eventDetail!.id}`
                                     })
+                                    // addToCalender({
+                                    //     name: eventDetail!.title,
+                                    //     startTime: eventDetail!.start_time!,
+                                    //     endTime: eventDetail!.end_time!,
+                                    //     location: eventDetail!.formatted_address || eventDetail!.location || '',
+                                    //     details: eventDetail!.content,
+                                    //     url: `${window.location.origin}/event/detail/${eventDetail!.id}`
+                                    // })
                                 }}
                             ><i className={'icon-calendar'}/></AppButton>
                         }

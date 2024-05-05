@@ -562,6 +562,11 @@ $border-color: #e0e0e0 !default;
   font-style: normal;
   font-weight: 500;
   margin-top: 5px;
+  cursor: pointer;
+
+  &:hover {
+    opacity: 0.8;
+  }
 }
 
 .icon {

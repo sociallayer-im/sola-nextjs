@@ -257,10 +257,16 @@
     .tab-titles {
       margin-bottom: 20px;
       top: 10px;
+      display: flex;
+      flex-flow: row nowrap;
+      align-items: flex-end;
+      justify-content: space-between;
+      margin-right: 24px;
 
       .center {
         display: flex;
         align-items: flex-end;
+        flex: 1;
 
         &:nth-child(1) {
           height: 42px;
@@ -704,6 +710,23 @@
       font-size: 12px;
       padding: 4px;
     }
+  }
+}
+
+.calendar-btn-compact {
+  cursor: pointer;
+  border-radius: 12px;
+  width: 60px;
+  height: 40px;
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  justify-content: center;
+  background: #ECF2EE;
+  transform: translateY(3px);
+
+  &:hover {
+    opacity: 0.8;
   }
 }
 

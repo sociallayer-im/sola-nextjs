@@ -689,7 +689,8 @@ function EventCard({
             <div className={styles['schedule-event-card-position']}
                  onClick={e => {
                      e.stopPropagation()
-                     location.href = `https://www.google.com/maps/search/?api=1&query=${event.geo_lat}%2C${event.geo_lng}`
+                     e.preventDefault()
+                     location.href = `/event/${group?.username}/map?target_event=${event.id}`
                  }}>
                 <i className={`${styles['icon']} icon-Outline`}/>
                 <div className={styles['location-text']}>{event.location}</div>
@@ -706,7 +707,8 @@ function EventCard({
             <div className={styles['schedule-event-card-position']}
                  onClick={e => {
                      e.stopPropagation()
-                     location.href = `https://www.google.com/maps/search/?api=1&query=${event.geo_lat}%2C${event.geo_lng}`
+                     e.preventDefault()
+                     location.href = `/event/${group?.username}/map?target_event=${event.id}`
                  }}>
                 <i className={`${styles['icon']} icon-Outline`}/>
                 <div className={styles['location-text']}>{event.event_site.title}</div>
