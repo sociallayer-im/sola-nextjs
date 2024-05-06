@@ -323,19 +323,13 @@ function TimeSlot(props: {
             if (props.eventSiteId !== evenSiteId) {
                 setEvenSiteId(props.eventSiteId)
                 console.log('reset=====')
-                setData({
-                    from: null,
-                    to: null,
-                    date: new Date()
-                })
-                props.onChange && props.onChange('', '', timezone, repeat.length? repeat[0].id : '', counter)
+                reset()
             }
         }
     }, [props.from, props.to, props.eventSiteId])
 
 
     useEffect(() => {
-        console.log('onchange data', data)
         if (data.from && data.from.length > 0 && data.to && data.to.length > 0) {
             const from_str = data.from?.[0].id
             const to_str = data.to?.[0].id
@@ -347,6 +341,23 @@ function TimeSlot(props: {
             props.onChange && props.onChange('', '', timezone, repeat.length? repeat[0].id : '', counter)
         }
     }, [data, repeat, counter])
+
+    function reset(data?: Date) {
+        const slot = config[evenSiteId + ''].slots
+        if (slot && slot[0]?.[0] && slot && slot[0]?.[1]) {
+            setData({
+                from: [slot[0][0]],
+                to: [slot[0][1]],
+                date: data || new Date()
+            })
+        } else {
+            setData({
+                from: null,
+                to: null,
+                date: data || new Date()
+            })
+        }
+    }
 
 
     function showDate(data: Date) {
@@ -406,12 +417,7 @@ function TimeSlot(props: {
                         onChange={({date}) => {
                             // setDate(Array.isArray(date) ? date : [date][0] as any)
                             const res = Array.isArray(date) ? date : [date][0] as any
-                            setData({
-                                date: res,
-                                from: null,
-                                to: null
-                            })
-                        }
+                            reset(res)}
                         }/>
                 </div>
             </div>
@@ -428,10 +434,11 @@ function TimeSlot(props: {
                         onChange={({option}) => {
                             console.log('option=====', option)
                             // setFrom([option] as any)
+                            const autoSetTo = genToSlotList(evenSiteId!, option!.id + '')[0]
                             setData({
                                 ...data,
                                 from: [option] as any,
-                                to: null
+                                to: autoSetTo ? [autoSetTo] : null
                             })
                         }}
                     />

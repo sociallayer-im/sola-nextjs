@@ -1,12 +1,13 @@
 import {Event, getGroups, Group, queryEvent} from "@/service/solas";
 import {useEffect, useRef, useState} from "react";
-import { createCalendar, viewMonthGrid, viewMonthAgenda, viewWeek, viewDay} from '@schedule-x/calendar'
-import { createEventModalPlugin } from '@schedule-x/event-modal'
+import {createCalendar, viewDay, viewMonthAgenda, viewMonthGrid, viewWeek} from '@schedule-x/calendar'
+import {createEventModalPlugin} from '@schedule-x/event-modal'
 import '@schedule-x/theme-default/dist/index.css'
 import styles from '../schedule/schedulenew.module.scss'
 
 import * as dayjsLib from "dayjs";
 import timezoneList from "@/utils/timezone";
+import {getLabelColor} from "@/hooks/labelColor";
 
 const utc = require('dayjs/plugin/utc')
 const timezone = require('dayjs/plugin/timezone')
@@ -66,7 +67,7 @@ function ComponentName(props: { group: Group }) {
     const [timezoneSelected, setTimezoneSelected] = useState<{ label: string, id: string }[]>([])
 
 
-    useEffect(()=> {
+    useEffect(() => {
         try {
             const historyTimeZone = localStorage.getItem('schedule-timezone')
             if (historyTimeZone) {
@@ -84,14 +85,15 @@ function ComponentName(props: { group: Group }) {
                 }
                 setTimezoneSelected([timezoneInfo])
             }
-        } catch (e: any) { }
+        } catch (e: any) {
+        }
     }, [])
 
     useEffect(() => {
         if (timezoneSelected[0]) {
             const dayList = getCalendarData(timezoneSelected[0].id)
 
-            const events = queryEvent({
+           queryEvent({
                 group_id: eventGroup.id,
                 start_time_from: new Date(dayList[0].timestamp).toISOString(),
                 start_time_to: new Date(dayList[dayList.length - 1].timestamp).toISOString(),
@@ -108,42 +110,65 @@ function ComponentName(props: { group: Group }) {
                         }
                     }
 
+                    const calendarId = event.tags && event.tags[0] ? event.tags[0].replace(/[^\w\s]/g, '').replace(/\s/g, '').toLowerCase() : 'sola'
                     return {
                         id: event.id,
-                        title: event.title ,
+                        title: event.title,
                         start: dayjs.tz(new Date(event.start_time!).getTime(), timezoneSelected[0].id).format('YYYY-MM-DD HH:mm'),
                         end: dayjs.tz(new Date(event.end_time!), timezoneSelected[0].id).format('YYYY-MM-DD HH:mm'),
                         people: host,
                         start_time: event.start_time,
                         end_time: event.end_time,
                         location: event.location,
+                        calendarId: calendarId,
                     }
                 })
 
-                const selectedDate = eventList.length ?
-                    dayjs.tz(new Date(eventList[0].start_time!).getTime(), timezoneSelected[0].id).format('YYYY-MM-DD')
-                    : dayjs.tz(new Date().getTime(), timezoneSelected[0].id).format('YYYY-MM-DD')
+
+                let calendars: any = {
+                    sola: {
+                        colorName: 'sola',
+                        lightColors: {
+                            main: '#6CD7B2',
+                            container: '#f7ffeb',
+                            onContainer: '#594800',
+                        },
+                        darkColors: {
+                            main: '#6CD7B2',
+                            onContainer: '#f7ffeb',
+                            container: '#a29742',
+                        }
+                    }
+                }
+
+                if (eventGroup.event_tags) {
+                    eventGroup.event_tags.map((tag: string) => {
+                        const name = tag.replace(/[^\w\s]/g, '').replace(/\s/g, '').toLowerCase()
+                        calendars[name] = {
+                            colorName: name,
+                            lightColors: {
+                                main: getLabelColor(tag),
+                                container: getLabelColor(tag,  0.8),
+                                onContainer: getLabelColor(tag),
+                            },
+                            darkColors: {
+                                main: getLabelColor(tag),
+                                container: getLabelColor(tag),
+                                onContainer: getLabelColor(tag),
+                            }
+                        }
+                    })
+                }
+
+                console.log('calendars', calendars)
+                const selectedDate = dayjs.tz(new Date().getTime(), timezoneSelected[0].id).format('YYYY-MM-DD')
                 const calendar = createCalendar({
                     views: [viewMonthGrid, viewMonthAgenda, viewDay, viewWeek],
                     minDate: dayjs.tz(dayList[0].timestamp, timezoneSelected[0].id).format('YYYY-MM-DD'),
                     maxDate: dayjs.tz(dayList[dayList.length - 1].timestamp, timezoneSelected[0].id).format('YYYY-MM-DD'),
-                    selectedDate: dayjs.tz(selectedDate, timezoneSelected[0].id).format('YYYY-MM-DD'),
-                    plugins:[createEventModalPlugin()],
-                    calendars: {
-                        sola: {
-                            colorName: 'sola',
-                            lightColors: {
-                                main: '#6CD7B2',
-                                container: '#f7ffeb',
-                                onContainer: '#594800',
-                            },
-                            darkColors: {
-                                main: '#6CD7B2',
-                                onContainer: '#f7ffeb',
-                                container: '#a29742',
-                            }
-                        }
-                    },
+                    selectedDate: selectedDate,
+                    plugins: [createEventModalPlugin()],
+                    calendars,
                     events: eventList as any,
                 } as any)
 

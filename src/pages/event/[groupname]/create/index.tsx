@@ -72,7 +72,7 @@ const getNearestTime = () => {
     })
 
     const initStartTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), nearestMinute || 0)
-    const initEndTime = new Date(initStartTime.getTime() + 60 * 60 * 1000)
+    const initEndTime = new Date(initStartTime.getTime() + 60 * 30 * 1000)
     return [initStartTime, initEndTime]
 }
 
@@ -913,15 +913,17 @@ function EditEvent({
                                 </div>
                             }
 
-                            <div className={styles['input-area']}>
-                                <div className={styles['input-area-title']}>{lang['External_Url']}</div>
-                                <AppInput clearable={false}
-                                          value={event.external_url || ''}
-                                          placeholder={lang['External_Url']}
-                                          onChange={(e) => {
-                                              setEvent({...event, external_url: e.target.value})
-                                          }}/>
-                            </div>
+                            { false &&
+                                <div className={styles['input-area']}>
+                                    <div className={styles['input-area-title']}>{lang['External_Url']}</div>
+                                    <AppInput clearable={false}
+                                              value={event.external_url || ''}
+                                              placeholder={lang['External_Url']}
+                                              onChange={(e) => {
+                                                  setEvent({...event, external_url: e.target.value})
+                                              }}/>
+                                </div>
+                            }
 
                             {!!eventGroup &&
                                 <div className={styles['input-area']}>

@@ -142,6 +142,10 @@ function AppDateInput({
 
         const newDate = new Date(year, mouth, day, hour, minute)
         setFrom(newDate)
+
+
+        const new_to = dayjs(newDate.getTime()).add(30, 'minute').toDate()
+        setTo(new_to)
     }
 
     function changeToDate(date: Date) {
@@ -158,6 +162,9 @@ function AppDateInput({
 
     function changeFromTime(date: Date) {
         setFrom(date)
+
+        const new_to = dayjs(date.getTime()).add(30, 'minute').toDate()
+        setTo(new_to)
     }
 
     function changeToTime(date: Date) {

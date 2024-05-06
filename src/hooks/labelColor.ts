@@ -32,14 +32,47 @@ const defaultLabels = [
     "山海讲堂"
 ]
 
-export const getLabelColor = (label?: string) => {
+const hexToRgb = (str: string) => {
+    let hexs = null;
+    let reg = /^\#?[0-9A-Fa-f]{6}$/;
+    if (!reg.test(str)) return ['255','255','255'] as string[]
+    str = str.replace('#', '') // 去掉#
+    hexs = str.match(/../g) // 切割成数组 409EFF => ['40','9E','FF']
+    // 将切割的色值转换为16进制
+    for (let i = 0; i < hexs!.length; i++) hexs![i] = parseInt(hexs![i], 16) + ''
+    return hexs as string[] // 返回rgb色值[64, 158, 255]
+}
+
+const getLightColor = (color: string, level: number) => {
+    let reg = /^\#?[0-9A-Fa-f]{6}$/;
+    if (!reg.test(color)) return '#fff'
+    let rgb = hexToRgb(color);
+    // 循环对色值进行调整
+    for (let i = 0; i < 3; i++) {
+        rgb![i] = Math.floor((255 - Number(rgb![i])) * level + Number(rgb![i])) + '' // 始终保持在0-255之间
+    }
+    return `rgb(${rgb![0]},${rgb![1]},${rgb![2]})`  // [159, 206, 255]
+}
+export const getLabelColor = (label?: string, light?: number) => {
+    let res = ''
     if (label) {
         if (defaultLabels.indexOf(label) !== -1) {
-            return labelColors[defaultLabels.indexOf(label)]
+            res = labelColors[defaultLabels.indexOf(label)]
         } else {
-            return labelColors[(label[0].charCodeAt(0) + label[label.length - 1].charCodeAt(0)) % labelColors.length]
+            res = labelColors[(label[0].charCodeAt(0) + label.length) % labelColors.length]
         }
     } else {
-        return labelColors[0]
+        res = labelColors[0]
+    }
+
+    console.log('resresres', res)
+
+    if (light) {
+        // hex to rgb
+        res = getLightColor(res, light)
+        console.log(res)
+        return res
+    } else {
+        return res
     }
 }
