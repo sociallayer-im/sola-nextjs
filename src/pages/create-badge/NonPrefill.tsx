@@ -82,6 +82,9 @@ function CreateBadgeNonPrefill() {
                 })
                 unload()
                 router.push(`/issue-success?voucher=${badgelets[0].id}`)
+            } else if (searchParams?.get('return')) {
+                const returnUrl = searchParams?.get('return')
+                router.replace(`${returnUrl}?set_badge=${newBadge.id}`)
             } else {
                 if (reason) {
                     router.push(`/issue-badge/${newBadge.id}?reason=${encodeURI(reason)}`)

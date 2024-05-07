@@ -19,6 +19,7 @@ interface DialogIssuePrefillProps {
     handleClose: () => any
     profileId: number
     onSelect?: (res: BadgeBookDialogRes) => any
+    returnUrl?: string
 }
 
 
@@ -29,8 +30,12 @@ function DialogIssuePrefill(props: DialogIssuePrefillProps) {
 
     const gotoCreateBadge = (type: CreateType) => {
         !!props.onSelect && props.onSelect({type})
-        router.push('/create-badge')
         props.handleClose()
+        if (props.returnUrl) {
+            router.push(`/create-badge?return=${props.returnUrl}`)
+        } else {
+            router.push('/create-badge')
+        }
     }
 
     const badgeItems = (badges: Badge[]) => {

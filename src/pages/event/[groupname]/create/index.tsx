@@ -44,7 +44,7 @@ import DialogIssuePrefill from "@/components/eventSpecial/DialogIssuePrefill/Dia
 import {OpenDialogProps} from "@/components/provider/DialogProvider/DialogProvider";
 import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
 import IssuesInput from "@/components/base/IssuesInput/IssuesInput";
-import {useRouter} from "next/navigation";
+import {useRouter, usePathname, useSearchParams} from "next/navigation";
 import * as dayjsLib from "dayjs";
 import TriangleDown from 'baseui/icon/triangle-down'
 import TriangleUp from 'baseui/icon/triangle-up'
@@ -91,9 +91,13 @@ function EditEvent({
     const {user} = useContext(userContext)
     const {openDialog, showLoading, showToast, openConfirmDialog} = useContext(DialogsContext)
     const router = useRouter()
+    const pathname = usePathname()
+    const searchParams = useSearchParams()
+
+    console.log('pathname', pathname)
 
     // status
-    const [formReady, setFormReady] = useState(true)
+    const [formReady, setFormReady] = useState(false)
     const [isEditMode, setIsEditMode] = useState(!!initEvent)
     const [isSlot, setIsSlot] = useState(false)
     const [isManager, setIsManager] = useState(false)
@@ -143,7 +147,7 @@ function EditEvent({
         meeting_url: '',
         tags: [],
         host_info: null,
-        badge_id: null,
+        badge_id: searchParams?.get('set_badge') ?  Number(searchParams?.get('set_badge')) : null,
         max_participant: null,
         event_type: 'event',
         group_id: group?.id,
@@ -332,6 +336,35 @@ function EditEvent({
         }
     }, [repeatCounter, repeat])
 
+    // prefill draft
+    useEffect(() => {
+        if (!initEvent && searchParams?.get('set_badge')) {
+            const draft = window.sessionStorage.getItem('event_draft')
+            const presetBadge =  Number(searchParams?.get('set_badge'))
+            if (draft) {
+                setEvent({...JSON.parse(draft), badge_id: presetBadge})
+            } else {
+                setEvent({...event, badge_id: presetBadge})
+            }
+        } else if (searchParams?.get('set_badge')) {
+            const presetBadge =  Number(searchParams?.get('set_badge'))
+            if (presetBadge) {
+                setEvent({
+                    ...event,
+                    badge_id: presetBadge
+                })
+            }
+        }
+        setFormReady(true)
+    }, [searchParams])
+
+    // save draft
+    useEffect(() => {
+        if (!initEvent) {
+            window.sessionStorage.setItem('event_draft', JSON.stringify(event))
+        }
+    }, [event, initEvent])
+
     const showBadges = async () => {
         const props = !!(creator as Group)?.creator ? {
                 group_id: creator!.id,
@@ -350,6 +383,7 @@ function EditEvent({
             content: (close: any) => <DialogIssuePrefill
                 badges={badges}
                 profileId={user.id!}
+                returnUrl={pathname}
                 onSelect={(res) => {
                     if (res.badgeId) {
                         setEvent({
@@ -693,7 +727,7 @@ function EditEvent({
 
                 unloading()
                 showToast('create success')
-                window.localStorage.removeItem('event_draft')
+                window.sessionStorage.removeItem('event_draft')
                 router.push(`/event/success/${newEvent.id}`)
                 setCreating(false)
             } else {
@@ -708,7 +742,7 @@ function EditEvent({
                 }
                 unloading()
                 showToast('create success')
-                window.localStorage.removeItem('event_draft')
+                window.sessionStorage.removeItem('event_draft')
                 if (newEvent.status === 'pending') {
                     router.push(`/event/detail/${newEvent.id}`)
                 } else {

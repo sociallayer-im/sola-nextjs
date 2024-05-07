@@ -343,7 +343,7 @@ function TimeSlot(props: {
     }, [data, repeat, counter])
 
     function reset(data?: Date) {
-        const slot = config[evenSiteId + ''].slots
+        const slot = config[props.eventSiteId + ''].slots
         if (slot && slot[0]?.[0] && slot && slot[0]?.[1]) {
             setData({
                 from: [slot[0][0]],
