@@ -65,7 +65,6 @@ export const getLabelColor = (label?: string, light?: number) => {
         res = labelColors[0]
     }
 
-    console.log('resresres', res)
 
     if (light) {
         // hex to rgb

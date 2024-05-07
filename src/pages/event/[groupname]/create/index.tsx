@@ -480,11 +480,20 @@ function EditEvent({
             }
         }
 
-        const profiles = await getProfileBatch(usernames)
+        let profiles = await getProfileBatch(usernames)
         if (profiles.length !== usernames.length) {
-            const missing = usernames.find((u) => !profiles.find((p) => p.username === u))
-            if (missing) {
-                throw new Error(`User 「${missing}」 not exist`)
+            const missing = usernames.filter((u) => !profiles.find((p) => p.username === u))
+            if (missing.length) {
+                // throw new Error(`User 「${missing}」 not exist`)
+                missing.forEach((m, i) => {
+                    profiles.push({
+                        id: 0,
+                        username: m,
+                        nickname: null,
+                        image_url: '/images/default_avatar/avatar_0.png',
+                        sol_address: null
+                    } as any)
+                })
             }
         }
 
@@ -505,8 +514,8 @@ function EditEvent({
 
         return {
             json: JSON.stringify(hostinfo),
-            cohostId: enableCoHost ? cohostUser.map((p) => p.id) : null,
-            speakerId: enableSpeakers ? speakerUsers.map((p) => p.id) : null
+            cohostId: enableCoHost ? cohostUser.filter(p => !!p.id).map((p) => p.id) : null,
+            speakerId: enableSpeakers ? speakerUsers.filter(p => !!p.id).map((p) => p.id) : null
         }
     }
 
