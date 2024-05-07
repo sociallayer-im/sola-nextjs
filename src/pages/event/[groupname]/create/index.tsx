@@ -383,7 +383,7 @@ function EditEvent({
             content: (close: any) => <DialogIssuePrefill
                 badges={badges}
                 profileId={user.id!}
-                returnUrl={pathname}
+                returnUrl={pathname || ''}
                 onSelect={(res) => {
                     if (res.badgeId) {
                         setEvent({
