@@ -232,7 +232,7 @@ const langEN = {
     Activity_Form_Wechat: 'Event WeChat group',
     Activity_Form_Wechat_Des: "The QR code is displayed after the participant's successful registration.",
     Activity_Form_Wechat_Account: 'When the QR code is not working, participants can find you through the WeChat ID',
-    Activity_Form_Badge_Des: 'When an event participant check in, he or she automatically receives a badge at the end of the event.',
+    Activity_Form_Badge_Des: 'When an event participant checks in, he or she automatically receives a badge at the end of the event.',
     Activity_Form_Badge_Select: 'Set a POAP badge for attendees',
     Activity_Form_wechat_Select: 'Select Image',
     Activity_Form_Ending_Time_Error: 'The end time must be later than the start time',
@@ -635,7 +635,7 @@ const langEN = {
     Schedule_View: 'Schedule view',
     Timeline_View: 'Timeline view',
     Download_the_list_of_all_participants: 'Download the list of all participants',
-    More_Settings: 'More_Settings',
+    More_Settings: 'More Settings',
 }
 
 

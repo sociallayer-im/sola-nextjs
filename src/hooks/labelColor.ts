@@ -43,7 +43,7 @@ const hexToRgb = (str: string) => {
     return hexs as string[] // 返回rgb色值[64, 158, 255]
 }
 
-const getLightColor = (color: string, level: number) => {
+export const getLightColor = (color: string, level: number) => {
     let reg = /^\#?[0-9A-Fa-f]{6}$/;
     if (!reg.test(color)) return '#fff'
     let rgb = hexToRgb(color);

@@ -82,6 +82,7 @@ export default class Bar {
             rx: this.corner_radius,
             ry: this.corner_radius,
             class: this.task.hide ? 'bar hide' : 'bar',
+            fill: this.task.bar_color || '#b8c2cc',
             append_to: this.bar_group,
         });
 

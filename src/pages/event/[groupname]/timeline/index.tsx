@@ -1,7 +1,7 @@
 import {Event, getGroups, Group, queryEvent, queryTimeLineEvent} from "@/service/solas";
 import {useContext, useEffect, useRef, useState} from "react";
 import styles from '../schedule/schedulenew.module.scss';
-import Gantt from '@/libs/frappe-fantt'
+import Gantt from '@/libs/frappe-gantt'
 import usePicture from "@/hooks/pictrue";
 import {Select} from "baseui/select";
 import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
@@ -9,7 +9,7 @@ import LangContext from "@/components/provider/LangProvider/LangContext";
 import {renderToStaticMarkup} from 'react-dom/server'
 import * as dayjsLib from "dayjs";
 import timezoneList from "@/utils/timezone";
-import {getLabelColor} from "@/hooks/labelColor";
+import {getLabelColor, getLightColor} from "@/hooks/labelColor";
 import Link from "next/link";
 import EventDefaultCover from "@/components/base/EventDefaultCover";
 import removeMarkdown from "markdown-to-text"
@@ -203,6 +203,7 @@ function Gan(props: { group: Group }) {
                             host_info: event.host_info,
                             hide: false,
                             color: event.tags?.length ? getLabelColor(event.tags[0]) : '#a3a3ff',
+                            bar_color: event.tags?.length ? getLabelColor(event.tags[0], 0.8) :getLightColor('#a3a3ff', 0.8),
                             tag: event.tags,
                             event: event
                         }
@@ -224,6 +225,7 @@ function Gan(props: { group: Group }) {
                             host_info: null,
                             hide: true,
                             color: '#a3a3ff',
+                            bar_color: '#a3a3ff',
                             tag: [],
                             event: null as any
                         })
@@ -243,6 +245,7 @@ function Gan(props: { group: Group }) {
                             host: '',
                             hide: true,
                             color: '#a3a3ff',
+                            bar_color: '#a3a3ff',
                             host_info: '',
                             tag: [],
                             event: null as any
