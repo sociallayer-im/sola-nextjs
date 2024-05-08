@@ -63,8 +63,8 @@ const repeatEventEditOptions = [
 ]
 
 
-const getNearestTime = () => {
-    const now = new Date()
+const getNearestTime = (timeStr?: string) => {
+    const now = timeStr ? new Date(timeStr) : new Date()
     const minutes = now.getMinutes()
     const minuteRange = [0, 30, 60]
     const nearestMinute = minuteRange.find((item) => {
@@ -338,23 +338,33 @@ function EditEvent({
 
     // prefill draft
     useEffect(() => {
-        if (!initEvent && searchParams?.get('set_badge')) {
-            const draft = window.sessionStorage.getItem('event_draft')
-            const presetBadge =  Number(searchParams?.get('set_badge'))
-            if (draft) {
-                setEvent({...JSON.parse(draft), badge_id: presetBadge})
-            } else {
-                setEvent({...event, badge_id: presetBadge})
-            }
-        } else if (searchParams?.get('set_badge')) {
-            const presetBadge =  Number(searchParams?.get('set_badge'))
-            if (presetBadge) {
-                setEvent({
-                    ...event,
-                    badge_id: presetBadge
-                })
-            }
+        const draft = window.sessionStorage.getItem('event_draft')
+
+        const preset_badge_id = searchParams?.get('set_badge')
+        const preset_start_time = searchParams?.get('set_start_time')
+        const preset_end_time = searchParams?.get('set_end_time')
+        const preset_timezone = searchParams?.get('set_timezone')
+
+
+        let _event: Partial<Event> | null = null
+
+        if (preset_badge_id) {
+            _event = !initEvent && draft
+                ? {...JSON.parse(draft), badge_id: Number(preset_badge_id)}
+                : {...event, badge_id: Number(preset_badge_id)}
+
         }
+
+        if (preset_start_time && preset_end_time && preset_timezone) {
+            _event = _event
+                ? {..._event, start_time: preset_start_time, end_time: preset_start_time, timezone: preset_timezone}
+                : {...event, start_time: preset_start_time, end_time: preset_end_time, timezone: preset_timezone}
+        }
+
+        if (_event) {
+            setEvent(_event)
+        }
+
         setFormReady(true)
     }, [searchParams])
 
@@ -1005,7 +1015,7 @@ function EditEvent({
                                 </div>
                             }
 
-                            {!isSlot &&
+                            {formReady && !isSlot &&
                                 <div className={styles['input-area']}>
                                     <div className={styles['input-area-title']}>{lang['Activity_Form_Starttime']}</div>
                                     <AppEventTimeInput

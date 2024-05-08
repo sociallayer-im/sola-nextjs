@@ -1,9 +1,13 @@
 import {Event, getGroups, Group, queryEvent} from "@/service/solas";
-import {useEffect, useRef, useState} from "react";
+import {useContext, useEffect, useRef, useState} from "react";
 import {createCalendar, viewDay, viewMonthAgenda, viewMonthGrid, viewWeek} from '@schedule-x/calendar'
 import {createEventModalPlugin} from '@schedule-x/event-modal'
 import '@schedule-x/theme-default/dist/index.css'
 import styles from '../schedule/schedulenew.module.scss'
+import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
+import useTime from "@/hooks/formatTime";
+import {useRouter} from "next/navigation";
+import userContext from "@/components/provider/UserProvider/UserContext";
 
 import * as dayjsLib from "dayjs";
 import timezoneList from "@/utils/timezone";
@@ -63,6 +67,10 @@ const getCalendarData = (timeZone: string) => {
 function ComponentName(props: { group: Group }) {
     const eventGroup = props.group
     const calendarRef = useRef<any>(null)
+    const {openConfirmDialog} = useContext(DialogsContext)
+    const {user} = useContext(userContext)
+    const formatTime = useTime()
+    const router = useRouter()
 
     const [timezoneSelected, setTimezoneSelected] = useState<{ label: string, id: string }[]>([])
 
@@ -93,7 +101,7 @@ function ComponentName(props: { group: Group }) {
         if (timezoneSelected[0]) {
             const dayList = getCalendarData(timezoneSelected[0].id)
 
-           queryEvent({
+            queryEvent({
                 group_id: eventGroup.id,
                 start_time_from: new Date(dayList[0].timestamp).toISOString(),
                 start_time_to: new Date(dayList[dayList.length - 1].timestamp).toISOString(),
@@ -148,7 +156,7 @@ function ComponentName(props: { group: Group }) {
                             colorName: name,
                             lightColors: {
                                 main: getLabelColor(tag),
-                                container: getLabelColor(tag,  0.8),
+                                container: getLabelColor(tag, 0.8),
                                 onContainer: getLabelColor(tag),
                             },
                             darkColors: {
@@ -170,6 +178,39 @@ function ComponentName(props: { group: Group }) {
                     plugins: [createEventModalPlugin()],
                     calendars,
                     events: eventList as any,
+                    callbacks: {
+                        onClickDateTime(dateTime: string) {
+                            console.log('onClickDateTime', dateTime) // e.g. 2024-01-01 12:37
+                            const time = new Date(dateTime)
+                            time.setMinutes(0, 0)
+
+                            const selected_time_start = dayjs.tz(dateTime, timezoneSelected[0].id).minute(0).second(0).toDate() // 2024-01-01 12:37
+                            const selected_time_end = dayjs.tz(dateTime, timezoneSelected[0].id).minute(30).second(0).toDate()
+
+                            openConfirmDialog({
+                                confirmLabel: 'Create Event',
+                                confirmTextColor: '#000',
+                                title: 'Create Event',
+                                content: () => {
+                                    return <div>
+                                        <div>Would you like to create an event for {formatTime(time.toISOString())} ?
+                                        </div>
+                                        <div style={{
+                                            lineHeight: "1.2rem",
+                                            fontSize: "12px",
+                                            color: '#666',
+                                            marginTop: "12px"
+                                        }}>* You can still modify the time during the creation process.
+                                        </div>
+                                    </div>
+                                },
+                                onConfirm: (close: any) => {
+                                    router.push(`/event/${eventGroup.username}/create?set_start_time=${selected_time_start.toISOString()}&set_end_time=${selected_time_end.toISOString()}&set_timezone=${timezoneSelected[0].id}`)
+                                    close()
+                                },
+                            })
+                        },
+                    },
                 } as any)
 
                 calendar.render(calendarRef.current)
