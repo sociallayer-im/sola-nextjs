@@ -335,7 +335,7 @@ function GroupPage(props: any) {
                                     <div className={styles['fixed-box']}>
                                         <div className={styles['name']}>{profile.username}</div>
 
-                                        <Link href={`/event/${profile.username}`} className={styles['btn']}>View Event Home</Link>
+                                        <Link href={`/event/${profile.username}`} className={styles['btn']}>See all events</Link>
                                     </div>
 
                                     <ListGroupEvent isGroup={true} profile={profile}/>
