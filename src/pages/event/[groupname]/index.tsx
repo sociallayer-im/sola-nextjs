@@ -220,7 +220,8 @@ export const getServerSideProps: any = (async (context: any) => {
             badges: badges.data,
             initEvent: {
                 ...targetGroup[0],
-                creator: targetGroup[0]?.memberships[0],
+
+                creator: targetGroup[0]?.memberships[0].profile,
             }, initList: res, membership
         }
     }
