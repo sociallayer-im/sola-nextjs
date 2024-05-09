@@ -24,7 +24,6 @@ function PageHeader () {
           <div className={'pager-header-center'}>
               <PageLogo />
               <div className='pager-header-right-menu'>
-
                   { showSearch &&
                       <div className="header-search">
                           <HeaderSearch onClose={() => {

@@ -11,7 +11,7 @@ function ListMyCreatedEvent(props: {emptyCallBack?: () => any, participants?: Pa
 
     const getMyEvent = async (page: number) => {
         if (user.id) {
-            const res = await queryEvent({owner_id: user.id, page})
+            const res = await queryEvent({owner_id: user.id, page, allow_private: true})
             if (page === 1 && res.length === 0) {
                 !!props.emptyCallBack && props.emptyCallBack()
             }

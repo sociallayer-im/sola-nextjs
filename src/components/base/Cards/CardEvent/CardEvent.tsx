@@ -141,7 +141,13 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
         }
     }
 
-    const hasMarker = isExpired || hasRegistered || isCreated || props.event.status === 'pending' || onGoing || !!props.event.external_url
+    const hasMarker = isExpired
+        || hasRegistered
+        || isCreated
+        || props.event.status === 'pending'
+        || onGoing
+        || !!props.event.external_url
+        ||  props.event.display === 'private'
 
     const largeCard = fixed || (hasMarker && !fixed)
 
@@ -208,6 +214,7 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
                   className={largeCard ? 'event-card large' : 'event-card'}>
         {largeCard &&
             <div className={'markers'}>
+                {props.event.display === 'private' && <div className={'marker private'}>{'Private'}</div>}
                 {props.event.status === 'pending' && <div className={'marker pending'}>{lang['Pending']}</div>}
                 {onGoing && <div className={'marker registered'}>{lang['Ongoing']}</div>}
                 {props.event.status === 'rejected' && <div className={'marker rejected'}>{lang['Rejected']}</div>}
@@ -225,6 +232,7 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
                     <div className={'title'}>
                         { hasMarker &&
                             <div className={'markers'}>
+                                {props.event.display === 'private' && <div className={'marker private'}>{'Private'}</div>}
                                 {props.event.status === 'pending' && <div className={'marker pending'}>{lang['Pending']}</div>}
                                 {onGoing && <div className={'marker registered'}>{lang['Ongoing']}</div>}
                                 {props.event.status === 'rejected' && <div className={'marker rejected'}>{lang['Rejected']}</div>}

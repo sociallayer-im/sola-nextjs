@@ -78,6 +78,12 @@ function PageLogo() {
                                alt=""/>
                     }
                 </Link>
+                { process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'edge-city' &&
+                   <div style={{display: "flex", flexFlow: "row nowrap", alignItems: "center"}}>
+                       <i className={'icon-close'} />
+                       <img  style={{marginLeft: "6px"}} className={css(imgStyle)} src="/images/edge-logo.png" alt=""/>
+                   </div>
+                }
                 { process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'seedao' &&
                     <Link className={css(seedaoLogo)} href={'/'}>
                         <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10" fill="none">

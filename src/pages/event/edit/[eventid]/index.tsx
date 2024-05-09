@@ -14,7 +14,7 @@ export const getServerSideProps: any = async (context: any) => {
         const group = await queryGroupDetail(undefined, groupname)
         return {props: {group}}
     } else if (eventid) {
-        const events = await queryEvent({id: Number(eventid), page: 1, show_pending_event: true, show_cancel_event: true})
+        const events = await queryEvent({allow_private: true, id: Number(eventid), page: 1, show_pending_event: true, show_cancel_event: true})
         if (!events[0]) {
             return {props: {initEvent: null, group: null, initCreator: null}}
         } else {

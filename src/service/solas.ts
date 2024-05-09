@@ -3027,6 +3027,7 @@ export interface QueryEventProps {
     recurring_event_id?: number,
     show_cancel_event?: boolean,
     group_ids?: number[]
+    allow_private?: boolean
 }
 
 
@@ -3053,6 +3054,10 @@ export async function queryEvent(props: QueryEventProps): Promise<Event[]> {
 
     if(props.recurring_event_id) {
         variables += `recurring_event_id: {_eq: ${props.recurring_event_id}}, `
+    }
+
+    if (!props.allow_private) {
+        variables += `display: {_neq: "private"}, `
     }
 
     if (props.start_time_from && props.start_time_to) {
@@ -3362,7 +3367,13 @@ export interface QueryEventDetailProps {
 }
 
 export async function queryEventDetail(props: QueryEventDetailProps) {
-    const res = await queryEvent({id: props.id, page: 1, show_pending_event: true, show_cancel_event: true})
+    const res = await queryEvent({
+        id: props.id,
+        page: 1,
+        show_pending_event: true,
+        allow_private: true,
+        show_cancel_event: true
+    })
 
     return res[0] as Event || null
 }
@@ -3396,7 +3407,9 @@ export async function queryMyEvent({page = 1, page_size = 10, ...props}: QueryMy
         }
         role
          event {
+          display
           cover_url
+          host_info
           content
           end_time
           notes
@@ -3407,6 +3420,25 @@ export async function queryMyEvent({page = 1, page_size = 10, ...props}: QueryMy
           owner_id
           start_time
           status
+          event_site_id
+          event_site {
+               id
+               title
+               location
+               about
+               group_id
+               owner_id
+               created_at
+               formatted_address
+               geo_lat
+               geo_lng
+          }
+         owner {
+            id
+            username
+            nickname
+            image_url
+          }
           participants(where: {status: {_neq: "cancel"}}) {
           id
           profile_id
@@ -3537,16 +3569,16 @@ export async function searchEvent(keyword: string) {
             geo_lat
             geo_lng
         }
-        event_type
-        formatted_address
-        location
-        owner_id
-        owner {
+         owner {
             id
             username
             nickname
             image_url
         }
+        event_type
+        formatted_address
+        location
+        owner_id
         title
         timezone
         status
@@ -4034,7 +4066,7 @@ export async function createRepeatEvent(props: CreateRepeatEventProps) {
         throw new Error(res.data.message)
     }
 
-    const event = await queryEvent({recurring_event_id: res.data.recurring_event_id, page: 1})
+    const event = await queryEvent({recurring_event_id: res.data.recurring_event_id, page: 1, allow_private: true})
     return event[0]
 }
 

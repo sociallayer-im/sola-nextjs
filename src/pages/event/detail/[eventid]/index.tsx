@@ -39,6 +39,7 @@ import {FreeMode, Mousewheel} from "swiper";
 import EventNotes from "@/components/base/EventNotes/EventNotes";
 import RichTextDisplayer from "@/components/compose/RichTextEditor/Displayer";
 import removeMarkdown from "markdown-to-text"
+import { StatefulPopover } from "baseui/popover";
 
 import * as dayjsLib from "dayjs";
 import Empty from "@/components/base/Empty";
@@ -431,6 +432,18 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                 <div className={'name'}>
                                     {event.status === 'pending' && <span className={'pending'}>Pending</span>}
                                     {event.status === 'cancel' && <span className={'cancel'}>Canceled</span>}
+                                    {event.display === 'private' && <StatefulPopover
+                                        placement={'bottom'}
+                                        returnFocus={false}
+                                        autoFocus={false}
+                                        triggerType={'hover'}
+                                        content={() => {
+                                            return <div style={{"padding": '6px', maxWidth:"310px"}}>
+                                            private event only be viewed through the link, and users can view the event in <a href={'/my-event'} target={'_blank'}>My Event</a> page.
+                                            </div>
+                                        }} >
+                                        <span className={'private'}>Private</span>
+                                    </StatefulPopover>}
                                     {event.title}
                                 </div>
 

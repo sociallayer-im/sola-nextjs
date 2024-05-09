@@ -44,7 +44,9 @@ import DialogIssuePrefill from "@/components/eventSpecial/DialogIssuePrefill/Dia
 import {OpenDialogProps} from "@/components/provider/DialogProvider/DialogProvider";
 import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
 import IssuesInput from "@/components/base/IssuesInput/IssuesInput";
-import {useRouter, usePathname, useSearchParams} from "next/navigation";
+import {usePathname, useRouter, useSearchParams} from "next/navigation";
+import Toggle from "@/components/base/Toggle/Toggle";
+
 import * as dayjsLib from "dayjs";
 import TriangleDown from 'baseui/icon/triangle-down'
 import TriangleUp from 'baseui/icon/triangle-up'
@@ -147,10 +149,11 @@ function EditEvent({
         meeting_url: '',
         tags: [],
         host_info: null,
-        badge_id: searchParams?.get('set_badge') ?  Number(searchParams?.get('set_badge')) : null,
+        badge_id: searchParams?.get('set_badge') ? Number(searchParams?.get('set_badge')) : null,
         max_participant: null,
         event_type: 'event',
         group_id: group?.id,
+        display: 'normal'
     })
 
 
@@ -280,7 +283,8 @@ function EditEvent({
                     start_time_from: startDate.toISOString(),
                     start_time_to: endDate.toISOString(),
                     page: 1,
-                    page_size: 50
+                    page_size: 50,
+                    allow_private: true
                 })
 
                 // 排除自己
@@ -966,7 +970,7 @@ function EditEvent({
                                 </div>
                             }
 
-                            { false &&
+                            {false &&
                                 <div className={styles['input-area']}>
                                     <div className={styles['input-area-title']}>{lang['External_Url']}</div>
                                     <AppInput clearable={false}
@@ -1196,6 +1200,26 @@ function EditEvent({
                                             </div>
                                         </div>
                                     </div>
+
+                                    <div className={styles['input-area']} data-testid={'input-event-participants'}>
+                                        <div className={styles['toggle']}>
+                                            <div
+                                                className={styles['item-title']}>{'Private event'}</div>
+
+                                            <div className={styles['item-value']}>
+                                                <Toggle
+                                                    onChange={(e: any) => {
+                                                        setEvent({
+                                                            ...event,
+                                                            display: e.target.checked ? 'private' : 'normal'
+                                                        })
+                                                    }
+                                                    }
+                                                    checked={event.display !== 'normal'}/>
+                                            </div>
+                                        </div>
+                                        <div className={styles['input-area-des']}>Select a private event, the event you created can only be viewed through the link, and users can view the event in <a href={'/my-event'} target={'_blank'}>My Event</a> page. </div>
+                                    </div>
                                 </>
                             }
                             <div className={styles['btns']}>
@@ -1300,7 +1324,8 @@ export const getServerSideProps: any = async (context: any) => {
             id: Number(eventid),
             page: 1,
             show_pending_event: true,
-            show_cancel_event: true
+            show_cancel_event: true,
+            allow_private: true
         })
         if (!events[0]) {
             return {props: {}}

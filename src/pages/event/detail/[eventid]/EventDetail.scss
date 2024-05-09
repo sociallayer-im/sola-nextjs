@@ -69,6 +69,21 @@
       line-height: 20px;
     }
 
+    .private {
+      color: #c863ff;
+      background: #f8f2ff;
+      font-weight: normal;
+      padding: 4px 8px;
+      font-size: 16px;
+      border-radius: 6px;
+      margin-right: 12px;
+      position: relative;
+      display: inline-block;
+      height: 20px;
+      transform: translateY(-5px);
+      line-height: 20px;
+    }
+
     .cancel {
       color: #ffffff;
       background: #bdbdbd;
