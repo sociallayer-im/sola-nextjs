@@ -25,6 +25,8 @@ import {Mousewheel} from "swiper";
 import DialogRequestTobeIssuer from "@/components/base/Dialog/DialogRequestTobeIssuer/DialogRequestTobeIssuer";
 import useSafePush from "@/hooks/useSafePush";
 import {PageBackContext} from "@/components/provider/PageBackProvider";
+import styles from "@/components/compose/ListGroupEvent/ListGroupEvent.module.sass";
+import Link from 'next/link'
 
 
 const ListUserPresend = dynamic(() => import('@/components/compose/ListUserPresend'), {
@@ -309,7 +311,7 @@ function GroupPage(props: any) {
                                     <div className={'tab-action'}>
                                         <div className={'left'}><b>{eventCount}</b> {lang['Setting_Events']}</div>
                                         <div className={'right'}>
-                                            {user.userName &&
+                                            {user.userName && false &&
                                                 <AppButton size={BTN_SIZE.compact} onClick={() => {
                                                     location.href = `https://prod.sociallayer.im/gcalendar/auth_url?auth_token=${user?.authToken}`
                                                 }} style={{
@@ -330,6 +332,12 @@ function GroupPage(props: any) {
                                             }
                                         </div>
                                     </div>
+                                    <div className={styles['fixed-box']}>
+                                        <div className={styles['name']}>{profile.username}</div>
+
+                                        <Link href={`/event/${profile.username}`} className={styles['btn']}>View Event Home</Link>
+                                    </div>
+
                                     <ListGroupEvent isGroup={true} profile={profile}/>
                                 </div>
                             }

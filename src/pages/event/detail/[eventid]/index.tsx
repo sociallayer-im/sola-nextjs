@@ -807,7 +807,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                 <RichTextDisplayer markdownStr={event.content} />
 
                                                 {!!event.notes &&
-                                                    <EventNotes hide={!isJoined && !isHoster} notes={event.notes}/>
+                                                    <EventNotes hide={!isJoined && !isHoster && !isOperator} notes={event.notes}/>
                                                 }
                                             </div>
                                         </div>}
