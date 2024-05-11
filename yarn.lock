@@ -2106,6 +2106,14 @@
     fastfile "0.0.20"
     ffjavascript "^0.2.48"
 
+"@iden3/binfileutils@0.0.12":
+  version "0.0.12"
+  resolved "https://registry.npmmirror.com/@iden3/binfileutils/-/binfileutils-0.0.12.tgz#3772552f57551814ff606fa68ea1e0ef52795ce3"
+  integrity sha512-naAmzuDufRIcoNfQ1d99d7hGHufLA3wZSibtr4dMe6ZeiOPV1KwOZWTJ1YVz4HbaWlpDuzVU72dS4ATQS4PXBQ==
+  dependencies:
+    fastfile "0.0.20"
+    ffjavascript "^0.3.0"
+
 "@img/sharp-darwin-arm64@0.33.2":
   version "0.33.2"
   resolved "https://registry.npmmirror.com/@img/sharp-darwin-arm64/-/sharp-darwin-arm64-0.33.2.tgz#0a52a82c2169112794dac2c71bfba9e90f7c5bd1"
@@ -3237,6 +3245,19 @@
   dependencies:
     "@particle-network/auth" "^1.3.1"
 
+"@pcd/eddsa-frog-pcd@0.3.0":
+  version "0.3.0"
+  resolved "https://registry.npmmirror.com/@pcd/eddsa-frog-pcd/-/eddsa-frog-pcd-0.3.0.tgz#5a5f0ec4673ff2c6cd565897ba181d0dcd394140"
+  integrity sha512-8NHQxrEZOG1vTNG5OWhg0qP3xi9KXdwh1jIh4MC4Kd9O3DHgEtrSb8Kc8HkNrkGWXVUNP81DREtKv8EdkQhzpg==
+  dependencies:
+    "@pcd/eddsa-pcd" "0.6.0"
+    "@pcd/pcd-types" "0.11.0"
+    "@pcd/util" "0.5.0"
+    chai "^4.3.7"
+    json-bigint "^1.0.0"
+    lodash "^4.17.21"
+    uuid "^9.0.0"
+
 "@pcd/eddsa-pcd@0.3.0":
   version "0.3.0"
   resolved "https://registry.npmmirror.com/@pcd/eddsa-pcd/-/eddsa-pcd-0.3.0.tgz#c9a469ee91132aa11940e76dac57d5706615f39a"
@@ -3249,6 +3270,16 @@
     circomlibjs "^0.1.7"
     react "^18.2.0"
     styled-components "^5.3.9"
+    uuid "^9.0.0"
+
+"@pcd/eddsa-pcd@0.6.0", "@pcd/eddsa-pcd@^0.6.0":
+  version "0.6.0"
+  resolved "https://registry.npmmirror.com/@pcd/eddsa-pcd/-/eddsa-pcd-0.6.0.tgz#712cd28286d63051477859cfc6d4a45a6d3b2e8b"
+  integrity sha512-kNW5Rx0wJ0tbuJXyO4XZKjNUMvyeXCRUw0yEsjQHceTdAiv4rxL2azFFCVuRuBCj/tXQWBX4AWGzear47sGfvg==
+  dependencies:
+    "@pcd/pcd-types" "0.11.0"
+    "@pcd/util" "0.5.0"
+    circomlibjs "^0.1.7"
     uuid "^9.0.0"
 
 "@pcd/eddsa-ticket-pcd@0.3.0", "@pcd/eddsa-ticket-pcd@^0.3.0":
@@ -3267,10 +3298,77 @@
     styled-components "^5.3.9"
     uuid "^9.0.0"
 
+"@pcd/eddsa-ticket-pcd@0.6.0", "@pcd/eddsa-ticket-pcd@^0.6.0":
+  version "0.6.0"
+  resolved "https://registry.npmmirror.com/@pcd/eddsa-ticket-pcd/-/eddsa-ticket-pcd-0.6.0.tgz#30082ae320df84aea1014994c6f2041f70156f9e"
+  integrity sha512-qXwsXyFoio1fDsz+kQleAjkeg+3AoeR4T5+aPt66RCOguf1tYMrNayv1RGRYonOwlZDNv6Fdeclb19wYnlZfhQ==
+  dependencies:
+    "@pcd/eddsa-pcd" "0.6.0"
+    "@pcd/pcd-types" "0.11.0"
+    "@pcd/util" "0.5.0"
+    chai "^4.3.7"
+    json-bigint "^1.0.0"
+    lodash "^4.17.21"
+    url-join "4.0.1"
+    uuid "^9.0.0"
+
+"@pcd/email-pcd@^0.6.0":
+  version "0.6.0"
+  resolved "https://registry.npmmirror.com/@pcd/email-pcd/-/email-pcd-0.6.0.tgz#6549c449c46efc3a72cabfeeba2bb0f4edec8d98"
+  integrity sha512-xQ8wk+JVcAUpt86HR7nIEw72jLHwttmcjLTkiehyuro9Xufs7aQR1pdOtTvsAjfC5Lhjkc8ICup6/0zQXMNzTA==
+  dependencies:
+    "@pcd/eddsa-pcd" "0.6.0"
+    "@pcd/pcd-types" "0.11.0"
+    "@pcd/util" "0.5.0"
+    chai "^4.3.7"
+    json-bigint "^1.0.0"
+    lodash "^4.17.21"
+    uuid "^9.0.0"
+
+"@pcd/emitter@0.5.0":
+  version "0.5.0"
+  resolved "https://registry.npmmirror.com/@pcd/emitter/-/emitter-0.5.0.tgz#f3a12add8d60c2b51adf4b01c8dbc4e9751ab5b6"
+  integrity sha512-KE5IyRdfH3Sit761di9Gs8/IzGua0CZujdgpwbf4Z7tT2Y7HMA7zEkxD05jYHSVAVUnqIalzu1/bMP3IoRCh/Q==
+  dependencies:
+    chai "^4.3.7"
+
 "@pcd/eslint-config-custom@^0.8.0":
   version "0.8.0"
   resolved "https://registry.npmmirror.com/@pcd/eslint-config-custom/-/eslint-config-custom-0.8.0.tgz#b09e6f9deee200d2ff7eb42d6926ddd8da82baa6"
   integrity sha512-ktjOVzOY0YXcq74WBd+PPcM4rXlavC1gIKgcE9OApKrc+naedSnrI8WQ71VpRswTWUCi6Jw/Hjw4ChMS95hNjA==
+
+"@pcd/passport-crypto@0.11.0":
+  version "0.11.0"
+  resolved "https://registry.npmmirror.com/@pcd/passport-crypto/-/passport-crypto-0.11.0.tgz#9cf8f9526da32fd09fe76c06c1c27b0eecb0af8b"
+  integrity sha512-SGNbntR3Cmlv5u18vubm5bABB5e7h3hmQ1t0p69ecMqnafmbZmzlT53bwKEeoqU/Rscrxe2hoQ5UCmdpTle0wA==
+  dependencies:
+    buffer "^6.0.3"
+    libsodium-wrappers-sumo "^0.7.11"
+
+"@pcd/passport-interface@^0.11.0":
+  version "0.11.0"
+  resolved "https://registry.npmmirror.com/@pcd/passport-interface/-/passport-interface-0.11.0.tgz#f9f333a2418688290c4202fb84bd7c13b1823b4c"
+  integrity sha512-eMOWXpDfBRti7lL9whcpsM8eIEiMqFWtXDjuVYOn5PcEaqCxt3/RpRNcJtRTI4+P7EmxU6i+7B/jaes6ndBJKQ==
+  dependencies:
+    "@pcd/eddsa-frog-pcd" "0.3.0"
+    "@pcd/eddsa-pcd" "^0.6.0"
+    "@pcd/eddsa-ticket-pcd" "0.6.0"
+    "@pcd/email-pcd" "^0.6.0"
+    "@pcd/emitter" "0.5.0"
+    "@pcd/passport-crypto" "0.11.0"
+    "@pcd/pcd-collection" "0.11.0"
+    "@pcd/pcd-types" "0.11.0"
+    "@pcd/semaphore-group-pcd" "0.11.0"
+    "@pcd/semaphore-identity-pcd" "0.11.0"
+    "@pcd/semaphore-signature-pcd" "0.11.0"
+    "@pcd/util" "0.5.0"
+    "@semaphore-protocol/identity" "^3.15.2"
+    fast-json-stable-stringify "^2.1.0"
+    js-sha256 "^0.10.1"
+    lodash "^4.17.21"
+    url-join "4.0.1"
+    uuid "^9.0.0"
+    zod "^3.22.4"
 
 "@pcd/passport-ui@0.8.0":
   version "0.8.0"
@@ -3282,10 +3380,56 @@
     react "^18.2.0"
     styled-components "^5.3.9"
 
+"@pcd/pcd-collection@0.11.0":
+  version "0.11.0"
+  resolved "https://registry.npmmirror.com/@pcd/pcd-collection/-/pcd-collection-0.11.0.tgz#16fa8dfb7b8537c28b81c3b8b880182dd047ae69"
+  integrity sha512-ZQth9r4ZIVmOU8kfav3seHTepAk+Thf3PAiTR+oXU/seork0sHZPPV5VgDIdw7VsuqLgU7ZMqBXhSRawJGI2HQ==
+  dependencies:
+    "@pcd/emitter" "0.5.0"
+    "@pcd/passport-crypto" "0.11.0"
+    "@pcd/pcd-types" "0.11.0"
+    "@pcd/semaphore-identity-pcd" "0.11.0"
+    chai "^4.3.7"
+    fast-json-stable-stringify "^2.1.0"
+    lodash "^4.17.21"
+    uuid "^9.0.0"
+
+"@pcd/pcd-types@0.11.0", "@pcd/pcd-types@^0.11.0":
+  version "0.11.0"
+  resolved "https://registry.npmmirror.com/@pcd/pcd-types/-/pcd-types-0.11.0.tgz#3d839a9840e38e88836c397f81809f8a3370c3b1"
+  integrity sha512-N5HAKE4fkz8+dk5KvBIDL0mpMJ4swlcLbXHXaI5mHiCABCvWAsd3xtNKouTRt6On9rRDzLzliFFUZd4+0CFSWg==
+
 "@pcd/pcd-types@0.8.0", "@pcd/pcd-types@^0.8.0":
   version "0.8.0"
   resolved "https://registry.npmmirror.com/@pcd/pcd-types/-/pcd-types-0.8.0.tgz#0a849099ce473daacbbbb0b403b769358f612d7b"
   integrity sha512-3+9bRpidRK7GNSlRZWBM1NJckn9q4Ki81StoL6w/52k9FUIGpdGNP5ymZhyZcUOi9JXh2zCiKXLLL5EPL6441w==
+
+"@pcd/semaphore-group-pcd@0.11.0":
+  version "0.11.0"
+  resolved "https://registry.npmmirror.com/@pcd/semaphore-group-pcd/-/semaphore-group-pcd-0.11.0.tgz#9d6be94909ff793279206ba2fe3547ebfb2b2c06"
+  integrity sha512-EKIKrm+Z5h8SPQL+iKj8ODdF0ov67+dmXEcj+tkjk4Qi+8BYAx7ohzdJn2NrOh7mG9HRL4adbqXBbX3TPwg4nw==
+  dependencies:
+    "@pcd/pcd-types" "0.11.0"
+    "@pcd/semaphore-identity-pcd" "0.11.0"
+    "@pcd/semaphore-signature-pcd" "0.11.0"
+    "@pcd/util" "0.5.0"
+    "@semaphore-protocol/group" "^3.15.2"
+    "@semaphore-protocol/identity" "^3.15.2"
+    "@semaphore-protocol/proof" "^3.15.2"
+    json-bigint "^1.0.0"
+    typescript "^5.3.3"
+    uuid "^9.0.0"
+
+"@pcd/semaphore-identity-pcd@0.11.0", "@pcd/semaphore-identity-pcd@^0.11.0":
+  version "0.11.0"
+  resolved "https://registry.npmmirror.com/@pcd/semaphore-identity-pcd/-/semaphore-identity-pcd-0.11.0.tgz#c4393d64f1080ce3ec842601170018bcae4e7dd2"
+  integrity sha512-URxg/ioVW+mApX/6EVMJLXsnWteEsKp0I6b/jp+ur0wVHheiH6v+y/ZgFJsMBWzr59uQmVKRKdSteeOIWTPVOw==
+  dependencies:
+    "@pcd/pcd-types" "0.11.0"
+    "@pcd/util" "0.5.0"
+    "@semaphore-protocol/identity" "^3.15.2"
+    json-bigint "^1.0.0"
+    uuid "^9.0.0"
 
 "@pcd/semaphore-identity-pcd@0.8.0", "@pcd/semaphore-identity-pcd@^0.8.0":
   version "0.8.0"
@@ -3299,6 +3443,20 @@
     json-bigint "^1.0.0"
     react "^18.2.0"
     styled-components "^5.3.9"
+    uuid "^9.0.0"
+
+"@pcd/semaphore-signature-pcd@0.11.0":
+  version "0.11.0"
+  resolved "https://registry.npmmirror.com/@pcd/semaphore-signature-pcd/-/semaphore-signature-pcd-0.11.0.tgz#59c8aa2aef522c4e260eacb64fe276b3b9c88731"
+  integrity sha512-ekLl50FGmnsYfFzXXV1X5jQA+mcyF9dL+GfLVLBNMpFxSIZYnDk1g9cpu6wRaYo8qrhgxThuOOHdSzpWN99UjA==
+  dependencies:
+    "@pcd/pcd-types" "0.11.0"
+    "@pcd/semaphore-identity-pcd" "0.11.0"
+    "@pcd/util" "0.5.0"
+    "@semaphore-protocol/group" "^3.15.2"
+    "@semaphore-protocol/identity" "^3.15.2"
+    "@semaphore-protocol/proof" "^3.15.2"
+    json-bigint "^1.0.0"
     uuid "^9.0.0"
 
 "@pcd/semaphore-signature-pcd@0.8.0":
@@ -3327,6 +3485,17 @@
     js-sha256 "^0.10.1"
     uuid "^9.0.0"
 
+"@pcd/util@0.5.0", "@pcd/util@^0.5.0":
+  version "0.5.0"
+  resolved "https://registry.npmmirror.com/@pcd/util/-/util-0.5.0.tgz#8a095db7d70316bcc15273b2516869a1484ffff1"
+  integrity sha512-cQDSxZaudcASyUmVsIBVznLNeXRgcGSpdQXTEYY42ft/OtvrKwLc3nH2CURdNCYyJXW5lCAmt19RtMT8IFodVQ==
+  dependencies:
+    buffer "^6.0.3"
+    email-validator "^2.0.4"
+    js-sha256 "^0.10.1"
+    secure-random "^1.1.2"
+    uuid "^9.0.0"
+
 "@pcd/zk-eddsa-event-ticket-pcd@^0.2.1":
   version "0.2.1"
   resolved "https://registry.npmmirror.com/@pcd/zk-eddsa-event-ticket-pcd/-/zk-eddsa-event-ticket-pcd-0.2.1.tgz#5aeb01a254a4fb7a548ace385545d146edd44e61"
@@ -3345,6 +3514,35 @@
     json-bigint "^1.0.0"
     styled-components "^5.3.9"
     uuid "^9.0.0"
+
+"@pcd/zk-eddsa-event-ticket-pcd@^0.5.0":
+  version "0.5.0"
+  resolved "https://registry.npmmirror.com/@pcd/zk-eddsa-event-ticket-pcd/-/zk-eddsa-event-ticket-pcd-0.5.0.tgz#7032edda09de3c61e70b81179fcc20fde35d1f45"
+  integrity sha512-ohZ+t+tB2kui37NaeOhu/6oVq5XZixCcJnefYIBA+0k2sjuT2b/eUxKqbpUrtzXnNi90qjybVIUXEx1xIILnkw==
+  dependencies:
+    "@pcd/eddsa-pcd" "0.6.0"
+    "@pcd/eddsa-ticket-pcd" "0.6.0"
+    "@pcd/pcd-types" "^0.11.0"
+    "@pcd/semaphore-identity-pcd" "0.11.0"
+    "@pcd/semaphore-signature-pcd" "0.11.0"
+    "@pcd/util" "0.5.0"
+    "@semaphore-protocol/identity" "^3.15.2"
+    circomlibjs "^0.1.7"
+    json-bigint "^1.0.0"
+    snarkjs "^0.7.3"
+    uuid "^9.0.0"
+
+"@pcd/zuauth@^1.2.0":
+  version "1.2.0"
+  resolved "https://registry.npmmirror.com/@pcd/zuauth/-/zuauth-1.2.0.tgz#abb038bd5322d0fa89c1e1b94b6f2172babeb87b"
+  integrity sha512-AQoIsNFMlJDljTjzK/5i3fIBLoBMPbi8M1cbaJJ5/FmBT09wuPOoxQ1IaPUEGHoJ8QuSZ6FN+ypO9OSw4gt8vQ==
+  dependencies:
+    "@pcd/eddsa-pcd" "^0.6.0"
+    "@pcd/eddsa-ticket-pcd" "^0.6.0"
+    "@pcd/passport-interface" "^0.11.0"
+    "@pcd/pcd-types" "^0.11.0"
+    "@pcd/semaphore-identity-pcd" "^0.11.0"
+    "@pcd/zk-eddsa-event-ticket-pcd" "^0.5.0"
 
 "@pkgjs/parseargs@^0.11.0":
   version "0.11.0"
@@ -3839,7 +4037,7 @@
     "@noble/hashes" "~1.3.2"
     "@scure/base" "~1.1.4"
 
-"@semaphore-protocol/group@^3.14.0":
+"@semaphore-protocol/group@^3.14.0", "@semaphore-protocol/group@^3.15.2":
   version "3.15.2"
   resolved "https://registry.npmmirror.com/@semaphore-protocol/group/-/group-3.15.2.tgz#31d24b302982fd51760548cdfc0a7df6e3523a75"
   integrity sha512-amDjSRattdViYUOZs40+4quKm+C1/F1fvyOvng9QGW2kkc138vombltyL4ix0mGSSPuqy/7ToH6wrfGivIfJFw==
@@ -3849,7 +4047,7 @@
     "@ethersproject/keccak256" "^5.7.0"
     "@zk-kit/incremental-merkle-tree" "1.1.0"
 
-"@semaphore-protocol/identity@^3.14.0":
+"@semaphore-protocol/identity@^3.14.0", "@semaphore-protocol/identity@^3.15.2":
   version "3.15.2"
   resolved "https://registry.npmmirror.com/@semaphore-protocol/identity/-/identity-3.15.2.tgz#8c5e75c01c25d1dcabfefe89fbe8aefe5dd21922"
   integrity sha512-MJ1MO5QL+oX+OFK2rHAPjQ6+kKgGxCsVJLNdn1soRawxbrxH9A6tV9AsVHV0DN4saegQ4qaOOy1XO1PAN6PiQA==
@@ -3860,7 +4058,7 @@
     "@ethersproject/strings" "^5.6.1"
     js-sha512 "^0.8.0"
 
-"@semaphore-protocol/proof@^3.14.0":
+"@semaphore-protocol/proof@^3.14.0", "@semaphore-protocol/proof@^3.15.2":
   version "3.15.2"
   resolved "https://registry.npmmirror.com/@semaphore-protocol/proof/-/proof-3.15.2.tgz#729b327b1ae358b00f805886d4b521066bfba97e"
   integrity sha512-b0PuqYk9au/qRUmmRtAWE6MmkC/LY/vIt1dAUIKB0IzIPnzJ4QwXTNAWJoP3LXduhzaFJmNvLOj4ViB9GDh8+w==
@@ -10168,6 +10366,13 @@ circom_runtime@0.1.24:
   dependencies:
     ffjavascript "0.2.60"
 
+circom_runtime@0.1.25:
+  version "0.1.25"
+  resolved "https://registry.npmmirror.com/circom_runtime/-/circom_runtime-0.1.25.tgz#62a33b371f4633f30238db7a326c43d988e3a170"
+  integrity sha512-xBGsBFF5Uv6AKvbpgExYqpHfmfawH2HKe+LyjfKSRevqEV8u63i9KGHVIILsbJNW+0c5bm/66f0PUYQ7qZSkJA==
+  dependencies:
+    ffjavascript "0.3.0"
+
 circomlibjs@^0.1.7:
   version "0.1.7"
   resolved "https://registry.npmmirror.com/circomlibjs/-/circomlibjs-0.1.7.tgz#9f5a7d9a23323744b11ee456b05b0cd81f48b554"
@@ -11896,6 +12101,11 @@ elliptic@6.5.4, elliptic@^6.4.0, elliptic@^6.5.3, elliptic@^6.5.4:
     minimalistic-assert "^1.0.1"
     minimalistic-crypto-utils "^1.0.1"
 
+email-validator@^2.0.4:
+  version "2.0.4"
+  resolved "https://registry.npmmirror.com/email-validator/-/email-validator-2.0.4.tgz#b8dfaa5d0dae28f1b03c95881d904d4e40bfe7ed"
+  integrity sha512-gYCwo7kh5S3IDyZPLZf6hSS0MnZT8QmJFqYvbqlDZSbwdZlY6QZWxJ4i/6UhITOJ4XzyI647Bm2MXKCLqnJ4nQ==
+
 emittery@^0.10.2:
   version "0.10.2"
   resolved "https://registry.npmmirror.com/emittery/-/emittery-0.10.2.tgz#902eec8aedb8c41938c46e9385e9db7e03182933"
@@ -13125,6 +13335,15 @@ ffjavascript@0.2.63, ffjavascript@^0.2.45, ffjavascript@^0.2.48:
   version "0.2.63"
   resolved "https://registry.npmmirror.com/ffjavascript/-/ffjavascript-0.2.63.tgz#0c1216a1f123dc9181df69e144473704d2f115eb"
   integrity sha512-dBgdsfGks58b66JnUZeZpGxdMIDQ4QsD3VYlRJyFVrKQHb2kJy4R2gufx5oetrTxXPT+aEjg0dOvOLg1N0on4A==
+  dependencies:
+    wasmbuilder "0.0.16"
+    wasmcurves "0.2.2"
+    web-worker "1.2.0"
+
+ffjavascript@0.3.0, ffjavascript@^0.3.0:
+  version "0.3.0"
+  resolved "https://registry.npmmirror.com/ffjavascript/-/ffjavascript-0.3.0.tgz#442cd8fbb1ee4cbb1be9d26fd7b2951a1ea45d6a"
+  integrity sha512-l7sR5kmU3gRwDy8g0Z2tYBXy5ttmafRPFOqY7S6af5cq51JqJWt5eQ/lSR/rs2wQNbDYaYlQr5O+OSUf/oMLoQ==
   dependencies:
     wasmbuilder "0.0.16"
     wasmcurves "0.2.2"
@@ -16376,6 +16595,18 @@ levn@~0.3.0:
     prelude-ls "~1.1.2"
     type-check "~0.3.2"
 
+libsodium-sumo@^0.7.13:
+  version "0.7.13"
+  resolved "https://registry.npmmirror.com/libsodium-sumo/-/libsodium-sumo-0.7.13.tgz#533b97d2be44b1277e59c1f9f60805978ac5542d"
+  integrity sha512-zTGdLu4b9zSNLfovImpBCbdAA4xkpkZbMnSQjP8HShyOutnGjRHmSOKlsylh1okao6QhLiz7nG98EGn+04cZjQ==
+
+libsodium-wrappers-sumo@^0.7.11:
+  version "0.7.13"
+  resolved "https://registry.npmmirror.com/libsodium-wrappers-sumo/-/libsodium-wrappers-sumo-0.7.13.tgz#a33aea845a0bb56db067548f04feba28c730ab8e"
+  integrity sha512-lz4YdplzDRh6AhnLGF2Dj2IUj94xRN6Bh8T0HLNwzYGwPehQJX6c7iYVrFUPZ3QqxE0bqC+K0IIqqZJYWumwSQ==
+  dependencies:
+    libsodium-sumo "^0.7.13"
+
 lines-and-columns@^1.1.6:
   version "1.2.4"
   resolved "https://registry.npmmirror.com/lines-and-columns/-/lines-and-columns-1.2.4.tgz#eca284f75d2965079309dc0ad9255abb2ebc1632"
@@ -19105,6 +19336,16 @@ r1csfile@0.0.47:
     fastfile "0.0.20"
     ffjavascript "0.2.60"
 
+r1csfile@0.0.48:
+  version "0.0.48"
+  resolved "https://registry.npmmirror.com/r1csfile/-/r1csfile-0.0.48.tgz#a317fc75407a9da92631666c75bdfc13f0a7835a"
+  integrity sha512-kHRkKUJNaor31l05f2+RFzvcH5XSa7OfEfd/l4hzjte6NL6fjRkSMfZ4BjySW9wmfdwPOtq3mXurzPvPGEf5Tw==
+  dependencies:
+    "@iden3/bigarray" "0.0.2"
+    "@iden3/binfileutils" "0.0.12"
+    fastfile "0.0.20"
+    ffjavascript "0.3.0"
+
 radix3@^1.1.0:
   version "1.1.0"
   resolved "https://registry.npmmirror.com/radix3/-/radix3-1.1.0.tgz#9745df67a49c522e94a33d0a93cf743f104b6e0d"
@@ -20256,6 +20497,11 @@ sdp@^2.12.0, sdp@^2.6.0:
   resolved "https://registry.npmmirror.com/sdp/-/sdp-2.12.0.tgz#338a106af7560c86e4523f858349680350d53b22"
   integrity sha512-jhXqQAQVM+8Xj5EjJGVweuEzgtGWb3tmEEpl3CLP3cStInSbVHSg0QWOGQzNq8pSID4JkpeV2mPqlMDLrm0/Vw==
 
+secure-random@^1.1.2:
+  version "1.1.2"
+  resolved "https://registry.npmmirror.com/secure-random/-/secure-random-1.1.2.tgz#ed103b460a851632d420d46448b2a900a41e7f7c"
+  integrity sha512-H2bdSKERKdBV1SwoqYm6C0y+9EA94v6SUBOWO8kDndc4NoUih7Dv6Tsgma7zO1lv27wIvjlD0ZpMQk7um5dheQ==
+
 "semver@2 || 3 || 4 || 5", semver@^5.4.1, semver@^5.6.0:
   version "5.7.2"
   resolved "https://registry.npmmirror.com/semver/-/semver-5.7.2.tgz#48d55db737c3287cd4835e17fa13feace1c41ef8"
@@ -20583,6 +20829,22 @@ snarkjs@^0.7.1:
     js-sha3 "^0.8.0"
     logplease "^1.2.15"
     r1csfile "0.0.47"
+
+snarkjs@^0.7.3:
+  version "0.7.4"
+  resolved "https://registry.npmmirror.com/snarkjs/-/snarkjs-0.7.4.tgz#b9ad5813f055ab84d33f1831a6f1f34a71b6cd46"
+  integrity sha512-x4cOCR4YXSyBlLtfnUUwfbZrw8wFd/Y0lk83eexJzKwZB8ELdpH+10ts8YtDsm2/a3WK7c7p514bbE8NpqxW8w==
+  dependencies:
+    "@iden3/binfileutils" "0.0.12"
+    bfj "^7.0.2"
+    blake2b-wasm "^2.4.0"
+    circom_runtime "0.1.25"
+    ejs "^3.1.6"
+    fastfile "0.0.20"
+    ffjavascript "0.3.0"
+    js-sha3 "^0.8.0"
+    logplease "^1.2.15"
+    r1csfile "0.0.48"
 
 socket.io-client@^4.6.1:
   version "4.7.4"
@@ -21958,6 +22220,11 @@ typescript@^5:
   resolved "https://registry.npmmirror.com/typescript/-/typescript-5.3.3.tgz#b3ce6ba258e72e6305ba66f5c9b452aaee3ffe37"
   integrity sha512-pXWcraxM0uxAS+tN0AG/BF2TyqmHO014Z070UsJ+pFvYuRSq8KH8DmWpnbXe0pEPDHXZV3FcAbJkijJ5oNEnWw==
 
+typescript@^5.3.3:
+  version "5.4.5"
+  resolved "https://registry.npmmirror.com/typescript/-/typescript-5.4.5.tgz#42ccef2c571fdbd0f6718b1d1f5e6e5ef006f611"
+  integrity sha512-vcI4UpRgg81oIRUFwR0WSIHKt11nJ7SAVlYNIu+QpqeyXP+gpQJy/Z4+F0aGxSE4MqwjyXvW/TzgkLAx2AGHwQ==
+
 ua-parser-js@^1.0.37:
   version "1.0.37"
   resolved "https://registry.npmmirror.com/ua-parser-js/-/ua-parser-js-1.0.37.tgz#b5dc7b163a5c1f0c510b08446aed4da92c46373f"
@@ -22270,6 +22537,11 @@ urix@^0.1.0:
   version "0.1.0"
   resolved "https://registry.npmmirror.com/urix/-/urix-0.1.0.tgz#da937f7a62e21fec1fd18d49b35c2935067a6c72"
   integrity sha512-Am1ousAhSLBeB9cG/7k7r2R0zj50uDRlZHPGbazid5s9rlF1F/QKYObEKSIunSjIOkJZqwRRLpvewjEkM7pSqg==
+
+url-join@4.0.1:
+  version "4.0.1"
+  resolved "https://registry.npmmirror.com/url-join/-/url-join-4.0.1.tgz#b642e21a2646808ffa178c4c5fda39844e12cde7"
+  integrity sha512-jk1+QP6ZJqyOiuEI9AEWQfju/nB2Pw466kbA0LEZljHwKeMgd9WrAEgEGxjPDD2+TNbbb37rTyhEfrCXfuKXnA==
 
 url-loader@^4.1.1:
   version "4.1.1"
@@ -23257,6 +23529,11 @@ yocto-queue@^1.0.0:
   version "1.0.0"
   resolved "https://registry.npmmirror.com/yocto-queue/-/yocto-queue-1.0.0.tgz#7f816433fb2cbc511ec8bf7d263c3b58a1a3c251"
   integrity sha512-9bnSc/HEW2uRy67wc+T8UwauLuPJVn28jb+GtJY16iiKWyvmYJRXVT4UamsAEGQfPohgr2q4Tq0sQbQlxTfi1g==
+
+zod@^3.22.4:
+  version "3.23.8"
+  resolved "https://registry.npmmirror.com/zod/-/zod-3.23.8.tgz#e37b957b5d52079769fb8097099b592f0ef4067d"
+  integrity sha512-XBx9AXhXktjUqnepgTiE5flcKIYWi/rme0Eaj+5Y0lftuGBq+jyRu/md4WnuxqgP1ubdpNCsYEYPxrzVHD8d6g==
 
 zustand@^4.3.1:
   version "4.5.0"

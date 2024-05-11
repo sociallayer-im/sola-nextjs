@@ -7,6 +7,7 @@ import UserContext from '../../../provider/UserProvider/UserContext'
 import {useRouter} from 'next/navigation'
 import {WalletContext as solanaWalletContext} from '@solana/wallet-adapter-react'
 // import {SignInButton} from '@farcaster/auth-kit';
+import useZuAuth from '@/service/zupass/useZuAuth'
 
 interface DialogConnectWalletProps {
     handleClose: (...rest: any[]) => any
@@ -21,7 +22,7 @@ const walletIcon: any = {
 
 function DialogConnectWallet(props: DialogConnectWalletProps) {
     const unloading_1 = useRef<any>(null)
-    const {connect, connectors, error, isLoading, pendingConnector} = useConnect({
+    const {connect, connectors, error, isLoading } = useConnect({
         onSettled: () => {
             if (unloading_1) {
                 unloading_1.current?.()
@@ -33,9 +34,10 @@ function DialogConnectWallet(props: DialogConnectWalletProps) {
     const {lang} = useContext(LangContext)
     const {isDisconnected} = useAccount()
     const router = useRouter()
-    const {clean, showLoading} = useContext(DialogsContext)
+    const {clean, showLoading, showToast} = useContext(DialogsContext)
     const {user, logOut, setUser} = useContext(UserContext)
     const solanaWallet: any = useContext(solanaWalletContext)
+    const zuAuthLogin = useZuAuth()
 
     useEffect(() => {
         if (user.id) {
@@ -130,9 +132,16 @@ function DialogConnectWallet(props: DialogConnectWalletProps) {
                 </div>
             }
             <div className='connect-item' onClick={async () => {
-                showLoading()
-                const login = (await import('@/service/zupass/zupass')).login
-                login()
+               const unload =  showLoading()
+                // const login = (await import('@/service/zupass/zupass')).login
+                try {
+                    await zuAuthLogin()
+                } catch (e: any) {
+                    showToast(e.message)
+                }
+                finally {
+                    unload()
+                }
             }}>
                 <img src="/images/zupass.png" alt="email"/>
                 <div className='connect-name'>Zupass</div>
