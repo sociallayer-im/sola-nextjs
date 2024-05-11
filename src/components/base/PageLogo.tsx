@@ -31,6 +31,12 @@ function PageLogo() {
         marginRight: '8px',
     }
 
+    const logoStyle = {
+        height: '16px',
+        display: 'block',
+        marginLeft: '8px!important',
+    }
+
     const svgStyle = {
         minWidth: '39px',
     }
@@ -81,7 +87,7 @@ function PageLogo() {
                 { process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'edge-city' &&
                    <div style={{display: "flex", flexFlow: "row nowrap", alignItems: "center"}}>
                        <i className={'icon-close'} />
-                       <img  style={{marginLeft: "6px"}} className={css(imgStyle)} src="/images/edge-logo.png" alt=""/>
+                       <img  style={{marginLeft: "6px"}} className={css(logoStyle)} src="/images/logo_ee.svg" alt=""/>
                    </div>
                 }
                 { process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'seedao' &&

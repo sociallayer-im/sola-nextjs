@@ -272,7 +272,7 @@ function Gan(props: { group: Group }) {
                         if (task.host_info) {
                             const info = JSON.parse(task.host_info)
                             if (info.group_host) {
-                                host = info.group_host.username
+                                host = info.group_host.nickname || info.group_host.username
                                 avatar = info.group_host.image_url || defaultAvatar(info.group_host.id)
                             }
                         }
