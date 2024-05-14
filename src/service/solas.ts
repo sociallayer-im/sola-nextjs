@@ -3071,12 +3071,14 @@ export async function queryEvent(props: QueryEventProps): Promise<Event[]> {
         variables += `start_time: {_lte: "${props.start_time_to}"}, `
     }
 
-    if (props.end_time_gte) {
+
+    if (props.end_time_gte && props.end_time_lte) {
+        order = `order_by: {end_time: ${props.event_order || 'desc'}}, `
+        variables += `end_time: {_gte: "${props.end_time_gte}"}, _and: {end_time: {_lte: "${props.end_time_lte}"}}, `
+    } else if (props.end_time_gte) {
         order = `order_by: {start_time: ${props.event_order || 'desc'}}, `
         variables += `end_time: {_gte: "${props.end_time_gte}"}, `
-    }
-
-    if (props.end_time_lte) {
+    } else if (props.end_time_lte) {
         order = `order_by: {end_time: ${props.event_order || 'desc'}}, `
         variables += `end_time: {_lte: "${props.end_time_lte}"}, `
     }

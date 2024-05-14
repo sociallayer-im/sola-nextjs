@@ -12,19 +12,22 @@ import Link from "next/link";
 import useEvent, {EVENT} from "@/hooks/globalEvent";
 import {StatefulPopover} from "baseui/popover";
 
+import * as dayjsLib from "dayjs";
+const dayjs: any = dayjsLib
+
 function ListEventVertical(props: { initData?: Event[], patch?: string }) {
     const router = useRouter()
     const searchParams = useSearchParams()
     const params = useParams()
     const pathname = usePathname()
-    const [tab2Index, setTab2Index] = useState<'latest' | 'coming' | 'past'>(searchParams?.get('tab') as any || 'coming')
+    const [tab2Index, setTab2Index] = useState<'coming' | 'past' >(searchParams?.get('tab') as any || 'coming')
     const {lang} = useContext(LangContext)
     const {showLoading} = useContext(DialogsContext)
     const {eventGroup, availableList, setEventGroup} = useContext(EventHomeContext)
     const [needUpdate, _] = useEvent(EVENT.setEventStatus)
 
     const [selectTag, setSelectTag] = useState<string[]>([])
-    const [loadAll, setIsLoadAll] = useState(false)
+    const [loadAll, setIsLoadAll] = useState(true)
     const [loading, setLoading] = useState(false)
 
     const pageRef = useRef(props.initData?.length ? 1 : 0)
@@ -32,7 +35,131 @@ function ListEventVertical(props: { initData?: Event[], patch?: string }) {
     const [listToShow, setListToShow] = useState<Event[]>(props.initData || [])
 
     const tagRef = useRef<string>('')
-    const tab2IndexRef = useRef<'latest' | 'coming' | 'past'>(tab2Index)
+    const tab2IndexRef = useRef<'coming' | 'past'>(tab2Index)
+    const filter = useRef<'' | 'coming' | 'past' | 'today' | 'week' | 'month'>('')
+
+    const queryPass = async (page: number) => {
+        return await queryEvent({
+            ...getTimeProps(),
+            page: page,
+            // end_time_lte: new Date().toISOString(),
+            event_order: 'desc',
+            group_id: eventGroup?.id || undefined,
+            tag: tagRef.current || undefined
+        })
+    }
+
+    const queryComing = async (page: number) => {
+        return await queryEvent({
+            ...getTimeProps(),
+            page: page,
+            // end_time_gte: new Date().toISOString(),
+            event_order: 'asc',
+            group_id: eventGroup?.id || undefined,
+            tag: tagRef.current || undefined
+        })
+    }
+
+    const queryToday = async () => {
+        const start = new Date()
+        start.setHours(0, 0, 0, 0)
+        const end = new Date()
+        end.setHours(23, 59, 59, 999)
+        return await queryEvent({
+            page: 1,
+            page_size: 1000,
+            start_time_from: start.toISOString(),
+            start_time_to: end.toISOString(),
+            event_order: 'asc',
+            group_id: eventGroup?.id || undefined,
+            tag: tagRef.current || undefined
+        })
+    }
+
+    const queryWeek = async () => {
+        const start = dayjs().startOf('week').toDate()
+        const end = dayjs().endOf('week').toDate()
+
+        return await queryEvent({
+            page: 1,
+            page_size: 1000,
+            start_time_from: start.toISOString(),
+            start_time_to: end.toISOString(),
+            event_order: 'asc',
+            group_id: eventGroup?.id || undefined,
+            tag: tagRef.current || undefined
+        })
+    }
+
+    const getTimeProps = () => {
+        if (tab2IndexRef.current === 'coming') {
+           if (filter.current === 'today') {
+                const end = new Date()
+                end.setHours(23, 59, 59, 999)
+                return {
+                    start_time_from: new Date().toISOString(),
+                    start_time_to: end.toISOString(),
+                }
+            } else if (filter.current === 'week') {
+                const end = dayjs().endOf('week').toDate()
+                return {
+                    start_time_from: new Date().toISOString(),
+                    start_time_to: end.toISOString(),
+                }
+            } else if (filter.current === 'month') {
+                const end = dayjs().endOf('month').toDate()
+                return {
+                    start_time_from: new Date().toISOString(),
+                    start_time_to: end.toISOString(),
+                }
+            } else {
+                return {
+                    end_time_gte: new Date().toISOString(),
+                }
+            }
+        } else {
+            if (filter.current === 'today') {
+                const start = new Date()
+                start.setHours(0, 0, 0, 0)
+                return {
+                    end_time_gte: start.toISOString(),
+                    end_time_lte: new Date().toISOString(),
+                }
+            } else if (filter.current === 'week') {
+                const start = dayjs().startOf('week').toDate()
+                return {
+                    end_time_gte: start.toISOString(),
+                    end_time_lte: new Date().toISOString(),
+                }
+
+            } else if (filter.current === 'month') {
+                const start = dayjs().startOf('month').toDate()
+                return {
+                    end_time_gte: start.toISOString(),
+                    end_time_lte: new Date().toISOString(),
+                }
+            } else {
+                return {
+                    end_time_lte: new Date().toISOString(),
+                }
+            }
+        }
+    }
+
+    const queryMonth = async () => {
+        const start = dayjs().startOf('month').toDate()
+        const end = dayjs().endOf('month').toDate()
+
+        return await queryEvent({
+            page: 1,
+            page_size: 1000,
+            start_time_from: start.toISOString(),
+            start_time_to: end.toISOString(),
+            event_order: 'asc',
+            group_id: eventGroup?.id || undefined,
+            tag: tagRef.current || undefined
+        })
+    }
 
     const getEvent = async (init?: boolean) => {
         if (!eventGroup?.id) {
@@ -40,38 +167,36 @@ function ListEventVertical(props: { initData?: Event[], patch?: string }) {
         }
 
         setLoading(true)
+        pageRef.current = init ? 1 : pageRef.current + 1
         try {
-            if (tab2IndexRef.current !== 'past') {
-                pageRef.current = init ? 1 : pageRef.current + 1
-                let res = await queryEvent({
-                    page: pageRef.current,
-                    end_time_gte: new Date().toISOString(),
-                    event_order: 'asc',
-                    group_id: eventGroup?.id || undefined,
-                    tag: tagRef.current || undefined
-                })
-
+            if (tab2IndexRef.current == 'coming') {
+                const res = await queryComing(pageRef.current)
                 setList(init ? res : [...list, ...res])
                 setLoading(false)
-                if (res.length < 10) {
-                    setIsLoadAll(true)
-                }
-            } else {
-                pageRef.current = init ? 1 : pageRef.current + 1
-                let res = await queryEvent({
-                    page: pageRef.current,
-                    end_time_lte: new Date().toISOString(),
-                    event_order: 'desc',
-                    group_id: eventGroup?.id || undefined,
-                    tag: tagRef.current || undefined
-                })
+                setIsLoadAll(res.length < 10)
+            } else if (tab2IndexRef.current == 'past') {
+                const res = await queryPass(pageRef.current)
 
                 setList(init ? res : [...list, ...res])
-                if (res.length < 10) {
-                    setIsLoadAll(true)
-                }
+                setIsLoadAll(res.length < 10)
                 setLoading(false)
             }
+            // else if (tab2IndexRef.current == 'today') {
+            //     const res = await queryToday()
+            //     setList(res)
+            //     setIsLoadAll(true)
+            //     setLoading(false)
+            // } else if (tab2IndexRef.current == 'week') {
+            //     const res = await queryWeek()
+            //     setList(res)
+            //     setIsLoadAll(true)
+            //     setLoading(false)
+            // } else if (tab2IndexRef.current == 'month') {
+            //     const res = await queryMonth()
+            //     setList(res)
+            //     setIsLoadAll(true)
+            //     setLoading(false)
+            // }
         } catch (e: any) {
             console.error(e)
             // showToast(e.message)
@@ -90,25 +215,25 @@ function ListEventVertical(props: { initData?: Event[], patch?: string }) {
         }
     }, [needUpdate])
 
-    const changeTab = (tab: 'latest' | 'coming' | 'past') => {
+    const changeTab = (tab: 'past' | 'coming', notRedirect?: boolean) => {
         setTab2Index(tab)
         tab2IndexRef.current = tab
         pageRef.current = 0
-        setIsLoadAll(false)
         getEvent(true)
-        const href = props.patch ?
-            `${props.patch}?tab=${tab}`
-            : params?.groupname ?
-                `/event/${eventGroup?.username}?tab=${tab}`
-                : `/?tab=${tab}`
-        window?.history.pushState({}, '', href)
+        if (!notRedirect) {
+            const href = props.patch ?
+                `${props.patch}?tab=${tab}`
+                : params?.groupname ?
+                    `/event/${eventGroup?.username}?tab=${tab}`
+                    : `/?tab=${tab}`
+            window?.history.pushState({}, '', href)
+        }
     }
 
     const changeTag = (tag?: string) => {
         setSelectTag(tag ? [tag] : [])
         tagRef.current = tag || ''
         pageRef.current = 0
-        setIsLoadAll(false)
         getEvent(true)
     }
 
@@ -135,7 +260,7 @@ function ListEventVertical(props: { initData?: Event[], patch?: string }) {
                               e.preventDefault()
                               changeTab('coming')
                           }}
-                          className={tab2Index === 'coming' ? 'module-title' : 'tab-title'}>
+                          className={tab2Index != 'past' ? 'module-title' : 'tab-title'}>
                         {lang['Activity_Coming']}
                     </Link>
                     <Link href={props.patch ?
@@ -151,7 +276,38 @@ function ListEventVertical(props: { initData?: Event[], patch?: string }) {
                         {lang['Activity_Past']}
                     </Link>
                 </div>
+
                 <StatefulPopover
+                    content={({ close }) => {
+                        return <div className={'schedule-popup'}>
+                            <div onClick={e => {filter.current = '';changeTab(tab2Index, true);close()}}>
+                               All Time
+                            </div>
+                            <div onClick={e => {filter.current = 'today'; changeTab(tab2Index, true);close()}}>
+                               Today
+                            </div>
+                            <div onClick={e => {filter.current = 'week'; changeTab(tab2Index, true);close()}}>
+                                Week
+                            </div>
+                            <div onClick={e => {filter.current = 'month';  changeTab(tab2Index, true);close()}}>
+                                Month
+                            </div>
+                        </div>
+                    }}
+                    placement={'bottom'}
+                    returnFocus={false}
+                    autoFocus={false}>
+                    <div className={'calendar-btn-compact mobile-hide'} >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                            <path d="M12.6667 1.3335H3.33337C2.80294 1.3335 2.29423 1.54421 1.91916 1.91928C1.54409 2.29436 1.33337 2.80306 1.33337 3.3335V4.1135C1.33328 4.38879 1.39002 4.66114 1.50004 4.9135V4.9535C1.59423 5.16748 1.72764 5.36194 1.89337 5.52683L6.00004 9.60683V14.0002C5.99981 14.1135 6.02846 14.2249 6.08329 14.3241C6.13811 14.4232 6.2173 14.5068 6.31337 14.5668C6.41947 14.6326 6.54189 14.6672 6.66671 14.6668C6.77107 14.6662 6.87383 14.6411 6.96671 14.5935L9.63337 13.2602C9.74332 13.2048 9.83577 13.12 9.90049 13.0153C9.96521 12.9105 9.99967 12.7899 10 12.6668V9.60683L14.08 5.52683C14.2458 5.36194 14.3792 5.16748 14.4734 4.9535V4.9135C14.5926 4.66312 14.6584 4.39068 14.6667 4.1135V3.3335C14.6667 2.80306 14.456 2.29436 14.0809 1.91928C13.7058 1.54421 13.1971 1.3335 12.6667 1.3335ZM8.86004 8.86016C8.79825 8.92246 8.74937 8.99633 8.71619 9.07756C8.68302 9.15878 8.6662 9.24576 8.66671 9.3335V12.2535L7.33337 12.9202V9.3335C7.33388 9.24576 7.31706 9.15878 7.28389 9.07756C7.25071 8.99633 7.20183 8.92246 7.14004 8.86016L3.60671 5.3335H12.3934L8.86004 8.86016ZM13.3334 4.00016H2.66671V3.3335C2.66671 3.15669 2.73695 2.98712 2.86197 2.86209C2.98699 2.73707 3.15656 2.66683 3.33337 2.66683H12.6667C12.8435 2.66683 13.0131 2.73707 13.1381 2.86209C13.2631 2.98712 13.3334 3.15669 13.3334 3.3335V4.00016Z" fill="#272928"/>
+                        </svg>
+                        { !!filter.current &&
+                            <div>{filter.current}</div>
+                        }
+                    </div>
+                </StatefulPopover>
+                <StatefulPopover
+                    placement={'bottom'}
                     content={() => {
                         const group = eventGroup?.username
                         return <div className={'schedule-popup'}>
