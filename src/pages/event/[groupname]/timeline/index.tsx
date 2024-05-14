@@ -1,4 +1,4 @@
-import {Event, getGroups, Group, queryEvent, queryTimeLineEvent} from "@/service/solas";
+import {Event, EventSites, getEventSide, getGroups, Group, queryEvent, queryTimeLineEvent} from "@/service/solas";
 import {useContext, useEffect, useRef, useState} from "react";
 import styles from '../schedule/schedulenew.module.scss';
 import Gantt from '@/libs/frappe-gantt'
@@ -70,7 +70,7 @@ interface DateItem {
     o: any
 }
 
-function Gan(props: { group: Group }) {
+function Gan(props: { group: Group, eventSite: EventSites[] }) {
     const eventGroup = props.group
     const ganttRef = useRef<any>(null)
     const {defaultAvatar} = usePicture()
@@ -79,17 +79,26 @@ function Gan(props: { group: Group }) {
 
     const [timezoneSelected, setTimezoneSelected] = useState<{ label: string, id: string }[]>([])
     const [viewMode, setViewMode] = useState([views[0]])
-    const [tag, setTag] = useState([{id: 'All', label: 'All', color: null}])
+    const [tag, setTag] = useState([{id: 'All', label: 'All Tags', color: null}])
     const [page, setPage] = useState(1)
     const [start, setStart] = useState(new Date())
     const [end, setEnd] = useState(new Date())
     const [firstDate, setFirstDate] = useState<Date | null>(null)
+    const [venue, setVenue] = useState([{id: 0, label: 'All Venues', color: null}])
 
     const tags = props.group.event_tags?.map((item: string) => {
         return {
             id: item,
             label: item,
             color: getLabelColor(item)
+        }
+    }) || []
+
+    const venues = props.eventSite.map((item) => {
+        return {
+            id: item.id,
+            label: item.title,
+            color: null
         }
     }) || []
 
@@ -170,8 +179,9 @@ function Gan(props: { group: Group }) {
                 page: 1,
                 event_order: 'asc',
                 page_size: 1000,
-                tag: tag[0].id === 'All' ? undefined : tag[0].id
-            }).then(res => {
+                tag: tag[0].id  || undefined,
+                event_site_id: venue[0].id || undefined
+            } as any).then(res => {
                 let eventList = []
                 eventList = res
                     .map((event: Event) => {
@@ -277,15 +287,7 @@ function Gan(props: { group: Group }) {
                             }
                         }
 
-                        // return `<div class="${styles['gantt-popup']}">
-                        //            <div>
-                        //                <div class="${styles['name']}">${task.name}</div>
-                        //                <div class="${styles['detail']}"> <img src="${avatar}" alt=""><span>by ${host}</span></div>
-                        //                <div class="${styles['detail']}"><i class="icon-calendar"></i><span>${formatDate(task.start, timezoneSelected[0].id)} - ${formatDate(task.end, timezoneSelected[0].id)}</span></div>
-                        //                     ${task.location ? `<div class="${styles['detail']}"><i class="icon-Outline"></i><span>${task.location}</span></div>` : ''}
-                        //                <a href="/event/detail/${task.id}" class="${styles['link']}" target="_blank">View Event</a>
-                        //            </div>
-                        //         </div>`
+
                         return renderToStaticMarkup(
                             <Link href={`/event/detail/${task.event.id}`} className={'event-card'}
                                   style={{width: '380px'}} target={'_blank'}>
@@ -349,7 +351,7 @@ function Gan(props: { group: Group }) {
                     unload()
                 })
         }
-    }, [firstDate, timezoneSelected, tag, page, viewMode])
+    }, [firstDate, timezoneSelected, tag, page, viewMode, venue])
 
     const toToday = () => {
         if (ganttRef.current) {
@@ -368,9 +370,9 @@ function Gan(props: { group: Group }) {
         <div className={styles['gant-menu']}>
             <div className={styles['left']}>
                 <div className={styles['menu-item'] + ' input-disable'}>
-                    <div className={styles[`year`]}>{(firstDate || new Date()).getFullYear()}
+                    <div className={styles[`year`]}>{(start || new Date()).getFullYear()}
                         {viewMode[0].id !== 'Month' &&
-                            <span>{lang['Month_Name'][(firstDate || new Date()).getMonth()]}</span>
+                            <span>{lang['Month_Name'][(start || new Date()).getMonth()]}</span>
                         }
                     </div>
                     <div className={styles['page-slide']}>
@@ -415,7 +417,7 @@ function Gan(props: { group: Group }) {
                 </div>
             </div>
             <div className={styles['right']}>
-                <div className={styles['menu-item'] + ' input-disable'}>
+                <div className={styles['menu-item'] + ' ' + styles['mobile-hide'] + ' input-disable'}>
                     <Select
                         labelKey={'label'}
                         valueKey={'id'}
@@ -437,9 +439,35 @@ function Gan(props: { group: Group }) {
                                 {opt.option.label}
                             </div>
                         }}
-                        options={[{id: 'All', label: 'All', color: null}, ...tags as any]}
+                        options={[{id: 'All', label: 'All Tags', color: null}, ...tags as any]}
                         onChange={({option}) => {
                             setTag([option] as any)
+                        }}
+                    />
+                </div>
+                <div className={styles['menu-item'] + ' ' + styles['mobile-hide'] + ' input-disable'}>
+                    <Select
+                        labelKey={'label'}
+                        valueKey={'id'}
+                        clearable={false}
+                        creatable={false}
+                        searchable={false}
+                        value={venue}
+                        getOptionLabel={(opt: any) => {
+                            return <div className={styles['label-item']}>
+
+                                {opt.option.label}
+                            </div>
+                        }}
+                        getValueLabel={(opt: any) => {
+                            return <div className={styles['label-item']}>
+
+                                {opt.option.label}
+                            </div>
+                        }}
+                        options={[{id: 0, label: 'All Venues', color: null}, ...venues as any]}
+                        onChange={({option}) => {
+                            setVenue([option] as any)
                         }}
                     />
                 </div>
@@ -475,7 +503,8 @@ export const getServerSideProps: any = (async (context: any) => {
     const groupname = context.params?.groupname
     if (groupname) {
         const group = await getGroups({username: groupname})
-        return {props: {group: group[0]}}
+        const eventSite = await getEventSide(group[0].id)
+        return {props: {group: group[0], eventSite: eventSite}}
     }
 })
 

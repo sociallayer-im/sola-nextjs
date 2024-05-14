@@ -175,7 +175,7 @@ function LocationInput(props: LocationInputProps) {
             <div className={'selector'}>
                 <i className={'icon-Outline'}/>
                 <Select
-                    placeholder={'Select an event site...'}
+                    placeholder={'Select an venue...'}
                     labelKey={'title'}
                     valueKey={'id'}
                     clearable={false}

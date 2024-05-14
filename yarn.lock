@@ -3988,10 +3988,25 @@
   resolved "https://registry.npmmirror.com/@schedule-x/calendar/-/calendar-1.27.0.tgz#d06f07ad7513f047292f6f435f5cfa94bf327250"
   integrity sha512-KK5H12ygG/+nqkiEo5XdpAcdJzqteNt6g/djBvY7YBa4TccQEwyjkrWscHV42e0lFvyB2McePQmW1vrmyymU/A==
 
+"@schedule-x/current-time@^1.41.0":
+  version "1.41.0"
+  resolved "https://registry.npmmirror.com/@schedule-x/current-time/-/current-time-1.41.0.tgz#a338be69a24b703898a35d4e96d901f0709588d7"
+  integrity sha512-SoXHeyUY41YA4qlM2yn1ZQNte85tXrtOzMzlQSMW8gqnOOIIQ09WZ2g3oUNTspCWF+nRTysmc6ilcEa6dAYZ3w==
+
 "@schedule-x/event-modal@^1.27.0":
   version "1.27.0"
   resolved "https://registry.npmmirror.com/@schedule-x/event-modal/-/event-modal-1.27.0.tgz#53c3f2248dd872005abf1cde2b6e3e023ccb0eb1"
   integrity sha512-LIsIGj12SktaAJ55q2LhRtDqt72CnJrYaicpWusj5kAmrCiK8Ac5u7N6fupknF7Qu7kTqYPkxWVeVLBs478D5w==
+
+"@schedule-x/events-service@^1.41.0":
+  version "1.41.0"
+  resolved "https://registry.npmmirror.com/@schedule-x/events-service/-/events-service-1.41.0.tgz#3126db22ea4aff7d889c88c025e9dbdd1b0c7093"
+  integrity sha512-Yk2zirxs8QBTU+aMjrBL06x423txOWSSUxbrDuPRrZppSxrgQNSXzy1E2fMe8KEXKf5Dlzd5Dffrq3YAfeN8BQ==
+
+"@schedule-x/scroll-controller@^1.41.0":
+  version "1.41.0"
+  resolved "https://registry.npmmirror.com/@schedule-x/scroll-controller/-/scroll-controller-1.41.0.tgz#d8428d01c4a1f0f61e8b2eb784609943cc91fcd1"
+  integrity sha512-+ReI9BH4kTk6R0PLTRsu5phKP6uHaRlT1RNAaxFjp3USURUjiS9gBQLP1nkf2VWT4qzdLuK+mtw4zPg1OagL7Q==
 
 "@schedule-x/theme-default@^1.27.0":
   version "1.27.0"

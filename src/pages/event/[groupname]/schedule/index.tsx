@@ -1,5 +1,5 @@
 import {useContext, useEffect, useRef, useState} from 'react'
-import {Event, getGroups, Group, queryEvent, queryGroupDetail} from "@/service/solas";
+import {Event, EventSites, getEventSide, getGroups, Group, queryEvent, queryGroupDetail} from "@/service/solas";
 import styles from './schedulenew.module.scss'
 import EventLabels from "@/components/base/EventLabels/EventLabels";
 import Link from 'next/link'
@@ -73,7 +73,7 @@ const getCalendarData = (timeZone: string) => {
 }
 
 
-function ComponentName(props: { group: Group }) {
+function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
     const eventGroup = props.group
     const now = new Date()
     const scroll1Ref = useRef<any>(null)
@@ -95,8 +95,10 @@ function ComponentName(props: { group: Group }) {
     const [ready, setReady] = useState(false)
     const [currMonth, setCurrMonth] = useState(new Date().getMonth())
     const [currYear, setCurrYear] = useState(new Date().getFullYear())
-    const [currTag, setCurrTag] = useState<string[]>([])
     const [timezoneSelected, setTimezoneSelected] = useState<{ label: string, id: string }[]>([])
+
+    const [tag, setTag] = useState([{id: 'All', label: 'All Tags', color: null}])
+    const [venue, setVenue] = useState([{id: 0, label: 'All Venues', color: null}])
 
     const [pageSize, setPageSize] = useState(0)
     const [isEnd, setIsEnd] = useState(false)
@@ -105,6 +107,22 @@ function ComponentName(props: { group: Group }) {
 
     const pageRef = useRef(0)
     const initedRef = useRef(false)
+
+    const tags = props.group.event_tags?.map((item: string) => {
+        return {
+            id: item,
+            label: item,
+            color: getLabelColor(item)
+        }
+    }) || []
+
+    const venues = props.eventSite.map((item) => {
+        return {
+            id: item.id,
+            label: item.title,
+            color: null
+        }
+    }) || []
 
 
     const toToday = (initDate?: Date) => {
@@ -194,14 +212,20 @@ function ComponentName(props: { group: Group }) {
             res = eventListRef.current
         }
 
-        if (currTag[0]) {
+        if (tag[0] && tag[0].id !== 'All') {
             res = res.filter((e: Event) => {
-                return e.tags?.includes(currTag[0])
+                return e.tags?.includes(tag[0].id)
+            })
+        }
+
+        if (venue[0] && !!venue[0].id) {
+            res = res.filter((e: Event) => {
+                return e.event_site_id === venue[0].id
             })
         }
 
         setEventList(res)
-    }, [showJoined, currTag])
+    }, [showJoined, tag, venue])
 
     useEffect(() => {
         if (pageSize && showList.length) {
@@ -383,13 +407,60 @@ function ComponentName(props: { group: Group }) {
                     </Link>
                 </div>
                 <div className={styles['schedule-menu-1']}>
-                    <EventLabels data={eventGroup.event_tags || []}
-                                 onChange={e => {
-                                     setCurrTag(e)
-                                 }}
-                                 single={true}
-                                 value={currTag}
-                                 showAll={true}/>
+                    <div className={styles['menu-item'] + ' input-disable'}>
+                        <Select
+                            labelKey={'label'}
+                            valueKey={'id'}
+                            clearable={false}
+                            creatable={false}
+                            searchable={false}
+                            value={tag}
+                            getOptionLabel={(opt: any) => {
+                                return <div className={styles['label-item']}>
+                                    <i className={styles['label-color']}
+                                       style={{background: opt.option.color || '#f1f1f1'}}/>
+                                    {opt.option.label}
+                                </div>
+                            }}
+                            getValueLabel={(opt: any) => {
+                                return <div className={styles['label-item']}>
+                                    <i className={styles['label-color']}
+                                       style={{background: opt.option.color || '#f1f1f1'}}/>
+                                    {opt.option.label}
+                                </div>
+                            }}
+                            options={[{id: 'All', label: 'All Tags', color: null}, ...tags as any]}
+                            onChange={({option}) => {
+                                setTag([option] as any)
+                            }}
+                        />
+                    </div>
+                    <div className={styles['menu-item'] + ' input-disable'}>
+                        <Select
+                            labelKey={'label'}
+                            valueKey={'id'}
+                            clearable={false}
+                            creatable={false}
+                            searchable={false}
+                            value={venue}
+                            getOptionLabel={(opt: any) => {
+                                return <div className={styles['label-item']}>
+
+                                    {opt.option.label}
+                                </div>
+                            }}
+                            getValueLabel={(opt: any) => {
+                                return <div className={styles['label-item']}>
+
+                                    {opt.option.label}
+                                </div>
+                            }}
+                            options={[{id: 0, label: 'All Venues', color: null}, ...venues as any]}
+                            onChange={({option}) => {
+                                setVenue([option] as any)
+                            }}
+                        />
+                    </div>
                 </div>
             </div>
             <div className={styles['schedule-mouth']}>
@@ -589,7 +660,8 @@ export const getServerSideProps: any = (async (context: any) => {
     const groupname = context.params?.groupname
     if (groupname) {
         const group = await getGroups({username: groupname})
-        return {props: {group: group[0]}}
+        const eventSite = await getEventSide(group[0].id)
+        return {props: {group: group[0], eventSite: eventSite}}
     }
 })
 

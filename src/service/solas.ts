@@ -5140,9 +5140,9 @@ export async function combine(props: {
 
 export async function queryTimeLineEvent(groupid: number, from: string, to: string): Promise<{latest: Event[], curr: Event[], first: Event[]}> {
    let condition1: string, condition2: string, condition3: string
-    condition1 = `where: {group_id: {_eq: ${groupid}}, status: {_in: ["open", "new", "normal"]}, end_time: {_gte: "${new Date().toISOString()}"}} , order_by: {start_time: asc}, limit: 1`
+    condition1 = `where: {group_id: {_eq: ${groupid}}, status: {_in: ["open", "new", "normal"]}, end_time: {_gte: "${new Date().toISOString()}"}} , order_by: {end_time: asc}, limit: 1`
     condition2 = `where: {group_id: {_eq: ${groupid}}, status: {_in: ["open", "new", "normal"]}, start_time: {_gte: "${from}"}, _and: {start_time: {_lte: "${to}"}}, } , order_by: {start_time: asc}, limit: 1`
-    condition3 = `where: {group_id: {_eq: ${groupid}}, status: {_in: ["open", "new", "normal"]} } , order_by: {id: asc}, limit: 1`
+    condition3 = `where: {group_id: {_eq: ${groupid}}, status: {_in: ["open", "new", "normal"]} } , order_by: {id: desc}, limit: 1`
 
 
     const doc = gql`query MyQuery {

@@ -1,13 +1,18 @@
-import {Event, getGroups, Group, queryEvent} from "@/service/solas";
+import {Event, EventSites, getEventSide, getGroups, Group, queryEvent} from "@/service/solas";
 import {useContext, useEffect, useRef, useState} from "react";
-import {createCalendar, viewDay, viewMonthAgenda, viewMonthGrid, viewWeek} from '@schedule-x/calendar'
+import {createCalendar, viewDay, viewMonthAgenda, viewMonthGrid, viewWeek} from '@/libs/schedule-x-calendar/core'
+// import {createCalendar, viewDay, viewMonthAgenda, viewMonthGrid, viewWeek} from '@schedule-x/calendar'
 import {createEventModalPlugin} from '@schedule-x/event-modal'
 import '@schedule-x/theme-default/dist/index.css'
+import '@/libs/schedule-x-calendar/view-selection.scss'
 import styles from '../schedule/schedulenew.module.scss'
 import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
 import useTime from "@/hooks/formatTime";
 import {useRouter} from "next/navigation";
 import userContext from "@/components/provider/UserProvider/UserContext";
+import {createEventsServicePlugin} from '@schedule-x/events-service'
+import { createCurrentTimePlugin } from '@schedule-x/current-time'
+import { createScrollControllerPlugin } from '@schedule-x/scroll-controller'
 
 import * as dayjsLib from "dayjs";
 import timezoneList from "@/utils/timezone";
@@ -64,16 +69,18 @@ const getCalendarData = (timeZone: string) => {
     return dayArray as DateItem[]
 }
 
-function ComponentName(props: { group: Group }) {
+function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
     const eventGroup = props.group
     const calendarRef = useRef<any>(null)
+    const scheduleXRef = useRef<any>(null)
     const {openConfirmDialog} = useContext(DialogsContext)
     const {user} = useContext(userContext)
     const formatTime = useTime()
     const router = useRouter()
 
     const [timezoneSelected, setTimezoneSelected] = useState<{ label: string, id: string }[]>([])
-
+    const [tag, setTag] = useState<string>('')
+    const [venue, setVenue] = useState<number>(0)
 
     useEffect(() => {
         try {
@@ -97,17 +104,52 @@ function ComponentName(props: { group: Group }) {
         }
     }, [])
 
+    const createEvent = (dateTime: string) => {
+        const time = new Date(dateTime)
+        time.setMinutes(0, 0)
+
+        const selected_time_start = dayjs.tz(dateTime, timezoneSelected[0].id).minute(0).second(0).toDate() // 2024-01-01 12:37
+        const selected_time_end = dayjs.tz(dateTime, timezoneSelected[0].id).minute(30).second(0).toDate()
+
+        openConfirmDialog({
+            confirmLabel: 'Create Event',
+            confirmTextColor: '#000',
+            title: 'Create Event',
+            content: () => {
+                return <div>
+                    <div>Would you like to create an event for {formatTime(time.toISOString())} ?
+                    </div>
+                    <div style={{
+                        lineHeight: "1.2rem",
+                        fontSize: "12px",
+                        color: '#666',
+                        marginTop: "12px"
+                    }}>* You can still modify the time during the creation process.
+                    </div>
+                </div>
+            },
+            onConfirm: (close: any) => {
+                router.push(`/event/${eventGroup.username}/create?set_start_time=${selected_time_start.toISOString()}&set_end_time=${selected_time_end.toISOString()}&set_timezone=${timezoneSelected[0].id}`)
+                close()
+            },
+        })
+    }
+
     useEffect(() => {
         if (timezoneSelected[0]) {
             const dayList = getCalendarData(timezoneSelected[0].id)
+
+            console.log('eventGroup', eventGroup)
 
             queryEvent({
                 group_id: eventGroup.id,
                 start_time_from: new Date(dayList[0].timestamp).toISOString(),
                 start_time_to: new Date(dayList[dayList.length - 1].timestamp).toISOString(),
                 page: 1,
+                tag: tag || undefined,
                 event_order: 'asc',
-                page_size: 1000
+                page_size: 1000,
+                event_site_id: venue || undefined
             }).then(res => {
                 const eventList = res.map((event: Event) => {
                     let host = [event.owner.username]
@@ -133,90 +175,119 @@ function ComponentName(props: { group: Group }) {
                 })
 
 
-                let calendars: any = {
-                    sola: {
-                        colorName: 'sola',
-                        lightColors: {
-                            main: '#6CD7B2',
-                            container: '#f7ffeb',
-                            onContainer: '#594800',
-                        },
-                        darkColors: {
-                            main: '#6CD7B2',
-                            onContainer: '#f7ffeb',
-                            container: '#a29742',
-                        }
-                    }
-                }
-
-                if (eventGroup.event_tags) {
-                    eventGroup.event_tags.map((tag: string) => {
-                        const name = tag.replace(/[^\w\s]/g, '').replace(/\s/g, '').toLowerCase()
-                        calendars[name] = {
-                            colorName: name,
+                if (scheduleXRef.current) {
+                    scheduleXRef.current.events.set(eventList)
+                } else {
+                    let calendars: any = {
+                        sola: {
+                            colorName: 'sola',
                             lightColors: {
-                                main: getLabelColor(tag),
-                                container: getLabelColor(tag, 0.8),
-                                onContainer: getLabelColor(tag),
+                                main: '#6CD7B2',
+                                container: '#f7ffeb',
+                                onContainer: '#594800',
                             },
                             darkColors: {
-                                main: getLabelColor(tag),
-                                container: getLabelColor(tag),
-                                onContainer: getLabelColor(tag),
+                                main: '#6CD7B2',
+                                onContainer: '#f7ffeb',
+                                container: '#a29742',
                             }
                         }
-                    })
-                }
+                    }
 
-                console.log('calendars', calendars)
-                const selectedDate = dayjs.tz(new Date().getTime(), timezoneSelected[0].id).format('YYYY-MM-DD')
-                const calendar = createCalendar({
-                    views: [viewMonthGrid, viewMonthAgenda, viewDay, viewWeek],
-                    minDate: dayjs.tz(dayList[0].timestamp, timezoneSelected[0].id).format('YYYY-MM-DD'),
-                    maxDate: dayjs.tz(dayList[dayList.length - 1].timestamp, timezoneSelected[0].id).format('YYYY-MM-DD'),
-                    selectedDate: selectedDate,
-                    plugins: [createEventModalPlugin()],
-                    calendars,
-                    events: eventList as any,
-                    callbacks: {
-                        onClickDateTime(dateTime: string) {
-                            console.log('onClickDateTime', dateTime) // e.g. 2024-01-01 12:37
-                            const time = new Date(dateTime)
-                            time.setMinutes(0, 0)
-
-                            const selected_time_start = dayjs.tz(dateTime, timezoneSelected[0].id).minute(0).second(0).toDate() // 2024-01-01 12:37
-                            const selected_time_end = dayjs.tz(dateTime, timezoneSelected[0].id).minute(30).second(0).toDate()
-
-                            openConfirmDialog({
-                                confirmLabel: 'Create Event',
-                                confirmTextColor: '#000',
-                                title: 'Create Event',
-                                content: () => {
-                                    return <div>
-                                        <div>Would you like to create an event for {formatTime(time.toISOString())} ?
-                                        </div>
-                                        <div style={{
-                                            lineHeight: "1.2rem",
-                                            fontSize: "12px",
-                                            color: '#666',
-                                            marginTop: "12px"
-                                        }}>* You can still modify the time during the creation process.
-                                        </div>
-                                    </div>
+                    if (eventGroup.event_tags) {
+                        eventGroup.event_tags.map((tag: string) => {
+                            const name = tag.replace(/[^\w\s]/g, '').replace(/\s/g, '').toLowerCase()
+                            calendars[name] = {
+                                colorName: name,
+                                lightColors: {
+                                    main: getLabelColor(tag),
+                                    container: getLabelColor(tag, 0.8),
+                                    onContainer: getLabelColor(tag),
                                 },
-                                onConfirm: (close: any) => {
-                                    router.push(`/event/${eventGroup.username}/create?set_start_time=${selected_time_start.toISOString()}&set_end_time=${selected_time_end.toISOString()}&set_timezone=${timezoneSelected[0].id}`)
-                                    close()
+                                darkColors: {
+                                    main: getLabelColor(tag),
+                                    container: getLabelColor(tag),
+                                    onContainer: getLabelColor(tag),
+                                }
+                            }
+                        })
+                    }
+
+                    console.log('calendars', calendars)
+
+                    const customTagFilter = eventGroup.event_tags?.length ?
+                        {
+                            options: [
+                                {
+                                    label: `<div class="${styles['drop-list']}"><i style="background:#f1f1f1" ></i> All Tags</div>`,
+                                    value: ''
                                 },
+                                ...(eventGroup.event_tags || []).map((tag: string) => {
+                                    return {
+                                        label: `<div class="${styles['drop-list']}"><i style="background: ${getLabelColor(tag)}" ></i>${tag}</div>`,
+                                        value: tag
+                                    }
+                                })
+                            ],
+                            onClick: (value: { label: string, value: any }) => {
+                                setTag(value.value)
+                            },
+                            defaultSelectedIndex: 0
+                        } : undefined
+
+                    const venueFilter = props.eventSite?.length ?
+                        {
+                            options: [
+                                {
+                                    label: `<div class="${styles['drop-list']}"> All Venues</div>`,
+                                    value: ''
+                                },
+                                ...(props.eventSite || []).map((venue) => {
+                                    return {
+                                        label: `<div class="${styles['drop-list']}">${venue.title}</div>`,
+                                        value: venue.id
+                                    }
+                                })
+                            ],
+                            onClick: (value: { label: string, value: any }) => {
+                                setVenue(value.value)
+                            },
+                            defaultSelectedIndex: 0
+                        } : undefined
+
+                    const customMenus = [customTagFilter, venueFilter].filter(Boolean)
+
+
+                    const selectedDate = dayjs.tz(new Date().getTime(), timezoneSelected[0].id).format('YYYY-MM-DD')
+                    scheduleXRef.current = createCalendar({
+                        views: [viewMonthGrid, viewMonthAgenda, viewDay, viewWeek],
+                        minDate: dayjs.tz(dayList[0].timestamp, timezoneSelected[0].id).format('YYYY-MM-DD'),
+                        maxDate: dayjs.tz(dayList[dayList.length - 1].timestamp, timezoneSelected[0].id).format('YYYY-MM-DD'),
+                        selectedDate: selectedDate,
+                        plugins: [
+                            createEventModalPlugin(),
+                            createEventsServicePlugin(),
+                            createCurrentTimePlugin(),
+                            createScrollControllerPlugin({
+                                initialScroll: '07:50',
                             })
+                        ]
+                        ,
+                        calendars,
+                        defaultView: 'week',
+                        events: eventList as any,
+                        customMenus: customMenus.length ? customMenus : undefined,
+                        callbacks: {
+                            onClickDateTime(dateTime: string) {
+                                createEvent(dateTime)
+                            }
                         },
-                    },
-                } as any)
-
-                calendar.render(calendarRef.current)
+                    } as any)
+                    scheduleXRef.current.render(calendarRef.current)
+                }
             })
         }
-    }, [timezoneSelected])
+    }, [timezoneSelected, tag, venue])
 
     return <div id={'calendar'} className={styles['schedule-x']} ref={calendarRef}></div>
 }
@@ -227,7 +298,8 @@ export const getServerSideProps: any = (async (context: any) => {
     const groupname = context.params?.groupname
     if (groupname) {
         const group = await getGroups({username: groupname})
-        return {props: {group: group[0]}}
+        const eventSite = await getEventSide(group[0].id)
+        return {props: {group: group[0], eventSite: eventSite}}
     }
 })
 
