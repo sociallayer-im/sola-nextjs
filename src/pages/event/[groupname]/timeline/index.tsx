@@ -13,6 +13,7 @@ import {getLabelColor, getLightColor} from "@/hooks/labelColor";
 import Link from "next/link";
 import EventDefaultCover from "@/components/base/EventDefaultCover";
 import removeMarkdown from "markdown-to-text"
+import ScheduleHeader from "@/components/base/ScheduleHeader";
 
 const utc = require('dayjs/plugin/utc')
 const timezone = require('dayjs/plugin/timezone')
@@ -179,7 +180,7 @@ function Gan(props: { group: Group, eventSite: EventSites[] }) {
                 page: 1,
                 event_order: 'asc',
                 page_size: 1000,
-                tag: tag[0].id  || undefined,
+                tag: tag[0].id !== 'All' ? tag[0].id : undefined,
                 event_site_id: venue[0].id || undefined
             } as any).then(res => {
                 let eventList = []
@@ -367,6 +368,7 @@ function Gan(props: { group: Group, eventSite: EventSites[] }) {
     }
 
     return <div className={styles['gant-page']}>
+        <ScheduleHeader group={eventGroup} />
         <div className={styles['gant-menu']}>
             <div className={styles['left']}>
                 <div className={styles['menu-item'] + ' input-disable'}>

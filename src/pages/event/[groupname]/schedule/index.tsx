@@ -11,6 +11,7 @@ import {useRouter, useSearchParams, usePathname} from "next/navigation";
 import timezoneList from "@/utils/timezone"
 import {Select} from "baseui/select";
 import { StatefulTooltip } from "baseui/tooltip"
+import ScheduleHeader from "@/components/base/ScheduleHeader";
 
 import * as dayjsLib from "dayjs";
 
@@ -374,6 +375,7 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
     const creatEventPatch = eventGroup?.username === 'web3festival' ? `/event/${eventGroup.username}/custom-create` : `/event/${eventGroup.username}/create`
 
     return (<div className={styles['schedule-page']}>
+        <ScheduleHeader group={eventGroup} />
         <div className={`${styles['schedule-head']} schedule-head`}>
             <div className={styles['page-center']}>
                 <div className={styles['schedule-title']}>

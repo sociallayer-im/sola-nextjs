@@ -13,6 +13,7 @@ import userContext from "@/components/provider/UserProvider/UserContext";
 import {createEventsServicePlugin} from '@schedule-x/events-service'
 import { createCurrentTimePlugin } from '@schedule-x/current-time'
 import { createScrollControllerPlugin } from '@schedule-x/scroll-controller'
+import ScheduleHeader from "@/components/base/ScheduleHeader";
 
 import * as dayjsLib from "dayjs";
 import timezoneList from "@/utils/timezone";
@@ -289,7 +290,10 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
         }
     }, [timezoneSelected, tag, venue])
 
-    return <div id={'calendar'} className={styles['schedule-x']} ref={calendarRef}></div>
+    return <div>
+        <ScheduleHeader group={eventGroup}/>
+        <div id={'calendar'} className={styles['schedule-x']} ref={calendarRef}></div>
+    </div>
 }
 
 export default ComponentName
