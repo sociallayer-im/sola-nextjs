@@ -1,10 +1,10 @@
 .dashboard-page {
-  min-height: 100vh;
+  min-height: calc(100vh - 48px);
   background: var(--color-page-bg-1);
   position: relative;
 
   .center {
-    max-width: 375px;
+    max-width: 1024px;
     margin: 0 auto;
     padding: 0 12px;
   }

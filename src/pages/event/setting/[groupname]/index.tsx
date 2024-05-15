@@ -195,6 +195,12 @@ function Dashboard() {
             about: '',
             geo_lat: '',
             geo_lng: '',
+            start_date: null,
+            end_date: null,
+            timeslots: null ,
+            link: null,
+            capacity: null,
+            overrides: null
         })
         setEventSite(_eventSite)
     }
@@ -413,7 +419,7 @@ function Dashboard() {
                             {
                                 eventSite.map((item, index) => {
                                     return <EventSiteInput
-                                        key={item.id}
+                                        key={index}
                                         index={index + 1}
                                         initValue={item}
                                         error={errorInputItem.includes(index)}

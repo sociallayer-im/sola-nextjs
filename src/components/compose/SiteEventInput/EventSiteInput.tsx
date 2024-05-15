@@ -255,6 +255,50 @@ function EventSiteInput(props: LocationInputProps) {
             }
             }
         />
+
+        <div className={'input-area-sub-title'}>
+            <div>{lang['Form_Marker_Link_Label']}</div>
+        </div>
+        <AppInput
+            placeholder={lang['Form_Marker_Link_Label']}
+            value={newEventSite!.link || ''}
+            onChange={(e) => {
+                setNewEventSite({
+                    ...newEventSite!,
+                    link: e.target.value
+                })
+            }
+            }
+        />
+
+        <div className={'input-area-sub-title'} style={{marginTop: '24px'}}>
+            <div style={{whiteSpace: 'nowrap', flex: '1'}}>{'Venue seats (Optional)'}</div>
+
+            <div style={{width: '150px'}}>
+                <AppInput
+                    placeholder={'Not Set'}
+                    value={newEventSite!.capacity ? Number(newEventSite!.capacity) + '' : ''}
+                    type={'number'}
+                    onChange={(e) => {
+                        let value = e.target.value as any
+                        if (isNaN(Number(value))) return
+                        if (!value) {
+                            value = 0
+                        } else if (Number(value) < 0) {
+                            value = 1
+                        } else if (value.includes('.')) {
+                            value = value.split('.')[0]
+                        }
+
+                        setNewEventSite({
+                            ...newEventSite!,
+                            capacity: Number(value) || null
+                        })
+                    }
+                    }
+                />
+            </div>
+        </div>
     </div>)
 }
 

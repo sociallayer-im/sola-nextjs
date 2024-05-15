@@ -537,6 +537,11 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                 </a>
                                                 : <div>{event.location}</div>
                                             }
+                                            {
+                                                !! event.event_site_id &&
+                                                <div>{event.event_site_id}</div>
+
+                                            }
                                         </div>
                                         {MapReady &&
                                             <>
