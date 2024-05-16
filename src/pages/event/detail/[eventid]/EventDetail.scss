@@ -436,8 +436,22 @@
   width: calc(100% - 46px);
   margin-left: 46px;
   margin-bottom: 6px;
-  color: #7492EF;
+  color: #7492EF!important;
   cursor: pointer;
+}
+
+.venue-link {
+  width: calc(100% - 46px);
+  margin-left: 46px;
+  margin-bottom: 6px;
+  color: #7492EF!important;
+  cursor: pointer;
+
+  a {
+    text-decoration: none;
+    color: #7492EF!important;
+    font-size: 16px;
+  }
 }
 
 .map-preview.full {

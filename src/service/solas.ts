@@ -3136,6 +3136,12 @@ export async function queryEvent(props: QueryEventProps): Promise<Event[]> {
             formatted_address
             geo_lat
             geo_lng
+            timeslots
+            link
+            capacity
+            overrides
+            start_date
+            end_date
         }
         event_type
         formatted_address
