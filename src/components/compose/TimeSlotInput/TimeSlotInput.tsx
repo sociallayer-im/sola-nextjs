@@ -294,7 +294,6 @@ function TimeSlotInput({
 
     useEffect(() => {
         if (isInRange(initData.from, initData.to, slotOptions, initData.timezone)) {
-            console.log('init data', input(initData.from, initData.timezone))
             setData({
                 date: input(initData.from, initData.timezone),
                 from: [{label: dateToStr(input(initData.from, initData.timezone)), id: dateToStr(input(initData.from, initData.timezone))}],
@@ -319,7 +318,6 @@ function TimeSlotInput({
 
     useEffect(() => {
         if (data.from && data.to) {
-            console.log('data change', data)
             const to = strToDate(data.to?.[0]!.id, data.date)
             const from = strToDate(data.from?.[0]!.id, data.date)
             const toTime = new Date(output(to, timezone))
