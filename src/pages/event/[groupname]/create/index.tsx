@@ -10,7 +10,8 @@ import {
     createEvent,
     createRepeatEvent,
     CreateRepeatEventProps,
-    Event, EventSites,
+    Event,
+    EventSites, getEventSide,
     getGroupMemberShips,
     getProfile,
     getProfileBatch,
@@ -34,6 +35,7 @@ import UploadImage from "@/components/compose/UploadImage/UploadImage";
 import RichTextEditor from "@/components/compose/RichTextEditor/Editor";
 import LocationInput from "@/components/compose/LocationInput/LocationInputNew";
 import TimeSlot from "@/components/compose/themu/TimeSlotNew";
+import TimeSlotInput from "@/components/compose/TimeSlotInput/TimeSlotInput";
 import userContext from "@/components/provider/UserProvider/UserContext";
 import AppEventTimeInput from "@/components/base/AppEventTimeInput/AppEventTimeInput";
 import AppFlexTextArea from "@/components/base/AppFlexTextArea/AppFlexTextArea";
@@ -101,7 +103,6 @@ function EditEvent({
     // status
     const [formReady, setFormReady] = useState(false)
     const [isEditMode, setIsEditMode] = useState(!!initEvent)
-    const [isSlot, setIsSlot] = useState(false)
     const [isManager, setIsManager] = useState(false)
     const [repeat, setRepeat] = useState<string | null>(null)
     const [badgeDetail, setBadgeDetail] = useState<Badge | null>(null)
@@ -124,6 +125,7 @@ function EditEvent({
     const [repeatCounterError, setRepeatCounterError] = useState(false)
     const [startTimeError, setStartTimeError] = useState('')
     const [labelError, setLabelError] = useState(false)
+    const [dayDisable, setDayDisable] = useState('')
 
     // data
     const [venueInfo, setVenueInfo] = useState<null | EventSites>(null)
@@ -224,13 +226,8 @@ function EditEvent({
     }, [user.id, group, initEvent])
 
     useEffect(() => {
-        const slotList = [82, 81, 80, 79, 78, 87, 86]
-        if (event.event_site_id && group?.id === 1516) {
-            // playground2
-            setIsSlot(true)
-        } else if (event.event_site_id && slotList.includes(event.event_site_id)) {
-            setIsSlot(true)
-        } else {
+       console.log('venueInfo', venueInfo)
+        if (!venueInfo) {
             if (!event.start_time || !event.end_time) {
                 setEvent({
                     ...event,
@@ -238,9 +235,8 @@ function EditEvent({
                     end_time: initEvent ? initEvent.end_time! : initTime[1].toISOString()
                 })
             }
-            setIsSlot(false)
         }
-    }, [event.event_site_id])
+    }, [venueInfo])
 
     useEffect(() => {
         if (event.badge_id) {
@@ -303,8 +299,7 @@ function EditEvent({
                             (selectedStartTime < eventEndTime && selectedEndTime > eventEndTime)) &&
                         (!eventIsAllDay && !selectedIsAllDay)
 
-
-                    if (e) {
+                    if (res) {
                         console.log('occupied', e, res)
                         inUseEvents = e
                     }
@@ -380,6 +375,28 @@ function EditEvent({
         }
     }, [event, initEvent])
 
+    useEffect(() => {
+        if (initEvent && initEvent.event_site_id) {
+            getEventSide(initEvent.group_id!).then((res) => {
+                setVenueInfo(res.find((item) => item.id === initEvent.event_site_id) || null)
+            })
+        }
+    }, [initEvent])
+
+    // check available day for curr venue
+    useEffect(() => {
+        if (!!venueInfo && !!venueInfo.timeslots && event.start_time) {
+           const day =  dayjs.tz(new Date(event.start_time).getTime(), event.timezone).day()
+           const dayFullName = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+           const target: any = JSON.parse(venueInfo.timeslots!).find((item:{day: string, disable: boolean}) => item.day === dayFullName[day])
+            if (target.disable) {
+                setDayDisable('The date you selected is not available for the current venue')
+            } else {
+                setDayDisable('')
+            }
+        }
+    }, [event,  venueInfo])
+
     const showBadges = async () => {
         const props = !!(creator as Group)?.creator ? {
                 group_id: creator!.id,
@@ -440,6 +457,11 @@ function EditEvent({
 
         if (siteOccupied) {
             showToast(lang['Activity_Detail_site_Occupied'])
+            return false
+        }
+
+        if (dayDisable) {
+            showToast('The date you selected is not available for the current venue')
             return false
         }
 
@@ -989,22 +1011,29 @@ function EditEvent({
                                         initValue={event as any}
                                         eventGroup={eventGroup as Group}
                                         onChange={values => {
-                                            setVenueInfo(values.event_site)
+                                            console.log('location values', values)
+                                            setVenueInfo(values.event_site || null)
                                             setEvent({
                                                 ...event,
                                                 ...values
                                             } as any)
                                         }}/>
 
-                                    { !!venueInfo &&
+                                    {!!venueInfo &&
                                         <div className={styles['venue-detail']}>
                                             <div>
                                                 {venueInfo.about}
                                                 {
-                                                   !! venueInfo.link && <a href={venueInfo.link} target="_blank" rel="noreferrer"
-                                                    ><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12" fill="none">
-                                                        <path d="M11.2941 6.93176C11.1069 6.93176 10.9274 7.00613 10.795 7.13851C10.6626 7.27089 10.5882 7.45044 10.5882 7.63765V9.88235C10.5882 10.0696 10.5139 10.2491 10.3815 10.3815C10.2491 10.5139 10.0696 10.5882 9.88235 10.5882H2.11765C1.93044 10.5882 1.75089 10.5139 1.61851 10.3815C1.48613 10.2491 1.41176 10.0696 1.41176 9.88235V2.11765C1.41176 1.93044 1.48613 1.75089 1.61851 1.61851C1.75089 1.48613 1.93044 1.41176 2.11765 1.41176H4.36235C4.54956 1.41176 4.72911 1.3374 4.86149 1.20502C4.99387 1.07264 5.06824 0.893094 5.06824 0.705882C5.06824 0.518671 4.99387 0.339127 4.86149 0.206748C4.72911 0.0743697 4.54956 0 4.36235 0H2.11765C1.55601 0 1.01738 0.223109 0.620244 0.620245C0.223108 1.01738 0 1.55601 0 2.11765V9.88235C0 10.444 0.223108 10.9826 0.620244 11.3798C1.01738 11.7769 1.55601 12 2.11765 12H9.88235C10.444 12 10.9826 11.7769 11.3798 11.3798C11.7769 10.9826 12 10.444 12 9.88235V7.63765C12 7.45044 11.9256 7.27089 11.7933 7.13851C11.6609 7.00613 11.4813 6.93176 11.2941 6.93176ZM11.9435 0.437647C11.8719 0.265165 11.7348 0.1281 11.5624 0.0564705C11.4775 0.0203004 11.3864 0.00111529 11.2941 0H7.05882C6.87161 0 6.69207 0.0743695 6.55969 0.206748C6.42731 0.339127 6.35294 0.518671 6.35294 0.705882C6.35294 0.893094 6.42731 1.07264 6.55969 1.20502C6.69207 1.3374 6.87161 1.41176 7.05882 1.41176H9.59294L4.44 6.55765C4.37384 6.62327 4.32133 6.70134 4.28549 6.78736C4.24965 6.87338 4.2312 6.96564 4.2312 7.05882C4.2312 7.15201 4.24965 7.24427 4.28549 7.33029C4.32133 7.41631 4.37384 7.49438 4.44 7.56C4.50562 7.62616 4.58369 7.67867 4.66971 7.71451C4.75573 7.75035 4.84799 7.7688 4.94118 7.7688C5.03436 7.7688 5.12662 7.75035 5.21264 7.71451C5.29866 7.67867 5.37673 7.62616 5.44235 7.56L10.5882 2.40706V4.94118C10.5882 5.12839 10.6626 5.30793 10.795 5.44031C10.9274 5.57269 11.1069 5.64706 11.2941 5.64706C11.4813 5.64706 11.6609 5.57269 11.7933 5.44031C11.9256 5.30793 12 5.12839 12 4.94118V0.705882C11.9989 0.61364 11.9797 0.52251 11.9435 0.437647Z" fill="#7492EF"/>
-                                                    </svg></a>
+                                                    !!venueInfo.link &&
+                                                    <a href={venueInfo.link} target="_blank" rel="noreferrer"
+                                                    >
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12"
+                                                             viewBox="0 0 12 12" fill="none">
+                                                            <path
+                                                                d="M11.2941 6.93176C11.1069 6.93176 10.9274 7.00613 10.795 7.13851C10.6626 7.27089 10.5882 7.45044 10.5882 7.63765V9.88235C10.5882 10.0696 10.5139 10.2491 10.3815 10.3815C10.2491 10.5139 10.0696 10.5882 9.88235 10.5882H2.11765C1.93044 10.5882 1.75089 10.5139 1.61851 10.3815C1.48613 10.2491 1.41176 10.0696 1.41176 9.88235V2.11765C1.41176 1.93044 1.48613 1.75089 1.61851 1.61851C1.75089 1.48613 1.93044 1.41176 2.11765 1.41176H4.36235C4.54956 1.41176 4.72911 1.3374 4.86149 1.20502C4.99387 1.07264 5.06824 0.893094 5.06824 0.705882C5.06824 0.518671 4.99387 0.339127 4.86149 0.206748C4.72911 0.0743697 4.54956 0 4.36235 0H2.11765C1.55601 0 1.01738 0.223109 0.620244 0.620245C0.223108 1.01738 0 1.55601 0 2.11765V9.88235C0 10.444 0.223108 10.9826 0.620244 11.3798C1.01738 11.7769 1.55601 12 2.11765 12H9.88235C10.444 12 10.9826 11.7769 11.3798 11.3798C11.7769 10.9826 12 10.444 12 9.88235V7.63765C12 7.45044 11.9256 7.27089 11.7933 7.13851C11.6609 7.00613 11.4813 6.93176 11.2941 6.93176ZM11.9435 0.437647C11.8719 0.265165 11.7348 0.1281 11.5624 0.0564705C11.4775 0.0203004 11.3864 0.00111529 11.2941 0H7.05882C6.87161 0 6.69207 0.0743695 6.55969 0.206748C6.42731 0.339127 6.35294 0.518671 6.35294 0.705882C6.35294 0.893094 6.42731 1.07264 6.55969 1.20502C6.69207 1.3374 6.87161 1.41176 7.05882 1.41176H9.59294L4.44 6.55765C4.37384 6.62327 4.32133 6.70134 4.28549 6.78736C4.24965 6.87338 4.2312 6.96564 4.2312 7.05882C4.2312 7.15201 4.24965 7.24427 4.28549 7.33029C4.32133 7.41631 4.37384 7.49438 4.44 7.56C4.50562 7.62616 4.58369 7.67867 4.66971 7.71451C4.75573 7.75035 4.84799 7.7688 4.94118 7.7688C5.03436 7.7688 5.12662 7.75035 5.21264 7.71451C5.29866 7.67867 5.37673 7.62616 5.44235 7.56L10.5882 2.40706V4.94118C10.5882 5.12839 10.6626 5.30793 10.795 5.44031C10.9274 5.57269 11.1069 5.64706 11.2941 5.64706C11.4813 5.64706 11.6609 5.57269 11.7933 5.44031C11.9256 5.30793 12 5.12839 12 4.94118V0.705882C11.9989 0.61364 11.9797 0.52251 11.9435 0.437647Z"
+                                                                fill="#7492EF"/>
+                                                        </svg>
+                                                    </a>
                                                 }
                                             </div>
                                             {
@@ -1017,29 +1046,40 @@ function EditEvent({
                             }
 
                             {!!occupiedError && <div className={styles['start-time-error']}>{occupiedError}</div>}
+                            {!!dayDisable && <div className={styles['start-time-error']}>{dayDisable}</div>}
 
-                            {event.event_site_id && isSlot &&
+                            { !!venueInfo && venueInfo.timeslots && formReady &&
                                 <div className={styles['input-area']}>
                                     <div className={styles['input-area-title']}>{lang['Activity_Form_Starttime']}</div>
-                                    <TimeSlot eventSiteId={group?.id === 1516 ? 1 : event.event_site_id}
-                                              from={event.start_time!}
-                                              to={event.end_time!}
-                                              allowRepeat={isManager && !initEvent?.recurring_event_id}
-                                              onChange={(from, to, timezone, repeat, counter) => {
-                                                  console.log('========res', from, to, timezone, repeat, counter)
-                                                  setRepeat(repeat as any || null)
-                                                  setRepeatCounter(counter)
-                                                  setEvent({
-                                                      ...event,
-                                                      start_time: from,
-                                                      end_time: to,
-                                                      timezone: timezone
-                                                  })
-                                              }}/>
+                                    <TimeSlotInput
+                                        initData={{
+                                            from: event.start_time!,
+                                            to: event.end_time!,
+                                            timezone: event.timezone!
+                                        }}
+                                        eventSite={venueInfo!}
+                                        repeatCount={repeatCounter}
+                                        repeat={repeat}
+                                        showRepeat={isManager}
+                                        repeatDisabled={!!initEvent?.recurring_event_id}
+                                        recurringEventId={initEvent?.recurring_event_id}
+                                        disabled={false}
+                                        onChange={e => {
+                                            console.log('slot value', e)
+                                            setRepeatCounter(e.counter)
+                                            setRepeat(e.repeat as any || null)
+                                            setEvent({
+                                                ...event,
+                                                start_time: e.from,
+                                                end_time: e.to,
+                                                timezone: e.timezone
+                                            })
+                                        }}
+                                    />
                                 </div>
                             }
 
-                            {formReady && !isSlot &&
+                            {formReady && (!venueInfo || !venueInfo.timeslots) &&
                                 <div className={styles['input-area']}>
                                     <div className={styles['input-area-title']}>{lang['Activity_Form_Starttime']}</div>
                                     <AppEventTimeInput
@@ -1238,7 +1278,10 @@ function EditEvent({
                                                     checked={event.display !== 'normal'}/>
                                             </div>
                                         </div>
-                                        <div className={styles['input-area-des']}>Select a private event, the event you created can only be viewed through the link, and users can view the event in <a href={'/my-event'} target={'_blank'}>My Event</a> page. </div>
+                                        <div className={styles['input-area-des']}>Select a private event, the event you
+                                            created can only be viewed through the link, and users can view the event
+                                            in <a href={'/my-event'} target={'_blank'}>My Event</a> page.
+                                        </div>
                                     </div>
                                 </>
                             }

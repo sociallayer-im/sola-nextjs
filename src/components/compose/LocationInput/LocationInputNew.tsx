@@ -13,7 +13,7 @@ export interface LocationInputValue {
     event_site_id: number | null,
     location: string | null,
     formatted_address: string | null,
-    event_site: EventSites | null
+    event_site?: EventSites | null
 }
 
 export interface GMapPlaceRes {
