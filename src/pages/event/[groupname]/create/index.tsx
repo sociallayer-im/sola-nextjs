@@ -161,7 +161,7 @@ function EditEvent({
         if (!!group && user.id) {
             const memberships = await getGroupMemberShips({group_id: group.id, role: 'all'})
             const membership = memberships.find(item => item.profile.id === user.id)
-            const isJoined = !!membership && membership.role === 'member' || membership.role === 'manager' || membership.role === 'owner'
+            const isJoined = !!membership && (membership.role === 'member' || membership.role === 'manager' || membership.role === 'owner')
             const isManager = !!membership && membership.role === 'manager' || group.creator.id === user.id
 
             setIsManager(isManager)
