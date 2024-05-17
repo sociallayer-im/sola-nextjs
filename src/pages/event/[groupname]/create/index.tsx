@@ -164,21 +164,26 @@ function EditEvent({
         if (!!group && user.id) {
             const memberships = await getGroupMemberShips({group_id: group.id, role: 'all'})
             const membership = memberships.find(item => item.profile.id === user.id)
-            const isJoined = !!membership && membership.role === 'member'
+            const isJoined = !!membership && membership.role === 'member' || membership.role === 'manager' || membership.role === 'owner'
             const isManager = !!membership && membership.role === 'manager' || group.creator.id === user.id
 
             setIsManager(isManager)
             if (!!initEvent && user.userName && initEvent.operators?.includes(user!.id!)) {
+                console.log('1')
                 setNeedPublish(false)
             } else if (!eventGroup || (eventGroup as Group).can_publish_event === 'everyone') {
+                console.log('2')
                 setNeedPublish(false)
             } else if ((eventGroup as Group).can_publish_event === 'member' && !isJoined) {
+                console.log('3', (eventGroup as Group).can_publish_event, isJoined)
                 setNeedPublish(true)
                 return
             } else if ((eventGroup as Group).can_publish_event === 'manager' && !isManager) {
+                console.log('4')
                 setNeedPublish(true)
                 return
             } else {
+                console.log('5')
                 setNeedPublish(false)
 
             }
