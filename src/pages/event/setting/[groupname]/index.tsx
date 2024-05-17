@@ -435,6 +435,7 @@ function Dashboard() {
                                         onChange={newEventSite => {
                                             const newEventSiteList = [...eventSite]
                                             newEventSiteList[index] = newEventSite
+                                            console.log('newEventSiteList', newEventSiteList)
                                             setEventSite(newEventSiteList)
                                         }}/>
                                 })

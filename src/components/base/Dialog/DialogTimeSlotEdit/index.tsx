@@ -68,10 +68,6 @@ export default function DialogTimeSlotEdit(props: { close: any, value: TimeSlotI
                             || (s.start >= item.slot[j].start && s.end <= item.slot[j].end)
                         || (s.start < item.slot[j].end && s.end >= item.slot[j].end)
 
-                        console.log('1', s.start <= item.slot[j].start && s.end > item.slot[j].start)
-                        console.log('2', s.start >= item.slot[j].start && s.end <= item.slot[j].end)
-                        console.log('3', s.start < item.slot[j].end && s.end >= item.slot[j].end)
-
                         if (isOverlap) {
                             errMsg[index] = 'Time slot overlap'
                         }
@@ -98,6 +94,10 @@ export default function DialogTimeSlotEdit(props: { close: any, value: TimeSlotI
                         <div className={styles['title']}>Opening hours 24/7</div>
                         <AppRadio checked={allTime}/>
                     </div>
+                </div>
+                <div className={styles['row']}>
+                    <div className={styles['title']}>Available Date</div>
+                    DatePicker
                 </div>
                 <div>
                     {

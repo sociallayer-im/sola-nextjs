@@ -2916,7 +2916,7 @@ export interface EventSites {
     timeslots: null | string,
     link: string | null,
     capacity: number | null,
-    overrides: null | string,
+    overrides: null | string[],
 }
 
 export interface Participants {

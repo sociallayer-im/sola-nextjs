@@ -6,7 +6,9 @@ import DialogsContext from "../../provider/DialogProvider/DialogsContext";
 import langContext from "../../provider/LangProvider/LangContext";
 import MapContext from "../../provider/MapProvider/MapContext";
 import DialogTimeSlotEdit from "@/components/base/Dialog/DialogTimeSlotEdit";
-import styles from "@/pages/event/[groupname]/create/CreateEvent.module.scss";
+import {Datepicker} from "baseui/datepicker";
+import AppRadio from "@/components/base/AppRadio/AppRadio";
+import dayjs from "dayjs";
 
 export interface GMapSearchResult {
     description: string,
@@ -38,6 +40,7 @@ function EventSiteInput(props: LocationInputProps) {
 
     const [newEventSite, setNewEventSite] = useState<EventSites | undefined>(props?.initValue)
     const [customLocationDetail, setCustomLocationDetail] = useState<any>(props?.initValue.formatted_address || null)
+    const [enableAvailableDate, setEnableAvailableDate] = useState<boolean>(false)
 
 
     const mapService = useRef<any>(null)
@@ -97,9 +100,12 @@ function EventSiteInput(props: LocationInputProps) {
         if (props.onChange && newEventSite) {
             props.onChange(newEventSite)
         }
-    }, [
-        newEventSite
-    ])
+        if (newEventSite?.end_date || newEventSite?.start_date) {
+            setEnableAvailableDate(true)
+        } else {
+            setEnableAvailableDate(false)
+        }
+    }, [ newEventSite])
 
     useEffect(() => {
         if (showSearchRes) {
@@ -178,6 +184,7 @@ function EventSiteInput(props: LocationInputProps) {
             size: ['100%', '100%']
         })
     }
+
 
     return (<div className={'input-area event-site-input'}>
         <input type="text" id={'map'}/>
@@ -290,6 +297,57 @@ function EventSiteInput(props: LocationInputProps) {
             }
             }
         />
+        <div className={'input-area-sub-title'} style={{marginTop: '24px'}} onClick={e => {
+            if (enableAvailableDate) {
+                setNewEventSite({
+                    ...newEventSite!,
+                    start_date: null,
+                    end_date: null
+                })
+            } else {
+                setEnableAvailableDate(true)
+            }
+        }
+        }>
+            <div style={{whiteSpace: 'nowrap', flex: '1'}}>{'Available Date (Optional)'}</div>
+            <div><AppRadio checked={enableAvailableDate}/></div>
+        </div>
+        <div className={'app-date-input-v2 second'}>
+            <div className={'from-label'}>From</div>
+            <div className={'slots'}>
+                <Datepicker
+                    disabled={!enableAvailableDate}
+                    value={newEventSite!.start_date ? new Date(newEventSite!.start_date) : null}
+                    onChange={({date}) => {
+                        const time = Array.isArray(date) ? date : [date][0] as any
+                        console.log('time', time)
+                        setNewEventSite({
+                            ...newEventSite!,
+                            start_date: dayjs(time.toISOString()).format('YYYY/MM/DD') || null,
+                            end_date: dayjs(time.toISOString()).add(1, 'month').format('YYYY/MM/DD') || null
+                        })
+                        }
+                    }
+                />
+            </div>
+            <div className={'from-label'}>To</div>
+            <div className={'slots'}>
+                <Datepicker
+                    minDate={newEventSite!.start_date ? new Date(newEventSite!.start_date) : null}
+                    disabled={!enableAvailableDate}
+                    value={newEventSite!.end_date ? new Date(newEventSite!.end_date) : null}
+                    onChange={({date}) => {
+                        const time = Array.isArray(date) ? date : [date][0] as any
+                        setNewEventSite({
+                            ...newEventSite!,
+                            end_date: dayjs(time.toISOString()).format('YYYY/MM/DD') || null
+                        })
+                    }
+                    }
+                />
+            </div>
+        </div>
+
 
         <div className={'input-area-sub-title'} style={{marginTop: '24px'}}>
             <div style={{whiteSpace: 'nowrap', flex: '1'}}>{'Venue seats (Optional)'}</div>

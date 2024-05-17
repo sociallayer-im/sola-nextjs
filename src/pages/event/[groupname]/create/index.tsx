@@ -11,7 +11,8 @@ import {
     createRepeatEvent,
     CreateRepeatEventProps,
     Event,
-    EventSites, getEventSide,
+    EventSites,
+    getEventSide,
     getGroupMemberShips,
     getProfile,
     getProfileBatch,
@@ -34,7 +35,6 @@ import AppButton, {BTN_KIND} from "@/components/base/AppButton/AppButton";
 import UploadImage from "@/components/compose/UploadImage/UploadImage";
 import RichTextEditor from "@/components/compose/RichTextEditor/Editor";
 import LocationInput from "@/components/compose/LocationInput/LocationInputNew";
-import TimeSlot from "@/components/compose/themu/TimeSlotNew";
 import TimeSlotInput from "@/components/compose/TimeSlotInput/TimeSlotInput";
 import userContext from "@/components/provider/UserProvider/UserContext";
 import AppEventTimeInput from "@/components/base/AppEventTimeInput/AppEventTimeInput";
@@ -55,9 +55,11 @@ import TriangleUp from 'baseui/icon/triangle-up'
 
 const utc = require('dayjs/plugin/utc')
 const timezone = require('dayjs/plugin/timezone')
+const isSameOrAfter = require('dayjs/plugin/isSameOrAfter')
 const dayjs: any = dayjsLib
 dayjs.extend(utc)
 dayjs.extend(timezone)
+dayjs.extend(isSameOrAfter)
 
 
 const repeatEventEditOptions = [
@@ -169,23 +171,17 @@ function EditEvent({
 
             setIsManager(isManager)
             if (!!initEvent && user.userName && initEvent.operators?.includes(user!.id!)) {
-                console.log('1')
                 setNeedPublish(false)
             } else if (!eventGroup || (eventGroup as Group).can_publish_event === 'everyone') {
-                console.log('2')
                 setNeedPublish(false)
             } else if ((eventGroup as Group).can_publish_event === 'member' && !isJoined) {
-                console.log('3', (eventGroup as Group).can_publish_event, isJoined)
                 setNeedPublish(true)
                 return
             } else if ((eventGroup as Group).can_publish_event === 'manager' && !isManager) {
-                console.log('4')
                 setNeedPublish(true)
                 return
             } else {
-                console.log('5')
                 setNeedPublish(false)
-
             }
         } else {
             setIsManager(false)
@@ -231,7 +227,7 @@ function EditEvent({
     }, [user.id, group, initEvent])
 
     useEffect(() => {
-       console.log('venueInfo', venueInfo)
+        console.log('venueInfo', venueInfo)
         if (!venueInfo) {
             if (!event.start_time || !event.end_time) {
                 setEvent({
@@ -391,16 +387,43 @@ function EditEvent({
     // check available day for curr venue
     useEffect(() => {
         if (!!venueInfo && !!venueInfo.timeslots && event.start_time) {
-           const day =  dayjs.tz(new Date(event.start_time).getTime(), event.timezone).day()
-           const dayFullName = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
-           const target: any = JSON.parse(venueInfo.timeslots!).find((item:{day: string, disable: boolean}) => item.day === dayFullName[day])
-            if (target.disable) {
+            const day = dayjs.tz(new Date(event.start_time).getTime(), event.timezone).day()
+            const dayFullName = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+            const target: any = JSON.parse(venueInfo.timeslots!).find((item: { day: string, disable: boolean }) => item.day === dayFullName[day])
+
+            const startTime = dayjs.tz(event.start_time, event.timezone)
+            const endTime = dayjs.tz(event.start_time, event.timezone)
+            const availableStart = venueInfo.start_date ? dayjs.tz(venueInfo.start_date, event.timezone) : null
+            const availableEnd = venueInfo.end_date ? dayjs.tz(venueInfo.end_date, event.timezone).hour(23).minute(59) : null
+
+            let available = true
+            if (availableStart && !availableEnd) {
+                available = startTime.isSameOrAfter(availableStart)
+            } else if (!availableStart && availableEnd) {
+                available = endTime.isBefore(availableEnd)
+            } else if (availableStart && availableEnd) {
+                console.log('here', startTime.isSameOrAfter(availableStart), endTime.isBefore(availableEnd))
+                available = startTime.isSameOrAfter(availableStart) && endTime.isBefore(availableEnd)
+            }
+
+            if (venueInfo.overrides) {
+                const overrides = venueInfo.overrides
+                const override = overrides.find((item: string) => {
+                    return item === startTime.format('YYYY/MM/DD') || item === endTime.format('YYYY/MM/DD')
+                })
+
+                if (override) {
+                    available = false
+                }
+            }
+
+            if (target.disable || !available) {
                 setDayDisable('The date you selected is not available for the current venue')
             } else {
                 setDayDisable('')
             }
         }
-    }, [event,  venueInfo])
+    }, [event, venueInfo])
 
     const showBadges = async () => {
         const props = !!(creator as Group)?.creator ? {
@@ -1053,7 +1076,7 @@ function EditEvent({
                             {!!occupiedError && <div className={styles['start-time-error']}>{occupiedError}</div>}
                             {!!dayDisable && <div className={styles['start-time-error']}>{dayDisable}</div>}
 
-                            { !!venueInfo && venueInfo.timeslots && formReady &&
+                            {!!venueInfo && venueInfo.timeslots && formReady &&
                                 <div className={styles['input-area']}>
                                     <div className={styles['input-area-title']}>{lang['Activity_Form_Starttime']}</div>
                                     <TimeSlotInput
