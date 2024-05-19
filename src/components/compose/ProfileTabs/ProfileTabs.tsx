@@ -128,7 +128,7 @@ function ComponentName({profile}: {profile: Profile}) {
                     <Tab title={'ENS'}>
                         <ListNftAsset profile={profile} type={'ens'}/>
                     </Tab>
-                    <Tab title={'PNS'}>
+{/*                    <Tab title={'PNS'}>
                         <ListNftAsset profile={profile} type={'pns'}/>
                     </Tab>
                     <Tab title={'.bit'}>
@@ -136,7 +136,7 @@ function ComponentName({profile}: {profile: Profile}) {
                     </Tab>
                     <Tab title={'SeeDAO'}>
                         <ListNftAsset profile={profile} type={'seedao'}/>
-                    </Tab>
+                    </Tab>*/}
                 </AppSubTabs>
             </Tab>
 

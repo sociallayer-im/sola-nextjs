@@ -269,7 +269,7 @@ const langEN = {
     New_Year_1: 'Cast your New Year wishes into a digital badge.',
     New_Year_2: 'Reason for issuing :',
     New_Year_3: 'Send you a badge, scan <br> the code to get',
-    Save_Card: 'Save to album',
+    Save_Card: 'Download the image',
     Card_Event_Success_1: 'Scan the code',
     Card_Event_Success_2: 'and attend the event',
     Group_invite_title: 'Invite',
