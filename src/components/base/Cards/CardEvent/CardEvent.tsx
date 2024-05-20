@@ -273,7 +273,7 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
                     {!!eventDetail.start_time &&
                         <div className={'detail'}>
                             <i className={'icon-calendar'}/>
-                            <span>{formatTime(eventDetail.start_time, localeTimezone as any)}</span>
+                            <span>{formatTime(eventDetail.start_time, eventDetail.timezone || localeTimezone)}</span>
                         </div>
                     }
 

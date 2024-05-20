@@ -194,7 +194,7 @@ function EventCheckIn() {
                             </div>
                         }
 
-                        {!!user.id && isJoin && !isHoster && !isManager && !isOperator &&
+                        {!!user.id && isJoin && !isHoster && !isManager && !isOperator && !isGroupOwner &&
                             <div className={'checkin-qrcode'}>
                                 <QRcode text={`${params?.eventid}#${user.id}` || ''} size={[155, 155]}/>
                                 {
@@ -225,7 +225,7 @@ function EventCheckIn() {
                                 } <span>({hasCheckin.length} / {participants.length})</span>
                                 </div>
                                 <ListEventParticipants
-                                    isHost={isHoster || isManager || isOperator}
+                                    isHost={isHoster || isManager || isOperator || isGroupOwner}
                                     eventId={Number(params?.eventid || 0)}
                                     participants={participants}
                                     onChecked={(item) => {
@@ -237,7 +237,7 @@ function EventCheckIn() {
                     </div>
                 </div>
 
-                {(isHoster || isManager || isOperator) && event.badge_id && !!hasCheckin.length &&
+                {(isHoster || isManager || isOperator || isGroupOwner) && event.badge_id && !!hasCheckin.length &&
                     <div className={'actions'}>
                         <div className={'center'}>
                             <AppButton special onClick={e => {

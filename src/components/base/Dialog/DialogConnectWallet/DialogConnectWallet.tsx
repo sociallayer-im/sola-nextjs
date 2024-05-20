@@ -5,7 +5,7 @@ import {setLastLoginType} from '@/utils/authStorage'
 import DialogsContext from '../../../provider/DialogProvider/DialogsContext'
 import UserContext from '../../../provider/UserProvider/UserContext'
 import {useRouter} from 'next/navigation'
-import {WalletContext as solanaWalletContext} from '@solana/wallet-adapter-react'
+// import {WalletContext as solanaWalletContext} from '@solana/wallet-adapter-react'
 // import {SignInButton} from '@farcaster/auth-kit';
 import useZuAuth from '@/service/zupass/useZuAuth'
 
@@ -36,7 +36,7 @@ function DialogConnectWallet(props: DialogConnectWalletProps) {
     const router = useRouter()
     const {clean, showLoading, showToast} = useContext(DialogsContext)
     const {user, logOut, setUser} = useContext(UserContext)
-    const solanaWallet: any = useContext(solanaWalletContext)
+    //  const solanaWallet: any = useContext(solanaWalletContext)
     const zuAuthLogin = useZuAuth()
 
     useEffect(() => {
@@ -85,13 +85,13 @@ function DialogConnectWallet(props: DialogConnectWalletProps) {
         router.push('/login-phone')
     }
 
-    const handleSolanaLogin = (walletName: string) => {
-        // solanaWallet.disconnect()
-        setLastLoginType('solana')
-        window.localStorage.setItem('fallback', window.location.href)
-        solanaWallet.select(walletName)
-        clean()
-    }
+    // const handleSolanaLogin = (walletName: string) => {
+    //     // solanaWallet.disconnect()
+    //     setLastLoginType('solana')
+    //     window.localStorage.setItem('fallback', window.location.href)
+    //     solanaWallet.select(walletName)
+    //     clean()
+    // }
 
     const hadleFarcasterLogin = () => {
         setLastLoginType('farcaster')
@@ -147,31 +147,31 @@ function DialogConnectWallet(props: DialogConnectWalletProps) {
                 <div className='connect-name'>Zupass</div>
             </div>
 
-            {solanaWallet.wallets && solanaWallet.wallets.length > 0 ?
-                <>
-                    {
-                        solanaWallet.wallets.map((wallet: any, idx: number) => {
-                            return wallet.readyState !== 'NotDetected' ?
-                                <div className='connect-item' key={idx} onClick={async () => {
-                                    await handleSolanaLogin(wallet.adapter.name)
-                                }}>
-                                    <img src={wallet.adapter.icon} alt="email"/>
-                                    <div className='connect-name'>{wallet.adapter.name}</div>
-                                    <img className='chain-icon' src="/images/solana.png" alt=""/>
-                                </div>
-                                : <div className='connect-item disable' key={idx}>
-                                    <img src={wallet.adapter.icon} alt="solana"/>
-                                    <div className='connect-name'>{wallet.adapter.name}</div>
-                                    <img className='chain-icon' src="/images/solana.png" alt=""/>
-                                </div>
-                        })
-                    }
-                </>:
-                <div className='connect-item disable'>
-                    <img src={'/images/solana.png'} alt="email"/>
-                    <div className='connect-name'>{'Solana'}</div>
-                </div>
-            }
+            {/*{solanaWallet.wallets && solanaWallet.wallets.length > 0 ?*/}
+            {/*    <>*/}
+            {/*        {*/}
+            {/*            solanaWallet.wallets.map((wallet: any, idx: number) => {*/}
+            {/*                return wallet.readyState !== 'NotDetected' ?*/}
+            {/*                    <div className='connect-item' key={idx} onClick={async () => {*/}
+            {/*                        await handleSolanaLogin(wallet.adapter.name)*/}
+            {/*                    }}>*/}
+            {/*                        <img src={wallet.adapter.icon} alt="email"/>*/}
+            {/*                        <div className='connect-name'>{wallet.adapter.name}</div>*/}
+            {/*                        <img className='chain-icon' src="/images/solana.png" alt=""/>*/}
+            {/*                    </div>*/}
+            {/*                    : <div className='connect-item disable' key={idx}>*/}
+            {/*                        <img src={wallet.adapter.icon} alt="solana"/>*/}
+            {/*                        <div className='connect-name'>{wallet.adapter.name}</div>*/}
+            {/*                        <img className='chain-icon' src="/images/solana.png" alt=""/>*/}
+            {/*                    </div>*/}
+            {/*            })*/}
+            {/*        }*/}
+            {/*    </>:*/}
+            {/*    <div className='connect-item disable'>*/}
+            {/*        <img src={'/images/solana.png'} alt="email"/>*/}
+            {/*        <div className='connect-name'>{'Solana'}</div>*/}
+            {/*    </div>*/}
+            {/*}*/}
 
             {/*<div className='connect-item' onClick={async () => {*/}
             {/*    hadleFarcasterLogin()*/}

@@ -73,6 +73,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
     const [tab, setTab] = useState(1)
     const [isHoster, setIsHoster] = useState(false)
     const [isOperator, setIsOperator] = useState(false)
+    const [isGroupOwner, setIsGroupOwner] = useState(false)
     const [isJoined, setIsJoined] = useState(false)
     const [canceled, setCanceled] = useState(false)
     const [outOfDate, setOutOfDate] = useState(false)
@@ -85,6 +86,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
     const [canAccess, setCanAccess] = useState(false)
     const [eventSite, setEventSite] = useState<any | null>(null)
     const [showMap, setShowMap] = useState(false)
+    const [group, setGroup] = useState<Group | null>(null)
 
     const [cohost, setCohost] = useState<ProfileSimple[]>([])
     const [speaker, setSpeaker] = useState<ProfileSimple[]>([])
@@ -287,6 +289,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                 }
 
                 setEventGroup(group as Group)
+                setGroup(group as Group)
 
                 const selectedGroup = group as Group
                 if (user.id && event.operators?.includes(user.id)) {
@@ -314,6 +317,10 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
             (!!(hoster as Group)?.creator && (hoster as Group)?.creator.id === user.id))
         checkJoined()
     }, [hoster, user.id])
+
+    useEffect(() => {
+       setIsGroupOwner(group?.creator.id === user.id)
+    }, [group, user.id])
 
     const gotoModify = () => {
         router.push(`/event/edit/${event?.id}`)
@@ -406,7 +413,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                         to={`/event/${eventGroup?.username}`}
                         menu={() =>
                             <div className={'event-top-btn'}>
-                                {(isHoster || isManager || isOperator) && !canceled &&
+                                {(isHoster || isManager || isOperator || isGroupOwner) && !canceled &&
                                     <Link href={`/event/edit/${event?.id}`}>
                                         <i className={'icon-edit'}></i>{lang['Activity_Detail_Btn_Modify']}</Link>
                                 }
@@ -641,6 +648,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                     </div>
                                 }
 
+
                                 {user.userName && canAccess && !event.external_url && event.status !== 'pending' &&
                                     <div className={'event-login-status'}>
                                         <div className={'user-info'}>
@@ -677,13 +685,14 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                         {lang['Activity_Detail_Btn_add_Calender']}</AppButton>
                                                 }
 
-                                                {!isJoined && !canceled && (inCheckinTime || notStart) &&
+
+                                                {!isJoined && !canceled &&
                                                     <AppButton special onClick={e => {
                                                         handleJoin()
                                                     }}>{lang['Activity_Detail_Btn_Attend']}</AppButton>
                                                 }
 
-                                                {!canceled && isJoined && !isHoster && !isManager && inCheckinTime && !isOperator &&
+                                                {!canceled && isJoined && !isHoster && !isManager && !isOperator && !isGroupOwner &&
                                                     <AppButton
                                                         special
                                                         onClick={e => {
@@ -703,7 +712,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                             </div>
 
                                             <div className={'center'}>
-                                                {(isHoster || isManager || isOperator) && !canceled &&
+                                                {(isHoster || isManager || isOperator || isGroupOwner) && !canceled &&
                                                     <AppButton
                                                         onClick={e => {
                                                             handleHostCheckIn()
@@ -807,7 +816,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                 <RichTextDisplayer markdownStr={event.content} />
 
                                                 {!!event.notes &&
-                                                    <EventNotes hide={!isJoined && !isHoster && !isOperator} notes={event.notes}/>
+                                                    <EventNotes hide={!isJoined && !isHoster && !isOperator && !isGroupOwner} notes={event.notes}/>
                                                 }
                                             </div>
                                         </div>}
@@ -825,7 +834,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                             fetchData()
                                                         }}
                                                         participants={participants}
-                                                        isHost={isHoster}
+                                                        isHost={isHoster || isOperator || isGroupOwner || isManager}
                                                         eventId={Number(params?.eventid)}
                                                     />
                                                 }
@@ -909,7 +918,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                 {lang['Activity_Detail_Btn_add_Calender']}</AppButton>
                                         }
 
-                                        {!isJoined && !canceled && (inCheckinTime || notStart) &&
+                                        {!isJoined && !canceled &&
                                             <AppButton special onClick={e => {
                                                 handleJoin()
                                             }}>{lang['Activity_Detail_Btn_Attend']}</AppButton>
@@ -927,7 +936,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                     </div>
 
                                     <div className={'event-action'}>
-                                        {(isHoster || isManager || isOperator) && !canceled &&
+                                        {(isHoster || isManager || isOperator || isGroupOwner || isJoined) && !canceled &&
                                             <AppButton
                                                 onClick={e => {
                                                     handleHostCheckIn()
