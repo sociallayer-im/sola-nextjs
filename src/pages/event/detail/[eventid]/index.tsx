@@ -2,7 +2,7 @@ import {useParams, useRouter} from 'next/navigation'
 import {useContext, useEffect, useState} from 'react'
 import {
     Badge,
-    Event, getRecurringEvents,
+    Event, getEventSide, getRecurringEvents,
     Group,
     joinEvent,
     Participants,
@@ -545,6 +545,10 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                 : <div>{event.location}</div>
                                             }
                                         </div>
+                                        {
+                                            !! eventSite && eventSite.link &&
+                                           <div className={'venue-link'}> <a href={eventSite.link} target="_blank">{'View venue photos'}</a></div>
+                                        }
                                         {MapReady &&
                                             <>
                                                 <div className={'switch-preview-map'}

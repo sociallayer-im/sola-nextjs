@@ -107,6 +107,16 @@
       font-style: normal;
       font-weight: 400;
     }
+
+    div[data-baseweb="input"] {
+      border: 0;
+      background: #F8F8F8;
+      input {
+        border: 0;
+        background: #F8F8F8;
+        font-size: 14px;
+      }
+    }
   }
 
   .from-label {

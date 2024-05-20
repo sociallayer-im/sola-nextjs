@@ -2911,6 +2911,12 @@ export interface EventSites {
     "formatted_address": null | string,
     geo_lat: null | string,
     geo_lng: null | string,
+    start_date: string | null,
+    end_date: string | null,
+    timeslots: null | string,
+    link: string | null,
+    capacity: number | null,
+    overrides: null | string[],
 }
 
 export interface Participants {
@@ -3130,6 +3136,12 @@ export async function queryEvent(props: QueryEventProps): Promise<Event[]> {
             formatted_address
             geo_lat
             geo_lng
+            timeslots
+            link
+            capacity
+            overrides
+            start_date
+            end_date
         }
         event_type
         formatted_address
@@ -3500,7 +3512,13 @@ export async function getEventSide(groupId?: number): Promise<EventSites[]> {
         location
         location_viewport
         owner_id
-        title
+        title,
+        start_date
+        end_date
+        timeslots
+        link
+        capacity
+        overrides
       }
     }`
 
