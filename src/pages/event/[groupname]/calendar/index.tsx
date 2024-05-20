@@ -81,8 +81,9 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
     const searchParams = useSearchParams()
 
     const [timezoneSelected, setTimezoneSelected] = useState<{ label: string, id: string }[]>([])
-    const [tag, setTag] = useState<string>('')
+    const [tag, setTag] = useState<string>(searchParams?.get('tag') || '')
     const [venue, setVenue] = useState<number>(0)
+    const [presetDate, setPresetDate] = useState<string>(searchParams?.get('date') || '')
 
     useEffect(() => {
         try {
@@ -106,44 +107,9 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
         }
     }, [])
 
-    const createEvent = (dateTime: string) => {
-        const hasEventModal = document.querySelector('#calendar .sx__event-modal')
-        if (hasEventModal) return
-
-        const time = new Date(dateTime)
-        time.setMinutes(0, 0)
-
-        const selected_time_start = dayjs.tz(dateTime, timezoneSelected[0].id).minute(0).second(0).toDate() // 2024-01-01 12:37
-        const selected_time_end = dayjs.tz(dateTime, timezoneSelected[0].id).minute(30).second(0).toDate()
-
-        openConfirmDialog({
-            confirmLabel: 'Create Event',
-            confirmTextColor: '#000',
-            title: 'Create Event',
-            content: () => {
-                return <div>
-                    <div>Would you like to create an event for {formatTime(time.toISOString())} ?
-                    </div>
-                    <div style={{
-                        lineHeight: "1.2rem",
-                        fontSize: "12px",
-                        color: '#666',
-                        marginTop: "12px"
-                    }}>* You can still modify the time during the creation process.
-                    </div>
-                </div>
-            },
-            onConfirm: (close: any) => {
-                router.push(`/event/${eventGroup.username}/create?set_start_time=${selected_time_start.toISOString()}&set_end_time=${selected_time_end.toISOString()}&set_timezone=${timezoneSelected[0].id}`)
-                close()
-            },
-        })
-    }
-
     useEffect(() => {
         if (timezoneSelected[0]) {
             const dayList = getCalendarData(timezoneSelected[0].id)
-
             queryEvent({
                 group_id: eventGroup.id,
                 start_time_from: new Date(dayList[0].timestamp).toISOString(),
@@ -216,7 +182,6 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
                         })
                     }
 
-
                     const customTagFilter = eventGroup.event_tags?.length ?
                         {
                             options: [
@@ -224,17 +189,17 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
                                     label: `<div class="${styles['drop-list']}"><i style="background:#f1f1f1" ></i> All Tags</div>`,
                                     value: ''
                                 },
-                                ...(eventGroup.event_tags || []).map((tag: string) => {
+                                ...(eventGroup.event_tags || []).map((t: string) => {
                                     return {
-                                        label: `<div class="${styles['drop-list']}"><i style="background: ${getLabelColor(tag)}" ></i>${tag}</div>`,
-                                        value: tag
+                                        label: `<div class="${styles['drop-list']}"><i style="background: ${getLabelColor(t)}" ></i>${t}</div>`,
+                                        value: t
                                     }
                                 })
                             ],
                             onClick: (value: { label: string, value: any }) => {
                                 setTag(value.value)
                             },
-                            defaultSelectedIndex: 0
+                            defaultSelectedIndex: eventGroup.event_tags.findIndex((t: string) => t === tag) + 1
                         } : undefined
 
                     const venueFilter = props.eventSite?.length ?
@@ -257,9 +222,8 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
                             defaultSelectedIndex: 0
                         } : undefined
 
-                    const customMenus = [customTagFilter, venueFilter].filter(Boolean)
-
-                    const presetDate = searchParams?.get('date')
+                    // const customMenus = [customTagFilter, venueFilter].filter(Boolean)
+                    const customMenus =customTagFilter ?  [customTagFilter]: undefined
 
                     const selectedDate = presetDate ?
                         dayjs.tz(presetDate, timezoneSelected[0].id).format('YYYY-MM-DD'):
@@ -282,31 +246,78 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
                         calendars,
                         defaultView: 'week',
                         events: eventList as any,
-                        customMenus: customMenus.length ? customMenus : undefined,
+                        customMenus: customMenus,
                         callbacks: {
                             onClickDateTime(dateTime: string) {
                                 createEvent(dateTime)
+                            },
+                            onRangeUpdate(range: { start: string, end: string }) {
+                                setPresetDate(range.start.split(' ')[0])
                             }
                         },
                     } as any)
                     scheduleXRef.current.render(calendarRef.current)
-
-                    const showEvent = searchParams?.get('event')
-                    if(showEvent) {
-                        setTimeout(() => {
-                            // const eventTarget = document.querySelector(`div[data-event-id="${showEvent}"]`);
-                            // (window as any).eventTarget = document.querySelector(`div[data-event-id="${showEvent}"]`)
-                            // eventTarget?.dispatchEvent(new Event('click'))
-                            // console.log('eventTarget', eventTarget)
-                        }, 1000)
-                    }
                 }
             })
         }
     }, [timezoneSelected, tag, venue])
 
+
+    useEffect(() => {
+        history.replaceState(null, '', genHref({date: presetDate, tag: tag}))
+    }, [tag, presetDate])
+
+    const genHref = ({date, tag} : {date?: string, tag?: string}) => {
+        if (date && tag) {
+            return `?date=${date}&tag=${encodeURIComponent(tag)}`
+        } else if (date) {
+            return `?date=${date}`
+        } else if (tag) {
+            return `?tag=${tag}`
+        } else {
+            return ''
+        }
+    }
+
+    const createEvent = (dateTime: string) => {
+        const hasEventModal = document.querySelector('#calendar .sx__event-modal')
+        if (hasEventModal) return
+
+        const time = new Date(dateTime)
+        time.setMinutes(0, 0)
+
+        const selected_time_start = dayjs.tz(dateTime, timezoneSelected[0].id).minute(0).second(0).toDate() // 2024-01-01 12:37
+        const selected_time_end = dayjs.tz(dateTime, timezoneSelected[0].id).minute(30).second(0).toDate()
+
+        openConfirmDialog({
+            confirmLabel: 'Create Event',
+            confirmTextColor: '#000',
+            title: 'Create Event',
+            content: () => {
+                return <div>
+                    <div>Would you like to create an event for {formatTime(time.toISOString())} ?
+                    </div>
+                    <div style={{
+                        lineHeight: "1.2rem",
+                        fontSize: "12px",
+                        color: '#666',
+                        marginTop: "12px"
+                    }}>* You can still modify the time during the creation process.
+                    </div>
+                </div>
+            },
+            onConfirm: (close: any) => {
+                router.push(`/event/${eventGroup.username}/create?set_start_time=${selected_time_start.toISOString()}&set_end_time=${selected_time_end.toISOString()}&set_timezone=${timezoneSelected[0].id}`)
+                close()
+            },
+        })
+    }
+
     return <div>
-        <ScheduleHeader group={eventGroup}/>
+        <ScheduleHeader group={eventGroup} params={genHref({
+            date: presetDate,
+            tag: tag
+        })}/>
         <div id={'calendar'} className={styles['schedule-x']} ref={calendarRef}></div>
     </div>
 }

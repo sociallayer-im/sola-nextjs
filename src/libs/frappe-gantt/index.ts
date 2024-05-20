@@ -836,7 +836,7 @@ export default class Gantt {
 
         let scroll_pos =
             (hours_before_first_task / this.options.step) *
-            this.options.column_width
+            this.options.column_width - 30
 
         if (this.view_is(VIEW_MODE.QUARTER_DAY)) {
             const currHour = new Date().getHours()

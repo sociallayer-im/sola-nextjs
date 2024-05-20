@@ -82,7 +82,13 @@ function Gan(props: { group: Group, eventSite: EventSites[] }) {
 
     const [timezoneSelected, setTimezoneSelected] = useState<{ label: string, id: string }[]>([])
     const [viewMode, setViewMode] = useState([views[0]])
-    const [tag, setTag] = useState([{id: 'All', label: 'All Tags', color: null}])
+
+    let presetTag = searchParams?.get('tag')
+    const [tag, setTag] = useState(presetTag && props.group.event_tags?.includes(presetTag)
+        ? [{id: presetTag, label: presetTag, color: getLabelColor(presetTag)}]
+        : [{id: 'All', label: 'All Tags', color: null}]
+    )
+
     const [page, setPage] = useState(1)
     const [start, setStart] = useState(new Date())
     const [end, setEnd] = useState(new Date())
@@ -157,26 +163,29 @@ function Gan(props: { group: Group, eventSite: EventSites[] }) {
     }, [])
 
     const getDuration = (date: Date, timezone: string) => {
-        let start: string, end: string
+        let start: string, end: string, startStr: string
         if (viewMode[0].id === 'Quarter Day') {
             start = dayjs.tz(date.getTime(), timezone).add(page - 1, 'month').startOf('month').toISOString()
+            startStr = dayjs.tz(date.getTime(), timezone).add(page - 1, 'month').format('YYYY-MM-DD')
             end = dayjs.tz(date.getTime(), timezoneSelected[0].id).add(page - 1, 'month').endOf('month').toISOString()
         } else if (viewMode[0].id === 'Day') {
             start = dayjs.tz(date.getTime(), timezone).add(page - 1, 'month').startOf('month').toISOString()
+            startStr = dayjs.tz(date.getTime(), timezone).add(page - 1, 'month').startOf('month').format('YYYY-MM-DD')
             end = dayjs.tz(date.getTime(), timezone).add(page - 1, 'month').endOf('month').toISOString()
         } else {
             start = dayjs.tz(date.getTime(), timezone).add(page - 1, 'year').startOf('year').toISOString()
+            startStr = dayjs.tz(date.getTime(), timezone).add(page - 1, 'year').startOf('year').format('YYYY-MM-DD')
             end = dayjs.tz(date.getTime(), timezone).add(page - 1, 'year').endOf('year').toISOString()
         }
 
-        return {start, end}
+        return {start, end, startStr}
     }
 
 
     useEffect(() => {
         if (timezoneSelected[0] && firstDate) {
             const now = firstDate
-            const {start, end} = getDuration(now, timezoneSelected[0].id)
+            const {start, end, startStr} = getDuration(now, timezoneSelected[0].id)
             const unload = showLoading()
             setStart(new Date(start))
             setEnd(new Date(end))
@@ -229,13 +238,13 @@ function Gan(props: { group: Group, eventSite: EventSites[] }) {
 
 
                 if (!eventList.length) {
-                    const pad = 30
+                    const pad = 27
                     for (let i = 0; i < pad; i++) {
                         eventList.push({
                             id: i + '',
                             name: '',
                             start: dayjs.tz(new Date(start).getTime(), timezoneSelected[0].id).format('YYYY-MM-DD HH:mm'),
-                            end: dayjs.tz(new Date(end).getTime(), timezoneSelected[0].id).add(1, 'day').format('YYYY-MM-DD HH:mm'),
+                            end: dayjs.tz(new Date(start).getTime(), timezoneSelected[0].id).add(1, 'day').format('YYYY-MM-DD HH:mm'),
                             progress: 0,
                             location: '',
                             avatar: '',
@@ -248,15 +257,15 @@ function Gan(props: { group: Group, eventSite: EventSites[] }) {
                             event: null as any
                         })
                     }
-                } else if (eventList.length < 30) {
-                    const pad = 30 - eventList.length
+                } else if (eventList.length < 27) {
+                    const pad = 27 - eventList.length
                     const padStartDate = eventList[eventList.length - 1].start
                     for (let i = 0; i < pad; i++) {
                         eventList.push({
                             id: i + '',
                             name: '',
                             start: dayjs.tz(new Date(padStartDate).getTime(), timezoneSelected[0].id).add(1, 'day').format('YYYY-MM-DD HH:mm'),
-                            end: dayjs.tz(new Date(padStartDate).getTime(), timezoneSelected[0].id).add(2, 'day').format('YYYY-MM-DD HH:mm'),
+                            end: dayjs.tz(new Date(padStartDate).getTime(), timezoneSelected[0].id).add(1, 'day').format('YYYY-MM-DD HH:mm'),
                             progress: 0,
                             location: '',
                             avatar: '',
@@ -281,12 +290,16 @@ function Gan(props: { group: Group, eventSite: EventSites[] }) {
                             ? new Date(searchParams?.get('date') as string)
                             : new Date()
                         : undefined
-                console.log('scrollToscrollTo', scrollTo)
+
+                if (page !== 1) {
+                    history.pushState(null, '', genHref({date: startStr, tag: tag[0].id !== 'All' ? tag[0].id : undefined}))
+                }
+
                 ganttRef.current = new Gantt('#gantt', eventList, {
                     view_mode: viewMode[0].id,
                     date_format: 'YYYY-MM-DD',
-                    start: new Date(start),
-                    end: new Date(end),
+                    start: dayjs(dayjs.tz(new Date(start), timezoneSelected[0].id).format('YYYY-MM-DD')).toDate(),
+                    end: dayjs(dayjs.tz(new Date(end), timezoneSelected[0].id).format('YYYY-MM-DD')).toDate(),
                     scrollTo,
                     gantt_head: '#gantt-head',
                     popup_trigger: 'click',
@@ -367,6 +380,18 @@ function Gan(props: { group: Group, eventSite: EventSites[] }) {
         }
     }, [firstDate, timezoneSelected, tag, page, viewMode, venue])
 
+    const genHref = ({date, tag} : {date?: string, tag?: string}) => {
+        if (date && tag) {
+            return `?date=${date}&tag=${encodeURIComponent(tag)}`
+        } else if (date) {
+            return `?date=${date}`
+        } else if (tag) {
+            return `?tag=${tag}`
+        } else {
+            return ''
+        }
+    }
+
     const toToday = () => {
         if (ganttRef.current) {
             setPage(1)
@@ -381,7 +406,10 @@ function Gan(props: { group: Group, eventSite: EventSites[] }) {
     }
 
     return <div className={styles['gant-page']}>
-        <ScheduleHeader group={eventGroup} />
+        <ScheduleHeader group={eventGroup}  params={genHref({
+            tag: tag[0].id !== 'All' ? tag[0].id : undefined,
+            date: page === 1 ? (searchParams?.get('date') || undefined) : getDuration(firstDate!, timezoneSelected[0].id).startStr
+        })}/>
         <div className={styles['gant-menu']}>
             <div className={styles['left']}>
                 <div className={styles['menu-item'] + ' input-disable'}>
@@ -460,32 +488,32 @@ function Gan(props: { group: Group, eventSite: EventSites[] }) {
                         }}
                     />
                 </div>
-                <div className={styles['menu-item'] + ' ' + styles['mobile-hide'] + ' input-disable'}>
-                    <Select
-                        labelKey={'label'}
-                        valueKey={'id'}
-                        clearable={false}
-                        creatable={false}
-                        searchable={false}
-                        value={venue}
-                        getOptionLabel={(opt: any) => {
-                            return <div className={styles['label-item']}>
+                {/*<div className={styles['menu-item'] + ' ' + styles['mobile-hide'] + ' input-disable'}>*/}
+                {/*    <Select*/}
+                {/*        labelKey={'label'}*/}
+                {/*        valueKey={'id'}*/}
+                {/*        clearable={false}*/}
+                {/*        creatable={false}*/}
+                {/*        searchable={false}*/}
+                {/*        value={venue}*/}
+                {/*        getOptionLabel={(opt: any) => {*/}
+                {/*            return <div className={styles['label-item']}>*/}
 
-                                {opt.option.label}
-                            </div>
-                        }}
-                        getValueLabel={(opt: any) => {
-                            return <div className={styles['label-item']}>
+                {/*                {opt.option.label}*/}
+                {/*            </div>*/}
+                {/*        }}*/}
+                {/*        getValueLabel={(opt: any) => {*/}
+                {/*            return <div className={styles['label-item']}>*/}
 
-                                {opt.option.label}
-                            </div>
-                        }}
-                        options={[{id: 0, label: 'All Venues', color: null}, ...venues as any]}
-                        onChange={({option}) => {
-                            setVenue([option] as any)
-                        }}
-                    />
-                </div>
+                {/*                {opt.option.label}*/}
+                {/*            </div>*/}
+                {/*        }}*/}
+                {/*        options={[{id: 0, label: 'All Venues', color: null}, ...venues as any]}*/}
+                {/*        onChange={({option}) => {*/}
+                {/*            setVenue([option] as any)*/}
+                {/*        }}*/}
+                {/*    />*/}
+                {/*</div>*/}
                 <div className={styles['menu-item'] + ' input-disable'}>
                     <Select
                         labelKey={'label'}

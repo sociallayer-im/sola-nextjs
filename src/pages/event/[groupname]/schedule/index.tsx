@@ -14,7 +14,6 @@ import { StatefulTooltip } from "baseui/tooltip"
 import ScheduleHeader from "@/components/base/ScheduleHeader";
 
 import * as dayjsLib from "dayjs";
-
 const utc = require('dayjs/plugin/utc')
 const timezone = require('dayjs/plugin/timezone')
 const isSameOrBefore = require('dayjs/plugin/isSameOrBefore')
@@ -50,8 +49,8 @@ const getCalendarData = (timeZone: string) => {
 
     // const timeStr = `${now.year()}-${now.month() + 1}-${now.date()} 00:00`
     // const _nowZero = dayjs(timeStr, timeZone)
-    const _from = now.subtract(182, 'day').startOf('week')
-    const _end = _from.add(52, 'week').endOf('week')
+    const _from = now.subtract(182, 'day').startOf('week').add(1, 'day')
+    const _end = _from.add(52, 'week').endOf('week').subtract(1, 'day')
 
     const _dayArray = []
     let current = _from
@@ -117,7 +116,11 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
     const [currYear, setCurrYear] = useState(new Date().getFullYear())
     const [timezoneSelected, setTimezoneSelected] = useState<{ label: string, id: string }[]>([])
 
-    const [tag, setTag] = useState([{id: 'All', label: 'All Tags', color: null}])
+    let presetTag = searchParams?.get('tag')
+    const [tag, setTag] = useState(presetTag && props.group.event_tags?.includes(presetTag)
+        ? [{id: presetTag, label: presetTag, color: getLabelColor(presetTag)}]
+        : [{id: 'All', label: 'All Tags', color: null}]
+    )
     const [venue, setVenue] = useState([{id: 0, label: 'All Venues', color: null}])
 
     const [pageSize, setPageSize] = useState(0)
@@ -149,7 +152,7 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
         const now = initDate || new Date()
         let date = dayjs.tz(now.getTime(), timezoneSelected[0].id)
         if (pageSize === 7) {
-            date = date.startOf('week')
+            date = date.startOf('week').add(1, 'day')
             console.log('date week', date.toDate())
         }
 
@@ -183,6 +186,45 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
         setIsEnd(targetPage === Math.ceil(showList.length / pageSize))
     }
 
+    const filter = (eventList: Event[]) => {
+        let res: any = []
+        if (showJoined) {
+            res = eventList.filter(item => {
+                return item.participants?.some(i => i.profile_id === user.id && i.status !== 'cancel')
+            })
+        } else {
+            res = eventList
+        }
+
+        if (tag[0] && tag[0].id !== 'All') {
+            res = res.filter((e: Event) => {
+                return e.tags?.includes(tag[0].id)
+            })
+        }
+
+        if (venue[0] && !!venue[0].id) {
+            res = res.filter((e: Event) => {
+                return e.event_site_id === venue[0].id
+            })
+        }
+
+        return res
+    }
+
+
+    const genHref = ({date, tag} : {date?: string, tag?: string}) => {
+        if (date && tag) {
+            return `?date=${date}&tag=${encodeURIComponent(tag)}`
+        } else if (date) {
+            return `?date=${date}`
+        } else if (tag) {
+            return `?tag=${tag}`
+        } else {
+            return ''
+        }
+    }
+
+
 
     useEffect(() => {
         if (timezoneSelected.length) {
@@ -203,8 +245,8 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
                 page_size: 1000
             })
 
-            setEventList(events)
             eventListRef.current = events
+            setEventList(events)
             setReady(true)
         }
 
@@ -212,6 +254,7 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
             getEventList()
         }
     }, [dayList])
+
 
     useEffect(() => {
         const list = JSON.parse(JSON.stringify(dayList))
@@ -229,36 +272,8 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
         setReady(true)
     }, [eventList])
 
-    useEffect(() => {
-        document.querySelector('.schedule-content')?.classList.add(styles['fade-out'])
-        setPage(0)
-        let res: any = []
-        if (showJoined) {
-            res = eventListRef.current.filter(item => {
-                return item.participants?.some(i => i.profile_id === user.id && i.status !== 'cancel')
-            })
-        } else {
-            res = eventListRef.current
-        }
-
-        if (tag[0] && tag[0].id !== 'All') {
-            res = res.filter((e: Event) => {
-                return e.tags?.includes(tag[0].id)
-            })
-        }
-
-        if (venue[0] && !!venue[0].id) {
-            res = res.filter((e: Event) => {
-                return e.event_site_id === venue[0].id
-            })
-        }
-
-        setEventList(res)
-    }, [showJoined, tag, venue])
 
     useEffect(() => {
-        console.log('pageSizepageSizepageSize', pageSize)
-
         if (pageSize && showList.length) {
             if (!initedRef.current) {
                 const initDate = searchParams?.get('date')
@@ -283,8 +298,8 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
                 setPageList(list)
                 setCurrMonth(dayjs.tz(list[0].timestamp, timezoneSelected[0].id).month())
                 setCurrYear(dayjs.tz(list[0].timestamp, timezoneSelected[0].id).year())
-                pageRef.current = page
 
+                pageRef.current = page
                 setTimeout(() => {
                     document.querySelector('.schedule-content')?.classList.remove(styles['fade-out'])
                     document.querySelector('.schedule-content')?.classList.remove(styles[`move-${direction}`])
@@ -402,10 +417,27 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
         }
     }, [])
 
+
+    useEffect(() => {
+        if (pageList[0]) {
+            const props = {
+                tag: tag[0] && tag[0].id !== 'All' ? tag[0].id : undefined,
+                date: dayjs.tz(pageList[0].timestamp, timezoneSelected[0].id).format('YYYY-MM-DD')
+            }
+
+            history.replaceState(null, '', genHref(props))
+        }
+
+    }, [pageList, page, tag, timezoneSelected])
+
     const creatEventPatch = eventGroup?.username === 'web3festival' ? `/event/${eventGroup.username}/custom-create` : `/event/${eventGroup.username}/create`
 
     return (<div className={styles['schedule-page']}>
-        <ScheduleHeader group={eventGroup} />
+        <ScheduleHeader group={eventGroup} params={genHref({
+            tag: tag[0] && tag[0].id !== 'All' ? tag[0].id : undefined,
+            date: pageList.length ? dayjs.tz(pageList[0].timestamp, timezoneSelected[0].id).format('YYYY-MM-DD') : undefined
+        })}/>
+
         <div className={`${styles['schedule-head']} schedule-head`}>
             <div className={styles['page-center']}>
                 <div className={styles['schedule-title']}>
@@ -467,32 +499,32 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
                             }}
                         />
                     </div>
-                    <div className={styles['menu-item'] + ' input-disable'}>
-                        <Select
-                            labelKey={'label'}
-                            valueKey={'id'}
-                            clearable={false}
-                            creatable={false}
-                            searchable={false}
-                            value={venue}
-                            getOptionLabel={(opt: any) => {
-                                return <div className={styles['label-item']}>
+                    {/*<div className={styles['menu-item'] + ' input-disable'}>*/}
+                    {/*    <Select*/}
+                    {/*        labelKey={'label'}*/}
+                    {/*        valueKey={'id'}*/}
+                    {/*        clearable={false}*/}
+                    {/*        creatable={false}*/}
+                    {/*        searchable={false}*/}
+                    {/*        value={venue}*/}
+                    {/*        getOptionLabel={(opt: any) => {*/}
+                    {/*            return <div className={styles['label-item']}>*/}
 
-                                    {opt.option.label}
-                                </div>
-                            }}
-                            getValueLabel={(opt: any) => {
-                                return <div className={styles['label-item']}>
+                    {/*                {opt.option.label}*/}
+                    {/*            </div>*/}
+                    {/*        }}*/}
+                    {/*        getValueLabel={(opt: any) => {*/}
+                    {/*            return <div className={styles['label-item']}>*/}
 
-                                    {opt.option.label}
-                                </div>
-                            }}
-                            options={[{id: 0, label: 'All Venues', color: null}, ...venues as any]}
-                            onChange={({option}) => {
-                                setVenue([option] as any)
-                            }}
-                        />
-                    </div>
+                    {/*                {opt.option.label}*/}
+                    {/*            </div>*/}
+                    {/*        }}*/}
+                    {/*        options={[{id: 0, label: 'All Venues', color: null}, ...venues as any]}*/}
+                    {/*        onChange={({option}) => {*/}
+                    {/*            setVenue([option] as any)*/}
+                    {/*        }}*/}
+                    {/*    />*/}
+                    {/*</div>*/}
                 </div>
             </div>
             <div className={styles['schedule-mouth']}>
@@ -639,7 +671,8 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
             <div className={`${styles['content']} schedule-content`}>
                 <div className={`${styles['date-bar-wrapper']} date-bar-wrapper`} ref={scroll1Ref}>
                     <div className={`${styles['date-bar']}`}>
-                        {pageList.map((item: any, index) => {
+                        {pageList
+                            .map((item: any, index) => {
                             const isMonthBegin = item.date === 1
 
                             return <div key={index + ''}
@@ -666,7 +699,22 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
                         {pageList.map((item: any, index) => {
                             return <div key={index + ''} className={`${styles['date-column']} date-column`}>
                                 <div className={`${styles['events']}`}>
-                                    {item.events.map((e: Event) => {
+                                    {item.events
+                                        .filter((e: Event) => {
+                                            if (showJoined) {
+                                                return e.participants?.some(i => i.profile_id === user.id && i.status !== 'cancel')
+                                            } else {
+                                                return true
+                                            }
+                                        })
+                                        .filter((e: Event) => {
+                                            if (tag[0] && tag[0].id !== 'All') {
+                                                return e.tags?.includes(tag[0].id)
+                                            } else {
+                                                return true
+                                            }
+                                        })
+                                        .map((e: Event) => {
                                         return <EventCard
                                             blank={location.href.includes('iframe')}
                                             key={Math.random() + e.title}
