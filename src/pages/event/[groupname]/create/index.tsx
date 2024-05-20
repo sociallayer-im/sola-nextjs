@@ -128,6 +128,7 @@ function EditEvent({
     const [startTimeError, setStartTimeError] = useState('')
     const [labelError, setLabelError] = useState(false)
     const [dayDisable, setDayDisable] = useState('')
+    const [capacityError, setCapacityError] = useState('')
 
     // data
     const [venueInfo, setVenueInfo] = useState<null | EventSites>(null)
@@ -425,6 +426,23 @@ function EditEvent({
         }
     }, [event, venueInfo])
 
+    // check max_participant
+    useEffect(() => {
+        if (venueInfo?.capacity && !event.max_participant) {
+            setEnableOtherOpt(true)
+            setEvent({
+                ...event,
+                max_participant: venueInfo.capacity
+            })
+        }
+
+        if (venueInfo?.capacity && event.max_participant && event.max_participant > venueInfo.capacity) {
+            setCapacityError(`The maximum number of participants cannot exceed the capacity of the venue: ${venueInfo.capacity}`)
+        } else {
+            setCapacityError('')
+        }
+    }, [event.max_participant, venueInfo])
+
     const showBadges = async () => {
         const props = !!(creator as Group)?.creator ? {
                 group_id: creator!.id,
@@ -510,6 +528,11 @@ function EditEvent({
 
         if (repeatCounterError && repeat) {
             showToast('The number of times the event repeats must be greater than 0 and less than 100')
+            return false
+        }
+
+        if (capacityError) {
+            showToast(capacityError)
             return false
         }
 
@@ -1287,6 +1310,7 @@ function EditEvent({
                                                 </svg>
                                             </div>
                                         </div>
+                                        <div className={styles['start-time-error']}>{capacityError}</div>
                                     </div>
 
                                     <div className={styles['input-area']} data-testid={'input-event-participants'}>

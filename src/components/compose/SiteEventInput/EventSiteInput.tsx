@@ -310,22 +310,28 @@ function EventSiteInput(props: LocationInputProps) {
         }
         }>
             <div style={{whiteSpace: 'nowrap', flex: '1'}}>{'Available Date (Optional)'}</div>
-            <div><AppRadio checked={enableAvailableDate}/></div>
         </div>
         <div className={'app-date-input-v2 second'}>
             <div className={'from-label'}>From</div>
             <div className={'slots'}>
                 <Datepicker
-                    disabled={!enableAvailableDate}
+                    clearable={true}
                     value={newEventSite!.start_date ? new Date(newEventSite!.start_date) : null}
                     onChange={({date}) => {
                         const time = Array.isArray(date) ? date : [date][0] as any
                         console.log('time', time)
-                        setNewEventSite({
-                            ...newEventSite!,
-                            start_date: dayjs(time.toISOString()).format('YYYY/MM/DD') || null,
-                            end_date: dayjs(time.toISOString()).add(1, 'month').format('YYYY/MM/DD') || null
-                        })
+                        if (!time) {
+                            setNewEventSite({
+                                ...newEventSite!,
+                                start_date: null,
+                            })
+                        } else {
+                            setNewEventSite({
+                                ...newEventSite!,
+                                start_date: dayjs(time.toISOString()).format('YYYY/MM/DD') || null,
+                                end_date: dayjs(time.toISOString()).add(1, 'month').format('YYYY/MM/DD') || null
+                            })
+                        }
                         }
                     }
                 />
@@ -333,15 +339,22 @@ function EventSiteInput(props: LocationInputProps) {
             <div className={'from-label'}>To</div>
             <div className={'slots'}>
                 <Datepicker
+                    clearable={true}
                     minDate={newEventSite!.start_date ? new Date(newEventSite!.start_date) : null}
-                    disabled={!enableAvailableDate}
                     value={newEventSite!.end_date ? new Date(newEventSite!.end_date) : null}
                     onChange={({date}) => {
                         const time = Array.isArray(date) ? date : [date][0] as any
-                        setNewEventSite({
-                            ...newEventSite!,
-                            end_date: dayjs(time.toISOString()).format('YYYY/MM/DD') || null
-                        })
+                        if (!time) {
+                            setNewEventSite({
+                                ...newEventSite!,
+                                end_date: null
+                            })
+                        } else {
+                            setNewEventSite({
+                                ...newEventSite!,
+                                end_date: dayjs(time.toISOString()).format('YYYY/MM/DD') || null
+                            })
+                        }
                     }
                     }
                 />
@@ -350,11 +363,13 @@ function EventSiteInput(props: LocationInputProps) {
 
 
         <div className={'input-area-sub-title'} style={{marginTop: '24px'}}>
-            <div style={{whiteSpace: 'nowrap', flex: '1'}}>{'Venue seats (Optional)'}</div>
+            <div style={{whiteSpace: 'nowrap', flex: '1'}}>
+                {'Venue Capacity (Optional)'}
+            </div>
 
             <div style={{width: '150px'}}>
                 <AppInput
-                    placeholder={'Not Set'}
+                    placeholder={'Unlimited'}
                     value={newEventSite!.capacity ? Number(newEventSite!.capacity) + '' : ''}
                     type={'number'}
                     onChange={(e) => {
