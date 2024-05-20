@@ -85,10 +85,10 @@ function PageLogo() {
                     }
                 </Link>
                 { process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'edge-city' &&
-                   <div style={{display: "flex", flexFlow: "row nowrap", alignItems: "center"}}>
+                   <Link href={'/'} style={{display: "flex", flexFlow: "row nowrap", alignItems: "center", textDecoration: 'none'}}>
                        <i className={'icon-close'} />
                        <img  style={{marginLeft: "6px"}} className={css(logoStyle)} src="/images/logo_ee.svg" alt=""/>
-                   </div>
+                   </Link>
                 }
                 { process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'seedao' &&
                     <Link className={css(seedaoLogo)} href={'/'}>

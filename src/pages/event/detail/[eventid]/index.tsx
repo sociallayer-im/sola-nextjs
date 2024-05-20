@@ -410,7 +410,6 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
             <div className={'event-detail'}>
                 <div className={'event-detail-head'}>
                     <PageBack
-                        to={`/event/${eventGroup?.username}`}
                         menu={() =>
                             <div className={'event-top-btn'}>
                                 {(isHoster || isManager || isOperator || isGroupOwner) && !canceled &&
