@@ -17,9 +17,11 @@ import * as dayjsLib from "dayjs";
 
 const utc = require('dayjs/plugin/utc')
 const timezone = require('dayjs/plugin/timezone')
+const isSameOrBefore = require('dayjs/plugin/isSameOrBefore')
 const dayjs: any = dayjsLib
 dayjs.extend(utc)
 dayjs.extend(timezone)
+dayjs.extend(isSameOrBefore)
 
 const dayName = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 const mouthName = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
@@ -48,29 +50,46 @@ const getCalendarData = (timeZone: string) => {
 
     // const timeStr = `${now.year()}-${now.month() + 1}-${now.date()} 00:00`
     // const _nowZero = dayjs(timeStr, timeZone)
-    const _from = now.subtract(182, 'day')
+    const _from = now.subtract(182, 'day').startOf('week')
+    const _end = _from.add(52, 'week').endOf('week')
 
-
-    // 获得 from 和 to  之间所以天0点的时间戳数组
-    const dayArray = []
-    for (let i = 0; i < 365; i++) {
-        let time = _from
-        if (i !== 0) {
-            time = _from.add(i, 'day')
-        }
-        dayArray.push({
-            date: time.date(),
-            timestamp: time.valueOf(),
-            dayName: dayName[time.day()],
-            day: time.day(),
-            month: time.month(),
-            year: time.year(),
+    const _dayArray = []
+    let current = _from
+    while (current.isSameOrBefore(_end)) {
+        _dayArray.push({
+            date: current.date(),
+            timestamp: current.valueOf(),
+            dayName: dayName[current.day()],
+            day: current.day(),
+            month: current.month(),
+            year: current.year(),
             events: [] as Event[],
             timezone: timeZone,
         })
+        current = current.add(1, 'day')
     }
-    console.log('dayArray length', dayArray.length)
-    return dayArray as DateItem[]
+
+
+    // 获得 from 和 to  之间所以天0点的时间戳数组
+    // const dayArray = []
+    // for (let i = 0; i < 365; i++) {
+    //     let time = _from
+    //     if (i !== 0) {
+    //         time = _from.add(i, 'day')
+    //     }
+    //     dayArray.push({
+    //         date: time.date(),
+    //         timestamp: time.valueOf(),
+    //         dayName: dayName[time.day()],
+    //         day: time.day(),
+    //         month: time.month(),
+    //         year: time.year(),
+    //         events: [] as Event[],
+    //         timezone: timeZone,
+    //     })
+    // }
+    // console.log('dayArray length', dayArray.length)
+    return _dayArray as DateItem[]
 }
 
 
@@ -128,14 +147,23 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
 
     const toToday = (initDate?: Date) => {
         const now = initDate || new Date()
-        const date = dayjs.tz(now.getTime(), timezoneSelected[0].id)
+        let date = dayjs.tz(now.getTime(), timezoneSelected[0].id)
+        if (pageSize === 7) {
+            date = date.startOf('week')
+            console.log('date week', date.toDate())
+        }
+
         const startIndex = showList.findIndex(i => {
             return date.year() === i.year
                 && date.month() === i.month
                 && date.date() === i.date
         })
 
+        console.log('startIndex', startIndex)
+
         const targetPage = Math.ceil((startIndex + 1) / pageSize)
+
+        console.log('targetPage', targetPage)
         setPage(targetPage)
         setIsStart(targetPage === 1)
         setIsEnd(targetPage === Math.ceil(showList.length / pageSize))
@@ -229,6 +257,8 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
     }, [showJoined, tag, venue])
 
     useEffect(() => {
+        console.log('pageSizepageSizepageSize', pageSize)
+
         if (pageSize && showList.length) {
             if (!initedRef.current) {
                 const initDate = searchParams?.get('date')

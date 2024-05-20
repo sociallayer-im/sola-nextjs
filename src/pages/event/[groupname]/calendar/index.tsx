@@ -1,7 +1,6 @@
-import {Event, EventSites, getEventSide, getGroups, Group, queryEvent} from "@/service/solas";
+import {Event as SolarEvent, EventSites, getEventSide, getGroups, Group, queryEvent} from "@/service/solas";
 import {useContext, useEffect, useRef, useState} from "react";
 import {createCalendar, viewDay, viewMonthAgenda, viewMonthGrid, viewWeek} from '@/libs/schedule-x-calendar/core'
-// import {createCalendar, viewDay, viewMonthAgenda, viewMonthGrid, viewWeek} from '@schedule-x/calendar'
 import {createEventModalPlugin} from '@schedule-x/event-modal'
 import '@schedule-x/theme-default/dist/index.css'
 import '@/libs/schedule-x-calendar/view-selection.scss'
@@ -14,6 +13,7 @@ import {createEventsServicePlugin} from '@schedule-x/events-service'
 import { createCurrentTimePlugin } from '@schedule-x/current-time'
 import { createScrollControllerPlugin } from '@schedule-x/scroll-controller'
 import ScheduleHeader from "@/components/base/ScheduleHeader";
+import {useSearchParams} from "next/navigation";
 
 import * as dayjsLib from "dayjs";
 import timezoneList from "@/utils/timezone";
@@ -78,6 +78,7 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
     const {user} = useContext(userContext)
     const formatTime = useTime()
     const router = useRouter()
+    const searchParams = useSearchParams()
 
     const [timezoneSelected, setTimezoneSelected] = useState<{ label: string, id: string }[]>([])
     const [tag, setTag] = useState<string>('')
@@ -106,6 +107,9 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
     }, [])
 
     const createEvent = (dateTime: string) => {
+        const hasEventModal = document.querySelector('#calendar .sx__event-modal')
+        if (hasEventModal) return
+
         const time = new Date(dateTime)
         time.setMinutes(0, 0)
 
@@ -140,8 +144,6 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
         if (timezoneSelected[0]) {
             const dayList = getCalendarData(timezoneSelected[0].id)
 
-            console.log('eventGroup', eventGroup)
-
             queryEvent({
                 group_id: eventGroup.id,
                 start_time_from: new Date(dayList[0].timestamp).toISOString(),
@@ -152,7 +154,7 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
                 page_size: 1000,
                 event_site_id: venue || undefined
             }).then(res => {
-                const eventList = res.map((event: Event) => {
+                const eventList = res.map((event: SolarEvent) => {
                     let host = [event.owner.username]
                     if (event.host_info) {
                         const _host = JSON.parse(event.host_info)
@@ -214,7 +216,6 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
                         })
                     }
 
-                    console.log('calendars', calendars)
 
                     const customTagFilter = eventGroup.event_tags?.length ?
                         {
@@ -258,8 +259,12 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
 
                     const customMenus = [customTagFilter, venueFilter].filter(Boolean)
 
+                    const presetDate = searchParams?.get('date')
 
-                    const selectedDate = dayjs.tz(new Date().getTime(), timezoneSelected[0].id).format('YYYY-MM-DD')
+                    const selectedDate = presetDate ?
+                        dayjs.tz(presetDate, timezoneSelected[0].id).format('YYYY-MM-DD'):
+                        dayjs.tz(new Date().getTime(), timezoneSelected[0].id).format('YYYY-MM-DD')
+
                     scheduleXRef.current = createCalendar({
                         views: [viewMonthGrid, viewMonthAgenda, viewDay, viewWeek],
                         minDate: dayjs.tz(dayList[0].timestamp, timezoneSelected[0].id).format('YYYY-MM-DD'),
@@ -285,6 +290,16 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
                         },
                     } as any)
                     scheduleXRef.current.render(calendarRef.current)
+
+                    const showEvent = searchParams?.get('event')
+                    if(showEvent) {
+                        setTimeout(() => {
+                            // const eventTarget = document.querySelector(`div[data-event-id="${showEvent}"]`);
+                            // (window as any).eventTarget = document.querySelector(`div[data-event-id="${showEvent}"]`)
+                            // eventTarget?.dispatchEvent(new Event('click'))
+                            // console.log('eventTarget', eventTarget)
+                        }, 1000)
+                    }
                 }
             })
         }

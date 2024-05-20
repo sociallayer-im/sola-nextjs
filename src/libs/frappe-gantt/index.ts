@@ -823,9 +823,10 @@ export default class Gantt {
             parent_element.scrollTop = currDateTask.y - (this.options.padding / 2)
         }
 
-        const target_date = this.options.scrollToday && this.gantt_start.getMonth() === new Date().getMonth()
-            ? new Date()
+        const target_date = this.options.scrollTo
+            ? this.options.scrollTo
             : this.get_oldest_starting_date()
+
 
         const hours_before_first_task = date_utils.diff(
             target_date,

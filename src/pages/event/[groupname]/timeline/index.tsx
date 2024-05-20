@@ -14,6 +14,7 @@ import Link from "next/link";
 import EventDefaultCover from "@/components/base/EventDefaultCover";
 import removeMarkdown from "markdown-to-text"
 import ScheduleHeader from "@/components/base/ScheduleHeader";
+import {useSearchParams} from "next/navigation";
 
 const utc = require('dayjs/plugin/utc')
 const timezone = require('dayjs/plugin/timezone')
@@ -77,6 +78,7 @@ function Gan(props: { group: Group, eventSite: EventSites[] }) {
     const {defaultAvatar} = usePicture()
     const {showLoading} = useContext(DialogsContext)
     const {lang} = useContext(LangContext)
+    const searchParams = useSearchParams()
 
     const [timezoneSelected, setTimezoneSelected] = useState<{ label: string, id: string }[]>([])
     const [viewMode, setViewMode] = useState([views[0]])
@@ -142,6 +144,11 @@ function Gan(props: { group: Group, eventSite: EventSites[] }) {
                 } else {
                     first = now
                 }
+
+                if (searchParams?.get('date')) {
+                    first = dayjs.tz(searchParams?.get('date'), timezone[0].id).toDate()
+                }
+
                 setFirstDate(first)
             })
         } catch (e: any) {
@@ -269,12 +276,18 @@ function Gan(props: { group: Group, eventSite: EventSites[] }) {
                 ganttRef.current && ganttRef.current.clear()
                 document.querySelector('#gantt-head')!.innerHTML = ''
                 document.querySelector('#gantt')!.innerHTML = ''
+                const scrollTo = page === 1
+                        ? searchParams?.get('date')
+                            ? new Date(searchParams?.get('date') as string)
+                            : new Date()
+                        : undefined
+                console.log('scrollToscrollTo', scrollTo)
                 ganttRef.current = new Gantt('#gantt', eventList, {
                     view_mode: viewMode[0].id,
                     date_format: 'YYYY-MM-DD',
                     start: new Date(start),
                     end: new Date(end),
-                    scrollToday: page === 1,
+                    scrollTo,
                     gantt_head: '#gantt-head',
                     popup_trigger: 'click',
                     custom_popup_html: function (task: any) {
