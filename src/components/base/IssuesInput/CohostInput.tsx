@@ -2,7 +2,7 @@ import {useContext, useRef, useState} from 'react'
 import AppInput from '../AppInput'
 import LangContext from '../../provider/LangProvider/LangContext'
 import {CheckIndeterminate, Plus} from 'baseui/icon'
-import DialogAddressList from '../Dialog/DialogAddressList/DialogAddressList'
+import DialogAddressList from '../Dialog/DialogAddressList/DialogAddressListFully'
 import DialogsContext from '../../provider/DialogProvider/DialogsContext'
 import usePicture from "../../../hooks/pictrue";
 import {getProfile, Profile, ProfileSimple, searchDomain} from "@/service/solas";
@@ -153,13 +153,13 @@ function CohostInput({allowAddressList = true, allowSearch = true, ...props}: Is
     const showAddressList = () => {
         openDialog({
             content: (close: () => any) => {
-                const handleChange = (selected: string[]) => {
-                    // props.onChange(selected)
+                const handleChange = (selected: ProfileSimple[]) => {
+                    props.onChange(selected)
                 }
 
                 return <DialogAddressList
                     value={props.value}
-                    onChange={(selected: string[]) => {
+                    onChange={(selected: ProfileSimple[]) => {
                         handleChange(selected)
                     }}
                     handleClose={close}/>
