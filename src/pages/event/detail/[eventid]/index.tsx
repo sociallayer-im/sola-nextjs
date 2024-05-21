@@ -2,17 +2,20 @@ import {useParams, useRouter} from 'next/navigation'
 import {useContext, useEffect, useState} from 'react'
 import {
     Badge,
-    Event, getEventSide, getRecurringEvents,
+    Event,
+    getRecurringEvents,
     Group,
     joinEvent,
     Participants,
     Profile,
     ProfileSimple,
     punchIn,
-    queryBadgeDetail, queryEvent,
+    queryBadgeDetail,
+    queryEvent,
     queryEventDetail,
     queryGroupDetail,
-    queryUserGroup, RecurringEvent
+    queryUserGroup,
+    RecurringEvent
 } from "@/service/solas";
 import LangContext from "@/components/provider/LangProvider/LangContext";
 import {useTime2, useTime3} from "@/hooks/formatTime";
@@ -39,7 +42,7 @@ import {FreeMode, Mousewheel} from "swiper";
 import EventNotes from "@/components/base/EventNotes/EventNotes";
 import RichTextDisplayer from "@/components/compose/RichTextEditor/Displayer";
 import removeMarkdown from "markdown-to-text"
-import { StatefulPopover } from "baseui/popover";
+import {StatefulPopover} from "baseui/popover";
 
 import * as dayjsLib from "dayjs";
 import Empty from "@/components/base/Empty";
@@ -212,7 +215,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
 
         const date = dayjs.tz(startDate.getTime(), timezones).date()
         const day = dayjs.tz(startDate.getTime(), timezones).day()
-        return  repeatType === 'month' ?
+        return repeatType === 'month' ?
             'Every month on ' + getDateWord(date)
             : repeatType === 'week' ?
                 'Every week on ' + lang['Day_Name'][day] : 'Every day'
@@ -232,8 +235,8 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                         {
                             events.sort((a, b) => a.id - b.id).map((event, index: number) => {
                                 const format = (from: string, to: string, timezone: string) => {
-                                    const fromTime = dayjs.tz(new Date(from).getTime(),timezone)
-                                    const toTime = dayjs.tz(new Date(to).getTime(),timezone)
+                                    const fromTime = dayjs.tz(new Date(from).getTime(), timezone)
+                                    const toTime = dayjs.tz(new Date(to).getTime(), timezone)
 
                                     const fromYear = fromTime.year()
                                     const fromMonth = fromTime.month()
@@ -260,8 +263,9 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                     }
                                 }
 
-                                return <Link target={'_blank'} href={`/event/detail/${event.id}`} key={event.id} className={event.id === props.event!.id ? 'active': ''}>
-                                    {index + 1}.  <span>{format(event.start_time!, event.end_time!, event.timezone!)}</span>
+                                return <Link target={'_blank'} href={`/event/detail/${event.id}`} key={event.id}
+                                             className={event.id === props.event!.id ? 'active' : ''}>
+                                    {index + 1}. <span>{format(event.start_time!, event.end_time!, event.timezone!)}</span>
                                 </Link>
                             })
                         }
@@ -319,7 +323,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
     }, [hoster, user.id])
 
     useEffect(() => {
-       setIsGroupOwner(group?.creator.id === user.id)
+        setIsGroupOwner(group?.creator.id === user.id)
     }, [group, user.id])
 
     const gotoModify = () => {
@@ -385,7 +389,8 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
             <meta property="og:title" content={`${event?.title} | ${props.appName}`}/>
             <meta property="og:type" content="website"/>
             <meta property="og:url" content={`${props.host}/event/detail/${event?.id}`}/>
-            <meta property="og:image" content={event?.cover_url || 'https://app.sola.day/images/facaster_default_cover.png'}/>
+            <meta property="og:image"
+                  content={event?.cover_url || 'https://app.sola.day/images/facaster_default_cover.png'}/>
             {event?.content &&
                 <meta name="description" property="og:description" content={props.des.slice(0, 300) + '...'}/>
             }
@@ -394,7 +399,8 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                 !!event &&
                 <>
                     <meta name="fc:frame" content="vNext"/>
-                    <meta name="fc:frame:image" content={event.cover_url || 'https://app.sola.day/images/facaster_default_cover.png'}/>
+                    <meta name="fc:frame:image"
+                          content={event.cover_url || 'https://app.sola.day/images/facaster_default_cover.png'}/>
                     <meta name="fc:frame:input:text"
                           content={event.title.slice(0, 32).trim()}/>
                     <meta name="fc:frame:button:1" content="Join"/>
@@ -444,10 +450,11 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                         autoFocus={false}
                                         triggerType={'hover'}
                                         content={() => {
-                                            return <div style={{"padding": '6px', maxWidth:"310px"}}>
-                                            private event only be viewed through the link, and users can view the event in <a href={'/my-event'} target={'_blank'}>My Event</a> page.
+                                            return <div style={{"padding": '6px', maxWidth: "310px"}}>
+                                                private event only be viewed through the link, and users can view the
+                                                event in <a href={'/my-event'} target={'_blank'}>My Event</a> page.
                                             </div>
-                                        }} >
+                                        }}>
                                         <span className={'private'}>Private</span>
                                     </StatefulPopover>}
                                     {event.title}
@@ -483,7 +490,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                 {cohost.map((item, index) => {
                                                     return <div className={'host-item'} key={item.username! + index}
                                                                 onClick={e => {
-                                                                    !!item?.username &&  !!item?.id && goToProfile(item.username)
+                                                                    !!item?.username && !!item?.id && goToProfile(item.username)
                                                                 }}>
                                                         <img src={item.image_url || defaultAvatar(item.id)} alt=""/>
                                                         <div>
@@ -494,7 +501,17 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                     </div>
                                                 })
                                                 }
-
+                                            </SwiperSlide>
+                                        </Swiper>
+                                        {speaker.length > 0 &&
+                                            <Swiper
+                                                style={{marginTop: '6px'}}
+                                                direction={'horizontal'}
+                                                slidesPerView={'auto'}
+                                                freeMode={true}
+                                                mousewheel={true}
+                                                modules={[FreeMode, Mousewheel]}
+                                                spaceBetween={12}>
                                                 {speaker.map((item, index) => {
                                                     return <div className={'host-item'} key={item.username! + index}
                                                                 onClick={e => {
@@ -508,10 +525,9 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                         </div>
                                                     </div>
                                                 })}
-                                            </SwiperSlide>
+                                            </Swiper>
 
-
-                                        </Swiper>
+                                        }
                                     </div>
                                 }
 
@@ -525,7 +541,8 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                 className={'sub'}>{formatTime(event.start_time, event.end_time!, event.timezone!).time}</div>
                                             {
                                                 repeatEventDetail &&
-                                                <div className={'repeat'} onClick={showAllRepeatEvent}>{`Repeat event (${getRepeatText(new Date(repeatEventDetail.start_time), repeatEventDetail.interval, repeatEventDetail.timezone)})`}</div>
+                                                <div className={'repeat'}
+                                                     onClick={showAllRepeatEvent}>{`Repeat event (${getRepeatText(new Date(repeatEventDetail.start_time), repeatEventDetail.interval, repeatEventDetail.timezone)})`}</div>
                                             }
                                         </div>
                                     </div>
@@ -545,8 +562,10 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                             }
                                         </div>
                                         {
-                                            !! eventSite && eventSite.link &&
-                                           <div className={'venue-link'}> <a href={eventSite.link} target="_blank">{'View venue photos'}</a></div>
+                                            !!eventSite && eventSite.link &&
+                                            <div className={'venue-link'}><a href={eventSite.link}
+                                                                             target="_blank">{'View venue photos'}</a>
+                                            </div>
                                         }
                                         {MapReady &&
                                             <>
@@ -646,7 +665,8 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                     <div className={'event-login-status'}>
                                         <Link className={'link'} href={event.padge_link} target={"_blank"}>
                                             Click and get a badge of .bit
-                                            <ImgLazy src={'https://ik.imagekit.io/soladata/ag4z4mmm_oJ33HdkUX'} width={100} height={100} />
+                                            <ImgLazy src={'https://ik.imagekit.io/soladata/ag4z4mmm_oJ33HdkUX'}
+                                                     width={100} height={100}/>
                                         </Link>
                                     </div>
                                 }
@@ -662,7 +682,8 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                             <div className={'des'}>Welcome! To join the event, please attend
                                                 below.</div>
                                             :
-                                            <div className={'des'}>You have registered, we’d love to have you join us.</div>
+                                            <div className={'des'}>You have registered, we’d love to have you join
+                                                us.</div>
                                         }
 
                                         <div className={'event-action'}>
@@ -816,10 +837,12 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                         </a>
                                                     </div>
                                                 }
-                                                <RichTextDisplayer markdownStr={event.content} />
+                                                <RichTextDisplayer markdownStr={event.content}/>
 
                                                 {!!event.notes &&
-                                                    <EventNotes hide={!isJoined && !isHoster && !isOperator && !isGroupOwner} notes={event.notes}/>
+                                                    <EventNotes
+                                                        hide={!isJoined && !isHoster && !isOperator && !isGroupOwner}
+                                                        notes={event.notes}/>
                                                 }
                                             </div>
                                         </div>}
@@ -964,7 +987,8 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                 <div className={'event-login-status'}>
                                     <Link className={'link'} href={event.padge_link} target={"_blank"}>
                                         Click and get a badge of .bit
-                                        <ImgLazy src={'https://ik.imagekit.io/soladata/ag4z4mmm_oJ33HdkUX'} width={100} height={100} />
+                                        <ImgLazy src={'https://ik.imagekit.io/soladata/ag4z4mmm_oJ33HdkUX'} width={100}
+                                                 height={100}/>
                                     </Link>
                                 </div>
                             }
@@ -1003,6 +1027,13 @@ export const getServerSideProps: any = (async (context: any) => {
             },
         }
     } else {
-        return {props: {des: '', event: null, host: process.env.NEXT_PUBLIC_HOST, appName: process.env.NEXT_PUBLIC_APP_NAME}}
+        return {
+            props: {
+                des: '',
+                event: null,
+                host: process.env.NEXT_PUBLIC_HOST,
+                appName: process.env.NEXT_PUBLIC_APP_NAME
+            }
+        }
     }
 })

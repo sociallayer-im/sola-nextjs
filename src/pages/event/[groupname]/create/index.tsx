@@ -45,7 +45,8 @@ import {Delete} from "baseui/icon";
 import DialogIssuePrefill from "@/components/eventSpecial/DialogIssuePrefill/DialogIssuePrefill";
 import {OpenDialogProps} from "@/components/provider/DialogProvider/DialogProvider";
 import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
-import IssuesInput from "@/components/base/IssuesInput/IssuesInput";
+// import IssuesInput from "@/components/base/IssuesInput/IssuesInput";
+import CohostInput, {emptyProfile} from "@/components/base/IssuesInput/CohostInput";
 import {usePathname, useRouter, useSearchParams} from "next/navigation";
 import Toggle from "@/components/base/Toggle/Toggle";
 
@@ -132,6 +133,9 @@ function EditEvent({
     const [capacityError, setCapacityError] = useState('')
 
     // data
+    const [cohostList, setCohostList] = useState<ProfileSimple[]>([emptyProfile])
+    const [speakerList, setSpeakerList] = useState<ProfileSimple[]>([emptyProfile])
+
     const [venueInfo, setVenueInfo] = useState<null | EventSites>(null)
     const [cohost, setCohost] = useState<string[]>([''])
     const [repeatEventDetail, setRepeatEventDetail] = useState<null | RecurringEvent>(null)
@@ -200,6 +204,7 @@ function EditEvent({
                 if (info.co_host.length > 0) {
                     // setEnableCoHost(true)
                     setCohost(info.co_host.map((p: ProfileSimple) => p.username))
+                    setCohostList(info.co_host)
                 } else {
                     // setEnableCoHost(false)
                     setCohost([''])
@@ -208,6 +213,7 @@ function EditEvent({
                 if (info.speaker.length > 0) {
                     // setEnableSpeakers(true)
                     setSpeakers(info.speaker.map((p: ProfileSimple) => p.username))
+                    setSpeakerList(info.speaker)
                 } else {
                     // setEnableSpeakers(false)
                     setSpeakers([''])
@@ -610,6 +616,56 @@ function EditEvent({
         }
     }
 
+    const getHostInfo = async () => {
+        const hosts = cohostList.filter(p => !!p.username)
+        const speakers = speakerList.filter(p => !!p.username)
+
+        if (!hosts.length && !speakers.length) {
+            if (!!(creator as Group).creator) {
+                const hostinfo = {
+                    speaker: [],
+                    co_host: [],
+                    group_host: {
+                        id: creator!.id,
+                        creator: true,
+                        username: creator!.username,
+                        nickname: creator!.nickname,
+                        image_url: creator!.image_url,
+                    }
+                }
+                return {
+                    json: JSON.stringify(hostinfo),
+                    cohostId: null,
+                    speakerId: null
+                }
+            } else {
+                return {
+                    json: null,
+                    cohostId: null,
+                    speakerId: null
+                }
+            }
+        } else {
+            const hostinfo = {
+                speaker: enableSpeakers ? speakers : [],
+                co_host: enableCoHost ? hosts : [],
+                group_host: creator && !!(creator as Group).creator ? {
+                    id: creator.id,
+                    creator: true,
+                    username: creator.username,
+                    nickname: creator.nickname,
+                    image_url: creator.image_url,
+                } : undefined,
+            }
+
+            return {
+                json: JSON.stringify(hostinfo),
+                cohostId: enableCoHost ? hosts.map((p) => p.id) : null,
+                speakerId: enableSpeakers ? speakers.map((p) => p.id) : null
+            }
+        }
+    }
+
     const handleSave = async () => {
         const check = checkForm()
         if (!check) return
@@ -620,7 +676,7 @@ function EditEvent({
         let cohostIds: number[] | null = null
 
         try {
-            const info = await parseHostInfo()
+            const info = await getHostInfo()
             host_info = info.json
             cohostIds = info.cohostId
         } catch (e: any) {
@@ -719,7 +775,7 @@ function EditEvent({
         async function singleSave(redirect = true) {
             const unloading = showLoading(true)
             try {
-                const info = await parseHostInfo()
+                const info = await getHostInfo()
                 const newEvent = await updateEvent(saveProps)
                 if (saveProps.badge_id) {
                     const setBadge = await setEventBadge({
@@ -750,7 +806,7 @@ function EditEvent({
                 }
                 const unloading = showLoading(true)
                 try {
-                    const info = await parseHostInfo()
+                    const info = await getHostInfo()
                     const newEvents = await RepeatEventUpdate({
                         ...saveProps,
                         selector: repeatEventSelectorRef.current,
@@ -791,7 +847,7 @@ function EditEvent({
         let host_info: string | null = ''
         let cohostIds: number[] | null = null
         try {
-            const info = await parseHostInfo()
+            const info = await getHostInfo()
             host_info = info.json
             cohostIds = info.cohostId
         } catch (e: any) {
@@ -1222,13 +1278,24 @@ function EditEvent({
                                     <div className={styles['item-title']}>{'Invite a Co-host'}</div>
                                 </div>
 
-                                {enableCoHost &&
-                                    <IssuesInput
-                                        value={cohost as any}
-                                        placeholder={`Co-host`}
-                                        onChange={(newIssues) => {
-                                            setCohost(newIssues)
-                                        }}/>
+                                {/*{enableCoHost &&*/}
+                                {/*    <IssuesInput*/}
+                                {/*        value={cohost as any}*/}
+                                {/*        placeholder={`Co-host`}*/}
+                                {/*        onChange={(newIssues) => {*/}
+                                {/*            setCohost(newIssues)*/}
+                                {/*        }}/>*/}
+                                {/*}*/}
+
+                                { enableCoHost &&
+                                    <CohostInput
+                                        value={cohostList}
+                                        onChange={(cohost) => {
+                                            console.log('cohost list', cohost)
+                                            setCohostList(cohost)
+                                        }}
+                                    />
+
                                 }
                             </div>
 
@@ -1238,13 +1305,24 @@ function EditEvent({
                                         className={styles['item-title']}>{'Invite a speaker to the event'}</div>
                                 </div>
 
-                                {enableSpeakers &&
-                                    <IssuesInput
-                                        value={speakers as any}
-                                        placeholder={`Speaker`}
-                                        onChange={(newIssues) => {
-                                            setSpeakers(newIssues)
-                                        }}/>
+                                {/*{enableSpeakers &&*/}
+                                {/*    <IssuesInput*/}
+                                {/*        value={speakers as any}*/}
+                                {/*        placeholder={`Speaker`}*/}
+                                {/*        onChange={(newIssues) => {*/}
+                                {/*            setSpeakers(newIssues)*/}
+                                {/*        }}/>*/}
+                                {/*}*/}
+
+                                {
+                                    enableSpeakers &&
+                                    <CohostInput
+                                        value={speakerList}
+                                        onChange={(speakers) => {
+                                            console.log('speaker list', speakers)
+                                            setSpeakerList(speakers)
+                                        }}
+                                    />
                                 }
                             </div>
 
