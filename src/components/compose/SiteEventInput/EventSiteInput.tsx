@@ -9,6 +9,7 @@ import DialogTimeSlotEdit from "@/components/base/Dialog/DialogTimeSlotEdit";
 import {Datepicker} from "baseui/datepicker";
 import AppRadio from "@/components/base/AppRadio/AppRadio";
 import dayjs from "dayjs";
+import Toggle from "@/components/base/Toggle/Toggle";
 
 export interface GMapSearchResult {
     description: string,
@@ -391,6 +392,21 @@ function EventSiteInput(props: LocationInputProps) {
                     }
                 />
             </div>
+        </div>
+
+        <div className={'input-area-sub-title'} style={{marginTop: '24px', marginBottom: '24px'}}>
+            <div style={{whiteSpace: 'nowrap', flex: '1'}}>
+                {'Require Approval (Optional)'}
+            </div>
+
+            <Toggle checked={!!newEventSite?.require_approval}
+                    onChange={(e) => {
+                        setNewEventSite({
+                            ...newEventSite!,
+                            require_approval: !newEventSite!.require_approval
+                        })
+                    }}
+            />
         </div>
 
         <div className={'input-area-sub-title'} style={{cursor: 'pointer'}} onClick={e => {showEditTimeSlotDialog()}}>

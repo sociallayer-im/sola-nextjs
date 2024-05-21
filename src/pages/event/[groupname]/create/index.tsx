@@ -111,6 +111,7 @@ function EditEvent({
     const [creating, setCreating] = useState(false)
     const [needPublish, setNeedPublish] = useState(true)
     const [enableOtherOpt, setEnableOtherOpt] = useState(false)
+    const [requireApproval, setRequireApproval] = useState(false)
 
     // refs
     const uploadCoverRef = useRef<any>()
@@ -228,7 +229,6 @@ function EditEvent({
     }, [user.id, group, initEvent])
 
     useEffect(() => {
-        console.log('venueInfo', venueInfo)
         if (!venueInfo) {
             if (!event.start_time || !event.end_time) {
                 setEvent({
@@ -237,6 +237,9 @@ function EditEvent({
                     end_time: initEvent ? initEvent.end_time! : initTime[1].toISOString()
                 })
             }
+            setRequireApproval(false)
+        } else {
+            setRequireApproval(!!venueInfo.require_approval)
         }
     }, [venueInfo])
 
@@ -1215,28 +1218,33 @@ function EditEvent({
                             }
 
                             <div className={styles['input-area']}>
-                                <div className={styles['input-area-title']}>{lang['Activity_Form_Badge']}</div>
-                                <div className={styles['input-area-des']}>{lang['Activity_Form_Badge_Des']}</div>
-                                {!event.badge_id &&
-                                    <div className={styles['add-badge']} onClick={async () => {
-                                        await showBadges()
-                                    }}>{lang['Activity_Form_Badge_Select']}</div>
-                                }
+                                <div className={styles['toggle']}>
+                                    <div className={styles['item-title']}>{'Invite a Co-host'}</div>
+                                </div>
 
-                                {
-                                    !!badgeDetail &&
-                                    <div className={styles['banded-badge']}>
-                                        <Delete size={22} onClick={e => {
-                                            setEvent({
-                                                ...event,
-                                                badge_id: null
-                                            })
-                                            setBadgeDetail(null)
-                                        }
-                                        }/>
-                                        <img src={badgeDetail.image_url} alt=""/>
-                                        <div>{badgeDetail.title}</div>
-                                    </div>
+                                {enableCoHost &&
+                                    <IssuesInput
+                                        value={cohost as any}
+                                        placeholder={`Co-host`}
+                                        onChange={(newIssues) => {
+                                            setCohost(newIssues)
+                                        }}/>
+                                }
+                            </div>
+
+                            <div className={styles['input-area']}>
+                                <div className={styles['toggle']}>
+                                    <div
+                                        className={styles['item-title']}>{'Invite a speaker to the event'}</div>
+                                </div>
+
+                                {enableSpeakers &&
+                                    <IssuesInput
+                                        value={speakers as any}
+                                        placeholder={`Speaker`}
+                                        onChange={(newIssues) => {
+                                            setSpeakers(newIssues)
+                                        }}/>
                                 }
                             </div>
 
@@ -1258,33 +1266,28 @@ function EditEvent({
                                 enableOtherOpt &&
                                 <>
                                     <div className={styles['input-area']}>
-                                        <div className={styles['toggle']}>
-                                            <div className={styles['item-title']}>{'Invite a Co-host'}</div>
-                                        </div>
-
-                                        {enableCoHost &&
-                                            <IssuesInput
-                                                value={cohost as any}
-                                                placeholder={`Co-host`}
-                                                onChange={(newIssues) => {
-                                                    setCohost(newIssues)
-                                                }}/>
+                                        <div className={styles['input-area-title']}>{lang['Activity_Form_Badge']}</div>
+                                        <div className={styles['input-area-des']}>{lang['Activity_Form_Badge_Des']}</div>
+                                        {!event.badge_id &&
+                                            <div className={styles['add-badge']} onClick={async () => {
+                                                await showBadges()
+                                            }}>{lang['Activity_Form_Badge_Select']}</div>
                                         }
-                                    </div>
 
-                                    <div className={styles['input-area']}>
-                                        <div className={styles['toggle']}>
-                                            <div
-                                                className={styles['item-title']}>{'Invite a speaker to the event'}</div>
-                                        </div>
-
-                                        {enableSpeakers &&
-                                            <IssuesInput
-                                                value={speakers as any}
-                                                placeholder={`Speaker`}
-                                                onChange={(newIssues) => {
-                                                    setSpeakers(newIssues)
-                                                }}/>
+                                        {
+                                            !!badgeDetail &&
+                                            <div className={styles['banded-badge']}>
+                                                <Delete size={22} onClick={e => {
+                                                    setEvent({
+                                                        ...event,
+                                                        badge_id: null
+                                                    })
+                                                    setBadgeDetail(null)
+                                                }
+                                                }/>
+                                                <img src={badgeDetail.image_url} alt=""/>
+                                                <div>{badgeDetail.title}</div>
+                                            </div>
                                         }
                                     </div>
 
@@ -1337,6 +1340,9 @@ function EditEvent({
                                     </div>
                                 </>
                             }
+                            {
+                                requireApproval && <div className={styles['require-approval']}>{`You will apply to use venue "${venueInfo?.title}"`}</div>
+                            }
                             <div className={styles['btns']}>
 
                                 {
@@ -1372,7 +1378,7 @@ function EditEvent({
                                                disabled={creating}
                                                special
                                                onClick={() => {
-                                                   needPublish
+                                                   (needPublish || requireApproval)
                                                        ? showCreateConfirm()
                                                        : handleCreate()
                                                }}>

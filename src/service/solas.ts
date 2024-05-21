@@ -2917,6 +2917,7 @@ export interface EventSites {
     link: string | null,
     capacity: number | null,
     overrides: null | string[],
+    require_approval?: boolean,
 }
 
 export interface Participants {
@@ -3289,6 +3290,7 @@ export async function queryPendingEvent(props: QueryEventProps): Promise<Event[]
             formatted_address
             geo_lat
             geo_lng
+            require_approval
         }
         event_type
         formatted_address
@@ -3519,6 +3521,7 @@ export async function getEventSide(groupId?: number): Promise<EventSites[]> {
         link
         capacity
         overrides
+        require_approval
       }
     }`
 
