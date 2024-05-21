@@ -1,5 +1,5 @@
 import {Event as SolarEvent, EventSites, getEventSide, getGroups, Group, queryEvent} from "@/service/solas";
-import {useContext, useEffect, useRef, useState} from "react";
+import {useContext, useEffect, useMemo, useRef, useState} from "react";
 import {createCalendar, viewDay, viewMonthAgenda, viewMonthGrid, viewWeek} from '@/libs/schedule-x-calendar/core'
 import {createEventModalPlugin} from '@/libs/schedule-x-calendar/event-modal'
 import '@schedule-x/theme-default/dist/index.css'
@@ -106,6 +106,22 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
         } catch (e: any) {
         }
     }, [])
+
+    const toggleFullDayEvent = (e: any) => {
+        if (scheduleXRef.current.$app.calendarState.view.v !== 'week') return
+        try {
+            const height = document.querySelector('.sx__date-grid')?.clientHeight || 10
+            if (e.target.scrollTop > 5) {
+                document.querySelector('.sx__date-grid')?.classList.add('hide')
+                document.querySelector('.sx__week-grid').style.marginTop = `${height}px`
+            } else {
+                document.querySelector('.sx__date-grid')?.classList.remove('hide')
+                document.querySelector('.sx__week-grid').style.marginTop = '0'
+            }
+        } catch (e) {
+
+        }
+    }
 
     useEffect(() => {
         if (timezoneSelected[0]) {
@@ -258,8 +274,22 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
                         },
                     } as any)
                     scheduleXRef.current.render(calendarRef.current)
+
+                    setTimeout(() => {
+                        const container = document.querySelector('.sx__view-container')
+                        if (container) {
+                            container.addEventListener('scroll', toggleFullDayEvent)
+                        }
+                    }, 1500)
                 }
             })
+        }
+
+        return () => {
+            const container = document.querySelector('.sx__view-container')
+            if (scheduleXRef.current && container) {
+                container.removeEventListener('scroll', toggleFullDayEvent)
+            }
         }
     }, [timezoneSelected, tag, venue])
 
