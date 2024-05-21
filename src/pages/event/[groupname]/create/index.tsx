@@ -69,6 +69,9 @@ const repeatEventEditOptions = [
     {label: 'All recurring events', value: 'all'},
 ]
 
+export const SeatingStyle = ['theater', 'workshop', 'single table + chairs', 'Yoga mats']
+export const AVNeeds = ['presentation screen', 'microphone', 'speakers']
+
 
 const getNearestTime = (timeStr?: string) => {
     const now = timeStr ? new Date(timeStr) : new Date()
@@ -164,7 +167,8 @@ function EditEvent({
         max_participant: null,
         event_type: 'event',
         group_id: group?.id,
-        display: 'normal'
+        display: 'normal',
+        requirement_tags: []
     })
 
 
@@ -1157,6 +1161,35 @@ function EditEvent({
 
                             {!!occupiedError && <div className={styles['start-time-error']}>{occupiedError}</div>}
                             {!!dayDisable && <div className={styles['start-time-error']}>{dayDisable}</div>}
+
+                            {event.event_site_id && (eventGroup?.id === 3427 || eventGroup?.id === 3409) &&
+                                <>
+                                    <div className={styles['input-area']}>
+                                        <div className={styles['input-area-title']}>{'Seating arrangement style'}</div>
+                                        <EventLabels
+                                            colorDisabled={true}
+                                            data={SeatingStyle} onChange={e => {
+                                            setEvent({
+                                                ...event,
+                                                requirement_tags: Array.from(new Set([...(event.requirement_tags || [])
+                                                    .filter(t => AVNeeds.includes(t)), ...e]))
+                                            })
+                                        }} value={event.requirement_tags || []}/>
+                                    </div>
+                                    <div className={styles['input-area']}>
+                                        <div className={styles['input-area-title']}>{'AV needed'}</div>
+                                        <EventLabels
+                                            colorDisabled={true}
+                                            data={AVNeeds} onChange={e => {
+                                            setEvent({
+                                                ...event,
+                                                requirement_tags: Array.from(new Set([...(event.requirement_tags || [])
+                                                    .filter(t => SeatingStyle.includes(t)), ...e]))
+                                            })
+                                        }} value={event.requirement_tags || []}/>
+                                    </div>
+                                </>
+                            }
 
                             {!!venueInfo && venueInfo.timeslots && formReady &&
                                 <div className={styles['input-area']}>

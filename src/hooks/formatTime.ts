@@ -103,7 +103,7 @@ export function useTime2() {
             target.utcOffset() / 60
 
 
-        const gmtStr = timezone === 'America/Los_Angeles' ? ` PST` : ` GMT${utcOffset}`
+        const gmtStr = timezone === 'America/Los_Angeles' ? ` PDT` : ` GMT${utcOffset}`
 
         if (isToday) {
             return `${todayText} ${hour.padStart(2, '0')}:${min.padStart(2, '0')} `  + gmtStr
@@ -163,7 +163,7 @@ export function useTime3() {
                 lang['Event_Tomorrow'] + ' ':
                 ''
 
-        const gmtStr = timezone === 'America/Los_Angeles' ? `PST` : `GMT${utcOffset}`
+        const gmtStr = timezone === 'America/Los_Angeles' ? `PDT` : `GMT${utcOffset}`
 
         return {
             data: langType === 'cn'
@@ -215,7 +215,7 @@ export function useTime4 (from: string, to: string, timezone: string = 'UTC') {
             'Tomorrow' + ' ':
             ''
 
-    const gmtStr = timezone === 'America/Los_Angeles' ? `PST` : `GMT${utcOffset}`
+    const gmtStr = timezone === 'America/Los_Angeles' ? `PDT` : `GMT${utcOffset}`
 
     return {
         data: `${todayOrTomorrow}${f_day}, ${f_mon} ${f_date.padStart(2, '0')}, ${f_year}`,

@@ -43,6 +43,7 @@ import EventNotes from "@/components/base/EventNotes/EventNotes";
 import RichTextDisplayer from "@/components/compose/RichTextEditor/Displayer";
 import removeMarkdown from "markdown-to-text"
 import {StatefulPopover} from "baseui/popover";
+import {SeatingStyle, AVNeeds} from "@/pages/event/[groupname]/create";
 
 import * as dayjsLib from "dayjs";
 import Empty from "@/components/base/Empty";
@@ -836,6 +837,23 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                             {event.telegram_contact_group}
                                                         </a>
                                                     </div>
+                                                }
+
+                                                {!!event.requirement_tags && (event.group_id === 3427 || event.group_id === 3409) && (isOperator || isManager || isHoster || isGroupOwner) &&
+                                                   <>
+                                                   { !!event.requirement_tags.filter((t) => { return SeatingStyle.includes(t)}).length &&
+                                                       <div className={'wechat-account'}>
+                                                           <div className={'wechat-title'}>Seating arrangement style</div>
+                                                           <div>{event.requirement_tags.filter((t) => { return SeatingStyle.includes(t)}).join(', ')}</div>
+                                                       </div>
+                                                   }
+                                                   { !!event.requirement_tags.filter((t) => { return AVNeeds.includes(t)}).length &&
+                                                       <div className={'wechat-account'}>
+                                                           <div className={'wechat-title'}>AV needed</div>
+                                                           <div>{event.requirement_tags.filter((t) => { return AVNeeds.includes(t)}).join(', ')}</div>
+                                                       </div>
+                                                   }
+                                                   </>
                                                 }
                                                 <RichTextDisplayer markdownStr={event.content}/>
 
