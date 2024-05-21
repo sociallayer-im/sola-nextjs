@@ -102,12 +102,15 @@ export function useTime2() {
             '+' + target.utcOffset() / 60 :
             target.utcOffset() / 60
 
+
+        const gmtStr = timezone === 'America/Los_Angeles' ? ` PST` : ` GMT${utcOffset}`
+
         if (isToday) {
-            return `${todayText} ${hour.padStart(2, '0')}:${min.padStart(2, '0')} `  + ' GMT' + utcOffset
+            return `${todayText} ${hour.padStart(2, '0')}:${min.padStart(2, '0')} `  + gmtStr
         } else if (isTomorrow) {
-            return `${tomorrowText} ${hour.padStart(2, '0')}:${min.padStart(2, '0')} ` + ' GMT' + utcOffset
+            return `${tomorrowText} ${hour.padStart(2, '0')}:${min.padStart(2, '0')} ` + gmtStr
         } else {
-            return `${week[target.day()]}, ${mon} ${date.padStart(2, '0')}, ${hour.padStart(2, '0')}:${min.padStart(2, '0')} ` + ' GMT' + utcOffset
+            return `${week[target.day()]}, ${mon} ${date.padStart(2, '0')}, ${hour.padStart(2, '0')}:${min.padStart(2, '0')} ` + gmtStr
         }
     }
 }
@@ -160,12 +163,14 @@ export function useTime3() {
                 lang['Event_Tomorrow'] + ' ':
                 ''
 
+        const gmtStr = timezone === 'America/Los_Angeles' ? `PST` : `GMT${utcOffset}`
+
         return {
             data: langType === 'cn'
                 ? `${differentYear ? ' ' + f_year + ',': ''} ${todayOrTomorrow}${f_mon}${f_date.padStart(2, '0')}日 ${differentDate ? "" : f_day}${differentDate ? `- ${differentYear ? ' ' + t_year + ',': ''}${differentMonth ? t_mon : '' } ${t_date.padStart(2, '0')}日` : ''}`
                 : `${todayOrTomorrow}${f_day}, ${f_mon} ${f_date.padStart(2, '0')}${differentYear ? ' ,' + f_year : ''} ${differentDate ? `- ${t_day}, ${t_mon} ${t_date.padStart(2, '0')}${differentYear ? ' ,' + t_year: ''}` : ''}`,
 
-            time: `${f_hour.padStart(2, '0')}:${f_min.padStart(2, '0')} — ${t_hour.padStart(2, '0')}:${t_min.padStart(2, '0')}  GMT${utcOffset}`
+            time: `${f_hour.padStart(2, '0')}:${f_min.padStart(2, '0')} — ${t_hour.padStart(2, '0')}:${t_min.padStart(2, '0')} ${gmtStr}`
         }
     }
 }
@@ -210,9 +215,11 @@ export function useTime4 (from: string, to: string, timezone: string = 'UTC') {
             'Tomorrow' + ' ':
             ''
 
+    const gmtStr = timezone === 'America/Los_Angeles' ? `PST` : `GMT${utcOffset}`
+
     return {
         data: `${todayOrTomorrow}${f_day}, ${f_mon} ${f_date.padStart(2, '0')}, ${f_year}`,
-        time: `${f_hour.padStart(2, '0')}:${f_min.padStart(2, '0')} — ${t_hour.padStart(2, '0')}:${t_min.padStart(2, '0')}  GMT${utcOffset}`
+        time: `${f_hour.padStart(2, '0')}:${f_min.padStart(2, '0')} — ${t_hour.padStart(2, '0')}:${t_min.padStart(2, '0')} ${gmtStr}`
     }
 }
 
