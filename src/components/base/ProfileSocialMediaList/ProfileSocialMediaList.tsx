@@ -40,6 +40,7 @@ function ProfileSocialMediaList(props: ProfileSocialMediaListProps) {
                 && !props.profile.discord
                 && !props.profile.nostr
                 && !props.profile.ens
+                && !props.profile.farcaster
                 && !sns
             )
             || (
@@ -50,6 +51,7 @@ function ProfileSocialMediaList(props: ProfileSocialMediaListProps) {
                 && !props.profile.discord
                 && !props.profile.nostr
                 && !props.profile.ens
+                && !props.profile.farcaster
                 && !sns
             )
             || (
@@ -60,6 +62,7 @@ function ProfileSocialMediaList(props: ProfileSocialMediaListProps) {
                 && !props.profile.discord
                 && !props.profile.nostr
                 && !props.profile.ens
+                && !props.profile.farcaster
                 && !sns
             )
             || (
@@ -70,6 +73,7 @@ function ProfileSocialMediaList(props: ProfileSocialMediaListProps) {
                 && !props.profile.discord
                 && !props.profile.nostr
                 && !props.profile.ens
+                && !props.profile.farcaster
                 && !sns
             ) || (
                 !props.profile.twitter
@@ -79,6 +83,7 @@ function ProfileSocialMediaList(props: ProfileSocialMediaListProps) {
                 && !!props.profile.discord
                 && !props.profile.nostr
                 && !props.profile.ens
+                && !props.profile.farcaster
                 && !sns
             ) || (
                 !props.profile.twitter
@@ -88,6 +93,7 @@ function ProfileSocialMediaList(props: ProfileSocialMediaListProps) {
                 && !props.profile.discord
                 && !!props.profile.nostr
                 && !props.profile.ens
+                && !props.profile.farcaster
                 && !sns
             ) || (
                 !props.profile.twitter
@@ -97,6 +103,7 @@ function ProfileSocialMediaList(props: ProfileSocialMediaListProps) {
                 && !props.profile.discord
                 && !props.profile.nostr
                 && !!props.profile.ens
+                && !props.profile.farcaster
                 && !sns
             ) || (
                 !props.profile.twitter
@@ -106,6 +113,17 @@ function ProfileSocialMediaList(props: ProfileSocialMediaListProps) {
                 && !props.profile.discord
                 && !props.profile.nostr
                 && !props.profile.ens
+                && !!props.profile.farcaster
+                && !sns
+            ) || (
+                !props.profile.twitter
+                && !props.profile.telegram
+                && !props.profile.github
+                && !props.profile.website
+                && !props.profile.discord
+                && !props.profile.nostr
+                && !props.profile.ens
+                && !props.profile.farcaster
                 && !!sns
             )
         setActive(isOnlyOne)
@@ -168,6 +186,12 @@ function ProfileSocialMediaList(props: ProfileSocialMediaListProps) {
             <div className='list-item'>
                 <i className='icon-lens'></i>
                 <a href={id2Url(props.profile.lens, 'lens')} target='_blank'>{url2Id(props.profile.lens, 'lens')}</a>
+            </div>
+        }
+        {!!props.profile.farcaster &&
+            <div className='list-item'>
+                <i className='icon-farcaster'></i>
+                <a href={props.profile.farcaster} target='_blank'>{props.profile.farcaster}</a>
             </div>
         }
 

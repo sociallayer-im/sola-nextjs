@@ -195,6 +195,7 @@ export interface Profile {
 
     domain: string | null,
 
+    farcaster: string | null,
     twitter: string | null,
     telegram: string | null,
     github: string | null,
@@ -251,6 +252,7 @@ export async function queryProfileByGraph(props: { type: keyof GetProfileProps, 
 
     const doc = gql`query MyQuery {
       profiles(${condition}) {
+        farcaster
         id
         created_at
         discord
@@ -404,6 +406,7 @@ export async function getGroups(props: GetGroupProps): Promise<Group[]> {
 
     const doc = gql`query MyQuery {
       groups(${condition}) {
+        farcaster
         timezone
         events_count
         memberships_count
@@ -1058,6 +1061,7 @@ export interface QueryUserGroupProps {
 export async function queryGroupsUserJoined(props: QueryUserGroupProps): Promise<Group[]> {
     const doc = gql`query MyQuery {
       groups(where: {status: {_neq: "freezed"}, memberships: {role: {_neq: "owner"}, profile: {id: {_eq: "${props.profile_id}"}}}}) {
+        farcaster
         timezone
         events_count
         memberships_count
@@ -1108,6 +1112,7 @@ export async function queryGroupsUserJoined(props: QueryUserGroupProps): Promise
 export async function queryGroupsUserCreated(props: QueryUserGroupProps): Promise<Group[]> {
     const doc = gql`query MyQuery {
       groups(where: {status: {_neq: "freezed"}, memberships: {role: {_eq: "owner"}, profile: {id: {_eq: "${props.profile_id}"}}}}) {
+        farcaster
         timezone
         events_count
         memberships_count
@@ -1158,6 +1163,7 @@ export async function queryGroupsUserCreated(props: QueryUserGroupProps): Promis
 export async function queryGroupsUserManager(props: QueryUserGroupProps): Promise<Group[]> {
     const doc = gql`query MyQuery {
       groups(where: {status: {_neq: "freezed"}, memberships: {role: {_eq: "manager"}, profile: {id: {_eq: "${props.profile_id}"}}}}) {
+        farcaster
         timezone
         events_count
         memberships_count
@@ -3869,6 +3875,7 @@ export async function divineBeastRemerge(props: DivineBeastRmergeProps) {
 export async function getEventGroup() {
     const doc = gql`query MyQuery {
       groups(where: {event_enabled: {_eq: true}, status: {_neq: "freezed"}}) {
+        farcaster
         timezone
         events_count
         memberships_count
