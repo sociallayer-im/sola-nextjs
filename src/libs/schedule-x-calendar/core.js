@@ -354,7 +354,7 @@ const DEFAULT_FIRST_DAY_OF_WEEK = WeekDay.MONDAY;
 const DEFAULT_EVENT_COLOR_NAME = 'primary';
 
 class CalendarEventImpl {
-    constructor(_config, id, start, end, title, people, location, description, calendarId, _foreignProperties = {}) {
+    constructor(_config, id, start, end, title, people, location, description, calendarId, link, _foreignProperties = {}) {
         Object.defineProperty(this, "_config", {
             enumerable: true,
             configurable: true,
@@ -408,6 +408,12 @@ class CalendarEventImpl {
             configurable: true,
             writable: true,
             value: calendarId
+        });
+        Object.defineProperty(this, "link", {
+            enumerable: true,
+            configurable: true,
+            writable: true,
+            value: link
         });
         Object.defineProperty(this, "_foreignProperties", {
             enumerable: true,
@@ -501,6 +507,7 @@ class CalendarEventImpl {
             location: this.location,
             description: this.description,
             calendarId: this.calendarId,
+            link: this.link,
             ...this._getForeignProperties(),
         };
     }
@@ -568,9 +575,19 @@ class CalendarEventBuilder {
             writable: true,
             value: {}
         });
+        Object.defineProperty(this, "link", {
+            enumerable: true,
+            configurable: true,
+            writable: true,
+            value: void 0
+        });
     }
     build() {
-        return new CalendarEventImpl(this._config, this.id, this.start, this.end, this.title, this.people, this.location, this.description, this.calendarId, this._foreignProperties);
+        return new CalendarEventImpl(this._config, this.id, this.start, this.end, this.title, this.people, this.location, this.description, this.calendarId, this.link, this._foreignProperties);
+    }
+    withLink(link) {
+        this.link = link;
+        return this;
     }
     withTitle(title) {
         this.title = title;
@@ -1176,6 +1193,7 @@ function CustomMenu({ menuOpts }) {
 function CalendarHeader() {
     var _a;
     const $app = useContext(AppContext);
+    console.log('.$app$app$app', $app);
     const datePickerAppSingleton = new DatePickerAppSingletonBuilder()
         .withDatePickerState($app.datePickerState)
         .withConfig($app.datePickerConfig)
@@ -1306,13 +1324,14 @@ function CalendarWrapper({ $app }) {
 }
 
 const externalEventToInternal = (event, config) => {
-    const { id, start, end, title, description, location, people, ...foreignProperties } = event;
+    const { id, start, end, title, description, location, people, link, ...foreignProperties } = event;
     return new CalendarEventBuilder(config, id, start, end)
         .withTitle(title)
         .withDescription(description)
         .withLocation(location)
         .withPeople(people)
         .withCalendarId(event.calendarId)
+        .withLink(link)
         .withForeignProperties(foreignProperties)
         .build();
 };
@@ -3108,10 +3127,8 @@ function useEventInteractions($app) {
             ? eventTarget
             : eventTarget.closest('.sx__event');
         if (calendarEventElement instanceof HTMLElement) {
-            // console.log('$app.config.plugins.eventModal', $app.config.plugins.eventModal)
-            // $app.config.plugins.eventModal.calendarEventElement = {
-            //     value : calendarEventElement
-            // }
+            $app.config.plugins.eventModal.calendarEventElement.value =
+                calendarEventElement;
             $app.config.plugins.eventModal.setCalendarEvent(calendarEvent, calendarEventElement.getBoundingClientRect());
         }
     };

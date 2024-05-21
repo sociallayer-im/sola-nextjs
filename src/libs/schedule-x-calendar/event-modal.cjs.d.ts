@@ -85,10 +85,6 @@ interface DatePickerConfigInternal extends Config {
     teleportTo?: HTMLElement;
     label?: string;
 }
-interface DatePickerConfigExternal extends Partial<Omit<DatePickerConfigInternal, "placement">> {
-    selectedDate?: string;
-    placement?: Placement | string;
-}
 // This enum is used to represent names of all internally built views of the calendar
 declare enum InternalViewName {
     Day = "day",
@@ -190,19 +186,10 @@ interface CalendarEventInternal extends CalendarEventExternal {
     _getForeignProperties(): Record<string, unknown>;
     _getExternalEvent(): CalendarEventExternal;
 }
-type DayBoundariesExternal = {
-    start: string;
-    end: string;
-};
 type DayBoundariesInternal = {
     start: number;
     end: number;
 };
-interface PluginBase {
-    name: string;
-    init?($app: CalendarAppSingleton): void;
-    destroy?(): void;
-}
 interface TimeGridDragHandler {
 }
 type DayBoundariesDateTime = {
@@ -227,16 +214,6 @@ interface DragAndDropPlugin extends PluginBase {
     createTimeGridDragHandler(dependencies: DragHandlerDependencies, dayBoundariesDateTime: DayBoundariesDateTime): TimeGridDragHandler;
     createDateGridDragHandler(dependencies: DragHandlerDependencies): DateGridDragHandler;
     createMonthGridDragHandler(calendarEvent: CalendarEventInternal, $app: CalendarAppSingleton): MonthGridDragHandler;
-}
-type EventModalProps = {
-    $app: CalendarAppSingleton;
-};
-interface EventModalPlugin extends PluginBase {
-    calendarEvent: Signal<CalendarEventInternal | null>;
-    calendarEventDOMRect: Signal<DOMRect | null>;
-    calendarEventElement: Signal<HTMLElement | null>;
-    setCalendarEvent(event: CalendarEventInternal | null, eventTargetDOMRect: DOMRect | null): void;
-    ComponentFn(props: EventModalProps): JSXInternal.Element;
 }
 interface CalendarCallbacks {
     onEventUpdate?: (event: CalendarEventExternal) => void;
@@ -328,35 +305,6 @@ interface CalendarConfigInternal extends Config {
     isHybridDay: boolean;
     timePointsPerDay: number;
 }
-interface CalendarDatePickerConfigExternal extends Omit<DatePickerConfigExternal, "listeners" | "placement"> {
-}
-interface ReducedCalendarConfigInternal extends Omit<CalendarConfigInternal, "events" | "dayBoundaries" | "isHybridDay" | "plugins" | "views" | "_customComponentFns" | "calendars"> {
-}
-interface CalendarConfigExternal extends Partial<ReducedCalendarConfigInternal> {
-    datePicker?: CalendarDatePickerConfigExternal;
-    events?: CalendarEventExternal[];
-    dayBoundaries?: DayBoundariesExternal;
-    plugins?: PluginBase[];
-    views: [
-        View,
-        ...View[]
-    ];
-    selectedDate?: string;
-    calendars?: Record<string, CalendarType>;
-}
-interface CreateCalendarAppProps extends CalendarConfigExternal {
-    customMenus?: {
-        options: {
-            label: string;
-            value: any;
-        }[];
-        defaultSelectedIndex: number;
-        onClick?: (value: {
-            label: string;
-            value: any;
-        }) => any;
-    }[];
-}
 interface CalendarState {
     isCalendarSmall: Signal<boolean | undefined>;
     view: Signal<ViewName>;
@@ -377,27 +325,20 @@ interface CalendarAppSingleton extends AppSingleton {
     calendarEvents: CalendarEvents;
     elements: CalendarElements;
 }
-declare class CalendarApp {
-    private $app;
-    events: EventsFacade;
-    constructor($app: CalendarAppSingleton);
-    render(el: HTMLElement): void;
-    setTheme(theme: "light" | "dark"): void;
-    /**
-     * @internal
-     * Purpose: To be consumed by framework adapters for custom component rendering.
-     * */
-    _setCustomComponentFn(fnId: keyof CustomComponentFns, fn: CustomComponentFn): void;
+interface PluginBase {
+    name: string;
+    init?($app: CalendarAppSingleton): void;
+    destroy?(): void;
 }
-declare const createCalendar: (config: CreateCalendarAppProps) => CalendarApp;
-declare const viewWeek: View;
-declare const viewMonthGrid: View;
-declare const viewDay: View;
-declare const viewMonthAgenda: View;
-declare const createPreactView: (config: ViewConfig) => View;
-declare const setRangeForWeek: (config: RangeSetterConfig) => DateRange;
-declare const setRangeForMonth: (config: RangeSetterConfig) => DateRange;
-declare const setRangeForDay: (config: RangeSetterConfig) => DateRange;
-declare const externalEventToInternal: (event: CalendarEventExternal, config: CalendarConfigInternal) => CalendarEventInternal;
-export type { CalendarConfigExternal as CalendarConfig, CustomComponentFn, CalendarEventExternal as CalendarEvent };
-export { createCalendar, viewWeek, viewMonthGrid, viewDay, viewMonthAgenda, CalendarApp, createPreactView, setRangeForDay, setRangeForWeek, setRangeForMonth, externalEventToInternal };
+type EventModalProps = {
+    $app: CalendarAppSingleton;
+};
+interface EventModalPlugin extends PluginBase {
+    calendarEvent: Signal<CalendarEventInternal | null>;
+    calendarEventDOMRect: Signal<DOMRect | null>;
+    calendarEventElement: Signal<HTMLElement | null>;
+    setCalendarEvent(event: CalendarEventInternal | null, eventTargetDOMRect: DOMRect | null): void;
+    ComponentFn(props: EventModalProps): JSXInternal.Element;
+}
+declare const createEventModalPlugin: () => EventModalPlugin;
+export { createEventModalPlugin };
