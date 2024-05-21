@@ -1,7 +1,7 @@
 import {Event as SolarEvent, EventSites, getEventSide, getGroups, Group, queryEvent} from "@/service/solas";
 import {useContext, useEffect, useRef, useState} from "react";
 import {createCalendar, viewDay, viewMonthAgenda, viewMonthGrid, viewWeek} from '@/libs/schedule-x-calendar/core'
-import {createEventModalPlugin} from '@schedule-x/event-modal'
+import {createEventModalPlugin} from '@/libs/schedule-x-calendar/event-modal'
 import '@schedule-x/theme-default/dist/index.css'
 import '@/libs/schedule-x-calendar/view-selection.scss'
 import styles from '../schedule/schedulenew.module.scss'
@@ -140,10 +140,11 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
                         end_time: event.end_time,
                         location: event.location,
                         calendarId: calendarId,
+                        link: `/event/detail/${event.id}`
                     }
                 })
 
-
+                console.log('eventList', eventList)
                 if (scheduleXRef.current) {
                     scheduleXRef.current.events.set(eventList)
                 } else {
