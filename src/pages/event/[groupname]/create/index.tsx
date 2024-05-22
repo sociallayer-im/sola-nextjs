@@ -1143,6 +1143,10 @@ function EditEvent({
 
                                     {!!venueInfo &&
                                         <div className={styles['venue-detail']}>
+                                            {
+                                                venueInfo.require_approval &&
+                                                <div className={'approval-tag'}>Require Approval</div>
+                                            }
                                             <div>
                                                 {venueInfo.about}
                                                 {

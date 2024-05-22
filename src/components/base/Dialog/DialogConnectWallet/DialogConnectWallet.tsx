@@ -109,6 +109,23 @@ function DialogConnectWallet(props: DialogConnectWalletProps) {
                     props.handleClose()
                 }}/>
             </div>
+            <div className='connect-item' onClick={async () => {
+                const unload =  showLoading()
+                // const login = (await import('@/service/zupass/zupass')).login
+                try {
+                    await zuAuthLogin()
+                } catch (e: any) {
+                    showToast(e.message)
+                }
+                finally {
+                    unload()
+                }
+            }}>
+                <img src="/images/zupass.png" alt="email"/>
+                <div className='connect-name'>
+                    Zupass
+                </div>
+            </div>
             {connectors.map((connector) => (
                 (!connector.ready) ?
                     <></>
@@ -131,21 +148,7 @@ function DialogConnectWallet(props: DialogConnectWalletProps) {
                     <div className='connect-name'>Phone</div>
                 </div>
             }
-            <div className='connect-item' onClick={async () => {
-               const unload =  showLoading()
-                // const login = (await import('@/service/zupass/zupass')).login
-                try {
-                    await zuAuthLogin()
-                } catch (e: any) {
-                    showToast(e.message)
-                }
-                finally {
-                    unload()
-                }
-            }}>
-                <img src="/images/zupass.png" alt="email"/>
-                <div className='connect-name'>Zupass</div>
-            </div>
+
 
             {/*{solanaWallet.wallets && solanaWallet.wallets.length > 0 ?*/}
             {/*    <>*/}

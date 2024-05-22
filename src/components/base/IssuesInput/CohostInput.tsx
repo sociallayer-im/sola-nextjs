@@ -5,7 +5,7 @@ import {CheckIndeterminate, Plus} from 'baseui/icon'
 import DialogAddressList from '../Dialog/DialogAddressList/DialogAddressListFully'
 import DialogsContext from '../../provider/DialogProvider/DialogsContext'
 import usePicture from "../../../hooks/pictrue";
-import {getProfile, Profile, ProfileSimple, searchDomain} from "@/service/solas";
+import {getProfile, Profile, ProfileSimple, queryProfileByEmail, searchDomain} from "@/service/solas";
 
 
 export interface IssuesInputProps {
@@ -96,10 +96,13 @@ function CohostInput({allowAddressList = true, allowSearch = true, ...props}: Is
                 const task = [
                     searchDomain({username: newValue.split('.')[0], page: 1}),
                     getProfile({username: newValue.split('.')[0]}),
+                    queryProfileByEmail(newValue)
                     // getProfileBySNS(newValue)
                 ]
 
                 const fetch = await Promise.all(task)
+
+                console.log('fetch', fetch)
 
                 // const res1 = await searchDomain({username: newValue.split('.')[0], page: 1})
                 // const res2 = await getProfile({domain: newValue.split('.')[0]})
@@ -193,8 +196,6 @@ function CohostInput({allowAddressList = true, allowSearch = true, ...props}: Is
     }
 
     const InputItem = (value: ProfileSimple, index: number) => {
-
-
         return (
             <div className='issue-input-item' key={index.toString()}>
                 <div className='avatar' onClick={e => {

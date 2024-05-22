@@ -200,3 +200,16 @@
     }
   }
 }
+
+.approval-tag {
+  border-radius: 4px;
+  background: var(--Secondary-Color-Brand5-1-Light, #EEF2FE);
+  padding: 2px 7px 3px 5px;
+  justify-content: center;
+  color: var(--Secondary-Color-Brand5-3-Normal, #7492EF);
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  display: inline-block!important;
+  margin: 4px 0;
+}
