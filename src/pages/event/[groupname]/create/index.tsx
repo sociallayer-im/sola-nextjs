@@ -669,7 +669,7 @@ function EditEvent({
                 json: JSON.stringify(hostinfo),
                 cohostId: enableCoHost ? hosts.filter((p) => p.id).map((p) => p.id) : null,
                 speakerId: enableSpeakers ? speakers.map((p) => p.id) : null,
-                extra: hosts.filter(p => p.id === 0 && !!p.email).map((p) => `co_host:${p.email}`)
+                extra: hosts.filter(p => p.id === 0 && !!p.email).map((p) => p.email)
             }
         }
     }
