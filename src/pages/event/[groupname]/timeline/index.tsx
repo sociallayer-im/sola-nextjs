@@ -15,6 +15,7 @@ import EventDefaultCover from "@/components/base/EventDefaultCover";
 import removeMarkdown from "markdown-to-text"
 import ScheduleHeader from "@/components/base/ScheduleHeader";
 import {useSearchParams} from "next/navigation";
+import {PageBackContext} from "@/components/provider/PageBackProvider";
 
 const utc = require('dayjs/plugin/utc')
 const timezone = require('dayjs/plugin/timezone')
@@ -79,6 +80,7 @@ function Gan(props: { group: Group, eventSite: EventSites[] }) {
     const {showLoading} = useContext(DialogsContext)
     const {lang} = useContext(LangContext)
     const searchParams = useSearchParams()
+    const {history: pageHistory} = useContext(PageBackContext)
 
     const [timezoneSelected, setTimezoneSelected] = useState<{ label: string, id: string }[]>([])
     const [viewMode, setViewMode] = useState([views[0]])
@@ -291,7 +293,8 @@ function Gan(props: { group: Group, eventSite: EventSites[] }) {
                         : undefined
 
                 if (page !== 1) {
-                    history.pushState(null, '', genHref({date: startStr, tag: tag[0].id !== 'All' ? tag[0].id : undefined}))
+                    history.replaceState(null, '', genHref({date: startStr, tag: tag[0].id !== 'All' ? tag[0].id : undefined}))
+                    pageHistory[pageHistory.length - 1] = location.pathname + genHref({date: startStr, tag: tag[0].id !== 'All' ? tag[0].id : undefined})
                 }
 
                 ganttRef.current = new Gantt('#gantt', eventList, {
@@ -316,7 +319,7 @@ function Gan(props: { group: Group, eventSite: EventSites[] }) {
 
                         return renderToStaticMarkup(
                             <Link href={`/event/detail/${task.event.id}`} className={'event-card'}
-                                  style={{width: '380px'}} target={'_blank'}>
+                                  style={{width: '380px'}}>
                                 <div className={'info'}>
                                     <div className={'left'}>
                                         <div className={'details'}>

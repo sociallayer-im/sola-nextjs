@@ -18,6 +18,7 @@ import {useSearchParams} from "next/navigation";
 import * as dayjsLib from "dayjs";
 import timezoneList from "@/utils/timezone";
 import {getLabelColor} from "@/hooks/labelColor";
+import {PageBackContext} from "@/components/provider/PageBackProvider";
 
 const utc = require('dayjs/plugin/utc')
 const timezone = require('dayjs/plugin/timezone')
@@ -79,6 +80,7 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
     const formatTime = useTime()
     const router = useRouter()
     const searchParams = useSearchParams()
+    const {history: pageHistory} = useContext(PageBackContext)
 
     const [timezoneSelected, setTimezoneSelected] = useState<{ label: string, id: string }[]>([])
     const [tag, setTag] = useState<string>(searchParams?.get('tag') || '')
@@ -295,6 +297,7 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
 
     useEffect(() => {
         history.replaceState(null, '', genHref({date: presetDate, tag: tag}))
+        pageHistory[pageHistory.length - 1] = location.pathname + genHref({date: presetDate, tag: tag})
     }, [tag, presetDate])
 
     const genHref = ({date, tag} : {date?: string, tag?: string}) => {

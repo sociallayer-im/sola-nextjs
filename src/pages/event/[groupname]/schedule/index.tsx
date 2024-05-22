@@ -12,6 +12,7 @@ import timezoneList from "@/utils/timezone"
 import {Select} from "baseui/select";
 import { StatefulTooltip } from "baseui/tooltip"
 import ScheduleHeader from "@/components/base/ScheduleHeader";
+import {PageBackContext} from "@/components/provider/PageBackProvider";
 
 import * as dayjsLib from "dayjs";
 const utc = require('dayjs/plugin/utc')
@@ -101,6 +102,7 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
     const lock = useRef(false)
     const searchParams = useSearchParams()
     const pathname = usePathname()
+    const {history: pageHistory} = useContext(PageBackContext)
 
 
     const {user} = useContext(UserContext)
@@ -426,6 +428,7 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
             }
 
             history.replaceState(null, '', genHref(props))
+            pageHistory[pageHistory.length - 1] = location.pathname + genHref(props)
         }
 
     }, [pageList, page, tag, timezoneSelected])
