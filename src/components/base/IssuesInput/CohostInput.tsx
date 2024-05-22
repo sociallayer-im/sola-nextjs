@@ -1,4 +1,4 @@
-import {useContext, useRef, useState} from 'react'
+import {useContext, useEffect, useRef, useState} from 'react'
 import AppInput from '../AppInput'
 import LangContext from '../../provider/LangProvider/LangContext'
 import {CheckIndeterminate, Plus} from 'baseui/icon'
@@ -35,7 +35,6 @@ function CohostInput({allowAddressList = true, allowSearch = true, ...props}: Is
     const timeout = useRef<any>(null)
     const [showSearchRes, setShowSearchRes] = useState<null | number>(null)
     const [searchRes, setSearchRes] = useState<Profile[]>([])
-
 
     const selectRes = (newValue: ProfileSimple, index: number) => {
         if (!newValue) {
@@ -198,24 +197,26 @@ function CohostInput({allowAddressList = true, allowSearch = true, ...props}: Is
     const InputItem = (value: ProfileSimple, index: number) => {
         return (
             <div className='issue-input-item' key={index.toString()}>
-                <div className='avatar' onClick={e => {
-                    if (!value.username) return
-                    selectImage(
-                        (imageUrl: string) => {
-                            const copyValue = [...props.value]
-                            copyValue[index] = {
-                                ...copyValue[index],
-                                image_url: imageUrl
+                { !!value.username &&
+                    <div className='avatar' onClick={e => {
+                        if (!value.username) return
+                        selectImage(
+                            (imageUrl: string) => {
+                                const copyValue = [...props.value]
+                                copyValue[index] = {
+                                    ...copyValue[index],
+                                    image_url: imageUrl
+                                }
+                                props.onChange(copyValue)
                             }
-                            props.onChange(copyValue)
+                        )
+                    }}>
+                        <img src={value.image_url || defaultAvatar(value.id)} alt=""/>
+                        {!!value.username &&
+                            <i className={'icon-edit'}/>
                         }
-                    )
-                }}>
-                    <img src={value.image_url || defaultAvatar(value.id)} alt=""/>
-                    {!!value.username &&
-                        <i className={'icon-edit'}/>
-                    }
-                </div>
+                    </div>
+                }
 
 
                 <div className={'issue-input-item-inputs'}>

@@ -277,17 +277,17 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
                         </div>
                     }
 
-                    {!!eventDetail.location && !eventDetail.event_site &&
+                    {!!eventDetail.location && !eventDetail.event_site && false &&
                         <div className={'detail'}>
                             <i className={'icon-Outline'}/>
                             <span>{eventDetail.location}</span>
                         </div>
                     }
 
-                    {!!eventDetail.event_site &&
+                    {!!eventDetail.event_site && false &&
                         <div className={'detail'}>
                             <i className={'icon-Outline'}/>
-                            <span>{eventDetail.event_site.title}</span>
+                            <span>{eventDetail.event_site!.title}</span>
                         </div>
                     }
 
@@ -299,7 +299,7 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
                     }
                 </div>
 
-                {props.event.status === 'open' &&
+                {props.event.status === 'open' && false &&
                     <div className={'event-card-action'}>
                         {!fixed &&
                             <AppButton
@@ -326,13 +326,13 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
                             ><i className={'icon-calendar'}/></AppButton>
                         }
 
-                        {!!user.id && !hasRegistered && !fixed && !props.event.external_url &&
+                        {!!user.id && !hasRegistered && !fixed && !props.event.external_url && false &&
                             <AppButton special onClick={e => {
                                 handleJoin(e)
                             }}>{lang['Event_Card_Apply_Btn']}</AppButton>
                         }
 
-                        { !fixed && !!props.event.external_url &&
+                        { !fixed && !!props.event.external_url && false &&
                             <AppButton special onClick={e => {
                                 handleExternal(e)
                             }}>{lang['Event_Card_Apply_Btn']}</AppButton>

@@ -493,7 +493,7 @@ export interface LoginRes {
 }
 
 export async function emailLogin(email: string, code: string): Promise<LoginRes> {
-    const res = await fetch.post({
+    const res:any  = await fetch.post({
         url: `${apiUrl}/profile/signin_with_email`,
         data: {email, code, app: window.location.host, address_source: 'email'}
     })
@@ -511,7 +511,7 @@ interface SolasRegistProps {
 
 export async function regist(props: SolasRegistProps): Promise<{ result: 'ok' }> {
     checkAuth(props)
-    const res = await fetch.post({
+    const res: any = await fetch.post({
         url: `${apiUrl}/profile/create`,
         data: props
     })
@@ -531,7 +531,7 @@ export interface AddManagerProps {
 
 export async function addManager(props: AddManagerProps): Promise<void> {
     checkAuth(props)
-    const res = await fetch.post({
+    const res:any = await fetch.post({
         url: `${apiUrl}/group/add-manager`,
         data: props
     })
@@ -543,7 +543,7 @@ export async function addManager(props: AddManagerProps): Promise<void> {
 
 export async function addIssuer(props: AddManagerProps): Promise<void> {
     checkAuth(props)
-    const res = await fetch.post({
+    const res:any  = await fetch.post({
         url: `${apiUrl}/group/add-issuer`,
         data: props
     })
@@ -556,7 +556,7 @@ export async function addIssuer(props: AddManagerProps): Promise<void> {
 
 export async function removeManager(props: AddManagerProps): Promise<void> {
     checkAuth(props)
-    const res = await fetch.post({
+    const res: any = await fetch.post({
         url: `${apiUrl}/group/remove-manager`,
         data: props
     })
@@ -568,7 +568,7 @@ export async function removeManager(props: AddManagerProps): Promise<void> {
 
 export async function removeIssuer(props: AddManagerProps): Promise<void> {
     checkAuth(props)
-    const res = await fetch.post({
+    const res:any = await fetch.post({
         url: `${apiUrl}/group/remove-issuer`,
         data: props
     })
@@ -1239,7 +1239,7 @@ export interface AcceptBadgeletProp {
 
 export async function acceptBadgelet(props: AcceptBadgeletProp): Promise<Badgelet> {
     checkAuth(props)
-    const res = await fetch.post({
+    const res:any  = await fetch.post({
         url: `${apiUrl}/voucher/use`,
         data: {id: props.voucher_id, code: props.code, auth_token: props.auth_token, index: props.index}
     })
@@ -1258,7 +1258,7 @@ export interface RejectVoucherProp {
 
 export async function rejectVoucher(props: RejectVoucherProp): Promise<void> {
     checkAuth(props)
-    const res = await fetch.post({
+    const res:any  = await fetch.post({
         url: `${apiUrl}/voucher/reject_badge`,
         data: props
     })
@@ -1305,7 +1305,7 @@ export interface SetBadgeletStatusProps {
 
 export async function setBadgeletStatus(props: SetBadgeletStatusProps) {
     checkAuth(props)
-    const res = await fetch.post({
+    const res:any  = await fetch.post({
         url: `${apiUrl}/badgelet/update`,
         data: {
             id: props.id,
@@ -1326,7 +1326,7 @@ export interface QueryBadgeletDetailProps {
 }
 
 export async function queryBadgeletDetail(props: QueryBadgeletDetailProps): Promise<Badgelet | null> {
-    const res = await queryBadgelet({
+    const res:any = await queryBadgelet({
         id: props.id,
         page: 1,
     })
@@ -1352,7 +1352,7 @@ export async function uploadImage(props: UploadImageProps): Promise<string> {
     formData.append('auth_token', props.auth_token)
     formData.append('uploader', props.uploader)
     formData.append('resource', randomName)
-    const res = await fetch.post({
+    const res:any = await fetch.post({
         url: `${apiUrl}/service/upload_image`,
         data: formData,
         header: {'Content-Type': 'multipart/form-data'}
@@ -1372,7 +1372,7 @@ export interface SetAvatarProps {
 
 export async function setAvatar(props: SetAvatarProps) {
     checkAuth(props)
-    const res = await fetch.post({
+    const res:any = await fetch.post({
         url: `${apiUrl}/profile/update`,
         data: props
     })
@@ -1400,7 +1400,7 @@ export async function createBadge(props: CreateBadgeProps): Promise<Badge> {
     checkAuth(props)
     props.badge_type = props.badge_type || 'badge'
 
-    const res = await fetch.post({
+    const res:any = await fetch.post({
         url: `${apiUrl}/badge/create`,
         data: props
     })
@@ -1422,7 +1422,7 @@ export interface CreatePresendProps {
 export async function createPresend(props: CreatePresendProps) {
     checkAuth(props)
     props.counter = props.counter === 'Unlimited' ? 65535 : props.counter
-    const res = await fetch.post({
+    const res:any = await fetch.post({
         url: `${apiUrl}/voucher/create`,
         data: props
     })
@@ -1682,7 +1682,7 @@ export async function issueBatch(props: IssueBatchProps): Promise<Voucher[]> {
 
     const usernames = profiles.map((item: any) => item.username)
 
-    const res = await fetch.post({
+    const res:any = await fetch.post({
         url: `${apiUrl}/voucher/send_badge`,
         data: {
             badge_id: props.badgeId,
@@ -1704,7 +1704,7 @@ export async function issueBatch(props: IssueBatchProps): Promise<Voucher[]> {
 }
 
 export async function DDNSServer(domain: string): Promise<string | null> {
-    const res = await fetch.get({
+    const res:any = await fetch.get({
         url: `https://api.ddns.so/name/${domain.toLowerCase()}`
     })
 
@@ -1722,7 +1722,7 @@ interface FollowProps {
 
 export async function follow(props: FollowProps) {
     checkAuth(props)
-    const res = await fetch.post({
+    const res:any = await fetch.post({
         url: `${apiUrl}/profile/follow`,
         data: props
     })
@@ -1734,7 +1734,7 @@ export async function follow(props: FollowProps) {
 
 export async function unfollow(props: FollowProps) {
     checkAuth(props)
-    const res = await fetch.post({
+    const res:any = await fetch.post({
         url: `${apiUrl}/profile/unfollow`,
         data: props
     })
@@ -1775,7 +1775,7 @@ export interface CreateGroupProps {
 
 export async function createGroup(props: CreateGroupProps): Promise<Group> {
     checkAuth(props)
-    const res = await fetch.post({
+    const res:any = await fetch.post({
         url: `${apiUrl}/group/create`,
         data: props
     })
@@ -1872,7 +1872,7 @@ export async function sendInvite(props: SendInviteProps): Promise<Invite[]> {
 
     const usernames = profiles.map((item: any) => item.username)
 
-    const res = await fetch.post({
+    const res:any = await fetch.post({
         url: `${apiUrl}/group/send_invite`,
         data: {
             ...props,
@@ -1900,7 +1900,7 @@ export async function sendInvite(props: SendInviteProps): Promise<Invite[]> {
 export async function sendInviteByEmail(props: SendInviteProps): Promise<Invite[]> {
     checkAuth(props)
 
-    const res = await fetch.post({
+    const res:any = await fetch.post({
         url: `${apiUrl}/group/send_invite_by_email`,
         data: props
     })
@@ -1928,7 +1928,7 @@ export interface QueryInviteDetailProps {
 }
 
 export async function queryInviteDetail(props: QueryInviteDetailProps): Promise<Invite | null> {
-    const res = await queryInvites({inviteId: props.invite_id, groupId: props.group_id})
+    const res:any = await queryInvites({inviteId: props.invite_id, groupId: props.group_id})
     return res[0] || null
 }
 
@@ -1939,7 +1939,7 @@ export interface AcceptInviteProps {
 
 export async function acceptInvite(props: AcceptInviteProps) {
     checkAuth(props)
-    const res = await fetch.post({
+    const res:any = await fetch.post({
         url: `${apiUrl}/group/accept_invite`,
         data: props
     })
@@ -1951,7 +1951,7 @@ export async function acceptInvite(props: AcceptInviteProps) {
 
 export async function cancelInvite(props: AcceptInviteProps) {
     checkAuth(props)
-    const res = await fetch.post({
+    const res:any = await fetch.post({
         url: `${apiUrl}/group/cancel_invite`,
         data: props
     })
@@ -2004,7 +2004,7 @@ export interface UpdateGroupProps extends Partial<Group> {
 
 export async function updateGroup(props: UpdateGroupProps) {
     checkAuth(props)
-    const res = await fetch.post({
+    const res:any = await fetch.post({
         url: `${apiUrl}/group/update`,
         data: {...props}
     })
@@ -2024,7 +2024,7 @@ export interface LeaveGroupProps {
 
 export async function leaveGroup(props: LeaveGroupProps) {
     checkAuth(props)
-    const res = await fetch.post({
+    const res:any = await fetch.post({
         url: `${apiUrl}/group/remove-member`,
         data: props
     })
@@ -2164,7 +2164,7 @@ export interface freezeGroupProps {
 
 export async function freezeGroup(props: freezeGroupProps) {
     checkAuth(props)
-    const res = await fetch.post({
+    const res:any = await fetch.post({
         url: `${apiUrl}/group/freeze`,
         data: {
             id: props.group_id,
@@ -2179,7 +2179,7 @@ export async function freezeGroup(props: freezeGroupProps) {
 
 export async function updateProfile(props: { data: Partial<Profile>, auth_token: string }) {
     checkAuth(props)
-    const res = await fetch.post({
+    const res:any = await fetch.post({
         url: `${apiUrl}/profile/update`,
         data: {...props.data, auth_token: props.auth_token}
     })
@@ -2562,7 +2562,7 @@ export interface BadgeRevokeProps {
 export async function badgeRevoke(props: BadgeRevokeProps): Promise<Badgelet> {
     checkAuth(props)
 
-    const res = await fetch.post({
+    const res:any = await fetch.post({
         url: `${apiUrl}/badgelet/burn`,
         data: {
             ...props,
@@ -2584,7 +2584,7 @@ interface BadgeBurnProps {
 export async function badgeletBurn(props: BadgeBurnProps): Promise<Badgelet> {
     checkAuth(props)
 
-    const res = await fetch.post({
+    const res:any = await fetch.post({
         url: `${apiUrl}/badgelet/burn`,
         data: {
             ...props,
@@ -2702,7 +2702,7 @@ export async function updateVote(props: UpdateVoteProps) {
 }
 
 export async function getVoteDetail(voteid: number) {
-    const res = await queryVotes({vote_id: voteid, page: 1})
+    const res:any = await queryVotes({vote_id: voteid, page: 1})
     return res[0] as Vote || null
 }
 
@@ -2874,7 +2874,7 @@ export interface CheckIsManagerProps {
 }
 
 export async function checkIsManager(props: CheckIsManagerProps): Promise<boolean> {
-    const res = await getGroupMembers({
+    const res:any = await getGroupMembers({
         group_id: props.group_id,
         role: 'manager',
     })
@@ -2883,7 +2883,7 @@ export async function checkIsManager(props: CheckIsManagerProps): Promise<boolea
         return false
     }
 
-    return res.some((item) => {
+    return res.some((item: any) => {
         return item.id === props.profile_id
     })
 }
@@ -3396,7 +3396,7 @@ export interface QueryEventDetailProps {
 }
 
 export async function queryEventDetail(props: QueryEventDetailProps) {
-    const res = await queryEvent({
+    const res:any = await queryEvent({
         id: props.id,
         page: 1,
         show_pending_event: true,
@@ -3715,7 +3715,7 @@ export interface SetEventBadgeProps {
 export async function setEventBadge(props: SetEventBadgeProps) {
     checkAuth(props)
 
-    const res = await fetch.post({
+    const res:any = await fetch.post({
         url: `${apiUrl}/event/set_badge`,
         data: props
     })
@@ -3733,7 +3733,7 @@ export interface SendEventBadgeProps {
 export async function sendEventBadge(props: SendEventBadgeProps) {
     checkAuth(props)
 
-    const res = await fetch.post({
+    const res:any = await fetch.post({
         url: `${apiUrl}/event/send_badge`,
         data: {
             id: props.event_id,
@@ -3962,7 +3962,7 @@ interface EditEventProps extends Partial<EventSites> {
 export async function createEventSite(props: EditEventProps) {
     checkAuth(props)
 
-    const res = await fetch.post({
+    const res:any  = await fetch.post({
         url: `${apiUrl}/event_site/create`,
         data: props
     })
@@ -3977,7 +3977,7 @@ export async function createEventSite(props: EditEventProps) {
 export async function updateEventSite(props: EditEventProps) {
     checkAuth(props)
 
-    const res = await fetch.post({
+    const res:any = await fetch.post({
         url: `${apiUrl}/event_site/update`,
         data: props
     })
@@ -3992,7 +3992,7 @@ export async function updateEventSite(props: EditEventProps) {
 export async function removeEventSite({auth_token, id}: { auth_token: string, id: number }) {
     checkAuth({auth_token})
 
-    const res = await fetch.post({
+    const res:any = await fetch.post({
         url: `${apiUrl}/event_site/remove`,
         data: {
             auth_token,
@@ -4019,7 +4019,7 @@ export async function requestPhoneCode(phone: string): Promise<void> {
 }
 
 export async function phoneLogin(phone: string, code: string): Promise<LoginRes> {
-    const res = await fetch.post({
+    const res:any = await fetch.post({
         url: `${apiUrl}/profile/signin_with_phone`,
         data: {phone, code, app: window.location.host, address_source: 'phone'}
     })
@@ -4038,7 +4038,7 @@ export interface EventStats {
 }
 
 export async function getEventStats(props: { group_id: number, days: number }) {
-    const res = await fetch.get({
+    const res:any = await fetch.get({
         url: `${apiUrl}/event/stats`,
         data: props
     })
@@ -4078,7 +4078,7 @@ export interface CancelRepeatProps {
 export async function cancelRepeatEvent(props: CancelRepeatProps) {
     checkAuth(props)
 
-    const res = await fetch.post({
+    const res:any = await fetch.post({
         url: `${apiUrl}/recurring_event/cancel_event`,
         data: props
     })
@@ -4097,7 +4097,7 @@ export interface CreateRepeatEventProps extends CreateEventProps {
 
 export async function createRepeatEvent(props: CreateRepeatEventProps) {
     checkAuth(props)
-    const res = await fetch.post({
+    const res:any = await fetch.post({
         url: `${apiUrl}/recurring_event/create`,
         data: props
     })
@@ -4156,7 +4156,7 @@ export interface RepeatEventSetBadgeProps {
 
 export async function RepeatEventSetBadge(props: RepeatEventSetBadgeProps) {
     checkAuth(props)
-    const res = await fetch.post({
+    const res:any = await fetch.post({
         url: `${apiUrl}/recurring_event/set_badge`,
         data: props
     })
@@ -4177,7 +4177,7 @@ export interface RepeatEventUpdateProps extends CreateEventProps {
 
 export async function RepeatEventUpdate(props: RepeatEventUpdateProps) {
     checkAuth(props)
-    const res = await fetch.post({
+    const res:any = await fetch.post({
         url: `${apiUrl}/recurring_event/update`,
         data: props
     })
@@ -4229,7 +4229,7 @@ export async function createMarker(props: CreateMarkerProps) {
         props.marker_type = 'zugame'
     }
 
-    const res = await fetch.post({
+    const res:any = await fetch.post({
         url: `${apiUrl}/marker/create`,
         data: props
     })
@@ -4257,7 +4257,7 @@ export async function saveMarker(props: CreateMarkerProps) {
         props.marker_type = 'zugame'
     }
 
-    const res = await fetch.post({
+    const res:any = await fetch.post({
         url: `${apiUrl}/marker/update`,
         data: props
     })
@@ -4482,7 +4482,7 @@ export async function markerCheckin(props: {
 }) {
 
     checkAuth(props)
-    const res = await fetch.post({
+    const res :any = await fetch.post({
         url: `${apiUrl}/marker/check`,
         data: props
     })
@@ -4499,7 +4499,7 @@ export async function removeMarker(props: {
     id?: number,
 }) {
     checkAuth(props)
-    const res = await fetch.post({
+    const res :any = await fetch.post({
         url: `${apiUrl}/marker/remove`,
         data: props
     })
@@ -4514,7 +4514,7 @@ export async function getVoucherCode(props: {
     id?: number,
 }) {
     checkAuth(props)
-    const res = await fetch.get({
+    const res :any = await fetch.get({
         url: `${apiUrl}/voucher/get_code`,
         data: props
     })
@@ -4527,7 +4527,7 @@ export async function getVoucherCode(props: {
 }
 
 export async function transferGroupOwner(props: { id: number, new_owner_username: string, auth_token: string }) {
-    const res = await fetch.post({
+    const res :any = await fetch.post({
         url: `${apiUrl}/group/transfer_owner`,
         data: props
     })
@@ -4544,7 +4544,7 @@ export async function zupassLogin(props: {
     next_token: string
     host?: string,
 }) {
-    const res = await fetch.post({
+    const res :any = await fetch.post({
         url: `${apiUrl}/profile/signin_with_zupass`,
         data: {...props, app: props.host, address_source: 'zupass'}
     })
@@ -4562,7 +4562,7 @@ export async function farcasterLogin(props: {
     next_token: string
     host?: string,
 }) {
-    const res = await fetch.post({
+    const res :any = await fetch.post({
         url: `${apiUrl}/profile/signin_with_farcaster`,
         data: {...props, app: props.host, address_source: 'farcaster'}
     })
@@ -4579,7 +4579,7 @@ export async function solanaLogin(props: {
     next_token: string,
     host?: string
 }) {
-    const res = await fetch.post({
+    const res :any = await fetch.post({
         url: `${apiUrl}/profile/signin_with_solana`,
         data: {...props, app: props.host, address_source: 'solana'}
     })
@@ -4596,7 +4596,7 @@ export async function jubmojiCheckin(props: {
     auth_token: string,
     reaction_type: string,
 }) {
-    const res = await fetch.post({
+    const res :any = await fetch.post({
         url: `${apiUrl}/marker/check_jubmoji`,
         data: props
     })
@@ -4607,7 +4607,7 @@ export async function jubmojiCheckin(props: {
 }
 
 export async function zugameInfo() {
-    const res = await fetch.get({
+    const res :any = await fetch.get({
         url: `${apiUrl}/marker/zugame_checkin_stats`,
         data: {}
     })
@@ -4778,7 +4778,7 @@ export async function sendBadgeByWallet(props: {
 }) {
     checkAuth(props)
 
-    const res = await fetch.post({
+    const res :any = await fetch.post({
         url: `${apiUrl}/voucher/send_badge_by_address`,
         data: props
     })
@@ -4802,7 +4802,7 @@ export async function queryGroupEventCheckins(group_id: number) {
 export async function getSwapCode(props: { auth_token: string, badgelet_id: number }) {
     checkAuth(props)
 
-    const res = await fetch.post({
+    const res :any = await fetch.post({
         url: `${apiUrl}/badgelet/swap_code`,
         data: props
     })
@@ -4813,7 +4813,7 @@ export async function getSwapCode(props: { auth_token: string, badgelet_id: numb
 export async function swapBadgelet(props: { auth_token: string, badgelet_id: number, swap_token: string }) {
     checkAuth(props)
 
-    const res = await fetch.post({
+    const res :any = await fetch.post({
         url: `${apiUrl}/badgelet/swap`,
         data: props
     })
@@ -4905,7 +4905,7 @@ export async function requestToBeIssuer(props: {
 }) {
     checkAuth(props)
 
-    const res = await fetch.post({
+    const res :any = await fetch.post({
         url: `${apiUrl}/group/request_invite`,
         data: props
     })
@@ -4918,7 +4918,7 @@ export async function acceptRequest(props: {
 }) {
     checkAuth(props)
 
-    const res = await fetch.post({
+    const res :any = await fetch.post({
         url: `${apiUrl}/group/accept_request`,
         data: props
     })
@@ -4946,7 +4946,7 @@ export async function setEventStatus(props: {
 }) {
     checkAuth(props)
 
-    const res = await fetch.post({
+    const res :any = await fetch.post({
         url: `${apiUrl}/event/set_status`,
         data: props
     })
@@ -5016,7 +5016,7 @@ export async function queryActivities(props: {
 export async function setActivityRead (props: {ids: number[], auth_token: string}) {
     checkAuth(props)
 
-    const res = await fetch.post({
+    const res :any = await fetch.post({
         url: `${apiUrl}/activity/set_read_status`,
         data: props
     })
@@ -5170,7 +5170,7 @@ export async function combine(props: {
 }) {
     checkAuth(props)
 
-    const res = await fetch.post({
+    const res :any = await fetch.post({
         url: `${apiUrl}/badgelet/wamo_go_merge`,
         data: props
     })
@@ -5338,6 +5338,18 @@ export async function queryBadgeletWithTop(props: {owner_id: number, page: numbe
         top: res.top as Badgelet[],
         others: res.others as Badgelet[]
     }
+}
+
+export async function checkEventPermission (props: {id: number, auth_token: string}) {
+    checkAuth(props)
+
+    const res: any =  await fetch.post({
+        url: `${apiUrl}/event/check_permission`,
+        data: props
+    })
+
+    return res.data.message === 'join allowed'
+    // return false
 }
 
 

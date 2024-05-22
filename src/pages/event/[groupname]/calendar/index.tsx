@@ -154,7 +154,7 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
                         people: host,
                         start_time: event.start_time,
                         end_time: event.end_time,
-                        location: event.location,
+                        // location: event.location,
                         calendarId: calendarId,
                         link: `/event/detail/${event.id}`
                     }

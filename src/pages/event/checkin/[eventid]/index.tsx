@@ -64,10 +64,10 @@ function EventCheckIn() {
                 }) || [])
                 setHasCheckin(eventDetails?.participants?.filter(item => item.status === 'checked').map(item => item.profile.domain!) || [])
                 // @ts-ignore
-                if (eventDetails && eventDetails.operators?.findIndex(item => item  === user.id) > -1) {
+                if (eventDetails && ((user.id && eventDetails.operators?.includes(user.id)) || (user.email && eventDetails?.extra?.includes(user.email)))
+                ) {
                     setIsOperator(true)
                 }
-
 
                 if (eventDetails!.host_info || eventDetails!.group_id) {
                     if (eventDetails!.host_info?.startsWith('{')) {
@@ -133,7 +133,7 @@ function EventCheckIn() {
 
     useEffect(() => {
         init()
-    }, [needUpdate])
+    }, [needUpdate, user.id])
 
     useEffect(() => {
         if (user.id && event) {

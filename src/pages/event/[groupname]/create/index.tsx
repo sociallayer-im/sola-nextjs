@@ -175,32 +175,36 @@ function EditEvent({
 
     const init = async () => {
         if (!!group && user.id) {
+
             const memberships = await getGroupMemberShips({group_id: group.id, role: 'all'})
             const membership = memberships.find(item => item.profile.id === user.id)
             const isJoined = !!membership && (membership.role === 'member' || membership.role === 'manager' || membership.role === 'owner')
             const isManager = !!membership && membership.role === 'manager' || group.creator.id === user.id
 
             setIsManager(isManager)
+
             if (!!initEvent && user.userName && initEvent.operators?.includes(user!.id!)) {
                 setNeedPublish(false)
             } else if (!eventGroup || (eventGroup as Group).can_publish_event === 'everyone') {
                 setNeedPublish(false)
             } else if ((eventGroup as Group).can_publish_event === 'member' && !isJoined) {
                 setNeedPublish(true)
-                return
             } else if ((eventGroup as Group).can_publish_event === 'manager' && !isManager) {
                 setNeedPublish(true)
-                return
             } else {
                 setNeedPublish(false)
             }
+
         } else {
             setIsManager(false)
             setNeedPublish(false)
         }
 
+
+
         if (initEvent) {
             // prefill
+
             setEnableNotes(!!initEvent.notes)
 
 

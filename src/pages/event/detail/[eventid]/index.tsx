@@ -2,6 +2,7 @@ import {useParams, useRouter} from 'next/navigation'
 import {useContext, useEffect, useState} from 'react'
 import {
     Badge,
+    checkEventPermission,
     Event,
     getRecurringEvents,
     Group,
@@ -14,6 +15,7 @@ import {
     queryEvent,
     queryEventDetail,
     queryGroupDetail,
+    queryProfileByEmail,
     queryUserGroup,
     RecurringEvent
 } from "@/service/solas";
@@ -43,7 +45,7 @@ import EventNotes from "@/components/base/EventNotes/EventNotes";
 import RichTextDisplayer from "@/components/compose/RichTextEditor/Displayer";
 import removeMarkdown from "markdown-to-text"
 import {StatefulPopover} from "baseui/popover";
-import {SeatingStyle, AVNeeds} from "@/pages/event/[groupname]/create";
+import {AVNeeds, SeatingStyle} from "@/pages/event/[groupname]/create";
 
 import * as dayjsLib from "dayjs";
 import Empty from "@/components/base/Empty";
@@ -88,6 +90,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
     const [badge, setBadge] = useState<Badge | null>(null)
     const [isChecklog, setIsChecklog] = useState(false)
     const [canAccess, setCanAccess] = useState(false)
+    const [hasPermission, setHasPermission] = useState(false)
     const [eventSite, setEventSite] = useState<any | null>(null)
     const [showMap, setShowMap] = useState(false)
     const [group, setGroup] = useState<Group | null>(null)
@@ -295,26 +298,38 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
 
                 setEventGroup(group as Group)
                 setGroup(group as Group)
-
                 const selectedGroup = group as Group
-                if (user.id && event.operators?.includes(user.id)) {
+
+                if ((user.id && event.operators?.includes(user.id)) || (!!user.email && event.extra?.includes(user.email))) {
                     setIsOperator(true)
                     setCanAccess(true)
-                } else if ((selectedGroup as Group).can_join_event === 'everyone') {
-                    setCanAccess(true)
-                    return
                 } else if (user.id && (selectedGroup as Group).can_join_event === 'member') {
                     const myGroup = queryUserGroup({profile_id: user.id}).then(res => {
                         const joined = res.find(item => item.id === selectedGroup.id)
                         setCanAccess(!!joined)
                     })
+                } else if ((selectedGroup as Group).can_join_event === 'everyone') {
+                    setCanAccess(true)
                 } else {
                     setCanAccess(false)
+                    setIsOperator(false)
                 }
             })
 
         }
+    }, [event, ready, user.id])
 
+    useEffect(() => {
+        if (!user.id) {
+            setHasPermission(false)
+        } else {
+            if (event) {
+                checkEventPermission({id: event.id, auth_token: user.authToken || ''}).then(res => {
+                    console.log('resresresresresres', res)
+                    setHasPermission(res)
+                })
+            }
+        }
     }, [event, ready, user.id])
 
     useEffect(() => {
@@ -491,7 +506,15 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                 {cohost.map((item, index) => {
                                                     return <div className={'host-item'} key={item.username! + index}
                                                                 onClick={e => {
-                                                                    !!item?.username && !!item?.id && goToProfile(item.username)
+                                                                    if (!!item?.username && item.id) {
+                                                                        goToProfile(item.username)
+                                                                    } else if (!item.id && item.email) {
+                                                                        queryProfileByEmail(item.email).then(res => {
+                                                                            if (res) {
+                                                                                goToProfile(res.username!)
+                                                                            }
+                                                                        })
+                                                                    }
                                                                 }}>
                                                         <img src={item.image_url || defaultAvatar(item.id)} alt=""/>
                                                         <div>
@@ -553,22 +576,27 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                     <>
                                         <div className={'detail-item'}>
                                             <i className={'icon-Outline'}/>
-                                            {event.formatted_address ?
-                                                <a href={genGoogleMapUrl(event.id)}
-                                                   target={'_blank'}>
-                                                    <div className={'main'}>{event.location}</div>
-                                                    <div className={'sub'}>{event.formatted_address}</div>
-                                                </a>
-                                                : <div>{event.location}</div>
+                                            {
+                                                isJoined ? <>
+                                                        {event.formatted_address ?
+                                                            <a href={genGoogleMapUrl(event.id)}
+                                                               target={'_blank'}>
+                                                                <div className={'main'}>{event.location}</div>
+                                                                <div className={'sub'}>{event.formatted_address}</div>
+                                                            </a>
+                                                            : <div>{event.location}</div>
+                                                        }
+                                                    </>
+                                                    : <div style={{color: '#7B7C7B'}}>Attend to See Address</div>
                                             }
                                         </div>
                                         {
-                                            !!eventSite && eventSite.link &&
+                                            !!eventSite && eventSite.link && isJoined &&
                                             <div className={'venue-link'}><a href={eventSite.link}
                                                                              target="_blank">{'View venue photos'}</a>
                                             </div>
                                         }
-                                        {MapReady &&
+                                        {MapReady && isJoined &&
                                             <>
                                                 <div className={'switch-preview-map'}
                                                      onClick={() => {
@@ -576,40 +604,6 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                      }
                                                      }
                                                 >{showMap ? 'Hide Map' : 'Show Map'}</div>
-                                                {showMap &&
-                                                    <Link href={genGoogleMapUrl(event.id)}
-                                                          target={'_blank'}
-                                                          className={`map-preview`}>
-                                                        <img
-                                                            src={`https://maps.googleapis.com/maps/api/staticmap?center=${event.geo_lat},${event.geo_lng}&zoom=14&size=600x260&key=AIzaSyCNT9TndlC4dSd0oNR_L4vHYWafLDU1gbg`}
-                                                            alt=""/>
-                                                        <div>{event.title}</div>
-                                                    </Link>
-                                                }
-                                            </>
-                                        }
-                                    </>
-                                }
-
-                                {!event.location && event.event_site &&
-                                    <>
-                                        <div className={'detail-item'}>
-                                            <i className={'icon-Outline'}/>
-                                            <a href={genGoogleMapUrl(event.id)}
-                                               target={'_blank'}>
-                                                <div className={'main'}>{event.event_site.title}</div>
-                                                <div className={'sub'}>{event.event_site.formatted_address}
-                                                </div>
-                                            </a>
-                                        </div>
-                                        {MapReady &&
-                                            <>
-                                                <div className={'switch-preview-map'}
-                                                     onClick={() => {
-                                                         setShowMap(!showMap)
-                                                     }
-                                                     }
-                                                >{showMap ? 'Hide Map' : ' Show Map'}</div>
                                                 {showMap &&
                                                     <Link href={genGoogleMapUrl(event.id)}
                                                           target={'_blank'}
@@ -673,7 +667,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                 }
 
 
-                                {user.userName && canAccess && !event.external_url && event.status !== 'pending' &&
+                                {user.userName && canAccess && !event.external_url && event.status !== 'pending' && hasPermission &&
                                     <div className={'event-login-status'}>
                                         <div className={'user-info'}>
                                             <img src={user.avatar || defaultAvatar(user.id!)} alt=""/>
@@ -711,7 +705,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                 }
 
 
-                                                {!isJoined && !canceled &&
+                                                {!isJoined && !canceled && hasPermission &&
                                                     <AppButton special onClick={e => {
                                                         handleJoin()
                                                     }}>{lang['Activity_Detail_Btn_Attend']}</AppButton>
@@ -840,20 +834,30 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                 }
 
                                                 {!!event.requirement_tags && (event.group_id === 3427 || event.group_id === 3409) && (isOperator || isManager || isHoster || isGroupOwner) &&
-                                                   <>
-                                                   { !!event.requirement_tags.filter((t) => { return SeatingStyle.includes(t)}).length &&
-                                                       <div className={'wechat-account'}>
-                                                           <div className={'wechat-title'}>Seating arrangement style</div>
-                                                           <div>{event.requirement_tags.filter((t) => { return SeatingStyle.includes(t)}).join(', ')}</div>
-                                                       </div>
-                                                   }
-                                                   { !!event.requirement_tags.filter((t) => { return AVNeeds.includes(t)}).length &&
-                                                       <div className={'wechat-account'}>
-                                                           <div className={'wechat-title'}>AV needed</div>
-                                                           <div>{event.requirement_tags.filter((t) => { return AVNeeds.includes(t)}).join(', ')}</div>
-                                                       </div>
-                                                   }
-                                                   </>
+                                                    <>
+                                                        {!!event.requirement_tags.filter((t) => {
+                                                                return SeatingStyle.includes(t)
+                                                            }).length &&
+                                                            <div className={'wechat-account'}>
+                                                                <div className={'wechat-title'}>Seating arrangement
+                                                                    style
+                                                                </div>
+                                                                <div>{event.requirement_tags.filter((t) => {
+                                                                    return SeatingStyle.includes(t)
+                                                                }).join(', ')}</div>
+                                                            </div>
+                                                        }
+                                                        {!!event.requirement_tags.filter((t) => {
+                                                                return AVNeeds.includes(t)
+                                                            }).length &&
+                                                            <div className={'wechat-account'}>
+                                                                <div className={'wechat-title'}>AV needed</div>
+                                                                <div>{event.requirement_tags.filter((t) => {
+                                                                    return AVNeeds.includes(t)
+                                                                }).join(', ')}</div>
+                                                            </div>
+                                                        }
+                                                    </>
                                                 }
                                                 <RichTextDisplayer markdownStr={event.content}/>
 
@@ -930,7 +934,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                             }
 
 
-                            {user.userName && canAccess && event.status !== 'pending' && !props.event?.external_url &&
+                            {user.userName && canAccess && event.status !== 'pending' && !props.event?.external_url && hasPermission &&
                                 <div className={'event-login-status'}>
                                     <div className={'user-info'}>
                                         <img src={user.avatar || defaultAvatar(user.id!)} alt=""/>
@@ -938,7 +942,8 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                     </div>
                                     {!isJoined ?
                                         <div className={'des'}>Welcome! To join the event, please attend below.</div>
-                                        : <div className={'des'}>You have registered, we’d love to have you join us.</div>
+                                        :
+                                        <div className={'des'}>You have registered, we’d love to have you join us.</div>
                                     }
 
                                     <div className={'event-action'}>
@@ -962,7 +967,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                 {lang['Activity_Detail_Btn_add_Calender']}</AppButton>
                                         }
 
-                                        {!isJoined && !canceled &&
+                                        {!isJoined && !canceled && hasPermission &&
                                             <AppButton special onClick={e => {
                                                 handleJoin()
                                             }}>{lang['Activity_Detail_Btn_Attend']}</AppButton>
