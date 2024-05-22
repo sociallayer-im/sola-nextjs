@@ -320,9 +320,9 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
         const selected_time_end = dayjs.tz(dateTime, timezoneSelected[0].id).minute(30).second(0).toDate()
 
         openConfirmDialog({
-            confirmLabel: 'Create Event',
+            confirmLabel: 'Create an Event',
             confirmTextColor: '#000',
-            title: 'Create Event',
+            title: 'Create an Event',
             content: () => {
                 return <div>
                     <div>Would you like to create an event for {formatTime(time.toISOString())} ?

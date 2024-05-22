@@ -577,7 +577,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                         <div className={'detail-item'}>
                                             <i className={'icon-Outline'}/>
                                             {
-                                                isJoined ? <>
+                                                (isJoined || isManager || isOperator || isGroupOwner || isHoster) ? <>
                                                         {event.formatted_address ?
                                                             <a href={genGoogleMapUrl(event.id)}
                                                                target={'_blank'}>
@@ -591,12 +591,12 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                             }
                                         </div>
                                         {
-                                            !!eventSite && eventSite.link && isJoined &&
+                                            !!eventSite && eventSite.link && (isJoined || isManager || isOperator || isGroupOwner || isHoster) &&
                                             <div className={'venue-link'}><a href={eventSite.link}
                                                                              target="_blank">{'View venue photos'}</a>
                                             </div>
                                         }
-                                        {MapReady && isJoined &&
+                                        {MapReady && (isJoined || isManager || isOperator || isGroupOwner || isHoster) &&
                                             <>
                                                 <div className={'switch-preview-map'}
                                                      onClick={() => {
