@@ -665,11 +665,13 @@ function EditEvent({
                 } : undefined,
             }
 
+            const extra = hosts.filter(p => p.id === 0 && !!p.email).map((p) => p.email!)
+
             return {
                 json: JSON.stringify(hostinfo),
                 cohostId: enableCoHost ? hosts.filter((p) => p.id).map((p) => p.id) : null,
                 speakerId: enableSpeakers ? speakers.map((p) => p.id) : null,
-                extra: hosts.filter(p => p.id === 0 && !!p.email).map((p) => p.email)
+                extra: extra.length ? extra : null
             }
         }
     }
