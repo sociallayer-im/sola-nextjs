@@ -63,8 +63,6 @@ function PageBacProvider(props: PageBacProviderProps) {
 
     // 返回上一页
     const back = () => {
-        const _history = [...history.current]
-
         // 点击返回时候处理上一页
         const findLastPage = (historyList: string[]) => {
             // 如果当前页面是第一个页面，就返回首页。比如直接访问活动详情页，点击返回则返回首页
@@ -85,6 +83,8 @@ function PageBacProvider(props: PageBacProviderProps) {
                     && !item.includes('checkin')
                     && !item.includes('success')
                     && !item.includes('popup')
+                    && !item.includes('iframe')
+                    && !(historyList[index + 1] && historyList[index + 1] === currPathname) // 防止两个带有back 的页面相互循环
                     && !(process.env.NEXT_PUBLIC_SPECIAL_VERSION !== 'maodao' && item.includes('/group/readyplayerclub'))
             })
 
@@ -94,11 +94,14 @@ function PageBacProvider(props: PageBacProviderProps) {
                 return
             } else {
                 const lastPage = historyList[index]
-                history.current = historyList.slice(0, index)
+                historyList.slice(0, index)
+                historyList.reverse()
+                history.current = historyList
                 router.push(lastPage)
             }
         }
 
+        const _history = [...history.current]
         findLastPage(_history)
     }
 

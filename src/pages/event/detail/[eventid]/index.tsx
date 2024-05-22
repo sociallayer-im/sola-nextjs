@@ -539,7 +539,15 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                 {speaker.map((item, index) => {
                                                     return <div className={'host-item'} key={item.username! + index}
                                                                 onClick={e => {
-                                                                    !!item?.username && goToProfile(item.username)
+                                                                    if (!!item?.username && item.id) {
+                                                                        goToProfile(item.username)
+                                                                    } else if (!item.id && item.email) {
+                                                                        queryProfileByEmail(item.email).then(res => {
+                                                                            if (res) {
+                                                                                goToProfile(res.username!)
+                                                                            }
+                                                                        })
+                                                                    }
                                                                 }}>
                                                         <img src={item.image_url || defaultAvatar(item.id)} alt=""/>
                                                         <div>
