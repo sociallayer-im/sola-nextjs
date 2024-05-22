@@ -168,7 +168,8 @@ function EditEvent({
         event_type: 'event',
         group_id: group?.id,
         display: 'normal',
-        requirement_tags: []
+        requirement_tags: [],
+        extra: null
     })
 
 
@@ -640,13 +641,15 @@ function EditEvent({
                 return {
                     json: JSON.stringify(hostinfo),
                     cohostId: null,
-                    speakerId: null
+                    speakerId: null,
+                    extra: null
                 }
             } else {
                 return {
                     json: null,
                     cohostId: null,
-                    speakerId: null
+                    speakerId: null,
+                    extra: null
                 }
             }
         } else {
@@ -664,8 +667,9 @@ function EditEvent({
 
             return {
                 json: JSON.stringify(hostinfo),
-                cohostId: enableCoHost ? hosts.map((p) => p.id) : null,
-                speakerId: enableSpeakers ? speakers.map((p) => p.id) : null
+                cohostId: enableCoHost ? hosts.filter((p) => p.id).map((p) => p.id) : null,
+                speakerId: enableSpeakers ? speakers.map((p) => p.id) : null,
+                extra: hosts.filter(p => p.id === 0 && !!p.email).map((p) => `co_host:${p.email}`)
             }
         }
     }
@@ -678,11 +682,13 @@ function EditEvent({
         const unloading = showLoading(true)
         let host_info: string | null = ''
         let cohostIds: number[] | null = null
+        let extra: string[] | null = null
 
         try {
             const info = await getHostInfo()
             host_info = info.json
             cohostIds = info.cohostId
+            extra = info.extra
         } catch (e: any) {
             showToast(e.message)
             setCreating(false)
@@ -703,6 +709,7 @@ function EditEvent({
             repeat_start_time: event.start_time as any,
             interval: repeat || undefined,
             event_count: repeatCounter,
+            extra,
 
             auth_token: user.authToken || '',
         } as CreateRepeatEventProps
@@ -779,7 +786,6 @@ function EditEvent({
         async function singleSave(redirect = true) {
             const unloading = showLoading(true)
             try {
-                const info = await getHostInfo()
                 const newEvent = await updateEvent(saveProps)
                 if (saveProps.badge_id) {
                     const setBadge = await setEventBadge({
@@ -810,7 +816,6 @@ function EditEvent({
                 }
                 const unloading = showLoading(true)
                 try {
-                    const info = await getHostInfo()
                     const newEvents = await RepeatEventUpdate({
                         ...saveProps,
                         selector: repeatEventSelectorRef.current,
@@ -850,10 +855,12 @@ function EditEvent({
 
         let host_info: string | null = ''
         let cohostIds: number[] | null = null
+        let extra: string[] | null = null
         try {
             const info = await getHostInfo()
             host_info = info.json
             cohostIds = info.cohostId
+            extra = info.extra
         } catch (e: any) {
             showToast(e.message)
             setCreating(false)
@@ -870,6 +877,7 @@ function EditEvent({
             repeat_start_time: event.start_time as any,
             interval: repeat || undefined,
             event_count: repeatCounter,
+            extra,
 
             auth_token: user.authToken || '',
         } as CreateRepeatEventProps
@@ -1322,6 +1330,7 @@ function EditEvent({
 
                                 { enableCoHost &&
                                     <CohostInput
+                                        allowInviteEmail={true}
                                         value={cohostList}
                                         onChange={(cohost) => {
                                             console.log('cohost list', cohost)

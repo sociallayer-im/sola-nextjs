@@ -2987,6 +2987,8 @@ export interface Event {
     external_url: null | string,
     operators: null | number[],
     requirement_tags: null | string[],
+    extra: null | string[]
+
 }
 
 export interface CreateEventProps extends Partial<Event> {
@@ -3118,6 +3120,7 @@ export async function queryEvent(props: QueryEventProps): Promise<Event[]> {
 
     const doc = gql`query MyQuery {
       events (where: {${variables}, status: {_in: [${status}]}} ${order} limit: ${page_size}, offset: ${(props.page - 1) * page_size}) {
+        extra
         requirement_tags
         display
         operators
@@ -3273,6 +3276,7 @@ export async function queryPendingEvent(props: QueryEventProps): Promise<Event[]
 
     const doc = gql`query MyQuery {
       events (where: {${variables} status: {_eq: "pending"}}, ${order} limit: ${page_size}, offset: ${(props.page - 1) * page_size}) {
+        extra
         requirement_tags
         display
         operators
@@ -3432,6 +3436,7 @@ export async function queryMyEvent({page = 1, page_size = 10, ...props}: QueryMy
         }
         role
          event {
+           extra
           display
           cover_url
           host_info
@@ -3574,6 +3579,7 @@ export async function unJoinEvent(props: JoinEventProps) {
 export async function searchEvent(keyword: string) {
     const doc = gql`query MyQuery {
       events (where: {title: {_iregex: "${keyword}"} , status: {_neq: "closed"}}, limit: 10) {
+        extra
         requirement_tags
         display
         operators

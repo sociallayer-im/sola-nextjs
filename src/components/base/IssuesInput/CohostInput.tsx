@@ -14,6 +14,7 @@ export interface IssuesInputProps {
     placeholder?: string
     allowAddressList?: boolean
     allowSearch?: boolean
+    allowInviteEmail?: boolean
 }
 
 export const emptyProfile: ProfileSimple = {
@@ -132,6 +133,25 @@ function CohostInput({allowAddressList = true, allowSearch = true, ...props}: Is
         }
     }
 
+    const onChangeEmail = (newValue: string, index: number) => {
+        if (!newValue) {
+            setShowSearchRes(null)
+            setSearchRes([])
+            if (timeout.current) {
+                clearTimeout(timeout.current)
+            }
+        }
+
+
+        const copyValue = [...props.value]
+        copyValue[index] = {
+            ...copyValue[index],
+            email: newValue,
+        }
+
+        props.onChange(copyValue)
+    }
+
     const hideSearchRes = () => {
         setSearchRes([])
         setShowSearchRes(null)
@@ -195,16 +215,30 @@ function CohostInput({allowAddressList = true, allowSearch = true, ...props}: Is
                         <i className={'icon-edit'}/>
                     }
                 </div>
-                <AppInput
-                    endEnhancer={allowAddressList ? addressListBtn : undefined}
-                    placeholder={props.placeholder || lang['IssueBadge_IssueesPlaceholder']}
-                    value={value.username!}
-                    onChange={(e) => {
-                        onChange(e.target.value, index)
+
+
+                <div className={'issue-input-item-inputs'}>
+                    <AppInput
+                        endEnhancer={allowAddressList ? addressListBtn : undefined}
+                        placeholder={props.placeholder || lang['IssueBadge_IssueesPlaceholder']}
+                        value={value.username!}
+                        onChange={(e) => {
+                            onChange(e.target.value, index)
+                        }
+                        }
+                    />
+                    {value.id === 0 && value.username && props.allowInviteEmail &&
+                        <AppInput
+                            placeholder={'Input the email to invite'}
+                            value={value.email || ''}
+                            onChange={(e) => {
+                                onChangeEmail(e.target.value, index)
+                            }
+                            }
+                        />
                     }
-                    }
-                    key={index.toString()}
-                />
+                </div>
+
 
                 {index != props.value.length - 1 ?
                     <div className='issue-input-remove-btn' onClick={() => {
@@ -217,7 +251,7 @@ function CohostInput({allowAddressList = true, allowSearch = true, ...props}: Is
                     </div>
                 }
 
-                {showSearchRes === index &&
+                {showSearchRes === index && searchRes.length > 0 &&
                     <div className={'search-res'}>
                         <div className={'shell'} onClick={e => {
                             hideSearchRes()
