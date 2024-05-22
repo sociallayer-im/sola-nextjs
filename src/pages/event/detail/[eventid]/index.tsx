@@ -595,7 +595,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                             : <div>{event.location}</div>
                                                         }
                                                     </>
-                                                    : <div style={{color: '#7B7C7B'}}>Attend to See Address</div>
+                                                    : <div style={{color: '#7B7C7B'}}>RSVP to see the event address</div>
                                             }
                                         </div>
                                         {
@@ -949,9 +949,9 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                         <div>{user.nickname || user.userName}</div>
                                     </div>
                                     {!isJoined ?
-                                        <div className={'des'}>Welcome! To join the event, please attend below.</div>
+                                        <div className={'des'}>Welcome! To join the event, please register below.</div>
                                         :
-                                        <div className={'des'}>You have registered, we’d love to have you join us.</div>
+                                        <div className={'des'}>You have registered for the event. We’d love to have you join us.</div>
                                     }
 
                                     <div className={'event-action'}>
