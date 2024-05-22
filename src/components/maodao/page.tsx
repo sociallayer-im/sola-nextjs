@@ -80,7 +80,8 @@ function Page(props: any) {
                 banner_image_url: null,
                 banner_link_url: null,
                 group_location_details: null,
-                far_address: null
+                far_address: null,
+                farcaster: null
             }
 
             if (!tokenId) {

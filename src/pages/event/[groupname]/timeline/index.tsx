@@ -280,7 +280,6 @@ function Gan(props: { group: Group, eventSite: EventSites[] }) {
                     }
                 }
 
-                console.log('eventList', eventList)
                 console.log('ganttRef.current', ganttRef.current)
                 ganttRef.current && ganttRef.current.clear()
                 document.querySelector('#gantt-head')!.innerHTML = ''

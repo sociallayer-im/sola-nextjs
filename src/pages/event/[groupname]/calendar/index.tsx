@@ -112,11 +112,11 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
         try {
             const height = document.querySelector('.sx__date-grid')?.clientHeight || 10
             if (e.target.scrollTop > 5) {
-                document.querySelector('.sx__date-grid')?.classList.add('hide')
-                document.querySelector('.sx__week-grid').style.marginTop = `${height}px`
+                document.querySelector('.sx__date-grid')?.classList.add('hide');
+                (document.querySelector('.sx__week-grid') as any).style.marginTop = `${height}px`
             } else {
-                document.querySelector('.sx__date-grid')?.classList.remove('hide')
-                document.querySelector('.sx__week-grid').style.marginTop = '0'
+                document.querySelector('.sx__date-grid')?.classList.remove('hide');
+                (document.querySelector('.sx__week-grid') as any).style.marginTop = '0'
             }
         } catch (e) {
 
@@ -160,7 +160,6 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
                     }
                 })
 
-                console.log('eventList', eventList)
                 if (scheduleXRef.current) {
                     scheduleXRef.current.events.set(eventList)
                 } else {
@@ -170,12 +169,12 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
                             lightColors: {
                                 main: '#6CD7B2',
                                 container: '#f7ffeb',
-                                onContainer: '#594800',
+                                onContainer: '#333',
                             },
                             darkColors: {
                                 main: '#6CD7B2',
-                                onContainer: '#f7ffeb',
                                 container: '#a29742',
+                                onContainer: '#f7ffeb',
                             }
                         }
                     }
@@ -188,12 +187,12 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
                                 lightColors: {
                                     main: getLabelColor(tag),
                                     container: getLabelColor(tag, 0.8),
-                                    onContainer: getLabelColor(tag),
+                                    onContainer: '#333',
                                 },
                                 darkColors: {
                                     main: getLabelColor(tag),
                                     container: getLabelColor(tag),
-                                    onContainer: getLabelColor(tag),
+                                    onContainer: '#333',
                                 }
                             }
                         })

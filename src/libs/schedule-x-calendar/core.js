@@ -1193,7 +1193,6 @@ function CustomMenu({ menuOpts }) {
 function CalendarHeader() {
     var _a;
     const $app = useContext(AppContext);
-    console.log('.$app$app$app', $app);
     const datePickerAppSingleton = new DatePickerAppSingletonBuilder()
         .withDatePickerState($app.datePickerState)
         .withConfig($app.datePickerConfig)
