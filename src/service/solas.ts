@@ -3516,9 +3516,11 @@ export async function cancelEvent(props: CancelEventProps): Promise<Participants
     return res.data.participants as Participants[]
 }
 
-export async function getEventSide(groupId?: number): Promise<EventSites[]> {
+export async function getEventSide(groupId?: number, allowRemoved?: boolean): Promise<EventSites[]> {
+    const status = allowRemoved ? '' : ', removed: {_is_null: true}'
     const doc = gql`query MyQuery {
-      event_sites(where: {group_id: {_eq: ${groupId}}}, order_by: {id: desc}) {
+      event_sites(where: {group_id: {_eq: ${groupId}}${status}}, order_by: {id: desc}) {
+        removed
         formatted_address
         geo_lat
         geo_lng

@@ -397,7 +397,7 @@ function EditEvent({
 
     useEffect(() => {
         if (initEvent && initEvent.event_site_id) {
-            getEventSide(initEvent.group_id!).then((res) => {
+            getEventSide(initEvent.group_id!, true).then((res) => {
                 setVenueInfo(res.find((item) => item.id === initEvent.event_site_id) || null)
             })
         }
