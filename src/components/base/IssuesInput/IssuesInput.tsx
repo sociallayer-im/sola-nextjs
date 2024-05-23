@@ -181,7 +181,7 @@ function IssuesInput ({allowAddressList=true, allowSearch=true, ...props}: Issue
                     </div>
                 }
 
-                {  showSearchRes === index &&
+                {  showSearchRes === index && searchRes.length > 0 &&
                     <div className={'search-res'}>
                         <div className={'shell'} onClick={e => { hideSearchRes() }}></div>
                         {
