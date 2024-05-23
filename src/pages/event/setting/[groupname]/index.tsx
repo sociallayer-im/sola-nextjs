@@ -131,7 +131,6 @@ function Dashboard() {
     }
 
     const saveEventSite = async function () {
-        console.log('saveEventSite', eventSite)
         const check = eventSite
             .filter(e => e.title && !e.formatted_address)
             .map(e => eventSite.indexOf(e))

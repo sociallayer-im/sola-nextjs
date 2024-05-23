@@ -176,7 +176,7 @@ function EventSiteInput(props: LocationInputProps) {
                         console.log('time slot value', value)
                         setNewEventSite({
                             ...newEventSite!,
-                            timeslots: JSON.stringify(value)
+                            timeslots: value ? JSON.stringify(value) : null
                         })
                     }}
                     value={newEventSite!.timeslots ?  JSON.parse(newEventSite!.timeslots) : null}
