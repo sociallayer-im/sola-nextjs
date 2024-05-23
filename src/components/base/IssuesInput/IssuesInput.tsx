@@ -5,7 +5,7 @@ import { Plus, CheckIndeterminate } from 'baseui/icon'
 import DialogAddressList from '../Dialog/DialogAddressList/DialogAddressList'
 import DialogsContext from '../../provider/DialogProvider/DialogsContext'
 import usePicture from "../../../hooks/pictrue";
-import {Profile, searchDomain, getProfile} from "@/service/solas";
+import {Profile, searchDomain, getProfile, queryProfileByEmail} from "@/service/solas";
 import fetch from "@/utils/fetch";
 
 export interface IssuesInputProps {
@@ -83,7 +83,7 @@ function IssuesInput ({allowAddressList=true, allowSearch=true, ...props}: Issue
                 const task = [
                     searchDomain({username: newValue.split('.')[0], page: 1}),
                     getProfile({username: newValue.split('.')[0]}),
-                    // getProfileBySNS(newValue)
+                    queryProfileByEmail(newValue)
                 ]
 
                 const fetch = await Promise.all(task)
