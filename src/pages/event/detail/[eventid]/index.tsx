@@ -537,25 +537,27 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                 modules={[FreeMode, Mousewheel]}
                                                 spaceBetween={12}>
                                                 {speaker.map((item, index) => {
-                                                    return <div className={'host-item'} key={item.username! + index}
-                                                                onClick={e => {
-                                                                    if (!!item?.username && item.id) {
-                                                                        goToProfile(item.username)
-                                                                    } else if (!item.id && item.email) {
-                                                                        queryProfileByEmail(item.email).then(res => {
-                                                                            if (res) {
-                                                                                goToProfile(res.username!)
-                                                                            }
-                                                                        })
-                                                                    }
-                                                                }}>
-                                                        <img src={item.image_url || defaultAvatar(item.id)} alt=""/>
-                                                        <div>
-                                                            <div
-                                                                className={'host-name'}>{item.nickname || item.username}</div>
-                                                            <div>{'Speaker'}</div>
+                                                    return <SwiperSlide className={'slide'}>
+                                                        <div className={'host-item'} key={item.username! + index}
+                                                             onClick={e => {
+                                                                 if (!!item?.username && item.id) {
+                                                                     goToProfile(item.username)
+                                                                 } else if (!item.id && item.email) {
+                                                                     queryProfileByEmail(item.email).then(res => {
+                                                                         if (res) {
+                                                                             goToProfile(res.username!)
+                                                                         }
+                                                                     })
+                                                                 }
+                                                             }}>
+                                                            <img src={item.image_url || defaultAvatar(item.id)} alt=""/>
+                                                            <div>
+                                                                <div
+                                                                    className={'host-name'}>{item.nickname || item.username}</div>
+                                                                <div>{'Speaker'}</div>
+                                                            </div>
                                                         </div>
-                                                    </div>
+                                                    </SwiperSlide>
                                                 })}
                                             </Swiper>
 

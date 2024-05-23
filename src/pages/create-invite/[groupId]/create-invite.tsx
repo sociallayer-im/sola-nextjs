@@ -14,7 +14,7 @@ import {Select} from 'baseui/select'
 function Invite() {
     const {lang} = useContext(LangContext)
     const [group, setGroup] = useState<Group | null>(null)
-    const [reason, setReason,] = useState('')
+    const [reason, setReason] = useState('')
     const {user} = useContext(UserContext)
     const {showToast, showLoading} = useContext(DialogsContext)
     const params = useParams()
@@ -26,7 +26,7 @@ function Invite() {
     useEffect(() => {
         async function getGroupDetail() {
             const group = await queryGroupDetail(Number(params!.groupId))
-            const prefill = lang['Group_invite_default_reason']([group!.username, role[0].id])
+            const prefill = lang['Group_invite_default_reason']([group!.nickname || group!.username, role[0].id])
             setReason(prefill)
             setGroup(group)
         }
@@ -139,7 +139,7 @@ function Invite() {
                     <div className='issue-title'>{lang['Group_invite_title']}</div>
                     <div className='info'>
                         <img src={group?.image_url || defaultAvatar(group?.id)} alt=""/>
-                        <div className='name'>{lang['Group_invite_badge_name']([group?.username, role[0].label])}</div>
+                        <div className='name'>{lang['Group_invite_badge_name']([group?.nickname || group?.username, role[0].label])}</div>
                     </div>
 
                     <div className='input-area'>
