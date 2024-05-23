@@ -13,6 +13,7 @@ import {Select} from "baseui/select";
 import { StatefulTooltip } from "baseui/tooltip"
 import ScheduleHeader from "@/components/base/ScheduleHeader";
 import {PageBackContext} from "@/components/provider/PageBackProvider";
+import Check from 'baseui/icon/check'
 
 import * as dayjsLib from "dayjs";
 const utc = require('dayjs/plugin/utc')
@@ -134,10 +135,8 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
     const [timezoneSelected, setTimezoneSelected] = useState<{ label: string, id: string }[]>([])
 
     let presetTag = searchParams?.get('tag')
-    const [tag, setTag] = useState(presetTag && props.group.event_tags?.includes(presetTag)
-        ? [{id: presetTag, label: presetTag, color: getLabelColor(presetTag)}]
-        : [{id: 'All', label: 'All Tags', color: null}]
-    )
+    const [selectedTags, setSelectedTags] = useState<string[]>(presetTag ? presetTag.split(',') : [])
+
     const [venue, setVenue] = useState([{id: 0, label: 'All Venues', color: null}])
 
     const [pageSize, setPageSize] = useState(0)
@@ -202,32 +201,6 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
         setIsStart(targetPage === 1)
         setIsEnd(targetPage === Math.ceil(showList.length / pageSize))
     }
-
-    const filter = (eventList: Event[]) => {
-        let res: any = []
-        if (showJoined) {
-            res = eventList.filter(item => {
-                return item.participants?.some(i => i.profile_id === user.id && i.status !== 'cancel')
-            })
-        } else {
-            res = eventList
-        }
-
-        if (tag[0] && tag[0].id !== 'All') {
-            res = res.filter((e: Event) => {
-                return e.tags?.includes(tag[0].id)
-            })
-        }
-
-        if (venue[0] && !!venue[0].id) {
-            res = res.filter((e: Event) => {
-                return e.event_site_id === venue[0].id
-            })
-        }
-
-        return res
-    }
-
 
     const genHref = ({date, tag} : {date?: string, tag?: string}) => {
         if (date && tag) {
@@ -438,7 +411,7 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
     useEffect(() => {
         if (pageList[0]) {
             const props = {
-                tag: tag[0] && tag[0].id !== 'All' ? tag[0].id : undefined,
+                tag: selectedTags.length ? selectedTags.join(',') : undefined,
                 date: dayjs.tz(pageList[0].timestamp, timezoneSelected[0].id).format('YYYY-MM-DD')
             }
 
@@ -446,7 +419,7 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
             pageHistory[pageHistory.length - 1] = location.pathname + genHref(props)
         }
 
-    }, [pageList, page, tag, timezoneSelected])
+    }, [pageList, page, tags, timezoneSelected])
 
     const creatEventPatch = eventGroup?.username === 'web3festival' ? `/event/${eventGroup.username}/custom-create` : `/event/${eventGroup.username}/create`
 
@@ -459,7 +432,7 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
 
     return (<div className={styles['schedule-page']}>
         <ScheduleHeader group={eventGroup} params={genHref({
-            tag: tag[0] && tag[0].id !== 'All' ? tag[0].id : undefined,
+            tag:  selectedTags.length ? selectedTags.join(',') : undefined,
             date: pageList.length ? dayjs.tz(pageList[0].timestamp, timezoneSelected[0].id).format('YYYY-MM-DD') : undefined
         })}/>
 
@@ -508,9 +481,14 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
                             clearable={false}
                             creatable={false}
                             searchable={false}
-                            value={tag}
+                            value={[{id: '', label: '', color: null}] as any}
                             getOptionLabel={(opt: any) => {
                                 return <div className={styles['label-item']}>
+                                    {
+                                        selectedTags.includes(opt.option.id) ?
+                                        <Check size={22} />
+                                            :<span style={{marginRight: '22px'}}/>
+                                    }
                                     <i className={styles['label-color']}
                                        style={{background: opt.option.color || '#f1f1f1'}}/>
                                     {opt.option.label}
@@ -518,14 +496,23 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
                             }}
                             getValueLabel={(opt: any) => {
                                 return <div className={styles['label-item']}>
-                                    <i className={styles['label-color']}
-                                       style={{background: opt.option.color || '#f1f1f1'}}/>
-                                    {opt.option.label}
+                                    { !!selectedTags.length &&
+                                        <i className={styles['label-color']}
+                                           style={{background: 'red'}}/>
+                                    }
+                                   Tags
                                 </div>
                             }}
                             options={[{id: 'All', label: 'All Tags', color: null}, ...tags as any]}
                             onChange={({option}) => {
-                                setTag([option] as any)
+                                if (!option) return
+                                if (option.id === 'All') {
+                                    setSelectedTags([])
+                                } else if (selectedTags.includes(option!.id as any)) {
+                                    setSelectedTags(selectedTags.filter(i => i !== option.id))
+                                } else {
+                                    setSelectedTags([...selectedTags, option.id as any])
+                                }
                             }}
                         />
                     </div>
@@ -738,11 +725,17 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
                                             }
                                         })
                                         .filter((e: Event) => {
-                                            if (tag[0] && tag[0].id !== 'All') {
-                                                return e.tags?.includes(tag[0].id)
-                                            } else {
+                                            if (selectedTags.length === 0) {
                                                 return true
                                             }
+
+                                            if (!e.tags || e.tags.length === 0) {
+                                                return  false
+                                            }
+
+                                            return !selectedTags.some(t => {
+                                                return e.tags?.indexOf(t) === -1
+                                            })
                                         })
                                         .map((e: Event) => {
                                         return <EventCard

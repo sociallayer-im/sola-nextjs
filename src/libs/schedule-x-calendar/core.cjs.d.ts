@@ -324,6 +324,14 @@ interface CalendarConfigInternal extends Config {
             value: any;
         }) => any;
     }[];
+    customMultiMenus?: {
+        options: {
+            label: string;
+            value: any;
+        }[];
+        defaultValue: string[];
+        onClick?: (value: string[]) => any;
+    }[];
     // Getters
     isHybridDay: boolean;
     timePointsPerDay: number;
@@ -355,6 +363,15 @@ interface CreateCalendarAppProps extends CalendarConfigExternal {
             label: string;
             value: any;
         }) => any;
+    }[];
+    customMultiMenus?: {
+        options: {
+            label: string;
+            value: any;
+        }[];
+        placeholder: string;
+        defaultValue: string[];
+        onClick?: (value: string[]) => any;
     }[];
 }
 interface CalendarState {

@@ -16,6 +16,7 @@ import removeMarkdown from "markdown-to-text"
 import ScheduleHeader from "@/components/base/ScheduleHeader";
 import {useSearchParams} from "next/navigation";
 import {PageBackContext} from "@/components/provider/PageBackProvider";
+import Check from "baseui/icon/check";
 
 const utc = require('dayjs/plugin/utc')
 const timezone = require('dayjs/plugin/timezone')
@@ -85,17 +86,16 @@ function Gan(props: { group: Group, eventSite: EventSites[] }) {
     const [timezoneSelected, setTimezoneSelected] = useState<{ label: string, id: string }[]>([])
     const [viewMode, setViewMode] = useState([views[0]])
 
-    let presetTag = searchParams?.get('tag')
-    const [tag, setTag] = useState(presetTag && props.group.event_tags?.includes(presetTag)
-        ? [{id: presetTag, label: presetTag, color: getLabelColor(presetTag)}]
-        : [{id: 'All', label: 'All Tags', color: null}]
-    )
+
 
     const [page, setPage] = useState(1)
     const [start, setStart] = useState(new Date())
     const [end, setEnd] = useState(new Date())
     const [firstDate, setFirstDate] = useState<Date | null>(null)
     const [venue, setVenue] = useState([{id: 0, label: 'All Venues', color: null}])
+
+    let presetTag = searchParams?.get('tag')
+    const [selectedTags, setSelectedTags] = useState<string[]>(presetTag ? presetTag.split(','):[])
 
     const tags = props.group.event_tags?.map((item: string) => {
         return {
@@ -198,7 +198,7 @@ function Gan(props: { group: Group, eventSite: EventSites[] }) {
                 page: 1,
                 event_order: 'asc',
                 page_size: 1000,
-                tag: tag[0].id !== 'All' ? tag[0].id : undefined,
+                tags: selectedTags.length ? selectedTags : undefined,
                 event_site_id: venue[0].id || undefined
             } as any).then(res => {
                 let eventList = []
@@ -282,7 +282,6 @@ function Gan(props: { group: Group, eventSite: EventSites[] }) {
                     }
                 }
 
-                console.log('ganttRef.current', ganttRef.current)
                 ganttRef.current && ganttRef.current.clear()
                 document.querySelector('#gantt-head')!.innerHTML = ''
                 document.querySelector('#gantt')!.innerHTML = ''
@@ -292,10 +291,8 @@ function Gan(props: { group: Group, eventSite: EventSites[] }) {
                             : new Date()
                         : undefined
 
-                if (page !== 1) {
-                    history.replaceState(null, '', genHref({date: startStr, tag: tag[0].id !== 'All' ? tag[0].id : undefined}))
-                    pageHistory[pageHistory.length - 1] = location.pathname + genHref({date: startStr, tag: tag[0].id !== 'All' ? tag[0].id : undefined})
-                }
+                history.replaceState(null, '', genHref({date: startStr, tag: selectedTags.length? selectedTags.join(',') : undefined}))
+                pageHistory[pageHistory.length - 1] = location.pathname + genHref({date: startStr, tag: selectedTags.length? selectedTags.join(',') : undefined})
 
                 ganttRef.current = new Gantt('#gantt', eventList, {
                     view_mode: viewMode[0].id,
@@ -380,7 +377,7 @@ function Gan(props: { group: Group, eventSite: EventSites[] }) {
                     unload()
                 })
         }
-    }, [firstDate, timezoneSelected, tag, page, viewMode, venue])
+    }, [firstDate, timezoneSelected, selectedTags, page, viewMode, venue])
 
     const genHref = ({date, tag} : {date?: string, tag?: string}) => {
         if (date && tag) {
@@ -409,7 +406,7 @@ function Gan(props: { group: Group, eventSite: EventSites[] }) {
 
     return <div className={styles['gant-page']}>
         <ScheduleHeader group={eventGroup}  params={genHref({
-            tag: tag[0].id !== 'All' ? tag[0].id : undefined,
+            tag: selectedTags.length ? selectedTags.join(',') : undefined,
             date: page === 1 ? (searchParams?.get('date') || undefined) : getDuration(firstDate!, timezoneSelected[0].id).startStr
         })}/>
         <div className={styles['gant-menu']}>
@@ -469,9 +466,14 @@ function Gan(props: { group: Group, eventSite: EventSites[] }) {
                         clearable={false}
                         creatable={false}
                         searchable={false}
-                        value={tag}
+                        value={[{id: '', label: '', color: null}] as any}
                         getOptionLabel={(opt: any) => {
                             return <div className={styles['label-item']}>
+                                {
+                                    selectedTags.includes(opt.option.id) ?
+                                        <Check size={22} />
+                                        :<span style={{marginRight: '22px'}}/>
+                                }
                                 <i className={styles['label-color']}
                                    style={{background: opt.option.color || '#f1f1f1'}}/>
                                 {opt.option.label}
@@ -479,14 +481,23 @@ function Gan(props: { group: Group, eventSite: EventSites[] }) {
                         }}
                         getValueLabel={(opt: any) => {
                             return <div className={styles['label-item']}>
-                                <i className={styles['label-color']}
-                                   style={{background: opt.option.color || '#f1f1f1'}}/>
-                                {opt.option.label}
+                                { !!selectedTags.length &&
+                                    <i className={styles['label-color']}
+                                       style={{background: 'red'}}/>
+                                }
+                                Tags
                             </div>
                         }}
                         options={[{id: 'All', label: 'All Tags', color: null}, ...tags as any]}
                         onChange={({option}) => {
-                            setTag([option] as any)
+                            if (!option) return
+                            if (option.id === 'All') {
+                                setSelectedTags([])
+                            } else if (selectedTags.includes(option!.id as any)) {
+                                setSelectedTags(selectedTags.filter(i => i !== option.id))
+                            } else {
+                                setSelectedTags([...selectedTags, option.id as any])
+                            }
                         }}
                     />
                 </div>

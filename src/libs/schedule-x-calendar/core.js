@@ -1190,9 +1190,92 @@ function CustomMenu({ menuOpts }) {
                                     : ''), children: u("div", { dangerouslySetInnerHTML: { __html: opt.label } }) }))) }))] }) }));
 }
 
-function CalendarHeader() {
-    var _a;
+function CustomMenuMulti({ menuOpts }) {
     const $app = useContext(AppContext);
+    const [selectedValue, setSelectedValue] = useState(menuOpts.defaultValue);
+    useEffect(() => {
+        var _a;
+        (_a = menuOpts.onClick) === null || _a === void 0 ? void 0 : _a.call(menuOpts, selectedValue);
+    }, [selectedValue]);
+    const [isOpen, setIsOpen] = useState(false);
+    const clickOutsideListener = (event) => {
+        const target = event.target;
+        if (target instanceof HTMLElement &&
+            !target.closest('.sx__view-selection')) {
+            setIsOpen(false);
+        }
+    };
+    useEffect(() => {
+        document.addEventListener('click', clickOutsideListener);
+        return () => document.removeEventListener('click', clickOutsideListener);
+    }, []);
+    const handleClickOnSelectionItem = (value) => {
+        if (!value.value) {
+            setSelectedValue([]);
+        }
+        else if (selectedValue.includes(value.value)) {
+            setSelectedValue(selectedValue.filter((v) => v !== value.value));
+        }
+        else {
+            setSelectedValue([...selectedValue, value.value]);
+        }
+        setIsOpen(false);
+    };
+    const [show, setShow] = useState(true);
+    useEffect(() => {
+        setShow(!$app.calendarState.isCalendarSmall.value);
+    }, [$app.calendarState.isCalendarSmall.value]);
+    const [viewSelectionItems, setViewSelectionItems] = useState();
+    const [focusedViewIndex, setFocusedViewIndex] = useState(0);
+    const handleSelectedViewKeyDown = (keyboardEvent) => {
+        if (isKeyEnterOrSpace(keyboardEvent)) {
+            setIsOpen(!isOpen);
+        }
+        setTimeout(() => {
+            var _a;
+            const allOptions = (_a = $app.elements.calendarWrapper) === null || _a === void 0 ? void 0 : _a.querySelectorAll('.sx__view-selection-item');
+            if (!allOptions)
+                return;
+            setViewSelectionItems(allOptions);
+            const firstOption = allOptions[0];
+            if (firstOption instanceof HTMLElement) {
+                setFocusedViewIndex(0);
+                firstOption.focus();
+            }
+        }, 50);
+    };
+    const navigateUpOrDown = (keyboardEvent, viewName) => {
+        if (!viewSelectionItems)
+            return;
+        if (keyboardEvent.key === 'ArrowDown') {
+            const nextOption = viewSelectionItems[focusedViewIndex + 1];
+            if (nextOption instanceof HTMLElement) {
+                setFocusedViewIndex(focusedViewIndex + 1);
+                nextOption.focus();
+            }
+        }
+        else if (keyboardEvent.key === 'ArrowUp') {
+            const prevOption = viewSelectionItems[focusedViewIndex - 1];
+            if (prevOption instanceof HTMLElement) {
+                setFocusedViewIndex(focusedViewIndex - 1);
+                prevOption.focus();
+            }
+        }
+        else if (isKeyEnterOrSpace(keyboardEvent)) {
+            handleClickOnSelectionItem(viewName);
+        }
+    };
+    return (u(Fragment, { children: show &&
+            u("div", { className: "sx__view-selection", children: [u("div", { tabIndex: 0, role: "button", "aria-label": 'Custom menu', className: "sx__view-selection-selected-item sx__ripple", onClick: () => setIsOpen(!isOpen), onKeyDown: handleSelectedViewKeyDown, children: u("div", { children: [selectedValue.length > 0 && u("i", { style: { display: 'inline-block', width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#ff5555', marginRight: '8px' } }), u("span", { dangerouslySetInnerHTML: { __html: menuOpts.placeholder || 'menu' } })] }) }), isOpen && (u("ul", { "data-testid": "view-selection-items", className: "sx__view-selection-items", children: menuOpts.options.map((opt) => (u("li", { "aria-label": opt.label, tabIndex: -1, role: "button", onKeyDown: (keyboardEvent) => navigateUpOrDown(keyboardEvent, opt), onClick: () => handleClickOnSelectionItem(opt), className: 'sx__view-selection-item' +
+                                (selectedValue.includes(opt.value)
+                                    ? ' is-selected'
+                                    : ''), children: u("div", { dangerouslySetInnerHTML: { __html: opt.label } }) }))) }))] }) }));
+}
+
+function CalendarHeader() {
+    var _a, _b;
+    const $app = useContext(AppContext);
+    console.log('.$app$app$app', $app);
     const datePickerAppSingleton = new DatePickerAppSingletonBuilder()
         .withDatePickerState($app.datePickerState)
         .withConfig($app.datePickerConfig)
@@ -1200,7 +1283,13 @@ function CalendarHeader() {
         .withTimeUnitsImpl($app.timeUnitsImpl)
         .build();
     return (u("header", { className: 'sx__calendar-header', children: [u("div", { className: 'sx__calendar-header-content', children: [u(TodayButton, {}), u(ForwardBackwardNavigation, {}), u(RangeHeading, {})] }), u("div", { className: 'sx__calendar-header-content', children: [(_a = $app.config.customMenus) === null || _a === void 0 ? void 0 : _a.map((menuOpts) => {
-                        return menuOpts.options.length ? u(CustomMenu, { menuOpts: menuOpts }) : null;
+                        return menuOpts.options.length ?
+                            u(CustomMenu, { menuOpts: menuOpts })
+                            : null;
+                    }), (_b = $app.config.customMultiMenus) === null || _b === void 0 ? void 0 : _b.map((menuOpts) => {
+                        return menuOpts.options.length ?
+                            u(CustomMenuMulti, { menuOpts: menuOpts })
+                            : null;
                     }), u(ViewSelection, {}), u(AppWrapper, { "$app": datePickerAppSingleton })] })] }));
 }
 
@@ -2370,7 +2459,7 @@ class CalendarConfigImpl {
         gridHeight: DEFAULT_WEEK_GRID_HEIGHT,
     }, calendars = {}, plugins = {}, isDark = false, callbacks = {}, _customComponentFns = {}, minDate = undefined, maxDate = undefined, monthGridOptions = {
         nEventsPerDay: 4,
-    }, customMenus = undefined) {
+    }, customMenus = undefined, customMultiMenus = undefined) {
         Object.defineProperty(this, "locale", {
             enumerable: true,
             configurable: true,
@@ -2454,6 +2543,12 @@ class CalendarConfigImpl {
             configurable: true,
             writable: true,
             value: customMenus
+        });
+        Object.defineProperty(this, "customMultiMenus", {
+            enumerable: true,
+            configurable: true,
+            writable: true,
+            value: customMultiMenus
         });
         Object.defineProperty(this, "calendars", {
             enumerable: true,
@@ -2559,12 +2654,22 @@ class CalendarConfigBuilder {
             writable: true,
             value: void 0
         });
+        Object.defineProperty(this, "customMultiMenus", {
+            enumerable: true,
+            configurable: true,
+            writable: true,
+            value: void 0
+        });
     }
     build() {
-        return new CalendarConfigImpl(this.locale, this.firstDayOfWeek, this.defaultView, this.views, this.dayBoundaries, this.weekOptions, this.calendars, this.plugins, this.isDark, this.callbacks, {}, this.minDate, this.maxDate, this.monthGridOptions, this.customMenus);
+        return new CalendarConfigImpl(this.locale, this.firstDayOfWeek, this.defaultView, this.views, this.dayBoundaries, this.weekOptions, this.calendars, this.plugins, this.isDark, this.callbacks, {}, this.minDate, this.maxDate, this.monthGridOptions, this.customMenus, this.customMultiMenus);
     }
     withCustomMenus(menus) {
         this.customMenus = menus;
+        return this;
+    }
+    withCustomMultiMenus(menus) {
+        this.customMultiMenus = menus;
         return this;
     }
     withLocale(locale) {
@@ -2646,6 +2751,7 @@ const createInternalConfig = (config) => {
         .withMaxDate(config.maxDate)
         .withMonthGridOptions(config.monthGridOptions)
         .withCustomMenus(config.customMenus)
+        .withCustomMultiMenus(config.customMultiMenus)
         .build();
 };
 

@@ -83,9 +83,11 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
     const {history: pageHistory} = useContext(PageBackContext)
 
     const [timezoneSelected, setTimezoneSelected] = useState<{ label: string, id: string }[]>([])
-    const [tag, setTag] = useState<string>(searchParams?.get('tag') || '')
     const [venue, setVenue] = useState<number>(0)
     const [presetDate, setPresetDate] = useState<string>(searchParams?.get('date') || '')
+
+    let presetTag = searchParams?.get('tag')
+    const [selectedTags, setSelectedTags] = useState<string[]>(presetTag ? presetTag.split(','):[])
 
     useEffect(() => {
         try {
@@ -133,7 +135,7 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
                 start_time_from: new Date(dayList[0].timestamp).toISOString(),
                 start_time_to: new Date(dayList[dayList.length - 1].timestamp).toISOString(),
                 page: 1,
-                tag: tag || undefined,
+                tags: selectedTags.length ? selectedTags : undefined,
                 event_order: 'asc',
                 page_size: 1000,
                 event_site_id: venue || undefined
@@ -214,10 +216,11 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
                                     }
                                 })
                             ],
-                            onClick: (value: { label: string, value: any }) => {
-                                setTag(value.value)
+                            onClick: (value: string[]) => {
+                                setSelectedTags(value)
                             },
-                            defaultSelectedIndex: eventGroup.event_tags.findIndex((t: string) => t === tag) + 1
+                            placeholder: 'Tags',
+                            defaultValue: selectedTags
                         } : undefined
 
                     const venueFilter = props.eventSite?.length ?
@@ -237,6 +240,7 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
                             onClick: (value: { label: string, value: any }) => {
                                 setVenue(value.value)
                             },
+                            multiple: false,
                             defaultSelectedIndex: 0
                         } : undefined
 
@@ -264,7 +268,7 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
                         calendars,
                         defaultView: 'week',
                         events: eventList as any,
-                        customMenus: customMenus,
+                        customMultiMenus: customMenus,
                         callbacks: {
                             onClickDateTime(dateTime: string) {
                                 createEvent(dateTime)
@@ -292,13 +296,13 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
                 container.removeEventListener('scroll', toggleFullDayEvent)
             }
         }
-    }, [timezoneSelected, tag, venue])
+    }, [timezoneSelected, selectedTags, venue])
 
 
     useEffect(() => {
-        history.replaceState(null, '', genHref({date: presetDate, tag: tag}))
-        pageHistory[pageHistory.length - 1] = location.pathname + genHref({date: presetDate, tag: tag})
-    }, [tag, presetDate])
+        history.replaceState(null, '', genHref({date: presetDate, tag: selectedTags.join(',')}))
+        pageHistory[pageHistory.length - 1] = location.pathname + genHref({date: presetDate, tag: selectedTags.join(',')})
+    }, [selectedTags, presetDate])
 
     const genHref = ({date, tag} : {date?: string, tag?: string}) => {
         if (date && tag) {
@@ -349,7 +353,7 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
     return <div>
         <ScheduleHeader group={eventGroup} params={genHref({
             date: presetDate,
-            tag: tag
+            tag: selectedTags.join(',')
         })}/>
         <div id={'calendar'} className={styles['schedule-x']} ref={calendarRef}></div>
     </div>

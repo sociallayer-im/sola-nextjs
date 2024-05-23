@@ -3043,7 +3043,8 @@ export interface QueryEventProps {
     recurring_event_id?: number,
     show_cancel_event?: boolean,
     group_ids?: number[]
-    allow_private?: boolean
+    allow_private?: boolean,
+    tags?: string[]
 }
 
 
@@ -3062,6 +3063,11 @@ export async function queryEvent(props: QueryEventProps): Promise<Event[]> {
 
     if (props.tag) {
         variables += `tags: {_contains:["${props.tag}"]}, `
+    }
+
+    if (props.tags) {
+        const tags = props.tags.map(t => `"${t}"`).join(',')
+        variables = `tags: {_contains: [${tags}]}, `
     }
 
     if (props.event_site_id) {

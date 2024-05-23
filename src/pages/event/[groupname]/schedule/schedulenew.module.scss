@@ -5,7 +5,7 @@
 }
 
 .label-color {
-  width: 8px;
+  min-width: 8px;
   height: 8px;
   display: block;
   border-radius: 50%;
@@ -910,8 +910,12 @@ $border-color: #e0e0e0 !default;
     display: flex;
     flex-flow: row nowrap;
 
-
     :global {
+      span[data-baseweb="tag"] {
+        background: #f1f1f1;
+        color: #272928
+      }
+
       div[data-baseweb="select"] {
         width: auto;
         display: inline-block;
