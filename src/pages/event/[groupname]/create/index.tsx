@@ -436,11 +436,13 @@ function EditEvent({
                 }
             }
 
-            if (target.disable || !available) {
+            if (target.disable || !available ) {
                 setDayDisable('The date you selected is not available for the current venue')
             } else {
                 setDayDisable('')
             }
+        } else {
+            setDayDisable('')
         }
     }, [event, venueInfo])
 

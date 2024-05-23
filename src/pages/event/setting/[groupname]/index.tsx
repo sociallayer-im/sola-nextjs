@@ -416,16 +416,16 @@ function Dashboard() {
                             </div>
 
                             {
-                                eventSite.map((item, index) => {
+                                eventSite.map((item, i) => {
                                     return <EventSiteInput
-                                        key={index}
-                                        index={index + 1}
+                                        key={item.id || i}
+                                        index={i + 1}
                                         initValue={item}
-                                        error={errorInputItem.includes(index)}
+                                        error={errorInputItem.includes(i)}
                                         onDelete={(index) => {
                                             const newEventSiteList = [...eventSite]
                                             const res = newEventSiteList.filter((item, index1) => {
-                                                return index1 !== index - 1
+                                                return index1 !== i
                                             })
 
                                             setEventSite(res)
@@ -433,8 +433,7 @@ function Dashboard() {
 
                                         onChange={newEventSite => {
                                             const newEventSiteList = [...eventSite]
-                                            newEventSiteList[index] = newEventSite
-                                            console.log('newEventSiteList', newEventSiteList)
+                                            newEventSiteList[i] = newEventSite
                                             setEventSite(newEventSiteList)
                                         }}/>
                                 })
