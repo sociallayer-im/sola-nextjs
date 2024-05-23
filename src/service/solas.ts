@@ -4215,6 +4215,7 @@ export interface Marker {
     jubmoji_code?: string | null,
     zugame_state?: string | null,
     event?: Event | null,
+    timezone: string,
 }
 
 export interface CreateMarkerProps extends Partial<Marker> {

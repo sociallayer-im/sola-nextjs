@@ -16,6 +16,7 @@ import useMarkerCheckIn from "@/hooks/markerCheckIn";
 import useEvent, {EVENT} from "@/hooks/globalEvent";
 import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
 import {getLabelColor} from "@/hooks/labelColor";
+import {useTime2} from "@/hooks/formatTime";
 
 export const genGoogleMapUrl = (marker: Marker) => {
     // if (marker.formatted_address && marker.location !== 'Custom location') {
@@ -38,6 +39,7 @@ function CardMarker(props: { item: Marker, participants?: Participants[], isActi
     const [_, showFollowGuide] = useEvent(EVENT.showFollowGuide)
     const {showToast, showLoading} = useContext(DialogsContext)
     const [groupHost, setGroupHost] = useState<Profile | null>(null)
+    const formatTime = useTime2()
 
     // const showBg = typeof window !== 'undefined'
     //     && process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'zumap'
@@ -113,7 +115,7 @@ function CardMarker(props: { item: Marker, participants?: Participants[], isActi
 
     return (<CardWrapper>
         <div className={styles['left']}>
-            <div className={styles['title']}>{props.item.title}</div>
+            <div className={styles['title']}>{props.item.title} </div>
             {!!props.item.event && !!props.item.event.tags && props.item.event.tags.length > 0 &&
                 <div className={styles['tags']}>
                     {
@@ -145,6 +147,12 @@ function CardMarker(props: { item: Marker, participants?: Participants[], isActi
             }
 
             <div className={styles['info']}>
+                {props.item.start_time && props.item.end_time &&
+                    <div className={styles['detail']}>
+                        <i className={`icon-calendar ${styles.icon}`}/>
+                        {formatTime(props.item.start_time, props.item.timezone || 'UTC')}
+                    </div>
+                }
                 {props.item.location &&
                     <a className={styles['detail']}
                        onClick={e => {
