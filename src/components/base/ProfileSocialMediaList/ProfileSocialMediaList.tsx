@@ -191,7 +191,7 @@ function ProfileSocialMediaList(props: ProfileSocialMediaListProps) {
         {!!props.profile.farcaster &&
             <div className='list-item'>
                 <i className='icon-farcaster'></i>
-                <a href={props.profile.farcaster} target='_blank'>{props.profile.farcaster}</a>
+                <a href={id2Url(props.profile.farcaster, 'farcaster')} target='_blank'>{props.profile.farcaster}</a>
             </div>
         }
 

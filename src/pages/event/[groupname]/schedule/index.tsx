@@ -33,6 +33,21 @@ let _touchStartY = 0
 
 let observer: any = null
 
+const logos = [
+    {
+        time: ['2024/06/10', '2024/06/16'],
+        group: 3409,
+        logo: 'https://ik.imagekit.io/soladata/1q58x6ec_zHuugBRKN',
+        timezone: 'America/los_angeles'
+    },
+    // {
+    //     time: ['2024/05/01', '2024/05/30'],
+    //     group: 3409,
+    //     logo: 'https://ik.imagekit.io/soladata/1q58x6ec_zHuugBRKN',
+    //     timezone: 'America/los_angeles'
+    // }
+]
+
 interface DateItem {
     date: number,
     timestamp: number,
@@ -435,6 +450,13 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
 
     const creatEventPatch = eventGroup?.username === 'web3festival' ? `/event/${eventGroup.username}/custom-create` : `/event/${eventGroup.username}/create`
 
+    const showLogo = logos.find(item => {
+        const now = new Date().getTime()
+        const start = dayjs.tz(item.time[0], item.timezone).valueOf()
+        const end = dayjs.tz(item.time[1], item.timezone).valueOf()
+        return now >= start && now < end && eventGroup.id === item.group
+    })
+
     return (<div className={styles['schedule-page']}>
         <ScheduleHeader group={eventGroup} params={genHref({
             tag: tag[0] && tag[0].id !== 'All' ? tag[0].id : undefined,
@@ -449,7 +471,12 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
                             {
                                 pathname?.includes('iframe') ?
                                 <img src="/images/logo.svg" alt="" width={94} height={29}/>:
-                                <Link href={`/event/${eventGroup.username}`}>{(eventGroup.nickname || eventGroup.username)}</Link>
+                                <Link href={`/event/${eventGroup.username}`}>
+                                    { !!showLogo ?
+                                        <img src={showLogo.logo} height={36} alt=""/>
+                                        : (eventGroup.nickname || eventGroup.username)
+                                    }
+                                </Link>
                             }
                            <div> {lang['Activity_Calendar']}</div>
                         </div>
@@ -502,32 +529,32 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
                             }}
                         />
                     </div>
-                    {/*<div className={styles['menu-item'] + ' input-disable'}>*/}
-                    {/*    <Select*/}
-                    {/*        labelKey={'label'}*/}
-                    {/*        valueKey={'id'}*/}
-                    {/*        clearable={false}*/}
-                    {/*        creatable={false}*/}
-                    {/*        searchable={false}*/}
-                    {/*        value={venue}*/}
-                    {/*        getOptionLabel={(opt: any) => {*/}
-                    {/*            return <div className={styles['label-item']}>*/}
+                    <div className={styles['menu-item'] + ' input-disable'}>
+                        {/*<Select*/}
+                        {/*    labelKey={'label'}*/}
+                        {/*    valueKey={'id'}*/}
+                        {/*    clearable={false}*/}
+                        {/*    creatable={false}*/}
+                        {/*    searchable={false}*/}
+                        {/*    value={venue}*/}
+                        {/*    getOptionLabel={(opt: any) => {*/}
+                        {/*        return <div className={styles['label-item']}>*/}
 
-                    {/*                {opt.option.label}*/}
-                    {/*            </div>*/}
-                    {/*        }}*/}
-                    {/*        getValueLabel={(opt: any) => {*/}
-                    {/*            return <div className={styles['label-item']}>*/}
+                        {/*            {opt.option.label}*/}
+                        {/*        </div>*/}
+                        {/*    }}*/}
+                        {/*    getValueLabel={(opt: any) => {*/}
+                        {/*        return <div className={styles['label-item']}>*/}
 
-                    {/*                {opt.option.label}*/}
-                    {/*            </div>*/}
-                    {/*        }}*/}
-                    {/*        options={[{id: 0, label: 'All Venues', color: null}, ...venues as any]}*/}
-                    {/*        onChange={({option}) => {*/}
-                    {/*            setVenue([option] as any)*/}
-                    {/*        }}*/}
-                    {/*    />*/}
-                    {/*</div>*/}
+                        {/*            {opt.option.label}*/}
+                        {/*        </div>*/}
+                        {/*    }}*/}
+                        {/*    options={[{id: 0, label: 'All Venues', color: null}, ...venues as any]}*/}
+                        {/*    onChange={({option}) => {*/}
+                        {/*        setVenue([option] as any)*/}
+                        {/*    }}*/}
+                        {/*/>*/}
+                    </div>
                 </div>
             </div>
             <div className={styles['schedule-mouth']}>
