@@ -63,6 +63,10 @@ function ListGroupMember(props: ListGroupMemberProps) {
             }
         })
 
+        // 过滤掉没有username的用户，通常是通过邮箱邀请一个不存在的用户，后台会创建一个新用户，但是没有username
+        memberships = memberships.filter((membership) => !!membership.profile.username)
+
+
         const _members = memberships.filter((manager) => manager.role === 'member').map((manager) => manager.profile) as any
         const _managers = memberships.filter((manager) => manager.role === 'manager').map((manager) => manager.profile) as any
         const _issuer = memberships.filter((manager) => manager.role === 'issuer').map((manager) => manager.profile) as any
