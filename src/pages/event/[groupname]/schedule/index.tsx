@@ -840,7 +840,7 @@ function EventCard({
         </div>
 
 
-        {!!event.location && !event.event_site && false &&
+        {!!event.location && !event.event_site && event.group_id != 3409 &&
             <div className={styles['schedule-event-card-position']}
                  onClick={e => {
                      e.stopPropagation()
@@ -858,7 +858,7 @@ function EventCard({
             </div>
         }
 
-        {!!event.event_site && false &&
+        {!!event.event_site && event.group_id != 3409 &&
             <div className={styles['schedule-event-card-position']}
                  onClick={e => {
                      e.stopPropagation()

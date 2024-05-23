@@ -277,14 +277,14 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
                         </div>
                     }
 
-                    {!!eventDetail.location && !eventDetail.event_site && false &&
+                    {!!eventDetail.location && !eventDetail.event_site && (eventDetail.group_id !== 3409) &&
                         <div className={'detail'}>
                             <i className={'icon-Outline'}/>
                             <span>{eventDetail.location}</span>
                         </div>
                     }
 
-                    {!!eventDetail.event_site && false &&
+                    {!!eventDetail.event_site && (eventDetail.group_id !== 3409) &&
                         <div className={'detail'}>
                             <i className={'icon-Outline'}/>
                             <span>{eventDetail.event_site!.title}</span>
