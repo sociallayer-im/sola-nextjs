@@ -260,12 +260,12 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
                         groupHost ?
                             <div className={'detail'}>
                                 <ImgLazy src={groupHost.image_url || defaultAvatar(groupHost.id)} width={16} height={16} alt=""/>
-                                <span>host by {groupHost?.nickname || groupHost?.username}</span>
+                                <span>hosted by {groupHost?.nickname || groupHost?.username}</span>
                             </div>
                                 : props.event.owner ?
                                 <div className={'detail'}>
                                     <ImgLazy src={props.event.owner.image_url || defaultAvatar(props.event.owner.id)} width={16} height={16} alt=""/>
-                                    <span>host by {`${props.event.owner?.nickname || props.event.owner?.username}`}</span>
+                                    <span>hosted by {`${props.event.owner?.nickname || props.event.owner?.username}`}</span>
                                 </div>
                                 :<></>
                     }

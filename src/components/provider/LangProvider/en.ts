@@ -625,7 +625,7 @@ const langEN = {
     About_Us: 'About us',
     What_s_badge: 'What\'s badge?',
     Development_Doc: 'Development Doc',
-    Attended: 'Attended',
+    Attended: 'Registered',
     Pending_Requests: 'Pending requests',
     My_Communities: 'My communities',
     My_Subscriptions: 'My subscriptions',

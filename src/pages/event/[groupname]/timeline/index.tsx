@@ -342,7 +342,7 @@ function Gan(props: { group: Group, eventSite: EventSites[] }) {
 
                                             <div className={'detail'}>
                                                 <img src={avatar} width={16} height={16} alt=""/>
-                                                <span>host by {host}</span>
+                                                <span>hosted by {host}</span>
                                             </div>
 
                                             {!!task.location &&
