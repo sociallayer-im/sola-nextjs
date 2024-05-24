@@ -426,16 +426,9 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
     const showLogo = logos.find(item => {
         if (!pageList.length) return false
 
-        const timeStr = `${pageList[0].year}/${pageList[0].month.toString().padStart(2, '0')}/${pageList[0].date}`
-
         const now = `${pageList[0].year}/${(pageList[0].month + 1).toString().padStart(2, '0')}/${pageList[0].date}`
         const start = item.time[0]
         const end = item.time[1]
-
-        console.log('now', now, start, end)
-        console.log('now1', now >= start)
-        console.log('now2',  now < end)
-
         return now >= start && now < end && eventGroup.id === item.group
     })
 

@@ -35,6 +35,8 @@ function CohostInput({allowAddressList = true, allowSearch = true, ...props}: Is
     const timeout = useRef<any>(null)
     const [showSearchRes, setShowSearchRes] = useState<null | number>(null)
     const [searchRes, setSearchRes] = useState<Profile[]>([])
+    const [errMsg, setErrMsg] = useState<{index: number, msg: string}[]>([])
+
 
     const selectRes = (newValue: ProfileSimple, index: number) => {
         if (!newValue) {
@@ -73,6 +75,7 @@ function CohostInput({allowAddressList = true, allowSearch = true, ...props}: Is
         copyValue[index] = {
             ...emptyProfile,
             username: newValue,
+            email: copyValue[index].email || null,
         }
 
         props.onChange(copyValue)
@@ -81,10 +84,6 @@ function CohostInput({allowAddressList = true, allowSearch = true, ...props}: Is
         if (!allowSearch) return
 
         setShowSearchRes(index)
-
-        console.log('newValue', newValue)
-        console.log('copyValue', copyValue)
-        console.log('index', index)
 
         if (newValue.length >= 3) {
             if (timeout.current) {
@@ -195,86 +194,99 @@ function CohostInput({allowAddressList = true, allowSearch = true, ...props}: Is
     }
 
     const InputItem = (value: ProfileSimple, index: number) => {
+        const currErrMsg = errMsg.find(item => item.index === index)
+
         return (
-            <div className='issue-input-item' key={index.toString()}>
-                { !!value.username &&
-                    <div className='avatar' onClick={e => {
-                        if (!value.username) return
-                        selectImage(
-                            (imageUrl: string) => {
-                                const copyValue = [...props.value]
-                                copyValue[index] = {
-                                    ...copyValue[index],
-                                    image_url: imageUrl
+            <div key={index.toString()}>
+                <div className='issue-input-item'>
+                    { !!value.username &&
+                        <div className='avatar' onClick={e => {
+                            if (!value.username) return
+                            selectImage(
+                                (imageUrl: string) => {
+                                    const copyValue = [...props.value]
+                                    copyValue[index] = {
+                                        ...copyValue[index],
+                                        image_url: imageUrl
+                                    }
+                                    props.onChange(copyValue)
                                 }
-                                props.onChange(copyValue)
+                            )
+                        }}>
+                            <img src={value.image_url || defaultAvatar(value.id)} alt=""/>
+                            {!!value.username &&
+                                <i className={'icon-edit'}/>
                             }
-                        )
-                    }}>
-                        <img src={value.image_url || defaultAvatar(value.id)} alt=""/>
-                        {!!value.username &&
-                            <i className={'icon-edit'}/>
-                        }
-                    </div>
-                }
+                        </div>
+                    }
 
 
-                <div className={'issue-input-item-inputs'}>
-                    <AppInput
-                        endEnhancer={allowAddressList ? addressListBtn : undefined}
-                        placeholder={props.placeholder || lang['IssueBadge_IssueesPlaceholder']}
-                        value={value.username!}
-                        onChange={(e) => {
-                            onChange(e.target.value, index)
-                        }
-                        }
-                    />
-                    {value.id === 0 && value.username && props.allowInviteEmail &&
+                    <div className={'issue-input-item-inputs'}>
                         <AppInput
-                            placeholder={'Input the email to invite'}
-                            value={value.email || ''}
+                            endEnhancer={allowAddressList ? addressListBtn : undefined}
+                            placeholder={props.placeholder || lang['IssueBadge_IssueesPlaceholder']}
+                            value={value.username!}
                             onChange={(e) => {
-                                onChangeEmail(e.target.value, index)
+                                onChange(e.target.value, index)
                             }
                             }
                         />
-                    }
-                </div>
-
-
-                {index != props.value.length - 1 ?
-                    <div className='issue-input-remove-btn' onClick={() => {
-                        removeItem(index)
-                    }}>
-                        <CheckIndeterminate/>
-                    </div> :
-                    <div className='issue-input-add-btn' onClick={addItem}>
-                        <Plus/>
-                    </div>
-                }
-
-                {showSearchRes === index && searchRes.length > 0 &&
-                    <div className={'search-res'}>
-                        <div className={'shell'} onClick={e => {
-                            hideSearchRes()
-                        }}></div>
-                        {
-                            searchRes.map((item, index2) => {
-                                const username = item.username?.startsWith('0x') ?
-                                    item.username!.substr(0, 6) + '...' + item.username!.substr(-4) :
-                                    item.username
-                                return <div className={'res-item'} key={index2} onClick={e => {
-                                    selectRes(item, index);
-                                    hideSearchRes()
-                                }}>
-                                    <img src={item.image_url || defaultAvatar(item.id)} alt=""/>
-                                    <div>{username}<span>{item.nickname ? `(${item.nickname})` : ''}</span></div>
-                                </div>
-                            })
+                        {value.id === 0 && value.username && props.allowInviteEmail &&
+                            <AppInput
+                                placeholder={'Input the email to invite'}
+                                value={value.email || ''}
+                                onChange={(e) => {
+                                    onChangeEmail(e.target.value, index)
+                                }}
+                                error={!!currErrMsg}
+                                onBlur={(e) => {
+                                    const newErrMsg = errMsg.filter(item => item.index !== index)
+                                    if (!!value.email && !(value.email.includes('@') || value.email.includes('.'))) {
+                                        newErrMsg.push({index, msg: 'Please input a valid email'})
+                                    }
+                                    setErrMsg(newErrMsg)
+                                }}
+                            />
                         }
                     </div>
-                }
+
+
+                    {index != props.value.length - 1 ?
+                        <div className='issue-input-remove-btn' onClick={() => {
+                            removeItem(index)
+                        }}>
+                            <CheckIndeterminate/>
+                        </div> :
+                        <div className='issue-input-add-btn' onClick={addItem}>
+                            <Plus/>
+                        </div>
+                    }
+
+                    {showSearchRes === index && searchRes.length > 0 &&
+                        <div className={'search-res'}>
+                            <div className={'shell'} onClick={e => {
+                                hideSearchRes()
+                            }}></div>
+                            {
+                                searchRes.map((item, index2) => {
+                                    const username = item.username?.startsWith('0x') ?
+                                        item.username!.substr(0, 6) + '...' + item.username!.substr(-4) :
+                                        item.username
+                                    return <div className={'res-item'} key={index2} onClick={e => {
+                                        selectRes(item, index);
+                                        hideSearchRes()
+                                    }}>
+                                        <img src={item.image_url || defaultAvatar(item.id)} alt=""/>
+                                        <div>{username}<span>{item.nickname ? `(${item.nickname})` : ''}</span></div>
+                                    </div>
+                                })
+                            }
+                        </div>
+                    }
+                </div>
+                { !!currErrMsg && <div style={{color: 'red', textAlign: 'right'}}>{currErrMsg.msg}</div> }
             </div>
+
         )
     }
 

@@ -104,8 +104,6 @@ function EditEvent({
     const pathname = usePathname()
     const searchParams = useSearchParams()
 
-    console.log('pathname', pathname)
-
     // status
     const [formReady, setFormReady] = useState(false)
     const [isEditMode, setIsEditMode] = useState(!!initEvent)
@@ -672,6 +670,11 @@ function EditEvent({
             }
 
             const extra = hosts.filter(p => p.id === 0 && !!p.email).map((p) => p.email!)
+            const hasInvalid = extra.find(e => !e.includes('@') || !e.includes('.'))
+
+            if (hasInvalid) {
+                throw new Error('Invalid email address for inviting co-host')
+            }
 
             return {
                 json: JSON.stringify(hostinfo),
