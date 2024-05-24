@@ -71,7 +71,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
     const {addToCalenderDialog} = useCalender()
     const {showImage} = useShowImage()
     const {copy} = useCopy()
-    const {setEventGroup, eventGroup, ready, isManager} = useContext(EventHomeContext)
+    const {setEventGroup, eventGroup, ready, isManager, joined: isMember} = useContext(EventHomeContext)
     const {getMeetingName, getUrl} = useGetMeetingName()
     const {MapReady} = useContext(MapContext)
 
@@ -587,7 +587,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                         <div className={'detail-item'}>
                                             <i className={'icon-Outline'}/>
                                             {
-                                                (isJoined || isManager || isOperator || isGroupOwner || isHoster || event.group_id !== 3409) ? <>
+                                                (isJoined || isManager || isOperator || isGroupOwner || isHoster || isMember || event.group_id !== 3409) ? <>
                                                         {event.formatted_address ?
                                                             <a href={genGoogleMapUrl(event.id)}
                                                                target={'_blank'}>
@@ -601,13 +601,13 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                             }
                                         </div>
                                         {
-                                            !!eventSite && eventSite.link && (isJoined || isManager || isOperator || isGroupOwner || isHoster || event.group_id != 3409) &&
+                                            !!eventSite && eventSite.link && (isJoined || isManager || isOperator || isGroupOwner || isHoster || isMember || event.group_id != 3409) &&
                                             <div className={'venue-link'}><a href={eventSite.link}
                                                                              target="_blank">{'View venue photos'}</a>
                                             </div>
                                         }
 
-                                        {MapReady && (isJoined || isManager || isOperator || isGroupOwner || isHoster || event.group_id !== 3409) &&
+                                        {MapReady && (isJoined || isManager || isOperator || isGroupOwner || isHoster || isMember || event.group_id !== 3409) &&
                                             <>
                                                 <div className={'switch-preview-map'}
                                                      onClick={() => {
