@@ -424,9 +424,18 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
     const creatEventPatch = eventGroup?.username === 'web3festival' ? `/event/${eventGroup.username}/custom-create` : `/event/${eventGroup.username}/create`
 
     const showLogo = logos.find(item => {
-        const now = new Date().getTime()
-        const start = dayjs.tz(item.time[0], item.timezone).valueOf()
-        const end = dayjs.tz(item.time[1], item.timezone).valueOf()
+        if (!pageList.length) return false
+
+        const timeStr = `${pageList[0].year}/${pageList[0].month.toString().padStart(2, '0')}/${pageList[0].date}`
+
+        const now = `${pageList[0].year}/${(pageList[0].month + 1).toString().padStart(2, '0')}/${pageList[0].date}`
+        const start = item.time[0]
+        const end = item.time[1]
+
+        console.log('now', now, start, end)
+        console.log('now1', now >= start)
+        console.log('now2',  now < end)
+
         return now >= start && now < end && eventGroup.id === item.group
     })
 
@@ -446,7 +455,7 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
                                 <img src="/images/logo.svg" alt="" width={94} height={29}/>:
                                 <Link href={`/event/${eventGroup.username}`}>
                                     { !!showLogo ?
-                                        <img src={showLogo.logo} height={36} alt=""/>
+                                        <img src={showLogo.logo} height={36} width={230} alt=""/>
                                         : (eventGroup.nickname || eventGroup.username)
                                     }
                                 </Link>
@@ -497,7 +506,7 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
                             getValueLabel={(opt: any) => {
                                 return <div className={styles['label-item']}>
                                     { !!selectedTags.length &&
-                                        <i className={styles['label-color']}
+                                        <i className={styles['label-notice']}
                                            style={{background: 'red'}}/>
                                     }
                                    Tags

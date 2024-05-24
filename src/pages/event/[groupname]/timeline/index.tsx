@@ -482,7 +482,7 @@ function Gan(props: { group: Group, eventSite: EventSites[] }) {
                         getValueLabel={(opt: any) => {
                             return <div className={styles['label-item']}>
                                 { !!selectedTags.length &&
-                                    <i className={styles['label-color']}
+                                    <i className={styles['label-notice']}
                                        style={{background: 'red'}}/>
                                 }
                                 Tags
