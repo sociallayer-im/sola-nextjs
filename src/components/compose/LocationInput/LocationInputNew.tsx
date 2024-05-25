@@ -1,11 +1,22 @@
 import {useContext, useEffect, useRef, useState} from 'react'
-import {EventSites, getEventSide, Group} from "@/service/solas";
+import {EventSites, getEventSide, Group, Event} from "@/service/solas";
 import {Select} from "baseui/select";
 import AppInput from "../../base/AppInput";
 import {Delete} from "baseui/icon";
 import DialogsContext from "../../provider/DialogProvider/DialogsContext";
 import langContext from "../../provider/LangProvider/LangContext";
 import MapContext from "../../provider/MapProvider/MapContext";
+import * as dayjsLib from "dayjs";
+import fa from "@walletconnect/legacy-modal/dist/cjs/browser/languages/fa";
+
+const utc = require('dayjs/plugin/utc')
+const timezone = require('dayjs/plugin/timezone')
+const isSameOrAfter = require('dayjs/plugin/isSameOrAfter')
+const dayjs: any = dayjsLib
+dayjs.extend(utc)
+dayjs.extend(timezone)
+dayjs.extend(isSameOrAfter)
+
 
 export interface LocationInputValue {
     geo_lat: number | null,
@@ -40,6 +51,7 @@ export interface LocationInputProps {
     initValue?: LocationInputValue,
     eventGroup: Group,
     onChange?: (value: LocationInputValue) => any,
+    event?: Event
 }
 
 
@@ -54,6 +66,9 @@ function LocationInput(props: LocationInputProps) {
             title: '+ Other Location',
             capacity: null,
             require_approval: false,
+            timeslots: null,
+            start_date: null,
+            end_date: null,
         }
     ])
     const [searchKeyword, setSearchKeyword] = useState('')
@@ -67,6 +82,44 @@ function LocationInput(props: LocationInputProps) {
     const mapService = useRef<any>(null)
     const delay = useRef<any>(null)
     const sessionToken = useRef<any>(null)
+
+    const checkAvailable = (option: Partial<EventSites>, start_time: string, end_time: string, timezone: string) => {
+        if (!!option && !!option.timeslots && start_time && end_time) {
+            const day = dayjs.tz(new Date(start_time).getTime(), timezone).day()
+            const dayFullName = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+            const target: any = JSON.parse(option.timeslots!).find((item: { day: string, disable: boolean }) => item.day === dayFullName[day])
+
+            const startTime = dayjs.tz(start_time, timezone)
+            const endTime = dayjs.tz(start_time, timezone)
+            const availableStart = option.start_date ? dayjs.tz(option.start_date, timezone) : null
+            const availableEnd = option.end_date ? dayjs.tz(option.end_date, timezone).hour(23).minute(59) : null
+
+            let available = true
+            if (availableStart && !availableEnd) {
+                available = startTime.isSameOrAfter(availableStart)
+            } else if (!availableStart && availableEnd) {
+                available = endTime.isBefore(availableEnd)
+            } else if (availableStart && availableEnd) {
+                console.log('here', startTime.isSameOrAfter(availableStart), endTime.isBefore(availableEnd))
+                available = startTime.isSameOrAfter(availableStart) && endTime.isBefore(availableEnd)
+            }
+
+            if (option.overrides) {
+                const overrides = option.overrides
+                const override = overrides.find((item: string) => {
+                    return item === startTime.format('YYYY/MM/DD') || item === endTime.format('YYYY/MM/DD')
+                })
+
+                if (override) {
+                    available = false
+                }
+            }
+
+            return !(target.disable || !available);
+        } else {
+            return  true
+        }
+    }
 
     useEffect(() => {
         if (!!eventSiteList.length && !!props.initValue?.event_site_id) {
@@ -186,8 +239,10 @@ function LocationInput(props: LocationInputProps) {
                     searchable={false}
                     getOptionLabel={(option: any) => {
                         const width = document.querySelector('.selector.venue')?.clientWidth
+                        const available = checkAvailable(option.option, props.event!.start_time!, props.event!.end_time!, props.event!.timezone!)
 
-                        return <div style={{padding: '7px', width: width ? `${width - 60}px`: 'auto'}}>
+                        return <div
+                            style={{padding: '7px', width: width ? `${width - 60}px`: 'auto', opacity: available ? 1: 0.3}}>
                             <div style={{fontSize: '16px', color: '#272928', whiteSpace: 'pre-wrap'}}>
                                 {option.option.title}
                                 {
