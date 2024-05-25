@@ -1345,6 +1345,7 @@ function EditEvent({
 
                                 { enableCoHost &&
                                     <CohostInput
+                                        placeholder={'Enter your cohost’s name, domain, or wallet address'}
                                         allowInviteEmail={true}
                                         value={cohostList}
                                         onChange={(cohost) => {
@@ -1374,6 +1375,7 @@ function EditEvent({
                                 {
                                     enableSpeakers &&
                                     <CohostInput
+                                        placeholder={'Enter your speaker’s name, domain, or wallet address'}
                                         value={speakerList}
                                         onChange={(speakers) => {
                                             console.log('speaker list', speakers)

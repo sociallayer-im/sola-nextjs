@@ -22,6 +22,7 @@ function Invite() {
     const [role, setRole] = useState<any>([{id: 'member', label: 'Member'}])
     const router = useRouter()
     const {defaultAvatar} = usePicture()
+    const [busy, setBusy] = useState(false)
 
     useEffect(() => {
         async function getGroupDetail() {
@@ -48,6 +49,9 @@ function Invite() {
             return
         }
 
+        if (busy) return
+
+        setBusy(true)
         const unload = showLoading()
         try {
             const emails = checkedIssues.filter(item => /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/i.test(item))
@@ -86,6 +90,7 @@ function Invite() {
             router.push(`/issue-success?invite=${firstInvite.id}`)
         } catch (e: any) {
             unload()
+            setBusy(false)
             console.log('[handleInvite]: ', e)
             showToast(e.message || 'Invite Fail')
         }
