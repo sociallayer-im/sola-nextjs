@@ -349,7 +349,7 @@ $border-color: #e0e0e0 !default;
 
 .schedule-menu-2 {
   display: flex;
-  flex-flow: row wrap;
+  flex-flow: row nowrap;
   align-items: center;
   justify-content: space-between;
   background: #fff;
@@ -787,7 +787,7 @@ $border-color: #e0e0e0 !default;
 }
 
 .timezone-selected {
-  margin-right: 30px;
+  margin-right: 10px;
 
   :global(*) {
     font-size: 12px !important;
@@ -818,6 +818,7 @@ $border-color: #e0e0e0 !default;
 
   svg {
     cursor: pointer;
+    padding: 10px;
 
     &.disable {
       pointer-events: none;
@@ -834,7 +835,7 @@ $border-color: #e0e0e0 !default;
 
   svg:nth-child(2) {
     cursor: pointer;
-    margin: 0 10px;
+    padding: 0;
   }
 }
 

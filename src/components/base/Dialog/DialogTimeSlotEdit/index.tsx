@@ -97,7 +97,6 @@ export default function DialogTimeSlotEdit(props: { close: any, value: TimeSlotI
                 </div>
                 <div className={styles['row']}>
                     <div className={styles['title']}>Available Date</div>
-                    DatePicker
                 </div>
                 <div>
                     {

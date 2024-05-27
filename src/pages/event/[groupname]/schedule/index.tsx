@@ -426,10 +426,11 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
     const showLogo = logos.find(item => {
         if (!pageList.length) return false
 
-        const now = `${pageList[0].year}/${(pageList[0].month + 1).toString().padStart(2, '0')}/${pageList[0].date}`
+        const pageStart = `${pageList[0].year}/${(pageList[0].month + 1).toString().padStart(2, '0')}/${pageList[0].date}`
+        const pageEnd = `${pageList[0].year}/${(pageList[0].month + 1).toString().padStart(2, '0')}/${pageList[pageList.length -1].date}`
         const start = item.time[0]
         const end = item.time[1]
-        return now >= start && now < end && eventGroup.id === item.group
+        return (pageStart >= start && pageStart <= end || pageEnd >= start && pageEnd <= end) && eventGroup.id === item.group
     })
 
     return (<div className={styles['schedule-page']}>
