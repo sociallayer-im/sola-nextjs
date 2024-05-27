@@ -31,10 +31,15 @@ function HomeUserPanel({showSchedule=true, ...props}: {
     const [compact, setCompact] = useState(props.isSide || false)
 
     useEffect(() => {
-        const owner = props.membership.find((item: Membership) => item.role === 'owner')!
-        const manager = props.membership.filter((item: Membership) => item.role === 'manager')
-        const issuer = props.membership.filter((item: Membership) => item.role === 'issuer')
-        let member = props.membership.filter((item: Membership) => item.role === 'member')
+        const  memberships = props.membership.filter((membership) => !!membership.profile.username)
+
+        const owner = memberships.find((item: Membership) => item.role === 'owner')!
+        const manager = memberships.filter((item: Membership) => item.role === 'manager')
+        const issuer = memberships.filter((item: Membership) => item.role === 'issuer')
+        let member = memberships.filter((item: Membership) => item.role === 'member')
+
+        // 过滤掉没有username的用户，通常是通过邮箱邀请一个不存在的用户，后台会创建一个新用户，但是没有username
+
 
         if (compact) {
             const length = manager.length  + issuer.length + 1
@@ -88,7 +93,7 @@ function HomeUserPanel({showSchedule=true, ...props}: {
                                     <span>{eventGroup?.nickname || eventGroup?.username || '--'}</span>
                                 </Link>
                                 <Link href={`/group/${eventGroup.username}`} className={'right'}>
-                                    {props.membership.length} {lang['Group_detail_tabs_member'].toLowerCase()}
+                                    {groupMembers.length} {lang['Group_detail_tabs_member'].toLowerCase()}
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"
                                          fill="none">
                                         <path
@@ -132,7 +137,7 @@ function HomeUserPanel({showSchedule=true, ...props}: {
                         }
 
                         { props.membership.length > 0 &&
-                           <div className={'side-member-count'} onClick={e => {setCompact(!compact)}}>{`${props.membership.length} ${lang['Group_detail_tabs_member']}`} </div>
+                           <div className={'side-member-count'} onClick={e => {setCompact(!compact)}}>{`${groupMembers.length} ${lang['Group_detail_tabs_member']}`} </div>
                         }
                     </div>
                 </div>
