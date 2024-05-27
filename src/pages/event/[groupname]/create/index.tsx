@@ -326,7 +326,7 @@ function EditEvent({
                 })
 
                 setSiteOccupied(occupied)
-                setOccupiedError(occupied ? `${lang['Activity_Detail_site_Occupied']}  In use event :「${inUseEvents.title}」` : '')
+                setOccupiedError(occupied ? `${lang['Activity_Detail_site_Occupied']}  In use event : <a href="/event/detail/${inUseEvents.id}" target="_blank">「${inUseEvents.title}」</a>` : '')
             } else {
                 setSiteOccupied(false)
                 setOccupiedError('')
@@ -1183,7 +1183,7 @@ function EditEvent({
                                 </div>
                             }
 
-                            {!!occupiedError && <div className={styles['start-time-error']}>{occupiedError}</div>}
+                            {!!occupiedError && <div className={styles['start-time-error']} dangerouslySetInnerHTML={{__html: occupiedError}}></div>}
                             {!!dayDisable && <div className={styles['start-time-error']}>{dayDisable}</div>}
 
                             {event.event_site_id && (eventGroup?.id === 3427 || eventGroup?.id === 3409) &&
