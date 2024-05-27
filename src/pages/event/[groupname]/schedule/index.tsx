@@ -264,16 +264,16 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
 
 
     useEffect(() => {
-        if (pageSize && showList.length) {
+        if (pageSize && showList.length && timezoneSelected.length) {
             if (!initedRef.current) {
                 const initDate = searchParams?.get('date')
-                toToday(initDate ? new Date(initDate) : undefined)
+                toToday(initDate ? dayjs.tz(initDate, timezoneSelected[0].id).toDate() : undefined)
                 initedRef.current = true
             } else {
                 toToday()
             }
         }
-    }, [pageSize, showList])
+    }, [pageSize, showList, timezoneSelected])
 
     useEffect(() => {
         if (page) {
