@@ -782,6 +782,7 @@ function EventCard({
     const fromTime = dayjs.tz(new Date(event.start_time!).getTime(), showTimezone).format('HH:mm')
     const toTime = dayjs.tz(new Date(event.end_time!).getTime(), showTimezone).format('HH:mm')
     const fromDate = dayjs.tz(new Date(event.start_time!).getTime(), showTimezone).format('YYYY-MM-DD')
+    const {user} = useContext(UserContext)
 
     const offset = dayjs.tz(new Date(event.end_time!).getTime(), showTimezone).utcOffset()
     const utcOffset = offset >= 0 ?
@@ -863,7 +864,7 @@ function EventCard({
         </div>
 
 
-        {!!event.location && !event.event_site && event.group_id != 3409 &&
+        {!!event.location && !event.event_site && (event.group_id != 3409 || !!user.id) &&
             <div className={styles['schedule-event-card-position']}
                  onClick={e => {
                      e.stopPropagation()
@@ -881,7 +882,7 @@ function EventCard({
             </div>
         }
 
-        {!!event.event_site && event.group_id != 3409 &&
+        {!!event.event_site && (event.group_id != 3409 || !!user.id) &&
             <div className={styles['schedule-event-card-position']}
                  onClick={e => {
                      e.stopPropagation()

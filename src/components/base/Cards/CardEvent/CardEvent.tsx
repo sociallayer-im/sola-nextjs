@@ -277,14 +277,14 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
                         </div>
                     }
 
-                    {!!eventDetail.location && !eventDetail.event_site && (eventDetail.group_id !== 3409) &&
+                    {!!eventDetail.location && !eventDetail.event_site && (eventDetail.group_id !== 3409 || !!user.id) &&
                         <div className={'detail'}>
                             <i className={'icon-Outline'}/>
                             <span>{eventDetail.location}</span>
                         </div>
                     }
 
-                    {!!eventDetail.event_site && (eventDetail.group_id !== 3409) &&
+                    {!!eventDetail.event_site && (eventDetail.group_id !== 3409 || !!user.id) &&
                         <div className={'detail'}>
                             <i className={'icon-Outline'}/>
                             <span>{eventDetail.event_site!.title}</span>

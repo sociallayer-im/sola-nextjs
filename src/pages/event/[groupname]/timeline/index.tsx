@@ -17,6 +17,7 @@ import ScheduleHeader from "@/components/base/ScheduleHeader";
 import {useSearchParams} from "next/navigation";
 import {PageBackContext} from "@/components/provider/PageBackProvider";
 import Check from "baseui/icon/check";
+import UserContext from "@/components/provider/UserProvider/UserContext";
 
 const utc = require('dayjs/plugin/utc')
 const timezone = require('dayjs/plugin/timezone')
@@ -82,6 +83,7 @@ function Gan(props: { group: Group, eventSite: EventSites[] }) {
     const {lang} = useContext(LangContext)
     const searchParams = useSearchParams()
     const {history: pageHistory} = useContext(PageBackContext)
+    const {user} = useContext(UserContext)
 
     const [timezoneSelected, setTimezoneSelected] = useState<{ label: string, id: string }[]>([])
     const [viewMode, setViewMode] = useState([views[0]])
@@ -226,7 +228,7 @@ function Gan(props: { group: Group, eventSite: EventSites[] }) {
                             start: dayjs.tz(new Date(event.start_time!), timezoneSelected[0].id).format('YYYY-MM-DD HH:mm'),
                             end: dayjs.tz(new Date(event.end_time!).getTime(), timezoneSelected[0].id).format('YYYY-MM-DD HH:mm'),
                             progress: progress,
-                            location: event.group_id != 3409 ? event.location : '',
+                            location: (event.group_id != 3409 || !!user.id) ? event.location : '',
                             avatar: event.owner.image_url || defaultAvatar(event.owner.id),
                             host: event.owner.username,
                             host_info: event.host_info,

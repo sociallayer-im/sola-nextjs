@@ -158,7 +158,7 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
                         people: host,
                         start_time: event.start_time,
                         end_time: event.end_time,
-                        location: event.group_id != 3409 ? event.location : undefined,
+                        location: (event.group_id != 3409 || !!user.id) ? event.location : undefined,
                         calendarId: calendarId,
                         link: `/event/detail/${event.id}`
                     }
@@ -296,7 +296,7 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
                 container.removeEventListener('scroll', toggleFullDayEvent)
             }
         }
-    }, [timezoneSelected, selectedTags, venue])
+    }, [timezoneSelected, selectedTags, venue, user])
 
 
     useEffect(() => {
