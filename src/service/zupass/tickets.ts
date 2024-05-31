@@ -1,5 +1,109 @@
 export const tickets = [
     {
+      "pcdType": "eddsa-ticket-pcd",
+      "publicKey": [
+        "1ebfb986fbac5113f8e2c72286fe9362f8e7d211dbc68227a468d7b919e75003",
+        "10ec38f11baacad5535525bbe8e343074a483c051aa1616266f3b1df3fb7d204"
+      ],
+      "eventId": "63502757-b6fc-4a98-8bbb-76cb901d63fe",
+      "eventName": "Edge Esmeralda Local",
+      "productId": "08bae5ef-3686-4280-8631-cc63792c2a77",
+      "productName": "Resident",
+      "start": "2024-06-02",
+      "end": "2024-07-01"
+    },
+    {
+      "pcdType": "eddsa-ticket-pcd",
+      "publicKey": [
+        "1ebfb986fbac5113f8e2c72286fe9362f8e7d211dbc68227a468d7b919e75003",
+        "10ec38f11baacad5535525bbe8e343074a483c051aa1616266f3b1df3fb7d204"
+      ],
+      "eventId": "63502757-b6fc-4a98-8bbb-76cb901d63fe",
+      "eventName": "Edge Esmeralda Local",
+      "productId": "81cdaac0-8970-4073-a328-6d595276a361",
+      "productName": "Supporter",
+      "start": "2024-06-02",
+      "end": "2024-07-01"
+    },
+    {
+      "pcdType": "eddsa-ticket-pcd",
+      "publicKey": [
+        "1ebfb986fbac5113f8e2c72286fe9362f8e7d211dbc68227a468d7b919e75003",
+        "10ec38f11baacad5535525bbe8e343074a483c051aa1616266f3b1df3fb7d204"
+      ],
+      "eventId": "63502757-b6fc-4a98-8bbb-76cb901d63fe",
+      "eventName": "Edge Esmeralda Local",
+      "productId": "33a4ed92-d1ba-49b4-91e7-4f92cd603e48",
+      "productName": "Patron",
+      "start": "2024-06-02",
+      "end": "2024-07-01"
+    },
+    {
+      "pcdType": "eddsa-ticket-pcd",
+      "publicKey": [
+        "1ebfb986fbac5113f8e2c72286fe9362f8e7d211dbc68227a468d7b919e75003",
+        "10ec38f11baacad5535525bbe8e343074a483c051aa1616266f3b1df3fb7d204"
+      ],
+      "eventId": "21c7db2e-08e3-4234-9a6e-386a592d63c8",
+      "eventName": "Edge Esmeralda",
+      "productId": "e669fdde-a8cc-4aa2-af5e-79f6f12378a0",
+      "productName": "Issued",
+      "start": "2024-06-02",
+      "end": "2024-07-01"
+    },
+    {
+      "pcdType": "eddsa-ticket-pcd",
+      "publicKey": [
+        "1ebfb986fbac5113f8e2c72286fe9362f8e7d211dbc68227a468d7b919e75003",
+        "10ec38f11baacad5535525bbe8e343074a483c051aa1616266f3b1df3fb7d204"
+      ],
+      "eventId": "21c7db2e-08e3-4234-9a6e-386a592d63c8",
+      "eventName": "Edge Esmeralda",
+      "productId": "e1fc5c27-7ecc-4a9f-893f-a8e2307bc441",
+      "productName": "Scholar - Week 1",
+      "start": "2024-06-02",
+      "end": "2024-06-09"
+    },
+    {
+      "pcdType": "eddsa-ticket-pcd",
+      "publicKey": [
+        "1ebfb986fbac5113f8e2c72286fe9362f8e7d211dbc68227a468d7b919e75003",
+        "10ec38f11baacad5535525bbe8e343074a483c051aa1616266f3b1df3fb7d204"
+      ],
+      "eventId": "21c7db2e-08e3-4234-9a6e-386a592d63c8",
+      "eventName": "Edge Esmeralda",
+      "productId": "90a86a3f-1117-4660-9d26-01c420709de8",
+      "productName": "Scholar - Week 4",
+      "start": "2024-06-24",
+      "end": "2024-07-01"
+    },
+    {
+      "pcdType": "eddsa-ticket-pcd",
+      "publicKey": [
+        "1ebfb986fbac5113f8e2c72286fe9362f8e7d211dbc68227a468d7b919e75003",
+        "10ec38f11baacad5535525bbe8e343074a483c051aa1616266f3b1df3fb7d204"
+      ],
+      "eventId": "21c7db2e-08e3-4234-9a6e-386a592d63c8",
+      "eventName": "Edge Esmeralda",
+      "productId": "1b363ddb-c1c3-494a-9744-39ad767f9d15",
+      "productName": "Spouse/Partner - Full time",
+      "start": "2024-06-02",
+      "end": "2024-07-01"
+    },
+    {
+      "pcdType": "eddsa-ticket-pcd",
+      "publicKey": [
+        "1ebfb986fbac5113f8e2c72286fe9362f8e7d211dbc68227a468d7b919e75003",
+        "10ec38f11baacad5535525bbe8e343074a483c051aa1616266f3b1df3fb7d204"
+      ],
+      "eventId": "21c7db2e-08e3-4234-9a6e-386a592d63c8",
+      "eventName": "Edge Esmeralda",
+      "productId": "ea4e5adb-b6c8-448d-a1e7-d61fa16dd297",
+      "productName": "Scholar - Week 3",
+      "start": "2024-06-17",
+      "end": "2024-06-23"
+    },
+    {
         "pcdType": "eddsa-ticket-pcd",
         "publicKey": [
             "1ebfb986fbac5113f8e2c72286fe9362f8e7d211dbc68227a468d7b919e75003",
