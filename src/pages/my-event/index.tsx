@@ -2,6 +2,7 @@ import React, {useContext, useEffect, useState} from 'react'
 import styles from './MyEvent.module.scss'
 import ListMyEvent from "@/components/compose/ListMyEvent/ListMyEvent";
 import ListPendingEvent from "@/components/compose/ListPendingEvent/ListPendingEvent";
+import ListCohostingEvent from "@/components/compose/ListCohostingEvent/ListCohostingEvent";
 import AppButton from "@/components/base/AppButton/AppButton";
 import UserContext from "@/components/provider/UserProvider/UserContext";
 import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
@@ -26,7 +27,7 @@ function MyEvent() {
     const {defaultAvatar} = usePicture()
 
 
-    const [tab, setTab] = useState<'attended' | 'created' | 'requests'>('attended')
+    const [tab, setTab] = useState<'attended' | 'created' | 'requests' | 'cohosting'>('attended')
     const [myGroup, setMyGroup] = useState<number[]>([])
     const [createdGroup, setCreatedGroup] = useState<GroupWithMemberCount[]>([])
     const [joinedGroup, setJoinedGroup] = useState<GroupWithMemberCount[]>([])
@@ -94,6 +95,9 @@ function MyEvent() {
                             <div className={tab === 'requests' ? styles['active'] : ''} onClick={e => {
                                 setTab('requests')
                             }}>{lang['Pending_Requests']}</div>
+                            <div className={tab === 'cohosting' ? styles['active'] : ''} onClick={e => {
+                                setTab('cohosting')
+                            }}>{'Co-hosting'}</div>
                         </div>
 
 
@@ -103,6 +107,10 @@ function MyEvent() {
 
                         <div className={ tab === 'requests' ? styles['tab-show'] : styles['tab-hide']}>
                             <ListPendingEvent groupIds={myGroup}/>
+                        </div>
+
+                        <div className={ tab === 'cohosting' ? styles['tab-show'] : styles['tab-hide']}>
+                            <ListCohostingEvent />
                         </div>
                     </>
                 }

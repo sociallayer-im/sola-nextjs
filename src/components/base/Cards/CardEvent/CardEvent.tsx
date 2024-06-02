@@ -30,6 +30,7 @@ export interface CardEventProps {
     attend?: boolean,
     canPublish?: boolean,
     onRemove?: (event: Event) => void,
+    blank?: boolean
 }
 
 const localeTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone
@@ -211,6 +212,7 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
     }
 
     return (<Link href={`/event/detail/${props.event.id}`}
+                  target={props.blank ? '_blank' : '_self'}
                   className={largeCard ? 'event-card large' : 'event-card'}>
         {largeCard &&
             <div className={'markers'}>

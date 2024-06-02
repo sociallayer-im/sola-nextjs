@@ -3372,6 +3372,113 @@ export async function queryPendingEvent(props: QueryEventProps): Promise<Event[]
     }) as Event[]
 }
 
+
+export async function queryCohostingEvent(props: {id: number, email?: string}): Promise<Event[]> {
+    const page_size = 10000
+    let variables = ''
+    let order = `order_by: {id: desc}, `
+
+
+    if (props.email) {
+        variables += `_or: [{operators: {_contains: [${props.id}]}}, {extra: {_contains: ["${props.email}"]}}],`
+    } else {
+        variables += `operators: {_contains: [${props.id}]},`
+    }
+
+    variables = variables.replace(/,$/, '')
+
+    const doc = gql`query MyQuery {
+      events (where: {${variables}}, ${order} limit: ${page_size}) {
+        extra
+        requirement_tags
+        display
+        operators
+        padge_link
+        badge_id
+        notes
+        external_url
+        geo_lat
+        geo_lng
+        category
+        content
+        cover_url
+        created_at
+        display
+        event_site_id
+        event_site {
+            id
+            title
+            location
+            about
+            group_id
+            owner_id
+            created_at
+            formatted_address
+            geo_lat
+            geo_lng
+            require_approval
+        }
+        event_type
+        formatted_address
+        location
+        owner_id
+        owner {
+            id
+            username
+            nickname
+            image_url
+        }
+        title
+        timezone
+        status
+        tags
+        start_time
+        end_time
+        require_approval
+        participants_count
+        max_participant
+        meeting_url
+        group_id
+        host_info
+        id
+        location_viewport
+        min_participant
+        recurring_event {
+          id
+        }
+        recurring_event_id
+        participants(where: {status: {_neq: "cancel"}}) {
+          id
+          profile_id
+          profile {
+            id
+            username
+            nickname
+            image_url
+          }
+          role
+          status
+          voucher_id
+          check_time
+          created_at
+          message
+          event {
+            id
+          }
+        }
+      }
+    }`
+
+    const resp: any = await request(graphUrl, doc)
+    return resp.events.map((item: any) => {
+        return {
+            ...item,
+            end_time: item.end_time && !item.end_time.endsWith('Z') ? item.end_time + 'Z' : item.end_time,
+            start_time: item.end_time && !item.start_time.endsWith('Z') ? item.start_time + 'Z' : item.start_time,
+        }
+    }) as Event[]
+}
+
 export interface QueryRecommendEventProps {
     rec?: 'latest' | 'soon' | 'top'
     page: number,
@@ -3584,9 +3691,9 @@ export async function unJoinEvent(props: JoinEventProps) {
     return res.data.participant as Participants
 }
 
-export async function searchEvent(keyword: string) {
+export async function searchEvent(keyword: string, group_id?: number): Promise<Event[]> {
     const doc = gql`query MyQuery {
-      events (where: {title: {_iregex: "${keyword}"} , status: {_neq: "closed"}}, limit: 10) {
+      events (where: {title: {_iregex: "${keyword}"} , ${group_id? `group_id: {_eq: ${group_id}},`: ''} status: {_neq: "closed"}}, limit: 10) {
         extra
         requirement_tags
         display

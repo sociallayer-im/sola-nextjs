@@ -29,9 +29,11 @@ function HomeUserPanel({showSchedule=true, ...props}: {
     const [groupMembers, setGroupMembers] = useState<Membership[]>([])
     const [groupBadges, setGroupBadges] = useState<Badge[]>([])
     const [compact, setCompact] = useState(props.isSide || false)
+    const [memberCount, setMemberCount] = useState(0)
 
     useEffect(() => {
         const  memberships = props.membership.filter((membership) => !!membership.profile.username)
+        setMemberCount(memberships.length)
 
         const owner = memberships.find((item: Membership) => item.role === 'owner')!
         const manager = memberships.filter((item: Membership) => item.role === 'manager')
@@ -93,7 +95,7 @@ function HomeUserPanel({showSchedule=true, ...props}: {
                                     <span>{eventGroup?.nickname || eventGroup?.username || '--'}</span>
                                 </Link>
                                 <Link href={`/group/${eventGroup.username}`} className={'right'}>
-                                    {groupMembers.length} {lang['Group_detail_tabs_member'].toLowerCase()}
+                                    {memberCount} {lang['Group_detail_tabs_member'].toLowerCase()}
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"
                                          fill="none">
                                         <path
@@ -136,8 +138,8 @@ function HomeUserPanel({showSchedule=true, ...props}: {
                             })
                         }
 
-                        { props.membership.length > 0 &&
-                           <div className={'side-member-count'} onClick={e => {setCompact(!compact)}}>{`${groupMembers.length} ${lang['Group_detail_tabs_member']}`} </div>
+                        { memberCount > 0 &&
+                           <div className={'side-member-count'} onClick={e => {setCompact(!compact)}}>{`${memberCount} ${lang['Group_detail_tabs_member']}`} </div>
                         }
                     </div>
                 </div>
