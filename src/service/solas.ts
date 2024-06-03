@@ -5073,6 +5073,21 @@ export async function getProfileBatch(usernames: string[]) {
     return res.profiles as ProfileSimple[]
 }
 
+export async function getProfileBatchById(ids: number[]) {
+    const doc = gql`query MyQuery @cached {
+          profiles(where: {id: {_in:${JSON.stringify(ids)}}}) {
+            id,
+            username,
+            nickname,
+            image_url,
+            sol_address
+          }
+        }
+        `
+    const res: any = await request(graphUrl, doc)
+    return res.profiles as ProfileSimple[]
+}
+
 export async function setEventStatus(props: {
     auth_token: string,
     id: number,

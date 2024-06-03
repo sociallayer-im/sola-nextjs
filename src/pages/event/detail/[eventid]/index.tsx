@@ -4,6 +4,7 @@ import {
     Badge,
     checkEventPermission,
     Event,
+    getProfileBatchById,
     getRecurringEvents,
     Group,
     joinEvent,
@@ -165,14 +166,30 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                     }
                 } else {
                     const info = JSON.parse(res.host_info)
+                    const ids: number[] = [...info.speaker, ...info.co_host, ...(info.group_host ? [info.group_host] : [])]
+                        .filter((item: any) => !!item.id)
+                        .map((item: any) => item.id)
+
+                    const profiles = await getProfileBatchById(ids)
+
                     if (info.speaker) {
-                        setSpeaker(info.speaker)
+                        setSpeaker(info.speaker.map(p => {
+                            const info = profiles.find((item: Profile) => (item.id === p.id && !!p.username))
+                            return info || p
+                        }))
                     }
+
                     if (info.co_host) {
-                        setCohost(info.co_host)
+                        setCohost(info.co_host.map(p => {
+                            const info = profiles.find((item: Profile) => item.id === p.id && !!p.username)
+                            return info || p
+                        }))
                     }
+
                     if (info.group_host) {
-                        setHoster(info.group_host)
+                        setHoster(profiles.find(p => {
+                            return p.id === info.group_host.id && !!p.username
+                        }) as any || info.group_host)
                     } else {
                         setHoster(res.owner as Profile)
                     }
@@ -597,7 +614,8 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                             : <div>{event.location}</div>
                                                         }
                                                     </>
-                                                    : <div style={{color: '#7B7C7B'}}>RSVP to see the event address</div>
+                                                    :
+                                                    <div style={{color: '#7B7C7B'}}>RSVP to see the event address</div>
                                             }
                                         </div>
                                         {
@@ -954,7 +972,8 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                     {!isJoined ?
                                         <div className={'des'}>Welcome! To join the event, please register below.</div>
                                         :
-                                        <div className={'des'}>You have registered for the event. We’d love to have you join us.</div>
+                                        <div className={'des'}>You have registered for the event. We’d love to have you
+                                            join us.</div>
                                     }
 
                                     <div className={'event-action'}>
