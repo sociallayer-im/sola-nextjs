@@ -93,7 +93,7 @@
     }
 
     @media (max-width: 650px) {
-     .group-badge {
+      .group-badge {
         display: none;
       }
 
@@ -266,5 +266,78 @@
   .calendar-btn {
     order: 1;
     margin: 5px 0 10px;
+  }
+}
+
+.zupass-ticket-info {
+  border-radius: 20px;
+  background: var(--Fill-0-White, #FFF);
+  box-shadow: 0px 0px 14px 0px rgba(0, 0, 0, 0.05);
+  padding: 12px;
+  box-sizing: border-box;
+  order: 3;
+  margin-bottom: 20px;
+
+  @media(max-width: 650px) {
+    & {
+      margin: 12px 20px;
+      order: 2;
+    }
+  }
+
+  .date {
+    color: var(--Text-4-Headline, #272928);
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    margin-top: 8px;
+    line-height: 24px; /* 150% */
+  }
+
+  .title {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    color: var(--Text-4-Headline, #272928);
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 22px;
+    justify-content: space-between;
+
+    .left {
+      display: flex;
+      flex-flow: row nowrap;
+      align-items: center;
+    }
+
+    .right {
+      flex-flow: nowrap;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      color: var(--Text-4-Headline, #272928);
+      font-size: 12px;
+      font-style: normal;
+      font-weight: 400!important;
+      line-height: 18px;
+
+      img {
+        border-radius: 50%;
+      }
+    }
+
+    img {
+      margin-right: 8px;
+    }
+  }
+
+  .name {
+    color: var(--Text-4-Headline, #272928);
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 24px;
+    margin-top: 11px;
   }
 }

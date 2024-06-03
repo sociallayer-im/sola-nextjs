@@ -13,6 +13,8 @@ import ListMyEvent from "@/components/compose/ListMyEvent/ListMyEvent";
 import ListPendingEvent from "@/components/compose/ListPendingEvent/ListPendingEvent";
 import Link from "next/link";
 import MapContext from "@/components/provider/MapProvider/MapContext";
+import usePicture from "@/hooks/pictrue";
+import {useTime5} from "@/hooks/formatTime";
 
 function Home(props: { badges: Badge[], initEvent?: Group, initList?: Event[], membership?: Membership[] }) {
     const {user} = useContext(UserContext)
@@ -24,6 +26,7 @@ function Home(props: { badges: Badge[], initEvent?: Group, initList?: Event[], m
     const eventGroup = useContext(EventHomeContext).eventGroup || props.initEvent || undefined
     const startIssueBadge = useIssueBadge()
     const {MapReady} = useContext(MapContext)
+    const {defaultAvatar} = usePicture()
 
     const [mode, setMode] = useState<'public' | 'my' | 'request'>('public')
     const [canPublish, setCanPublish] = useState(false)
@@ -84,7 +87,6 @@ function Home(props: { badges: Badge[], initEvent?: Group, initList?: Event[], m
             <div className={'home-page-event-wrapper'}>
                 <div className={`home-page-event-main`}>
                     <HomeUserPanel group={props.initEvent} membership={props.membership || []}/>
-
 
                     {props.initEvent?.map_enabled && MapReady &&
                         <div className="home-map">
@@ -170,6 +172,7 @@ function Home(props: { badges: Badge[], initEvent?: Group, initList?: Event[], m
                                                    }}>{lang['Activity_Setting_Btn']}</div>
                                                }
                                            </div>
+
                                            {eventGroup?.id === 3409 &&
                                                <div className={'home-action-bar'}>
                                                    <a href={'https://directory.plnetwork.io/irl/ee-lwfb'}

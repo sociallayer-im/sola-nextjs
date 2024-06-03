@@ -223,4 +223,33 @@ export function useTime4 (from: string, to: string, timezone: string = 'UTC') {
     }
 }
 
+export function useTime5 (from: string, to: string, timezone: string = 'UTC') {
+    const fromStr = from.endsWith('Z') ? from : from + 'Z'
+    const toStr = to.endsWith('Z') ? to : to + 'Z'
+
+
+    if (process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'vitalia') {
+        timezone = 'America/Tegucigalpa'
+    }
+
+    const fromDate = dayjs.tz(new Date(fromStr).getTime(), timezone)
+    const toDate = dayjs.tz(new Date(toStr).getTime(), timezone)
+
+    const now = dayjs.tz(new Date().getTime(), timezone)
+    const isToday = fromDate.date() === now.date() && fromDate.month() === now.month() && fromDate.year() === now.year()
+    const isTomorrow = fromDate.date() - now.date() === 1 && fromDate.month() === now.month() && fromDate.year() === now.year()
+
+    const week = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT']
+    const month = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL',
+        'AUG', 'SEP', 'OCT', 'NOV', 'DEC']
+
+    const f_mon = month[fromDate.month()].toUpperCase()
+    const f_date = fromDate.date() + ''
+
+    const to_mon = month[toDate.month()].toUpperCase()
+    const t_date = toDate.date() + ''
+
+    return `${f_mon} ${f_date.padStart(2, '0')} - ${to_mon} ${t_date.padStart(2, '0')}`
+}
+
 export default useTime

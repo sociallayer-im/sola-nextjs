@@ -235,6 +235,12 @@ export interface Profile {
         }
     }
     far_address: null | string
+    zupass_edge_end_date: string | null
+    zupass_edge_event_id: string | null
+    zupass_edge_product_id: string | null
+    zupass_edge_product_name: string | null
+    zupass_edge_start_date: string | null
+    zupass_edge_weekend: string | null
 }
 
 export interface ProfileSimple {
@@ -252,6 +258,12 @@ export async function queryProfileByGraph(props: { type: keyof GetProfileProps, 
 
     const doc = gql`query MyQuery {
       profiles(${condition}) {
+        zupass_edge_end_date
+        zupass_edge_event_id
+        zupass_edge_product_id
+        zupass_edge_product_name
+        zupass_edge_start_date
+        zupass_edge_weekend
         farcaster
         id
         created_at
