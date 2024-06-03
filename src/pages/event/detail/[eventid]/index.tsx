@@ -359,7 +359,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
         const participants = participantsAll.filter(item => item.status !== 'cancel')
 
         if (event?.max_participant !== null && event?.max_participant !== undefined && event?.max_participant <= participants.length) {
-            showToast('The event at full strength')
+            showToast('The event has reached its maximum capacity.')
             return
         }
 
@@ -367,7 +367,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
         try {
             const join = await joinEvent({id: Number(params?.eventid), auth_token: user.authToken || ''})
             unload()
-            showToast('Join success')
+            showToast('You have successfully registered for the event.')
             setIsJoined(true)
             fetchData()
         } catch (e: any) {
