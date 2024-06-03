@@ -105,7 +105,7 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
         const participants = participantsAll.filter(item => item.status !== 'cancel')
 
         if (props.event?.max_participant !== null && props.event?.max_participant <= participants.length) {
-            showToast('The event at full strength')
+            showToast('The event has reached its maximum capacity.')
             return
         }
 
