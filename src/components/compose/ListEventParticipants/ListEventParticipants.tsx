@@ -126,7 +126,7 @@ function ListEventParticipants(props: ListCheckinUserProps) {
                          onClick={e => {goToProfile(item.profile.username!)}}>
                         <img src={item.profile.image_url || defaultAvatar(item.profile.id)} alt=""/>
                         <div>
-                            <div>{item.profile.username! || `user #${item.profile.id}`}</div>
+                            <div>{item.profile.nickname || item.profile.username || `user #${item.profile.id}`}</div>
                             <div className={styles['address']}>{item.profile.address ? shortAddress(item.profile.address) :  ''}</div>
                         </div>
                     </Link>
