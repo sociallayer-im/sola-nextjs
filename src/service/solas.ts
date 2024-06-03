@@ -3044,7 +3044,8 @@ export interface QueryEventProps {
     show_cancel_event?: boolean,
     group_ids?: number[]
     allow_private?: boolean,
-    tags?: string[]
+    tags?: string[],
+    search?: string
 }
 
 
@@ -3107,6 +3108,11 @@ export async function queryEvent(props: QueryEventProps): Promise<Event[]> {
 
     if (props.group_id) {
         variables += `group_id: {_eq: ${props.group_id}}, `
+    }
+
+
+    if (props.search) {
+        variables += `title: {_iregex: "${props.search}"}, `
     }
 
     let status = `"open", "new", "normal"`
