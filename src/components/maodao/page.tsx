@@ -81,7 +81,13 @@ function Page(props: any) {
                 banner_link_url: null,
                 group_location_details: null,
                 far_address: null,
-                farcaster: null
+                farcaster: null,
+                zupass_edge_end_date:null,
+                zupass_edge_event_id:  null,
+                zupass_edge_product_id: null,
+                zupass_edge_product_name: null,
+                zupass_edge_start_date: null,
+                zupass_edge_weekend: null,
             }
 
             if (!tokenId) {
