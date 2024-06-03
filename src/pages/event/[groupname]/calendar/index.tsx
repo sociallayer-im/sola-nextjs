@@ -145,7 +145,7 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
                     if (event.host_info) {
                         const _host = JSON.parse(event.host_info)
                         if (_host.group_host) {
-                            host = [_host.group_host.username]
+                            host = [_host.group_host.nickname || _host.group_host.username]
                         }
                     }
 

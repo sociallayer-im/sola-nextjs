@@ -6,7 +6,8 @@ import {
     Group,
     joinEvent,
     Participants,
-    queryEventDetail, queryGroupDetail,
+    queryEventDetail,
+    queryGroupDetail,
     setEventStatus
 } from "@/service/solas";
 import {useTime2} from "@/hooks/formatTime";
@@ -54,7 +55,7 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
     const endTime = new Date(eventDetail.end_time!).getTime()
     const startTime = new Date(eventDetail.start_time!).getTime()
     const isExpired = endTime < now
-    const onGoing =  startTime <= now && endTime >= now
+    const onGoing = startTime <= now && endTime >= now
 
     useEffect(() => {
         if (user.id) {
@@ -76,7 +77,15 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
             if (props.event?.host_info.startsWith('{')) {
                 const hostInfo = JSON.parse(props.event?.host_info!)
                 if (hostInfo.group_host) {
-                    setGroupHost(hostInfo.group_host)
+                    if (hostInfo.group_host.id) {
+                        queryGroupDetail(hostInfo.group_host.id).then(res => {
+                            if (res) {
+                                setGroupHost(res)
+                            }
+                        })
+                    } else {
+                        setGroupHost(hostInfo.group_host)
+                    }
                 }
             } else {
                 queryGroupDetail(Number(props.event?.host_info)).then(res => {
@@ -148,7 +157,7 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
         || props.event.status === 'pending'
         || onGoing
         || !!props.event.external_url
-        ||  props.event.display === 'private'
+        || props.event.display === 'private'
 
     const largeCard = fixed || (hasMarker && !fixed)
 
@@ -160,7 +169,7 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
             confirmLabel: lang['Yes'],
             confirmTextColor: '#fff',
             confirmBtnColor: '#F64F4F',
-            cancelLabel:  lang['No'],
+            cancelLabel: lang['No'],
             onConfirm: async (close: any) => {
                 const unload = showLoading()
                 try {
@@ -232,12 +241,15 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
             <div className={'left'}>
                 <div className={'details'}>
                     <div className={'title'}>
-                        { hasMarker &&
+                        {hasMarker &&
                             <div className={'markers'}>
-                                {props.event.display === 'private' && <div className={'marker private'}>{'Private'}</div>}
-                                {props.event.status === 'pending' && <div className={'marker pending'}>{lang['Pending']}</div>}
+                                {props.event.display === 'private' &&
+                                    <div className={'marker private'}>{'Private'}</div>}
+                                {props.event.status === 'pending' &&
+                                    <div className={'marker pending'}>{lang['Pending']}</div>}
                                 {onGoing && <div className={'marker registered'}>{lang['Ongoing']}</div>}
-                                {props.event.status === 'rejected' && <div className={'marker rejected'}>{lang['Rejected']}</div>}
+                                {props.event.status === 'rejected' &&
+                                    <div className={'marker rejected'}>{lang['Rejected']}</div>}
                                 {(hasRegistered || props.attend) &&
                                     <div className={'marker registered'}>{lang['Activity_State_Registered']}</div>}
                                 {isCreated && <div className={'marker created'}>{lang['Activity_Detail_Created']}</div>}
@@ -261,15 +273,17 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
                     {
                         groupHost ?
                             <div className={'detail'}>
-                                <ImgLazy src={groupHost.image_url || defaultAvatar(groupHost.id)} width={16} height={16} alt=""/>
+                                <ImgLazy src={groupHost.image_url || defaultAvatar(groupHost.id)} width={16} height={16}
+                                         alt=""/>
                                 <span>hosted by {groupHost?.nickname || groupHost?.username}</span>
                             </div>
-                                : props.event.owner ?
+                            : props.event.owner ?
                                 <div className={'detail'}>
-                                    <ImgLazy src={props.event.owner.image_url || defaultAvatar(props.event.owner.id)} width={16} height={16} alt=""/>
+                                    <ImgLazy src={props.event.owner.image_url || defaultAvatar(props.event.owner.id)}
+                                             width={16} height={16} alt=""/>
                                     <span>hosted by {`${props.event.owner?.nickname || props.event.owner?.username}`}</span>
                                 </div>
-                                :<></>
+                                : <></>
                     }
 
                     {!!eventDetail.start_time &&
@@ -334,7 +348,7 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
                             }}>{lang['Event_Card_Apply_Btn']}</AppButton>
                         }
 
-                        { !fixed && !!props.event.external_url && false &&
+                        {!fixed && !!props.event.external_url && false &&
                             <AppButton special onClick={e => {
                                 handleExternal(e)
                             }}>{lang['Event_Card_Apply_Btn']}</AppButton>

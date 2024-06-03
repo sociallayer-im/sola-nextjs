@@ -1,21 +1,21 @@
 import {useContext, useEffect, useRef, useState} from 'react'
 import {Event, EventSites, getEventSide, getGroups, Group, queryEvent, queryGroupDetail} from "@/service/solas";
 import styles from './schedulenew.module.scss'
-import EventLabels from "@/components/base/EventLabels/EventLabels";
 import Link from 'next/link'
 import UserContext from "@/components/provider/UserProvider/UserContext";
 import LangContext from "@/components/provider/LangProvider/LangContext";
 import usePicture from "@/hooks/pictrue";
 import {getLabelColor} from "@/hooks/labelColor";
-import {useRouter, useSearchParams, usePathname} from "next/navigation";
+import {usePathname, useRouter, useSearchParams} from "next/navigation";
 import timezoneList from "@/utils/timezone"
 import {Select} from "baseui/select";
-import { StatefulTooltip } from "baseui/tooltip"
+import {StatefulTooltip} from "baseui/tooltip"
 import ScheduleHeader from "@/components/base/ScheduleHeader";
 import {PageBackContext} from "@/components/provider/PageBackProvider";
 import Check from 'baseui/icon/check'
 
 import * as dayjsLib from "dayjs";
+
 const utc = require('dayjs/plugin/utc')
 const timezone = require('dayjs/plugin/timezone')
 const isSameOrBefore = require('dayjs/plugin/isSameOrBefore')
@@ -32,7 +32,7 @@ let _offsetY = 0
 let _touchStartX = 0
 let _touchStartY = 0
 
-let observer: any = null
+let groupHostCache: any = []
 
 const logos = [
     {
@@ -202,7 +202,7 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
         setIsEnd(targetPage === Math.ceil(showList.length / pageSize))
     }
 
-    const genHref = ({date, tag} : {date?: string, tag?: string}) => {
+    const genHref = ({date, tag}: { date?: string, tag?: string }) => {
         if (date && tag) {
             return `?date=${date}&tag=${encodeURIComponent(tag)}`
         } else if (date) {
@@ -213,7 +213,6 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
             return ''
         }
     }
-
 
 
     useEffect(() => {
@@ -277,7 +276,7 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
 
     useEffect(() => {
         if (page) {
-            const direction = page - pageRef.current > 0  ? 'left' : 'right'
+            const direction = page - pageRef.current > 0 ? 'left' : 'right'
             document.querySelector('.schedule-content')?.classList.add(styles['fade-out'])
             setTimeout(() => {
                 document.querySelector('.schedule-content')?.classList.add(styles[`move-${direction}`])
@@ -320,7 +319,8 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
                 }
                 setTimezoneSelected([timezoneInfo])
             }
-        } catch (e: any) { }
+        } catch (e: any) {
+        }
 
         const calcPageSize = () => {
             const win = window as any
@@ -359,7 +359,7 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
                 (window.document.querySelector('.schedule-head') as any)!.style.height = '0';
                 (window.document.querySelector('.event-list') as any)!.style.minHeight = `100vh`;
             } else {
-               (window.document.querySelector('.schedule-head') as any)!.style.height = '208px';
+                (window.document.querySelector('.schedule-head') as any)!.style.height = '208px';
                 // (window.document.querySelector('.event-list') as any)!.style.minHeight = `100%`;
             }
         }
@@ -381,7 +381,7 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
             }, 300)
         }
 
-        if (window.innerWidth < 450 ) {
+        if (window.innerWidth < 450) {
             scrollBar2 && scrollBar2.addEventListener('scroll', checkScroll)
             scrollBar2 && scrollBar2.addEventListener('tou', checkScroll)
 
@@ -396,7 +396,7 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
                 const win = window as any
                 win.removeEventListener('resize', calcPageSize)
 
-                if (window.innerWidth < 450 ) {
+                if (window.innerWidth < 450) {
                     scrollBar2 && scrollBar2.removeEventListener('scroll', checkScroll)
                     scrollBar2.removeEventListener('touchstart', touchstart)
                     scrollBar2.removeEventListener('touchmove', touchmove)
@@ -427,7 +427,7 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
         if (!pageList.length) return false
 
         const pageStart = `${pageList[0].year}/${(pageList[0].month + 1).toString().padStart(2, '0')}/${pageList[0].date}`
-        const pageEnd = `${pageList[0].year}/${(pageList[0].month + 1).toString().padStart(2, '0')}/${pageList[pageList.length -1].date}`
+        const pageEnd = `${pageList[0].year}/${(pageList[0].month + 1).toString().padStart(2, '0')}/${pageList[pageList.length - 1].date}`
         const start = item.time[0]
         const end = item.time[1]
         return (pageStart >= start && pageStart <= end || pageEnd >= start && pageEnd <= end) && eventGroup.id === item.group
@@ -435,7 +435,7 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
 
     return (<div className={styles['schedule-page']}>
         <ScheduleHeader group={eventGroup} params={genHref({
-            tag:  selectedTags.length ? selectedTags.join(',') : undefined,
+            tag: selectedTags.length ? selectedTags.join(',') : undefined,
             date: pageList.length ? dayjs.tz(pageList[0].timestamp, timezoneSelected[0].id).format('YYYY-MM-DD') : undefined
         })}/>
 
@@ -446,15 +446,15 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
                         <div className={'group-name'}>
                             {
                                 pathname?.includes('iframe') ?
-                                <img src="/images/logo.svg" alt="" width={94} height={29}/>:
-                                <Link href={`/event/${eventGroup.username}`}>
-                                    { !!showLogo ?
-                                        <img src={showLogo.logo} height={36} width={230} alt=""/>
-                                        : (eventGroup.nickname || eventGroup.username)
-                                    }
-                                </Link>
+                                    <img src="/images/logo.svg" alt="" width={94} height={29}/> :
+                                    <Link href={`/event/${eventGroup.username}`}>
+                                        {!!showLogo ?
+                                            <img src={showLogo.logo} height={36} width={230} alt=""/>
+                                            : (eventGroup.nickname || eventGroup.username)
+                                        }
+                                    </Link>
                             }
-                           <div> {lang['Activity_Calendar']}</div>
+                            <div> {lang['Activity_Calendar']}</div>
                         </div>
                     </div>
                     <Link className={styles['create-btn']} href={creatEventPatch}
@@ -489,8 +489,8 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
                                 return <div className={styles['label-item']}>
                                     {
                                         selectedTags.includes(opt.option.id) ?
-                                        <Check size={22} />
-                                            :<span style={{marginRight: '22px'}}/>
+                                            <Check size={22}/>
+                                            : <span style={{marginRight: '22px'}}/>
                                     }
                                     <i className={styles['label-color']}
                                        style={{background: opt.option.color || '#f1f1f1'}}/>
@@ -499,11 +499,11 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
                             }}
                             getValueLabel={(opt: any) => {
                                 return <div className={styles['label-item']}>
-                                    { !!selectedTags.length &&
+                                    {!!selectedTags.length &&
                                         <i className={styles['label-notice']}
                                            style={{background: 'red'}}/>
                                     }
-                                   Tags
+                                    Tags
                                 </div>
                             }}
                             options={[{id: 'All', label: 'All Tags', color: null}, ...tags as any]}
@@ -587,7 +587,9 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
                                         <StatefulTooltip
                                             content={() => <div>Today</div>}>
                                             <svg
-                                                onClick={ e => { toToday()}}
+                                                onClick={e => {
+                                                    toToday()
+                                                }}
                                                 xmlns="http://www.w3.org/2000/svg"
                                                 width={28}
                                                 height={40}
@@ -661,7 +663,9 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
                             />
                         </svg>
                         <svg
-                            onClick={() => {toToday()}}
+                            onClick={() => {
+                                toToday()
+                            }}
                             xmlns="http://www.w3.org/2000/svg"
                             width={28}
                             height={40}
@@ -693,24 +697,24 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
                     <div className={`${styles['date-bar']}`}>
                         {pageList
                             .map((item: any, index) => {
-                            const isMonthBegin = item.date === 1
+                                const isMonthBegin = item.date === 1
 
-                            return <div key={index + ''}
-                                        data-month={item.month}
-                                        data-year={item.year}
-                                        className={isMonthBegin ? `month-begin ${styles['date-column']}` : styles['date-column']}>
-                                <div className={styles['date-day']}>
-                                    {
-                                        isMonthBegin &&
-                                        <span className={styles['month']}>{lang['Month_Name'][item.month]} </span>
-                                    }
-                                    <span>{item.dayName}</span>
-                                    <span
-                                        className={item.date === dayjs.tz(new Date().getTime(), timezoneSelected[0]!.id).date() && item.year === dayjs.tz(new Date().getTime(), timezoneSelected[0]!.id).year() && item.month === dayjs.tz(new Date().getTime(), timezoneSelected[0]!.id).month()
-                                            ? styles['date-active'] : styles['date']}>{item.date}</span>
+                                return <div key={index + ''}
+                                            data-month={item.month}
+                                            data-year={item.year}
+                                            className={isMonthBegin ? `month-begin ${styles['date-column']}` : styles['date-column']}>
+                                    <div className={styles['date-day']}>
+                                        {
+                                            isMonthBegin &&
+                                            <span className={styles['month']}>{lang['Month_Name'][item.month]} </span>
+                                        }
+                                        <span>{item.dayName}</span>
+                                        <span
+                                            className={item.date === dayjs.tz(new Date().getTime(), timezoneSelected[0]!.id).date() && item.year === dayjs.tz(new Date().getTime(), timezoneSelected[0]!.id).year() && item.month === dayjs.tz(new Date().getTime(), timezoneSelected[0]!.id).month()
+                                                ? styles['date-active'] : styles['date']}>{item.date}</span>
+                                    </div>
                                 </div>
-                            </div>
-                        })
+                            })
                         }
                     </div>
                 </div>
@@ -733,7 +737,7 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
                                             }
 
                                             if (!e.tags || e.tags.length === 0) {
-                                                return  false
+                                                return false
                                             }
 
                                             return !selectedTags.some(t => {
@@ -741,13 +745,13 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
                                             })
                                         })
                                         .map((e: Event) => {
-                                        return <EventCard
-                                            blank={location.href.includes('iframe')}
-                                            key={Math.random() + e.title}
-                                            timezone={timezoneSelected[0].id}
-                                            event={e}
-                                            group={eventGroup}/>
-                                    })}
+                                            return <EventCard
+                                                blank={location.href.includes('iframe')}
+                                                key={Math.random() + e.title}
+                                                timezone={timezoneSelected[0].id}
+                                                event={e}
+                                                group={eventGroup}/>
+                                        })}
                                 </div>
                             </div>
                         })
@@ -796,22 +800,27 @@ function EventCard({
 
     useEffect(() => {
         if (event.host_info) {
-            if (event.host_info.startsWith('{')) {
-                const hostInfo = JSON.parse(event.host_info!)
-                if (hostInfo.group_host) {
+            const hostInfo = JSON.parse(event.host_info!)
+            if (hostInfo.group_host) {
+                if (hostInfo.group_host.id) {
+                    if (groupHostCache[hostInfo.group_host.id]) {
+                        setGroupHost(groupHostCache[hostInfo.group_host.id])
+                        setReady(true)
+                    } else {
+                        queryGroupDetail(hostInfo.group_host.id).then(res => {
+                            if (res) {
+                                setGroupHost(res)
+                                groupHostCache[hostInfo.group_host.id] = res
+                            }
+                            setReady(true)
+                        })
+                    }
+                } else {
                     setGroupHost(hostInfo.group_host)
                     setReady(true)
                 }
             } else {
-                if (group?.id === Number(event.host_info)) {
-                    setGroupHost(group)
-                    setReady(true)
-                } else {
-                    queryGroupDetail(Number(event.host_info)).then((res: any) => {
-                        setGroupHost(res)
-                        setReady(true)
-                    })
-                }
+                setReady(true)
             }
         } else {
             setReady(true)

@@ -173,21 +173,21 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                     const profiles = await getProfileBatchById(ids)
 
                     if (info.speaker) {
-                        setSpeaker(info.speaker.map(p => {
-                            const info = profiles.find((item: Profile) => (item.id === p.id && !!p.username))
+                        setSpeaker(info.speaker.map((p: Profile) => {
+                            const info = profiles.find((item: any) => (item.id === p.id && !!p.username))
                             return info || p
                         }))
                     }
 
                     if (info.co_host) {
-                        setCohost(info.co_host.map(p => {
-                            const info = profiles.find((item: Profile) => item.id === p.id && !!p.username)
+                        setCohost(info.co_host.map((p: Profile) => {
+                            const info = profiles.find((item: any) => item.id === p.id && !!p.username)
                             return info || p
                         }))
                     }
 
                     if (info.group_host) {
-                        setHoster(profiles.find(p => {
+                        setHoster(profiles.find((p: any) => {
                             return p.id === info.group_host.id && !!p.username
                         }) as any || info.group_host)
                     } else {
