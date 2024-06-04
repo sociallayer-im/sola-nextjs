@@ -100,6 +100,7 @@ function DialogConnectWallet(props: DialogConnectWalletProps) {
     }
 
     const arrowPhoneLogin = process.env.NEXT_PUBLIC_ALLOW_PHONE_LOGIN === 'true'
+    const isEdgeCity = process.env.NEXT_PUBLIC_LEADING_EVENT_GROUP_ID === '3409'
 
     return (
         <div className='dialog-connect-wallet'>
@@ -127,7 +128,7 @@ function DialogConnectWallet(props: DialogConnectWalletProps) {
                 </div>
             </div>
             {connectors.map((connector) => (
-                (!connector.ready) ?
+                (!connector.ready) || (isEdgeCity && connector.name === 'JoyID') ?
                     <></>
                     : <div className={'connect-item'}
                            key={connector.id}
