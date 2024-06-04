@@ -220,6 +220,9 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
             document.querySelector('.schedule-content')?.classList.add(styles['fade-out'])
             setPage(0)
             setDayList(getCalendarData(timezoneSelected[0].id))
+            setTimeout(() => {
+                document.querySelector('.schedule-content')?.classList.remove(styles['fade-out'])
+            }, 200)
         }
     }, [timezoneSelected])
 
