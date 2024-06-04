@@ -224,8 +224,11 @@ export function useTime4 (from: string, to: string, timezone: string = 'UTC') {
 }
 
 export function useTime5 (from: string, to: string, timezone: string = 'UTC') {
-    const fromStr = from.endsWith('Z') ? from : from + 'Z'
-    const toStr = to.endsWith('Z') ? to : to + 'Z'
+    let fromStr = from
+    let toStr = to
+
+    fromStr = fromStr.replace(/-/g, '/')
+    toStr = toStr.replace(/-/g, '/')
 
 
     if (process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'vitalia') {
