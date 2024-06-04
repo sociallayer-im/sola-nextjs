@@ -859,13 +859,13 @@ function EventCard({
                 {!!groupHost ? <div className={styles['schedule-event-card-host']}>
                         <img className={styles['schedule-event-card-avatar']}
                              src={groupHost.image_url || defaultAvatar(groupHost.id)} alt=""/>
-                        {groupHost.nickname || groupHost.username}
+                        <div>{groupHost.nickname || groupHost.username}</div>
                     </div>
                     :
                     <div className={styles['schedule-event-card-host']}>
                         <img className={styles['schedule-event-card-avatar']}
                              src={event.owner.image_url || defaultAvatar(event.owner.id)} alt=""/>
-                        {event.owner.nickname || event.owner.username}
+                        <div>{event.owner.nickname || event.owner.username}</div>
                     </div>
                 }
             </>

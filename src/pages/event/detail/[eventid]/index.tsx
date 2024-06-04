@@ -166,7 +166,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                     }
                 } else {
                     const info = JSON.parse(res.host_info)
-                    const ids: number[] = [...info.speaker, ...info.co_host, ...(info.group_host ? [info.group_host] : [])]
+                    const ids: number[] = [...info.speaker, ...info.co_host]
                         .filter((item: any) => !!item.id)
                         .map((item: any) => item.id)
 
@@ -187,9 +187,8 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                     }
 
                     if (info.group_host) {
-                        setHoster(profiles.find((p: any) => {
-                            return p.id === info.group_host.id && !!p.username
-                        }) as any || info.group_host)
+                        const group =  await queryGroupDetail(info.group_host.id)
+                        setHoster(group as any || info.group_host)
                     } else {
                         setHoster(res.owner as Profile)
                     }
