@@ -6,7 +6,7 @@ TrackJSInstall();
 
 export default function GlobalError({error, reset}: any) {
     useEffect(() => {
-        TrackJS.track(error);
+        !!error && TrackJS.track(error);
     }, [error]);
 
     return <NextError statusCode={undefined as any}/>
