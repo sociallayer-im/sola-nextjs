@@ -52,6 +52,7 @@
     "@solana/wallet-standard-util": "^1.1.1",
     "@solana/web3.js": "file:src/libs/@solana/web3.js",
     "@vercel/analytics": "^1.1.1",
+    "@vercel/speed-insights": "^1.0.11",
     "@zxing/library": "^0.20.0",
     "add": "^2.0.6",
     "alchemy-sdk": "^2.10.1",
@@ -103,6 +104,8 @@
     "styletron-engine-monolithic": "^1.0.0",
     "styletron-react": "^6.1.0",
     "swiper": "^9.1.0",
+    "trackjs": "^3.10.4",
+    "trackjs-node": "^1.1.0",
     "wagmi": "^1.4.3",
     "web3-utils": "^1.8.2",
     "window-metadata": "^1.0.1"

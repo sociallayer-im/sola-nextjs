@@ -7705,6 +7705,11 @@
   dependencies:
     server-only "^0.0.1"
 
+"@vercel/speed-insights@^1.0.11":
+  version "1.0.11"
+  resolved "https://registry.npmmirror.com/@vercel/speed-insights/-/speed-insights-1.0.11.tgz#44e436bdf19d445fd34f2e335f5bc9f44b86f9de"
+  integrity sha512-l9hzSNmJvb2Yqpgd/BzpiT0J0aQDdtqxOf3Xm+iW4PICxVvhY1ef7Otdx4GXI+88dVkws57qMzXiShz19gXzSQ==
+
 "@wagmi/connectors@3.1.11":
   version "3.1.11"
   resolved "https://registry.npmmirror.com/@wagmi/connectors/-/connectors-3.1.11.tgz#98c3a73555bd4c96e562b0258bb2c770fa37b621"
@@ -21937,6 +21942,16 @@ tr46@~0.0.3:
   version "0.0.3"
   resolved "https://registry.npmmirror.com/tr46/-/tr46-0.0.3.tgz#8184fd347dac9cdc185992f3a6622e14b9d9ab6a"
   integrity sha512-N3WMsuqV66lT30CrXNbEjx4GEwlow3v6rr4mCcv6prnfwhS01rkgyFdjPNBYd9br7LpXV1+Emh01fHnq2Gdgrw==
+
+trackjs-node@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.npmmirror.com/trackjs-node/-/trackjs-node-1.1.0.tgz#e4830c60bbdc5cf251b964013c426e44c14972ab"
+  integrity sha512-xykOhnznEgIwzaWEwOGYALJlueLiyJAQAoSz7xh1eznIH/8Ed+ZyqSBU6RTgXiKhD0huio1ajwOiuvv570sheQ==
+
+trackjs@^3.10.4:
+  version "3.10.4"
+  resolved "https://registry.npmmirror.com/trackjs/-/trackjs-3.10.4.tgz#a7d3d684877203583487530c0681f026c3e495a9"
+  integrity sha512-coQkj9d7OjPmrLKj4MeLvf1U5vPD9QfXMpqVghhKnF++BlFOkA9t64ry0Usqt+8dk1tunZ9DQ5IVKLYi+3H8+w==
 
 tree-kill@^1.2.2:
   version "1.2.2"

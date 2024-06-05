@@ -6,6 +6,8 @@ import Script from 'next/script'
 import {Analytics} from '@vercel/analytics/react';
 import Layout from "@/components/Layout/Layout";
 import fetch from "@/utils/fetch";
+import TrackjsError from "@/components/TrackjsError/TrackjsError"
+import { SpeedInsights } from "@vercel/speed-insights/next"
 
 // providers
 import LangProvider from "@/components/provider/LangProvider/LangProvider"
@@ -121,6 +123,8 @@ function MyApp({Component, pageProps, ...props}: any) {
                                                                 <Component {...pageProps} />
                                                                 <Subscriber/>
                                                                 <Analytics/>
+                                                                <TrackjsError />
+                                                                <SpeedInsights/>
                                                             </DisplayLay>
                                                         </NotificationsProvider>
                                                     </EventHomeProvider>
