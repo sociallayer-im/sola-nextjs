@@ -2,6 +2,45 @@ export const tickets = [
     {
       "pcdType": "eddsa-ticket-pcd",
       "publicKey": [
+          "1ebfb986fbac5113f8e2c72286fe9362f8e7d211dbc68227a468d7b919e75003",
+          "10ec38f11baacad5535525bbe8e343074a483c051aa1616266f3b1df3fb7d204"
+      ],
+      "eventId": "21c7db2e-08e3-4234-9a6e-386a592d63c8",
+      "eventName": "Edge Esmeralda",
+      "productId": "e0e95c9d-090c-41e7-bcd5-b7d8a518cf42",
+      "productName": "Scholar - Week 2",
+      "start": "2024-06-10",
+      "end": "2024-06-16"
+    },
+    {
+      "pcdType": "eddsa-ticket-pcd",
+      "publicKey": [
+          "1ebfb986fbac5113f8e2c72286fe9362f8e7d211dbc68227a468d7b919e75003",
+          "10ec38f11baacad5535525bbe8e343074a483c051aa1616266f3b1df3fb7d204"
+      ],
+      "eventId": "21c7db2e-08e3-4234-9a6e-386a592d63c8",
+      "eventName": "Edge Esmeralda",
+      "productId": "e9e0338b-c2ef-470a-a98e-ad7ee21a183a",
+      "productName": "Weekend Day Ticket",
+      "start": "2024-06-02",
+      "end": "2024-07-01"
+    },
+    {
+      "pcdType": "eddsa-ticket-pcd",
+      "publicKey": [
+          "1ebfb986fbac5113f8e2c72286fe9362f8e7d211dbc68227a468d7b919e75003",
+          "10ec38f11baacad5535525bbe8e343074a483c051aa1616266f3b1df3fb7d204"
+      ],
+      "eventId": "21c7db2e-08e3-4234-9a6e-386a592d63c8",
+      "eventName": "Edge Esmeralda",
+      "productId": "1aaa3827-0ef0-4acb-9d3f-b0681fd0f9b2",
+      "productName": "Weekday Ticket",
+      "start": "2024-06-02",
+      "end": "2024-07-01"
+    },
+    {
+      "pcdType": "eddsa-ticket-pcd",
+      "publicKey": [
         "1ebfb986fbac5113f8e2c72286fe9362f8e7d211dbc68227a468d7b919e75003",
         "10ec38f11baacad5535525bbe8e343074a483c051aa1616266f3b1df3fb7d204"
       ],
