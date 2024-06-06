@@ -9,5 +9,5 @@ export default function GlobalError({error, reset}: any) {
         !!error && TrackJS.track(error);
     }, [error]);
 
-    return <NextError statusCode={undefined as any}/>
+    return <div></div>
 }
