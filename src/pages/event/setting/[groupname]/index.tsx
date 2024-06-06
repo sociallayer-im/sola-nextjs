@@ -199,7 +199,8 @@ function Dashboard() {
             timeslots: null ,
             link: null,
             capacity: null,
-            overrides: null
+            overrides: null,
+            visibility: null
         })
         setEventSite(_eventSite)
     }

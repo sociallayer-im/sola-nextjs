@@ -1141,6 +1141,7 @@ function EditEvent({
                             {!!eventGroup &&
                                 <div className={styles['input-area']}>
                                     <LocationInput
+                                        role = {isManager ? 'manager' : undefined}
                                         event={event as any}
                                         initValue={event as any}
                                         eventGroup={eventGroup as Group}

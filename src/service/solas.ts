@@ -2936,6 +2936,7 @@ export interface EventSites {
     capacity: number | null,
     overrides: null | string[],
     require_approval?: boolean,
+    visibility: null | 'all' | 'manager'
 }
 
 export interface Participants {
@@ -3162,6 +3163,7 @@ export async function queryEvent(props: QueryEventProps): Promise<Event[]> {
         end_time
         event_site_id
         event_site {
+            visibility
             id
             title
             location
@@ -3317,6 +3319,7 @@ export async function queryPendingEvent(props: QueryEventProps): Promise<Event[]
         display
         event_site_id
         event_site {
+            visibility
             id
             title
             location
@@ -3424,6 +3427,7 @@ export async function queryCohostingEvent(props: {id: number, email?: string}): 
         display
         event_site_id
         event_site {
+            visibility
             id
             title
             location
@@ -3583,6 +3587,7 @@ export async function queryMyEvent({page = 1, page_size = 10, ...props}: QueryMy
           status
           event_site_id
           event_site {
+               visibility
                id
                title
                location
@@ -3651,6 +3656,7 @@ export async function getEventSide(groupId?: number, allowRemoved?: boolean): Pr
     const status = allowRemoved ? '' : ', removed: {_is_null: true}'
     const doc = gql`query MyQuery {
       event_sites(where: {group_id: {_eq: ${groupId}}${status}}, order_by: {id: desc}) {
+        visibility
         removed
         formatted_address
         geo_lat
@@ -3730,6 +3736,7 @@ export async function searchEvent(keyword: string, group_id?: number): Promise<E
         end_time
         event_site_id
         event_site {
+            visibility
             id
             title
             location

@@ -10,6 +10,7 @@ import {Datepicker} from "baseui/datepicker";
 import AppRadio from "@/components/base/AppRadio/AppRadio";
 import dayjs from "dayjs";
 import Toggle from "@/components/base/Toggle/Toggle";
+import {Select} from "baseui/select";
 
 export interface GMapSearchResult {
     description: string,
@@ -62,7 +63,6 @@ function EventSiteInput(props: LocationInputProps) {
     }, [MapReady])
 
     useEffect(() => {
-        console.log('searchKeyword===', searchKeyword)
         const search = () => {
             if (!showSearchRes) {
                 return
@@ -358,6 +358,27 @@ function EventSiteInput(props: LocationInputProps) {
                         }
                     }
                     }
+                />
+            </div>
+        </div>
+
+        <div className={'input-area-sub-title'} style={{marginTop: '24px', marginBottom: '24px'}}>
+            <div style={{whiteSpace: 'nowrap', flex: '1'}}>
+                {'Visibility'}
+            </div>
+
+            <div style={{width: '150px'}}>
+                <Select
+                    clearable={false}
+                    searchable={false}
+                    options={[{id: null, label:'All' }, { id: 'manager', label: 'Manager'}] as any}
+                    value={newEventSite!.visibility? [{id: newEventSite!.visibility, label: newEventSite!.visibility}] : [{id: null, label: 'All'}] as any}
+                    onChange={({option}) => {
+                        setNewEventSite({
+                            ...newEventSite!,
+                            visibility: option!.id as any
+                        })
+                    }}
                 />
             </div>
         </div>

@@ -51,7 +51,8 @@ export interface LocationInputProps {
     initValue?: LocationInputValue,
     eventGroup: Group,
     onChange?: (value: LocationInputValue) => any,
-    event?: Event
+    event?: Event,
+    role?: 'manager' | 'owner' | 'member'
 }
 
 
@@ -237,6 +238,17 @@ function LocationInput(props: LocationInputProps) {
                     clearable={false}
                     creatable={false}
                     searchable={false}
+                    filterOptions={(options: any) => {
+                        return options.filter((option: any) => {
+                             if (!option.visibility) {
+                                 return  true
+                             } else if (option.visibility === 'manager') {
+                                 return props.role === 'manager' || props.role === 'owner'
+                             } else {
+                                 return  true
+                             }
+                        })
+                    }}
                     getOptionLabel={(option: any) => {
                         const width = document.querySelector('.selector.venue')?.clientWidth
                         const available = checkAvailable(option.option, props.event!.start_time!, props.event!.end_time!, props.event!.timezone!)
