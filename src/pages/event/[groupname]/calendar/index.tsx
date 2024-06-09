@@ -1,24 +1,26 @@
 import {Event as SolarEvent, EventSites, getEventSide, getGroups, Group, queryEvent} from "@/service/solas";
-import {useContext, useEffect, useMemo, useRef, useState} from "react";
+import {useContext, useEffect, useRef, useState} from "react";
 import {createCalendar, viewDay, viewMonthAgenda, viewMonthGrid, viewWeek} from '@/libs/schedule-x-calendar/core'
-import {createEventModalPlugin} from '@/libs/schedule-x-calendar/event-modal'
 import '@schedule-x/theme-default/dist/index.css'
 import '@/libs/schedule-x-calendar/view-selection.scss'
 import styles from '../schedule/schedulenew.module.scss'
 import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
 import useTime from "@/hooks/formatTime";
-import {useRouter} from "next/navigation";
+import {useRouter, useSearchParams} from "next/navigation";
 import userContext from "@/components/provider/UserProvider/UserContext";
 import {createEventsServicePlugin} from '@schedule-x/events-service'
-import { createCurrentTimePlugin } from '@schedule-x/current-time'
-import { createScrollControllerPlugin } from '@schedule-x/scroll-controller'
+import {createCurrentTimePlugin} from '@schedule-x/current-time'
+import {createScrollControllerPlugin} from '@schedule-x/scroll-controller'
 import ScheduleHeader from "@/components/base/ScheduleHeader";
-import {useSearchParams} from "next/navigation";
+import usePicture from "@/hooks/pictrue";
+import Displayer from "@/components/compose/RichTextEditor/Displayer";
+import Link from "next/link";
 
 import * as dayjsLib from "dayjs";
 import timezoneList from "@/utils/timezone";
 import {getLabelColor} from "@/hooks/labelColor";
 import {PageBackContext} from "@/components/provider/PageBackProvider";
+import EventDefaultCover from "@/components/base/EventDefaultCover";
 
 const utc = require('dayjs/plugin/utc')
 const timezone = require('dayjs/plugin/timezone')
@@ -75,7 +77,7 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
     const eventGroup = props.group
     const calendarRef = useRef<any>(null)
     const scheduleXRef = useRef<any>(null)
-    const {openConfirmDialog} = useContext(DialogsContext)
+    const {openConfirmDialog, openDialog} = useContext(DialogsContext)
     const {user} = useContext(userContext)
     const formatTime = useTime()
     const router = useRouter()
@@ -87,7 +89,7 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
     const [presetDate, setPresetDate] = useState<string>(searchParams?.get('date') || '')
 
     let presetTag = searchParams?.get('tag')
-    const [selectedTags, setSelectedTags] = useState<string[]>(presetTag ? presetTag.split(','):[])
+    const [selectedTags, setSelectedTags] = useState<string[]>(presetTag ? presetTag.split(',') : [])
 
     useEffect(() => {
         try {
@@ -160,7 +162,9 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
                         end_time: event.end_time,
                         location: (event.group_id != 3409 || !!user.id) ? event.location : undefined,
                         calendarId: calendarId,
-                        link: `/event/detail/${event.id}`
+                        link: `/event/detail/${event.id}`,
+                        description: event.content,
+                        event: event,
                     }
                 })
 
@@ -245,10 +249,10 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
                         } : undefined
 
                     // const customMenus = [customTagFilter, venueFilter].filter(Boolean)
-                    const customMenus =customTagFilter ?  [customTagFilter]: undefined
+                    const customMenus = customTagFilter ? [customTagFilter] : undefined
 
                     const selectedDate = presetDate ?
-                        dayjs.tz(presetDate, timezoneSelected[0].id).format('YYYY-MM-DD'):
+                        dayjs.tz(presetDate, timezoneSelected[0].id).format('YYYY-MM-DD') :
                         dayjs.tz(new Date().getTime(), timezoneSelected[0].id).format('YYYY-MM-DD')
 
                     scheduleXRef.current = createCalendar({
@@ -257,25 +261,34 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
                         maxDate: dayjs.tz(dayList[dayList.length - 1].timestamp, timezoneSelected[0].id).format('YYYY-MM-DD'),
                         selectedDate: selectedDate,
                         plugins: [
-                            createEventModalPlugin(),
                             createEventsServicePlugin(),
                             createCurrentTimePlugin(),
                             createScrollControllerPlugin({
                                 initialScroll: '07:50',
                             })
-                        ]
-                        ,
+                        ],
                         calendars,
                         defaultView: 'week',
                         events: eventList as any,
                         customMultiMenus: customMenus,
+                        _customComponentFns: {
+                            eventModal: () => <div>123</div>
+                        },
                         callbacks: {
                             onClickDateTime(dateTime: string) {
                                 createEvent(dateTime)
                             },
                             onRangeUpdate(range: { start: string, end: string }) {
                                 setPresetDate(range.start.split(' ')[0])
-                            }
+                            },
+                            onEventClick(calendarEvent: any) {
+                                console.log('onEventClick', calendarEvent)
+                                openDialog({
+                                    content: () => {return <EventPopup event={calendarEvent.event} timezone={timezoneSelected[0].id} />},
+                                    size: [450, 'auto'],
+                                    position: 'bottom',
+                                })
+                            },
                         },
                     } as any)
                     scheduleXRef.current.render(calendarRef.current)
@@ -301,10 +314,13 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
 
     useEffect(() => {
         history.replaceState(null, '', genHref({date: presetDate, tag: selectedTags.join(',')}))
-        pageHistory[pageHistory.length - 1] = location.pathname + genHref({date: presetDate, tag: selectedTags.join(',')})
+        pageHistory[pageHistory.length - 1] = location.pathname + genHref({
+            date: presetDate,
+            tag: selectedTags.join(',')
+        })
     }, [selectedTags, presetDate])
 
-    const genHref = ({date, tag} : {date?: string, tag?: string}) => {
+    const genHref = ({date, tag}: { date?: string, tag?: string }) => {
         if (date && tag) {
             return `?date=${date}&tag=${encodeURIComponent(tag)}`
         } else if (date) {
@@ -369,4 +385,92 @@ export const getServerSideProps: any = (async (context: any) => {
         return {props: {group: group[0], eventSite: eventSite}}
     }
 })
+
+export function EventPopup({event, timezone}: { event: SolarEvent, timezone: string }) {
+    const {defaultAvatar} = usePicture()
+
+
+    let host = event.owner.nickname || event.owner.username
+    let avatar = event.owner.image_url || defaultAvatar(event.owner.id)
+
+    if (event.host_info) {
+        const _host = JSON.parse(event.host_info)
+        if (_host.group_host) {
+            host = _host.group_host.nickname || _host.group_host.username
+            avatar = _host.group_host.image_url || defaultAvatar(_host.id)
+        }
+    }
+
+    return <div className={`event-card ${styles['calendar-event-popup']}`} >
+        <div className={'info'} style={{padding: '16px'}}>
+            <div className={'left'} style={{marginLeft: 0}}>
+                <div className={'details'} style={{margin: '0'}}>
+                    <div className={'title'} style={{lineHeight: '20px'}}>
+                        {event.title}
+                    </div>
+
+                    <div className={'tags'}>
+                        {
+                            event.tags?.map((tag: string) => {
+                                return <div key={tag} className={'tag'}>
+                                    <i className={'dot'}
+                                       style={{background: getLabelColor(tag)}}/>
+                                    {tag}
+                                </div>
+                            })
+                        }
+                    </div>
+
+                    <div className={'detail'} style={{fontSize: '12px'}}>
+                        <img src={avatar} width={16} height={16} alt=""/>
+                        <span>hosted by {host}</span>
+                    </div>
+
+                    <div className={'detail'}
+                        style={{color: '#272928', fontSize: '12px'}}> <i className="icon-calendar" />
+                        {`${formatDate(event.start_time!, timezone)}`}
+                    </div>
+                </div>
+            </div>
+            <div className={'post mobile'} style={{display: 'block', width: '100px', height: '100px'}}>
+                {
+                    event.cover_url ?
+                        <img src={event.cover_url} width={100} alt=""/>
+                        : <EventDefaultCover event={event} width={100} height={100}/>
+                }
+            </div>
+        </div>
+
+        { !!event.content ?
+            <div className={styles['event-content']}>
+                <Displayer markdownStr={event.content} />
+            </div>:
+            <div className={styles['no-event-content']}>No event content</div>
+        }
+
+        <div style={{margin: '16px'}}>
+            <Link className={styles['link']} href={`/event/detail/${event.id}`} target={'_blank'}>View Event</Link>
+        </div>
+    </div>
+}
+
+function formatDate(dateStr: string, timezone: string) {
+    const time = dayjs.tz(dateStr, timezone)
+    const date = time.date();
+    const month = mouthName[time.month()];
+    const hour = time.hour() + ''
+    const minute = time.minute() + '';
+
+    let suffix = 'th';
+
+    if (date === 1 || date === 21 || date === 31) {
+        suffix = 'st';
+    } else if (date === 2 || date === 22) {
+        suffix = 'nd';
+    } else if (date === 3 || date === 23) {
+        suffix = 'rd';
+    }
+
+    return `${month} ${date}${suffix} ${hour.padStart(2, '0')}:${minute.padStart(2, '0')}`;
+}
 

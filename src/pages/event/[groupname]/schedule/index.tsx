@@ -336,8 +336,6 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
                 setPageSize(4)
             } else if (clientWidth >= 576) {
                 setPageSize(3)
-            } else if (clientWidth >= 376) {
-                setPageSize(2)
             } else {
                 setPageSize(1)
             }
