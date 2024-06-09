@@ -11,6 +11,7 @@ import {Badge, Membership, queryBadge, Group} from "@/service/solas";
 import ImgLazy from "@/components/base/ImgLazy/ImgLazy";
 import { StatefulPopover } from "baseui/popover";
 import {useTime5} from "@/hooks/formatTime";
+import ZupassTicket from "@/components/base/ZupassTicket/ZupassTicket";
 
 function HomeUserPanel({showSchedule=true, ...props}: {
     membership: Membership[],
@@ -164,27 +165,8 @@ function HomeUserPanel({showSchedule=true, ...props}: {
             </Link>
         }
 
-        {eventGroup?.id === 3409 && user.detail?.zupass_edge_product_id &&
-            <div className={'zupass-ticket-info'}>
-                <div className={'title'}>
-                    <div className={'left'}>
-                        <img src="/images/edge_logo.svg" width={20} height={24}
-                             alt=""/>
-                        {'My ticket'}
-                    </div>
-
-                    <div className={'right'}>
-                        <img src={user.avatar || defaultAvatar(user.id)}
-                             width={16} height={16} alt=""/>
-                        {user.nickname || user.userName}
-                    </div>
-                </div>
-                <div
-                    className="name">{user.detail?.zupass_edge_product_name}</div>
-                {!!user.detail?.zupass_edge_start_date! && !!user.detail?.zupass_edge_end_date &&
-                    <div className="date">{useTime5(user.detail?.zupass_edge_start_date!, user.detail?.zupass_edge_end_date!, Intl.DateTimeFormat().resolvedOptions().timeZone)}</div>
-                }
-            </div>
+        {eventGroup?.id === 3409 && !!user && !!user.detail &&
+            <ZupassTicket user={user.detail} />
         }
 
         {

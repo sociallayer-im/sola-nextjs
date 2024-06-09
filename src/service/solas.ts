@@ -5508,6 +5508,48 @@ export async function checkEventPermission (props: {id: number, auth_token: stri
     // return false
 }
 
+export interface GroupPass {
+    id: number,
+    created_at: string,
+    days_allowed: null | string,
+    days_disallowed: null | string,
+    end_date: null |  string,
+    group_id: null |  number,
+    pass_type: null | string,
+    profile_id: number,
+    start_date: null | string,
+    updated_at: string,
+    weekend: null | boolean,
+    zupass_event_id: null | string,
+    zupass_product_id: null | string,
+    zupass_product_name: null | string
+}
+
+export async function getGroupPass ({profile_id, group_id}: {profile_id: number, group_id: number}) {
+    const doc = `query MyQuery {
+          group_passes(where: {profile_id: {_eq: ${profile_id}}, group_id: {_eq: ${group_id}}}) {
+            id
+            created_at
+            days_allowed
+            days_disallowed
+            end_date
+            group_id
+            pass_type
+            profile_id
+            start_date
+            updated_at
+            weekend
+            zupass_event_id
+            zupass_product_id
+            zupass_product_name
+          }
+        }`
+
+    const res: any = await request(graphUrl, doc)
+
+    return res.group_passes as GroupPass[]
+}
+
 
 export default {
     removeMarker,
