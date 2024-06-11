@@ -13,6 +13,8 @@ import {StatefulTooltip} from "baseui/tooltip"
 import ScheduleHeader from "@/components/base/ScheduleHeader";
 import {PageBackContext} from "@/components/provider/PageBackProvider";
 import Check from 'baseui/icon/check'
+import {EventPopup} from "@/components/compose/EventPopup/EventPopup";
+import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
 
 import * as dayjsLib from "dayjs";
 
@@ -417,9 +419,9 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
             }
 
             history.replaceState(null, '', genHref(props))
-            pageHistory[pageHistory.length - 1] = location.pathname + genHref(props)
+            const isIframe = location.href.includes('iframe')
+            pageHistory[pageHistory.length - 1] = location.pathname + genHref(props) + (isIframe ? `?group=${eventGroup.username}` : '')
         }
-
     }, [pageList, page, tags, timezoneSelected])
 
     const creatEventPatch = eventGroup?.username === 'web3festival' ? `/event/${eventGroup.username}/custom-create` : `/event/${eventGroup.username}/create`
@@ -788,6 +790,7 @@ function EventCard({
     const toTime = dayjs.tz(new Date(event.end_time!).getTime(), showTimezone).format('HH:mm')
     const fromDate = dayjs.tz(new Date(event.start_time!).getTime(), showTimezone).format('YYYY-MM-DD')
     const {user} = useContext(UserContext)
+    const {openDialog} = useContext(DialogsContext)
 
     const offset = dayjs.tz(new Date(event.end_time!).getTime(), showTimezone).utcOffset()
     const utcOffset = offset >= 0 ?
@@ -798,6 +801,14 @@ function EventCard({
     const [ready, setReady] = useState(false)
 
     const router = useRouter()
+
+    const showPopup = () => {
+        openDialog({
+            content: (close: any) => {return <EventPopup close={close} event={event} timezone={showTimezone} />},
+            size: [450, 'auto'],
+            position: 'bottom',
+        })
+    }
 
     useEffect(() => {
         if (event.host_info) {
@@ -832,22 +843,15 @@ function EventCard({
         {background: `linear-gradient(180deg, #fff -20%, ${event.display.split('color:')[1].split(';')[0]}`} : {}
 
     const {defaultAvatar} = usePicture()
-    return <Link className={styles['schedule-event-card']}
+    return <div className={styles['schedule-event-card']}
                  style={highlight}
-                 href={`/event/detail/${event.id}`}
-                 onClick={e => {
-                     if (_offsetX !== 0 || _offsetX !== 0) {
-                         e.preventDefault()
-                     }
-
-                 }}
+                 onClick={showPopup}
                  onTouchEnd={e => {
                      e.preventDefault()
                      if (_offsetX === 0 && _offsetX === 0) {
-                         router.push(`/event/detail/${event.id}`)
+                         showPopup()
                      }
-                 }}
-                 target={blank ? '_blank' : '_self'}>
+                 }}>
         <div className={styles['schedule-event-card-time']}>
             {isAllDay ? 'All Day' : `${fromTime}-${toTime}`}
         </div>
@@ -922,6 +926,6 @@ function EventCard({
             </>
 
         }
-    </Link>
+    </div>
 }
 

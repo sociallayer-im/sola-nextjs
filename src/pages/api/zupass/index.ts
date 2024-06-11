@@ -1,8 +1,8 @@
 import {NextApiRequest, NextApiResponse} from "next/dist/shared/lib/utils";
 // @ts-ignore
-import { authenticate } from "@pcd/zuauth/server";
+import {authenticate} from "@pcd/zuauth/server";
 import {tickets} from "@/service/zupass/tickets";
-import {zupassLogin} from "@/service/solas";
+import {zupassLoginMulti} from "@/service/solas";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     try {
@@ -10,10 +10,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const pcd = await authenticate(pcdStr, '12345', tickets);
         const user = pcd.claim.partialTicket
 
-        const authToken = await zupassLogin({
+        const authToken = await zupassLoginMulti({
             email: user.attendeeEmail as string,
-            zupass_product_id: user.productId || '',
-            zupass_event_id: user.eventId || '',
+            zupass_list: [
+                {
+                    zupass_product_id: user.productId || '',
+                    zupass_event_id: user.eventId || ''
+                }
+            ],
             next_token: process.env.NEXT_TOKEN || '',
             host: req.headers.host || ''
         })
