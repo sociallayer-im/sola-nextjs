@@ -419,9 +419,10 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
                 date: dayjs.tz(pageList[0].timestamp, timezoneSelected[0].id).format('YYYY-MM-DD')
             }
 
-            history.replaceState(null, '', genHref(props))
             const isIframe = location.href.includes('iframe')
-            pageHistory[pageHistory.length - 1] = location.pathname + genHref(props) + (isIframe ? `?group=${eventGroup.username}` : '')
+            const params = genHref(props) + (isIframe ? `?group=${eventGroup.username}` : '')
+            history.replaceState(null, '', params)
+            pageHistory[pageHistory.length - 1] = location.pathname + params
         }
     }, [pageList, page, tags, timezoneSelected])
 
