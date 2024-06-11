@@ -5,6 +5,7 @@ import usePageHeight from '../../hooks/pageHeight'
 import userContext from "../provider/UserProvider/UserContext";
 import {ColorSchemeContext} from "@/components/provider/ColorSchemeProvider";
 import useSafePush from "@/hooks/useSafePush";
+import {useRouter} from "next/navigation";
 
 const isMaodao = process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'maodao'
 
@@ -14,6 +15,7 @@ function Layout(props?: any) {
     const { user } = useContext(userContext)
     const { theme } = useContext(ColorSchemeContext)
     const {safePush} = useSafePush()
+    const router = useRouter()
 
     const wrapper = {
         width: '100%',
@@ -38,9 +40,32 @@ function Layout(props?: any) {
         window.addEventListener('focusout', watchSoftKeyboard)
         window.addEventListener('orientationchange', watchSoftKeyboard)
 
+        const watchPopState = () => {
+            // hack history pushState
+            const needReload = [
+                'schedule', // schedule page
+                'calendar', // calendar page
+                'timeline', // timeline page
+                'tab=coming', // /event/<groupname>?tab=coming
+                'tab=past', // /event/<groupname>?tab=past
+            ]
+            console.log('watchPopState', location.href)
+
+            if (needReload.find(rule => location.href.includes(rule))) {
+                const path = location.href
+                    .replace('https://', '')
+                    .replace('http://', '')
+                    .replace(location.host, '')
+                console.log('path', path)
+                router.replace(path)
+            }
+        }
+
+        window.addEventListener('popstate', watchPopState)
         return () => {
             window.removeEventListener('focusout', watchSoftKeyboard)
             window.removeEventListener('orientationchange', watchSoftKeyboard)
+            window.removeEventListener('popstate', watchPopState)
         }
     }, [])
 

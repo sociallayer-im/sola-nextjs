@@ -236,7 +236,8 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
                 start_time_to: new Date(dayList[dayList.length - 1].timestamp).toISOString(),
                 page: 1,
                 event_order: 'asc',
-                page_size: 1000
+                page_size: 1000,
+                cache:true
             })
 
             eventListRef.current = events
@@ -297,7 +298,7 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
                 setTimeout(() => {
                     document.querySelector('.schedule-content')?.classList.remove(styles['fade-out'])
                     document.querySelector('.schedule-content')?.classList.remove(styles[`move-${direction}`])
-                }, 200)
+                }, 100)
             }, 100)
         }
     }, [page])

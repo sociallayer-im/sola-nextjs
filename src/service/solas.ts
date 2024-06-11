@@ -3058,7 +3058,8 @@ export interface QueryEventProps {
     group_ids?: number[]
     allow_private?: boolean,
     tags?: string[],
-    search?: string
+    search?: string,
+    cache?: boolean
 }
 
 
@@ -3143,7 +3144,7 @@ export async function queryEvent(props: QueryEventProps): Promise<Event[]> {
 
     variables = variables.replace(/,$/, '')
 
-    const doc = gql`query MyQuery {
+    const doc = gql`query MyQuery ${props.cache? '@cached' : ''} {
       events (where: {${variables}, status: {_in: [${status}]}} ${order} limit: ${page_size}, offset: ${(props.page - 1) * page_size}) {
         extra
         requirement_tags
