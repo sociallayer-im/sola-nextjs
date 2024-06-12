@@ -148,6 +148,7 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
 
     const pageRef = useRef(0)
     const initedRef = useRef(false)
+    const scrollDebounce = useRef<any>(null)
 
     const tags = props.group.event_tags?.map((item: string) => {
         return {
@@ -359,12 +360,20 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
         const scrollBar2 = scroll2Ref.current
 
         const checkScroll = (e: any) => {
+
             if (scrollBar2.scrollTop > 0) {
                 (window.document.querySelector('.schedule-head') as any)!.style.height = '0';
                 (window.document.querySelector('.event-list') as any)!.style.minHeight = `100vh`;
             } else {
-                (window.document.querySelector('.schedule-head') as any)!.style.height = '208px';
-                // (window.document.querySelector('.event-list') as any)!.style.minHeight = `100%`;
+                const hadleScroll = () => {
+                    (window.document.querySelector('.schedule-head') as any)!.style.height = '208px';
+                }
+                if (scrollDebounce.current) {
+                    clearTimeout(scrollDebounce.current)
+                }
+                scrollDebounce.current = setTimeout(() => {
+                    hadleScroll()
+                }, 100)
             }
         }
 
@@ -387,7 +396,7 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
 
         if (window.innerWidth < 450) {
             scrollBar2 && scrollBar2.addEventListener('scroll', checkScroll)
-            scrollBar2 && scrollBar2.addEventListener('tou', checkScroll)
+
 
             scrollBar2.addEventListener('touchstart', touchstart)
             scrollBar2.addEventListener('touchmove', touchmove)
@@ -849,10 +858,10 @@ function EventCard({
                  style={highlight}
                  onClick={showPopup}
                  onTouchEnd={e => {
-                     e.preventDefault()
-                     if (_offsetX === 0 && _offsetX === 0) {
-                         showPopup()
-                     }
+                     // e.preventDefault()
+                     // if (_offsetX === 0 && _offsetX === 0) {
+                     //     showPopup()
+                     // }
                  }}>
         <div className={styles['schedule-event-card-time']}>
             {isAllDay ? 'All Day' : `${fromTime}-${toTime}`}

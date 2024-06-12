@@ -45,6 +45,10 @@ export function EventPopup({event, timezone, close}: { event: SolarEvent, timezo
                     </div>
 
                     <div className={'detail'} style={{fontSize: '12px'}}>
+                        <span>{timezone}</span>
+                    </div>
+
+                    <div className={'detail'} style={{fontSize: '12px'}}>
                         <img src={avatar} width={16} height={16} alt=""/>
                         <span>hosted by {host}</span>
                     </div>
@@ -81,7 +85,7 @@ export function EventPopup({event, timezone, close}: { event: SolarEvent, timezo
 
 function formatDate(dateStr: string, timezone: string) {
     const mouthName = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-    const time = dayjs.tz(dateStr, timezone)
+    const time = dayjs.tz(new Date(dateStr).getTime(), timezone)
     const date = time.date();
     const month = mouthName[time.month()];
     const hour = time.hour() + ''
