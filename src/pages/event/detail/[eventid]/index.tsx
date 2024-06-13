@@ -50,6 +50,7 @@ import {AVNeeds, SeatingStyle} from "@/pages/event/[groupname]/create";
 
 import * as dayjsLib from "dayjs";
 import Empty from "@/components/base/Empty";
+import useZuAuth from "@/service/zupass/useZuAuth";
 
 const utc = require('dayjs/plugin/utc')
 const timezone = require('dayjs/plugin/timezone')
@@ -68,13 +69,14 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
     const formatTime2 = useTime2()
     const {defaultAvatar} = usePicture()
     const {user} = useContext(userContext)
-    const {showLoading, showToast, openDialog, openConnectWalletDialog} = useContext(DialogsContext)
+    const {showLoading, showToast, openDialog, openConnectWalletDialog, openConfirmDialog} = useContext(DialogsContext)
     const {addToCalenderDialog} = useCalender()
     const {showImage} = useShowImage()
     const {copy} = useCopy()
     const {setEventGroup, eventGroup, ready, isManager, joined: isMember} = useContext(EventHomeContext)
     const {getMeetingName, getUrl} = useGetMeetingName()
     const {MapReady} = useContext(MapContext)
+    const zuAuthLogin = useZuAuth()
 
 
     const [tab, setTab] = useState(1)
@@ -340,8 +342,8 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
             setHasPermission(false)
         } else {
             if (event) {
-                checkEventPermission({id: event.id, auth_token: user.authToken || ''}).then(res => {
-                    console.log('resresresresresres', res)
+                checkEventPermission({id: event.id, auth_token: user.authToken || ''})
+                    .then(res => {
                     setHasPermission(res)
                 })
             }
@@ -381,6 +383,29 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
 
         const unload = showLoading()
         try {
+            const hasPermission = await checkEventPermission({id: event!.id, auth_token: user.authToken || ''})
+            if (!hasPermission) {
+                unload()
+                openConfirmDialog({
+                    title: 'Can not join event',
+                    confirmLabel: 'Add Ticket',
+                    cancelLabel: 'OK',
+                    content: 'Please Add Ticket(s) in Zupass and confirm the ticket type',
+                    onConfirm: async (close: any) => {
+                        close()
+                        const unload = showLoading()
+                        try {
+                            await zuAuthLogin()
+                        } catch (e: any) {
+                            showToast(e.message)
+                        } finally {
+                            unload()
+                        }
+                    }
+                })
+                return
+            }
+
             const join = await joinEvent({id: Number(params?.eventid), auth_token: user.authToken || ''})
             unload()
             showToast('You have successfully registered for the event.')
@@ -695,7 +720,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                 }
 
 
-                                {user.userName && canAccess && !event.external_url && event.status !== 'pending' && hasPermission &&
+                                {user.userName && canAccess && !event.external_url && event.status !== 'pending' &&
                                     <div className={'event-login-status'}>
                                         <div className={'user-info'}>
                                             <img src={user.avatar || defaultAvatar(user.id!)} alt=""/>
@@ -733,7 +758,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                 }
 
 
-                                                {!isJoined && !canceled && hasPermission &&
+                                                {!isJoined && !canceled &&
                                                     <AppButton special onClick={e => {
                                                         handleJoin()
                                                     }}>{lang['Activity_Detail_Btn_Attend']}</AppButton>
@@ -909,6 +934,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                         onChange={e => {
                                                             fetchData()
                                                         }}
+                                                        showDownload={isHoster || isOperator || isGroupOwner || isManager}
                                                         participants={participants}
                                                         isHost={isHoster || isOperator || isGroupOwner || isManager}
                                                         eventId={Number(params?.eventid)}
@@ -962,7 +988,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                             }
 
 
-                            {user.userName && canAccess && event.status !== 'pending' && !props.event?.external_url && hasPermission &&
+                            {user.userName && canAccess && event.status !== 'pending' && !props.event?.external_url &&
                                 <div className={'event-login-status'}>
                                     <div className={'user-info'}>
                                         <img src={user.avatar || defaultAvatar(user.id!)} alt=""/>
@@ -996,7 +1022,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                 {lang['Activity_Detail_Btn_add_Calender']}</AppButton>
                                         }
 
-                                        {!isJoined && !canceled && hasPermission &&
+                                        {!isJoined && !canceled &&
                                             <AppButton special onClick={e => {
                                                 handleJoin()
                                             }}>{lang['Activity_Detail_Btn_Attend']}</AppButton>
