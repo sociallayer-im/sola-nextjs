@@ -1,15 +1,17 @@
-import {zuAuthPopup} from "@pcd/zuauth";
+import { zuAuthPopup } from "@/libs/zuauth"
 import {tickets} from './tickets'
 import {setAuth} from "@/utils/authStorage";
 import {useContext} from "react";
 import userContext from "@/components/provider/UserProvider/UserContext";
 import fetch from '@/utils/fetch'
 
+
 function useZuAuth() {
     const {zupassLogin} = useContext(userContext)
 
     return async () => {
         const result: any = await zuAuthPopup({
+            zupassUrl: 'https://zupass.org',
             fieldsToReveal: {
                 revealAttendeeEmail: true,
                 revealAttendeeName: true,
@@ -17,13 +19,17 @@ function useZuAuth() {
                 revealProductId: true
             },
             watermark: '12345',
-            config: tickets as any
+            config: tickets,
+            multi: true,
         });
 
-        if (result.type === "pcd") {
+        console.log('result', result)
+        console.log('result', typeof result.pcds)
+
+        if (result.type === "pcd" || result.type === "multi-pcd") {
             const response: any = await fetch.post({
                 url: "/api/zupass",
-                data: {pcdStr: result.pcdStr}
+                data: {pcdStr: result.pcdStr || JSON.stringify(result.pcds)}
             });
 
             if (response.status === 200) {

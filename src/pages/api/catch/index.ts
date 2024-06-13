@@ -11,6 +11,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return
     }
 
-    console.error(`[Catch error] : \n${req.body.message}\n${JSON.stringify(req.body.detail)}`)
+    // console.error(`[Catch error] : \n${req.body.message}\n${JSON.stringify(req.body.detail)}`)
     res.status(200).json({status: 'ok', message:''})
 }
