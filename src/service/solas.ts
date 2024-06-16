@@ -5572,6 +5572,20 @@ export async function getGroupPass({profile_id, group_id}: { profile_id: number,
     return res.group_passes as GroupPass[]
 }
 
+export async function getZupassToken(props: {auth_token: string}) {
+    checkAuth(props)
+
+    const res: any = await fetch.get({
+        url: `${apiUrl}/profile/get_edge?auth_token=${props.auth_token}`,
+        data: {}
+    })
+
+    if (res.data.result === 'error') {
+        throw new Error(res.data.message)
+    }
+
+    return res.data.balance
+}
 
 export default {
     removeMarker,

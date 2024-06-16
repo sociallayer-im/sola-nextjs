@@ -12,6 +12,7 @@ import ImgLazy from "@/components/base/ImgLazy/ImgLazy";
 import { StatefulPopover } from "baseui/popover";
 import {useTime5} from "@/hooks/formatTime";
 import ZupassTicket from "@/components/base/ZupassTicket/ZupassTicket";
+import ZupassToken from "@/components/base/ZupassToken/ZupassToken";
 
 function HomeUserPanel({showSchedule=true, ...props}: {
     membership: Membership[],
@@ -166,7 +167,9 @@ function HomeUserPanel({showSchedule=true, ...props}: {
         }
 
         {eventGroup?.id === 3409 && !!user && !!user.detail &&
+            <>
             <ZupassTicket user={user.detail} />
+            </>
         }
 
         {
