@@ -38,7 +38,7 @@ export default function ZupassToken() {
 
         <div className={'tokens'}>
             <div className="date">
-                Balance:  {balance}
+                Balance:  {balance} EDGE
             </div>
         </div>
     </div>
