@@ -174,7 +174,7 @@ function HomeUserPanel({showSchedule=true, ...props}: {
 
         {eventGroup?.id === 3409 && !!user && !!user.detail &&
             <>
-            <ZupassToken user={user.detail} />
+            <ZupassToken />
             </>
         }
 
