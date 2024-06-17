@@ -74,22 +74,6 @@ const config = createConfig({
 })
 
 function MyApp({Component, pageProps, ...props}: any) {
-    if (typeof window !== 'undefined') {
-        window.onerror = function (message, source, lineno, colno, error) {
-            fetch.post({
-                url: '/api/catch',
-                data: {
-                    message,
-                    detail: {
-                        source,
-                        lineno,
-                        colno,
-                        error
-                    }
-                }
-            })
-        }
-    }
 
     function DisplayLay(params: { children: any }) {
         return props.router.pathname.includes('/wamo/') || props.router.pathname.includes('/iframe/')
@@ -125,7 +109,9 @@ function MyApp({Component, pageProps, ...props}: any) {
                                                                     <Component {...pageProps} />
                                                                     <Subscriber/>
                                                                     <Analytics/>
-                                                                    <TrackjsError />
+                                                                    { process.env.NEXT_PUBLIC_LEADING_EVENT_GROUP_ID  === '3409' &&
+                                                                        <TrackjsError />
+                                                                    }
                                                                 </DisplayLay>
                                                             </NotificationsProvider>
                                                         </EventHomeProvider>

@@ -16,20 +16,6 @@ async function get (options: FetchOptions) {
     const res = await axios.get(options.url, {
         params: options.data
     })
-        .catch((e: any) => {
-        axios.post(`/api/catch`,
-            {
-                message: e.message,
-                detail: e
-            },
-            {
-                headers: options.header || {
-                    'Content-Type': 'application/json'
-                }
-            }
-        )
-        throw e
-    })
     const after = Date.now()
     const duration = after - before
     console.log(`request time: ${duration}, url: ${options.url}, data: ${JSON.stringify(options.data)}`)
@@ -50,20 +36,7 @@ async function post (options: FetchOptions) {
         headers: options.header || {
             'Content-Type': 'application/json'
         }}
-    ).catch((e: any) => {
-        axios.post(`/api/catch`,
-            {
-                message: e.message,
-                detail: e
-            },
-            {
-                headers: options.header || {
-                    'Content-Type': 'application/json'
-                }
-            }
-        )
-        throw e
-    })
+    )
 
     const after = Date.now()
     const duration = after - before

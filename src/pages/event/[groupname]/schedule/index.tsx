@@ -282,23 +282,26 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
     }, [pageSize, showList, timezoneSelected])
 
     useEffect(() => {
-        if (page) {
+        const content = document.querySelector('.schedule-content')
+        if (page && !!content) {
             const direction = page - pageRef.current > 0 ? 'left' : 'right'
-            document.querySelector('.schedule-content')?.classList.add(styles['fade-out'])
+            content.classList.add(styles['fade-out'])
             setTimeout(() => {
-                document.querySelector('.schedule-content')?.classList.add(styles[`move-${direction}`])
+                content.classList.add(styles[`move-${direction}`])
                 const list: DateItem[] = []
                 for (let i = 0; i < pageSize; i++) {
                     !!showList[(page - 1) * pageSize + i] && list.push(showList[(page - 1) * pageSize + i])
                 }
                 setPageList(list)
-                setCurrMonth(dayjs.tz(list[0].timestamp, timezoneSelected[0].id).month())
-                setCurrYear(dayjs.tz(list[0].timestamp, timezoneSelected[0].id).year())
+                if (!!list[0]) {
+                    setCurrMonth(dayjs.tz(list[0].timestamp, timezoneSelected[0].id).month())
+                    setCurrYear(dayjs.tz(list[0].timestamp, timezoneSelected[0].id).year())
+                }
 
                 pageRef.current = page
                 setTimeout(() => {
-                    document.querySelector('.schedule-content')?.classList.remove(styles['fade-out'])
-                    document.querySelector('.schedule-content')?.classList.remove(styles[`move-${direction}`])
+                    content.classList.remove(styles['fade-out'])
+                    content.classList.remove(styles[`move-${direction}`])
                 }, 100)
             }, 100)
         }

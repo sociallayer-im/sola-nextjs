@@ -3551,7 +3551,10 @@ const positionInTimeGrid = (timeGridEvents, week, $app) => {
             if (timePointsFromString(timeFromStart) < $app.config.dayBoundaries.start) {
                 date = addDays(date, -1);
             }
-            week[date].timeGridEvents.push(event);
+
+            if (week[date]) {
+                week[date].timeGridEvents.push(event);
+            }
         }
     }
     return week;

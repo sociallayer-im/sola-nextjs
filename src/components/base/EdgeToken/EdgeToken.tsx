@@ -10,8 +10,10 @@ export default function EdgeToken() {
 
     useEffect(() => {
         (async () => {
-            const balance = await getEdgeToken({auth_token: user.authToken || ''})
-            setBalance(balance)
+           try {
+               const balance = await getEdgeToken({auth_token: user.authToken || ''})
+               setBalance(balance)
+           } catch (e) {}
         })()
     }, [user.id])
 
@@ -32,7 +34,7 @@ export default function EdgeToken() {
 
         <div className={'tokens'}>
             <div className="date">
-                Balance: {balance} EDGE
+                Balance: {balance} ∈
             </div>
         </div>
     </div>

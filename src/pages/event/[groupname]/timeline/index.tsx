@@ -285,8 +285,11 @@ function Gan(props: { group: Group, eventSite: EventSites[] }) {
                 }
 
                 ganttRef.current && ganttRef.current.clear()
-                document.querySelector('#gantt-head')!.innerHTML = ''
-                document.querySelector('#gantt')!.innerHTML = ''
+                const header = document.querySelector('#gantt-head')
+                !!header && (header.innerHTML = '')
+                const body = document.querySelector('#gantt')
+                !!body && (body.innerHTML = '')
+
                 const scrollTo = page === 1
                         ? searchParams?.get('date')
                             ? new Date(searchParams?.get('date') as string)

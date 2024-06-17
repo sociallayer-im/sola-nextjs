@@ -169,6 +169,8 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
                     }
                 })
 
+                if (!calendarRef.current) return
+
                 if (scheduleXRef.current) {
                     scheduleXRef.current.events.set(eventList)
                 } else {
@@ -292,6 +294,7 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
                             },
                         },
                     } as any)
+
                     scheduleXRef.current.render(calendarRef.current)
 
                     setTimeout(() => {
