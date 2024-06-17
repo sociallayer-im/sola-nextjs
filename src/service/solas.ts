@@ -5572,7 +5572,7 @@ export async function getGroupPass({profile_id, group_id}: { profile_id: number,
     return res.group_passes as GroupPass[]
 }
 
-export async function getZupassToken(props: {auth_token: string}) {
+export async function getEdgeToken(props: {auth_token: string}) {
     checkAuth(props)
 
     const res: any = await fetch.get({

@@ -1,22 +1,16 @@
-import {getGroupPass, getZupassToken, GroupPass, Profile} from "@/service/solas";
-import {useEffect, useContext, useState} from "react";
-import usePicture from "@/hooks/pictrue";
-import DialogsContext from "@/components/provider/DialogProvider/DialogsContext"
-import useZuAuth from "@/service/zupass/useZuAuth"
+import {getEdgeToken} from "@/service/solas";
+import {useContext, useEffect, useState} from "react";
 import userContext from "@/components/provider/UserProvider/UserContext";
 
 
-export default function ZupassToken() {
-    const {defaultAvatar} = usePicture()
-    const {showLoading, showToast} = useContext(DialogsContext)
-    const zuAuthLogin = useZuAuth()
+export default function EdgeToken() {
     const {user} = useContext(userContext)
 
     const [balance, setBalance] = useState<number>(0)
 
     useEffect(() => {
         (async () => {
-            const balance = await getZupassToken({auth_token: user.authToken || ''})
+            const balance = await getEdgeToken({auth_token: user.authToken || ''})
             setBalance(balance)
         })()
     }, [user.id])
@@ -38,7 +32,7 @@ export default function ZupassToken() {
 
         <div className={'tokens'}>
             <div className="date">
-                Balance:  {balance} EDGE
+                Balance: {balance} EDGE
             </div>
         </div>
     </div>
