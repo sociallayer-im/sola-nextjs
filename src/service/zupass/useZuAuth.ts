@@ -1,5 +1,6 @@
 import { zuAuthPopup } from "@/libs/zuauth"
-import {tickets} from './tickets'
+import {edge_tickets} from './edge_tickets'
+import {zuzalu_tickets} from './zuzalu_tickets'
 import {setAuth} from "@/utils/authStorage";
 import {useContext} from "react";
 import userContext from "@/components/provider/UserProvider/UserContext";
@@ -19,12 +20,9 @@ function useZuAuth() {
                 revealProductId: true
             },
             watermark: '12345',
-            config: tickets,
-            multi: true,
+            config: [...edge_tickets, ...zuzalu_tickets],
+            multi: true
         });
-
-        console.log('result', result)
-        console.log('result', typeof result.pcds)
 
         if (result.type === "pcd" || result.type === "multi-pcd") {
             const response: any = await fetch.post({

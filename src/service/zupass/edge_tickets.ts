@@ -1,4 +1,4 @@
-export const tickets:any = [
+export const edge_tickets:any = [
     {
       "pcdType": "eddsa-ticket-pcd",
       "publicKey": [

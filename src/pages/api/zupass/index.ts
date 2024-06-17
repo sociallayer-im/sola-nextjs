@@ -1,7 +1,6 @@
 import {NextApiRequest, NextApiResponse} from "next/dist/shared/lib/utils";
 // @ts-ignore
 import {authenticate} from "@pcd/zuauth/server";
-import {tickets} from "@/service/zupass/tickets";
 import {zupassLoginMulti} from "@/service/solas";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
