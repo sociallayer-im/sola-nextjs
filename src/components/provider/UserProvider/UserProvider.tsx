@@ -361,15 +361,19 @@ function UserProvider(props: UserProviderProps) {
         await setProfile({authToken})
     }
 
+    // useEffect(() => {
+    //     login()
+    // }, [])
 
     useEffect(() => {
-        login()
-    }, [])
+        const loginType = AuthStorage.getLastLoginType()
+        if (!loginType) return
 
-    useEffect(() => {
-       if (data && !userInfo.id) {
-           walletLogin()
-       }
+        if (loginType === 'wallet') {
+            walletLogin()
+        } else {
+            login()
+        }
     }, [data])
 
     useEffect(() => {

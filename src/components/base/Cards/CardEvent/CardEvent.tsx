@@ -17,7 +17,6 @@ import DialogsContext from "../../../provider/DialogProvider/DialogsContext";
 import Link from "next/link";
 import ImgLazy from "@/components/base/ImgLazy/ImgLazy";
 import EventDefaultCover from "@/components/base/EventDefaultCover";
-import EventHomeContext from "@/components/provider/EventHomeProvider/EventHomeContext";
 import {getLabelColor} from "@/hooks/labelColor";
 import useCalender from "@/hooks/addToCalendar/addToCalendar";
 import AppButton from "@/components/base/AppButton/AppButton";
@@ -45,7 +44,6 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
     const {user} = useContext(userContext)
     const {showToast, showLoading, openConfirmDialog} = useContext(DialogsContext)
     const [hasRegistered, setHasRegistered] = useState(false)
-    const {eventGroups} = useContext(EventHomeContext)
     const {addToCalenderDialog} = useCalender()
     const [_, emit] = useEvent(EVENT.setEventStatus)
     const [groupHost, setGroupHost] = useState<Group>()
@@ -115,12 +113,6 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
 
         if (props.event?.max_participant !== null && props.event?.max_participant <= participants.length) {
             showToast('The event has reached its maximum capacity.')
-            return
-        }
-
-        const group = eventGroups.find(item => item.id === props.event.group_id)
-        if (!group) {
-            showToast('This Group has not yet enabled the event capability.')
             return
         }
 
