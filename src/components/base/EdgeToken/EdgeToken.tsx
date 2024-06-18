@@ -34,7 +34,7 @@ export default function EdgeToken() {
 
         <div className={'tokens'}>
             <div className="date">
-                Balance: {balance} ∈
+                Balance: {balance} ∈dges
             </div>
         </div>
     </div>

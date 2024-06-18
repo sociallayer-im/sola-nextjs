@@ -238,7 +238,6 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
                 page: 1,
                 event_order: 'asc',
                 page_size: 1000,
-                cache:true
             })
 
             eventListRef.current = events
