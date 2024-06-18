@@ -362,14 +362,14 @@ function Gan(props: { group: Group, eventSite: EventSites[] }) {
                                         {
                                             task.event.cover_url ?
                                                 <img src={task.event.cover_url} width={280} alt=""/>
-                                                : <EventDefaultCover event={task.event} width={140} height={140}/>
+                                                : <EventDefaultCover event={task.event} width={140} height={140} showLocation={task.event.group_id !== 3409}/>
                                         }
                                     </div>
                                     <div className={'post mobile'}>
                                         {
                                             task.event.cover_url ?
                                                 <img src={task.event.cover_url} width={280} alt=""/>
-                                                : <EventDefaultCover event={task.event} width={100} height={100}/>
+                                                : <EventDefaultCover event={task.event} width={100} height={100} showLocation={task.event.group_id !== 3409} />
                                         }
                                     </div>
                                 </div>

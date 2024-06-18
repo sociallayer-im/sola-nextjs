@@ -63,7 +63,7 @@ export function EventPopup({event, timezone, close}: { event: SolarEvent, timezo
                 {
                     event.cover_url ?
                         <img src={event.cover_url} width={100} alt=""/>
-                        : <EventDefaultCover event={event} width={100} height={100}/>
+                        : <EventDefaultCover event={event} width={100} height={100} showLocation={event.group_id !== 3409}/>
                 }
             </div>
         </div>

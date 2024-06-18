@@ -492,7 +492,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                             {
                                 event.cover_url ?
                                     <ImgLazy src={event.cover_url} alt="" width={624}/>
-                                    : <EventDefaultCover event={event} width={324} height={324}/>
+                                    : <EventDefaultCover event={event} width={324} height={324} showLocation={event.group_id !== 3409 || isOperator || isGroupOwner || isHoster || isJoined || isManager}/>
                             }
                         </div>
 
@@ -672,7 +672,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                     </>
                                 }
 
-                                {event.meeting_url &&
+                                {event.meeting_url && (isJoined || isManager || isOperator || isGroupOwner || isHoster || isMember || event.group_id !== 3409) &&
                                     <div className={'detail-item'} onClick={e => {
                                         if (isJoined) {
                                             copy(event!.meeting_url!)
@@ -962,7 +962,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                             {
                                 event.cover_url ?
                                     <ImgLazy src={event.cover_url} alt="" width={624}/>
-                                    : <EventDefaultCover event={event} width={324} height={324}/>
+                                    : <EventDefaultCover event={event} width={324} height={324} showLocation={event.group_id !== 3409 || isOperator || isGroupOwner || isHoster || isJoined || isManager} />
                             }
                         </div>
                         <div className={'center'}>
