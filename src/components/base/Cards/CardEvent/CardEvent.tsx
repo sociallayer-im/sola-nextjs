@@ -103,46 +103,6 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
         }
     }
 
-    const handleJoin = async (e: any) => {
-        e.stopPropagation()
-        e.preventDefault()
-
-        const eventDetail = await queryEventDetail({id: props.event.id})
-        const participantsAll = eventDetail?.participants || []
-        const participants = participantsAll.filter(item => item.status !== 'cancel')
-
-        if (props.event?.max_participant !== null && props.event?.max_participant <= participants.length) {
-            showToast('The event has reached its maximum capacity.')
-            return
-        }
-
-        if (hasRegistered) {
-            showToast('You have already registered for this event.')
-            return
-        }
-
-        const unload = showLoading()
-
-        const membership = await getGroupMembers({group_id: props.event.group_id!, role: 'all'})
-        const isMember = membership.some(item => item.id === user.id)
-        if ((!isMember && (group as Group).can_join_event === 'member') && (group as Group).can_join_event !== 'everyone') {
-            unload()
-            showToast('Only group members can join this event.')
-            return
-        }
-
-        try {
-            const join = await joinEvent({id: Number(props.event.id), auth_token: user.authToken || ''})
-            unload()
-            showToast('Join success')
-            setHasRegistered(true)
-        } catch (e: any) {
-            console.error(e)
-            unload()
-            showToast(e.message)
-        }
-    }
-
     const hasMarker = isExpired
         || hasRegistered
         || isCreated
@@ -306,47 +266,6 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
                         </div>
                     }
                 </div>
-
-                {props.event.status === 'open' && false &&
-                    <div className={'event-card-action'}>
-                        {!fixed &&
-                            <AppButton
-                                style={{maxWidth: '60px'}}
-                                onClick={e => {
-                                    e.preventDefault()
-                                    addToCalenderDialog({
-                                        name: eventDetail!.title,
-                                        startTime: eventDetail!.start_time!,
-                                        endTime: eventDetail!.end_time!,
-                                        location: eventDetail!.formatted_address || eventDetail!.location || '',
-                                        details: eventDetail!.content,
-                                        url: `${window.location.origin}/event/detail/${eventDetail!.id}`
-                                    })
-                                    // addToCalender({
-                                    //     name: eventDetail!.title,
-                                    //     startTime: eventDetail!.start_time!,
-                                    //     endTime: eventDetail!.end_time!,
-                                    //     location: eventDetail!.formatted_address || eventDetail!.location || '',
-                                    //     details: eventDetail!.content,
-                                    //     url: `${window.location.origin}/event/detail/${eventDetail!.id}`
-                                    // })
-                                }}
-                            ><i className={'icon-calendar'}/></AppButton>
-                        }
-
-                        {!!user.id && !hasRegistered && !fixed && !props.event.external_url && false &&
-                            <AppButton special onClick={e => {
-                                handleJoin(e)
-                            }}>{lang['Event_Card_Apply_Btn']}</AppButton>
-                        }
-
-                        {!fixed && !!props.event.external_url && false &&
-                            <AppButton special onClick={e => {
-                                handleExternal(e)
-                            }}>{lang['Event_Card_Apply_Btn']}</AppButton>
-                        }
-                    </div>
-                }
 
                 {props.event.status === 'pending' && props.canPublish &&
                     <div className={'event-card-action'}>

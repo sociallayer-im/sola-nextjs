@@ -855,7 +855,7 @@ function EventCard({
             if (hostInfo.group_host) {
                 if (hostInfo.group_host.id) {
                     const target = groupHostCache.find(e => {return e.id === hostInfo.group_host.id})
-                    setGroupHost(target)
+                    !!target && setGroupHost(target)
                 } else {
                     setGroupHost(hostInfo.group_host)
                 }

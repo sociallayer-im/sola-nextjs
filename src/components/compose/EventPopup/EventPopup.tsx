@@ -43,7 +43,7 @@ export function EventPopup({event, timezone, close}: { event: SolarEvent, timezo
                             })
                         }
                     </div>
-                    
+
                     <div className={'detail'} style={{fontSize: '12px'}}>
                         <img src={avatar} width={16} height={16} alt=""/>
                         <span>hosted by {host}</span>
