@@ -1,5 +1,14 @@
 import {useContext, useEffect, useRef, useState} from 'react'
-import {Event, EventSites, getEventSide, getGroups, Group, queryEvent, queryGroupDetail} from "@/service/solas";
+import {
+    Event,
+    EventSites,
+    getEventSide,
+    getGroups,
+    getGroupsBatch,
+    Group,
+    queryEvent,
+    queryGroupDetail
+} from "@/service/solas";
 import styles from './schedulenew.module.scss'
 import Link from 'next/link'
 import UserContext from "@/components/provider/UserProvider/UserContext";
@@ -34,7 +43,7 @@ let _offsetY = 0
 let _touchStartX = 0
 let _touchStartY = 0
 
-let groupHostCache: any = []
+let groupHostCache: Group[] = []
 
 const logos = [
     {
@@ -239,6 +248,23 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
                 event_order: 'asc',
                 page_size: 1000,
             })
+
+            const groupsHost = events
+                .map((e) => {
+                if (!e.host_info) return null
+                const info = JSON.parse(e.host_info)
+                if (info.group_host) {
+                    return info.group_host.id as number
+                }
+            })
+
+            const groupIds = groupsHost.filter((i) => !!i) as number[]
+
+
+            if (groupsHost.length) {
+                const groups = await getGroupsBatch(groupIds)
+                groupHostCache = groups
+            }
 
             eventListRef.current = events
             setEventList(events)
@@ -828,22 +854,12 @@ function EventCard({
             const hostInfo = JSON.parse(event.host_info!)
             if (hostInfo.group_host) {
                 if (hostInfo.group_host.id) {
-                    if (groupHostCache[hostInfo.group_host.id]) {
-                        setGroupHost(groupHostCache[hostInfo.group_host.id])
-                        setReady(true)
-                    } else {
-                        queryGroupDetail(hostInfo.group_host.id).then(res => {
-                            if (res) {
-                                setGroupHost(res)
-                                groupHostCache[hostInfo.group_host.id] = res
-                            }
-                            setReady(true)
-                        })
-                    }
+                    const target = groupHostCache.find(e => {return e.id === hostInfo.group_host.id})
+                    setGroupHost(target)
                 } else {
                     setGroupHost(hostInfo.group_host)
-                    setReady(true)
                 }
+                setReady(true)
             } else {
                 setReady(true)
             }

@@ -5587,6 +5587,23 @@ export async function getEdgeToken(props: {auth_token: string}) {
     return res.data.balance
 }
 
+export async function getGroupsBatch(ids: number[]): Promise<Group[]> {
+
+    const condition = `where: {id: {_in: [${ids.join(',')}]}}, order_by: {id: desc}`
+
+    const doc = gql`query MyQuery {
+      groups(${condition}) {
+         nickname
+         id
+         username
+         image_url
+      }
+    }`
+
+    const resp: any = await request(graphUrl, doc)
+    return resp.groups as Group[]
+}
+
 export default {
     removeMarker,
     queryMarkers,
