@@ -130,6 +130,7 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
     const searchParams = useSearchParams()
     const pathname = usePathname()
     const {history: pageHistory} = useContext(PageBackContext)
+    const {showLoading} = useContext(DialogsContext)
 
 
     const {user} = useContext(UserContext)
@@ -154,6 +155,8 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
     const [isEnd, setIsEnd] = useState(false)
     const [isStart, setIsStart] = useState(false)
     const [page, setPage] = useState(0)
+
+    const [groupHostCache, setGroupHostCache] = useState<Group[]>([])
 
     const pageRef = useRef(0)
     const initedRef = useRef(false)
@@ -240,6 +243,7 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
 
     useEffect(() => {
         const getEventList = async () => {
+          const unload = showLoading()
             const events = await queryEvent({
                 group_id: eventGroup.id,
                 start_time_from: new Date(dayList[0].timestamp).toISOString(),
@@ -262,13 +266,15 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
 
 
             if (groupsHost.length) {
-                const groups = await getGroupsBatch(groupIds)
-                groupHostCache = groups
+                getGroupsBatch(groupIds).then(res => {
+                    setGroupHostCache(res)
+                })
             }
 
             eventListRef.current = events
             setEventList(events)
             setReady(true)
+            unload()
         }
 
         if (dayList.length) {
@@ -788,6 +794,7 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
                                         })
                                         .map((e: Event) => {
                                             return <EventCard
+                                                groupHostCache={groupHostCache}
                                                 blank={location.href.includes('iframe')}
                                                 key={Math.random() + e.title}
                                                 timezone={timezoneSelected[0].id}
@@ -821,8 +828,9 @@ function EventCard({
                        event,
                        blank,
                        group,
-                       timezone
-                   }: { event: Event, blank?: boolean, group?: Group, timezone: string }) {
+                       timezone,
+                       groupHostCache
+                   }: { event: Event, blank?: boolean, group?: Group, timezone: string, groupHostCache: Group[] }) {
     const showTimezone = timezone || event.timezone || 'UTC'
     const isAllDay = dayjs.tz(new Date(event.start_time!).getTime(), showTimezone).hour() === 0 && ((new Date(event.end_time!).getTime() - new Date(event.start_time!).getTime() + 60000) % 8640000 === 0)
     const fromTime = dayjs.tz(new Date(event.start_time!).getTime(), showTimezone).format('HH:mm')
@@ -853,13 +861,13 @@ function EventCard({
         if (event.host_info) {
             const hostInfo = JSON.parse(event.host_info!)
             if (hostInfo.group_host) {
-                if (hostInfo.group_host.id) {
+                if (hostInfo.group_host.id && groupHostCache.length) {
                     const target = groupHostCache.find(e => {return e.id === hostInfo.group_host.id})
                     !!target && setGroupHost(target)
+                    setReady(true)
                 } else {
                     setGroupHost(hostInfo.group_host)
                 }
-                setReady(true)
             } else {
                 setReady(true)
             }
