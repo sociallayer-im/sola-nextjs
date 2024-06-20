@@ -87,7 +87,16 @@ function Invite() {
                 showToast('The user(s) you invited has already joined the group')
                 return
             }
-            router.push(`/issue-success?invite=${firstInvite.id}`)
+
+            if (!firstInvite.id) {
+                showToast('Membership updated')
+                setTimeout(() => {
+                    router.push(`/group/${group?.username}`)
+                })
+            } else {
+                router.push(`/issue-success?invite=${firstInvite.id}`)
+            }
+
         } catch (e: any) {
             unload()
             setBusy(false)
