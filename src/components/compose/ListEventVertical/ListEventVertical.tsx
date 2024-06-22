@@ -14,6 +14,7 @@ import {StatefulPopover} from "baseui/popover";
 import AppInput from "@/components/base/AppInput";
 
 import * as dayjsLib from "dayjs";
+import {PageBackContext} from "@/components/provider/PageBackProvider";
 
 const dayjs: any = dayjsLib
 
@@ -27,22 +28,24 @@ function ListEventVertical(props: { initData?: Event[], patch?: string }) {
     const {showLoading} = useContext(DialogsContext)
     const {eventGroup, availableList, setEventGroup} = useContext(EventHomeContext)
     const [needUpdate, _] = useEvent(EVENT.setEventStatus)
+    const {applyScroll} = useContext(PageBackContext)
 
     const [selectTag, setSelectTag] = useState<string[]>([])
     const [loadAll, setIsLoadAll] = useState(true)
     const [loading, setLoading] = useState(false)
+    const [ready, setReady] = useState(false)
 
-    const pageRef = useRef(props.initData?.length ? 1 : 0)
-    const [list, setList] = useState<Event[]>(props.initData || [])
-    const [listToShow, setListToShow] = useState<Event[]>(props.initData || [])
+    const pageRef = useRef(searchParams?.get('page') ?  Number(searchParams?.get('page')) : 1)
+    const [list, setList] = useState<Event[]>( [])
+    const [listToShow, setListToShow] = useState<Event[]>([])
 
-    const tagRef = useRef<string>('')
+    const tagRef = useRef<string>(searchParams?.get('tag') || '')
     const tab2IndexRef = useRef<'coming' | 'past'>(tab2Index)
     const filter = useRef<'' | 'coming' | 'past' | 'today' | 'week' | 'month'>('')
     const searchRef = useRef<any>(null)
     const [searchKeyword, setSearchKeyword] = useState('')
 
-    const queryPass = async (page: number, search?: string) => {
+    const queryPass = async (page: number, page_size: number, search?: string) => {
         return await queryEvent({
             ...getTimeProps(),
             page: page,
@@ -50,11 +53,12 @@ function ListEventVertical(props: { initData?: Event[], patch?: string }) {
             // end_time_lte: new Date().toISOString(),
             event_order: 'desc',
             group_id: eventGroup?.id || undefined,
-            tag: tagRef.current || undefined
+            tag: tagRef.current || undefined,
+            page_size
         })
     }
 
-    const queryComing = async (page: number, search?: string) => {
+    const queryComing = async (page: number, page_size: number, search?: string) => {
         return await queryEvent({
             ...getTimeProps(),
             page: page,
@@ -62,7 +66,8 @@ function ListEventVertical(props: { initData?: Event[], patch?: string }) {
             // end_time_gte: new Date().toISOString(),
             event_order: 'asc',
             group_id: eventGroup?.id || undefined,
-            tag: tagRef.current || undefined
+            tag: tagRef.current || undefined,
+            page_size
         })
     }
 
@@ -167,26 +172,56 @@ function ListEventVertical(props: { initData?: Event[], patch?: string }) {
         })
     }
 
+    function updatePageParam(key:string, value: string) {
+        const urlObj = new URL(location.href);
+        const params = new URLSearchParams(urlObj.search);
+
+        if (value === '1' || !value) {
+            params.delete(key);
+        } else if (params.has(key)) {
+            params.set(key, value);
+        } else {
+            params.append(key, value);
+        }
+
+        urlObj.search = params.toString();
+        return urlObj.toString().replace(location.origin, '')
+    }
+
     const getEvent = async (init?: boolean, search?: string) => {
         if (!eventGroup?.id) {
             return []
         }
 
         setLoading(true)
-        pageRef.current = init ? 1 : pageRef.current + 1
+        pageRef.current = init ? pageRef.current : pageRef.current + 1
         try {
             if (tab2IndexRef.current == 'coming') {
-                const res = await queryComing(pageRef.current, search)
-                setList(init ? res : [...list, ...res])
+                const res = await queryComing(
+                    init ? 1 : pageRef.current,
+                    init ? pageRef.current * 10: 10,
+                    search
+                )
+                const unique = res.filter((item) => !list.find((i) => i.id === item.id))
+                setList(init ? res : [...list, ...unique])
                 setLoading(false)
                 setIsLoadAll(res.length < 10)
+                if (unique.length === 0 && !init) {
+                    changeTab('past')
+                }
             } else if (tab2IndexRef.current == 'past') {
-                const res = await queryPass(pageRef.current, search)
-
-                setList(init ? res : [...list, ...res])
+                const res = await queryPass(
+                    init ? 1 : pageRef.current,
+                    init ? pageRef.current * 10: 10,
+                    search
+                )
+                const unique = res.filter((item) => !list.find((i) => i.id === item.id))
+                setList(init ? res : [...list, ...unique])
                 setIsLoadAll(res.length < 10)
                 setLoading(false)
             }
+            const path = updatePageParam('page', pageRef.current + '')
+            history.replaceState(null, '', path)
             // else if (tab2IndexRef.current == 'today') {
             //     const res = await queryToday()
             //     setList(res)
@@ -224,34 +259,35 @@ function ListEventVertical(props: { initData?: Event[], patch?: string }) {
     const changeTab = (tab: 'past' | 'coming', notRedirect?: boolean) => {
         setTab2Index(tab)
         tab2IndexRef.current = tab
-        pageRef.current = 0
+        pageRef.current = 1
         getEvent(true)
         if (!notRedirect) {
-            const href = props.patch ?
-                `${props.patch}?tab=${tab}`
-                : params?.groupname ?
-                    `/event/${eventGroup?.username}?tab=${tab}`
-                    : `/?tab=${tab}`
-            window?.history.pushState({}, '', href)
+            const href = updatePageParam('tab', tab)
+            window?.history.replaceState({}, '', href)
         }
     }
 
     const changeTag = (tag?: string) => {
         setSelectTag(tag ? [tag] : [])
         tagRef.current = tag || ''
-        pageRef.current = 0
+        pageRef.current = 1
+        const href = updatePageParam('tag', tag || '')
+        window?.history.replaceState({}, '', href)
         getEvent(true)
     }
 
     useEffect(() => {
-        if (!props.initData?.length && eventGroup) {
-            changeTab('past')
+        if (!!eventGroup) {
+            (async () => {
+                await getEvent(true)
+                setReady(true)
+               setTimeout(() => {
+                   applyScroll()
+               }, 0)
+            })()
         }
+    }, [eventGroup])
 
-        if (props.initData) {
-            setIsLoadAll(props.initData.length < 10)
-        }
-    }, [props.initData, eventGroup])
 
     return (
         <div className={'module-tabs'}>
@@ -288,6 +324,8 @@ function ListEventVertical(props: { initData?: Event[], patch?: string }) {
                         return <div className={'schedule-popup'}>
                             <div onClick={e => {
                                 filter.current = '';
+                                const patch =  updatePageParam('filter', '')
+                                history.replaceState(null, '', patch)
                                 changeTab(tab2Index, true);
                                 close()
                             }}>
@@ -295,6 +333,8 @@ function ListEventVertical(props: { initData?: Event[], patch?: string }) {
                             </div>
                             <div onClick={e => {
                                 filter.current = 'today';
+                                const patch =  updatePageParam('filter', 'today')
+                                history.replaceState(null, '', patch)
                                 changeTab(tab2Index, true);
                                 close()
                             }}>
@@ -302,6 +342,8 @@ function ListEventVertical(props: { initData?: Event[], patch?: string }) {
                             </div>
                             <div onClick={e => {
                                 filter.current = 'week';
+                                const patch =  updatePageParam('filter', 'week')
+                                history.replaceState(null, '', patch)
                                 changeTab(tab2Index, true);
                                 close()
                             }}>
@@ -309,6 +351,8 @@ function ListEventVertical(props: { initData?: Event[], patch?: string }) {
                             </div>
                             <div onClick={e => {
                                 filter.current = 'month';
+                                const patch =  updatePageParam('filter', 'month')
+                                history.replaceState(null, '', patch)
                                 changeTab(tab2Index, true);
                                 close()
                             }}>
@@ -375,7 +419,7 @@ function ListEventVertical(props: { initData?: Event[], patch?: string }) {
             }
 
             <div className={'tab-contains'}>
-                {!listToShow.length ? <Empty/> :
+                {!listToShow.length && ready ? <Empty/> :
                     <div className={'list'}>
                         {
                             listToShow.map((item, index) => {

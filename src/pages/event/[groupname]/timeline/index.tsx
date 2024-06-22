@@ -82,7 +82,6 @@ function Gan(props: { group: Group, eventSite: EventSites[] }) {
     const {showLoading} = useContext(DialogsContext)
     const {lang} = useContext(LangContext)
     const searchParams = useSearchParams()
-    const {history: pageHistory} = useContext(PageBackContext)
     const {user} = useContext(UserContext)
 
     const [timezoneSelected, setTimezoneSelected] = useState<{ label: string, id: string }[]>([])
@@ -297,7 +296,6 @@ function Gan(props: { group: Group, eventSite: EventSites[] }) {
                         : undefined
 
                 history.replaceState(null, '', genHref({date: startStr, tag: selectedTags.length? selectedTags.join(',') : undefined}))
-                pageHistory[pageHistory.length - 1] = location.pathname + genHref({date: startStr, tag: selectedTags.length? selectedTags.join(',') : undefined})
 
                 ganttRef.current = new Gantt('#gantt', eventList, {
                     view_mode: viewMode[0].id,

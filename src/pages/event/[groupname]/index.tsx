@@ -16,6 +16,9 @@ import MapContext from "@/components/provider/MapProvider/MapContext";
 import usePicture from "@/hooks/pictrue";
 import {useTime5} from "@/hooks/formatTime";
 
+import * as dayjsLib from "dayjs";
+const dayjs: any = dayjsLib
+
 function Home(props: { badges: Badge[], initEvent?: Group, initList?: Event[], membership?: Membership[] }) {
     const {user} = useContext(UserContext)
     const router = useRouter()
@@ -202,24 +205,7 @@ export default Home
 export const getServerSideProps: any = (async (context: any) => {
     const groupname = context.params?.groupname
     const targetGroup = await getGroups({username: groupname})
-    const tab = context.query?.tab
 
-    let res: any = []
-    if (tab === 'past') {
-        res = await queryEvent({
-            page: 1,
-            end_time_lte: new Date().toISOString(),
-            event_order: 'desc',
-            group_id: targetGroup[0]?.id
-        })
-    } else {
-        res = await queryEvent({
-            page: 1,
-            end_time_gte: new Date().toISOString(),
-            event_order: 'asc',
-            group_id: targetGroup[0]?.id
-        })
-    }
 
     const membership = await getGroupMembership({
         group_id: targetGroup[0]?.id!,
@@ -236,7 +222,7 @@ export const getServerSideProps: any = (async (context: any) => {
                 ...targetGroup[0],
 
                 creator: targetGroup[0]?.memberships[0].profile,
-            }, initList: res, membership
+            }, initList: [], membership
         }
     }
 })

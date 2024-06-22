@@ -129,7 +129,6 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
     const lock = useRef(false)
     const searchParams = useSearchParams()
     const pathname = usePathname()
-    const {history: pageHistory} = useContext(PageBackContext)
     const {showLoading} = useContext(DialogsContext)
 
 
@@ -465,7 +464,6 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
             const isIframe = location.href.includes('iframe')
             const params = genHref(props) + (isIframe ? `?group=${eventGroup.username}` : '')
             history.replaceState(null, '', params)
-            pageHistory[pageHistory.length - 1] = location.pathname + params
         }
     }, [pageList, page, tags, timezoneSelected])
 

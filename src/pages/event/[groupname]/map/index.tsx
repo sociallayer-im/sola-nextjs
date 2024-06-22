@@ -33,7 +33,6 @@ function ComponentName(props: { markerType: string | null, group?: Group, isIfra
     const {eventGroup, isManager, setEventGroup} = useContext(EventHomeContext)
     const {openConnectWalletDialog} = useContext(DialogsContext)
     const {user} = useContext(userContext)
-    const {history} = useContext(PageBackContext)
     const router = useRouter()
     const searchParams = useSearchParams()
 
@@ -490,7 +489,6 @@ function ComponentName(props: { markerType: string | null, group?: Group, isIfra
                                     onClick={() => {
                                         const patch = `/event/${eventGroup?.username}/map?type=${item.category}`
                                         setSelectedType(item.category)
-                                        history.push(patch)
                                         window.history.pushState({}, '', patch)
                                         // router.push(`/event/${eventGroup?.username}/map?type=${item.category}`)
                                     }}

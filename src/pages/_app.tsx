@@ -6,7 +6,6 @@ import Script from 'next/script'
 import {Analytics} from '@vercel/analytics/react';
 import Layout from "@/components/Layout/Layout";
 import fetch from "@/utils/fetch";
-import TrackjsError from "@/components/TrackjsError/TrackjsError"
 import { SpeedInsights } from "@vercel/speed-insights/next"
 
 // providers
@@ -109,9 +108,7 @@ function MyApp({Component, pageProps, ...props}: any) {
                                                                     <Component {...pageProps} />
                                                                     <Subscriber/>
                                                                     <Analytics/>
-                                                                    { process.env.NEXT_PUBLIC_LEADING_EVENT_GROUP_ID  === '3409' &&
-                                                                        <TrackjsError />
-                                                                    }
+
                                                                 </DisplayLay>
                                                             </NotificationsProvider>
                                                         </EventHomeProvider>

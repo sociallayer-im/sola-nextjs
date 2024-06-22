@@ -83,7 +83,6 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
     const formatTime = useTime()
     const router = useRouter()
     const searchParams = useSearchParams()
-    const {history: pageHistory} = useContext(PageBackContext)
 
     const [timezoneSelected, setTimezoneSelected] = useState<{ label: string, id: string }[]>([])
     const [venue, setVenue] = useState<number>(0)
@@ -318,10 +317,6 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
 
     useEffect(() => {
         history.replaceState(null, '', genHref({date: presetDate, tag: selectedTags.join(',')}))
-        pageHistory[pageHistory.length - 1] = location.pathname + genHref({
-            date: presetDate,
-            tag: selectedTags.join(',')
-        })
     }, [selectedTags, presetDate])
 
     const genHref = ({date, tag}: { date?: string, tag?: string }) => {

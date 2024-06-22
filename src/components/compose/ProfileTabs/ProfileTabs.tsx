@@ -43,7 +43,6 @@ function ComponentName({profile}: {profile: Profile}) {
     const {lang} = useContext(LangContext)
     const [selectedTab, setSelectedTab] = useState(searchParams?.get('tab') || '0')
     const [selectedSubtab, setSelectedSubtab] = useState(searchParams?.get('subtab') || '0')
-    const {history} = useContext(PageBackContext)
 
     // 为了实现切换tab时，url也跟着变化，而且浏览器的前进后退按钮也能切换tab
     useEffect(() => {
@@ -66,9 +65,7 @@ function ComponentName({profile}: {profile: Profile}) {
             activeKey={selectedTab}
             onChange={({activeKey}) => {
                 setSelectedTab(activeKey as any);
-
-                history.push(`/profile/${profile!.username}?tab=${activeKey}`)
-                window.history.pushState(null, '', `/profile/${profile!.username}?tab=${activeKey}`)
+                window.history.replaceState(null, '', `/profile/${profile!.username}?tab=${activeKey}`)
             }}>
             <Tab title={lang['Profile_Tab_Received']}>
                 <AppSubTabs
@@ -76,8 +73,7 @@ function ComponentName({profile}: {profile: Profile}) {
                     activeKey={selectedSubtab}
                     onChange={({activeKey}) => {
                         setSelectedSubtab(activeKey as any);
-                        history.push(`/profile/${profile!.username}?tab=${selectedTab}&subtab=${activeKey}`)
-                        window.history.pushState(null, '', `/profile/${profile!.username}?tab=${selectedTab}&subtab=${activeKey}`)
+                        window.history.replaceState(null, '', `/profile/${profile!.username}?tab=${selectedTab}&subtab=${activeKey}`)
                     }}>
                     <Tab title={lang['Profile_Tab_Basic']}>
                         <UserRecognition profile={profile}/>
@@ -119,8 +115,7 @@ function ComponentName({profile}: {profile: Profile}) {
                     activeKey={selectedSubtab}
                     onChange={({activeKey}) => {
                         setSelectedSubtab(activeKey as any);
-                        history.push(`/profile/${profile!.username}?tab=${selectedTab}&subtab=${activeKey}`)
-                        window.history.pushState(null, '', `/profile/${profile!.username}?tab=${selectedTab}&subtab=${activeKey}`)
+                        window.history.replaceState(null, '', `/profile/${profile!.username}?tab=${selectedTab}&subtab=${activeKey}`)
                     }}>
                     <Tab title={lang['Profile_Tab_Token']}>
                         <ListUserCurrency profile={profile}/>
