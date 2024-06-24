@@ -126,10 +126,12 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
     const scroll1Ref = useRef<any>(null)
     const scroll2Ref = useRef<any>(null)
     const eventListRef = useRef<Event[]>([])
+    const needScroll = useRef(true)
     const lock = useRef(false)
     const searchParams = useSearchParams()
     const pathname = usePathname()
     const {showLoading} = useContext(DialogsContext)
+    const {applyScroll} = useContext(PageBackContext)
 
 
     const {user} = useContext(UserContext)
@@ -332,6 +334,12 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
                 setTimeout(() => {
                     content.classList.remove(styles['fade-out'])
                     content.classList.remove(styles[`move-${direction}`])
+                    setTimeout(() => {
+                        if (needScroll.current) {
+                            applyScroll()
+                            needScroll.current = false
+                        }
+                    }, 100)
                 }, 100)
             }, 100)
         }

@@ -440,7 +440,6 @@ function GroupPage(props: any) {
                             }
                         </div>
                         <div className={'profile-side'}>
-                            <ListGroupMember group={profile} isSidebar={true}/>
                         </div>
                     </div>
                 </div>

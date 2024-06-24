@@ -21,25 +21,36 @@ function PageBacProvider(props: PageBacProviderProps) {
     const currPathnameRef = useRef('')
     const scrollRef = useRef<{
         path: string,
-        scroll: number
+        scroll: number,
+        scheduleScroll: number
     }[]>([])
 
 
     useEffect(() => {
         const handleRouteChangeStart = () => {
-            const scrollHeight = document.querySelector('#PageContent')!.scrollTop
-            if (scrollHeight === 0) return
+
             const path = location.href.replace(location.origin, '')
-            const _scroll = scrollRef.current.find(item => item.path !== path)
+            const scheduleContent = document.querySelector('.event-wrapper')
+            const pageContent  = document.querySelector('#PageContent')
 
-            if (!_scroll) {
-                scrollRef.current = [...scrollRef.current, {
-                    path: path,
-                    scroll: scrollHeight
-                }]
+            let scrollRecord = {
+                path: path,
+                scroll: 0,
+                scheduleScroll: 0
+            }
 
+            if (!!pageContent) {
+                scrollRecord.scroll = pageContent.scrollTop
                 console.log('setScroll', scrollRef.current)
             }
+
+            if (!!scheduleContent) {
+                scrollRecord.scheduleScroll = scheduleContent!.scrollTop
+                console.log('set schedule Scroll', scrollRef.current)
+            }
+
+            scrollRef.current = [...scrollRef.current, scrollRecord]
+            console.log('set schedule Scroll', scrollRef.current)
         }
 
         clientRouter.events.on('routeChangeStart', handleRouteChangeStart);
@@ -51,16 +62,24 @@ function PageBacProvider(props: PageBacProviderProps) {
 
     const applyScroll = () => {
         const pageContent = document.querySelector('#PageContent')
+        const scheduleContent = document.querySelector('.event-wrapper')
         const path = location.href.replace(location.origin, '')
+        const scrollHeight = scrollRef.current.find(item => item.path === path)
+
+        if (!scrollHeight) return
+
         if (scrollRef.current.length && !!pageContent) {
-            const scrollHeight = scrollRef.current.find(item => item.path === path)
             console.log('target scrollHeight', scrollRef.current, scrollHeight)
-            if (scrollHeight) {
-                pageContent.scrollTop = scrollHeight.scroll
-                scrollRef.current = scrollRef.current.filter(item => item.path !== path)
-                console.log('applyScroll', scrollRef.current)
-            }
+            pageContent.scrollTop = scrollHeight.scroll
+            console.log('applyScroll', scrollRef.current)
         }
+
+        if (scrollRef.current.length && !!scheduleContent) {
+            scheduleContent.scrollTop = scrollHeight.scheduleScroll
+            console.log('apply schedule Scroll', scrollRef.current)
+        }
+
+        scrollRef.current = scrollRef.current.filter(item => item.path !== path)
     }
 
     const readHistory = () => {

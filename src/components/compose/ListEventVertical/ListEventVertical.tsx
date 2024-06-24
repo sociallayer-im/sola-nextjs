@@ -17,6 +17,7 @@ import * as dayjsLib from "dayjs";
 import {PageBackContext} from "@/components/provider/PageBackProvider";
 
 const dayjs: any = dayjsLib
+let scrollInterval:any = null
 
 function ListEventVertical(props: { initData?: Event[], patch?: string }) {
     const router = useRouter()
@@ -277,17 +278,30 @@ function ListEventVertical(props: { initData?: Event[], patch?: string }) {
     }
 
     useEffect(() => {
+        if (listToShow.length) {
+            scrollInterval =  setInterval(() => {
+
+                const a =  document.querySelectorAll('.event-card')
+                if ( a.length >= listToShow.length ) {
+                    applyScroll()
+                    clearInterval(scrollInterval)
+                }
+            }, 100)
+
+            return () => {
+                clearInterval(scrollInterval)
+            }
+        }
+    }, [applyScroll, listToShow])
+
+    useEffect(() => {
         if (!!eventGroup) {
             (async () => {
                 await getEvent(true)
                 setReady(true)
-               setTimeout(() => {
-                   applyScroll()
-               }, 0)
             })()
         }
     }, [eventGroup])
-
 
     return (
         <div className={'module-tabs'}>
