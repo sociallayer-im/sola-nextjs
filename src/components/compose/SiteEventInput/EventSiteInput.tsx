@@ -7,7 +7,6 @@ import langContext from "../../provider/LangProvider/LangContext";
 import MapContext from "../../provider/MapProvider/MapContext";
 import DialogTimeSlotEdit from "@/components/base/Dialog/DialogTimeSlotEdit";
 import {Datepicker} from "baseui/datepicker";
-import AppRadio from "@/components/base/AppRadio/AppRadio";
 import dayjs from "dayjs";
 import Toggle from "@/components/base/Toggle/Toggle";
 import {Select} from "baseui/select";
@@ -18,7 +17,8 @@ export interface GMapSearchResult {
     structured_formatting: {
         main_text: string,
         secondary_text: string
-    }
+    },
+    customLatlng?: [number, number]
 }
 
 export interface LocationInputProps {
@@ -71,10 +71,26 @@ function EventSiteInput(props: LocationInputProps) {
             if (delay.current) {
                 clearTimeout(delay.current)
             }
+
             delay.current = setTimeout(() => {
                 if (searchKeyword && mapService.current && !searching) {
                     setSearching(true)
-                    console.log('SectionSectionSection Section', Section)
+                    const rex = /^-?\d+(\.\d+)?,-?\d+(\.\d+)?$/;
+
+                    let latlng: GMapSearchResult | null = null
+                    if (rex.test(searchKeyword)) {
+                        const [lat, lng] = searchKeyword.split(',')
+                        latlng = {
+                            description: `${lat},${lng}`,
+                            place_id: '',
+                            structured_formatting: {
+                                main_text: `Custom location (${lat}, ${lng})`,
+                                secondary_text: ''
+                            },
+                            customLatlng: [Number(lat), Number(lng)]
+                        }
+                    }
+
                     const token = new Section!()
                     mapService.current.getQueryPredictions({
                         input: searchKeyword,
@@ -82,14 +98,17 @@ function EventSiteInput(props: LocationInputProps) {
                         language: langType === 'cn' ? 'zh-CN' : 'en'
                     } as any, (predictions: any, status: any) => {
                         setSearching(false)
-                        console.log('predictions', predictions)
-                        console.log('status', status)
-                        if (status !== 'OK') {
-                            showToast('error', 'Google map search failed.')
-                            return
-                        }
                         sessionToken.current = token
-                        setGmapSearchResult(predictions.filter((r: any) => !!r.place_id))
+
+                        if (predictions && !!latlng) {
+                            let searchRes = predictions?.filter((r: any) => !!r.place_id)
+                            const res = latlng ? [latlng, ...searchRes] : searchRes
+                            setGmapSearchResult(res.filter((r: any) => !!r))
+                        } if (!!latlng) {
+                            setGmapSearchResult([latlng])
+                        } else {
+                            setGmapSearchResult([])
+                        }
                     });
                 }
             }, 200)
@@ -135,37 +154,54 @@ function EventSiteInput(props: LocationInputProps) {
     }
 
     const handleSelectSearchRes = async (result: GMapSearchResult) => {
-        const unload = showLoading()
-        try {
-            const lang = langType === 'cn' ? 'zh-CN' : 'en'
-            const placesList = document.getElementById("map") as HTMLElement
-            const map = new (window as any).google.maps.Map(placesList)
-            const service = new (window as any).google.maps.places.PlacesService(map)
-            service.getDetails({
-                sessionToken: sessionToken.current,
-                fields: ['geometry', 'formatted_address', 'name'],
-                placeId: result.place_id
-            }, (place: any, status: string) => {
-                console.log('placeplace detail', place)
-                setShowSearchRes(false)
-                setCustomLocationDetail(place.formatted_address)
-                setSearchKeyword('')
-                setNewEventSite(
-                    {
-                        ...newEventSite!,
-                        formatted_address: place.formatted_address,
-                        title: newEventSite!.title || place.name,
-                        location: newEventSite!.title || place.name,
-                        geo_lng: place.geometry.location.lng(),
-                        geo_lat: place.geometry.location.lat()
-                    }
-                )
+        if (result.customLatlng) {
+            setShowSearchRes(false)
+            setCustomLocationDetail(result.description)
+            setSearchKeyword('')
+            setNewEventSite(
+                {
+                    ...newEventSite!,
+                    formatted_address: `${result.customLatlng[0]},${result.customLatlng[1]}`,
+                    title: result.structured_formatting.main_text,
+                    location: `${result.customLatlng[0]},${result.customLatlng[1]}`,
+                    geo_lng: result.customLatlng[1] + '',
+                    geo_lat: result.customLatlng[0] + ''
+                }
+            )
+        } else {
+            const unload = showLoading()
+            try {
+                const lang = langType === 'cn' ? 'zh-CN' : 'en'
+                const placesList = document.getElementById("map") as HTMLElement
+                const map = new (window as any).google.maps.Map(placesList)
+                const service = new (window as any).google.maps.places.PlacesService(map)
+                service.getDetails({
+                    sessionToken: sessionToken.current,
+                    fields: ['geometry', 'formatted_address', 'name'],
+                    placeId: result.place_id
+                }, (place: any, status: string) => {
+                    console.log('placeplace detail', place)
+                    setShowSearchRes(false)
+                    setCustomLocationDetail(place.formatted_address)
+                    setSearchKeyword('')
+                    setNewEventSite(
+                        {
+                            ...newEventSite!,
+                            formatted_address: place.formatted_address,
+                            title: newEventSite!.title || place.name,
+                            location: newEventSite!.title || place.name,
+                            geo_lng: place.geometry.location.lng(),
+                            geo_lat: place.geometry.location.lat()
+                        }
+                    )
+                    unload()
+                })
+            } catch (e) {
+                console.error(e)
                 unload()
-            })
-        } catch (e) {
-            console.error(e)
-            unload()
+            }
         }
+
     }
 
     const showEditTimeSlotDialog = () => {
@@ -225,7 +261,7 @@ function EventSiteInput(props: LocationInputProps) {
                         readOnly
                         errorMsg={props.error ? 'please select location' : undefined}
                         onFocus={(e) => {
-                            setSearchKeyword(newEventSite?.title || '');
+                            setSearchKeyword(newEventSite?.formatted_address || '');
                             setShowSearchRes(true)
                         }}
                         startEnhancer={() => <i className={'icon-Outline'}/>}

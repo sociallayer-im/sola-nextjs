@@ -44,7 +44,8 @@ export interface GMapSearchResult {
     structured_formatting: {
         main_text: string,
         secondary_text: string
-    }
+    },
+    customLatlng?: [number, number]
 }
 
 export interface LocationInputProps {
@@ -166,6 +167,22 @@ function LocationInput(props: LocationInputProps) {
             delay.current = setTimeout(() => {
                 if (searchKeyword && mapService.current && !searching) {
                     setSearching(true)
+                    const rex = /^-?\d+(\.\d+)?,-?\d+(\.\d+)?$/;
+                    let latlng: GMapSearchResult | null = null
+                    if (rex.test(searchKeyword)) {
+                        const [lat, lng] = searchKeyword.split(',')
+                        latlng = {
+                            description: `${lat},${lng}`,
+                            place_id: '',
+                            structured_formatting: {
+                                main_text: `Custom location (${lat}, ${lng})`,
+                                secondary_text: ''
+                            },
+                            customLatlng: [Number(lat), Number(lng)]
+                        }
+                    }
+
+
                     const token = new Section!()
                     mapService.current.getQueryPredictions({
                         input: searchKeyword,
@@ -173,12 +190,17 @@ function LocationInput(props: LocationInputProps) {
                         language: langType === 'cn' ? 'zh-CN' : 'en'
                     } as any, (predictions: any, status: any) => {
                         setSearching(false)
-                        if (status !== 'OK') {
-                            showToast('error', 'Google map search failed.')
-                            return
-                        }
                         sessionToken.current = token
-                        setGmapSearchResult(predictions.filter((r: any) => !!r.place_id))
+
+                        if (predictions && !!latlng) {
+                            let searchRes = predictions?.filter((r: any) => !!r.place_id)
+                            const res = latlng ? [latlng, ...searchRes] : searchRes
+                            setGmapSearchResult(res.filter((r: any) => !!r))
+                        } if (!!latlng) {
+                            setGmapSearchResult([latlng])
+                        } else {
+                            setGmapSearchResult([])
+                        }
                     });
                 }
             }, 200)
@@ -188,31 +210,42 @@ function LocationInput(props: LocationInputProps) {
 
 
     const handleSelectSearchRes = async (result: GMapSearchResult) => {
-        const unload = showLoading()
-        try {
-            const lang = langType === 'cn' ? 'zh-CN' : 'en'
-            const placesList = document.getElementById("map") as HTMLElement
-            const map = new (window as any).google.maps.Map(placesList)
-            const service = new (window as any).google.maps.places.PlacesService(map)
-            service.getDetails({
-                sessionToken: sessionToken.current,
-                fields: ['geometry', 'formatted_address', 'name'],
-                placeId: result.place_id
-            }, (place: any, status: string) => {
-                const placeInfo = place as GMapPlaceRes
-                setShowSearchRes(false)
-                props.onChange && props.onChange({
-                    geo_lat: placeInfo.geometry.location.lat(),
-                    geo_lng: placeInfo.geometry.location.lng(),
-                    formatted_address: placeInfo.formatted_address,
-                    location: placeInfo.name
-                } as any)
-                setSearchKeyword(placeInfo.formatted_address)
+        if (result.customLatlng) {
+            setShowSearchRes(false)
+            props.onChange && props.onChange({
+                geo_lat: result.customLatlng[0],
+                geo_lng: result.customLatlng[1],
+                formatted_address: `${result.customLatlng[0]},${result.customLatlng[1]}`,
+                location: result.structured_formatting.main_text
+            } as any)
+            setSearchKeyword(`${result.customLatlng[0]},${result.customLatlng[1]}`)
+        } else {
+            const unload = showLoading()
+            try {
+                const lang = langType === 'cn' ? 'zh-CN' : 'en'
+                const placesList = document.getElementById("map") as HTMLElement
+                const map = new (window as any).google.maps.Map(placesList)
+                const service = new (window as any).google.maps.places.PlacesService(map)
+                service.getDetails({
+                    sessionToken: sessionToken.current,
+                    fields: ['geometry', 'formatted_address', 'name'],
+                    placeId: result.place_id
+                }, (place: any, status: string) => {
+                    const placeInfo = place as GMapPlaceRes
+                    setShowSearchRes(false)
+                    props.onChange && props.onChange({
+                        geo_lat: placeInfo.geometry.location.lat(),
+                        geo_lng: placeInfo.geometry.location.lng(),
+                        formatted_address: placeInfo.formatted_address,
+                        location: placeInfo.name
+                    } as any)
+                    setSearchKeyword(placeInfo.formatted_address)
+                    unload()
+                })
+            } catch (e) {
+                console.error(e)
                 unload()
-            })
-        } catch (e) {
-            console.error(e)
-            unload()
+            }
         }
     }
 
