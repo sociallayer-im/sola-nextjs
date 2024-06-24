@@ -36,6 +36,7 @@ function ComponentName(props: { markerType: string | null, group?: Group, isIfra
     const router = useRouter()
     const searchParams = useSearchParams()
 
+    const readyRef = useRef(false)
     const mapDomRef = createRef()
     const GoogleMapRef = useRef<google.maps.Map | null>()
     const swiperRef = useRef<any>(null)
@@ -345,7 +346,7 @@ function ComponentName(props: { markerType: string | null, group?: Group, isIfra
             }
         })
 
-        if (markers.length) {
+        if (markers.length && !readyRef.current) {
             if (searchParams?.get('target_event')) {
                 let target_index = 0
                 const target = markers.find((item, index) => {
@@ -362,7 +363,7 @@ function ComponentName(props: { markerType: string | null, group?: Group, isIfra
             } else {
                 showMarkerInMapCenter(markers[0], true)
             }
-
+            readyRef.current = true
         }
     }
 
