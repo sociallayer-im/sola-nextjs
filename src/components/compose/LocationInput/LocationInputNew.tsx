@@ -360,7 +360,7 @@ function LocationInput(props: LocationInputProps) {
                         onFocus={e => {
                             setShowSearchRes(true)
                         }}
-                        placeholder={'Enter the address...'}
+                        placeholder={'Input address or geo point like 40.7128,-74.0060'}
                         endEnhancer={() => <Delete size={24} className={'delete'} onClick={() => {
                             setCreateMode(false)
                             props.onChange && props.onChange({

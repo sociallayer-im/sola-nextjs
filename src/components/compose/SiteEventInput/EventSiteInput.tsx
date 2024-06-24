@@ -274,7 +274,7 @@ function EventSiteInput(props: LocationInputProps) {
                             <AppInput
                                 value={searchKeyword}
                                 onChange={e => setSearchKeyword(e.currentTarget.value)}
-                                placeholder={'Search location'}
+                                placeholder={'Input location name to search or geo point like 40.7128,-74.0060'}
                             />
                             {!!GmapSearchResult.length &&
                                 <div className={'res-list'}>
