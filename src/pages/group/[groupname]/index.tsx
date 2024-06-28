@@ -306,6 +306,12 @@ function GroupPage(props: any) {
                             </div>
                             {(selectedTab === '0' || loadedTabRrf.current.has('0')) &&
                                 <div className={`group-event ${selectedTab === '0' ? '' : 'hide'}`}>
+                                    <div className={styles['fixed-box']}>
+                                        <div className={styles['name']}>{profile.username}</div>
+
+                                        <Link href={`/event/${profile.username}`} className={styles['btn']}>See all events</Link>
+                                    </div>
+
                                     <div className={'tab-action'}>
                                         <div className={'left'}><b>{eventCount}</b> {lang['Setting_Events']}</div>
                                         <div className={'right'}>
@@ -330,12 +336,6 @@ function GroupPage(props: any) {
                                             }
                                         </div>
                                     </div>
-                                    <div className={styles['fixed-box']}>
-                                        <div className={styles['name']}>{profile.username}</div>
-
-                                        <Link href={`/event/${profile.username}`} className={styles['btn']}>See all events</Link>
-                                    </div>
-
                                     <ListGroupEvent isGroup={true} profile={profile}/>
                                 </div>
                             }
