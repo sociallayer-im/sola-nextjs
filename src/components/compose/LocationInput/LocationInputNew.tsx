@@ -191,13 +191,14 @@ function LocationInput(props: LocationInputProps) {
                     } as any, (predictions: any, status: any) => {
                         setSearching(false)
                         sessionToken.current = token
-
-                        if (predictions && !!latlng) {
-                            let searchRes = predictions?.filter((r: any) => !!r.place_id)
-                            const res = latlng ? [latlng, ...searchRes] : searchRes
-                            setGmapSearchResult(res.filter((r: any) => !!r))
-                        } if (!!latlng) {
+                        const searchRes = predictions?.filter((r: any) => !!r.place_id)
+                        if (searchRes?.length && !!latlng) {
+                            const res = [latlng, ...searchRes]
+                            setGmapSearchResult(res)
+                        } else if (!!latlng && !searchRes?.length) {
                             setGmapSearchResult([latlng])
+                        } else if (!!searchRes?.length) {
+                            setGmapSearchResult(searchRes)
                         } else {
                             setGmapSearchResult([])
                         }
