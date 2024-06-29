@@ -4,25 +4,26 @@ import MapContext from "@/components/provider/MapProvider/MapContext";
 import EventHomeContext from "@/components/provider/EventHomeProvider/EventHomeContext";
 import {
     CheckIn,
-    Event, isMember as checkIsMember,
+    Group,
+    isMember as checkIsMember,
     Marker,
-    MarkerCheckinDetail,
     markersCheckinList,
-    Participants, queryCheckInList, queryEvent,
+    Participants,
+    queryCheckInList,
+    queryEvent,
     queryMarkers,
-    queryMyEvent,
-    Group
+    queryMyEvent
 } from "@/service/solas";
 import {Swiper, SwiperSlide} from 'swiper/react'
 import {Mousewheel, Virtual} from 'swiper'
 import CardMarker from "@/components/base/Cards/CardMarker/CardMarker";
 import {useRouter, useSearchParams} from "next/navigation";
-import {markerTypeList2, MarkerType} from "@/components/base/SelectorMarkerType/SelectorMarkerType";
+import {markerTypeList2} from "@/components/base/SelectorMarkerType/SelectorMarkerType";
 import userContext from "@/components/provider/UserProvider/UserContext";
 import DialogGuideFollow from "@/components/base/Dialog/DialogGuideFollow/DialogGuideFollow";
 import GameMenu from "@/components/zugame/GameMenu/GameMenu";
 import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
-import {PageBackContext} from "@/components/provider/PageBackProvider";
+import CreateMarker from '@/pages/event/[groupname]/create-marker/dialog'
 
 const menuList = markerTypeList2
 
@@ -31,7 +32,7 @@ const defaultZoom = 17
 function ComponentName(props: { markerType: string | null, group?: Group, isIframe?: boolean }) {
     const {Map, MapEvent, Marker, MapError, MapReady} = useContext(MapContext)
     const {eventGroup, isManager, setEventGroup} = useContext(EventHomeContext)
-    const {openConnectWalletDialog} = useContext(DialogsContext)
+    const {openConnectWalletDialog, openDialog} = useContext(DialogsContext)
     const {user} = useContext(userContext)
     const router = useRouter()
     const searchParams = useSearchParams()
@@ -51,6 +52,9 @@ function ComponentName(props: { markerType: string | null, group?: Group, isIfra
     const [itemWidth, setItemWidth] = useState(0)
     const [currSwiperIndex, setCurrSwiperIndex] = useState(0)
     const [isMember, setIsMember] = useState(false)
+
+    const [selectingMarkerPoint, setSelectingMarkerPoint] = useState(false)
+    const selectingMarkerPointRef = useRef(false)
 
     const getMarker = async (type?: any) => {
         let res: Marker[] = []
@@ -96,7 +100,7 @@ function ComponentName(props: { markerType: string | null, group?: Group, isIfra
                     marker_type: 'event',
                     link: '',
                     map_checkins_count: 0,
-                    voucher_id:null,
+                    voucher_id: null,
                     category: 'event',
                 } as any
             }).filter((marker: Marker) => !!marker.geo_lat)
@@ -106,7 +110,7 @@ function ComponentName(props: { markerType: string | null, group?: Group, isIfra
                 if (!targetEvent) {
                     const targetEvent = await queryEvent({id: Number(searchParams?.get('target_event')), page: 1})
                     if (targetEvent[0]) {
-                        const target =  {
+                        const target = {
                             ...targetEvent[0],
                             event: targetEvent[0],
                             event_id: targetEvent[0].id,
@@ -120,7 +124,7 @@ function ComponentName(props: { markerType: string | null, group?: Group, isIfra
                             marker_type: 'event',
                             link: '',
                             map_checkins_count: 0,
-                            voucher_id:null,
+                            voucher_id: null,
                             category: 'event',
                         } as any
                         res = [target, ...res]
@@ -221,7 +225,7 @@ function ComponentName(props: { markerType: string | null, group?: Group, isIfra
             if (markerType) {
                 let ifcheckIn = false
 
-                if(category === 'event'){
+                if (category === 'event') {
                     ifcheckIn = participants.some(item => item.event_id === markersList[0].id)
                 } else {
                     ifcheckIn = checkinList.some(item => item.marker_id === markersList[0].id)
@@ -386,7 +390,7 @@ function ComponentName(props: { markerType: string | null, group?: Group, isIfra
         }
     }, [user.id])
 
-    useEffect(()=> {
+    useEffect(() => {
         if (props.group) {
             setEventGroup(props.group)
         }
@@ -405,6 +409,46 @@ function ComponentName(props: { markerType: string | null, group?: Group, isIfra
                 mapId: process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'zumap' ? 'e696c45661cb505d' : 'e2f9ddc0facd5a80',
                 disableDefaultUI: props.isIframe,
             })
+
+            GoogleMapRef.current!.addListener('click', function (e: any) {
+                console.log('map click', e)
+                if (!selectingMarkerPointRef.current) {
+                    return
+                }
+
+                const map:any = document.querySelector('#gmap > div > div.gm-style > div:nth-child(1) > div:nth-child(2)')
+                if (map) {
+                    map.style.cursor = "url('https://maps.gstatic.com/mapfiles/openhand_8_8.cur'),default"
+                }
+                selectingMarkerPointRef.current = false
+                setSelectingMarkerPoint(false)
+
+                openDialog({
+                    content: (close: any) => {
+                        return <div className={styles['dialog-creat-marker']}>
+                            <div className={styles['dialog-inner']}>
+                                <CreateMarker
+                                    onSuccess={async (marker: Marker) => {
+                                        if (marker.category !== selectedType) {
+                                            setSelectedType(marker.category)
+                                            router.push(`/event/${eventGroup?.username}/map?type=${marker.category}`)
+                                        } else {
+                                            getMarker(selectedType)
+                                            setTimeout(() => {
+                                                showMarkerInMapCenter(marker)
+                                            }, 1000)
+                                        }
+                                    }}
+                                    lat={e.latLng.lat()}
+                                    lng={e.latLng.lng()}
+                                    close={close}/>
+                            </div>
+                        </div>
+                    },
+                    size: ['auto', 400],
+                    position: 'bottom',
+                })
+            })
         }
     }, [MapReady, mapDomRef, eventGroup])
 
@@ -418,7 +462,7 @@ function ComponentName(props: { markerType: string | null, group?: Group, isIfra
                 }, 100)
 
                 if (user.id) {
-                    checkIsMember({profile_id: user.id, group_id: eventGroup.id }).then(res => {
+                    checkIsMember({profile_id: user.id, group_id: eventGroup.id}).then(res => {
                         setIsMember(res)
                     })
                 }
@@ -450,53 +494,78 @@ function ComponentName(props: { markerType: string | null, group?: Group, isIfra
         <div className={styles['follow-window']}>
             <DialogGuideFollow/>
         </div>
-        <div id={'gmap'} className={`${styles['map-container']} ${props.isIframe ? styles['iframe']: ''}`} ref={mapDomRef as any}/>
+        <div id={'gmap'} className={`${styles['map-container']} ${props.isIframe ? styles['iframe'] : ''}`}
+             ref={mapDomRef as any}/>
         {selectedType === 'Zugame' &&
             <GameMenu/>
         }
 
-        { !props.isIframe &&
-            <div className={styles['top-menu']}>
-                { (isMember || isManager) &&
-                    <div className={styles['menu-item-create']} onClick={() => {
-                        if (!user.id) {
-                            openConnectWalletDialog()
-                            return
-                        }
-                        router.push(`/event/${eventGroup?.username}/create-marker`)
-                    }}>Create a Marker +
-                    </div>
-                }
-                { (isMember || isManager) &&
-                    <div className={styles['menu-item-create']} onClick={() => {
-                        if (!user.id) {
-                            openConnectWalletDialog()
-                            return
-                        }
-                        router.push(`/event/${eventGroup?.username}/create-share-me`)
-                    }}>Share me + </div>
-                }
+        {!props.isIframe &&
+           <>
+               <div className={styles['top-menu']}>
+                   {(isMember || isManager) &&
+                       <div className={styles['menu-item-create']} onClick={() => {
+                           setSelectingMarkerPoint(true)
+                           selectingMarkerPointRef.current = true
+                           // https://maps.gstatic.com/mapfiles/openhand_8_8.cur
+                           const map:any = document.querySelector('#gmap > div > div.gm-style > div:nth-child(1) > div:nth-child(2)')
+                           if (map) {
+                               map.style.cursor = "url('/images/map_marker_cur.png'),default"
+                           }
+                       }}>Create a Marker +
+                       </div>
+                   }
+                   {(isMember || isManager) &&
+                       <div className={styles['menu-item-create']} onClick={() => {
+                           if (!user.id) {
+                               openConnectWalletDialog()
+                               return
+                           }
+                           router.push(`/event/${eventGroup?.username}/create-share-me`)
+                       }}>Share me + </div>
+                   }
 
-                {/*<div className={`${styles['menu-item']} ${!selectedType ? styles['menu-item-active'] : ''}`}*/}
-                {/*     onClick={() => {*/}
-                {/*         setSelectedType('')*/}
-                {/*         router.push(`/event/${eventGroup?.username}/map`)*/}
-                {/*     }}>All*/}
-                {/*</div>*/}
-                {
-                    menuList.map((item, index) => {
-                        const isSelected = selectedType === item.category
-                        return <div key={index}
-                                    onClick={() => {
-                                        const patch = `/event/${eventGroup?.username}/map?type=${item.category}`
-                                        setSelectedType(item.category)
-                                        window.history.pushState({}, '', patch)
-                                        // router.push(`/event/${eventGroup?.username}/map?type=${item.category}`)
-                                    }}
-                                    className={`${styles['menu-item']} ${isSelected ? styles['menu-item-active'] : ''}`}>{item.label}</div>
-                    })
-                }
-            </div>
+                   {/*<div className={`${styles['menu-item']} ${!selectedType ? styles['menu-item-active'] : ''}`}*/}
+                   {/*     onClick={() => {*/}
+                   {/*         setSelectedType('')*/}
+                   {/*         router.push(`/event/${eventGroup?.username}/map`)*/}
+                   {/*     }}>All*/}
+                   {/*</div>*/}
+                   {
+                       menuList.map((item, index) => {
+                           const isSelected = selectedType === item.category
+                           return <div key={index}
+                                       onClick={() => {
+                                           const patch = `/event/${eventGroup?.username}/map?type=${item.category}`
+                                           setSelectedType(item.category)
+                                           window.history.pushState({}, '', patch)
+                                           // router.push(`/event/${eventGroup?.username}/map?type=${item.category}`)
+                                       }}
+                                       className={`${styles['menu-item']} ${isSelected ? styles['menu-item-active'] : ''}`}>{item.label}</div>
+                       })
+                   }
+               </div>
+               { selectingMarkerPoint &&
+                   <div className={styles['top-menu']} style={{marginTop: '50px', height: 'auto'}}>
+                       <div className={styles['selecting-point']}>
+                           <div className={styles['text']}>
+                               <img src="/images/map_marker.png" alt="" width={18}/>
+                               Select a place to create a marker
+                           </div>
+                           <div className={styles['btn']}
+                                onClick={e => {
+                                    setSelectingMarkerPoint(false)
+                                    selectingMarkerPointRef.current = false
+                                    const map:any = document.querySelector('#gmap > div > div.gm-style > div:nth-child(1) > div:nth-child(2)')
+                                    if (map) {
+                                        map.style.cursor = "url('https://maps.gstatic.com/mapfiles/openhand_8_8.cur'),default"
+                                    }
+                                }}
+                           >Cancel</div>
+                       </div>
+                   </div>
+               }
+           </>
         }
 
         {showList && !!eventGroup && !props.isIframe &&

@@ -97,10 +97,10 @@ function MyApp({Component, pageProps, ...props}: any) {
                             <StyletronProvider value={styletron}>
                                 <BaseProvider theme={theme}>
                                     <DialogProvider>
+                                        <MapProvider>
                                         <UserProvider>
                                             <LangProvider>
                                                 <DialogProvider>
-                                                    <MapProvider>
                                                         <EventHomeProvider>
                                                             <NotificationsProvider>
                                                                 <DisplayLay>
@@ -112,10 +112,10 @@ function MyApp({Component, pageProps, ...props}: any) {
                                                                 </DisplayLay>
                                                             </NotificationsProvider>
                                                         </EventHomeProvider>
-                                                    </MapProvider>
                                                 </DialogProvider>
                                             </LangProvider>
                                         </UserProvider>
+                                        </MapProvider>
                                     </DialogProvider>
                                 </BaseProvider>
                             </StyletronProvider>

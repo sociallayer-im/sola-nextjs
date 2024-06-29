@@ -33,7 +33,7 @@ import LocationInput from "@/components/compose/LocationInput/LocationInputNewMa
 import AppFlexTextArea from "@/components/base/AppFlexTextArea/AppFlexTextArea";
 import {Delete} from "baseui/icon";
 
-function ComponentName() {
+function CreateMarkerDialog(props: {lat: number, lng: number, close: any, onSuccess?: any}) {
     const {lang} = useContext(LangContext)
     const {showLoading, openDialog, showToast, openConfirmDialog} = useContext(DialogsContext)
     const searchParams = useSearchParams()
@@ -56,7 +56,7 @@ function ComponentName() {
     const [isManager, setIsManager] = useState(false)
     const [isOwner, setIsOwner] = useState(false)
     const [isIssuer, setIsIssuer] = useState(false)
-    const [ready, setReady] = useState(false)
+    const [ready] = useState(true)
     const [marker, setMarker] = useState<Partial<Marker>>({
         pin_image_url: markerTypeList2[2].pin,
         cover_image_url: '',
@@ -64,10 +64,10 @@ function ComponentName() {
         category: markerTypeList2[2].category,
         about: null,
         link: null,
-        location: '',
-        formatted_address: '',
-        geo_lat: 0,
-        geo_lng: 0,
+        geo_lat: props.lat,
+        geo_lng: props.lng,
+        formatted_address: `${props.lat},${props.lng}`,
+        location: `Custom location`,
         marker_type: 'site',
         voucher_id: null
     })
@@ -180,7 +180,7 @@ function ComponentName() {
                 })
             }
 
-            await createMarker({
+           const newMarker = await createMarker({
                 ...marker,
                 voucher_id: voucher ? voucher.id : null,
                 auth_token: user.authToken || '',
@@ -188,8 +188,9 @@ function ComponentName() {
                 owner_id: creator?.id,
             })
             unload()
+            props.onSuccess && props.onSuccess(newMarker)
             showToast('Create Success', 500)
-            router.push(`/event/${eventGroup?.username}/map?type=${marker.category}`)
+            props.close()
         } catch (e: any) {
             setBusy(false)
             console.error(e)
@@ -293,36 +294,6 @@ function ComponentName() {
 
 
     useEffect(() => {
-        (async () => {
-            if (params?.markerid) {
-                const detail = await markerDetail(Number(params.markerid))
-                setMarker(detail!)
-                const creator = await getProfile({id: detail!.owner.id})
-                setCreator(creator!)
-                if (detail!.voucher_id) {
-                    const voucher = await queryVoucherDetail(detail!.voucher_id!)
-                    setBadgeId(voucher!.badge_id)
-                    badgeIdRef.current = voucher!.badge_id
-                }
-                setReady(true)
-            } else {
-                setReady(true)
-                if (searchParams?.get('type')) {
-                    const key = searchParams?.get('type') as string
-                    const target = markerTypeList2.find((item) => item.category === key)
-                    if (target) {
-                        setMarker({
-                            ...marker,
-                            pin_image_url: target.pin,
-                            category: target.category
-                        })
-                    }
-                }
-            }
-        })()
-    }, [searchParams, params])
-
-    useEffect(() => {
         async function fetchBadgeDetail() {
             if (badgeId) {
                 const badge = await queryBadgeDetail({id: badgeId})
@@ -335,17 +306,17 @@ function ComponentName() {
 
     return (<div className='create-event-page'>
             <div className='create-badge-page-wrapper'>
-                <PageBack title={lang['Form_Marker_Title']}/>
+                <PageBack title={lang['Form_Marker_Title']} onClose={() => {props.close()}}/>
                 <div className='create-badge-page-form'>
                     {!!eventGroup && ready &&
                         <div className='input-area'>
                             <div className='input-area-title'>{lang['Form_Marker_Location']}</div>
                             <LocationInput
                                 initValue={{
-                                    geo_lat: marker?.geo_lat || null,
-                                    geo_lng: marker?.geo_lng || null,
-                                    location: marker?.location || null,
-                                    formatted_address: marker?.formatted_address || null
+                                    geo_lat: marker.geo_lat || null,
+                                    geo_lng: marker.geo_lng || null,
+                                    formatted_address: marker.formatted_address || '',
+                                    location: marker.location || ''
                                 }}
                                 eventGroup={eventGroup}
                                 onChange={values => {
@@ -487,4 +458,4 @@ function ComponentName() {
     )
 }
 
-export default ComponentName
+export default CreateMarkerDialog
