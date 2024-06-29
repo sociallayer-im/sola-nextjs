@@ -470,7 +470,7 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
             }
 
             const isIframe = location.href.includes('iframe')
-            const params = genHref(props) + (isIframe ? `?group=${eventGroup.username}` : '')
+            const params = genHref(props) + (isIframe ? `&group=${eventGroup.username}` : '')
             history.replaceState(null, '', params)
         }
     }, [pageList, page, tags, timezoneSelected])
