@@ -488,10 +488,14 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
     })
 
     return (<div className={styles['schedule-page']}>
-        <ScheduleHeader group={eventGroup} params={genHref({
-            tag: selectedTags.length ? selectedTags.join(',') : undefined,
-            date: pageList.length ? dayjs.tz(pageList[0].timestamp, timezoneSelected[0].id).format('YYYY-MM-DD') : undefined
-        })}/>
+        {
+            !pathname?.includes('iframe') &&
+            <ScheduleHeader group={eventGroup} params={genHref({
+                tag: selectedTags.length ? selectedTags.join(',') : undefined,
+                date: pageList.length ? dayjs.tz(pageList[0].timestamp, timezoneSelected[0].id).format('YYYY-MM-DD') : undefined
+            })}/>
+        }
+
 
         <div className={`${styles['schedule-head']} schedule-head`}>
             <div className={styles['page-center']}>
