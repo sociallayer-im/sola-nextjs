@@ -5,12 +5,13 @@ export interface DialogProps {
     size?: (number | string)[]
     maxSize?: string[]
     minSize?: string[]
-    noShell?: boolean
+    noShell?: boolean,
+    shellClose?: boolean,
     handleClose?: (...rest: any[]) => any
     position?: 'center' | 'bottom' | ''
 }
 
-function Dialog ({ position = '', ...props }: DialogProps) {
+function Dialog ({shellClose, position = '', ...props }: DialogProps) {
     const { children } = props
     const dialogContent = useRef<HTMLDivElement | null>(null)
     const [contentClassName, setContentClassName] = useState('dialog-content' + ' ' + position)
@@ -18,7 +19,6 @@ function Dialog ({ position = '', ...props }: DialogProps) {
     const [height, setHeight] = useState(window.innerHeight + 'px')
 
     let sizeStyle: any = { width: 'auto', height: 'auto', maxWidth: 'initial', maxHeight: 'initial', minWidth:'initial',  minHeight: 'initial' }
-
     if (props.size) {
         sizeStyle.width = typeof props.size[0] === 'string' ? props.size[0] :`${props.size[0]}px`
         sizeStyle.height = typeof props.size[1] === 'string' ?  props.size[1] : `${props.size[1]}px`
@@ -69,7 +69,7 @@ function Dialog ({ position = '', ...props }: DialogProps) {
     }, [])
 
     return (<div data-testid='AppDialog' className='dialog' style={{height: `${height}px`}}>
-        <div className={ `dialog-shell ${ props.noShell ? 'light': '' }` } onClick={ close }></div>
+        <div className={ `dialog-shell ${ props.noShell ? 'light': '' }` } onClick={ () => {!!shellClose && close()} }></div>
         <div className={ contentClassName }  style={ sizeStyle } ref={ dialogContent! }>
             { children && children(close) }
         </div>

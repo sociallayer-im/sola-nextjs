@@ -127,13 +127,15 @@ interface Dialog {
     id: number,
     content: () => ReactNode
     type?: string
-    itemId?: number
+    itemId?: number,
+    shellClose?: boolean
 }
 
 export interface OpenDialogProps {
     content: (close: any) => ReactNode,
     size?: (number | string)[],
-    position?: 'bottom' | 'center'
+    position?: 'bottom' | 'center',
+    shellClose?: boolean
 }
 
 function genID () {
@@ -205,7 +207,8 @@ function DialogProvider (props: DialogProviderProps) {
                     key: id.toString(),
                     size: openDialogProps.size || [320, 450],
                     position: openDialogProps.position || undefined,
-                    handleClose: close
+                    handleClose: close,
+                    shellClose: openDialogProps.shellClose || false
                 }
 
                 return (

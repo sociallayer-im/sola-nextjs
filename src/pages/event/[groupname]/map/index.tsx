@@ -411,6 +411,7 @@ function ComponentName(props: { markerType: string | null, group?: Group, isIfra
             })
 
             GoogleMapRef.current!.addListener('click', function (e: any) {
+                e.domEvent.preventDefault()
                 console.log('map click', e)
                 if (!selectingMarkerPointRef.current) {
                     return
