@@ -11,7 +11,7 @@ export interface DialogProps {
     position?: 'center' | 'bottom' | ''
 }
 
-function Dialog ({shellClose, position = '', ...props }: DialogProps) {
+function Dialog ({shellClose=true, position = '', ...props }: DialogProps) {
     const { children } = props
     const dialogContent = useRef<HTMLDivElement | null>(null)
     const [contentClassName, setContentClassName] = useState('dialog-content' + ' ' + position)

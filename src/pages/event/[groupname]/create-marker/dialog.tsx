@@ -36,7 +36,6 @@ import {Delete} from "baseui/icon";
 function CreateMarkerDialog(props: {lat: number, lng: number, close: any, onSuccess?: any}) {
     const {lang} = useContext(LangContext)
     const {showLoading, openDialog, showToast, openConfirmDialog} = useContext(DialogsContext)
-    const searchParams = useSearchParams()
     const params = useParams()
     const {user} = useContext(userContext)
     const router = useRouter()
@@ -57,11 +56,17 @@ function CreateMarkerDialog(props: {lat: number, lng: number, close: any, onSucc
     const [isOwner, setIsOwner] = useState(false)
     const [isIssuer, setIsIssuer] = useState(false)
     const [ready] = useState(true)
+
+    let searchParamsCategory = null
+    if (typeof window !== 'undefined') {
+        searchParamsCategory = new URLSearchParams(window.location.search)?.get('type')
+    }
+
     const [marker, setMarker] = useState<Partial<Marker>>({
         pin_image_url: markerTypeList2[2].pin,
         cover_image_url: '',
         title: '',
-        category: markerTypeList2[2].category,
+        category: !!searchParamsCategory && searchParamsCategory !== 'share' && searchParamsCategory !== 'event' ? searchParamsCategory : markerTypeList2[2].category,
         about: null,
         link: null,
         geo_lat: props.lat,

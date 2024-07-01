@@ -423,7 +423,6 @@ function ComponentName(props: { markerType: string | null, group?: Group, isIfra
                 }
                 selectingMarkerPointRef.current = false
                 setSelectingMarkerPoint(false)
-
                 openDialog({
                     content: (close: any) => {
                         return <div className={styles['dialog-creat-marker']}>
