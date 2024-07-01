@@ -8,7 +8,7 @@ const discoverData: any = async (context: any): Promise<{
     }
 }> => {
     const doc = gql`query MyQuery {
-      groups(where: {event_enabled: {_eq: true}, status: {_neq: "freezed"}}) {
+      groups(where: {group_tags: {_contains: [":top"]}, status: {_neq: "freezed"}}) {
         events_count
         memberships_count
         group_tags
