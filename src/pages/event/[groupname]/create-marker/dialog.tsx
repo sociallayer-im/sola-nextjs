@@ -40,6 +40,8 @@ function CreateMarkerDialog(props: {lat: number, lng: number, close: any, onSucc
     const {user} = useContext(userContext)
     const router = useRouter()
 
+    const closeDialog = props.close
+
     const [eventGroup, setEventGroup] = useState<Group | null>(null)
     const [busy, setBusy] = useState(false)
 
@@ -150,7 +152,14 @@ function CreateMarkerDialog(props: {lat: number, lng: number, close: any, onSucc
                         setBadgeId(res.badgeId)
                     }
                 }}
-                handleClose={close}/>,
+                handleClose={(isComplete) => {
+                    if (!isComplete) {
+                        closeDialog()
+                    }
+                    close()
+                }}
+                returnUrl={location.href}
+            />,
             position: 'bottom',
             size: [360, 'auto']
         } as OpenDialogProps)
