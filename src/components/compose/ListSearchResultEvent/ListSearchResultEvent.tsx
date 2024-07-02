@@ -4,6 +4,8 @@ import {searchEvent, Event} from '@/service/solas'
 import CardEvent from "@/components/base/Cards/CardEvent/CardEvent";
 import Empty from "@/components/base/Empty";
 
+const groupid = process.env.NEXT_PUBLIC_LEADING_EVENT_GROUP_ID
+
 function ListSearchResultEvent(props: {keyword: string}) {
     const [result, setResult] = useState<Event[]>([])
     const {showLoading} = useContext(DialogsContext)
@@ -11,7 +13,7 @@ function ListSearchResultEvent(props: {keyword: string}) {
     const handleSearch = async (keyword: string) => {
         const unload = showLoading()
         try {
-            const res = await searchEvent(keyword)
+            const res = await searchEvent(keyword, groupid ? Number(groupid) : undefined)
             unload()
             setResult(res)
         } catch (e: any) {

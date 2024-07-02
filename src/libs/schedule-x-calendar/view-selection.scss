@@ -1,0 +1,99 @@
+.sx__view-selection {
+  position: relative;
+  font-size: var(--sx-calendar-header-input-font-size);
+}
+
+.sx__view-selection-selected-item {
+  height: 100%;
+  width: fit-content;
+  padding: var(--sx-spacing-padding3) var(--sx-spacing-padding4);
+  cursor: pointer;
+  border-radius: var(--sx-rounding-extra-small);
+  border: var(--sx-border);
+
+  &:hover {
+    background-color: var(--sx-internal-color-light-gray);
+
+    .is-dark & {
+      background-color: var(--sx-color-surface-container-low);
+    }
+  }
+}
+
+.sx__view-selection-items {
+  position: absolute;
+  top: 100%;
+  box-shadow: var(--sx-box-shadow-level3);
+  margin: 0;
+  background-color: var(--sx-color-background);
+  z-index: var(--sx-calendar-header-popup-z-index);
+  max-height: 300px;
+  overflow-y: auto;
+
+  .is-dark & {
+    background-color: var(--sx-color-surface-container-high);
+  }
+}
+
+.sx__view-selection-item {
+  padding: var(--sx-spacing-padding4) var(--sx-spacing-padding6);
+  cursor: pointer;
+
+  &:hover,
+  &:focus {
+    background-color: var(--sx-color-primary);
+    color: var(--sx-color-on-primary);
+  }
+
+  &.is-selected {
+    background-color: var(--sx-color-surface-dim);
+
+    &:hover,
+    &:focus {
+      background-color: var(--sx-color-primary);
+      color: var(--sx-color-on-primary);
+    }
+  }
+}
+
+.sx__calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  padding: var(--sx-spacing-padding4);
+  gap: var(--sx-spacing-padding4);
+
+  .sx__date-input {
+    padding: var(--sx-spacing-padding3) var(--sx-spacing-padding4);
+    font-size: var(--sx-calendar-header-input-font-size);
+  }
+
+  .sx__date-picker-popup {
+    z-index: var(--sx-calendar-header-popup-z-index);
+  }
+}
+
+.sx__calendar-header-content {
+  display: flex;
+  align-items: center;
+  gap: var(--sx-spacing-padding4);
+}
+
+.sx__forward-backward-navigation {
+  .sx__is-calendar-small & {
+    display: none;
+  }
+}
+
+.sx__event-modal {
+  text-decoration: none;
+  color: #1c1b1f;
+}
+
+.sx__date-grid.hide {
+  display: none;
+}
+.sx__month-agenda-event__title, .sx__month-grid-event-title {
+  text-decoration: underline;
+}
+

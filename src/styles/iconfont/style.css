@@ -159,6 +159,9 @@
 .icon-menu:before {
   content: "\e92a";
 }
+.icon-farcaster:before {
+  content: "\e92b";
+}
 
 
 

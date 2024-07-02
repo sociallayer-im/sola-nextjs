@@ -56,7 +56,7 @@ function CardSearchDomain(props: CardSearchDomainProps) {
         }
     }
 
-    const displayName = props.profile?.domain || props.profile?.email || props.profile?.address || ''
+    const displayName =  `${props.profile?.username}${props.profile?.nickname ? ` (${props.profile?.nickname})`: ''}`
     const highLightText = props.keyword
         ? displayName.replace(props.keyword, `<span class="highlight">${props.keyword}</span>`)
         : displayName

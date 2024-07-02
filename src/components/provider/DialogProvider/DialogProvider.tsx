@@ -128,7 +128,8 @@ interface Dialog {
     content: () => ReactNode
     type?: string
     itemId?: number,
-    closeable?: boolean
+    closeable?: boolean,
+    shellClose?: boolean
 }
 
 export interface OpenDialogProps {
@@ -136,6 +137,7 @@ export interface OpenDialogProps {
     size?: (number | string)[],
     position?: 'bottom' | 'center'
     closeable?: boolean
+    shellClose?: boolean
 }
 
 function genID () {
@@ -208,7 +210,8 @@ function DialogProvider (props: DialogProviderProps) {
                     size: openDialogProps.size || [320, 450],
                     position: openDialogProps.position || undefined,
                     handleClose: close,
-                    closeable: openDialogProps.closeable
+                    closeable: openDialogProps.closeable,
+                    shellClose: openDialogProps.shellClose || true
                 }
 
                 return (

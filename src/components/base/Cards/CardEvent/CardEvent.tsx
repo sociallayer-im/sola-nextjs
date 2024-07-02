@@ -6,7 +6,9 @@ import {
     Group,
     joinEvent,
     Participants,
-    queryEventDetail, queryGroupDetail, queryTickets,
+    queryTickets,
+    queryEventDetail,
+    queryGroupDetail,
     setEventStatus
 } from "@/service/solas";
 import {useTime2} from "@/hooks/formatTime";
@@ -16,9 +18,8 @@ import DialogsContext from "../../../provider/DialogProvider/DialogsContext";
 import Link from "next/link";
 import ImgLazy from "@/components/base/ImgLazy/ImgLazy";
 import EventDefaultCover from "@/components/base/EventDefaultCover";
-import EventHomeContext from "@/components/provider/EventHomeProvider/EventHomeContext";
 import {getLabelColor} from "@/hooks/labelColor";
-import useCalender from "@/hooks/addToCalender";
+import useCalender from "@/hooks/addToCalendar/addToCalendar";
 import AppButton from "@/components/base/AppButton/AppButton";
 import useEvent, {EVENT} from "@/hooks/globalEvent";
 import usePicture from "@/hooks/pictrue";
@@ -33,6 +34,7 @@ export interface CardEventProps {
     attend?: boolean,
     canPublish?: boolean,
     onRemove?: (event: Event) => void,
+    blank?: boolean
 }
 
 const localeTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone
@@ -46,8 +48,7 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
     const {user} = useContext(userContext)
     const {showToast, showLoading, openConfirmDialog, openDialog} = useContext(DialogsContext)
     const [hasRegistered, setHasRegistered] = useState(false)
-    const {eventGroups} = useContext(EventHomeContext)
-    const {addToCalender} = useCalender()
+    const {addToCalenderDialog} = useCalender()
     const [_, emit] = useEvent(EVENT.setEventStatus)
     const [groupHost, setGroupHost] = useState<Group>()
     const {defaultAvatar} = usePicture()
@@ -56,7 +57,7 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
     const endTime = new Date(eventDetail.end_time!).getTime()
     const startTime = new Date(eventDetail.start_time!).getTime()
     const isExpired = endTime < now
-    const onGoing =  startTime <= now && endTime >= now
+    const onGoing = startTime <= now && endTime >= now
 
     useEffect(() => {
         if (user.id) {
@@ -79,7 +80,15 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
             if (props.event?.host_info.startsWith('{')) {
                 const hostInfo = JSON.parse(props.event?.host_info!)
                 if (hostInfo.group_host) {
-                    setGroupHost(hostInfo.group_host)
+                    if (hostInfo.group_host.id) {
+                        queryGroupDetail(hostInfo.group_host.id).then(res => {
+                            if (res) {
+                                setGroupHost(res)
+                            }
+                        })
+                    } else {
+                        setGroupHost(hostInfo.group_host)
+                    }
                 }
             } else {
                 queryGroupDetail(Number(props.event?.host_info)).then(res => {
@@ -99,65 +108,13 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
         }
     }
 
-    const handleJoin = async (e: any) => {
-        e.stopPropagation()
-        e.preventDefault()
-
-        const eventDetail = await queryEventDetail({id: props.event.id})
-        const participantsAll = eventDetail?.participants || []
-        const participants = participantsAll.filter(item => item.status !== 'cancel')
-
-        if (props.event?.max_participant !== null && props.event?.max_participant <= participants.length) {
-            showToast('The event at full strength')
-            return
-        }
-
-        const group = eventGroups.find(item => item.id === props.event.group_id)
-        if (!group) {
-            showToast('This Group has not yet enabled the event capability.')
-            return
-        }
-
-        if (hasRegistered) {
-            showToast('You have already registered for this event.')
-            return
-        }
-
-        const unload = showLoading()
-        const membership = await getGroupMembers({group_id: props.event.group_id!, role: 'all'})
-        const isMember = membership.some(item => item.id === user.id)
-        if ((!isMember && (group as Group).can_join_event === 'member') && (group as Group).can_join_event !== 'everyone') {
-            unload()
-            showToast('Only group members can join this event.')
-            return
-        }
-
-        const tickets = await queryTickets({event_id: props.event.id})
-        if (tickets.length > 0) {
-            unload()
-            openDialog({
-                content: (close: any) => <div style={{background: '#fff', padding: '20px', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.12)'}}>
-                    <EventTickets isDialog tickets={tickets} event={props.event} />
-                </div>,
-                size: [400, 'auto'],
-                position: 'bottom',
-            })
-            return
-        }
-
-        try {
-            const join = await joinEvent({id: Number(props.event.id), auth_token: user.authToken || ''})
-            unload()
-            showToast('Join success')
-            setHasRegistered(true)
-        } catch (e: any) {
-            console.error(e)
-            unload()
-            showToast(e.message)
-        }
-    }
-
-    const hasMarker = isExpired || hasRegistered || isCreated || props.event.status === 'pending' || onGoing || !!props.event.external_url
+    const hasMarker = isExpired
+        || hasRegistered
+        || isCreated
+        || props.event.status === 'pending'
+        || onGoing
+        || !!props.event.external_url
+        || props.event.display === 'private'
 
     const largeCard = fixed || (hasMarker && !fixed)
 
@@ -169,7 +126,7 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
             confirmLabel: lang['Yes'],
             confirmTextColor: '#fff',
             confirmBtnColor: '#F64F4F',
-            cancelLabel:  lang['No'],
+            cancelLabel: lang['No'],
             onConfirm: async (close: any) => {
                 const unload = showLoading()
                 try {
@@ -221,9 +178,11 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
     }
 
     return (<Link href={`/event/detail/${props.event.id}`}
+                  target={props.blank ? '_blank' : '_self'}
                   className={largeCard ? 'event-card large' : 'event-card'}>
         {largeCard &&
             <div className={'markers'}>
+                {props.event.display === 'private' && <div className={'marker private'}>{'Private'}</div>}
                 {props.event.status === 'pending' && <div className={'marker pending'}>{lang['Pending']}</div>}
                 {onGoing && <div className={'marker registered'}>{lang['Ongoing']}</div>}
                 {props.event.status === 'rejected' && <div className={'marker rejected'}>{lang['Rejected']}</div>}
@@ -239,11 +198,15 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
             <div className={'left'}>
                 <div className={'details'}>
                     <div className={'title'}>
-                        { hasMarker &&
+                        {hasMarker &&
                             <div className={'markers'}>
-                                {props.event.status === 'pending' && <div className={'marker pending'}>{lang['Pending']}</div>}
+                                {props.event.display === 'private' &&
+                                    <div className={'marker private'}>{'Private'}</div>}
+                                {props.event.status === 'pending' &&
+                                    <div className={'marker pending'}>{lang['Pending']}</div>}
                                 {onGoing && <div className={'marker registered'}>{lang['Ongoing']}</div>}
-                                {props.event.status === 'rejected' && <div className={'marker rejected'}>{lang['Rejected']}</div>}
+                                {props.event.status === 'rejected' &&
+                                    <div className={'marker rejected'}>{lang['Rejected']}</div>}
                                 {(hasRegistered || props.attend) &&
                                     <div className={'marker registered'}>{lang['Activity_State_Registered']}</div>}
                                 {isCreated && <div className={'marker created'}>{lang['Activity_Detail_Created']}</div>}
@@ -267,78 +230,47 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
                     {
                         groupHost ?
                             <div className={'detail'}>
-                                <ImgLazy src={groupHost.image_url || defaultAvatar(groupHost.id)} width={16} height={16} alt=""/>
-                                <span>host by {groupHost?.nickname || groupHost?.username}</span>
+                                <ImgLazy src={groupHost.image_url || defaultAvatar(groupHost.id)} width={16} height={16}
+                                         alt=""/>
+                                <span>hosted by {groupHost?.nickname || groupHost?.username}</span>
                             </div>
-                                : props.event.owner ?
+                            : props.event.owner ?
                                 <div className={'detail'}>
-                                    <ImgLazy src={props.event.owner.image_url || defaultAvatar(props.event.owner.id)} width={16} height={16} alt=""/>
-                                    <span>host by {`${props.event.owner?.nickname || props.event.owner?.username}`}</span>
+                                    <ImgLazy src={props.event.owner.image_url || defaultAvatar(props.event.owner.id)}
+                                             width={16} height={16} alt=""/>
+                                    <span>hosted by {`${props.event.owner?.nickname || props.event.owner?.username}`}</span>
                                 </div>
-                                :<></>
+                                : <></>
                     }
 
                     {!!eventDetail.start_time &&
                         <div className={'detail'}>
                             <i className={'icon-calendar'}/>
-                            <span>{formatTime(eventDetail.start_time, localeTimezone as any)}</span>
+                            <span>{formatTime(eventDetail.start_time, eventDetail.timezone || localeTimezone)}</span>
                         </div>
                     }
 
-                    {!!eventDetail.location && !eventDetail.event_site &&
+                    {!!eventDetail.location && !eventDetail.event_site && (eventDetail.group_id !== 3409 || !!user.id) &&
                         <div className={'detail'}>
                             <i className={'icon-Outline'}/>
                             <span>{eventDetail.location}</span>
                         </div>
                     }
 
-                    {!!eventDetail.event_site &&
+                    {!!eventDetail.event_site && (eventDetail.group_id !== 3409 || !!user.id) &&
                         <div className={'detail'}>
                             <i className={'icon-Outline'}/>
-                            <span>{eventDetail.event_site.title}</span>
+                            <span>{eventDetail.event_site!.title}</span>
                         </div>
                     }
 
-                    {!!eventDetail.meeting_url &&
+                    {!!eventDetail.meeting_url && (eventDetail.group_id !== 3409 || !!user.id) &&
                         <div className={'detail'}>
                             <i className={'icon-link'}/>
                             <span>{eventDetail.meeting_url}</span>
                         </div>
                     }
                 </div>
-
-                {props.event.status === 'open' &&
-                    <div className={'event-card-action'}>
-                        {!fixed &&
-                            <AppButton
-                                style={{maxWidth: '60px'}}
-                                onClick={e => {
-                                    e.preventDefault()
-                                    addToCalender({
-                                        name: eventDetail!.title,
-                                        startTime: eventDetail!.start_time!,
-                                        endTime: eventDetail!.end_time!,
-                                        location: eventDetail!.formatted_address || eventDetail!.location || '',
-                                        details: eventDetail!.content,
-                                        url: `${window.location.origin}/event/detail/${eventDetail!.id}`
-                                    })
-                                }}
-                            ><i className={'icon-calendar'}/></AppButton>
-                        }
-
-                        {!!user.id && !hasRegistered && !fixed && !props.event.external_url &&
-                            <AppButton special onClick={e => {
-                                handleJoin(e)
-                            }}>{lang['Event_Card_Apply_Btn']}</AppButton>
-                        }
-
-                        { !fixed && !!props.event.external_url &&
-                            <AppButton special onClick={e => {
-                                handleExternal(e)
-                            }}>{lang['Event_Card_Apply_Btn']}</AppButton>
-                        }
-                    </div>
-                }
 
                 {props.event.status === 'pending' && props.canPublish &&
                     <div className={'event-card-action'}>
@@ -351,14 +283,14 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
                 {
                     props.event.cover_url ?
                         <ImgLazy src={props.event.cover_url} width={280} alt=""/>
-                        : <EventDefaultCover event={props.event} width={140} height={140}/>
+                        : <EventDefaultCover event={props.event} width={140} height={140} showLocation={props.event.group_id !== 3409}/>
                 }
             </div>
             <div className={(fixed || hasMarker && !fixed) ? 'post marker mobile' : 'post mobile'}>
                 {
                     props.event.cover_url ?
                         <ImgLazy src={props.event.cover_url} width={280} alt=""/>
-                        : <EventDefaultCover event={props.event} width={100} height={100}/>
+                        : <EventDefaultCover event={props.event} width={100} height={100} showLocation={props.event.group_id !== 3409}/>
                 }
             </div>
         </div>

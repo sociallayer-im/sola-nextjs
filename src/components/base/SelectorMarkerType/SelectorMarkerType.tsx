@@ -57,16 +57,11 @@ function SelectorMarkerType(props: { value?: string, exclude?: string[], onChang
         <div className={styles['title']}>{lang['Form_Marker_Category']}</div>
         <div className={styles['list']}>
             {
-                markerTypeList2.map((item, index) => {
+                markerTypeList2.filter(t => t.category !== 'event').map((item, index) => {
                     if (!props.exclude?.includes(item.category)) {
                         return <div
                             onClick={() => {
                                 props.onChange && props.onChange(item)
-                                if (item.category.toLowerCase() === 'event') {
-                                    router.push(`/event/${params?.groupname}/create`)
-                                } else {
-                                    router.push(`/event/${params?.groupname}/create-marker?type=${item.category}`)
-                                }
                             }}
                             className={`${styles['item']} ${item.category === props.value ? styles['item-active'] : ''}`}
                             key={item.category}>{item.label}</div>

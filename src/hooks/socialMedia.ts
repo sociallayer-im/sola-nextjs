@@ -3,6 +3,7 @@ const telegramRegex = /^https?:\/\/(?:www\.)?t\.me\/([A-Za-z0-9_]{1,15})\/?$/;
 const githubRegex = /^https?:\/\/(?:www\.)?github\.com\/([A-Za-z0-9_]{1,15})\/?$/;
 const ensRegex = /^https?:\/\/app\.ens\.domains\/([A-Za-z0-9_\.]{1,32})\/?$/;
 const lensRegex = /^https?:\/\/(?:www\.)?lenster\.xyz\/u\/([A-Za-z0-9_]{1,15})\/?$/;
+const farcasterRegex = /^https?:\/\/warpcast\.com\/([A-Za-z0-9_]{1,15})\/?$/;
 
 function useSocialMedia () {
     const url2Id = (socialMedia: string, type: string) => {
@@ -67,6 +68,15 @@ function useSocialMedia () {
             return socialMedia;
         }
 
+        if (type === 'farcaster') {
+            const match = socialMedia.match(farcasterRegex);
+            console.log('farcaster', match)
+            if (match && match[1]) {
+                return match[1];
+            }
+            return socialMedia;
+        }
+
         return socialMedia
     }
 
@@ -106,6 +116,11 @@ function useSocialMedia () {
         if (type === 'lens') {
             if (socialMedia.includes('lenster.xyz')) return socialMedia;
             return `https://lenster.xyz/u/${socialMedia}`;
+        }
+
+        if (type === 'farcaster') {
+            if (socialMedia.includes('warpcast.com')) return socialMedia;
+            return `https://warpcast.com/${socialMedia}`;
         }
 
         return socialMedia

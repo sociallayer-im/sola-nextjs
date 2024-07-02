@@ -8,7 +8,7 @@ const discoverData: any = async (context: any): Promise<{
     }
 }> => {
     const doc = gql`query MyQuery {
-      groups(where: {event_enabled: {_eq: true}, status: {_neq: "freezed"}}) {
+      groups(where: {group_tags: {_contains: [":top"]}, status: {_neq: "freezed"}}) {
         events_count
         memberships_count
         group_tags
@@ -46,7 +46,7 @@ const discoverData: any = async (context: any): Promise<{
           }
         }
       }
-      popup_cities(offset: 0, limit: 8, order_by: {id: desc}) {
+      popup_cities(where:{group_tags: {_contains: [":top"]}},offset: 0, limit: 8, order_by: {id: desc}) {
             id
             group_tags
             image_url

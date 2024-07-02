@@ -16,9 +16,11 @@ export interface BadgeBookDialogRes {
 interface DialogIssuePrefillProps {
     badges: Badge[]
     groupBadges?: { groupName: string, badges: Badge[] }[]
-    handleClose: () => any
+    handleClose: (isComplete?: boolean) => any
     profileId: number
     onSelect?: (res: BadgeBookDialogRes) => any
+    returnUrl?: string,
+
 }
 
 
@@ -29,14 +31,18 @@ function DialogIssuePrefill(props: DialogIssuePrefillProps) {
 
     const gotoCreateBadge = (type: CreateType) => {
         !!props.onSelect && props.onSelect({type})
-        router.push('/create-badge')
-        props.handleClose()
+        props.handleClose(false)
+        if (props.returnUrl) {
+            router.push(`/create-badge?return=${props.returnUrl}`)
+        } else {
+            router.push('/create-badge')
+        }
     }
 
     const badgeItems = (badges: Badge[]) => {
         const handleClick = (item: Badge) => {
             !!props.onSelect && props.onSelect({badgeId: item.id, type: 'badge'})
-            props.handleClose()
+            props.handleClose(true)
         }
 
         return badges.map((item, index) => {
@@ -131,7 +137,7 @@ function DialogIssuePrefill(props: DialogIssuePrefillProps) {
             </>
         }
         <div className='close-dialog' onClick={() => {
-            props.handleClose()
+            props.handleClose(false)
         }}><Delete size={20} title='Close'/></div>
     </div>)
 }

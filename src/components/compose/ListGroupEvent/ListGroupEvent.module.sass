@@ -1,2 +1,36 @@
 .wrapper
   padding: 0 12px
+  position: relative
+
+
+.fixed-box
+  padding: 16px!important
+  display: flex
+  flex-flow: row nowrap
+  justify-content: space-between
+  align-items: center
+  height: 70px
+  border-radius: 8px
+  box-sizing: border-box
+  background: #EFFFF9
+  margin-bottom: 20px
+
+  .name
+    color: var(--Text-4-Headline, #272928)
+    font-size: 16px
+    font-weight: 600
+
+  .btn
+    border-radius: var(--Radii-radius-button, 6px)
+    background: var(--Fill-6-Dark, #272928)
+    padding: 8px
+    color: var(--Text-0-White, #FFF)
+    font-size: 12px
+    font-weight: 600
+    display: flex
+    flex-flow: row nowrap
+    align-items: center
+    justify-content: center
+    text-decoration: none
+    &:hover
+        opacity: 0.8

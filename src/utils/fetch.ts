@@ -37,6 +37,7 @@ async function post (options: FetchOptions) {
             'Content-Type': 'application/json'
         }}
     )
+
     const after = Date.now()
     const duration = after - before
     console.log(`request time: ${duration}, url: ${options.url}, data: ${JSON.stringify(options.data)}`)

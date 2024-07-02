@@ -9,6 +9,7 @@
   box-sizing: border-box;
   position: relative;
   transition: all 0.12s linear;
+  text-decoration: none;
 
   &:hover {
     transform: translateY(-8px)

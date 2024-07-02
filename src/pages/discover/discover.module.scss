@@ -194,7 +194,7 @@
   margin-bottom: -12px;
 
 
-  :global(>div) {
+  :global(>a) {
     min-width: calc((100% - 12px * 3) / 4);
     max-width: calc((100% - 12px * 3) / 4);
 
@@ -204,7 +204,7 @@
   }
 
   @media(max-width: 1000px) {
-    :global(>div) {
+    :global(>a) {
       min-width: calc((100% - 12px * 2) / 3);
       max-width: calc((100% - 12px * 2) / 3);
 
@@ -223,7 +223,7 @@
       flex-flow: row wrap;
     }
 
-    :global(>div) {
+    :global(>a) {
       min-width: calc((100% - 12px * 1) / 2);
       max-width: calc((100% - 12px * 1) / 2);
 

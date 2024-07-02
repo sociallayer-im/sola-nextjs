@@ -7,12 +7,12 @@ import {
     Event,
     getEventGroup,
     getGroupMembership,
-    Group,
+    Group, ListData,
     memberCount,
     Membership,
     PopupCity,
     queryBadge,
-    queryEvent,
+    queryEvent, queryGroupDetail,
     queryPopupCity
 } from "@/service/solas";
 import SeedaoHome from "@/pages/seedao";
@@ -58,14 +58,14 @@ export const getServerSideProps: any = (async (context: any) => {
 
     } else if (process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'seedao') {
         console.time('seedao home page fetch data')
-        const eventgroups = await getEventGroup()
+        const eventgroup = await queryGroupDetail(targetGroupId)
         console.timeEnd('seedao home page fetch data')
-        return  { props : {initEvent: eventgroups.find((g: Group) => g.id === targetGroupId)}}
+        return  { props : {initEvent: eventgroup}}
 
     } else if (!!process.env.NEXT_PUBLIC_LEADING_EVENT_GROUP_ID) {
         console.time('event home page fetch data')
         const task = [
-            getEventGroup(),
+            queryGroupDetail(targetGroupId),
             tab === 'past' ?
                 queryEvent({
                     page: 1,
@@ -88,11 +88,11 @@ export const getServerSideProps: any = (async (context: any) => {
 
 
 
-        const [targetGroup, events, membership, badges] = await Promise.all(task)
+        const [targetGroup, events, membership, badges] = await Promise.all(task) as [Group, Event[], Membership[], ListData<Badge>]
         console.timeEnd('event home page fetch data')
         return {
             props: {
-                initEvent: targetGroup.find((g: Group) => g.id === targetGroupId),
+                initEvent: targetGroup,
                 initList: events,
                 badges: badges.data,
                 eventGroups: targetGroup,

@@ -131,7 +131,6 @@ function Dashboard() {
     }
 
     const saveEventSite = async function () {
-        console.log('saveEventSite', eventSite)
         const check = eventSite
             .filter(e => e.title && !e.formatted_address)
             .map(e => eventSite.indexOf(e))
@@ -173,11 +172,11 @@ function Dashboard() {
                 const newGroup = await queryGroupDetail(eventGroup!.id)
                 setEventGroup(newGroup)
                 unload()
-                showToast('Save event site success')
+                showToast('Save venues success')
             } catch (e) {
                 unload()
                 console.error(e)
-                showToast('Save event site failed')
+                showToast('Save venues failed')
             }
         }
     }
@@ -195,6 +194,13 @@ function Dashboard() {
             about: '',
             geo_lat: '',
             geo_lng: '',
+            start_date: null,
+            end_date: null,
+            timeslots: null ,
+            link: null,
+            capacity: null,
+            overrides: null,
+            visibility: null
         })
         setEventSite(_eventSite)
     }
@@ -407,20 +413,20 @@ function Dashboard() {
                         </div>
                         <div className={'dialog-inner'}>
                             <div className={'dialog-des'}>
-                                Event sites are the default locations that creators can choose for their events.
+                                venues are the default locations that creators can choose for their events.
                             </div>
 
                             {
-                                eventSite.map((item, index) => {
+                                eventSite.map((item, i) => {
                                     return <EventSiteInput
-                                        key={item.id}
-                                        index={index + 1}
+                                        key={item.id || i}
+                                        index={i + 1}
                                         initValue={item}
-                                        error={errorInputItem.includes(index)}
+                                        error={errorInputItem.includes(i)}
                                         onDelete={(index) => {
                                             const newEventSiteList = [...eventSite]
                                             const res = newEventSiteList.filter((item, index1) => {
-                                                return index1 !== index - 1
+                                                return index1 !== i
                                             })
 
                                             setEventSite(res)
@@ -428,7 +434,7 @@ function Dashboard() {
 
                                         onChange={newEventSite => {
                                             const newEventSiteList = [...eventSite]
-                                            newEventSiteList[index] = newEventSite
+                                            newEventSiteList[i] = newEventSite
                                             setEventSite(newEventSiteList)
                                         }}/>
                                 })
@@ -442,7 +448,7 @@ function Dashboard() {
                                         d="M18.6667 13.3333H14.6667V9.33334C14.6667 9.15653 14.5965 8.98696 14.4715 8.86193C14.3465 8.73691 14.1769 8.66667 14.0001 8.66667C13.8233 8.66667 13.6537 8.73691 13.5287 8.86193C13.4037 8.98696 13.3334 9.15653 13.3334 9.33334V13.3333H9.33341C9.1566 13.3333 8.98703 13.4036 8.86201 13.5286C8.73699 13.6536 8.66675 13.8232 8.66675 14C8.66675 14.1768 8.73699 14.3464 8.86201 14.4714C8.98703 14.5964 9.1566 14.6667 9.33341 14.6667H13.3334V18.6667C13.3334 18.8435 13.4037 19.0131 13.5287 19.1381C13.6537 19.2631 13.8233 19.3333 14.0001 19.3333C14.1769 19.3333 14.3465 19.2631 14.4715 19.1381C14.5965 19.0131 14.6667 18.8435 14.6667 18.6667V14.6667H18.6667C18.8436 14.6667 19.0131 14.5964 19.1382 14.4714C19.2632 14.3464 19.3334 14.1768 19.3334 14C19.3334 13.8232 19.2632 13.6536 19.1382 13.5286C19.0131 13.4036 18.8436 13.3333 18.6667 13.3333Z"
                                         fill="#272928"/>
                                 </svg>
-                                Add an event site
+                                Add an venue
                             </div>
 
                         </div>

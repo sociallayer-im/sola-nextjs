@@ -38,11 +38,24 @@
     justify-content: flex-start
     user-select: none
     position: relative
+    &.items-start
+      align-items: flex-start
+    &.col
+      flex-flow: column nowrap
+      align-items: flex-start
+
     &.disable
       pointer-events: none
       opacity: 0.6
     &:last-child
       border: 0
+
+    .tip
+      font-size: 12px
+      color: #7B7C7B
+      margin-top: 4px
+      font-weight: normal
+      line-height: 18px
     img
       display: block
       width: 28px

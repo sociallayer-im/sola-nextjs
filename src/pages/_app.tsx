@@ -5,6 +5,8 @@ import NextNProgress from 'nextjs-progressbar';
 import Script from 'next/script'
 import {Analytics} from '@vercel/analytics/react';
 import Layout from "@/components/Layout/Layout";
+import fetch from "@/utils/fetch";
+import { SpeedInsights } from "@vercel/speed-insights/next"
 
 // providers
 import LangProvider from "@/components/provider/LangProvider/LangProvider"
@@ -36,7 +38,6 @@ const farcasterConfig = {
     domain: process.env.NEXT_PUBLIC_HOST!.split('//')[1],
     siweUri: process.env.NEXT_PUBLIC_HOST,
 };
-
 
 const inject = new InjectedConnector({
     chains: [polygon, avalancheFuji],
@@ -80,46 +81,50 @@ function MyApp({Component, pageProps, ...props}: any) {
     }
 
     return (
-        <PageBacProvider>
-            <Head>
-                <link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
-                <meta name="viewport"
-                      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-                <title>{process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'maodao' ? 'Ready Player Club' : 'Social Layer'}</title>
-            </Head>
-            <WagmiConfig config={config as any}>
-                {/*<AuthKitProvider config={farcasterConfig}>*/}
-                <SolanaWalletProvider>
-                    <ColorSchemeProvider>
-                        <StyletronProvider value={styletron}>
-                            <BaseProvider theme={theme}>
-                                <DialogProvider>
-                                    <UserProvider>
-                                        <LangProvider>
-                                            <DialogProvider>
-                                                <MapProvider>
-                                                    <EventHomeProvider>
-                                                        <NotificationsProvider>
-                                                            <DisplayLay>
-                                                                <NextNProgress options={{showSpinner: false}}/>
-                                                                <Component {...pageProps} />
-                                                                <Subscriber/>
-                                                                <Analytics/>
-                                                            </DisplayLay>
-                                                        </NotificationsProvider>
-                                                    </EventHomeProvider>
-                                                </MapProvider>
-                                            </DialogProvider>
-                                        </LangProvider>
-                                    </UserProvider>
-                                </DialogProvider>
-                            </BaseProvider>
-                        </StyletronProvider>
-                    </ColorSchemeProvider>
-                </SolanaWalletProvider>
+        <>
+            <SpeedInsights/>
+            <PageBacProvider>
+                <Head>
+                    <link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+                    <meta name="viewport"
+                          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+                    <title>{process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'maodao' ? 'Ready Player Club' : 'Social Layer'}</title>
+                </Head>
+                <WagmiConfig config={config as any}>
+                    {/*<AuthKitProvider config={farcasterConfig}>*/}
+                    <SolanaWalletProvider>
+                        <ColorSchemeProvider>
+                            <StyletronProvider value={styletron}>
+                                <BaseProvider theme={theme}>
+                                    <DialogProvider>
+                                        <MapProvider>
+                                        <UserProvider>
+                                            <LangProvider>
+                                                <DialogProvider>
+                                                        <EventHomeProvider>
+                                                            <NotificationsProvider>
+                                                                <DisplayLay>
+                                                                    <NextNProgress options={{showSpinner: false}}/>
+                                                                    <Component {...pageProps} />
+                                                                    <Subscriber/>
+                                                                    <Analytics/>
+
+                                                                </DisplayLay>
+                                                            </NotificationsProvider>
+                                                        </EventHomeProvider>
+                                                </DialogProvider>
+                                            </LangProvider>
+                                        </UserProvider>
+                                        </MapProvider>
+                                    </DialogProvider>
+                                </BaseProvider>
+                            </StyletronProvider>
+                        </ColorSchemeProvider>
+                    </SolanaWalletProvider>
                     {/*</AuthKitProvider>*/}
-            </WagmiConfig>
-        </PageBacProvider>
+                </WagmiConfig>
+            </PageBacProvider>
+        </>
     );
 }
 

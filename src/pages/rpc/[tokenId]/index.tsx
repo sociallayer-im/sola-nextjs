@@ -3,7 +3,6 @@ import {getProfile, Group, Profile} from "@/service/solas";
 import Alchemy from "@/service/alchemy/alchemy";
 import fetch from "@/utils/fetch";
 import { toChecksumAddress } from 'web3-utils'
-import fa from "@walletconnect/legacy-modal/dist/cjs/browser/languages/fa";
 
 export default Page
 
@@ -42,7 +41,14 @@ export const getServerSideProps: any = (async (context: any) => {
         banner_image_url: null,
         banner_link_url: null,
         group_location_details: null,
-        far_address: null
+        far_address: null,
+        farcaster: null,
+        zupass_edge_end_date:null,
+        zupass_edge_event_id:  null,
+        zupass_edge_product_id: null,
+        zupass_edge_product_name: null,
+        zupass_edge_start_date: null,
+        zupass_edge_weekend: null,
     }
 
     if (tokenId) {

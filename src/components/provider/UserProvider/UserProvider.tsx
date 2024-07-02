@@ -3,7 +3,7 @@ import {useAccount, useDisconnect, useWalletClient} from 'wagmi'
 import UserContext from './UserContext'
 import DialogsContext from '../DialogProvider/DialogsContext'
 import * as AuthStorage from '../../../utils/authStorage'
-import {login as solaLogin, myProfile} from '@/service/solas'
+import {login as solaLogin, myProfile, Profile} from '@/service/solas'
 import {useRouter} from 'next/navigation'
 import useEvent, {EVENT} from '../../../hooks/globalEvent'
 import {setAuth} from "@/utils/authStorage";
@@ -29,6 +29,7 @@ export interface User {
     permissions: string[],
     phone: string | null,
     maodaoid?: number | null,
+    detail?: Profile | null
 
 }
 
@@ -93,6 +94,7 @@ function UserProvider(props: UserProviderProps) {
                 permissions: profileInfo?.permissions || [],
                 maodaoid: profileInfo?.maodaoid,
                 far_address: profileInfo?.far_address,
+                detail: profileInfo
             })
 
             // if (!profileInfo!.username) {
@@ -360,16 +362,18 @@ function UserProvider(props: UserProviderProps) {
         await setProfile({authToken})
     }
 
+    // useEffect(() => {
+    //     login()
+    // }, [])
 
     useEffect(() => {
-        login()
-    }, [])
+        const loginType = AuthStorage.getLastLoginType()
+        if (!loginType) return
 
-    useEffect(() => {
-        let auth = AuthStorage.getAuth()
-
-        if (data && !auth) {
+        if (loginType === 'wallet') {
             walletLogin()
+        } else {
+            login()
         }
     }, [data])
 

@@ -90,6 +90,11 @@
         background: #ffede1;
         color: #fd9127;
       }
+
+      &.private {
+        background: #f8f2ff;
+        color: #c863ff;
+      }
     }
   }
 
@@ -229,6 +234,11 @@
           background: #ffede1;
           color: #fd9127;
         }
+
+        &.private {
+          background: #f8f2ff;
+          color: #c863ff;
+        }
       }
     }
 
@@ -300,6 +310,16 @@
     display: flex;
     padding-left: 12px;
     padding-top: 18px;
+    flex-flow: row wrap;
+    height: auto;
+    max-height: initial;
+
+    min-width: 180px;
+    width: 52%;
+
+    &>div {
+      margin-bottom: 4px;
+    }
   }
 
   .event-card .info {

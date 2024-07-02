@@ -1,0 +1,59 @@
+.schedule-header {
+  height: 40px;
+  width: 100%;
+  background: #fff;
+
+  .center {
+    max-width: 1024px;
+    padding: 0 12px;
+    margin: 0 auto;
+    height: 40px;
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+
+    > .active {
+      font-weight: 600;
+      color: #272928;
+    }
+
+    > .active:after {
+      content: '';
+      display: block;
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 16px;
+      height: 6px;
+      flex-shrink: 0;
+      background:  #6CD7B2;
+      border-radius: 6px;
+    }
+
+    > a {
+      color: #7B7C7B;
+      font-size: 16px;
+      font-style: normal;
+      font-weight: 400;
+      padding: 6px 16px;
+      text-decoration: none;
+      position: relative;
+      white-space: nowrap;
+      text-align: center;
+
+
+      &:hover {
+        color: #272928;
+      }
+    }
+
+    @media (max-width: 450px) {
+      > a {
+        font-size: 14px;
+        padding: 6px 6px;
+        flex: 1;
+      }
+    }
+  }
+}

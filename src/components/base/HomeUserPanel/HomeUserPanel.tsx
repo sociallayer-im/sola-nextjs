@@ -10,6 +10,9 @@ import EventHomeContext from "@/components/provider/EventHomeProvider/EventHomeC
 import {Badge, Membership, queryBadge, Group} from "@/service/solas";
 import ImgLazy from "@/components/base/ImgLazy/ImgLazy";
 import { StatefulPopover } from "baseui/popover";
+import {useTime5} from "@/hooks/formatTime";
+import ZupassTicket from "@/components/base/ZupassTicket/ZupassTicket";
+import EdgeToken from "@/components/base/EdgeToken/EdgeToken";
 
 function HomeUserPanel({showSchedule=true, ...props}: {
     membership: Membership[],
@@ -29,12 +32,19 @@ function HomeUserPanel({showSchedule=true, ...props}: {
     const [groupMembers, setGroupMembers] = useState<Membership[]>([])
     const [groupBadges, setGroupBadges] = useState<Badge[]>([])
     const [compact, setCompact] = useState(props.isSide || false)
+    const [memberCount, setMemberCount] = useState(0)
 
     useEffect(() => {
-        const owner = props.membership.find((item: Membership) => item.role === 'owner')!
-        const manager = props.membership.filter((item: Membership) => item.role === 'manager')
-        const issuer = props.membership.filter((item: Membership) => item.role === 'issuer')
-        let member = props.membership.filter((item: Membership) => item.role === 'member')
+        const  memberships = props.membership.filter((membership) => !!membership.profile.username)
+        setMemberCount(memberships.length)
+
+        const owner = memberships.find((item: Membership) => item.role === 'owner')!
+        const manager = memberships.filter((item: Membership) => item.role === 'manager')
+        const issuer = memberships.filter((item: Membership) => item.role === 'issuer')
+        let member = memberships.filter((item: Membership) => item.role === 'member')
+
+        // 过滤掉没有username的用户，通常是通过邮箱邀请一个不存在的用户，后台会创建一个新用户，但是没有username
+
 
         if (compact) {
             const length = manager.length  + issuer.length + 1
@@ -88,7 +98,7 @@ function HomeUserPanel({showSchedule=true, ...props}: {
                                     <span>{eventGroup?.nickname || eventGroup?.username || '--'}</span>
                                 </Link>
                                 <Link href={`/group/${eventGroup.username}`} className={'right'}>
-                                    {props.membership.length} {lang['Group_detail_tabs_member'].toLowerCase()}
+                                    {memberCount} {lang['Group_detail_tabs_member'].toLowerCase()}
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"
                                          fill="none">
                                         <path
@@ -131,8 +141,8 @@ function HomeUserPanel({showSchedule=true, ...props}: {
                             })
                         }
 
-                        { props.membership.length > 0 &&
-                           <div className={'side-member-count'} onClick={e => {setCompact(!compact)}}>{`${props.membership.length} ${lang['Group_detail_tabs_member']}`} </div>
+                        { memberCount > 0 &&
+                           <div className={'side-member-count'} onClick={e => {setCompact(!compact)}}>{`${memberCount} ${lang['Group_detail_tabs_member']}`} </div>
                         }
                     </div>
                 </div>
@@ -146,43 +156,23 @@ function HomeUserPanel({showSchedule=true, ...props}: {
         }
 
         { (props.group || eventGroup) && showSchedule &&
-            <StatefulPopover
-                content={() => {
-                    let width = 100
-                    if (typeof  window !== 'undefined') {
-                        const btn1: any = document?.querySelector('.home-user-panel .calendar-btn');
-                        const btn2: any = document?.querySelector('.home-user-panel.side .calendar-btn');
-                        width = btn1?.offsetWidth || btn2?.offsetWidth || 100
-                    }
-
-                    const group = props.group?.username || eventGroup?.username
-                    return <div className={'schedule-popup'} style={{width: width + 'px'}}>
-                        <Link href={`/event/${group}/calendar`}>
-                            <img src="/images/calendar.png" alt=""/>
-                            {lang['Calendar_View']}
-                        </Link>
-                        <Link href={`/event/${group}/schedule`}>
-                            <img src="/images/schedule.png" alt=""/>
-                            {lang['Schedule_View']}
-                        </Link>
-                        <Link href={`/event/${group}/timeline`}>
-                            <img src="/images/timeline.png" alt=""/>
-                            {lang['Timeline_View']}
-                        </Link>
-                    </div>
-                }}
-                returnFocus={false}
-                autoFocus={false}>
-                <div className={'calendar-btn'}>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-                        <path
-                            d="M16 14H8C7.73478 14 7.48043 14.1054 7.29289 14.2929C7.10536 14.4804 7 14.7348 7 15C7 15.2652 7.10536 15.5196 7.29289 15.7071C7.48043 15.8946 7.73478 16 8 16H16C16.2652 16 16.5196 15.8946 16.7071 15.7071C16.8946 15.5196 17 15.2652 17 15C17 14.7348 16.8946 14.4804 16.7071 14.2929C16.5196 14.1054 16.2652 14 16 14ZM16 10H10C9.73478 10 9.48043 10.1054 9.29289 10.2929C9.10536 10.4804 9 10.7348 9 11C9 11.2652 9.10536 11.5196 9.29289 11.7071C9.48043 11.8946 9.73478 12 10 12H16C16.2652 12 16.5196 11.8946 16.7071 11.7071C16.8946 11.5196 17 11.2652 17 11C17 10.7348 16.8946 10.4804 16.7071 10.2929C16.5196 10.1054 16.2652 10 16 10ZM20 4H17V3C17 2.73478 16.8946 2.48043 16.7071 2.29289C16.5196 2.10536 16.2652 2 16 2C15.7348 2 15.4804 2.10536 15.2929 2.29289C15.1054 2.48043 15 2.73478 15 3V4H13V3C13 2.73478 12.8946 2.48043 12.7071 2.29289C12.5196 2.10536 12.2652 2 12 2C11.7348 2 11.4804 2.10536 11.2929 2.29289C11.1054 2.48043 11 2.73478 11 3V4H9V3C9 2.73478 8.89464 2.48043 8.70711 2.29289C8.51957 2.10536 8.26522 2 8 2C7.73478 2 7.48043 2.10536 7.29289 2.29289C7.10536 2.48043 7 2.73478 7 3V4H4C3.73478 4 3.48043 4.10536 3.29289 4.29289C3.10536 4.48043 3 4.73478 3 5V19C3 19.7956 3.31607 20.5587 3.87868 21.1213C4.44129 21.6839 5.20435 22 6 22H18C18.7956 22 19.5587 21.6839 20.1213 21.1213C20.6839 20.5587 21 19.7956 21 19V5C21 4.73478 20.8946 4.48043 20.7071 4.29289C20.5196 4.10536 20.2652 4 20 4ZM19 19C19 19.2652 18.8946 19.5196 18.7071 19.7071C18.5196 19.8946 18.2652 20 18 20H6C5.73478 20 5.48043 19.8946 5.29289 19.7071C5.10536 19.5196 5 19.2652 5 19V6H7V7C7 7.26522 7.10536 7.51957 7.29289 7.70711C7.48043 7.89464 7.73478 8 8 8C8.26522 8 8.51957 7.89464 8.70711 7.70711C8.89464 7.51957 9 7.26522 9 7V6H11V7C11 7.26522 11.1054 7.51957 11.2929 7.70711C11.4804 7.89464 11.7348 8 12 8C12.2652 8 12.5196 7.89464 12.7071 7.70711C12.8946 7.51957 13 7.26522 13 7V6H15V7C15 7.26522 15.1054 7.51957 15.2929 7.70711C15.4804 7.89464 15.7348 8 16 8C16.2652 8 16.5196 7.89464 16.7071 7.70711C16.8946 7.51957 17 7.26522 17 7V6H19V19Z"
-                            fill="#7492EF"/>
-                    </svg>
-                    {lang['Activity_Calendar']}
-                </div>
-            </StatefulPopover>
+            <Link className={'calendar-btn'} href={`/event/${props.group?.username || eventGroup?.username}/schedule`}>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <path
+                        d="M16 14H8C7.73478 14 7.48043 14.1054 7.29289 14.2929C7.10536 14.4804 7 14.7348 7 15C7 15.2652 7.10536 15.5196 7.29289 15.7071C7.48043 15.8946 7.73478 16 8 16H16C16.2652 16 16.5196 15.8946 16.7071 15.7071C16.8946 15.5196 17 15.2652 17 15C17 14.7348 16.8946 14.4804 16.7071 14.2929C16.5196 14.1054 16.2652 14 16 14ZM16 10H10C9.73478 10 9.48043 10.1054 9.29289 10.2929C9.10536 10.4804 9 10.7348 9 11C9 11.2652 9.10536 11.5196 9.29289 11.7071C9.48043 11.8946 9.73478 12 10 12H16C16.2652 12 16.5196 11.8946 16.7071 11.7071C16.8946 11.5196 17 11.2652 17 11C17 10.7348 16.8946 10.4804 16.7071 10.2929C16.5196 10.1054 16.2652 10 16 10ZM20 4H17V3C17 2.73478 16.8946 2.48043 16.7071 2.29289C16.5196 2.10536 16.2652 2 16 2C15.7348 2 15.4804 2.10536 15.2929 2.29289C15.1054 2.48043 15 2.73478 15 3V4H13V3C13 2.73478 12.8946 2.48043 12.7071 2.29289C12.5196 2.10536 12.2652 2 12 2C11.7348 2 11.4804 2.10536 11.2929 2.29289C11.1054 2.48043 11 2.73478 11 3V4H9V3C9 2.73478 8.89464 2.48043 8.70711 2.29289C8.51957 2.10536 8.26522 2 8 2C7.73478 2 7.48043 2.10536 7.29289 2.29289C7.10536 2.48043 7 2.73478 7 3V4H4C3.73478 4 3.48043 4.10536 3.29289 4.29289C3.10536 4.48043 3 4.73478 3 5V19C3 19.7956 3.31607 20.5587 3.87868 21.1213C4.44129 21.6839 5.20435 22 6 22H18C18.7956 22 19.5587 21.6839 20.1213 21.1213C20.6839 20.5587 21 19.7956 21 19V5C21 4.73478 20.8946 4.48043 20.7071 4.29289C20.5196 4.10536 20.2652 4 20 4ZM19 19C19 19.2652 18.8946 19.5196 18.7071 19.7071C18.5196 19.8946 18.2652 20 18 20H6C5.73478 20 5.48043 19.8946 5.29289 19.7071C5.10536 19.5196 5 19.2652 5 19V6H7V7C7 7.26522 7.10536 7.51957 7.29289 7.70711C7.48043 7.89464 7.73478 8 8 8C8.26522 8 8.51957 7.89464 8.70711 7.70711C8.89464 7.51957 9 7.26522 9 7V6H11V7C11 7.26522 11.1054 7.51957 11.2929 7.70711C11.4804 7.89464 11.7348 8 12 8C12.2652 8 12.5196 7.89464 12.7071 7.70711C12.8946 7.51957 13 7.26522 13 7V6H15V7C15 7.26522 15.1054 7.51957 15.2929 7.70711C15.4804 7.89464 15.7348 8 16 8C16.2652 8 16.5196 7.89464 16.7071 7.70711C16.8946 7.51957 17 7.26522 17 7V6H19V19Z"
+                        fill="#7492EF"/>
+                </svg>
+                {lang['Activity_Calendar']}
+            </Link>
         }
+
+        {eventGroup?.id === 3409 && !!user && !!user.detail &&
+            <>
+            <ZupassTicket user={user.detail} />
+            <EdgeToken />
+            </>
+        }
+
 
         {
             props.slot && <>{props.slot()}</>

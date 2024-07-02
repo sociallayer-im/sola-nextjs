@@ -1,4 +1,23 @@
 .event-location-input {
+  .input-area-title {
+    color: var(--Text-4-Headline, #272928);
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 24px;
+    padding-left: 12px;
+    margin-bottom: 16px;
+  }
+
+  .input-area-sub-title {
+    color: var(--Text-4-Headline, #272928);
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 24px;
+    padding-left: 12px;
+  }
+
   #map {
     width: 0;
     height: 0;
@@ -180,4 +199,17 @@
       }
     }
   }
+}
+
+.approval-tag {
+  border-radius: 4px;
+  background: var(--Secondary-Color-Brand5-1-Light, #EEF2FE);
+  padding: 2px 7px 3px 5px;
+  justify-content: center;
+  color: var(--Secondary-Color-Brand5-3-Normal, #7492EF);
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  display: inline-block!important;
+  margin: 4px 0;
 }

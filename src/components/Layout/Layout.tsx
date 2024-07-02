@@ -5,6 +5,7 @@ import usePageHeight from '../../hooks/pageHeight'
 import userContext from "../provider/UserProvider/UserContext";
 import {ColorSchemeContext} from "@/components/provider/ColorSchemeProvider";
 import useSafePush from "@/hooks/useSafePush";
+import {useRouter} from "next/navigation";
 
 const isMaodao = process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'maodao'
 

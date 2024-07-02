@@ -1,7 +1,7 @@
 import { StatefulPopover, PLACEMENT } from 'baseui/popover'
 import { Overflow } from 'baseui/icon'
 import { useState, useContext } from 'react'
-import { Badgelet, setBadgeletStatus, SetBadgeletStatusType } from '../../../../service/solas'
+import { Badgelet, setBadgeletStatus, SetBadgeletStatusType } from '@/service/solas'
 import MenuItem from '../../../base/MenuItem'
 import LangContext from '../../../provider/LangProvider/LangContext'
 import UserContext from '../../../provider/UserProvider/UserContext'

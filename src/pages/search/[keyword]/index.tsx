@@ -18,15 +18,15 @@ function SearchPage() {
     },[params])
 
     return ( <div className='search-result-page'>
-        <AppTabs initialState={ { activeKey: 'domain' } }>
-            <Tab key='domain' title={ lang['Search_Tab_Domain'] }>
+        <AppTabs initialState={ { activeKey: 'event' } }>
+            <Tab key='event' title={ lang['Search_Tab_Event'] }>
+                <ListSearchResultEvent keyword={ params?.keyword as string } />
+            </Tab>
+            <Tab key='domain' title={ 'User' }>
                 <ListSearchResultDomain keyword={ keyword as string }></ListSearchResultDomain>
             </Tab>
             <Tab key='badge' title={ lang['Search_Tab_Badge'] }>
                 <ListSearchResultBadge keyword={ keyword as string}/>
-            </Tab>
-            <Tab key='event' title={ lang['Search_Tab_Event'] }>
-                <ListSearchResultEvent keyword={ params?.keyword as string } />
             </Tab>
         </AppTabs>
     </div>)

@@ -1,24 +1,39 @@
 import {useContext, useEffect, useRef, useState} from 'react'
-import {Event, getGroups, Group, queryEvent, queryGroupDetail} from "@/service/solas";
+import {
+    Event,
+    EventSites,
+    getEventSide,
+    getGroups,
+    getGroupsBatch,
+    Group,
+    queryEvent,
+    queryGroupDetail
+} from "@/service/solas";
 import styles from './schedulenew.module.scss'
-import EventLabels from "@/components/base/EventLabels/EventLabels";
 import Link from 'next/link'
 import UserContext from "@/components/provider/UserProvider/UserContext";
 import LangContext from "@/components/provider/LangProvider/LangContext";
 import usePicture from "@/hooks/pictrue";
 import {getLabelColor} from "@/hooks/labelColor";
-import {useRouter, useSearchParams, usePathname} from "next/navigation";
+import {usePathname, useRouter, useSearchParams} from "next/navigation";
 import timezoneList from "@/utils/timezone"
 import {Select} from "baseui/select";
-import { StatefulTooltip } from "baseui/tooltip"
+import {StatefulTooltip} from "baseui/tooltip"
+import ScheduleHeader from "@/components/base/ScheduleHeader";
+import {PageBackContext} from "@/components/provider/PageBackProvider";
+import Check from 'baseui/icon/check'
+import {EventPopup} from "@/components/compose/EventPopup/EventPopup";
+import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
 
 import * as dayjsLib from "dayjs";
 
 const utc = require('dayjs/plugin/utc')
 const timezone = require('dayjs/plugin/timezone')
+const isSameOrBefore = require('dayjs/plugin/isSameOrBefore')
 const dayjs: any = dayjsLib
 dayjs.extend(utc)
 dayjs.extend(timezone)
+dayjs.extend(isSameOrBefore)
 
 const dayName = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 const mouthName = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
@@ -28,7 +43,22 @@ let _offsetY = 0
 let _touchStartX = 0
 let _touchStartY = 0
 
-let observer: any = null
+let groupHostCache: Group[] = []
+
+const logos = [
+    {
+        time: ['2024/06/10', '2024/06/16'],
+        group: 3409,
+        logo: 'https://ik.imagekit.io/soladata/1q58x6ec_zHuugBRKN',
+        timezone: 'America/los_angeles'
+    },
+    // {
+    //     time: ['2024/05/01', '2024/05/30'],
+    //     group: 3409,
+    //     logo: 'https://ik.imagekit.io/soladata/1q58x6ec_zHuugBRKN',
+    //     timezone: 'America/los_angeles'
+    // }
+]
 
 interface DateItem {
     date: number,
@@ -47,41 +77,61 @@ const getCalendarData = (timeZone: string) => {
 
     // const timeStr = `${now.year()}-${now.month() + 1}-${now.date()} 00:00`
     // const _nowZero = dayjs(timeStr, timeZone)
-    const _from = now.subtract(182, 'day')
+    const _from = now.subtract(182, 'day').startOf('week').add(1, 'day')
+    const _end = _from.add(52, 'week').endOf('week').subtract(1, 'day')
 
-
-    // 获得 from 和 to  之间所以天0点的时间戳数组
-    const dayArray = []
-    for (let i = 0; i < 365; i++) {
-        let time = _from
-        if (i !== 0) {
-            time = _from.add(i, 'day')
-        }
-        dayArray.push({
-            date: time.date(),
-            timestamp: time.valueOf(),
-            dayName: dayName[time.day()],
-            day: time.day(),
-            month: time.month(),
-            year: time.year(),
+    const _dayArray = []
+    let current = _from
+    while (current.isSameOrBefore(_end)) {
+        _dayArray.push({
+            date: current.date(),
+            timestamp: current.valueOf(),
+            dayName: dayName[current.day()],
+            day: current.day(),
+            month: current.month(),
+            year: current.year(),
             events: [] as Event[],
             timezone: timeZone,
         })
+        current = current.add(1, 'day')
     }
-    console.log('dayArray length', dayArray.length)
-    return dayArray as DateItem[]
+
+
+    // 获得 from 和 to  之间所以天0点的时间戳数组
+    // const dayArray = []
+    // for (let i = 0; i < 365; i++) {
+    //     let time = _from
+    //     if (i !== 0) {
+    //         time = _from.add(i, 'day')
+    //     }
+    //     dayArray.push({
+    //         date: time.date(),
+    //         timestamp: time.valueOf(),
+    //         dayName: dayName[time.day()],
+    //         day: time.day(),
+    //         month: time.month(),
+    //         year: time.year(),
+    //         events: [] as Event[],
+    //         timezone: timeZone,
+    //     })
+    // }
+    // console.log('dayArray length', dayArray.length)
+    return _dayArray as DateItem[]
 }
 
 
-function ComponentName(props: { group: Group }) {
+function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
     const eventGroup = props.group
     const now = new Date()
     const scroll1Ref = useRef<any>(null)
     const scroll2Ref = useRef<any>(null)
     const eventListRef = useRef<Event[]>([])
+    const needScroll = useRef(true)
     const lock = useRef(false)
     const searchParams = useSearchParams()
     const pathname = usePathname()
+    const {showLoading} = useContext(DialogsContext)
+    const {applyScroll} = useContext(PageBackContext)
 
 
     const {user} = useContext(UserContext)
@@ -95,28 +145,60 @@ function ComponentName(props: { group: Group }) {
     const [ready, setReady] = useState(false)
     const [currMonth, setCurrMonth] = useState(new Date().getMonth())
     const [currYear, setCurrYear] = useState(new Date().getFullYear())
-    const [currTag, setCurrTag] = useState<string[]>([])
     const [timezoneSelected, setTimezoneSelected] = useState<{ label: string, id: string }[]>([])
+
+    let presetTag = searchParams?.get('tag')
+    const [selectedTags, setSelectedTags] = useState<string[]>(presetTag ? presetTag.split(',') : [])
+
+    const [venue, setVenue] = useState([{id: 0, label: 'All Venues', color: null}])
 
     const [pageSize, setPageSize] = useState(0)
     const [isEnd, setIsEnd] = useState(false)
     const [isStart, setIsStart] = useState(false)
     const [page, setPage] = useState(0)
 
+    const [groupHostCache, setGroupHostCache] = useState<Group[]>([])
+
     const pageRef = useRef(0)
     const initedRef = useRef(false)
+    const scrollDebounce = useRef<any>(null)
+
+    const tags = props.group.event_tags?.map((item: string) => {
+        return {
+            id: item,
+            label: item,
+            color: getLabelColor(item)
+        }
+    }) || []
+
+    const venues = props.eventSite.map((item) => {
+        return {
+            id: item.id,
+            label: item.title,
+            color: null
+        }
+    }) || []
 
 
     const toToday = (initDate?: Date) => {
         const now = initDate || new Date()
-        const date = dayjs.tz(now.getTime(), timezoneSelected[0].id)
+        let date = dayjs.tz(now.getTime(), timezoneSelected[0].id)
+        if (pageSize === 7) {
+            date = date.startOf('week').add(1, 'day')
+            console.log('date week', date.toDate())
+        }
+
         const startIndex = showList.findIndex(i => {
             return date.year() === i.year
                 && date.month() === i.month
                 && date.date() === i.date
         })
 
+        console.log('startIndex', startIndex)
+
         const targetPage = Math.ceil((startIndex + 1) / pageSize)
+
+        console.log('targetPage', targetPage)
         setPage(targetPage)
         setIsStart(targetPage === 1)
         setIsEnd(targetPage === Math.ceil(showList.length / pageSize))
@@ -136,35 +218,71 @@ function ComponentName(props: { group: Group }) {
         setIsEnd(targetPage === Math.ceil(showList.length / pageSize))
     }
 
+    const genHref = ({date, tag}: { date?: string, tag?: string }) => {
+        if (date && tag) {
+            return `?date=${date}&tag=${encodeURIComponent(tag)}`
+        } else if (date) {
+            return `?date=${date}`
+        } else if (tag) {
+            return `?tag=${tag}`
+        } else {
+            return ''
+        }
+    }
+
 
     useEffect(() => {
         if (timezoneSelected.length) {
             document.querySelector('.schedule-content')?.classList.add(styles['fade-out'])
             setPage(0)
             setDayList(getCalendarData(timezoneSelected[0].id))
+            setTimeout(() => {
+                document.querySelector('.schedule-content')?.classList.remove(styles['fade-out'])
+            }, 200)
         }
     }, [timezoneSelected])
 
     useEffect(() => {
         const getEventList = async () => {
+          const unload = showLoading()
             const events = await queryEvent({
                 group_id: eventGroup.id,
                 start_time_from: new Date(dayList[0].timestamp).toISOString(),
                 start_time_to: new Date(dayList[dayList.length - 1].timestamp).toISOString(),
                 page: 1,
                 event_order: 'asc',
-                page_size: 1000
+                page_size: 1000,
             })
 
-            setEventList(events)
+            const groupsHost = events
+                .map((e) => {
+                if (!e.host_info) return null
+                const info = JSON.parse(e.host_info)
+                if (info.group_host) {
+                    return info.group_host.id as number
+                }
+            })
+
+            const groupIds = groupsHost.filter((i) => !!i) as number[]
+
+
+            if (groupsHost.length) {
+                getGroupsBatch(groupIds).then(res => {
+                    setGroupHostCache(res)
+                })
+            }
+
             eventListRef.current = events
+            setEventList(events)
             setReady(true)
+            unload()
         }
 
         if (dayList.length) {
             getEventList()
         }
     }, [dayList])
+
 
     useEffect(() => {
         const list = JSON.parse(JSON.stringify(dayList))
@@ -182,58 +300,47 @@ function ComponentName(props: { group: Group }) {
         setReady(true)
     }, [eventList])
 
-    useEffect(() => {
-        document.querySelector('.schedule-content')?.classList.add(styles['fade-out'])
-        setPage(0)
-        let res: any = []
-        if (showJoined) {
-            res = eventListRef.current.filter(item => {
-                return item.participants?.some(i => i.profile_id === user.id && i.status !== 'cancel')
-            })
-        } else {
-            res = eventListRef.current
-        }
-
-        if (currTag[0]) {
-            res = res.filter((e: Event) => {
-                return e.tags?.includes(currTag[0])
-            })
-        }
-
-        setEventList(res)
-    }, [showJoined, currTag])
 
     useEffect(() => {
-        if (pageSize && showList.length) {
+        if (pageSize && showList.length && timezoneSelected.length) {
             if (!initedRef.current) {
                 const initDate = searchParams?.get('date')
-                toToday(initDate ? new Date(initDate) : undefined)
+                toToday(initDate ? dayjs.tz(initDate, timezoneSelected[0].id).toDate() : undefined)
                 initedRef.current = true
             } else {
                 toToday()
             }
         }
-    }, [pageSize, showList])
+    }, [pageSize, showList, timezoneSelected])
 
     useEffect(() => {
-        if (page) {
-            const direction = page - pageRef.current > 0  ? 'left' : 'right'
-            document.querySelector('.schedule-content')?.classList.add(styles['fade-out'])
+        const content = document.querySelector('.schedule-content')
+        if (page && !!content) {
+            const direction = page - pageRef.current > 0 ? 'left' : 'right'
+            content.classList.add(styles['fade-out'])
             setTimeout(() => {
-                document.querySelector('.schedule-content')?.classList.add(styles[`move-${direction}`])
+                content.classList.add(styles[`move-${direction}`])
                 const list: DateItem[] = []
                 for (let i = 0; i < pageSize; i++) {
                     !!showList[(page - 1) * pageSize + i] && list.push(showList[(page - 1) * pageSize + i])
                 }
                 setPageList(list)
-                setCurrMonth(dayjs.tz(list[0].timestamp, timezoneSelected[0].id).month())
-                setCurrYear(dayjs.tz(list[0].timestamp, timezoneSelected[0].id).year())
-                pageRef.current = page
+                if (!!list[0]) {
+                    setCurrMonth(dayjs.tz(list[0].timestamp, timezoneSelected[0].id).month())
+                    setCurrYear(dayjs.tz(list[0].timestamp, timezoneSelected[0].id).year())
+                }
 
+                pageRef.current = page
                 setTimeout(() => {
-                    document.querySelector('.schedule-content')?.classList.remove(styles['fade-out'])
-                    document.querySelector('.schedule-content')?.classList.remove(styles[`move-${direction}`])
-                }, 200)
+                    content.classList.remove(styles['fade-out'])
+                    content.classList.remove(styles[`move-${direction}`])
+                    setTimeout(() => {
+                        if (needScroll.current) {
+                            applyScroll()
+                            needScroll.current = false
+                        }
+                    }, 100)
+                }, 100)
             }, 100)
         }
     }, [page])
@@ -260,7 +367,8 @@ function ComponentName(props: { group: Group }) {
                 }
                 setTimezoneSelected([timezoneInfo])
             }
-        } catch (e: any) { }
+        } catch (e: any) {
+        }
 
         const calcPageSize = () => {
             const win = window as any
@@ -273,8 +381,6 @@ function ComponentName(props: { group: Group }) {
                 setPageSize(4)
             } else if (clientWidth >= 576) {
                 setPageSize(3)
-            } else if (clientWidth >= 376) {
-                setPageSize(2)
             } else {
                 setPageSize(1)
             }
@@ -295,12 +401,20 @@ function ComponentName(props: { group: Group }) {
         const scrollBar2 = scroll2Ref.current
 
         const checkScroll = (e: any) => {
+
             if (scrollBar2.scrollTop > 0) {
                 (window.document.querySelector('.schedule-head') as any)!.style.height = '0';
                 (window.document.querySelector('.event-list') as any)!.style.minHeight = `100vh`;
             } else {
-               (window.document.querySelector('.schedule-head') as any)!.style.height = '208px';
-                // (window.document.querySelector('.event-list') as any)!.style.minHeight = `100%`;
+                const hadleScroll = () => {
+                    (window.document.querySelector('.schedule-head') as any)!.style.height = '208px';
+                }
+                if (scrollDebounce.current) {
+                    clearTimeout(scrollDebounce.current)
+                }
+                scrollDebounce.current = setTimeout(() => {
+                    hadleScroll()
+                }, 100)
             }
         }
 
@@ -321,9 +435,9 @@ function ComponentName(props: { group: Group }) {
             }, 300)
         }
 
-        if (window.innerWidth < 450 ) {
+        if (window.innerWidth < 450) {
             scrollBar2 && scrollBar2.addEventListener('scroll', checkScroll)
-            scrollBar2 && scrollBar2.addEventListener('tou', checkScroll)
+
 
             scrollBar2.addEventListener('touchstart', touchstart)
             scrollBar2.addEventListener('touchmove', touchmove)
@@ -336,7 +450,7 @@ function ComponentName(props: { group: Group }) {
                 const win = window as any
                 win.removeEventListener('resize', calcPageSize)
 
-                if (window.innerWidth < 450 ) {
+                if (window.innerWidth < 450) {
                     scrollBar2 && scrollBar2.removeEventListener('scroll', checkScroll)
                     scrollBar2.removeEventListener('touchstart', touchstart)
                     scrollBar2.removeEventListener('touchmove', touchmove)
@@ -347,9 +461,42 @@ function ComponentName(props: { group: Group }) {
         }
     }, [])
 
+
+    useEffect(() => {
+        if (pageList[0]) {
+            const props = {
+                tag: selectedTags.length ? selectedTags.join(',') : undefined,
+                date: dayjs.tz(pageList[0].timestamp, timezoneSelected[0].id).format('YYYY-MM-DD')
+            }
+
+            const isIframe = location.href.includes('iframe')
+            const params = genHref(props) + (isIframe ? `&group=${eventGroup.username}` : '')
+            history.replaceState(null, '', params)
+        }
+    }, [pageList, page, tags, timezoneSelected])
+
     const creatEventPatch = eventGroup?.username === 'web3festival' ? `/event/${eventGroup.username}/custom-create` : `/event/${eventGroup.username}/create`
 
+    const showLogo = logos.find(item => {
+        if (!pageList.length) return false
+
+        const pageStart = `${pageList[0].year}/${(pageList[0].month + 1).toString().padStart(2, '0')}/${pageList[0].date}`
+        const pageEnd = `${pageList[0].year}/${(pageList[0].month + 1).toString().padStart(2, '0')}/${pageList[pageList.length - 1].date}`
+        const start = item.time[0]
+        const end = item.time[1]
+        return (pageStart >= start && pageStart <= end || pageEnd >= start && pageEnd <= end) && eventGroup.id === item.group
+    })
+
     return (<div className={styles['schedule-page']}>
+        {
+            !pathname?.includes('iframe') &&
+            <ScheduleHeader group={eventGroup} params={genHref({
+                tag: selectedTags.length ? selectedTags.join(',') : undefined,
+                date: pageList.length ? dayjs.tz(pageList[0].timestamp, timezoneSelected[0].id).format('YYYY-MM-DD') : undefined
+            })}/>
+        }
+
+
         <div className={`${styles['schedule-head']} schedule-head`}>
             <div className={styles['page-center']}>
                 <div className={styles['schedule-title']}>
@@ -357,10 +504,15 @@ function ComponentName(props: { group: Group }) {
                         <div className={'group-name'}>
                             {
                                 pathname?.includes('iframe') ?
-                                <img src="/images/logo.svg" alt="" width={94} height={29}/>:
-                                <Link href={`/event/${eventGroup.username}`}>{(eventGroup.nickname || eventGroup.username)}</Link>
+                                    <img src="/images/logo.svg" alt="" width={94} height={29}/> :
+                                    <Link href={`/event/${eventGroup.username}`}>
+                                        {!!showLogo ?
+                                            <img src={showLogo.logo} height={36} width={230} alt=""/>
+                                            : (eventGroup.nickname || eventGroup.username)
+                                        }
+                                    </Link>
                             }
-                           <div> {lang['Activity_Calendar']}</div>
+                            <div> {lang['Activity_Calendar']}</div>
                         </div>
                     </div>
                     <Link className={styles['create-btn']} href={creatEventPatch}
@@ -383,13 +535,74 @@ function ComponentName(props: { group: Group }) {
                     </Link>
                 </div>
                 <div className={styles['schedule-menu-1']}>
-                    <EventLabels data={eventGroup.event_tags || []}
-                                 onChange={e => {
-                                     setCurrTag(e)
-                                 }}
-                                 single={true}
-                                 value={currTag}
-                                 showAll={true}/>
+                    <div className={styles['menu-item'] + ' input-disable'}>
+                        <Select
+                            labelKey={'label'}
+                            valueKey={'id'}
+                            clearable={false}
+                            creatable={false}
+                            searchable={false}
+                            value={[{id: '', label: '', color: null}] as any}
+                            getOptionLabel={(opt: any) => {
+                                return <div className={styles['label-item']}>
+                                    {
+                                        selectedTags.includes(opt.option.id) ?
+                                            <Check size={22}/>
+                                            : <span style={{marginRight: '22px'}}/>
+                                    }
+                                    <i className={styles['label-color']}
+                                       style={{background: opt.option.color || '#f1f1f1'}}/>
+                                    {opt.option.label}
+                                </div>
+                            }}
+                            getValueLabel={(opt: any) => {
+                                return <div className={styles['label-item']}>
+                                    {!!selectedTags.length &&
+                                        <i className={styles['label-notice']}
+                                           style={{background: 'red'}}/>
+                                    }
+                                    Tags
+                                </div>
+                            }}
+                            options={[{id: 'All', label: 'All Tags', color: null}, ...tags as any]}
+                            onChange={({option}) => {
+                                if (!option) return
+                                if (option.id === 'All') {
+                                    setSelectedTags([])
+                                } else if (selectedTags.includes(option!.id as any)) {
+                                    setSelectedTags(selectedTags.filter(i => i !== option.id))
+                                } else {
+                                    setSelectedTags([...selectedTags, option.id as any])
+                                }
+                            }}
+                        />
+                    </div>
+                    <div className={styles['menu-item'] + ' input-disable'}>
+                        {/*<Select*/}
+                        {/*    labelKey={'label'}*/}
+                        {/*    valueKey={'id'}*/}
+                        {/*    clearable={false}*/}
+                        {/*    creatable={false}*/}
+                        {/*    searchable={false}*/}
+                        {/*    value={venue}*/}
+                        {/*    getOptionLabel={(opt: any) => {*/}
+                        {/*        return <div className={styles['label-item']}>*/}
+
+                        {/*            {opt.option.label}*/}
+                        {/*        </div>*/}
+                        {/*    }}*/}
+                        {/*    getValueLabel={(opt: any) => {*/}
+                        {/*        return <div className={styles['label-item']}>*/}
+
+                        {/*            {opt.option.label}*/}
+                        {/*        </div>*/}
+                        {/*    }}*/}
+                        {/*    options={[{id: 0, label: 'All Venues', color: null}, ...venues as any]}*/}
+                        {/*    onChange={({option}) => {*/}
+                        {/*        setVenue([option] as any)*/}
+                        {/*    }}*/}
+                        {/*/>*/}
+                    </div>
                 </div>
             </div>
             <div className={styles['schedule-mouth']}>
@@ -432,7 +645,9 @@ function ComponentName(props: { group: Group }) {
                                         <StatefulTooltip
                                             content={() => <div>Today</div>}>
                                             <svg
-                                                onClick={ e => { toToday()}}
+                                                onClick={e => {
+                                                    toToday()
+                                                }}
                                                 xmlns="http://www.w3.org/2000/svg"
                                                 width={28}
                                                 height={40}
@@ -506,7 +721,9 @@ function ComponentName(props: { group: Group }) {
                             />
                         </svg>
                         <svg
-                            onClick={() => {toToday()}}
+                            onClick={() => {
+                                toToday()
+                            }}
                             xmlns="http://www.w3.org/2000/svg"
                             width={28}
                             height={40}
@@ -536,25 +753,26 @@ function ComponentName(props: { group: Group }) {
             <div className={`${styles['content']} schedule-content`}>
                 <div className={`${styles['date-bar-wrapper']} date-bar-wrapper`} ref={scroll1Ref}>
                     <div className={`${styles['date-bar']}`}>
-                        {pageList.map((item: any, index) => {
-                            const isMonthBegin = item.date === 1
+                        {pageList
+                            .map((item: any, index) => {
+                                const isMonthBegin = item.date === 1
 
-                            return <div key={index + ''}
-                                        data-month={item.month}
-                                        data-year={item.year}
-                                        className={isMonthBegin ? `month-begin ${styles['date-column']}` : styles['date-column']}>
-                                <div className={styles['date-day']}>
-                                    {
-                                        isMonthBegin &&
-                                        <span className={styles['month']}>{lang['Month_Name'][item.month]} </span>
-                                    }
-                                    <span>{item.dayName}</span>
-                                    <span
-                                        className={item.date === dayjs.tz(new Date().getTime(), timezoneSelected[0]!.id).date() && item.year === dayjs.tz(new Date().getTime(), timezoneSelected[0]!.id).year() && item.month === dayjs.tz(new Date().getTime(), timezoneSelected[0]!.id).month()
-                                            ? styles['date-active'] : styles['date']}>{item.date}</span>
+                                return <div key={index + ''}
+                                            data-month={item.month}
+                                            data-year={item.year}
+                                            className={isMonthBegin ? `month-begin ${styles['date-column']}` : styles['date-column']}>
+                                    <div className={styles['date-day']}>
+                                        {
+                                            isMonthBegin &&
+                                            <span className={styles['month']}>{lang['Month_Name'][item.month]} </span>
+                                        }
+                                        <span>{item.dayName}</span>
+                                        <span
+                                            className={item.date === dayjs.tz(new Date().getTime(), timezoneSelected[0]!.id).date() && item.year === dayjs.tz(new Date().getTime(), timezoneSelected[0]!.id).year() && item.month === dayjs.tz(new Date().getTime(), timezoneSelected[0]!.id).month()
+                                                ? styles['date-active'] : styles['date']}>{item.date}</span>
+                                    </div>
                                 </div>
-                            </div>
-                        })
+                            })
                         }
                     </div>
                 </div>
@@ -563,14 +781,36 @@ function ComponentName(props: { group: Group }) {
                         {pageList.map((item: any, index) => {
                             return <div key={index + ''} className={`${styles['date-column']} date-column`}>
                                 <div className={`${styles['events']}`}>
-                                    {item.events.map((e: Event) => {
-                                        return <EventCard
-                                            blank={location.href.includes('iframe')}
-                                            key={Math.random() + e.title}
-                                            timezone={timezoneSelected[0].id}
-                                            event={e}
-                                            group={eventGroup}/>
-                                    })}
+                                    {item.events
+                                        .filter((e: Event) => {
+                                            if (showJoined) {
+                                                return e.participants?.some(i => i.profile_id === user.id && i.status !== 'cancel')
+                                            } else {
+                                                return true
+                                            }
+                                        })
+                                        .filter((e: Event) => {
+                                            if (selectedTags.length === 0) {
+                                                return true
+                                            }
+
+                                            if (!e.tags || e.tags.length === 0) {
+                                                return false
+                                            }
+
+                                            return !selectedTags.some(t => {
+                                                return e.tags?.indexOf(t) === -1
+                                            })
+                                        })
+                                        .map((e: Event) => {
+                                            return <EventCard
+                                                groupHostCache={groupHostCache}
+                                                blank={location.href.includes('iframe')}
+                                                key={Math.random() + e.title}
+                                                timezone={timezoneSelected[0].id}
+                                                event={e}
+                                                group={eventGroup}/>
+                                        })}
                                 </div>
                             </div>
                         })
@@ -589,7 +829,8 @@ export const getServerSideProps: any = (async (context: any) => {
     const groupname = context.params?.groupname
     if (groupname) {
         const group = await getGroups({username: groupname})
-        return {props: {group: group[0]}}
+        const eventSite = await getEventSide(group[0].id)
+        return {props: {group: group[0], eventSite: eventSite}}
     }
 })
 
@@ -597,13 +838,16 @@ function EventCard({
                        event,
                        blank,
                        group,
-                       timezone
-                   }: { event: Event, blank?: boolean, group?: Group, timezone: string }) {
+                       timezone,
+                       groupHostCache
+                   }: { event: Event, blank?: boolean, group?: Group, timezone: string, groupHostCache: Group[] }) {
     const showTimezone = timezone || event.timezone || 'UTC'
     const isAllDay = dayjs.tz(new Date(event.start_time!).getTime(), showTimezone).hour() === 0 && ((new Date(event.end_time!).getTime() - new Date(event.start_time!).getTime() + 60000) % 8640000 === 0)
     const fromTime = dayjs.tz(new Date(event.start_time!).getTime(), showTimezone).format('HH:mm')
     const toTime = dayjs.tz(new Date(event.end_time!).getTime(), showTimezone).format('HH:mm')
     const fromDate = dayjs.tz(new Date(event.start_time!).getTime(), showTimezone).format('YYYY-MM-DD')
+    const {user} = useContext(UserContext)
+    const {openDialog} = useContext(DialogsContext)
 
     const offset = dayjs.tz(new Date(event.end_time!).getTime(), showTimezone).utcOffset()
     const utcOffset = offset >= 0 ?
@@ -615,24 +859,27 @@ function EventCard({
 
     const router = useRouter()
 
+    const showPopup = () => {
+        openDialog({
+            content: (close: any) => {return <EventPopup close={close} event={event} timezone={showTimezone} />},
+            size: [450, 'auto'],
+            position: 'bottom',
+        })
+    }
+
     useEffect(() => {
         if (event.host_info) {
-            if (event.host_info.startsWith('{')) {
-                const hostInfo = JSON.parse(event.host_info!)
-                if (hostInfo.group_host) {
-                    setGroupHost(hostInfo.group_host)
-                    setReady(true)
-                }
-            } else {
-                if (group?.id === Number(event.host_info)) {
-                    setGroupHost(group)
+            const hostInfo = JSON.parse(event.host_info!)
+            if (hostInfo.group_host) {
+                if (hostInfo.group_host.id && groupHostCache.length) {
+                    const target = groupHostCache.find(e => {return e.id === hostInfo.group_host.id})
+                    !!target && setGroupHost(target)
                     setReady(true)
                 } else {
-                    queryGroupDetail(Number(event.host_info)).then((res: any) => {
-                        setGroupHost(res)
-                        setReady(true)
-                    })
+                    setGroupHost(hostInfo.group_host)
                 }
+            } else {
+                setReady(true)
             }
         } else {
             setReady(true)
@@ -643,22 +890,15 @@ function EventCard({
         {background: `linear-gradient(180deg, #fff -20%, ${event.display.split('color:')[1].split(';')[0]}`} : {}
 
     const {defaultAvatar} = usePicture()
-    return <Link className={styles['schedule-event-card']}
+    return <div className={styles['schedule-event-card']}
                  style={highlight}
-                 href={`/event/detail/${event.id}`}
-                 onClick={e => {
-                     if (_offsetX !== 0 || _offsetX !== 0) {
-                         e.preventDefault()
-                     }
-
-                 }}
+                 onClick={showPopup}
                  onTouchEnd={e => {
-                     e.preventDefault()
-                     if (_offsetX === 0 && _offsetX === 0) {
-                         router.push(`/event/detail/${event.id}`)
-                     }
-                 }}
-                 target={blank ? '_blank' : '_self'}>
+                     // e.preventDefault()
+                     // if (_offsetX === 0 && _offsetX === 0) {
+                     //     showPopup()
+                     // }
+                 }}>
         <div className={styles['schedule-event-card-time']}>
             {isAllDay ? 'All Day' : `${fromTime}-${toTime}`}
         </div>
@@ -671,13 +911,13 @@ function EventCard({
                 {!!groupHost ? <div className={styles['schedule-event-card-host']}>
                         <img className={styles['schedule-event-card-avatar']}
                              src={groupHost.image_url || defaultAvatar(groupHost.id)} alt=""/>
-                        {groupHost.nickname || groupHost.username}
+                        <div>{groupHost.nickname || groupHost.username}</div>
                     </div>
                     :
                     <div className={styles['schedule-event-card-host']}>
                         <img className={styles['schedule-event-card-avatar']}
                              src={event.owner.image_url || defaultAvatar(event.owner.id)} alt=""/>
-                        {event.owner.nickname || event.owner.username}
+                        <div>{event.owner.nickname || event.owner.username}</div>
                     </div>
                 }
             </>
@@ -685,11 +925,12 @@ function EventCard({
         </div>
 
 
-        {!!event.location && !event.event_site &&
+        {!!event.location && !event.event_site && (event.group_id != 3409 || !!user.id) &&
             <div className={styles['schedule-event-card-position']}
                  onClick={e => {
                      e.stopPropagation()
-                     location.href = `https://www.google.com/maps/search/?api=1&query=${event.geo_lat}%2C${event.geo_lng}`
+                     e.preventDefault()
+                     location.href = `/event/${group?.username}/map?target_event=${event.id}`
                  }}>
                 <i className={`${styles['icon']} icon-Outline`}/>
                 <div className={styles['location-text']}>{event.location}</div>
@@ -702,14 +943,15 @@ function EventCard({
             </div>
         }
 
-        {!!event.event_site &&
+        {!!event.event_site && (event.group_id != 3409 || !!user.id) &&
             <div className={styles['schedule-event-card-position']}
                  onClick={e => {
                      e.stopPropagation()
-                     location.href = `https://www.google.com/maps/search/?api=1&query=${event.geo_lat}%2C${event.geo_lng}`
+                     e.preventDefault()
+                     location.href = `/event/${group?.username}/map?target_event=${event.id}`
                  }}>
                 <i className={`${styles['icon']} icon-Outline`}/>
-                <div className={styles['location-text']}>{event.event_site.title}</div>
+                <div className={styles['location-text']}>{event.event_site!.title}</div>
                 <svg className={styles['link-icon']} xmlns="http://www.w3.org/2000/svg" width="8" height="8"
                      viewBox="0 0 8 8" fill="none">
                     <path
@@ -731,6 +973,6 @@ function EventCard({
             </>
 
         }
-    </Link>
+    </div>
 }
 

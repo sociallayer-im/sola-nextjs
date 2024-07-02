@@ -12,6 +12,7 @@ import DialogGroupManagerEdit from "@/components/base/Dialog/DialogGroupManagerE
 import {useRouter} from "next/navigation";
 import usePicture from "@/hooks/pictrue";
 import DialogTransferGroupOwner from "@/components/base/Dialog/DialogTransferGroupOwner/DialogTransferGroupOwner";
+import AppInput from "@/components/base/AppInput";
 
 
 interface ListGroupMemberProps {
@@ -39,6 +40,7 @@ function ListGroupMember(props: ListGroupMemberProps) {
     const router = useRouter()
 
     const [compact, setCompact] = useState(props.isSidebar || false)
+    const [searchKeyword, setSearchKeyword] = useState('')
 
     async function init() {
         await getOwner()
@@ -62,6 +64,10 @@ function ListGroupMember(props: ListGroupMemberProps) {
                 memberships.push(membership)
             }
         })
+
+        // 过滤掉没有username的用户，通常是通过邮箱邀请一个不存在的用户，后台会创建一个新用户，但是没有username
+        memberships = memberships.filter((membership) => !!membership.profile.username)
+
 
         const _members = memberships.filter((manager) => manager.role === 'member').map((manager) => manager.profile) as any
         const _managers = memberships.filter((manager) => manager.role === 'manager').map((manager) => manager.profile) as any
@@ -232,8 +238,17 @@ function ListGroupMember(props: ListGroupMemberProps) {
 
     return <div className='list-group-member'>
         <div className={'title-member'}>
-            <div className={'action-left'}><span>{lang['Group_detail_tabs_member']}</span>
-                {!props.isSidebar ? Action : <div></div>}
+            <div className={'action-left'}>
+                <span>{lang['Group_detail_tabs_member']}</span>
+                {!props.isSidebar ? <>
+                    {Action}
+                    <AppInput value={searchKeyword}
+                              clearable={true}
+                              startEnhancer={() => <i className={'icon-search'} />}
+                              placeholder={'Search members...'}
+                              onChange={e =>{setSearchKeyword(e.target.value)}}
+                    />
+                </> : <div></div>}
             </div>
             {!props.isSidebar ?
                 <div className={'action'}>
@@ -246,9 +261,16 @@ function ListGroupMember(props: ListGroupMemberProps) {
             }
         </div>
         <div className={'address-list'}>
-            <PreEnhancer/>
+            { !searchKeyword &&
+                <PreEnhancer/>
+            }
             {
-                managers.map((member, index) => {
+                managers
+                    .filter(i => {
+                    if (searchKeyword) {
+                        return i.username!.includes(searchKeyword) || i.nickname?.includes(searchKeyword)
+                    } else return true
+                }).map((member, index) => {
                     return <div className={'list-item'}
                                 key={index}
                                 onClick={(e) => {
@@ -267,7 +289,12 @@ function ListGroupMember(props: ListGroupMemberProps) {
                 })
             }
             {
-                issuer.map((member, index) => {
+                issuer
+                    .filter(i => {
+                    if (searchKeyword) {
+                        return i.username!.includes(searchKeyword) || i.nickname?.includes(searchKeyword)
+                    } else return true
+                }).map((member, index) => {
                     return <div className={'list-item'}
                                 key={index}
                                 onClick={(e) => {
@@ -287,6 +314,11 @@ function ListGroupMember(props: ListGroupMemberProps) {
             }
 
             { members
+                .filter(i => {
+                if (searchKeyword) {
+                    return i.username!.includes(searchKeyword) || i.nickname?.includes(searchKeyword)
+                } else return true
+            })
                 .filter((item, index)=> {
                     if (!compact) {
                         return true

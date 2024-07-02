@@ -14,7 +14,7 @@ import {Select} from 'baseui/select'
 function Invite() {
     const {lang} = useContext(LangContext)
     const [group, setGroup] = useState<Group | null>(null)
-    const [reason, setReason,] = useState('')
+    const [reason, setReason] = useState('')
     const {user} = useContext(UserContext)
     const {showToast, showLoading} = useContext(DialogsContext)
     const params = useParams()
@@ -22,11 +22,12 @@ function Invite() {
     const [role, setRole] = useState<any>([{id: 'member', label: 'Member'}])
     const router = useRouter()
     const {defaultAvatar} = usePicture()
+    const [busy, setBusy] = useState(false)
 
     useEffect(() => {
         async function getGroupDetail() {
             const group = await queryGroupDetail(Number(params!.groupId))
-            const prefill = lang['Group_invite_default_reason']([group!.username, role[0].id])
+            const prefill = lang['Group_invite_default_reason']([group!.nickname || group!.username, role[0].id])
             setReason(prefill)
             setGroup(group)
         }
@@ -48,6 +49,9 @@ function Invite() {
             return
         }
 
+        if (busy) return
+
+        setBusy(true)
         const unload = showLoading()
         try {
             const emails = checkedIssues.filter(item => /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/i.test(item))
@@ -83,9 +87,19 @@ function Invite() {
                 showToast('The user(s) you invited has already joined the group')
                 return
             }
-            router.push(`/issue-success?invite=${firstInvite.id}`)
+
+            if (!firstInvite.id) {
+                showToast('Membership updated')
+                setTimeout(() => {
+                    router.push(`/group/${group?.username}`)
+                })
+            } else {
+                router.push(`/issue-success?invite=${firstInvite.id}`)
+            }
+
         } catch (e: any) {
             unload()
+            setBusy(false)
             console.log('[handleInvite]: ', e)
             showToast(e.message || 'Invite Fail')
         }
@@ -139,7 +153,7 @@ function Invite() {
                     <div className='issue-title'>{lang['Group_invite_title']}</div>
                     <div className='info'>
                         <img src={group?.image_url || defaultAvatar(group?.id)} alt=""/>
-                        <div className='name'>{lang['Group_invite_badge_name']([group?.username, role[0].label])}</div>
+                        <div className='name'>{lang['Group_invite_badge_name']([group?.nickname || group?.username, role[0].label])}</div>
                     </div>
 
                     <div className='input-area'>

@@ -23,7 +23,7 @@ function AppFlexTextArea(props: AppFlexTextAreaProps) {
     const onChange = (e: any) => {
         // 除去换行
         const html = inputRef.current?.innerText.replace(/\n/g, '')
-        if (props.onChange && html !== lastValue.current) {
+        if (props.onChange && (!lastValue.current || html !== lastValue.current)) {
             props.onChange(html);
             lastValue.current = html;
         }

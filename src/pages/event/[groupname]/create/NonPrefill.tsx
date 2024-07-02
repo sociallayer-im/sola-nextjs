@@ -621,7 +621,8 @@ function CreateEvent(props: CreateEventPageProps) {
                     start_time_from: startDate.toISOString(),
                     start_time_to: endDate.toISOString(),
                     page: 1,
-                    page_size: 50
+                    page_size: 50,
+                    allow_private: true
                 })
 
                 // 排除自己
@@ -1185,12 +1186,14 @@ function CreateEvent(props: CreateEventPageProps) {
                             <div className='input-area'>
                                 <div className='input-area-title'>{lang['Activity_Form_Starttime']}</div>
                                 <AppEventTimeInput
+                                    repeat={repeat}
+                                    repeatCount={repeatCounter}
                                     initData={{
                                         from: start,
                                         to: ending,
                                         timezone: timezone
                                     }}
-                                    allowRepeat={isManager}
+                                    showRepeat={isManager}
                                     onChange={e => {
                                         setStart(e.from)
                                         setEnding(e.to)

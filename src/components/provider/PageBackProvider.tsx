@@ -1,12 +1,12 @@
 import {createContext, useEffect, useRef} from 'react'
 import {usePathname, useRouter, useSearchParams} from 'next/navigation'
+import {useRouter as useClientRouter} from 'next/router';
 
 export const PageBackContext = createContext({
     back: (): any => {
     },
-    cleanCurrentHistory: (): any => {
-    },
-    history: [] as string[]
+    applyScroll: (): any => {
+    }
 })
 
 interface PageBacProviderProps {
@@ -15,9 +15,72 @@ interface PageBacProviderProps {
 
 function PageBacProvider(props: PageBacProviderProps) {
     const router = useRouter()
+    const clientRouter = useClientRouter()
     const routerPathname = usePathname()
     const searchParams = useSearchParams()
     const currPathnameRef = useRef('')
+    const scrollRef = useRef<{
+        path: string,
+        scroll: number,
+        scheduleScroll: number
+    }[]>([])
+
+
+    useEffect(() => {
+        const handleRouteChangeStart = () => {
+
+            const path = location.href.replace(location.origin, '')
+            const scheduleContent = document.querySelector('.event-wrapper')
+            const pageContent  = document.querySelector('#PageContent')
+
+            let scrollRecord = {
+                path: path,
+                scroll: 0,
+                scheduleScroll: 0
+            }
+
+            if (!!pageContent) {
+                scrollRecord.scroll = pageContent.scrollTop
+                console.log('setScroll', scrollRef.current)
+            }
+
+            if (!!scheduleContent) {
+                scrollRecord.scheduleScroll = scheduleContent!.scrollTop
+                console.log('set schedule Scroll', scrollRef.current)
+            }
+
+            scrollRef.current = [...scrollRef.current, scrollRecord]
+            console.log('set schedule Scroll', scrollRef.current)
+        }
+
+        clientRouter.events.on('routeChangeStart', handleRouteChangeStart);
+
+        return () => {
+            clientRouter.events.off('routeChangeStart', handleRouteChangeStart);
+        };
+    }, [clientRouter]);
+
+    const applyScroll = () => {
+        const pageContent = document.querySelector('#PageContent')
+        const scheduleContent = document.querySelector('.event-wrapper')
+        const path = location.href.replace(location.origin, '')
+        const scrollHeight = scrollRef.current.find(item => item.path === path)
+
+        if (!scrollHeight) return
+
+        if (scrollRef.current.length && !!pageContent) {
+            console.log('target scrollHeight', scrollRef.current, scrollHeight)
+            pageContent.scrollTop = scrollHeight.scroll
+            console.log('applyScroll', scrollRef.current)
+        }
+
+        if (scrollRef.current.length && !!scheduleContent) {
+            scheduleContent.scrollTop = scrollHeight.scheduleScroll
+            console.log('apply schedule Scroll', scrollRef.current)
+        }
+
+        scrollRef.current = scrollRef.current.filter(item => item.path !== path)
+    }
 
     const readHistory = () => {
         if (typeof window === 'undefined') return []
@@ -37,21 +100,11 @@ function PageBacProvider(props: PageBacProviderProps) {
 
     // 监听路由，获得浏览历史
     useEffect(() => {
-        const currPathname = location.href.replace(location.origin, '')
-        // console.log('==== currPathname', currPathname)
-        if (currPathname === '/') {
-            // 首页没有返回按钮, 返回首页将会清空历史记录，防止历史记录过长
-            history.current = ['/']
-        } else if (history.current.length === 0) {
-            history.current.push(currPathname)
-            // console.log('page change to=====>', currPathname, history.current)
-        } else if (history.current[history.current.length - 1] !== currPathname) {
-            history.current.push(currPathname)
-            // console.log('page change to=====>', currPathname, history.current)
-        } else {
-            // console.log('same page=====>', currPathname, history.current)
+        const watchPopState = () => {
+            const patch = location.href.replace(location.origin, '')
+            router.push(patch)
         }
-        window.sessionStorage.setItem('history', JSON.stringify(history.current))
+        window.addEventListener('popstate', watchPopState)
 
         if (routerPathname !== currPathnameRef.current) {
             currPathnameRef.current = routerPathname as string
@@ -59,54 +112,22 @@ function PageBacProvider(props: PageBacProviderProps) {
             pageContent?.scrollTo(0, 0)
         }
 
+       return () => {
+           window.removeEventListener('popstate', watchPopState)
+       }
+
     }, [routerPathname, searchParams])
 
     // 返回上一页
     const back = () => {
-        const _history = [...history.current]
-
-        // 点击返回时候处理上一页
-        const findLastPage = (historyList: string[]) => {
-            // 如果当前页面是第一个页面，就返回首页。比如直接访问活动详情页，点击返回则返回首页
-            if (historyList.length === 1) {
-                history.current = []
-                router.push('/')
-                return
-            }
-
-            const currPathname = location.href.replace(location.origin, '')
-            const index = historyList.reverse().findIndex((item, index) => {
-                // 下面列表的页面不能通过返回按钮访问
-                return item !== currPathname
-                    && !item.includes('create')
-                    && !item.includes('edit')
-                    && !item.includes('regist')
-                    && !item.includes('login')
-                    && !item.includes('checkin')
-                    && !item.includes('success')
-                    && !item.includes('popup')
-                    && !(process.env.NEXT_PUBLIC_SPECIAL_VERSION !== 'maodao' && item.includes('/group/readyplayerclub'))
-            })
-
-            if (index === -1) {
-                history.current = []
-                router.push('/')
-                return
-            } else {
-                const lastPage = historyList[index]
-                history.current = historyList.slice(0, index)
-                router.push(lastPage)
-            }
+        if (window.history.length < 2) {
+            router.push('/')
+        } else {
+            router.back()
         }
-
-        findLastPage(_history)
     }
 
-    const cleanCurrentHistory = () => {
-        history.current.pop()
-    }
-
-    return (<PageBackContext.Provider value={{back, cleanCurrentHistory, history: history.current}}>
+    return (<PageBackContext.Provider value={{applyScroll, back}}>
         {props.children}
     </PageBackContext.Provider>)
 }

@@ -95,6 +95,8 @@ function RichTextEditor({
     const {user} = useContext(userContext)
     const editorId = useId()
 
+    const [text, setText] = useState<string>('')
+
     const selectFile = async (cb: (url: string) => any) => {
         try {
             const file = await chooseFile({accepts: ['image/png', 'image/jpeg', 'image/webp', 'image/svg+xml']})
@@ -141,6 +143,10 @@ function RichTextEditor({
     }
 
     useEffect(() => {
+        onChange && onChange(text)
+    }, [text])
+
+    useEffect(() => {
         if (editorRef.current && typeof window !== 'undefined') {
             const mySchema = new Schema({
                 nodes: addListNodes(markdownSchema.spec.nodes, "paragraph block*", "block"),
@@ -152,8 +158,9 @@ function RichTextEditor({
                     return {
                         update(view, prevState) {
                             setEditorState(view.state)
-                            const res = defaultMarkdownSerializer.serialize(view.state.doc)
-                            onChange && onChange(res)
+                            setText(defaultMarkdownSerializer.serialize(view.state.doc))
+                            // const res = defaultMarkdownSerializer.serialize(view.state.doc)
+                            // onChange && onChange(res)
                         }
                     }
                 }

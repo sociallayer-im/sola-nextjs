@@ -64,10 +64,10 @@ function EventCheckIn() {
                 }) || [])
                 setHasCheckin(eventDetails?.participants?.filter(item => item.status === 'checked').map(item => item.profile.domain!) || [])
                 // @ts-ignore
-                if (eventDetails && eventDetails.operators?.findIndex(item => item  === user.id) > -1) {
+                if (eventDetails && ((user.id && eventDetails.operators?.includes(user.id)) || (user.email && eventDetails?.extra?.includes(user.email)))
+                ) {
                     setIsOperator(true)
                 }
-
 
                 if (eventDetails!.host_info || eventDetails!.group_id) {
                     if (eventDetails!.host_info?.startsWith('{')) {
@@ -133,7 +133,7 @@ function EventCheckIn() {
 
     useEffect(() => {
         init()
-    }, [needUpdate])
+    }, [needUpdate, user.id])
 
     useEffect(() => {
         if (user.id && event) {
@@ -194,7 +194,7 @@ function EventCheckIn() {
                             </div>
                         }
 
-                        {!!user.id && isJoin && !isHoster && !isManager && !isOperator &&
+                        {!!user.id && isJoin && !isHoster && !isManager && !isOperator && !isGroupOwner &&
                             <div className={'checkin-qrcode'}>
                                 <QRcode text={`${params?.eventid}#${user.id}` || ''} size={[155, 155]}/>
                                 {
@@ -225,7 +225,7 @@ function EventCheckIn() {
                                 } <span>({hasCheckin.length} / {participants.length})</span>
                                 </div>
                                 <ListEventParticipants
-                                    isHost={isHoster || isManager || isOperator}
+                                    isHost={isHoster || isManager || isOperator || isGroupOwner}
                                     eventId={Number(params?.eventid || 0)}
                                     participants={participants}
                                     onChecked={(item) => {
@@ -237,7 +237,7 @@ function EventCheckIn() {
                     </div>
                 </div>
 
-                {(isHoster || isManager || isOperator) && event.badge_id && !!hasCheckin.length &&
+                {(isHoster || isManager || isOperator || isGroupOwner) && event.badge_id && !!hasCheckin.length &&
                     <div className={'actions'}>
                         <div className={'center'}>
                             <AppButton special onClick={e => {

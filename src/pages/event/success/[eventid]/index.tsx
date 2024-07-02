@@ -2,7 +2,7 @@ import html2canvas from "html2canvas";
 import {useParams, useRouter} from 'next/navigation'
 import Link from 'next/link'
 import {useContext, useEffect, useRef, useState} from 'react'
-import {Event, queryEventDetail} from "@/service/solas";
+import {Event, Group, queryEventDetail, queryGroupDetail} from "@/service/solas";
 import LangContext from "@/components/provider/LangProvider/LangContext";
 import {formatTime, formatTimeWithTimezone, useTime4} from "@/hooks/formatTime";
 import QRcode from "@/components/base/QRcode";
@@ -10,7 +10,6 @@ import AppButton from "@/components/base/AppButton/AppButton";
 import saveCard from "@/utils/html2png";
 import copy from "@/utils/copy";
 import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
-import EventHomeContext from "@/components/provider/EventHomeProvider/EventHomeContext";
 import useGetMeetingName from "@/hooks/getMeetingName";
 import {mapTimezone} from '@/components/base/AppEventTimeInput/AppEventTimeInput'
 import Empty from "@/components/base/Empty";
@@ -24,12 +23,13 @@ function CreateEventSuccess() {
     const formatTime3 = useTime4
     const card = useRef<any>()
     const {showToast, showLoading} = useContext(DialogsContext)
-    const {availableList, setEventGroup, eventGroup} = useContext(EventHomeContext)
     const {getMeetingName} = useGetMeetingName()
     const {connectors} = useConnect()
 
+
     const [coverUrl, setCoverUrl] = useState('')
     const [ready, setReady] = useState(false)
+    const [eventGroup, setEventGroup] = useState<Group | null>(null)
 
     useEffect(() => {
         async function fetchData() {
@@ -42,6 +42,9 @@ function CreateEventSuccess() {
                 setReady(true)
                 return
             }
+
+            const group = await queryGroupDetail(res!.group_id!)
+            setEventGroup(group)
 
             setEvent(res)
             setReady(true)
@@ -124,15 +127,6 @@ function CreateEventSuccess() {
         }
     }, [params])
 
-    useEffect(() => {
-        if (event && availableList.length) {
-            const eventGroup = availableList.find(i => i.id === event.group_id)
-            if (eventGroup) {
-                setEventGroup(eventGroup)
-            }
-        }
-    }, [event, availableList])
-
     const isMobile = () => {
         return connectors.length && !!window.navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobile|BlackBerry|IEMobile|MQQBrowser|JUC|Fennec|wOSBrowser|BrowserNG|WebOS|Symbian|Windows Phone)/i);
     }
@@ -155,7 +149,8 @@ function CreateEventSuccess() {
             {ready && event &&
                 <>
                     <div className={'center'}>
-                        <Link className={'done'} href={eventGroup?.username === 'web3festival' ? `/event/${eventGroup.username}` : `/event/detail/${params?.eventid}`}>Done</Link>
+                        <Link className={'done'}
+                              href={eventGroup?.username === 'web3festival' ? `/event/${eventGroup.username}` : `/event/detail/${params?.eventid}`}>Done</Link>
                     </div>
                     <div className={'title'}>{lang['IssueFinish_Title']}</div>
                 </>

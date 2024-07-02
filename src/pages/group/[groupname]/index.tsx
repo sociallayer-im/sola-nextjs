@@ -25,6 +25,8 @@ import {Mousewheel} from "swiper";
 import DialogRequestTobeIssuer from "@/components/base/Dialog/DialogRequestTobeIssuer/DialogRequestTobeIssuer";
 import useSafePush from "@/hooks/useSafePush";
 import {PageBackContext} from "@/components/provider/PageBackProvider";
+import styles from "@/components/compose/ListGroupEvent/ListGroupEvent.module.sass";
+import Link from 'next/link'
 
 
 const ListUserPresend = dynamic(() => import('@/components/compose/ListUserPresend'), {
@@ -50,7 +52,6 @@ function GroupPage(props: any) {
     const {showLoading, openConnectWalletDialog, openDialog} = useContext(DialogsContext)
     const {lang} = useContext(LangContext)
     const {user, logOut} = useContext(UserContext)
-    const {history} = useContext(PageBackContext)
     const searchParams = useSearchParams()
     const [selectedTab, setSelectedTab] = useState(searchParams?.get('tab') || '0')
     const [selectedSubtab, setSelectedSubtab] = useState(searchParams?.get('subtab') || '0')
@@ -202,7 +203,6 @@ function GroupPage(props: any) {
     const setTab = (tab: string) => {
         loadedTabRrf.current.add(tab)
         setSelectedTab(tab as any);
-        history.push(`/group/${groupname}?tab=${tab}`)
         window.history.pushState(null, '', `/group/${groupname}?tab=${tab}`)
     }
 
@@ -306,10 +306,16 @@ function GroupPage(props: any) {
                             </div>
                             {(selectedTab === '0' || loadedTabRrf.current.has('0')) &&
                                 <div className={`group-event ${selectedTab === '0' ? '' : 'hide'}`}>
+                                    <div className={styles['fixed-box']}>
+                                        <div className={styles['name']}>{profile.username}</div>
+
+                                        <Link href={`/event/${profile.username}`} className={styles['btn']}>See all events</Link>
+                                    </div>
+
                                     <div className={'tab-action'}>
                                         <div className={'left'}><b>{eventCount}</b> {lang['Setting_Events']}</div>
                                         <div className={'right'}>
-                                            {user.userName &&
+                                            {user.userName && false &&
                                                 <AppButton size={BTN_SIZE.compact} onClick={() => {
                                                     location.href = `https://prod.sociallayer.im/gcalendar/auth_url?auth_token=${user?.authToken}`
                                                 }} style={{
@@ -434,7 +440,6 @@ function GroupPage(props: any) {
                             }
                         </div>
                         <div className={'profile-side'}>
-                            <ListGroupMember group={profile} isSidebar={true}/>
                         </div>
                     </div>
                 </div>

@@ -1,6 +1,6 @@
 import React, {useContext, useEffect, useRef, useState} from 'react'
 import ListUserAssets, {ListUserAssetsMethods} from "../../base/ListUserAssets/ListUserAssets";
-import solas, {Profile, Group} from "../../../service/solas";
+import solas, {Profile, Group, queryBadgeletWithTop} from "../../../service/solas";
 import CardBadge from "../../base/Cards/CardBadge/CardBadge";
 import UserContext from "../../provider/UserProvider/UserContext";
 import CardBadgelet from "../../base/Cards/CardBadgelet/CardBadgelet";
@@ -36,9 +36,9 @@ function ListUserRecognition(props: ListUserRecognitionProps) {
     }
 
     const getBadgelet = async (page: number) => {
-        const publicBadgelet = await solas.queryBadgelet({owner_id: props.profile.id, page})
+        const publicBadgelet = await queryBadgeletWithTop({owner_id: props.profile.id, page})
         setReady(true)
-        return publicBadgelet
+        return page === 1 ? [...publicBadgelet.top, ...publicBadgelet.others] : publicBadgelet.others
     }
 
     const [needUpdate, _] = useEvent(EVENT.badgeletListUpdate)

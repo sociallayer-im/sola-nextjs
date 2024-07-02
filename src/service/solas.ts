@@ -195,6 +195,7 @@ export interface Profile {
 
     domain: string | null,
 
+    farcaster: string | null,
     twitter: string | null,
     telegram: string | null,
     github: string | null,
@@ -234,6 +235,12 @@ export interface Profile {
         }
     }
     far_address: null | string
+    zupass_edge_end_date: string | null
+    zupass_edge_event_id: string | null
+    zupass_edge_product_id: string | null
+    zupass_edge_product_name: string | null
+    zupass_edge_start_date: string | null
+    zupass_edge_weekend: string | null
 }
 
 export interface ProfileSimple {
@@ -251,6 +258,13 @@ export async function queryProfileByGraph(props: { type: keyof GetProfileProps, 
 
     const doc = gql`query MyQuery {
       profiles(${condition}) {
+        zupass_edge_end_date
+        zupass_edge_event_id
+        zupass_edge_product_id
+        zupass_edge_product_name
+        zupass_edge_start_date
+        zupass_edge_weekend
+        farcaster
         id
         created_at
         discord
@@ -404,6 +418,7 @@ export async function getGroups(props: GetGroupProps): Promise<Group[]> {
 
     const doc = gql`query MyQuery {
       groups(${condition}) {
+        farcaster
         timezone
         events_count
         memberships_count
@@ -490,7 +505,7 @@ export interface LoginRes {
 }
 
 export async function emailLogin(email: string, code: string): Promise<LoginRes> {
-    const res = await fetch.post({
+    const res: any = await fetch.post({
         url: `${apiUrl}/profile/signin_with_email`,
         data: {email, code, app: window.location.host, address_source: 'email'}
     })
@@ -508,7 +523,7 @@ interface SolasRegistProps {
 
 export async function regist(props: SolasRegistProps): Promise<{ result: 'ok' }> {
     checkAuth(props)
-    const res = await fetch.post({
+    const res: any = await fetch.post({
         url: `${apiUrl}/profile/create`,
         data: props
     })
@@ -528,7 +543,7 @@ export interface AddManagerProps {
 
 export async function addManager(props: AddManagerProps): Promise<void> {
     checkAuth(props)
-    const res = await fetch.post({
+    const res: any = await fetch.post({
         url: `${apiUrl}/group/add-manager`,
         data: props
     })
@@ -540,7 +555,7 @@ export async function addManager(props: AddManagerProps): Promise<void> {
 
 export async function addIssuer(props: AddManagerProps): Promise<void> {
     checkAuth(props)
-    const res = await fetch.post({
+    const res: any = await fetch.post({
         url: `${apiUrl}/group/add-issuer`,
         data: props
     })
@@ -553,7 +568,7 @@ export async function addIssuer(props: AddManagerProps): Promise<void> {
 
 export async function removeManager(props: AddManagerProps): Promise<void> {
     checkAuth(props)
-    const res = await fetch.post({
+    const res: any = await fetch.post({
         url: `${apiUrl}/group/remove-manager`,
         data: props
     })
@@ -565,7 +580,7 @@ export async function removeManager(props: AddManagerProps): Promise<void> {
 
 export async function removeIssuer(props: AddManagerProps): Promise<void> {
     checkAuth(props)
-    const res = await fetch.post({
+    const res: any = await fetch.post({
         url: `${apiUrl}/group/remove-issuer`,
         data: props
     })
@@ -892,8 +907,9 @@ export async function queryBadgelet(props: QueryBadgeletProps): Promise<Badgelet
         variables += `badge_id: {_eq: "${props.badge_id}"},`
     }
 
+    let status = `status: {_neq: "burned"}`
     if (props.status) {
-        variables += `status: {_eq: "${props.status}"},`
+        status = `status: {_eq: "${props.status}"},`
     }
 
     if (props.badge_type) {
@@ -915,7 +931,7 @@ export async function queryBadgelet(props: QueryBadgeletProps): Promise<Badgelet
     }
 
     const doc = gql`query MyQuery {
-      badgelets(where: {${variables}, status: {_neq: "burned"}}, limit: 20, offset: ${props.page * 20 - 20}, order_by: {id: desc}) {
+      badgelets(where: {${variables}, ${status}}, limit: 20, offset: ${props.page * 20 - 20}, order_by: {id: desc}) {
         metadata
         badge_id
         content
@@ -1046,7 +1062,7 @@ export interface Group extends Profile {
     can_view_event: string
     events_count: number
     memberships_count: number
-    group_tags :string | null
+    group_tags: string | null
     timezone: string | null
 }
 
@@ -1057,6 +1073,7 @@ export interface QueryUserGroupProps {
 export async function queryGroupsUserJoined(props: QueryUserGroupProps): Promise<Group[]> {
     const doc = gql`query MyQuery {
       groups(where: {status: {_neq: "freezed"}, memberships: {role: {_neq: "owner"}, profile: {id: {_eq: "${props.profile_id}"}}}}) {
+        farcaster
         timezone
         events_count
         memberships_count
@@ -1107,6 +1124,7 @@ export async function queryGroupsUserJoined(props: QueryUserGroupProps): Promise
 export async function queryGroupsUserCreated(props: QueryUserGroupProps): Promise<Group[]> {
     const doc = gql`query MyQuery {
       groups(where: {status: {_neq: "freezed"}, memberships: {role: {_eq: "owner"}, profile: {id: {_eq: "${props.profile_id}"}}}}) {
+        farcaster
         timezone
         events_count
         memberships_count
@@ -1157,6 +1175,7 @@ export async function queryGroupsUserCreated(props: QueryUserGroupProps): Promis
 export async function queryGroupsUserManager(props: QueryUserGroupProps): Promise<Group[]> {
     const doc = gql`query MyQuery {
       groups(where: {status: {_neq: "freezed"}, memberships: {role: {_eq: "manager"}, profile: {id: {_eq: "${props.profile_id}"}}}}) {
+        farcaster
         timezone
         events_count
         memberships_count
@@ -1232,7 +1251,7 @@ export interface AcceptBadgeletProp {
 
 export async function acceptBadgelet(props: AcceptBadgeletProp): Promise<Badgelet> {
     checkAuth(props)
-    const res = await fetch.post({
+    const res: any = await fetch.post({
         url: `${apiUrl}/voucher/use`,
         data: {id: props.voucher_id, code: props.code, auth_token: props.auth_token, index: props.index}
     })
@@ -1251,7 +1270,7 @@ export interface RejectVoucherProp {
 
 export async function rejectVoucher(props: RejectVoucherProp): Promise<void> {
     checkAuth(props)
-    const res = await fetch.post({
+    const res: any = await fetch.post({
         url: `${apiUrl}/voucher/reject_badge`,
         data: props
     })
@@ -1298,10 +1317,10 @@ export interface SetBadgeletStatusProps {
 
 export async function setBadgeletStatus(props: SetBadgeletStatusProps) {
     checkAuth(props)
-    const res = await fetch.post({
-        url: `${apiUrl}/badge/${props.type}`,
+    const res: any = await fetch.post({
+        url: `${apiUrl}/badgelet/update`,
         data: {
-            badgelet_id: props.id,
+            id: props.id,
             auth_token: props.auth_token,
             display: props.type
         }
@@ -1319,7 +1338,7 @@ export interface QueryBadgeletDetailProps {
 }
 
 export async function queryBadgeletDetail(props: QueryBadgeletDetailProps): Promise<Badgelet | null> {
-    const res = await queryBadgelet({
+    const res: any = await queryBadgelet({
         id: props.id,
         page: 1,
     })
@@ -1345,7 +1364,7 @@ export async function uploadImage(props: UploadImageProps): Promise<string> {
     formData.append('auth_token', props.auth_token)
     formData.append('uploader', props.uploader)
     formData.append('resource', randomName)
-    const res = await fetch.post({
+    const res: any = await fetch.post({
         url: `${apiUrl}/service/upload_image`,
         data: formData,
         header: {'Content-Type': 'multipart/form-data'}
@@ -1365,7 +1384,7 @@ export interface SetAvatarProps {
 
 export async function setAvatar(props: SetAvatarProps) {
     checkAuth(props)
-    const res = await fetch.post({
+    const res: any = await fetch.post({
         url: `${apiUrl}/profile/update`,
         data: props
     })
@@ -1393,7 +1412,7 @@ export async function createBadge(props: CreateBadgeProps): Promise<Badge> {
     checkAuth(props)
     props.badge_type = props.badge_type || 'badge'
 
-    const res = await fetch.post({
+    const res: any = await fetch.post({
         url: `${apiUrl}/badge/create`,
         data: props
     })
@@ -1415,7 +1434,7 @@ export interface CreatePresendProps {
 export async function createPresend(props: CreatePresendProps) {
     checkAuth(props)
     props.counter = props.counter === 'Unlimited' ? 65535 : props.counter
-    const res = await fetch.post({
+    const res: any = await fetch.post({
         url: `${apiUrl}/voucher/create`,
         data: props
     })
@@ -1675,7 +1694,7 @@ export async function issueBatch(props: IssueBatchProps): Promise<Voucher[]> {
 
     const usernames = profiles.map((item: any) => item.username)
 
-    const res = await fetch.post({
+    const res: any = await fetch.post({
         url: `${apiUrl}/voucher/send_badge`,
         data: {
             badge_id: props.badgeId,
@@ -1697,7 +1716,7 @@ export async function issueBatch(props: IssueBatchProps): Promise<Voucher[]> {
 }
 
 export async function DDNSServer(domain: string): Promise<string | null> {
-    const res = await fetch.get({
+    const res: any = await fetch.get({
         url: `https://api.ddns.so/name/${domain.toLowerCase()}`
     })
 
@@ -1715,7 +1734,7 @@ interface FollowProps {
 
 export async function follow(props: FollowProps) {
     checkAuth(props)
-    const res = await fetch.post({
+    const res: any = await fetch.post({
         url: `${apiUrl}/profile/follow`,
         data: props
     })
@@ -1727,7 +1746,7 @@ export async function follow(props: FollowProps) {
 
 export async function unfollow(props: FollowProps) {
     checkAuth(props)
-    const res = await fetch.post({
+    const res: any = await fetch.post({
         url: `${apiUrl}/profile/unfollow`,
         data: props
     })
@@ -1768,7 +1787,7 @@ export interface CreateGroupProps {
 
 export async function createGroup(props: CreateGroupProps): Promise<Group> {
     checkAuth(props)
-    const res = await fetch.post({
+    const res: any = await fetch.post({
         url: `${apiUrl}/group/create`,
         data: props
     })
@@ -1799,7 +1818,7 @@ export async function sendInvite(props: SendInviteProps): Promise<Invite[]> {
     props.receivers.forEach((item: any) => {
         if (item.endsWith('.eth') || item.endsWith('.dot')) {
             domains.push(item)
-        } else if (item.startsWith('0x')) {
+        } else if (item.startsWith('0x') && item.length === 42) {
             walletAddress.push(item)
         } else if (item.endsWith(socialLayerDomain!)) {
             socialLayerUsers.push(item)
@@ -1865,7 +1884,7 @@ export async function sendInvite(props: SendInviteProps): Promise<Invite[]> {
 
     const usernames = profiles.map((item: any) => item.username)
 
-    const res = await fetch.post({
+    const res: any = await fetch.post({
         url: `${apiUrl}/group/send_invite`,
         data: {
             ...props,
@@ -1893,7 +1912,7 @@ export async function sendInvite(props: SendInviteProps): Promise<Invite[]> {
 export async function sendInviteByEmail(props: SendInviteProps): Promise<Invite[]> {
     checkAuth(props)
 
-    const res = await fetch.post({
+    const res: any = await fetch.post({
         url: `${apiUrl}/group/send_invite_by_email`,
         data: props
     })
@@ -1921,7 +1940,7 @@ export interface QueryInviteDetailProps {
 }
 
 export async function queryInviteDetail(props: QueryInviteDetailProps): Promise<Invite | null> {
-    const res = await queryInvites({inviteId: props.invite_id, groupId: props.group_id})
+    const res: any = await queryInvites({inviteId: props.invite_id, groupId: props.group_id})
     return res[0] || null
 }
 
@@ -1932,7 +1951,7 @@ export interface AcceptInviteProps {
 
 export async function acceptInvite(props: AcceptInviteProps) {
     checkAuth(props)
-    const res = await fetch.post({
+    const res: any = await fetch.post({
         url: `${apiUrl}/group/accept_invite`,
         data: props
     })
@@ -1944,7 +1963,7 @@ export async function acceptInvite(props: AcceptInviteProps) {
 
 export async function cancelInvite(props: AcceptInviteProps) {
     checkAuth(props)
-    const res = await fetch.post({
+    const res: any = await fetch.post({
         url: `${apiUrl}/group/cancel_invite`,
         data: props
     })
@@ -1997,7 +2016,7 @@ export interface UpdateGroupProps extends Partial<Group> {
 
 export async function updateGroup(props: UpdateGroupProps) {
     checkAuth(props)
-    const res = await fetch.post({
+    const res: any = await fetch.post({
         url: `${apiUrl}/group/update`,
         data: {...props}
     })
@@ -2017,7 +2036,7 @@ export interface LeaveGroupProps {
 
 export async function leaveGroup(props: LeaveGroupProps) {
     checkAuth(props)
-    const res = await fetch.post({
+    const res: any = await fetch.post({
         url: `${apiUrl}/group/remove-member`,
         data: props
     })
@@ -2157,7 +2176,7 @@ export interface freezeGroupProps {
 
 export async function freezeGroup(props: freezeGroupProps) {
     checkAuth(props)
-    const res = await fetch.post({
+    const res: any = await fetch.post({
         url: `${apiUrl}/group/freeze`,
         data: {
             id: props.group_id,
@@ -2172,7 +2191,7 @@ export async function freezeGroup(props: freezeGroupProps) {
 
 export async function updateProfile(props: { data: Partial<Profile>, auth_token: string }) {
     checkAuth(props)
-    const res = await fetch.post({
+    const res: any = await fetch.post({
         url: `${apiUrl}/profile/update`,
         data: {...props.data, auth_token: props.auth_token}
     })
@@ -2555,7 +2574,7 @@ export interface BadgeRevokeProps {
 export async function badgeRevoke(props: BadgeRevokeProps): Promise<Badgelet> {
     checkAuth(props)
 
-    const res = await fetch.post({
+    const res: any = await fetch.post({
         url: `${apiUrl}/badgelet/burn`,
         data: {
             ...props,
@@ -2577,7 +2596,7 @@ interface BadgeBurnProps {
 export async function badgeletBurn(props: BadgeBurnProps): Promise<Badgelet> {
     checkAuth(props)
 
-    const res = await fetch.post({
+    const res: any = await fetch.post({
         url: `${apiUrl}/badgelet/burn`,
         data: {
             ...props,
@@ -2695,7 +2714,7 @@ export async function updateVote(props: UpdateVoteProps) {
 }
 
 export async function getVoteDetail(voteid: number) {
-    const res = await queryVotes({vote_id: voteid, page: 1})
+    const res: any = await queryVotes({vote_id: voteid, page: 1})
     return res[0] as Vote || null
 }
 
@@ -2867,7 +2886,7 @@ export interface CheckIsManagerProps {
 }
 
 export async function checkIsManager(props: CheckIsManagerProps): Promise<boolean> {
-    const res = await getGroupMembers({
+    const res: any = await getGroupMembers({
         group_id: props.group_id,
         role: 'manager',
     })
@@ -2876,7 +2895,7 @@ export async function checkIsManager(props: CheckIsManagerProps): Promise<boolea
         return false
     }
 
-    return res.some((item) => {
+    return res.some((item: any) => {
         return item.id === props.profile_id
     })
 }
@@ -2910,6 +2929,14 @@ export interface EventSites {
     "formatted_address": null | string,
     geo_lat: null | string,
     geo_lng: null | string,
+    start_date: string | null,
+    end_date: string | null,
+    timeslots: null | string,
+    link: string | null,
+    capacity: number | null,
+    overrides: null | string[],
+    require_approval?: boolean,
+    visibility: null | 'all' | 'manager'
 }
 
 export interface Participants {
@@ -2974,6 +3001,9 @@ export interface Event {
     participants: null | Participants[],
     external_url: null | string,
     operators: null | number[],
+    requirement_tags: null | string[],
+    extra: null | string[]
+
 }
 
 export interface CreateEventProps extends Partial<Event> {
@@ -3029,6 +3059,11 @@ export interface QueryEventProps {
     recurring_event_id?: number,
     show_cancel_event?: boolean,
     group_ids?: number[]
+    allow_private?: boolean,
+    tags?: string[],
+    search?: string,
+    cache?: boolean,
+    offset?: number
 }
 
 
@@ -3049,12 +3084,21 @@ export async function queryEvent(props: QueryEventProps): Promise<Event[]> {
         variables += `tags: {_contains:["${props.tag}"]}, `
     }
 
+    if (props.tags) {
+        const tags = props.tags.map(t => `"${t}"`).join(',')
+        variables = `tags: {_contains: [${tags}]}, `
+    }
+
     if (props.event_site_id) {
         variables += `event_site_id: {_eq: ${props.event_site_id}}, `
     }
 
-    if(props.recurring_event_id) {
+    if (props.recurring_event_id) {
         variables += `recurring_event_id: {_eq: ${props.recurring_event_id}}, `
+    }
+
+    if (!props.allow_private) {
+        variables += `display: {_neq: "private"}, `
     }
 
     if (props.start_time_from && props.start_time_to) {
@@ -3068,12 +3112,14 @@ export async function queryEvent(props: QueryEventProps): Promise<Event[]> {
         variables += `start_time: {_lte: "${props.start_time_to}"}, `
     }
 
-    if (props.end_time_gte) {
+
+    if (props.end_time_gte && props.end_time_lte) {
+        order = `order_by: {end_time: ${props.event_order || 'desc'}}, `
+        variables += `end_time: {_gte: "${props.end_time_gte}"}, _and: {end_time: {_lte: "${props.end_time_lte}"}}, `
+    } else if (props.end_time_gte) {
         order = `order_by: {start_time: ${props.event_order || 'desc'}}, `
         variables += `end_time: {_gte: "${props.end_time_gte}"}, `
-    }
-
-    if (props.end_time_lte) {
+    } else if (props.end_time_lte) {
         order = `order_by: {end_time: ${props.event_order || 'desc'}}, `
         variables += `end_time: {_lte: "${props.end_time_lte}"}, `
     }
@@ -3082,23 +3128,30 @@ export async function queryEvent(props: QueryEventProps): Promise<Event[]> {
         variables += `group_id: {_eq: ${props.group_id}}, `
     }
 
+
+    if (props.search) {
+        variables += `title: {_iregex: "${props.search}"}, `
+    }
+
     let status = `"open", "new", "normal"`
     if (props.show_pending_event) {
         status = status + ', "pending"'
     }
 
-    if(props.show_rejected_event) {
+    if (props.show_rejected_event) {
         status = status + ', "rejected"'
     }
 
-    if(props.show_cancel_event) {
+    if (props.show_cancel_event) {
         status = status + ', "cancel"'
     }
 
     variables = variables.replace(/,$/, '')
 
-    const doc = gql`query MyQuery {
-      events (where: {${variables}, status: {_in: [${status}]}} ${order} limit: ${page_size}, offset: ${(props.page - 1) * page_size}) {
+    const doc = gql`query MyQuery ${props.cache? '@cached' : ''} {
+      events (where: {${variables}, status: {_in: [${status}]}} ${order} limit: ${page_size}, offset: ${props.offset || ((props.page - 1) * page_size)}) {
+        extra
+        requirement_tags
         display
         operators
         padge_link
@@ -3115,6 +3168,7 @@ export async function queryEvent(props: QueryEventProps): Promise<Event[]> {
         end_time
         event_site_id
         event_site {
+            visibility
             id
             title
             location
@@ -3125,6 +3179,12 @@ export async function queryEvent(props: QueryEventProps): Promise<Event[]> {
             formatted_address
             geo_lat
             geo_lng
+            timeslots
+            link
+            capacity
+            overrides
+            start_date
+            end_date
         }
         event_type
         formatted_address
@@ -3210,7 +3270,7 @@ export async function queryPendingEvent(props: QueryEventProps): Promise<Event[]
         variables += `event_site_id: {_eq: ${props.event_site_id}}, `
     }
 
-    if(props.recurring_event_id) {
+    if (props.recurring_event_id) {
         variables += `recurring_event_id: {_eq: ${props.recurring_event_id}}, `
     }
 
@@ -3249,6 +3309,8 @@ export async function queryPendingEvent(props: QueryEventProps): Promise<Event[]
 
     const doc = gql`query MyQuery {
       events (where: {${variables} status: {_eq: "pending"}}, ${order} limit: ${page_size}, offset: ${(props.page - 1) * page_size}) {
+        extra
+        requirement_tags
         display
         operators
         padge_link
@@ -3264,6 +3326,7 @@ export async function queryPendingEvent(props: QueryEventProps): Promise<Event[]
         display
         event_site_id
         event_site {
+            visibility
             id
             title
             location
@@ -3274,6 +3337,115 @@ export async function queryPendingEvent(props: QueryEventProps): Promise<Event[]
             formatted_address
             geo_lat
             geo_lng
+            require_approval
+        }
+        event_type
+        formatted_address
+        location
+        owner_id
+        owner {
+            id
+            username
+            nickname
+            image_url
+        }
+        title
+        timezone
+        status
+        tags
+        start_time
+        end_time
+        require_approval
+        participants_count
+        max_participant
+        meeting_url
+        group_id
+        host_info
+        id
+        location_viewport
+        min_participant
+        recurring_event {
+          id
+        }
+        recurring_event_id
+        participants(where: {status: {_neq: "cancel"}}) {
+          id
+          profile_id
+          profile {
+            id
+            username
+            nickname
+            image_url
+          }
+          role
+          status
+          voucher_id
+          check_time
+          created_at
+          message
+          event {
+            id
+          }
+        }
+      }
+    }`
+
+    const resp: any = await request(graphUrl, doc)
+    return resp.events.map((item: any) => {
+        return {
+            ...item,
+            end_time: item.end_time && !item.end_time.endsWith('Z') ? item.end_time + 'Z' : item.end_time,
+            start_time: item.end_time && !item.start_time.endsWith('Z') ? item.start_time + 'Z' : item.start_time,
+        }
+    }) as Event[]
+}
+
+
+export async function queryCohostingEvent(props: { id: number, email?: string }): Promise<Event[]> {
+    const page_size = 10000
+    let variables = ''
+    let order = `order_by: {id: desc}, `
+
+
+    if (props.email) {
+        variables += `_or: [{operators: {_contains: [${props.id}]}}, {extra: {_contains: ["${props.email}"]}}],`
+    } else {
+        variables += `operators: {_contains: [${props.id}]},`
+    }
+
+    variables = variables.replace(/,$/, '')
+
+    const doc = gql`query MyQuery {
+      events (where: {${variables}}, ${order} limit: ${page_size}) {
+        extra
+        requirement_tags
+        display
+        operators
+        padge_link
+        badge_id
+        notes
+        external_url
+        geo_lat
+        geo_lng
+        category
+        content
+        cover_url
+        created_at
+        display
+        event_site_id
+        event_site {
+            visibility
+            id
+            title
+            location
+            about
+            group_id
+            owner_id
+            created_at
+            formatted_address
+            geo_lat
+            geo_lng
+            require_approval
         }
         event_type
         formatted_address
@@ -3368,7 +3540,13 @@ export interface QueryEventDetailProps {
 }
 
 export async function queryEventDetail(props: QueryEventDetailProps) {
-    const res = await queryEvent({id: props.id, page: 1, show_pending_event: true, show_cancel_event: true})
+    const res: any = await queryEvent({
+        id: props.id,
+        page: 1,
+        show_pending_event: true,
+        allow_private: true,
+        show_cancel_event: true
+    })
 
     return res[0] as Event || null
 }
@@ -3404,7 +3582,10 @@ export async function queryMyEvent({page = 1, page_size = 10, ...props}: QueryMy
         }
         role
          event {
+           extra
+          display
           cover_url
+          host_info
           content
           end_time
           notes
@@ -3415,6 +3596,26 @@ export async function queryMyEvent({page = 1, page_size = 10, ...props}: QueryMy
           owner_id
           start_time
           status
+          event_site_id
+          event_site {
+               visibility
+               id
+               title
+               location
+               about
+               group_id
+               owner_id
+               created_at
+               formatted_address
+               geo_lat
+               geo_lng
+          }
+         owner {
+            id
+            username
+            nickname
+            image_url
+          }
           participants(where: {status: {_neq: "cancel"}}) {
           id
           profile_id
@@ -3464,9 +3665,12 @@ export async function cancelEvent(props: CancelEventProps): Promise<Participants
     return res.data.participants as Participants[]
 }
 
-export async function getEventSide(groupId?: number): Promise<EventSites[]> {
+export async function getEventSide(groupId?: number, allowRemoved?: boolean): Promise<EventSites[]> {
+    const status = allowRemoved ? '' : ', removed: {_is_null: true}'
     const doc = gql`query MyQuery {
-      event_sites(where: {group_id: {_eq: ${groupId}}}, order_by: {id: desc}) {
+      event_sites(where: {group_id: {_eq: ${groupId}}${status}}, order_by: {id: desc}) {
+        visibility
+        removed
         formatted_address
         geo_lat
         geo_lng
@@ -3476,7 +3680,14 @@ export async function getEventSide(groupId?: number): Promise<EventSites[]> {
         location
         location_viewport
         owner_id
-        title
+        title,
+        start_date
+        end_date
+        timeslots
+        link
+        capacity
+        overrides
+        require_approval
       }
     }`
 
@@ -3518,9 +3729,11 @@ export async function unJoinEvent(props: JoinEventProps) {
     return res.data.participant as Participants
 }
 
-export async function searchEvent(keyword: string) {
+export async function searchEvent(keyword: string, group_id?: number): Promise<Event[]> {
     const doc = gql`query MyQuery {
-      events (where: {title: {_iregex: "${keyword}"} , status: {_neq: "closed"}}, limit: 10) {
+      events (where: {title: {_iregex: "${keyword}"} , ${group_id ? `group_id: {_eq: ${group_id}},` : ''} status: {_neq: "closed"}}, limit: 10) {
+        extra
+        requirement_tags
         display
         operators
         padge_link
@@ -3537,6 +3750,7 @@ export async function searchEvent(keyword: string) {
         end_time
         event_site_id
         event_site {
+            visibility
             id
             title
             location
@@ -3548,16 +3762,16 @@ export async function searchEvent(keyword: string) {
             geo_lat
             geo_lng
         }
-        event_type
-        formatted_address
-        location
-        owner_id
-        owner {
+         owner {
             id
             username
             nickname
             image_url
         }
+        event_type
+        formatted_address
+        location
+        owner_id
         title
         timezone
         status
@@ -3657,7 +3871,7 @@ export interface SetEventBadgeProps {
 export async function setEventBadge(props: SetEventBadgeProps) {
     checkAuth(props)
 
-    const res = await fetch.post({
+    const res: any = await fetch.post({
         url: `${apiUrl}/event/set_badge`,
         data: props
     })
@@ -3675,7 +3889,7 @@ export interface SendEventBadgeProps {
 export async function sendEventBadge(props: SendEventBadgeProps) {
     checkAuth(props)
 
-    const res = await fetch.post({
+    const res: any = await fetch.post({
         url: `${apiUrl}/event/send_badge`,
         data: {
             id: props.event_id,
@@ -3823,6 +4037,7 @@ export async function divineBeastRemerge(props: DivineBeastRmergeProps) {
 export async function getEventGroup() {
     const doc = gql`query MyQuery {
       groups(where: {event_enabled: {_eq: true}, status: {_neq: "freezed"}}) {
+        farcaster
         timezone
         events_count
         memberships_count
@@ -3903,7 +4118,7 @@ interface EditEventProps extends Partial<EventSites> {
 export async function createEventSite(props: EditEventProps) {
     checkAuth(props)
 
-    const res = await fetch.post({
+    const res: any = await fetch.post({
         url: `${apiUrl}/event_site/create`,
         data: props
     })
@@ -3918,7 +4133,7 @@ export async function createEventSite(props: EditEventProps) {
 export async function updateEventSite(props: EditEventProps) {
     checkAuth(props)
 
-    const res = await fetch.post({
+    const res: any = await fetch.post({
         url: `${apiUrl}/event_site/update`,
         data: props
     })
@@ -3933,7 +4148,7 @@ export async function updateEventSite(props: EditEventProps) {
 export async function removeEventSite({auth_token, id}: { auth_token: string, id: number }) {
     checkAuth({auth_token})
 
-    const res = await fetch.post({
+    const res: any = await fetch.post({
         url: `${apiUrl}/event_site/remove`,
         data: {
             auth_token,
@@ -3960,7 +4175,7 @@ export async function requestPhoneCode(phone: string): Promise<void> {
 }
 
 export async function phoneLogin(phone: string, code: string): Promise<LoginRes> {
-    const res = await fetch.post({
+    const res: any = await fetch.post({
         url: `${apiUrl}/profile/signin_with_phone`,
         data: {phone, code, app: window.location.host, address_source: 'phone'}
     })
@@ -3979,7 +4194,7 @@ export interface EventStats {
 }
 
 export async function getEventStats(props: { group_id: number, days: number }) {
-    const res = await fetch.get({
+    const res: any = await fetch.get({
         url: `${apiUrl}/event/stats`,
         data: props
     })
@@ -4019,7 +4234,7 @@ export interface CancelRepeatProps {
 export async function cancelRepeatEvent(props: CancelRepeatProps) {
     checkAuth(props)
 
-    const res = await fetch.post({
+    const res: any = await fetch.post({
         url: `${apiUrl}/recurring_event/cancel_event`,
         data: props
     })
@@ -4038,7 +4253,7 @@ export interface CreateRepeatEventProps extends CreateEventProps {
 
 export async function createRepeatEvent(props: CreateRepeatEventProps) {
     checkAuth(props)
-    const res = await fetch.post({
+    const res: any = await fetch.post({
         url: `${apiUrl}/recurring_event/create`,
         data: props
     })
@@ -4047,7 +4262,7 @@ export async function createRepeatEvent(props: CreateRepeatEventProps) {
         throw new Error(res.data.message)
     }
 
-    const event = await queryEvent({recurring_event_id: res.data.recurring_event_id, page: 1})
+    const event = await queryEvent({recurring_event_id: res.data.recurring_event_id, page: 1, allow_private: true})
     return event[0]
 }
 
@@ -4097,7 +4312,7 @@ export interface RepeatEventSetBadgeProps {
 
 export async function RepeatEventSetBadge(props: RepeatEventSetBadgeProps) {
     checkAuth(props)
-    const res = await fetch.post({
+    const res: any = await fetch.post({
         url: `${apiUrl}/recurring_event/set_badge`,
         data: props
     })
@@ -4111,12 +4326,14 @@ export async function RepeatEventSetBadge(props: RepeatEventSetBadgeProps) {
 export interface RepeatEventUpdateProps extends CreateEventProps {
     event_id?: number,
     selector?: 'one' | 'after' | 'all',
+    start_time_diff?: number,
+    end_time_diff?: number,
 }
 
 
 export async function RepeatEventUpdate(props: RepeatEventUpdateProps) {
     checkAuth(props)
-    const res = await fetch.post({
+    const res: any = await fetch.post({
         url: `${apiUrl}/recurring_event/update`,
         data: props
     })
@@ -4154,6 +4371,7 @@ export interface Marker {
     jubmoji_code?: string | null,
     zugame_state?: string | null,
     event?: Event | null,
+    timezone: string,
 }
 
 export interface CreateMarkerProps extends Partial<Marker> {
@@ -4168,7 +4386,7 @@ export async function createMarker(props: CreateMarkerProps) {
         props.marker_type = 'zugame'
     }
 
-    const res = await fetch.post({
+    const res: any = await fetch.post({
         url: `${apiUrl}/marker/create`,
         data: props
     })
@@ -4196,7 +4414,7 @@ export async function saveMarker(props: CreateMarkerProps) {
         props.marker_type = 'zugame'
     }
 
-    const res = await fetch.post({
+    const res: any = await fetch.post({
         url: `${apiUrl}/marker/update`,
         data: props
     })
@@ -4421,7 +4639,7 @@ export async function markerCheckin(props: {
 }) {
 
     checkAuth(props)
-    const res = await fetch.post({
+    const res: any = await fetch.post({
         url: `${apiUrl}/marker/check`,
         data: props
     })
@@ -4438,7 +4656,7 @@ export async function removeMarker(props: {
     id?: number,
 }) {
     checkAuth(props)
-    const res = await fetch.post({
+    const res: any = await fetch.post({
         url: `${apiUrl}/marker/remove`,
         data: props
     })
@@ -4453,7 +4671,7 @@ export async function getVoucherCode(props: {
     id?: number,
 }) {
     checkAuth(props)
-    const res = await fetch.get({
+    const res: any = await fetch.get({
         url: `${apiUrl}/voucher/get_code`,
         data: props
     })
@@ -4466,7 +4684,7 @@ export async function getVoucherCode(props: {
 }
 
 export async function transferGroupOwner(props: { id: number, new_owner_username: string, auth_token: string }) {
-    const res = await fetch.post({
+    const res: any = await fetch.post({
         url: `${apiUrl}/group/transfer_owner`,
         data: props
     })
@@ -4483,7 +4701,28 @@ export async function zupassLogin(props: {
     next_token: string
     host?: string,
 }) {
-    const res = await fetch.post({
+    const res: any = await fetch.post({
+        url: `${apiUrl}/profile/signin_with_zupass`,
+        data: {...props, app: props.host, address_source: 'zupass'}
+    })
+
+    if (res.data.result === 'error') {
+        throw new Error(res.data.message)
+    }
+
+    return res.data.auth_token as string
+}
+
+export async function zupassLoginMulti(props: {
+    zupass_list: {
+        zupass_event_id: string,
+        zupass_product_id: string,
+    }[],
+    email: string,
+    next_token: string
+    host?: string,
+}) {
+    const res: any = await fetch.post({
         url: `${apiUrl}/profile/signin_with_zupass`,
         data: {...props, app: props.host, address_source: 'zupass'}
     })
@@ -4501,7 +4740,7 @@ export async function farcasterLogin(props: {
     next_token: string
     host?: string,
 }) {
-    const res = await fetch.post({
+    const res: any = await fetch.post({
         url: `${apiUrl}/profile/signin_with_farcaster`,
         data: {...props, app: props.host, address_source: 'farcaster'}
     })
@@ -4518,7 +4757,7 @@ export async function solanaLogin(props: {
     next_token: string,
     host?: string
 }) {
-    const res = await fetch.post({
+    const res: any = await fetch.post({
         url: `${apiUrl}/profile/signin_with_solana`,
         data: {...props, app: props.host, address_source: 'solana'}
     })
@@ -4535,7 +4774,7 @@ export async function jubmojiCheckin(props: {
     auth_token: string,
     reaction_type: string,
 }) {
-    const res = await fetch.post({
+    const res: any = await fetch.post({
         url: `${apiUrl}/marker/check_jubmoji`,
         data: props
     })
@@ -4546,7 +4785,7 @@ export async function jubmojiCheckin(props: {
 }
 
 export async function zugameInfo() {
-    const res = await fetch.get({
+    const res: any = await fetch.get({
         url: `${apiUrl}/marker/zugame_checkin_stats`,
         data: {}
     })
@@ -4717,7 +4956,7 @@ export async function sendBadgeByWallet(props: {
 }) {
     checkAuth(props)
 
-    const res = await fetch.post({
+    const res: any = await fetch.post({
         url: `${apiUrl}/voucher/send_badge_by_address`,
         data: props
     })
@@ -4741,7 +4980,7 @@ export async function queryGroupEventCheckins(group_id: number) {
 export async function getSwapCode(props: { auth_token: string, badgelet_id: number }) {
     checkAuth(props)
 
-    const res = await fetch.post({
+    const res: any = await fetch.post({
         url: `${apiUrl}/badgelet/swap_code`,
         data: props
     })
@@ -4752,7 +4991,7 @@ export async function getSwapCode(props: { auth_token: string, badgelet_id: numb
 export async function swapBadgelet(props: { auth_token: string, badgelet_id: number, swap_token: string }) {
     checkAuth(props)
 
-    const res = await fetch.post({
+    const res: any = await fetch.post({
         url: `${apiUrl}/badgelet/swap`,
         data: props
     })
@@ -4844,7 +5083,7 @@ export async function requestToBeIssuer(props: {
 }) {
     checkAuth(props)
 
-    const res = await fetch.post({
+    const res: any = await fetch.post({
         url: `${apiUrl}/group/request_invite`,
         data: props
     })
@@ -4857,7 +5096,7 @@ export async function acceptRequest(props: {
 }) {
     checkAuth(props)
 
-    const res = await fetch.post({
+    const res: any = await fetch.post({
         url: `${apiUrl}/group/accept_request`,
         data: props
     })
@@ -4878,6 +5117,21 @@ export async function getProfileBatch(usernames: string[]) {
     return res.profiles as ProfileSimple[]
 }
 
+export async function getProfileBatchById(ids: number[]) {
+    const doc = gql`query MyQuery @cached {
+          profiles(where: {id: {_in:${JSON.stringify(ids)}}}) {
+            id,
+            username,
+            nickname,
+            image_url,
+            sol_address
+          }
+        }
+        `
+    const res: any = await request(graphUrl, doc)
+    return res.profiles as ProfileSimple[]
+}
+
 export async function setEventStatus(props: {
     auth_token: string,
     id: number,
@@ -4885,7 +5139,7 @@ export async function setEventStatus(props: {
 }) {
     checkAuth(props)
 
-    const res = await fetch.post({
+    const res: any = await fetch.post({
         url: `${apiUrl}/event/set_status`,
         data: props
     })
@@ -4979,7 +5233,7 @@ export async function queryActivities(props: {
     const pageSize = props.page_size || 10
 
     const doc = gql`query MyQuery {
-        activities(where: {${variables} _or: [{action: {_eq: "voucher/send_badge"}}]} limit: ${pageSize} offset: ${(props.page- 1) * pageSize}  order_by: {created_at: desc}) {
+        activities(where: {${variables} _or: [{action: {_eq: "voucher/send_badge"}}]} limit: ${pageSize} offset: ${(props.page - 1) * pageSize}  order_by: {created_at: desc}) {
                     data
                     action
                     created_at
@@ -5007,10 +5261,10 @@ export async function queryActivities(props: {
     return res.activities as Activity[]
 }
 
-export async function setActivityRead (props: {ids: number[], auth_token: string}) {
+export async function setActivityRead(props: { ids: number[], auth_token: string }) {
     checkAuth(props)
 
-    const res = await fetch.post({
+    const res: any = await fetch.post({
         url: `${apiUrl}/activity/set_read_status`,
         data: props
     })
@@ -5070,7 +5324,7 @@ export interface PopupCity {
     location: string | null
     start_date: string | null
     title: string
-    updated_at:  string | null
+    updated_at: string | null
     website: string | null
     created_at: string | null
     end_date: string | null
@@ -5079,10 +5333,10 @@ export interface PopupCity {
     group_tags: string[] | null
 }
 
-export async function queryPopupCity ({page = 1, page_size = 10}: {page?: number, page_size?: number}) {
+export async function queryPopupCity({page = 1, page_size = 10}: { page?: number, page_size?: number }) {
     const doc = gql`
         query MyQuery {
-          popup_cities(offset: ${(page - 1 ) * page_size}, limit: ${page_size}, order_by: {id: desc}) {
+          popup_cities(offset: ${(page - 1) * page_size}, limit: ${page_size}, order_by: {id: desc}) {
             id
             group_tags
             image_url
@@ -5110,7 +5364,7 @@ export async function queryPopupCity ({page = 1, page_size = 10}: {page?: number
     return res.popup_cities as PopupCity[]
 }
 
-export async function popupCityDetail (id: number) {
+export async function popupCityDetail(id: number) {
     const doc = gql`
         query MyQuery {
           popup_cities(where: {id: {_eq: ${id}}}, order_by: {id: desc}) {
@@ -5140,7 +5394,7 @@ export async function popupCityDetail (id: number) {
     return res.popup_cities[0] as PopupCity || null
 }
 
-export async function memberCount (group_ids: number[]) {
+export async function memberCount(group_ids: number[]) {
     let queryItem = ''
     group_ids.forEach((item) => {
         queryItem = queryItem + `_${item}: memberships_aggregate(where: {group: {id: {_eq: "${item}"}}}) {aggregate {count}}
@@ -5164,7 +5418,7 @@ export async function memberCount (group_ids: number[]) {
     return res_format
 }
 
-export async function groupComingEventCount (group_ids: number[]) {
+export async function groupComingEventCount(group_ids: number[]) {
     const today = new Date()
     today.setHours(0, 0, 0, 0)
     let queryItem = ''
@@ -5190,7 +5444,7 @@ export async function groupComingEventCount (group_ids: number[]) {
     return res_format
 }
 
-export async function userManageGroups (userid: number) {
+export async function userManageGroups(userid: number) {
     const doc = `query MyQuery {
         memberships(where: {profile_id: {_eq: ${userid}}, role: {_in: ["owner", "manager"]}}) {
             group {
@@ -5212,7 +5466,7 @@ export async function combine(props: {
 }) {
     checkAuth(props)
 
-    const res = await fetch.post({
+    const res: any = await fetch.post({
         url: `${apiUrl}/badgelet/wamo_go_merge`,
         data: props
     })
@@ -5220,11 +5474,11 @@ export async function combine(props: {
     return res.data.badgelet_id as number
 }
 
-export async function queryTimeLineEvent(groupid: number, from: string, to: string): Promise<{latest: Event[], curr: Event[], first: Event[]}> {
-   let condition1: string, condition2: string, condition3: string
-    condition1 = `where: {group_id: {_eq: ${groupid}}, status: {_in: ["open", "new", "normal"]}, end_time: {_gte: "${new Date().toISOString()}"}} , order_by: {start_time: asc}, limit: 1`
+export async function queryTimeLineEvent(groupid: number, from: string, to: string): Promise<{ latest: Event[], curr: Event[], first: Event[] }> {
+    let condition1: string, condition2: string, condition3: string
+    condition1 = `where: {group_id: {_eq: ${groupid}}, status: {_in: ["open", "new", "normal"]}, end_time: {_gte: "${new Date().toISOString()}"}} , order_by: {end_time: asc}, limit: 1`
     condition2 = `where: {group_id: {_eq: ${groupid}}, status: {_in: ["open", "new", "normal"]}, start_time: {_gte: "${from}"}, _and: {start_time: {_lte: "${to}"}}, } , order_by: {start_time: asc}, limit: 1`
-    condition3 = `where: {group_id: {_eq: ${groupid}}, status: {_in: ["open", "new", "normal"]} } , order_by: {id: asc}, limit: 1`
+    condition3 = `where: {group_id: {_eq: ${groupid}}, status: {_in: ["open", "new", "normal"]} } , order_by: {id: desc}, limit: 1`
 
 
     const doc = gql`query MyQuery {
@@ -5246,7 +5500,7 @@ export async function queryTimeLineEvent(groupid: number, from: string, to: stri
                 ...item,
                 start_time: item.end_time && !item.start_time.endsWith('Z') ? item.start_time + 'Z' : item.start_time,
             }
-        }) ,
+        }),
         curr: resp.curr.map((item: any) => {
             return {
                 ...item,
@@ -5262,6 +5516,211 @@ export async function queryTimeLineEvent(groupid: number, from: string, to: stri
     }
 }
 
+export interface RecurringEvent {
+    id: number,
+    start_time: string,
+    end_time: string,
+    interval: string | 'day' | 'week' | 'month',
+    event_count: number,
+    timezone: string
+}
+
+export async function getRecurringEvents(id: number) {
+    const doc = `query MyQuery{
+      recurring_events(where: {id: {_eq: ${id}}}) {
+        end_time
+        event_count
+        id
+        interval
+        start_time
+        timezone
+      }
+    }`
+
+    const res: any = await request(graphUrl, doc)
+    return res.recurring_events[0] ? {
+        ...res.recurring_events[0],
+        start_time: res.recurring_events[0].start_time + 'z'
+    } as RecurringEvent : null
+}
+
+export async function queryBadgeletWithTop(props: { owner_id: number, page: number }): Promise<{ top: Badgelet[], others: Badgelet[] }> {
+    const doc = gql`query MyQuery {
+      top: badgelets(where: {owner_id: {_eq: "${props.owner_id}"}, status: {_neq: "burned"}, display: {_eq: "top"}}, order_by: {id: desc}) {
+        metadata
+        badge_id
+        content
+        created_at
+        display
+        badge {
+          image_url
+          title
+          content
+          badge_type
+          group_id
+          group {
+            id
+            nickname
+            username
+            image_url
+          }
+        }
+        id
+        status
+        title
+        value
+        voucher_id
+        content
+        creator_id
+        creator {
+          id
+          nickname
+          image_url
+          username
+        }
+        owner_id
+        owner {
+          image_url
+          id
+          nickname
+          username
+        }
+      },
+      others: badgelets(where: {owner_id: {_eq: "${props.owner_id}"}, status: {_neq: "burned"}, display: {_neq: "top"}}, limit: 20, offset: ${props.page * 20 - 20}, order_by: {id: desc}) {
+        metadata
+        badge_id
+        content
+        created_at
+        display
+        badge {
+          image_url
+          title
+          content
+          badge_type
+          group_id
+          group {
+            id
+            nickname
+            username
+            image_url
+          }
+        }
+        id
+        status
+        title
+        value
+        voucher_id
+        content
+        creator_id
+        creator {
+          id
+          nickname
+          image_url
+          username
+        }
+        owner_id
+        owner {
+          image_url
+          id
+          nickname
+          username
+        }
+      }
+    }`
+
+    const res: any = await request(graphUrl, doc)
+
+    return {
+        top: res.top as Badgelet[],
+        others: res.others as Badgelet[]
+    }
+}
+
+export async function checkEventPermission(props: { id: number, auth_token: string }) {
+    checkAuth(props)
+
+    const res: any = await fetch.post({
+        url: `${apiUrl}/event/check_permission`,
+        data: props
+    })
+
+    return res.data.message === 'join allowed'
+    // return false
+}
+
+export interface GroupPass {
+    id: number,
+    created_at: string,
+    days_allowed: null | string,
+    days_disallowed: null | string,
+    end_date: null | string,
+    group_id: null | number,
+    pass_type: null | string,
+    profile_id: number,
+    start_date: null | string,
+    updated_at: string,
+    weekend: null | boolean,
+    zupass_event_id: null | string,
+    zupass_product_id: null | string,
+    zupass_product_name: null | string
+}
+
+export async function getGroupPass({profile_id, group_id}: { profile_id: number, group_id: number }) {
+    const doc = `query MyQuery {
+          group_passes(where: {profile_id: {_eq: ${profile_id}}, group_id: {_eq: ${group_id}}}) {
+            id
+            created_at
+            days_allowed
+            days_disallowed
+            end_date
+            group_id
+            pass_type
+            profile_id
+            start_date
+            updated_at
+            weekend
+            zupass_event_id
+            zupass_product_id
+            zupass_product_name
+          }
+        }`
+
+    const res: any = await request(graphUrl, doc)
+
+    return res.group_passes as GroupPass[]
+}
+
+export async function getEdgeToken(props: {auth_token: string}) {
+    checkAuth(props)
+
+    const res: any = await fetch.get({
+        url: `${apiUrl}/profile/get_edge?auth_token=${props.auth_token}`,
+        data: {}
+    })
+
+    if (res.data.result === 'error') {
+        throw new Error(res.data.message)
+    }
+
+    return res.data.balance
+}
+
+export async function getGroupsBatch(ids: number[]): Promise<Group[]> {
+
+    const condition = `where: {id: {_in: [${ids.join(',')}]}}, order_by: {id: desc}`
+
+    const doc = gql`query MyQuery {
+      groups(${condition}) {
+         nickname
+         id
+         username
+         image_url
+      }
+    }`
+
+    const resp: any = await request(graphUrl, doc)
+    return resp.groups as Group[]
+}
 
 export default {
     removeMarker,

@@ -1,3 +1,35 @@
+.gant-page {
+  display: flex;
+  flex-flow: column nowrap;
+  height: 100%
+}
+
+.label-color {
+  min-width: 8px;
+  height: 8px;
+  display: block;
+  border-radius: 50%;
+  margin-right: 8px;
+}
+
+.label-notice {
+  min-width: 10px;
+  height: 10px;
+  display: block;
+  border-radius: 50%;
+  position: absolute;
+  right: 0;
+  top: 2px;
+}
+
+.label-item {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  position: relative;
+  padding-right: 12px;
+}
+
 .schedule-page {
   height: 100%;
   width: 100vw;
@@ -49,7 +81,7 @@
   flex-flow: row nowrap;
   justify-content: space-between;
   align-items: flex-start;
-  padding-top: 36px;
+  padding-top: 16px;
 
   @media (max-width: 450px) {
     & {
@@ -80,13 +112,15 @@
       margin-right: 12px;
     }
 
-    & > a{
+    & > a {
       margin-right: 0.3em;
       text-decoration: none;
       color: #6CD7B2;
       font-size: 24px;
       font-weight: 700;
       white-space: nowrap;
+      display: flex;
+      align-items: center;
     }
 
     & > a::first-letter {
@@ -125,7 +159,7 @@
   justify-content: space-between;
 
   .page-slide {
-    display: flex!important;
+    display: flex !important;
   }
 
   .year {
@@ -199,6 +233,9 @@
 
 $border-color: #e0e0e0 !default;
 .gantt-warp {
+  flex: 1;
+  overflow: hidden;
+
   :global {
     #gantt-head {
       width: 100vw;
@@ -207,6 +244,8 @@ $border-color: #e0e0e0 !default;
       height: 60px;
       border-bottom: 1px solid $border-color;
       border-top: 1px solid $border-color;
+      padding-right: 20px;
+      box-sizing: border-box;
 
       .gantt-container::-webkit-scrollbar {
         display: none;
@@ -286,13 +325,16 @@ $border-color: #e0e0e0 !default;
   display: flex;
   flex-flow: row wrap;
   margin-top: 10px;
-  justify-content: space-between;
   align-items: flex-start;
 
   @media (max-width: 450px) {
+    & .menu-item:last-child {
+      display: none;
+    }
+
     :global(.event-label-list) {
       flex-flow: row nowrap;
-      overflow: auto;
+      overflow: scroll;
 
       &::-webkit-scrollbar {
         display: none;
@@ -307,7 +349,7 @@ $border-color: #e0e0e0 !default;
 
 .schedule-menu-2 {
   display: flex;
-  flex-flow: row wrap;
+  flex-flow: row nowrap;
   align-items: center;
   justify-content: space-between;
   background: #fff;
@@ -380,12 +422,7 @@ $border-color: #e0e0e0 !default;
   max-width: 100%;
   min-width: 100%;
 
-  @media (min-width: 376px) {
-    & {
-      max-width: calc(100% / 2);
-      min-width: calc(100% / 2);
-    }
-  }
+
 
   @media (min-width: 576px) {
     & {
@@ -508,6 +545,7 @@ $border-color: #e0e0e0 !default;
   -webkit-box-orient: vertical;
   overflow: hidden;
   margin-bottom: 8px;
+  text-decoration: underline;
 }
 
 .schedule-event-card-host {
@@ -519,6 +557,15 @@ $border-color: #e0e0e0 !default;
   font-weight: 400;
   line-height: 18px;
   align-items: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  div {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 }
 
 .schedule-event-card-avatar {
@@ -537,6 +584,11 @@ $border-color: #e0e0e0 !default;
   font-style: normal;
   font-weight: 500;
   margin-top: 5px;
+  cursor: pointer;
+
+  &:hover {
+    opacity: 0.8;
+  }
 }
 
 .icon {
@@ -740,7 +792,7 @@ $border-color: #e0e0e0 !default;
 }
 
 .timezone-selected {
-  margin-right: 30px;
+  margin-right: 10px;
 
   :global(*) {
     font-size: 12px !important;
@@ -771,6 +823,7 @@ $border-color: #e0e0e0 !default;
 
   svg {
     cursor: pointer;
+    padding: 10px;
 
     &.disable {
       pointer-events: none;
@@ -787,7 +840,7 @@ $border-color: #e0e0e0 !default;
 
   svg:nth-child(2) {
     cursor: pointer;
-    margin: 0 10px;
+    padding: 0;
   }
 }
 
@@ -844,6 +897,132 @@ $border-color: #e0e0e0 !default;
 
     i {
       margin-right: 6px;
+    }
+  }
+}
+
+.drop-list {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  max-width: 150px;
+  box-sizing: border-box;
+  width: 100%;
+  vertical-align: middle;
+
+  i {
+    display: inline-block;
+    height: 12px;
+    width: 12px;
+    min-width: 12px;
+    border-radius: 50px;
+    margin-right: 8px;
+  }
+}
+
+.schedule-menu-1 {
+  .menu-item {
+    max-width: 70%;
+    margin-right: 16px;
+    align-items: center;
+    display: flex;
+    flex-flow: row nowrap;
+
+    :global {
+      span[data-baseweb="tag"] {
+        background: #f1f1f1;
+        color: #272928
+      }
+
+      div[data-baseweb="select"] {
+        width: auto;
+        display: inline-block;
+        line-height: initial;
+        cursor: pointer;
+
+        > div {
+          background: none;
+          font-size: 14px;
+          border-width: 1px !important;
+          border-color: var(--color-item-border);
+
+          > div {
+            padding: 6px 12px;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--color-text-main);
+
+          }
+        }
+      }
+
+      .event-label-list {
+        display: flex;
+        flex-flow: row nowrap;
+        overflow: auto;
+        margin-right: 30px;
+
+        &::-webkit-scrollbar {
+          display: none;
+        }
+
+        .event-label-item {
+          white-space: nowrap;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 450px) {
+  .mobile-hide {
+    display: none !important;
+  }
+}
+
+.calendar-event-popup {
+  width: 100%;
+  height: 100%;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0px 4px 16px 0px rgba(0, 0, 0, 0.12);
+  box-sizing: border-box;
+
+  .event-content {
+    margin-top: 4px;
+    height: 200px;
+    overflow: auto;
+    margin-right: 12px;
+  }
+
+  .no-event-content {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    justify-content: center;
+    background: #f1f1f1;
+    border-radius: 12px;
+    color: #999;
+    height: 200px;
+    font-weight: 600;
+    margin: 16px;
+  }
+
+  .link {
+    height: 42px;
+    font-weight: 600;
+    flex-flow: row nowrap;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 14px;
+    color: #333;
+    background: #9efedd;
+
+    &:hover {
+      background: #63f5c2;
     }
   }
 }

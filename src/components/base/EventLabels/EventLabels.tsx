@@ -11,6 +11,7 @@ export interface EventLabelsProps {
     showRecommend?: boolean,
     showAll?: boolean,
     nowrap?: boolean,
+    colorDisabled?: boolean,
 }
 
 function EventLabels({showAll=false, ...props}: EventLabelsProps) {
@@ -37,7 +38,7 @@ function EventLabels({showAll=false, ...props}: EventLabelsProps) {
         {
             list.map((item, index) => {
                 const isSelected = props.value.includes(item)
-                const color = getLabelColor(item)
+                const color = !props.colorDisabled ? getLabelColor(item) : '#6CD7B2'
                 const style_1 = isSelected ? {
                         color: color,
                         borderColor: color,
@@ -46,7 +47,7 @@ function EventLabels({showAll=false, ...props}: EventLabelsProps) {
                         color: 'var(--color-text-main)',
                         borderColor: 'var(--color-item-border)',
                     }
-                const style_2 = {background: isSelected ? color : '#c4c4c4'}
+                const style_2 = {background: isSelected && !props.colorDisabled ? color : '#c4c4c4'}
 
                 return <div
                     style={style_1}
@@ -62,7 +63,7 @@ function EventLabels({showAll=false, ...props}: EventLabelsProps) {
                     className={'event-label-item'}
                     key={index.toString()}>
                     {
-                        isSelected && <i style={style_2}/>
+                        isSelected && !props.colorDisabled && <i style={style_2}/>
                     }
                     <span>{item}</span>
                 </div>

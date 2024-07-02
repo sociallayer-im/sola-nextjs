@@ -1,4 +1,4 @@
-import {useContext, useEffect, useRef, useState} from 'react'
+import {useContext, useEffect, useMemo, useRef, useState} from 'react'
 import PageBack from "@/components/base/PageBack";
 import LangContext from "@/components/provider/LangProvider/LangContext";
 import SelectorMarkerType, {markerTypeList2} from "@/components/base/SelectorMarkerType/SelectorMarkerType";
@@ -9,7 +9,8 @@ import ReasonInput from "@/components/base/ReasonInput/ReasonInput";
 import {
     Badge,
     createMarker,
-    createPresend, getGroupMembership,
+    createPresend,
+    getGroupMembership,
     getProfile,
     Group,
     Marker,
@@ -18,7 +19,8 @@ import {
     Profile,
     queryBadge,
     queryBadgeDetail,
-    queryPresendDetail, queryVoucherDetail,
+    queryGroupDetail,
+    queryVoucherDetail,
     removeMarker,
     saveMarker
 } from "@/service/solas";
@@ -27,8 +29,7 @@ import {OpenDialogProps} from "@/components/provider/DialogProvider/DialogProvid
 import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
 import userContext from "@/components/provider/UserProvider/UserContext";
 import AppButton, {BTN_KIND} from "@/components/base/AppButton/AppButton";
-import LocationInput from "@/components/compose/LocationInput/LocationInput";
-import EventHomeContext from "@/components/provider/EventHomeProvider/EventHomeContext";
+import LocationInput from "@/components/compose/LocationInput/LocationInputNewMarker";
 import AppFlexTextArea from "@/components/base/AppFlexTextArea/AppFlexTextArea";
 import {Delete} from "baseui/icon";
 
@@ -39,34 +40,47 @@ function ComponentName() {
     const params = useParams()
     const {user} = useContext(userContext)
     const router = useRouter()
-    const {eventGroup} = useContext(EventHomeContext)
 
+    const [eventGroup, setEventGroup] = useState<Group | null>(null)
     const [busy, setBusy] = useState(false)
 
-    const [title, setTitle] = useState('')
     const [titleError, setTitleError] = useState('')
-    const [link, setLink] = useState('')
-    const [cover, setCover] = useState('')
-    const [icon, setIcon] = useState<string | null>(markerTypeList2[2].pin)
-    const [category, setCategory] = useState<string>(markerTypeList2[2].category)
-    const [content, setContent] = useState('')
     const [creator, setCreator] = useState<Profile | null>(null)
     const [badgeId, setBadgeId] = useState<number | null>(null)
-    const [location, setLocation] = useState<string>('')
     const [locationError, setLocationError] = useState<string>('')
     const [badgeDetail, setBadgeDetail] = useState<Badge | null>(null)
 
-    const [markerId, setMarkerId] = useState<number | null>(null)
 
     const badgeIdRef = useRef<number | null>(null)
-    const markerInfoRef = useRef<Marker | null>(null)
 
     const [isManager, setIsManager] = useState(false)
     const [isOwner, setIsOwner] = useState(false)
     const [isIssuer, setIsIssuer] = useState(false)
-    const [formatAddress, setFormatAddress] = useState('')
-    const [metadata, setMetadata] = useState('')
     const [ready, setReady] = useState(false)
+    const [marker, setMarker] = useState<Partial<Marker>>({
+        pin_image_url: markerTypeList2[2].pin,
+        cover_image_url: '',
+        title: '',
+        category: markerTypeList2[2].category,
+        about: null,
+        link: null,
+        location: '',
+        formatted_address: '',
+        geo_lat: 0,
+        geo_lng: 0,
+        marker_type: 'site',
+        voucher_id: null
+    })
+
+
+    useEffect(() => {
+        (async () => {
+            if (params?.groupname) {
+                const group = await queryGroupDetail(undefined, params.groupname as string)
+                setEventGroup(group)
+            }
+        })()
+    }, [params])
 
 
     useEffect(() => {
@@ -141,13 +155,13 @@ function ComponentName() {
         setTitleError('')
         setLocationError('')
 
-        if (!title) {
+        if (!marker.title) {
             setTitleError(lang['Form_Marker_Title_Error'])
             showToast(lang['Form_Marker_Title_Error'], 500)
             return
         }
 
-        if (!location) {
+        if (!marker.location) {
             setLocationError(lang['Form_Marker_Location_Error'])
             showToast(lang['Form_Marker_Location_Error'], 500)
             return
@@ -166,26 +180,16 @@ function ComponentName() {
                 })
             }
 
-            const create = await createMarker({
+            await createMarker({
+                ...marker,
+                voucher_id: voucher ? voucher.id : null,
                 auth_token: user.authToken || '',
                 group_id: eventGroup?.id,
                 owner_id: creator?.id,
-                pin_image_url: icon!,
-                cover_image_url: cover,
-                title,
-                category,
-                about: content,
-                link,
-                location: location,
-                formatted_address: metadata ? JSON.parse(metadata).formatted_address : null,
-                geo_lat: metadata ? JSON.parse(metadata).geometry.location.lat : null,
-                geo_lng: metadata ? JSON.parse(metadata).geometry.location.lng : null,
-                marker_type: 'site',
-                voucher_id: voucher ? voucher.id : undefined
             })
             unload()
             showToast('Create Success', 500)
-            router.push(`/event/${eventGroup?.username}/map?type=${category}`)
+            router.push(`/event/${eventGroup?.username}/map?type=${marker.category}`)
         } catch (e: any) {
             setBusy(false)
             console.error(e)
@@ -198,13 +202,13 @@ function ComponentName() {
         setTitleError('')
         setLocationError('')
 
-        if (!title) {
+        if (!marker.title) {
             setTitleError(lang['Form_Marker_Title_Error'])
             showToast(lang['Form_Marker_Title_Error'], 500)
             return
         }
 
-        if (!location) {
+        if (!marker.location) {
             setLocationError(lang['Form_Marker_Location_Error'])
             showToast(lang['Form_Marker_Location_Error'], 500)
             return
@@ -224,27 +228,17 @@ function ComponentName() {
                 newVoucherId = voucher.id
             }
 
-            const save = await saveMarker({
+
+            await saveMarker({
+                ...marker,
                 auth_token: user.authToken || '',
                 group_id: eventGroup?.id,
                 owner_id: creator?.id,
-                pin_image_url: icon!,
-                cover_image_url: cover,
-                title,
-                category,
-                about: content,
-                link,
-                location: location,
-                formatted_address: metadata ? JSON.parse(metadata).formatted_address : (formatAddress || null),
-                geo_lat: metadata ? JSON.parse(metadata).geometry.location.lat : null,
-                geo_lng: metadata ? JSON.parse(metadata).geometry.location.lng : null,
-                marker_type: 'site',
-                id: markerId!,
-                voucher_id: badgeId ? (newVoucherId || markerInfoRef.current?.voucher_id) : null
+                voucher_id: newVoucherId || marker.voucher_id || null
             })
             unload()
             showToast('Save Success', 500)
-            router.push(`/event/detail-marker/${markerId}`)
+            router.push(`/event/detail-marker/${marker.id}`)
         } catch (e: any) {
             console.error(e)
             unload()
@@ -257,18 +251,18 @@ function ComponentName() {
         const dialog = openConfirmDialog({
             confirmLabel: 'Remove',
             cancelLabel: 'Cancel',
-            title: `Do you want to remove marker 「${markerInfoRef.current!.title}」`,
+            title: `Do you want to remove marker 「${marker.title}」`,
             onConfirm: async (close: any) => {
                 const unload = showLoading()
                 try {
                     await removeMarker({
                         auth_token: user.authToken || '',
-                        id: markerId!
+                        id: marker!.id
                     })
                     unload()
                     showToast('Remove Success', 500)
                     close()
-                    router.push(`/event/${eventGroup?.username}/map?type=${markerInfoRef.current!.category}`)
+                    router.push(`/event/${eventGroup?.username}/map?type=${marker.category}`)
                 } catch (e: any) {
                     console.error(e)
                     unload()
@@ -290,52 +284,42 @@ function ComponentName() {
     }, [badgeId])
 
     useEffect(() => {
-        if (user?.id && !markerId) {
-            const profile = getProfile({id: user.id}).then(res => {
+        if (user?.id && !marker.id) {
+            getProfile({id: user.id}).then(res => {
                 setCreator(res!)
             })
         }
     }, [user.id])
 
-    const prefill = async (markerid: string, merkerDetail?: Marker) => {
-        const detail = merkerDetail || await markerDetail(Number(markerid))
-        setMarkerId(Number(markerid))
-        setTitle(detail.title)
-        setLink(detail.link || '')
-        setCover(detail?.cover_image_url || '')
-        setIcon(detail?.pin_image_url || '')
-        setCategory(detail.category)
-        setContent(detail.about || '')
-        markerInfoRef.current = detail
-
-        const creator = await getProfile({id: detail.owner.id})
-        setCreator(creator!)
-
-        if (detail!.voucher_id) {
-            const voucher = await queryVoucherDetail(detail!.voucher_id!)
-            setBadgeId(voucher!.badge_id)
-            badgeIdRef.current = voucher!.badge_id
-        }
-
-        setLocation(detail?.location || '')
-        setFormatAddress(detail?.formatted_address || '')
-        setReady(true)
-    }
 
     useEffect(() => {
-        if (params?.markerid) {
-            prefill(params?.markerid as string)
-        } else {
-            setReady(true)
-            if (searchParams?.get('type')) {
-                const key = searchParams?.get('type') as string
-                const target = markerTypeList2.find((item) => item.category === key)
-                if (target) {
-                    setIcon(target.pin)
-                    setCategory(target.category)
+        (async () => {
+            if (params?.markerid) {
+                const detail = await markerDetail(Number(params.markerid))
+                setMarker(detail!)
+                const creator = await getProfile({id: detail!.owner.id})
+                setCreator(creator!)
+                if (detail!.voucher_id) {
+                    const voucher = await queryVoucherDetail(detail!.voucher_id!)
+                    setBadgeId(voucher!.badge_id)
+                    badgeIdRef.current = voucher!.badge_id
+                }
+                setReady(true)
+            } else {
+                setReady(true)
+                if (searchParams?.get('type')) {
+                    const key = searchParams?.get('type') as string
+                    const target = markerTypeList2.find((item) => item.category === key)
+                    if (target) {
+                        setMarker({
+                            ...marker,
+                            pin_image_url: target.pin,
+                            category: target.category
+                        })
+                    }
                 }
             }
-        }
+        })()
     }, [searchParams, params])
 
     useEffect(() => {
@@ -352,16 +336,28 @@ function ComponentName() {
     return (<div className='create-event-page'>
             <div className='create-badge-page-wrapper'>
                 <PageBack title={lang['Form_Marker_Title']}/>
-
                 <div className='create-badge-page-form'>
-                    {!markerId &&
-                        <SelectorMarkerType
-                            exclude={['share']}
-                            onChange={(markerType) => {
-                                setCategory(markerType.category)
-                                setIcon(markerType.pin)
-                            }}
-                            value={category}/>
+                    {!!eventGroup && ready &&
+                        <div className='input-area'>
+                            <div className='input-area-title'>{lang['Form_Marker_Location']}</div>
+                            <LocationInput
+                                initValue={{
+                                    geo_lat: marker?.geo_lat || null,
+                                    geo_lng: marker?.geo_lng || null,
+                                    location: marker?.location || null,
+                                    formatted_address: marker?.formatted_address || null
+                                }}
+                                eventGroup={eventGroup}
+                                onChange={values => {
+                                    setMarker({
+                                        ...marker,
+                                        geo_lat: values.geo_lat,
+                                        geo_lng: values.geo_lng,
+                                        location: values.location,
+                                        formatted_address: values.formatted_address
+                                    } as Partial<Marker>)
+                                }}/>
+                        </div>
                     }
 
                     <div className='input-area'>
@@ -369,28 +365,50 @@ function ComponentName() {
                         <AppInput
                             clearable
                             maxLength={30}
-                            value={title}
+                            value={marker.title || ''}
                             errorMsg={titleError}
                             placeholder={lang['Form_Marker_Title_Label']}
                             onChange={(e) => {
-                                setTitle(e.target.value)
+                                setMarker({
+                                    ...marker,
+                                    title: e.target.value
+                                })
                             }}/>
                     </div>
+
+                    {!marker.id &&
+                        <SelectorMarkerType
+                            exclude={['share']}
+                            onChange={(markerType) => {
+                                setMarker({
+                                    ...marker,
+                                    pin_image_url: markerType.pin,
+                                    category: markerType.category
+                                })
+                            }}
+                            value={marker.category!}/>
+                    }
 
                     <div className='input-area'>
                         <div className='input-area-title'>{lang['Form_Marker_Image_Label']}</div>
                         <UploadImage
                             cropper={false}
-                            imageSelect={cover}
+                            imageSelect={marker.cover_image_url || ''}
                             confirm={(coverUrl) => {
-                                setCover(coverUrl)
+                                setMarker({
+                                    ...marker,
+                                    cover_image_url: coverUrl
+                                })
                             }}/>
                     </div>
 
                     <div className='input-area'>
                         <div className='input-area-title'>{lang['Form_Marker_Des_Label']}</div>
-                        <ReasonInput unlimited value={content} onChange={(value) => {
-                            setContent(value)
+                        <ReasonInput unlimited value={marker.about || ""} onChange={(value) => {
+                            setMarker({
+                                ...marker,
+                                about: value
+                            })
                         }}/>
                     </div>
 
@@ -398,35 +416,17 @@ function ComponentName() {
                         <div className='input-area-title'>{lang['Form_Marker_Link_Label']}</div>
                         <AppFlexTextArea
                             icon={<i className={'icon-link'}/>}
-                            value={link}
+                            value={marker.link || ''}
                             maxHeight={80}
                             onChange={(value) => {
-                                setLink(value)
+                                setMarker({
+                                    ...marker,
+                                    link: value
+                                })
                             }}
                             placeholder={'Url...'}/>
                     </div>
 
-                    {!!eventGroup && (!markerId || (markerId && location)) && ready &&
-                        <div className='input-area'>
-                            <div className='input-area-title'>{lang['Form_Marker_Location']}</div>
-                            <LocationInput
-                                cleanable={false}
-                                errorMsg={locationError}
-                                initValue={params?.markerid ? {
-                                    eventSite: null,
-                                    location: location,
-                                    formatted_address: formatAddress
-                                } as any : undefined}
-                                arrowAlias={false}
-                                eventGroup={eventGroup} onChange={values => {
-
-                                if (values.metaData) {
-                                    setMetadata(values.metaData)
-                                    setLocation(JSON.parse(values.metaData).name)
-                                }
-                            }}/>
-                        </div>
-                    }
 
                     {!!user?.id &&
                         <div className={'input-area'}>
@@ -452,7 +452,7 @@ function ComponentName() {
 
                     <div className='input-area'></div>
 
-                    {!markerId ?
+                    {!marker.id ?
                         <>
                             <AppButton kind={BTN_KIND.primary}
                                        disabled={busy}

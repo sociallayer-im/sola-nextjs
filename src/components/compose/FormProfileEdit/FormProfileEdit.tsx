@@ -177,6 +177,15 @@ function FormProfileEdit(props: ProfileEditFormProps) {
                         }}
                     />
                     <EditSocialMedia
+                        title={'Farcaster'}
+                        type={'farcaster'}
+                        icon={'icon-farcaster'}
+                        value={newProfile.farcaster || ''}
+                        onChange={(value) => {
+                            update('farcaster', value)
+                        }}
+                    />
+                    <EditSocialMedia
                         title={'Nostr'}
                         type={'nostr'}
                         icon={'icon-web2'}
