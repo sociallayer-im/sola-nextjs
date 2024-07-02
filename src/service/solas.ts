@@ -1818,7 +1818,7 @@ export async function sendInvite(props: SendInviteProps): Promise<Invite[]> {
     props.receivers.forEach((item: any) => {
         if (item.endsWith('.eth') || item.endsWith('.dot')) {
             domains.push(item)
-        } else if (item.startsWith('0x')) {
+        } else if (item.startsWith('0x') && item.length === 42) {
             walletAddress.push(item)
         } else if (item.endsWith(socialLayerDomain!)) {
             socialLayerUsers.push(item)
