@@ -128,7 +128,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
             })
 
             setEvent(res)
-            setEventSite(res.event_site)
+            setEventSite(res.venue)
             setParticipants(res.participants || [])
 
             setCanceled(res.status === 'cancel')

@@ -2970,8 +2970,8 @@ export interface Event {
     badge_id: null | number,
     host_info: null | string,
     meeting_url: null | string,
-    event_site_id?: null | number,
-    event_site: null | EventSites,
+    venue_id?: null | number,
+    venue: null | EventSites,
     event_type: 'event' | 'checklog',
     wechat_contact_group?: null | string,
     wechat_contact_person?: null | string,
@@ -3046,7 +3046,7 @@ export interface QueryEventProps {
     owner_id?: number,
     tag?: string,
     page: number,
-    event_site_id?: number,
+    venue_id?: number,
     start_time_from?: string,
     start_time_to?: string,
     end_time_gte?: string,
@@ -3089,8 +3089,8 @@ export async function queryEvent(props: QueryEventProps): Promise<Event[]> {
         variables = `tags: {_contains: [${tags}]}, `
     }
 
-    if (props.event_site_id) {
-        variables += `event_site_id: {_eq: ${props.event_site_id}}, `
+    if (props.venue_id) {
+        variables += `venue_id: {_eq: ${props.venue_id}}, `
     }
 
     if (props.recurring_event_id) {
@@ -3166,8 +3166,8 @@ export async function queryEvent(props: QueryEventProps): Promise<Event[]> {
         created_at
         display
         end_time
-        event_site_id
-        event_site {
+        venue_id
+        venue {
             visibility
             id
             title
@@ -3266,8 +3266,8 @@ export async function queryPendingEvent(props: QueryEventProps): Promise<Event[]
         variables += `tags: {_contains:["${props.tag}"]}, `
     }
 
-    if (props.event_site_id) {
-        variables += `event_site_id: {_eq: ${props.event_site_id}}, `
+    if (props.venue_id) {
+        variables += `venue_id: {_eq: ${props.venue_id}}, `
     }
 
     if (props.recurring_event_id) {
@@ -3324,8 +3324,8 @@ export async function queryPendingEvent(props: QueryEventProps): Promise<Event[]
         cover_url
         created_at
         display
-        event_site_id
-        event_site {
+        venue_id
+        venue {
             visibility
             id
             title
@@ -3432,8 +3432,8 @@ export async function queryCohostingEvent(props: { id: number, email?: string })
         cover_url
         created_at
         display
-        event_site_id
-        event_site {
+        venue_id
+        venue {
             visibility
             id
             title
@@ -3596,8 +3596,8 @@ export async function queryMyEvent({page = 1, page_size = 10, ...props}: QueryMy
           owner_id
           start_time
           status
-          event_site_id
-          event_site {
+          venue_id
+          venue {
                visibility
                id
                title
@@ -3668,7 +3668,7 @@ export async function cancelEvent(props: CancelEventProps): Promise<Participants
 export async function getEventSide(groupId?: number, allowRemoved?: boolean): Promise<EventSites[]> {
     const status = allowRemoved ? '' : ', removed: {_is_null: true}'
     const doc = gql`query MyQuery {
-      event_sites(where: {group_id: {_eq: ${groupId}}${status}}, order_by: {id: desc}) {
+      venues(where: {group_id: {_eq: ${groupId}}${status}}, order_by: {id: desc}) {
         visibility
         removed
         formatted_address
@@ -3692,7 +3692,7 @@ export async function getEventSide(groupId?: number, allowRemoved?: boolean): Pr
     }`
 
     const resp: any = await request(graphUrl, doc)
-    return resp.event_sites as EventSites[]
+    return resp.venues as EventSites[]
 }
 
 export interface JoinEventProps {
@@ -3748,8 +3748,8 @@ export async function searchEvent(keyword: string, group_id?: number): Promise<E
         created_at
         display
         end_time
-        event_site_id
-        event_site {
+        venue_id
+        venue {
             visibility
             id
             title
@@ -4112,14 +4112,14 @@ export async function getDateList(props: GetDateListProps) {
 
 interface EditEventProps extends Partial<EventSites> {
     auth_token: string,
-    event_site_id?: number,
+    venue_id?: number,
 }
 
 export async function createEventSite(props: EditEventProps) {
     checkAuth(props)
 
     const res: any = await fetch.post({
-        url: `${apiUrl}/event_site/create`,
+        url: `${apiUrl}/venue/create`,
         data: props
     })
 
@@ -4127,14 +4127,14 @@ export async function createEventSite(props: EditEventProps) {
         throw new Error(res.data.message)
     }
 
-    return res.data.event_site as EventSites
+    return res.data.venue as EventSites
 }
 
 export async function updateEventSite(props: EditEventProps) {
     checkAuth(props)
 
     const res: any = await fetch.post({
-        url: `${apiUrl}/event_site/update`,
+        url: `${apiUrl}/venue/update`,
         data: props
     })
 
@@ -4142,14 +4142,14 @@ export async function updateEventSite(props: EditEventProps) {
         throw new Error(res.data.message)
     }
 
-    return res.data.event_site as EventSites
+    return res.data.venue as EventSites
 }
 
 export async function removeEventSite({auth_token, id}: { auth_token: string, id: number }) {
     checkAuth({auth_token})
 
     const res: any = await fetch.post({
-        url: `${apiUrl}/event_site/remove`,
+        url: `${apiUrl}/venue/remove`,
         data: {
             auth_token,
             id

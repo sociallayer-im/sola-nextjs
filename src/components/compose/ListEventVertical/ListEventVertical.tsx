@@ -41,6 +41,7 @@ function ListEventVertical(props: { initData?: Event[], patch?: string }) {
     const [listToShow, setListToShow] = useState<Event[]>([])
 
     const tagRef = useRef<string>(searchParams?.get('tag') || '')
+    const checkedComingEmpty =  useRef(true)
     const tab2IndexRef = useRef<'coming' | 'past'>(tab2Index)
     const filter = useRef<'' | 'coming' | 'past' | 'today' | 'week' | 'month'>('')
     const searchRef = useRef<any>(null)
@@ -207,8 +208,8 @@ function ListEventVertical(props: { initData?: Event[], patch?: string }) {
                 setList(init ? res : [...list, ...unique])
                 setLoading(false)
                 setIsLoadAll(res.length < 10)
-                if (unique.length === 0 && !init) {
-                    changeTab('past')
+                if (unique.length === 0 && checkedComingEmpty.current) {
+                    await changeTab('past')
                 }
             } else if (tab2IndexRef.current == 'past') {
                 const res = await queryPass(
@@ -244,6 +245,8 @@ function ListEventVertical(props: { initData?: Event[], patch?: string }) {
             // showToast(e.message)
             setLoading(false)
             return []
+        } finally {
+            checkedComingEmpty.current = false
         }
     }
 
@@ -257,11 +260,11 @@ function ListEventVertical(props: { initData?: Event[], patch?: string }) {
         }
     }, [needUpdate])
 
-    const changeTab = (tab: 'past' | 'coming', notRedirect?: boolean) => {
+    const changeTab = async (tab: 'past' | 'coming', notRedirect?: boolean) => {
         setTab2Index(tab)
         tab2IndexRef.current = tab
         pageRef.current = 1
-        getEvent(true)
+        await getEvent(true)
         if (!notRedirect) {
             const href = updatePageParam('tab', tab)
             window?.history.replaceState({}, '', href)

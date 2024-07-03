@@ -200,7 +200,7 @@ function Gan(props: { group: Group, eventSite: EventSites[] }) {
                 event_order: 'asc',
                 page_size: 1000,
                 tags: selectedTags.length ? selectedTags : undefined,
-                event_site_id: venue[0].id || undefined
+                venue_id: venue[0].id || undefined
             } as any).then(res => {
                 let eventList = []
                 eventList = res

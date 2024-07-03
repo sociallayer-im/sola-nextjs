@@ -21,10 +21,10 @@ dayjs.extend(isSameOrAfter)
 export interface LocationInputValue {
     geo_lat: number | null,
     geo_lng: number | null,
-    event_site_id: number | null,
+    venue_id: number | null,
     location: string | null,
     formatted_address: string | null,
-    event_site?: EventSites | null
+    venue?: EventSites | null
 }
 
 export interface GMapPlaceRes {
@@ -124,12 +124,12 @@ function LocationInput(props: LocationInputProps) {
     }
 
     useEffect(() => {
-        if (!!eventSiteList.length && !!props.initValue?.event_site_id) {
-            const eventSite = eventSiteList.find(e => e.id === props.initValue?.event_site_id)
+        if (!!eventSiteList.length && !!props.initValue?.venue_id) {
+            const eventSite = eventSiteList.find(e => e.id === props.initValue?.venue_id)
             eventSite && setEventSite([eventSite] as any)
         }
 
-    }, [eventSiteList, props.initValue?.event_site_id])
+    }, [eventSiteList, props.initValue?.venue_id])
 
     useEffect(() => {
         async function fetchLocation() {
@@ -251,7 +251,7 @@ function LocationInput(props: LocationInputProps) {
     }
 
     useEffect(() => {
-        if (props.initValue?.location && !props.initValue.event_site_id) {
+        if (props.initValue?.location && !props.initValue.venue_id) {
             setCreateMode(true)
             setSearchKeyword(props.initValue.formatted_address || '')
         }
@@ -330,10 +330,10 @@ function LocationInput(props: LocationInputProps) {
                             props.onChange && props.onChange({
                                 geo_lat: params.value[0].geo_lat,
                                 geo_lng: params.value[0].geo_lng,
-                                event_site_id: params.value[0].id,
+                                venue_id: params.value[0].id,
                                 location: params.value[0].title,
                                 formatted_address: params.value[0].formatted_address,
-                                event_site: params.value[0]
+                                venue: params.value[0]
                             })
                         } else {
                             setCreateMode(true)
@@ -343,10 +343,10 @@ function LocationInput(props: LocationInputProps) {
                             props.onChange && props.onChange({
                                 geo_lat: null,
                                 geo_lng: null,
-                                event_site_id: null,
+                                venue_id: null,
                                 formatted_address: null,
                                 location: null,
-                                event_site: null
+                                venue: null
                             })
                         }
                     }}
@@ -367,10 +367,10 @@ function LocationInput(props: LocationInputProps) {
                             props.onChange && props.onChange({
                                 geo_lat: null,
                                 geo_lng: null,
-                                event_site_id: null,
+                                venue_id: null,
                                 formatted_address: null,
                                 location: null,
-                                event_site: null
+                                venue: null
                             })
                         }}/>}
                         onChange={e => {

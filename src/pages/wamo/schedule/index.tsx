@@ -466,7 +466,7 @@ function EventCard({
         </div>
 
 
-        {!!event.location && !event.event_site &&
+        {!!event.location && !event.venue &&
             <div className={styles['schedule-event-card-position']}
                  onClick={e => {
                      e.stopPropagation()
@@ -483,14 +483,14 @@ function EventCard({
             </div>
         }
 
-        {!!event.event_site &&
+        {!!event.venue &&
             <div className={styles['schedule-event-card-position']}
                  onClick={e => {
                      e.stopPropagation()
                      location.href = `https://www.google.com/maps/search/?api=1&query=${event.geo_lat}%2C${event.geo_lng}`
                  }}>
                 <i className={`${styles['icon']} icon-Outline`}/>
-                <div className={styles['location-text']}>{event.event_site.title}</div>
+                <div className={styles['location-text']}>{event.venue.title}</div>
                 <svg className={styles['link-icon']} xmlns="http://www.w3.org/2000/svg" width="8" height="8"
                      viewBox="0 0 8 8" fill="none">
                     <path
