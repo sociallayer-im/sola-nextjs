@@ -165,7 +165,7 @@ function CreateEvent(props: CreateEventPageProps) {
     const [locationInfo, setLocationInfo] = useState({
         lat: null,
         lng: null,
-        eventSiteId: null,
+        venue_id: null,
         location: null,
         formatted_address: null
     })
@@ -326,7 +326,7 @@ function CreateEvent(props: CreateEventPageProps) {
 
     useEffect(() => {
         const slotList = [82, 81, 80, 79, 78, 87, 86]
-        if (formReady && locationInfo.eventSiteId && slotList.includes(locationInfo.eventSiteId)) {
+        if (formReady && locationInfo.venue_id && slotList.includes(locationInfo.venue_id)) {
             setIsSlot(true)
             console.log('===========slot true')
         } else {
@@ -337,7 +337,7 @@ function CreateEvent(props: CreateEventPageProps) {
             }
             setIsSlot(false)
         }
-    }, [locationInfo.eventSiteId, formReady, start])
+    }, [locationInfo.venue_id, formReady, start])
 
     useEffect(() => {
         if (props?.eventId) {
@@ -433,7 +433,7 @@ function CreateEvent(props: CreateEventPageProps) {
             setLocationInfo({
                 lat: event.geo_lat,
                 lng: event.geo_lng,
-                eventSiteId: event.event_site_id,
+                venue_id: event.venue_id,
                 location: event.location,
                 formatted_address: event.formatted_address
             } as any)
@@ -599,11 +599,11 @@ function CreateEvent(props: CreateEventPageProps) {
     useEffect(() => {
         async function checkOccupied() {
             // todo check occupied
-            if (locationInfo.eventSiteId && start && ending) {
+            if (locationInfo.venue_id && start && ending) {
                 const startDate = new Date(new Date(start).getFullYear(), new Date(start).getMonth(), new Date(start).getDate(), 0, 0, 0)
                 const endDate = new Date(new Date(ending).getFullYear(), new Date(ending).getMonth(), new Date(ending).getDate(), 23, 59, 59)
                 let events = await queryEvent({
-                    event_site_id: locationInfo.eventSiteId,
+                    venue_id: locationInfo.venue_id,
                     start_time_from: startDate.toISOString(),
                     start_time_to: endDate.toISOString(),
                     page: 1,
@@ -644,7 +644,7 @@ function CreateEvent(props: CreateEventPageProps) {
         }
 
         checkOccupied()
-    }, [start, ending, locationInfo.eventSiteId])
+    }, [start, ending, locationInfo.venue_id])
 
     const showBadges = async () => {
         const props = !!(creator as Group)?.creator ? {
@@ -829,7 +829,7 @@ function CreateEvent(props: CreateEventPageProps) {
             badge_id: badgeId,
             group_id: eventGroup?.id,
             meeting_url: onlineUrl || null,
-            event_site_id: locationInfo.eventSiteId,
+            venue_id: locationInfo.venue_id,
             event_type: eventType,
             auth_token: user.authToken || '',
             location: locationInfo.location,
@@ -938,7 +938,7 @@ function CreateEvent(props: CreateEventPageProps) {
             tags: label,
             start_time: start,
             end_time: hasDuration ? ending : null,
-            event_site_id: locationInfo.eventSiteId,
+            venue_id: locationInfo.venue_id,
             max_participant: enableMaxParticipants ? maxParticipants : null,
             min_participant: enableMinParticipants ? minParticipants : null,
             badge_id: badgeId,
@@ -1175,10 +1175,10 @@ function CreateEvent(props: CreateEventPageProps) {
 
                         {!!occupiedError && <div className={'start-time-error'}>{occupiedError}</div>}
 
-                        { locationInfo.eventSiteId && isSlot && (!isEditMode || (!!currEvent && !currEvent.recurring_event_id)) &&
+                        { locationInfo.venue_id && isSlot && (!isEditMode || (!!currEvent && !currEvent.recurring_event_id)) &&
                             <div className='input-area'>
                                 <div className='input-area-title'>{lang['Activity_Form_Starttime']}</div>
-                                <TimeSlot eventSiteId={locationInfo.eventSiteId}
+                                <TimeSlot eventSiteId={locationInfo.venue_id}
                                           from={start}
                                           to={ending}
                                           allowRepeat={isManager}

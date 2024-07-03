@@ -152,7 +152,7 @@ function EditEvent({
         external_url: null,
         geo_lng: null,
         geo_lat: null,
-        event_site_id: null,
+        venue_id: null,
         location: null,
         formatted_address: null,
         start_time: initTime[0].toISOString(),
@@ -290,11 +290,11 @@ function EditEvent({
         async function checkOccupied() {
             const start = event.start_time
             const ending = event.end_time
-            if (event.event_site_id && start && ending) {
+            if (event.venue_id && start && ending) {
                 const startDate = new Date(new Date(start).getFullYear(), new Date(start).getMonth(), new Date(start).getDate(), 0, 0, 0)
                 const endDate = new Date(new Date(ending).getFullYear(), new Date(ending).getMonth(), new Date(ending).getDate(), 23, 59, 59)
                 let events = await queryEvent({
-                    event_site_id: event.event_site_id,
+                    venue_id: event.venue_id,
                     start_time_from: startDate.toISOString(),
                     start_time_to: endDate.toISOString(),
                     page: 1,
@@ -334,7 +334,7 @@ function EditEvent({
         }
 
         checkOccupied()
-    }, [event.event_site_id, event.start_time, event.end_time])
+    }, [event.venue_id, event.start_time, event.end_time])
 
     // check tags
     useEffect(() => {
@@ -394,9 +394,9 @@ function EditEvent({
     }, [event, initEvent])
 
     useEffect(() => {
-        if (initEvent && initEvent.event_site_id) {
+        if (initEvent && initEvent.venue_id) {
             getEventSide(initEvent.group_id!, true).then((res) => {
-                setVenueInfo(res.find((item) => item.id === initEvent.event_site_id) || null)
+                setVenueInfo(res.find((item) => item.id === initEvent.venue_id) || null)
             })
         }
     }, [initEvent])
@@ -1147,7 +1147,7 @@ function EditEvent({
                                         eventGroup={eventGroup as Group}
                                         onChange={values => {
                                             console.log('location values', values)
-                                            setVenueInfo(values.event_site || null)
+                                            setVenueInfo(values.venue || null)
                                             setEvent({
                                                 ...event,
                                                 ...values
@@ -1187,7 +1187,7 @@ function EditEvent({
                             {!!occupiedError && <div className={styles['start-time-error']} dangerouslySetInnerHTML={{__html: occupiedError}}></div>}
                             {!!dayDisable && <div className={styles['start-time-error']}>{dayDisable}</div>}
 
-                            {event.event_site_id && (eventGroup?.id === 3427 || eventGroup?.id === 3409) &&
+                            {event.venue_id && (eventGroup?.id === 3427 || eventGroup?.id === 3409) &&
                                 <>
                                     <div className={styles['input-area']}>
                                         <div className={styles['input-area-title']}>{'Seating arrangement style'}</div>

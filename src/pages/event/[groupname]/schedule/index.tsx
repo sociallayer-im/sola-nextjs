@@ -925,7 +925,7 @@ function EventCard({
         </div>
 
 
-        {!!event.location && !event.event_site && (event.group_id != 3409 || !!user.id) &&
+        {!!event.location && !event.venue && (event.group_id != 3409 || !!user.id) &&
             <div className={styles['schedule-event-card-position']}
                  onClick={e => {
                      e.stopPropagation()
@@ -943,7 +943,7 @@ function EventCard({
             </div>
         }
 
-        {!!event.event_site && (event.group_id != 3409 || !!user.id) &&
+        {!!event.venue && (event.group_id != 3409 || !!user.id) &&
             <div className={styles['schedule-event-card-position']}
                  onClick={e => {
                      e.stopPropagation()
@@ -951,7 +951,7 @@ function EventCard({
                      location.href = `/event/${group?.username}/map?target_event=${event.id}`
                  }}>
                 <i className={`${styles['icon']} icon-Outline`}/>
-                <div className={styles['location-text']}>{event.event_site!.title}</div>
+                <div className={styles['location-text']}>{event.venue!.title}</div>
                 <svg className={styles['link-icon']} xmlns="http://www.w3.org/2000/svg" width="8" height="8"
                      viewBox="0 0 8 8" fill="none">
                     <path

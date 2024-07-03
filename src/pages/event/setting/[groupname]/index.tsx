@@ -146,7 +146,7 @@ function Dashboard() {
                         if (e.id) {
                             return updateEventSite({...e,
                                 auth_token: user.authToken || '',
-                                event_site_id: e.id,
+                                venue_id: e.id,
                             })
                         } else {
                             return createEventSite({...e,

@@ -398,7 +398,7 @@ function CreateEvent(props: CreateEventPageProps) {
 
             setOnlineUrl(event.meeting_url || '')
 
-            setEventSite(event.event_site || null)
+            setEventSite(event.venue || null)
 
 
             if (event.max_participant) {
@@ -549,7 +549,7 @@ function CreateEvent(props: CreateEventPageProps) {
                 const startDate = new Date(new Date(start).getFullYear(), new Date(start).getMonth(), new Date(start).getDate(), 0, 0, 0)
                 const endDate = new Date(new Date(ending).getFullYear(), new Date(ending).getMonth(), new Date(ending).getDate(), 23, 59, 59)
                 let events = await queryEvent({
-                    event_site_id: eventSite.id,
+                    venue_id: eventSite.id,
                     start_time_from: startDate.toISOString(),
                     start_time_to: endDate.toISOString(),
                     page: 1,
@@ -771,7 +771,7 @@ function CreateEvent(props: CreateEventPageProps) {
             badge_id: badgeId,
             group_id: eventGroup?.id,
             meeting_url: onlineUrl || null,
-            event_site_id: eventSite?.id || null,
+            venue_id: eventSite?.id || null,
             event_type: eventType,
             auth_token: user.authToken || '',
             location: customLocation || eventSite?.title || '',
@@ -889,7 +889,7 @@ function CreateEvent(props: CreateEventPageProps) {
             tags: label,
             start_time: start,
             end_time: hasDuration ? ending : null,
-            event_site_id: eventSite?.id || null,
+            venue_id: eventSite?.id || null,
             max_participant: enableMaxParticipants ? maxParticipants : null,
             min_participant: enableMinParticipants ? minParticipants : null,
             badge_id: badgeId,

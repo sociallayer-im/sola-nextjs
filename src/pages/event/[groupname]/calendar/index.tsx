@@ -140,7 +140,7 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
                 tags: selectedTags.length ? selectedTags : undefined,
                 event_order: 'asc',
                 page_size: 1000,
-                event_site_id: venue || undefined
+                venue_id: venue || undefined
             }).then(res => {
                 const eventList = res.map((event: SolarEvent) => {
                     let host = [event.owner.username]
