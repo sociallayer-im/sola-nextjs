@@ -209,7 +209,7 @@ function ListEventVertical(props: { initData?: Event[], patch?: string }) {
                 setLoading(false)
                 setIsLoadAll(res.length < 10)
                 if (unique.length === 0 && checkedComingEmpty.current) {
-                    changeTab('past')
+                    await changeTab('past')
                 }
             } else if (tab2IndexRef.current == 'past') {
                 const res = await queryPass(
@@ -260,11 +260,11 @@ function ListEventVertical(props: { initData?: Event[], patch?: string }) {
         }
     }, [needUpdate])
 
-    const changeTab = (tab: 'past' | 'coming', notRedirect?: boolean) => {
+    const changeTab = async (tab: 'past' | 'coming', notRedirect?: boolean) => {
         setTab2Index(tab)
         tab2IndexRef.current = tab
         pageRef.current = 1
-        getEvent(true)
+        await getEvent(true)
         if (!notRedirect) {
             const href = updatePageParam('tab', tab)
             window?.history.replaceState({}, '', href)
