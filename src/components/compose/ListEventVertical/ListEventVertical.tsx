@@ -41,6 +41,7 @@ function ListEventVertical(props: { initData?: Event[], patch?: string }) {
     const [listToShow, setListToShow] = useState<Event[]>([])
 
     const tagRef = useRef<string>(searchParams?.get('tag') || '')
+    const checkedComingEmpty =  useRef(true)
     const tab2IndexRef = useRef<'coming' | 'past'>(tab2Index)
     const filter = useRef<'' | 'coming' | 'past' | 'today' | 'week' | 'month'>('')
     const searchRef = useRef<any>(null)
@@ -207,7 +208,7 @@ function ListEventVertical(props: { initData?: Event[], patch?: string }) {
                 setList(init ? res : [...list, ...unique])
                 setLoading(false)
                 setIsLoadAll(res.length < 10)
-                if (unique.length === 0 && !init) {
+                if (unique.length === 0 && checkedComingEmpty.current) {
                     changeTab('past')
                 }
             } else if (tab2IndexRef.current == 'past') {
@@ -244,6 +245,8 @@ function ListEventVertical(props: { initData?: Event[], patch?: string }) {
             // showToast(e.message)
             setLoading(false)
             return []
+        } finally {
+            checkedComingEmpty.current = false
         }
     }
 
