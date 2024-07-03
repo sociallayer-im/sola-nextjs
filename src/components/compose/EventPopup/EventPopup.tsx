@@ -53,6 +53,15 @@ export function EventPopup({event, timezone, close}: { event: SolarEvent, timezo
                          style={{color: '#272928', fontSize: '12px'}}> <i className="icon-calendar" />
                         {`${formatDate(event.start_time!, timezone)}`}
                     </div>
+
+                    {
+                        event.group_id !== 3409 && event.location &&
+                        <div className={'detail'}
+                             style={{color: '#272928', fontSize: '12px'}}> <i className="icon-Outline" />
+                            {event.location}
+                        </div>
+                    }
+
                 </div>
             </div>
             <div className={'post mobile'} style={{display: 'block', width: '100px', height: '100px'}}>
