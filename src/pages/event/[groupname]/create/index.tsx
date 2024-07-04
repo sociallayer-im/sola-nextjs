@@ -28,7 +28,9 @@ import {
     RepeatEventSetBadge,
     RepeatEventUpdate,
     setEventBadge,
-    updateEvent
+    Ticket,
+    updateEvent,
+    queryTickets,
 } from "@/service/solas";
 import EventDefaultCover from "@/components/base/EventDefaultCover";
 import AppButton, {BTN_KIND} from "@/components/base/AppButton/AppButton";
@@ -53,6 +55,7 @@ import Toggle from "@/components/base/Toggle/Toggle";
 import * as dayjsLib from "dayjs";
 import TriangleDown from 'baseui/icon/triangle-down'
 import TriangleUp from 'baseui/icon/triangle-up'
+import TicketSetting from "@/components/compose/TicketSetting/TicketSetting";
 
 const utc = require('dayjs/plugin/utc')
 const timezone = require('dayjs/plugin/timezone')
@@ -137,6 +140,11 @@ function EditEvent({
     const [cohostList, setCohostList] = useState<ProfileSimple[]>([emptyProfile])
     const [speakerList, setSpeakerList] = useState<ProfileSimple[]>([emptyProfile])
 
+    // ticket
+    const [enableTicket, setEnableTicket] = useState(false)
+    const [tickets, setTickets] = useState<Partial<Ticket>[]>([])
+    const ticketSettingRef = useRef<{verify : () => boolean} | null>(null)
+
     const [venueInfo, setVenueInfo] = useState<null | EventSites>(null)
     const [cohost, setCohost] = useState<string[]>([''])
     const [repeatEventDetail, setRepeatEventDetail] = useState<null | RecurringEvent>(null)
@@ -167,7 +175,7 @@ function EditEvent({
         group_id: group?.id,
         display: 'normal',
         requirement_tags: [],
-        extra: null
+        extra: null,
     })
 
 
@@ -204,6 +212,15 @@ function EditEvent({
             // prefill
 
             setEnableNotes(!!initEvent.notes)
+
+            queryTickets({event_id: initEvent.id}).then((res) => {
+                if (res && res.length > 0) {
+                    setTickets(res)
+                    setEnableTicket(true)
+                } else {
+                    setEnableTicket(false)
+                }
+            })
 
 
             if (initEvent.host_info) {
@@ -721,6 +738,7 @@ function EditEvent({
             interval: repeat || undefined,
             event_count: repeatCounter,
             extra,
+            tickets: enableTicket && tickets.length ? tickets : null,
 
             auth_token: user.authToken || '',
         } as CreateRepeatEventProps
@@ -889,6 +907,7 @@ function EditEvent({
             interval: repeat || undefined,
             event_count: repeatCounter,
             extra,
+            tickets: enableTicket && tickets.length ? tickets : null,
 
             auth_token: user.authToken || '',
         } as CreateRepeatEventProps
@@ -1386,6 +1405,59 @@ function EditEvent({
                                     />
                                 }
                             </div>
+
+                            <div className={styles['input-area']} data-testid={'input-event-participants'}>
+                                <div className={styles['toggle']}>
+                                    <div
+                                        className={styles['item-title']}>{lang['Activity_Form_participants']}</div>
+                                    <div className={styles['item-value']}>
+                                        <div className={styles['unlimited']}>
+                                            {
+                                                event.max_participant === null ?
+                                                    'no limited' :
+                                                    event.max_participant
+                                            }
+                                        </div>
+
+                                        <svg className={styles['edit-icon']} onClick={showMaxParticipantOption}
+                                             xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                             viewBox="0 0 16 16" fill="none">
+                                            <path
+                                                d="M3.3335 12.0001H6.16016C6.2479 12.0006 6.33488 11.9838 6.4161 11.9506C6.49733 11.9175 6.5712 11.8686 6.6335 11.8068L11.2468 7.18679L13.1402 5.33346C13.2026 5.27148 13.2522 5.19775 13.2861 5.11651C13.3199 5.03527 13.3374 4.94813 13.3374 4.86012C13.3374 4.77211 13.3199 4.68498 13.2861 4.60374C13.2522 4.5225 13.2026 4.44876 13.1402 4.38679L10.3135 1.52679C10.2515 1.4643 10.1778 1.41471 10.0965 1.38086C10.0153 1.34702 9.92817 1.32959 9.84016 1.32959C9.75216 1.32959 9.66502 1.34702 9.58378 1.38086C9.50254 1.41471 9.42881 1.4643 9.36683 1.52679L7.48683 3.41346L2.86016 8.03346C2.79838 8.09575 2.74949 8.16963 2.71632 8.25085C2.68314 8.33208 2.66632 8.41905 2.66683 8.50679V11.3335C2.66683 11.5103 2.73707 11.6798 2.86209 11.8049C2.98712 11.9299 3.15669 12.0001 3.3335 12.0001ZM9.84016 2.94012L11.7268 4.82679L10.7802 5.77346L8.8935 3.88679L9.84016 2.94012ZM4.00016 8.78012L7.9535 4.82679L9.84016 6.71346L5.88683 10.6668H4.00016V8.78012ZM14.0002 13.3335H2.00016C1.82335 13.3335 1.65378 13.4037 1.52876 13.5287C1.40373 13.6537 1.3335 13.8233 1.3335 14.0001C1.3335 14.1769 1.40373 14.3465 1.52876 14.4715C1.65378 14.5966 1.82335 14.6668 2.00016 14.6668H14.0002C14.177 14.6668 14.3465 14.5966 14.4716 14.4715C14.5966 14.3465 14.6668 14.1769 14.6668 14.0001C14.6668 13.8233 14.5966 13.6537 14.4716 13.5287C14.3465 13.4037 14.177 13.3335 14.0002 13.3335Z"
+                                                fill="#CBCDCB"/>
+                                        </svg>
+                                    </div>
+                                </div>
+                                <div className={styles['start-time-error']}>{capacityError}</div>
+                            </div>
+
+                            <div className={styles['input-area']} data-testid={'input-event-participants'}>
+                                <div className={styles['toggle']}>
+                                    <div
+                                        className={styles['item-title']}>{lang['Ticket_Type_Setting']}</div>
+
+                                    <div className={styles['item-value']}>
+                                        <Toggle
+                                            onChange={(e: any) => {
+                                                setEnableTicket(!enableTicket)
+                                            }}
+                                            checked={enableTicket}/>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {
+                                enableTicket && creator &&
+                                <TicketSetting
+                                    ref={ticketSettingRef}
+                                    creator={creator}
+                                    value={tickets}
+                                    onChange={
+                                        (tickets) => {
+                                            setTickets(tickets)
+                                        }
+                                    }/>
+                            }
 
                             <div className={styles['input-area']}>
                                 <div className={styles['dropdown']} onClick={e => {

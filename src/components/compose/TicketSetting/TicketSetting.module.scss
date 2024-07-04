@@ -1,5 +1,4 @@
 .ticket-setting-list {
-  max-width: 600px;
   margin-bottom: 40px;
 
   .add-btn {
@@ -13,10 +12,11 @@
 
 
 .ticket-form {
-  max-width: 600px;
   border: 1px solid #F1F1F1;
   border-radius: 8px;
   padding: 16px;
+  width: 100%;
+  box-sizing: border-box;
   margin-bottom: 12px;
 
   .error-msg {

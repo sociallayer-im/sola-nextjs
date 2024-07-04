@@ -150,29 +150,25 @@ function Ticket({creator, ...props}: {
         </div>
 
         <div className={styles['item-title']}>{lang['Name_Of_Tickets']}</div>
-        <div className={styles['width-limit']}>
-            <AppInput value={props.ticket.title || ''}
-                      onChange={(e) => {
-                          props.onChange && props.onChange({
-                              ...props.ticket,
-                              title: e.target.value
-                          })
-                      }}
-                      placeholder={lang['Name_Of_Tickets']}/>
-        </div>
+        <AppInput value={props.ticket.title || ''}
+                  onChange={(e) => {
+                      props.onChange && props.onChange({
+                          ...props.ticket,
+                          title: e.target.value
+                      })
+                  }}
+                  placeholder={lang['Name_Of_Tickets']}/>
         { errMsg?.title && <div className={styles['error-msg']}>{'Please input ticket name'}</div> }
 
         <div className={styles['item-title']}>{lang['Ticket_Description']}</div>
-        <div className={styles['width-limit-2']}>
-            <AppInput value={props.ticket.content || ''}
-                      onChange={(e) => {
-                          props.onChange && props.onChange({
-                              ...props.ticket,
-                              content: e.target.value
-                          })
-                      }}
-                      placeholder={lang['Ticket_Description']}/>
-        </div>
+        <AppInput value={props.ticket.content || ''}
+                  onChange={(e) => {
+                      props.onChange && props.onChange({
+                          ...props.ticket,
+                          content: e.target.value
+                      })
+                  }}
+                  placeholder={lang['Ticket_Description']}/>
 
         <div className={styles['item-title-inline']}>
             <div className={styles['label']}> {lang['Price']}</div>
