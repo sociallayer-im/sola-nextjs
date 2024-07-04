@@ -26,7 +26,7 @@ function DetailFace2FaceQrcode(props: DetailFace2FaceQrcodeProps) {
         const link = `https://${window.location.host}/voucher/${presend?.id}_${code || ''}`
         const description = lang['IssueFinish_share']
             .replace('#1',  user.domain!)
-            .replace('#2', presend?.badge.name || '')
+            .replace('#2', presend?.badge_class.name || '')
             .replace('#3', link)
 
         // copy(description)

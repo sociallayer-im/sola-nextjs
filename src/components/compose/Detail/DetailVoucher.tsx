@@ -41,6 +41,8 @@ function DetailVoucher({redirect=true, ...props}: DetailBadgeletProps) {
     const [needUpdate, _2] = useEvent(EVENT.badgeletDetailUpdate)
     const [voucher, setVoucher] = useState(props.voucher)
 
+    console.log('DetailVoucherDetailVoucher', props.voucher)
+
     const isCreator = user.id === props.voucher.sender.id
     const isPresend = props.voucher.strategy === 'code'
     const isBadgeletOwner = (props.voucher.receiver && user.id === props.voucher.receiver.id) || props.voucher.receiver_address === user.wallet
@@ -52,6 +54,7 @@ function DetailVoucher({redirect=true, ...props}: DetailBadgeletProps) {
 
     const upDate = async () => {
         const newVoucher = await solas.queryVoucherDetail(voucher.id)
+        console.log('setVoucher', setVoucher)
         setVoucher(newVoucher)
     }
 
@@ -185,16 +188,16 @@ function DetailVoucher({redirect=true, ...props}: DetailBadgeletProps) {
                 onClose={props.handleClose}/>
 
             <>
-                <DetailCover src={voucher.badge.image_url}></DetailCover>
-                <DetailName> {voucher.badge.name} </DetailName>
+                <DetailCover src={voucher.badge_class.image_url}></DetailCover>
+                <DetailName> {voucher.badge_class.name} </DetailName>
                 <DetailRow>
-                    <DetailCreator isGroup={!!voucher.badge.group} profile={voucher.badge.group || voucher.sender}/>
+                    <DetailCreator isGroup={!!voucher.badge_class.group} profile={voucher.badge_class.group || voucher.sender}/>
                 </DetailRow>
                 <DetailScrollBox style={{maxHeight: swiperMaxHeight - 60 + 'px', marginLeft: 0}}>
                     {
-                        !!voucher.badge.content &&
+                        !!voucher.badge_class.content &&
                         <DetailDes>
-                            <ReasonText text={voucher.message || voucher.badge.content}></ReasonText>
+                            <ReasonText text={voucher.message || voucher.badge_class.content}></ReasonText>
                         </DetailDes>
                     }
 

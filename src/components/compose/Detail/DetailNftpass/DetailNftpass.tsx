@@ -50,7 +50,7 @@ function DetailNftpass(props: DetailBadgeProps) {
 
     useEffect(() => {
         async function getItems() {
-            const nftpassLets = await solas.queryNftPasslet({badge_id: props.nftpass.id, page: 1})
+            const nftpassLets = await solas.queryNftPasslet({badge_class_id: props.nftpass.id, page: 1})
             let nftpassLetsAccepted = nftpassLets.filter(item => {
                 return item.status === 'accepted'
             })

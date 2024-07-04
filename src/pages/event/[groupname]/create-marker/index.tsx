@@ -175,7 +175,7 @@ function ComponentName() {
                 voucher = await createPresend({
                     message: badgeDetail?.content || '',
                     auth_token: user.authToken || '',
-                    badge_id: badgeId || 990,
+                    badge_class_id: badgeId || 990,
                     counter: null
                 })
             }
@@ -222,7 +222,7 @@ function ComponentName() {
                 const voucher = await createPresend({
                     message: badgeDetail?.content || '',
                     auth_token: user.authToken || '',
-                    badge_id: badgeId || 990,
+                    badge_class_id: badgeId || 990,
                     counter: null
                 })
                 newVoucherId = voucher.id
@@ -301,8 +301,8 @@ function ComponentName() {
                 setCreator(creator!)
                 if (detail!.voucher_id) {
                     const voucher = await queryVoucherDetail(detail!.voucher_id!)
-                    setBadgeId(voucher!.badge_id)
-                    badgeIdRef.current = voucher!.badge_id
+                    setBadgeId(voucher!.badge_class_id)
+                    badgeIdRef.current = voucher!.badge_class_id
                 }
                 setReady(true)
             } else {

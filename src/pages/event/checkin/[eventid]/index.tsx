@@ -237,7 +237,7 @@ function EventCheckIn() {
                     </div>
                 </div>
 
-                {(isHoster || isManager || isOperator || isGroupOwner) && event.badge_id && !!hasCheckin.length &&
+                {(isHoster || isManager || isOperator || isGroupOwner) && event.badge_class_id && !!hasCheckin.length &&
                     <div className={'actions'}>
                         <div className={'center'}>
                             <AppButton special onClick={e => {

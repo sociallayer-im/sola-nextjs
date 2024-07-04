@@ -209,8 +209,8 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                 setHoster(res.owner as Profile)
             }
 
-            if (res?.badge_id) {
-                const badge = await queryBadgeDetail({id: res.badge_id})
+            if (res?.badge_class_id) {
+                const badge = await queryBadgeDetail({id: res.badge_class_id})
                 setBadge(badge)
             }
 
@@ -804,7 +804,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                         onClick={e => {
                                                             handleHostCheckIn()
                                                         }}>{
-                                                        event.badge_id
+                                                        event.badge_class_id
                                                             ? lang['Activity_Host_Check_And_Send']
                                                             : lang['Activity_Detail_Btn_Checkin']
                                                     }</AppButton>
@@ -1078,7 +1078,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                 onClick={e => {
                                                     handleHostCheckIn()
                                                 }}>{
-                                                event.badge_id
+                                                event.badge_class_id
                                                     ? lang['Activity_Host_Check_And_Send']
                                                     : lang['Activity_Detail_Btn_Checkin']
                                             }</AppButton>

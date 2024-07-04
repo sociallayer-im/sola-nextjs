@@ -108,7 +108,7 @@ function EventDetail() {
 
             if (marker.voucher_id) {
                 const presend = await queryVoucherDetail(marker.voucher_id)
-                setBadge(presend!.badge)
+                setBadge(presend!.badge_class)
             }
         } else {
             router.push('/error')

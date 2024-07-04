@@ -117,8 +117,8 @@ function CardVote(props: { item: Vote }) {
                 return item.voted_weight
             })
 
-        if (!badge && voteDetail.eligibile_badge_id) {
-            const badge = await queryBadgeDetail({id: voteDetail.eligibile_badge_id})
+        if (!badge && voteDetail.eligibile_badge_class_id) {
+            const badge = await queryBadgeDetail({id: voteDetail.eligibile_badge_class_id})
             setBadge(badge)
         }
 

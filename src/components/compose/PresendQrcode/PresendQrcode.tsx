@@ -47,11 +47,11 @@ function PresendQrcode(props: PresendQrcodeProp) {
             const expirationDate = Date.parse(new Date(presend.expires_at!).toString())
             setExpired(now > expirationDate)
 
-            if (!presendInfo.badge) {
-                const badge = await solas.queryBadgeDetail({ id: presend.badge_id })
+            if (!presendInfo.badge_class) {
+                const badge = await solas.queryBadgeDetail({ id: presend.badge_class_id })
                 setBadge(badge)
             } else {
-                setBadge(presendInfo.badge)
+                setBadge(presendInfo.badge_class)
             }
         }
         getDetail()

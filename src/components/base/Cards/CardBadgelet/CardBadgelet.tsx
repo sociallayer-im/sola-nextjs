@@ -132,7 +132,7 @@ function CardBadgelet(props: CardBadgeletProps) {
         showDialog()
     }}>
         {
-            (props.badgelet.badge.badge_type === 'private' && !isOwner && !isCreator) ?
+            (props.badgelet.badge_class.badge_type === 'private' && !isOwner && !isCreator) ?
                 <>
                     <div className={css(style.coverBg)}>
                         <img className={css(style.img)} src={'/images/badge_private.png'} alt=""/>
@@ -142,13 +142,13 @@ function CardBadgelet(props: CardBadgeletProps) {
                 </>
                 : <>
                     <div className={css(style.coverBg)}>
-                        <ImgLazy className={css(style.img)} src={metadata?.image || props.badgelet.badge.image_url}  width={180} height={180}/>
+                        <ImgLazy className={css(style.img)} src={metadata?.image || props.badgelet.badge_class.image_url}  width={180} height={180}/>
                     </div>
                     {
                         props.badgelet.display === 'top' && <div className={css(style.pendingMark)}>TOP</div>
                     }
                     {props.badgelet.display === 'hide' && <div className={css(style.hideMark)}><i className='icon-lock'></i></div>}
-                    <div className={css(style.name)}>{metadata?.name || props.badgelet.badge.title}</div>
+                    <div className={css(style.name)}>{metadata?.name || props.badgelet.badge_class.title}</div>
 
                     {(isOwner || isGroupManager) && props.badgelet.status === 'pending' &&
                         <div className={css(style.pendingMark)}>Pending</div>
