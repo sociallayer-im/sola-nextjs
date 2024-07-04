@@ -136,11 +136,11 @@ function DetailPresend (props: DetailPresendProps ) {
     const swiperMaxHeight = window.innerHeight - 320
     return <DetailWrapper>
         <DetailHeader title={ lang['BadgeletDialog_presend_title'] } onClose={ props.handleClose }/>
-        <DetailCover src={ props.presend.badge.image_url }></DetailCover>
-        <DetailName> { props.presend.badge.name } </DetailName>
+        <DetailCover src={ props.presend.badge_class.image_url }></DetailCover>
+        <DetailName> { props.presend.badge_class.name } </DetailName>
         { sender &&
             <DetailRow>
-                <DetailCreator isGroup={!!detail.badge.group } profile={ detail.badge.group || sender } />
+                <DetailCreator isGroup={!!detail.badge_class.group } profile={ detail.badge_class.group || sender } />
             </DetailRow>
 
         }

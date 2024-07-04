@@ -161,7 +161,7 @@ function EditEvent({
         meeting_url: '',
         tags: [],
         host_info: null,
-        badge_id: searchParams?.get('set_badge') ? Number(searchParams?.get('set_badge')) : null,
+        badge_class_id: searchParams?.get('set_badge') ? Number(searchParams?.get('set_badge')) : null,
         max_participant: null,
         event_type: 'event',
         group_id: group?.id,
@@ -257,20 +257,20 @@ function EditEvent({
     }, [venueInfo])
 
     useEffect(() => {
-        if (event.badge_id) {
-            queryBadgeDetail({id: event.badge_id}).then(res => {
+        if (event.badge_class_id) {
+            queryBadgeDetail({id: event.badge_class_id}).then(res => {
                 setBadgeDetail(res)
             })
         }
-    }, [event.badge_id])
+    }, [event.badge_class_id])
 
     useEffect(() => {
-        if (event.badge_id) {
-            queryBadgeDetail({id: event.badge_id}).then(res => {
+        if (event.badge_class_id) {
+            queryBadgeDetail({id: event.badge_class_id}).then(res => {
                 setBadgeDetail(res)
             })
         }
-    }, [event.badge_id])
+    }, [event.badge_class_id])
 
     // check time
     useEffect(() => {
@@ -368,8 +368,8 @@ function EditEvent({
 
         if (preset_badge_id) {
             _event = !initEvent && draft
-                ? {...JSON.parse(draft), badge_id: Number(preset_badge_id)}
-                : {...event, badge_id: Number(preset_badge_id)}
+                ? {...JSON.parse(draft), badge_class_id: Number(preset_badge_id)}
+                : {...event, badge_class_id: Number(preset_badge_id)}
 
         }
 
@@ -484,7 +484,7 @@ function EditEvent({
                     if (res.badgeId) {
                         setEvent({
                             ...event,
-                            badge_id: res.badgeId
+                            badge_class_id: res.badgeId
                         })
                     }
                 }}
@@ -798,10 +798,10 @@ function EditEvent({
             const unloading = showLoading(true)
             try {
                 const newEvent = await updateEvent(saveProps)
-                if (saveProps.badge_id) {
+                if (saveProps.badge_class_id) {
                     const setBadge = await setEventBadge({
                         id: saveProps.id!,
-                        badge_id: saveProps.badge_id,
+                        badge_class_id: saveProps.badge_class_id,
                         auth_token: user.authToken || ''
                     })
                 }
@@ -836,10 +836,10 @@ function EditEvent({
                             Math.floor((new Date(saveProps.end_time!).getTime() - new Date(initEvent!.end_time!).getTime()) / 1000) : 0
                     } as any)
 
-                    if (saveProps.badge_id) {
+                    if (saveProps.badge_class_id) {
                         const setBadge = await RepeatEventSetBadge({
                             auth_token: user.authToken || '',
-                            badge_id: saveProps.badge_id,
+                            badge_class_id: saveProps.badge_class_id,
                             recurring_event_id: saveProps.recurring_event_id!,
                             selector: repeatEventSelectorRef.current
                         })
@@ -896,10 +896,10 @@ function EditEvent({
         try {
             if (props.interval) {
                 const newEvent = await createRepeatEvent(props)
-                if (props.badge_id) {
+                if (props.badge_class_id) {
                     const setBadge = await RepeatEventSetBadge({
                         recurring_event_id: newEvent.recurring_event_id!,
-                        badge_id: props.badge_id,
+                        badge_class_id: props.badge_class_id,
                         auth_token: user.authToken || ''
                     })
                 }
@@ -912,10 +912,10 @@ function EditEvent({
             } else {
                 const newEvent = await createEvent(props)
 
-                if (props.badge_id) {
+                if (props.badge_class_id) {
                     const setBadge = await setEventBadge({
                         id: newEvent.id,
-                        badge_id: props.badge_id,
+                        badge_class_id: props.badge_class_id,
                         auth_token: user.authToken || ''
                     })
                 }
@@ -1407,7 +1407,7 @@ function EditEvent({
                                     <div className={styles['input-area']}>
                                         <div className={styles['input-area-title']}>{lang['Activity_Form_Badge']}</div>
                                         <div className={styles['input-area-des']}>{lang['Activity_Form_Badge_Des']}</div>
-                                        {!event.badge_id &&
+                                        {!event.badge_class_id &&
                                             <div className={styles['add-badge']} onClick={async () => {
                                                 await showBadges()
                                             }}>{lang['Activity_Form_Badge_Select']}</div>
@@ -1419,7 +1419,7 @@ function EditEvent({
                                                 <Delete size={22} onClick={e => {
                                                     setEvent({
                                                         ...event,
-                                                        badge_id: null
+                                                        badge_class_id: null
                                                     })
                                                     setBadgeDetail(null)
                                                 }

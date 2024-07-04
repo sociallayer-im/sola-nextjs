@@ -95,7 +95,7 @@ function ComponentName() {
                 end_time: expireAble ? expireDate : null,
                 auth_token: user.authToken || '',
                 group_id: Number(groupId),
-                eligibile_badge_id: selectedBadge?.id || undefined,
+                eligibile_badge_class_id: selectedBadge?.id || undefined,
                 max_choice: multipleChoice ? options.length : 1
             })
 
@@ -158,7 +158,7 @@ function ComponentName() {
                 end_time: expireAble ? expireDate : null,
                 auth_token: user.authToken || '',
                 group_id: Number(groupId),
-                eligibile_badge_id: selectedBadge?.id || undefined,
+                eligibile_badge_class_id: selectedBadge?.id || undefined,
                 max_choice: multipleChoice ? options.length : 1
             })
 
@@ -203,15 +203,15 @@ function ComponentName() {
                     setExpireDate(voteData.end_time)
                 }
 
-                if (voteData.eligibile_badge_id && voteData.eligibility === 'has_badge') {
-                    const badge = await queryBadgeDetail({id: voteData.eligibile_badge_id})
+                if (voteData.eligibile_badge_class_id && voteData.eligibility === 'has_badge') {
+                    const badge = await queryBadgeDetail({id: voteData.eligibile_badge_class_id})
                     setSelectedBadge(badge)
                     setAuth('has_badge')
                     setEnableMembership(false)
                     setEnableBadge(true)
                     setEnableBadgeCount(false)
-                } else if (voteData.eligibile_badge_id && voteData.eligibility === 'badge_count') {
-                    const badge = await queryBadgeDetail({id: voteData.eligibile_badge_id})
+                } else if (voteData.eligibile_badge_class_id && voteData.eligibility === 'badge_count') {
+                    const badge = await queryBadgeDetail({id: voteData.eligibile_badge_class_id})
                     setSelectedBadge(badge)
                     setAuth('badge_count')
                     setEnableMembership(false)

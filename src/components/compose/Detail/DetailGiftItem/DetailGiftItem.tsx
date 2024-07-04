@@ -242,15 +242,15 @@ function DetailGiftItem(props: DetailNftpassletProps) {
                 }}/>
 
             {!showChecked && <>
-                <DetailCover src={nftpasslet.badge.image_url}></DetailCover>
-                <DetailName> {nftpasslet.badge.name} </DetailName>
+                <DetailCover src={nftpasslet.badge_class.image_url}></DetailCover>
+                <DetailName> {nftpasslet.badge_class.name} </DetailName>
             </>
             }
 
             <DetailRow>
                 {!showQrcode && !showChecked
-                    && <DetailCreator isGroup={!!nftpasslet.badge.group}
-                                      profile={nftpasslet.badge.group || nftpasslet.creator}/>
+                    && <DetailCreator isGroup={!!nftpasslet.badge_class.group}
+                                      profile={nftpasslet.badge_class.group || nftpasslet.creator}/>
                 }
                 <DetailTransferable onClick={() => {
                     transfer({badgelet: nftpasslet})
@@ -358,8 +358,8 @@ function DetailGiftItem(props: DetailNftpassletProps) {
                 <div className={'title'}>{lang['Gift_Checked_Title']}</div>
                 <div className={'des'}>{lang['Gift_Checked_Des']}</div>
                 <div className={'info'}>
-                    <DetailCover src={nftpasslet.badge.image_url}></DetailCover>
-                    <DetailName> {nftpasslet.badge.name} </DetailName>
+                    <DetailCover src={nftpasslet.badge_class.image_url}></DetailCover>
+                    <DetailName> {nftpasslet.badge_class.name} </DetailName>
                 </div>
                 {nftpasslet.value !== 0 &&
                     <AppButton special onClick={() => {

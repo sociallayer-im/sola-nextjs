@@ -21,7 +21,7 @@ export const voucherSchema = (props: QueryPresendProps) => {
     }
 
     if (props.group_id) {
-        variables += `badge: {group_id: {_eq: ${props.group_id}}},`
+        variables += `badge_class: {group_id: {_eq: ${props.group_id}}},`
     }
 
     if (props.id) {
@@ -41,7 +41,7 @@ export const voucherSchema = (props: QueryPresendProps) => {
         strategy
         receiver_address
         badgelets {
-          badge_id
+          badge_class_id
           content
           id
           image_url
@@ -54,7 +54,7 @@ export const voucherSchema = (props: QueryPresendProps) => {
           owner_id
           title
           value
-          badge {
+          badge_class {
             creator {
               id
               image_url
@@ -71,7 +71,7 @@ export const voucherSchema = (props: QueryPresendProps) => {
             content
           }
         }
-        badge {
+        badge_class {
           badge_type
           content
           counter
@@ -91,7 +91,7 @@ export const voucherSchema = (props: QueryPresendProps) => {
           title
           transferable
         }
-        badge_id
+        badge_class_id
         badge_title
         created_at
         expires_at
@@ -662,7 +662,7 @@ export async function queryBadge(props: QueryBadgeProps): Promise<ListData<Badge
     variables = variables.replace(/,$/, '')
 
     const doc = gql`query MyQuery {
-      badges(where:{${variables}}, limit: 20, offset: ${props.page * 20 - 20}, order_by: {id: desc}) {
+      badge_classes(where:{${variables}}, limit: 20, offset: ${props.page * 20 - 20}, order_by: {id: desc}) {
         content
         counter
         creator {
@@ -687,7 +687,7 @@ export async function queryBadge(props: QueryBadgeProps): Promise<ListData<Badge
         created_at
         metadata
       }
-      badges_aggregate (where:{${variables}}) {
+      badge_classes_aggregate (where:{${variables}}) {
         aggregate {
             count
         }
@@ -697,8 +697,8 @@ export async function queryBadge(props: QueryBadgeProps): Promise<ListData<Badge
     const res: any = await request(graphUrl, doc)
 
     return {
-        data: res.badges as Badge[],
-        total: res.badges_aggregate.aggregate.count
+        data: res.badge_classes as Badge[],
+        total: res.badge_classes_aggregate.aggregate.count
     }
 }
 
@@ -740,7 +740,7 @@ export interface BadgeWithBadgelets extends Badge {
 
 export async function queryBadgeDetail(props: QueryBadgeDetailProps): Promise<BadgeWithBadgelets | null> {
     const doc = gql`query MyQuery {
-      badges(where: {id: {_eq: "${props.id}"}}) {
+      badge_classes(where: {id: {_eq: "${props.id}"}}) {
         metadata
         badge_type
         content
@@ -773,7 +773,7 @@ export async function queryBadgeDetail(props: QueryBadgeDetailProps): Promise<Ba
           title
           display
           status
-          badge {
+          badge_class {
             badge_type
             content
             counter
@@ -784,7 +784,7 @@ export async function queryBadgeDetail(props: QueryBadgeDetailProps): Promise<Ba
             image_url
             id
           }
-          badge_id
+          badge_class_id
           content
           creator {
             id
@@ -804,7 +804,7 @@ export async function queryBadgeDetail(props: QueryBadgeDetailProps): Promise<Ba
     }`
 
     const resb: any = await request(graphUrl, doc)
-    return resb.badges[0] || null
+    return resb.badge_classes[0] || null
 }
 
 interface QueryPresendProps {
@@ -841,7 +841,7 @@ export async function queryPresendDetail(props: QueryPresendDetailProps): Promis
 
 export interface Badgelet {
     id: number,
-    badge_id: number,
+    badge_class_id: number,
     content: string,
     domain: string,
     display: 'normal' | 'hide' | 'top',
@@ -849,7 +849,7 @@ export interface Badgelet {
     creator: ProfileSimple,
     status: 'accepted' | 'pending' | 'new' | 'rejected' | 'burnt' | 'revoked',
     token_id: string | null,
-    badge: Badge,
+    badge_class: Badge,
     chain_data: string | null
     group: Group | null
     created_at: string,
@@ -887,7 +887,7 @@ export interface QueryBadgeletProps {
     owner_id?: number,
     group_id?: number,
     show_hidden?: number,
-    badge_id?: number,
+    badge_class_id?: number,
     badge_type?: BadgeType,
     status?: 'accepted' | 'pending' | 'new' | 'rejected' | 'burnt' | 'revoked',
 }
@@ -903,8 +903,8 @@ export async function queryBadgelet(props: QueryBadgeletProps): Promise<Badgelet
         variables += `owner_id: {_eq: "${props.receiver_id || props.owner_id}"},`
     }
 
-    if (props.badge_id) {
-        variables += `badge_id: {_eq: "${props.badge_id}"},`
+    if (props.badge_class_id) {
+        variables += `badge_class_id: {_eq: "${props.badge_class_id}"},`
     }
 
     let status = `status: {_neq: "burned"}`
@@ -914,13 +914,13 @@ export async function queryBadgelet(props: QueryBadgeletProps): Promise<Badgelet
 
     if (props.badge_type) {
         if (props.group_id) {
-            variables += `badge: {badge_type: {_eq: "${props.badge_type}", group_id: {_eq: "${props.group_id}"}}},`
+            variables += `badge_class: {badge_type: {_eq: "${props.badge_type}", group_id: {_eq: "${props.group_id}"}}},`
         } else {
-            variables += `badge: {badge_type: {_eq: "${props.badge_type}"}},`
+            variables += `badge_class: {badge_type: {_eq: "${props.badge_type}"}},`
         }
     } else {
         if (props.group_id) {
-            variables += `badge: {badge_type: {_eq: "badge"}, group_id: {_eq: "${props.group_id}"}},`
+            variables += `badge_class: {badge_type: {_eq: "badge"}, group_id: {_eq: "${props.group_id}"}},`
         } else {
             variables += ``
         }
@@ -933,11 +933,11 @@ export async function queryBadgelet(props: QueryBadgeletProps): Promise<Badgelet
     const doc = gql`query MyQuery {
       badgelets(where: {${variables}, ${status}}, limit: 20, offset: ${props.page * 20 - 20}, order_by: {id: desc}) {
         metadata
-        badge_id
+        badge_class_id
         content
         created_at
         display
-        badge {
+        badge_class {
           image_url
           title
           content
@@ -1413,7 +1413,7 @@ export async function createBadge(props: CreateBadgeProps): Promise<Badge> {
     props.badge_type = props.badge_type || 'badge'
 
     const res: any = await fetch.post({
-        url: `${apiUrl}/badge/create`,
+        url: `${apiUrl}/badge_class/create`,
         data: props
     })
 
@@ -1421,11 +1421,11 @@ export async function createBadge(props: CreateBadgeProps): Promise<Badge> {
         throw new Error(res.data.message)
     }
 
-    return res.data.badge as Badge
+    return res.data.badge_class as Badge
 }
 
 export interface CreatePresendProps {
-    badge_id: number,
+    badge_class_id: number,
     message: string,
     counter: number | string | null,
     auth_token: string
@@ -1697,7 +1697,7 @@ export async function issueBatch(props: IssueBatchProps): Promise<Voucher[]> {
     const res: any = await fetch.post({
         url: `${apiUrl}/voucher/send_badge`,
         data: {
-            badge_id: props.badgeId,
+            badge_class_id: props.badgeId,
             receivers: usernames,
             subject_url: subjectUrl,
             auth_token: props.auth_token,
@@ -2078,7 +2078,7 @@ export interface SearchBadgeProps {
 
 export async function searchBadge(props: SearchBadgeProps): Promise<Badge[]> {
     const doc = gql`query MyQuery {
-      badges(where: {title: {_iregex: "${props.title}"}}, limit: 20, offset: ${(props.page - 1) * 20}) {
+      badge_classes(where: {title: {_iregex: "${props.title}"}}, limit: 20, offset: ${(props.page - 1) * 20}) {
        metadata
        badge_type
         content
@@ -2112,7 +2112,7 @@ export async function searchBadge(props: SearchBadgeProps): Promise<Badge[]> {
           title
           status
           metadata
-          badge {
+          badge_class {
             badge_type
             content
             counter
@@ -2123,7 +2123,7 @@ export async function searchBadge(props: SearchBadgeProps): Promise<Badge[]> {
             image_url
             id
           }
-          badge_id
+          badge_class_id
           content
           creator {
             id
@@ -2144,7 +2144,7 @@ export async function searchBadge(props: SearchBadgeProps): Promise<Badge[]> {
 
     const res: any = await request(graphUrl, doc)
 
-    return res.badges as Badge[]
+    return res.badge_classes as Badge[]
 }
 
 export interface QueryBadgeByHashTagProps {
@@ -2464,7 +2464,7 @@ export async function consume(props: CheckInProps): Promise<Badgelet> {
 export interface QueryCheckInListProps {
     profile_id?: number,
     badgelet_id?: number,
-    badge_id?: number
+    badge_class_id?: number
 }
 
 export interface CheckIn {
@@ -2487,8 +2487,8 @@ export async function queryCheckInList(props: QueryCheckInListProps): Promise<Ch
         variables += `badgelet_id: {_eq: ${props.badgelet_id}},`
     }
 
-    if (props.badge_id) {
-        variables += `badge_id: {_eq: ${props.badge_id}},`
+    if (props.badge_class_id) {
+        variables += `badge_class_id: {_eq: ${props.badge_class_id}},`
     }
 
     variables = variables.replace(/,$/, '')
@@ -2504,7 +2504,7 @@ export async function queryCheckInList(props: QueryCheckInListProps): Promise<Ch
         check_type
         image_url
         badgelet {
-          badge_id
+          badge_class_id
           image_url
           id
           content
@@ -2611,7 +2611,7 @@ export async function badgeletBurn(props: BadgeBurnProps): Promise<Badgelet> {
 }
 
 export interface QueryUserActivityProps {
-    badge_id?: number
+    badge_class_id?: number
     badgelet_id?: number,
     point_id?: number,
     point_item_id?: number,
@@ -2622,7 +2622,7 @@ export interface QueryUserActivityProps {
 
 export interface Activity {
     "id": number,
-    "badge_id": null | number
+    "badge_class_id": null | number
     "badgelet_id": null | number,
     "point_id": null | number,
     "point_item_id": null,
@@ -2642,7 +2642,7 @@ export interface Vote {
     creator_id: number,
     show_voter: boolean,
     eligibile_group_id: number | null,
-    eligibile_badge_id: number | null,
+    eligibile_badge_class_id: number | null,
     eligibile_point_id: number | null,
     max_choice: number,
     eligibility: 'has_group_membership' | 'has_badge' | 'badge_count',
@@ -2666,7 +2666,7 @@ export interface CreateVoteProps {
     show_voter: boolean,
     max_choice: number
     eligibile_group_id?: number | null,
-    eligibile_badge_id?: number | null,
+    eligibile_badge_class_id?: number | null,
     eligibile_point_id?: number | null,
     eligibility: 'has_group_membership' | 'has_badge' | 'badge_count',
     start_time: string | null,
@@ -2757,7 +2757,7 @@ export async function queryVotes(props: QueryVotesProps) {
               username
             }
             creator_id
-            eligibile_badge_id
+            eligibile_badge_class_id
             eligibile_group_id
             eligibile_point_id
             eligibility
@@ -2965,7 +2965,7 @@ export interface Event {
     max_participant: null | number,
     min_participant: null | number,
     guests: null | string[],
-    badge_id: null | number,
+    badge_class_id: null | number,
     host_info: null | string,
     meeting_url: null | string,
     venue_id?: null | number,
@@ -3152,7 +3152,7 @@ export async function queryEvent(props: QueryEventProps): Promise<Event[]> {
         display
         operators
         padge_link
-        badge_id
+        badge_class_id
         notes
         geo_lat
         geo_lng
@@ -3309,7 +3309,7 @@ export async function queryPendingEvent(props: QueryEventProps): Promise<Event[]
         display
         operators
         padge_link
-        badge_id
+        badge_class_id
         notes
         external_url
         geo_lat
@@ -3417,7 +3417,7 @@ export async function queryCohostingEvent(props: { id: number, email?: string })
         display
         operators
         padge_link
-        badge_id
+        badge_class_id
         notes
         external_url
         geo_lat
@@ -3725,7 +3725,7 @@ export async function searchEvent(keyword: string, group_id?: number): Promise<E
         display
         operators
         padge_link
-        badge_id
+        badge_class_id
         notes
         external_url
         geo_lat
@@ -3850,7 +3850,7 @@ export async function inviteGuest(props: InviteGuestProp) {
 
 export interface SetEventBadgeProps {
     id: number,
-    badge_id: number,
+    badge_class_id: number,
     auth_token: string,
 }
 
@@ -4291,7 +4291,7 @@ export async function RepeatEventInvite(props: RepeatEventInviteProps) {
 
 export interface RepeatEventSetBadgeProps {
     auth_token: string,
-    badge_id: number,
+    badge_class_id: number,
     recurring_event_id: number,
     selector?: 'one' | 'after' | 'all'
 }
@@ -4476,7 +4476,7 @@ export async function queryMarkers(props: {
           voucher_id
           voucher {
             id
-                badge {
+                badge_class {
                     content
                     title
                     name
@@ -4486,7 +4486,7 @@ export async function queryMarkers(props: {
             }
             id
             about
-            badge_id
+            badge_class_id
             category
             cover_image_url
             created_at
@@ -4591,7 +4591,7 @@ export async function markersCheckinList({page = 1, ...props}: {
           created_at
           cover_image_url
           category
-          badge_id
+          badge_class_id
           group_id
           highlight
           id
@@ -4799,10 +4799,10 @@ export async function userAppliedEvent(props: { id: number, page: number, group_
 
 export interface Voucher {
     id: number,
-    badge: Badge,
+    badge_class: Badge,
     group: Group | null,
     group_id: number | null,
-    badge_id: number,
+    badge_class_id: number,
     badge_title: string,
     created_at: string,
     expires_at: string | null,
@@ -4826,15 +4826,15 @@ export async function getPendingBadges(profile_id: number, page = 1) {
     return res.vouchers as Voucher[]
 }
 
-export async function queryVoucherDetail(id?: number, badge_id?: number, receiver_id?: number, canClaim?: boolean) {
+export async function queryVoucherDetail(id?: number, badge_class_id?: number, receiver_id?: number, canClaim?: boolean) {
     let variables = ''
 
     if (id) {
         variables += `id: {_eq: "${id}"},`
     }
 
-    if (badge_id) {
-        variables += `badge_id: {_eq: "${badge_id}"},`
+    if (badge_class_id) {
+        variables += `badge_class_id: {_eq: "${badge_class_id}"},`
     }
 
     if (receiver_id) {
@@ -4850,8 +4850,8 @@ export async function queryVoucherDetail(id?: number, badge_id?: number, receive
         id
         strategy
         receiver_address
-        badge_id
-        badge {
+        badge_class_id
+        badge_class {
           badge_type
           content
           counter
@@ -4871,7 +4871,7 @@ export async function queryVoucherDetail(id?: number, badge_id?: number, receive
           title
           transferable
         }
-        badge_id
+        badge_class_id
         badge_title
         created_at
         expires_at
@@ -4879,7 +4879,7 @@ export async function queryVoucherDetail(id?: number, badge_id?: number, receive
         claimed_at
         claimed_by_server
         badgelets {
-          badge_id
+          badge_class_id
           content
           id
           image_url
@@ -4892,7 +4892,7 @@ export async function queryVoucherDetail(id?: number, badge_id?: number, receive
           owner_id
           title
           value
-          badge {
+          badge_class {
             creator {
               id
               image_url
@@ -4935,7 +4935,7 @@ export async function sendBadgeByWallet(props: {
     receivers: string[],
     auth_token: string,
     reason: string,
-    badge_id: number,
+    badge_class_id: number,
     starts_at?: string,
     expires_at?: string,
     value?: number | null
@@ -5431,11 +5431,11 @@ export async function queryBadgeletWithTop(props: { owner_id: number, page: numb
     const doc = gql`query MyQuery {
       top: badgelets(where: {owner_id: {_eq: "${props.owner_id}"}, status: {_neq: "burned"}, display: {_eq: "top"}}, order_by: {id: desc}) {
         metadata
-        badge_id
+        badge_class_id
         content
         created_at
         display
-        badge {
+        badge_class {
           image_url
           title
           content
@@ -5471,11 +5471,11 @@ export async function queryBadgeletWithTop(props: { owner_id: number, page: numb
       },
       others: badgelets(where: {owner_id: {_eq: "${props.owner_id}"}, status: {_neq: "burned"}, display: {_neq: "top"}}, limit: 20, offset: ${props.page * 20 - 20}, order_by: {id: desc}) {
         metadata
-        badge_id
+        badge_class_id
         content
         created_at
         display
-        badge {
+        badge_class {
           image_url
           title
           content

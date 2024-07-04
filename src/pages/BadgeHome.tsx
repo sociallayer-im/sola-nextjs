@@ -150,7 +150,7 @@ function Home() {
 
             const voucher = queryVoucherDetail(Number(_voucherId))
                 .then(res => {
-                    if (res!.badge.badge_type === 'badge') {
+                    if (res!.badge_class.badge_type === 'badge') {
                         showVoucher(res, code)
                     }
                 })

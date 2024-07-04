@@ -55,7 +55,7 @@ function DialogNftCheckIn(props: DialogNftCheckInProps) {
     }
 
     const getRecord = async () => {
-        const list = await solas.queryCheckInList({badge_id: props.nftPassId})
+        const list = await solas.queryCheckInList({badge_class_id: props.nftPassId})
         setRecords(list)
     }
 

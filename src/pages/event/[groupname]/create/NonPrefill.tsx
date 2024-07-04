@@ -66,7 +66,7 @@ interface Draft {
     enable_min_participants: boolean,
     enable_max_participants: boolean,
     tags: string[],
-    badge_id: number | null,
+    badge_class_id: number | null,
     creator: Group | Profile | null,
     start_time: string,
     end_time: string,
@@ -309,7 +309,7 @@ function CreateEvent(props: CreateEventPageProps) {
                 max_participants: maxParticipants,
                 min_participants: minParticipants,
                 tags: label,
-                badge_id: badgeId,
+                badge_class_id: badgeId,
                 creator: creator,
                 enable_min_participants: enableMinParticipants,
                 enable_max_participants: enableMaxParticipants,
@@ -474,7 +474,7 @@ function CreateEvent(props: CreateEventPageProps) {
             setTelegram(event.telegram_contact_group || '')
 
             setLabel(event.tags ? event.tags : [])
-            setBadgeId(event.badge_id)
+            setBadgeId(event.badge_class_id)
             setEventType(event.event_type || 'event')
             setPadgeLink(event.padge_link || null)
 
@@ -826,7 +826,7 @@ function CreateEvent(props: CreateEventPageProps) {
             end_time: hasDuration ? ending : null,
             max_participant: enableMaxParticipants ? maxParticipants : null,
             min_participant: enableMinParticipants ? minParticipants : null,
-            badge_id: badgeId,
+            badge_class_id: badgeId,
             group_id: eventGroup?.id,
             meeting_url: onlineUrl || null,
             venue_id: locationInfo.venue_id,
@@ -853,7 +853,7 @@ function CreateEvent(props: CreateEventPageProps) {
                 if (badgeId) {
                     const setBadge = await RepeatEventSetBadge({
                         recurring_event_id: newEvent.recurring_event_id!,
-                        badge_id: badgeId,
+                        badge_class_id: badgeId,
                         auth_token: user.authToken || ''
                     })
                 }
@@ -869,7 +869,7 @@ function CreateEvent(props: CreateEventPageProps) {
                 if (badgeId) {
                     const setBadge = await setEventBadge({
                         id: newEvent.id,
-                        badge_id: badgeId,
+                        badge_class_id: badgeId,
                         auth_token: user.authToken || ''
                     })
                 }
@@ -941,7 +941,7 @@ function CreateEvent(props: CreateEventPageProps) {
             venue_id: locationInfo.venue_id,
             max_participant: enableMaxParticipants ? maxParticipants : null,
             min_participant: enableMinParticipants ? minParticipants : null,
-            badge_id: badgeId,
+            badge_class_id: badgeId,
             meeting_url: onlineUrl || null,
             auth_token: user.authToken || '',
             event_type: eventType,
@@ -1035,10 +1035,10 @@ function CreateEvent(props: CreateEventPageProps) {
                     host_info: info.json,
                     operators: info.cohostId,
                 })
-                if (saveProps.badge_id) {
+                if (saveProps.badge_class_id) {
                     const setBadge = await setEventBadge({
                         id: saveProps.id!,
-                        badge_id: saveProps.badge_id,
+                        badge_class_id: saveProps.badge_class_id,
                         auth_token: user.authToken || ''
                     })
                 }
@@ -1071,10 +1071,10 @@ function CreateEvent(props: CreateEventPageProps) {
                         selector: repeatEventSelectorRef.current
                     })
 
-                    if (saveProps.badge_id) {
+                    if (saveProps.badge_class_id) {
                         const setBadge = await RepeatEventSetBadge({
                             auth_token: user.authToken || '',
-                            badge_id: saveProps.badge_id,
+                            badge_class_id: saveProps.badge_class_id,
                             recurring_event_id: saveProps.recurring_event_id!,
                             selector: repeatEventSelectorRef.current
                         })

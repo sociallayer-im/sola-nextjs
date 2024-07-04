@@ -30,19 +30,19 @@ function MergeItem({badgelets, handleCombine, temple}: { badgelets: Badgelet[], 
                 <div className={'formula'}>
                     <div className={'row'}>
                         <div className={'card'}> {!!badgelets[0] &&
-                            <img src={badgelets[0].badge.image_url} alt=""/>}</div>
+                            <img src={badgelets[0].badge_class.image_url} alt=""/>}</div>
                         <div className={'card'}> {!!badgelets[1] &&
-                            <img src={badgelets[1].badge.image_url} alt=""/>}</div>
+                            <img src={badgelets[1].badge_class.image_url} alt=""/>}</div>
                     </div>
                     <div className={'row'}>
                         <div className={'card'}>{!!badgelets[2] &&
-                            <img src={badgelets[2].badge.image_url} alt=""/>}</div>
+                            <img src={badgelets[2].badge_class.image_url} alt=""/>}</div>
                     </div>
                     <div className={'row'}>
                         <div className={'card'}>{!!badgelets[3] &&
-                            <img src={badgelets[3].badge.image_url} alt=""/>}</div>
+                            <img src={badgelets[3].badge_class.image_url} alt=""/>}</div>
                         <div className={'card'}>{!!badgelets[4] &&
-                            <img src={badgelets[4].badge.image_url} alt=""/>}</div>
+                            <img src={badgelets[4].badge_class.image_url} alt=""/>}</div>
                     </div>
                 </div>
                 <div className={'des'}>{`${combineAmount} Normal`}</div>
@@ -95,7 +95,7 @@ function Merge() {
         if (user.id) {
             const myBadgelet = `
             query MyQuery {
-                badgelets(where: {owner_id: {_eq: ${user.id}}, status: {_neq: "burned"}, badge: {permissions: {_contains:["wamo-normal"]}}}) {
+                badgelets(where: {owner_id: {_eq: ${user.id}}, status: {_neq: "burned"}, badge_class: {permissions: {_contains:["wamo-normal"]}}}) {
                       created_at
                       id
                       image_url
@@ -103,8 +103,8 @@ function Merge() {
                       title
                       status
                       metadata
-                      badge_id
-                      badge {
+                      badge_class_id
+                      badge_class {
                         metadata
                         badge_type
                         content
@@ -116,7 +116,7 @@ function Merge() {
                         image_url
                         id
                       }
-                      badge_id
+                      badge_class_id
                       content
                       creator {
                         id
@@ -156,7 +156,7 @@ function Merge() {
                       title
                       status
                       metadata
-                      badge_id
+                      badge_class_id
                       badge {
                         metadata
                         badge_type
@@ -169,7 +169,7 @@ function Merge() {
                         image_url
                         id
                       }
-                      badge_id
+                      badge_class_id
                       content
                       creator {
                         id
@@ -258,7 +258,7 @@ function Merge() {
     }, [user.id])
 
     async function handleCombine(color: string, targetBadgeId: number) {
-        const badglets = myCards.filter(badgelet => badgelet.badge.metadata?.includes(color))
+        const badglets = myCards.filter(badgelet => badgelet.badge_class.metadata?.includes(color))
         if (badglets.length < combineAmount) {
             showToast('You need at least 2 cards to combine')
             return
@@ -289,7 +289,7 @@ function Merge() {
 
     const items = temples.map((temple, index) => {
         const metadata = temple.metadata ? JSON.parse(temple.metadata) : {}
-        const badgelet = myCards.filter(badgelet => badgelet.badge.metadata?.includes(metadata.color))
+        const badgelet = myCards.filter(badgelet => badgelet.badge_class.metadata?.includes(metadata.color))
         return <MergeItem key={index} temple={temple} badgelets={badgelet} handleCombine={handleCombine}/>
     })
 
@@ -418,14 +418,14 @@ function Merge() {
                                     {
                                         myMergedCards.map((card, index) => {
                                             return <div className={'card'} key={index} onClick={e => {showBadgelet(card)}}>
-                                                <img src={card.badge.image_url} alt=""/>
+                                                <img src={card.badge_class.image_url} alt=""/>
                                             </div>
                                         })
                                     }
                                     {
                                         myCards.map((card, index) => {
                                             return <div className={'card'} key={index} onClick={e => {showBadgelet(card)}}>
-                                                <img src={card.badge.image_url} alt=""/>
+                                                <img src={card.badge_class.image_url} alt=""/>
                                             </div>
                                         })
                                     }

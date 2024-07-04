@@ -88,8 +88,8 @@ function CardSearchBadgelet (props: CardSearchBadgeletProps) {
     const { showBadgelet } = useContext(DialogsContext)
 
     return (<div data-testid='CardSearchBadgelet' className={ css(style.wrapper) } onClick={ () => { showBadgelet(props.badgelet) }}>
-                <img className={ css(style.img) } src={ props.badgelet.badge.image_url } alt=""/>
-                <div className={ css(style.name) }>{ props.badgelet.badge.name }</div>
+                <img className={ css(style.img) } src={ props.badgelet.badge_class.image_url } alt=""/>
+                <div className={ css(style.name) }>{ props.badgelet.badge_class.name }</div>
             </div>)
 }
 

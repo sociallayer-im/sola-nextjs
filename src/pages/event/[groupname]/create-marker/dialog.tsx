@@ -189,7 +189,7 @@ function CreateMarkerDialog(props: {lat: number, lng: number, close: any, onSucc
                 voucher = await createPresend({
                     message: badgeDetail?.content || '',
                     auth_token: user.authToken || '',
-                    badge_id: badgeId || 990,
+                    badge_class_id: badgeId || 990,
                     counter: null
                 })
             }
@@ -237,7 +237,7 @@ function CreateMarkerDialog(props: {lat: number, lng: number, close: any, onSucc
                 const voucher = await createPresend({
                     message: badgeDetail?.content || '',
                     auth_token: user.authToken || '',
-                    badge_id: badgeId || 990,
+                    badge_class_id: badgeId || 990,
                     counter: null
                 })
                 newVoucherId = voucher.id

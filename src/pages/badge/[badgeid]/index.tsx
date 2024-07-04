@@ -166,7 +166,7 @@ function BadgeDetail(props: { badge: Badge, memberships: Membership[] }) {
                                                             title={lang['BadgeDialog_Label_Creat_Time']}
                                                             content={formatTime(badgelet.created_at)}/>
 
-                                                        {badgelet.badge.badge_type === 'private' &&
+                                                        {badgelet.badge_class.badge_type === 'private' &&
                                                             <DetailArea
                                                                 title={lang['BadgeDialog_Label_Private']}
                                                                 content={lang['BadgeDialog_Label_Private_text']}/>
@@ -301,7 +301,7 @@ function BadgeDetail(props: { badge: Badge, memberships: Membership[] }) {
                                                             title={lang['BadgeDialog_Label_Creat_Time']}
                                                             content={formatTime(badgelet.created_at)}/>
 
-                                                        {badgelet.badge.badge_type === 'private' &&
+                                                        {badgelet.badge_class.badge_type === 'private' &&
                                                             <DetailArea
                                                                 title={lang['BadgeDialog_Label_Private']}
                                                                 content={lang['BadgeDialog_Label_Private_text']}/>

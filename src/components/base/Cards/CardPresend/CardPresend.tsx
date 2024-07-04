@@ -93,9 +93,9 @@ function CardPresend (props: CardPresendProps) {
         onClick={ () => { showVoucher(props.presend) } }
         className={ css(style.wrapper) } >
                 <div className={ css(style.coverBg) }>
-                    <img className={ css(style.img) } src={ props.presend.badge.image_url } alt=""/>
+                    <img className={ css(style.img) } src={ props.presend.badge_class.image_url } alt=""/>
                 </div>
-                <div className={ css(style.name) }>{ props.presend.badge.name }</div>
+                <div className={ css(style.name) }>{ props.presend.badge_class.name }</div>
             </div>)
 }
 

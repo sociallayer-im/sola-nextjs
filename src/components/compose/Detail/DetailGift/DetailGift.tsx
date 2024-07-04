@@ -55,7 +55,7 @@ function DetailGift(props: DetailBadgeProps) {
             })
 
             badgelets = badgelets.map(item => {
-                item.badge = props.badge
+                item.badge_class = props.badge
                 return item
             })
 

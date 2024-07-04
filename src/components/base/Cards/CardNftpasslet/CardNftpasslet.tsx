@@ -113,10 +113,10 @@ function CardNftpasslet (props: CardBadgeletProps) {
 
     return (<div data-testid='CardBadgelet' className={ css(style.wrapper) } onClick={ () => { showNftpasslet(props.nftpasslet) }}>
                 <div className={css(style.coverBg)}>
-                    <img className={ css(style.img) } src={ props.nftpasslet.badge.image_url } alt=""/>
+                    <img className={ css(style.img) } src={ props.nftpasslet.badge_class.image_url } alt=""/>
                 </div>
                 { props.nftpasslet.display === 'hide' && <div className={css(style.hideMark)}><i className='icon-lock'></i></div> }
-                <div className={ css(style.name) }>{ props.nftpasslet.badge.name }</div>
+                <div className={ css(style.name) }>{ props.nftpasslet.badge_class.name }</div>
                 { (isOwner || isGroupManager) && props.nftpasslet.status === 'pending' && <div className={ css(style.pendingMark) }>Pending</div> }
             </div>)
 }
