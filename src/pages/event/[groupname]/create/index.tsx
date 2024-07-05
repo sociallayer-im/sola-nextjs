@@ -144,6 +144,7 @@ function EditEvent({
     const [enableTicket, setEnableTicket] = useState(false)
     const [tickets, setTickets] = useState<Partial<Ticket>[]>([])
     const ticketSettingRef = useRef<{verify : () => boolean} | null>(null)
+    const ticketsRef = useRef<Partial<Ticket>[]>([])
 
     const [venueInfo, setVenueInfo] = useState<null | EventSites>(null)
     const [cohost, setCohost] = useState<string[]>([''])
@@ -216,6 +217,7 @@ function EditEvent({
             queryTickets({event_id: initEvent.id}).then((res) => {
                 if (res && res.length > 0) {
                     setTickets(res)
+                    ticketsRef.current = res
                     setEnableTicket(true)
                 } else {
                     setEnableTicket(false)
@@ -561,6 +563,11 @@ function EditEvent({
             return false
         }
 
+        if (enableTicket && (!ticketSettingRef?.current?.verify())) {
+            showToast('Invalid ticket setting')
+            return false
+        }
+
         if (repeatCounterError && repeat) {
             showToast('The number of times the event repeats must be greater than 0 and less than 100')
             return false
@@ -568,6 +575,11 @@ function EditEvent({
 
         if (capacityError) {
             showToast(capacityError)
+            return false
+        }
+
+        if (!!tickets && tickets.length > 0 && (event.recurring_event_id || repeat)) {
+            showToast('Recurring events do not support ticket features')
             return false
         }
 
@@ -726,6 +738,27 @@ function EditEvent({
 
         unloading()
 
+
+        let _tickets: null | Partial<Ticket>[] = null
+        if (ticketsRef.current && ticketsRef.current.length && !enableTicket) {
+            _tickets = ticketsRef.current.map(ticket => {
+                return {
+                    ...ticket,
+                    _destroy: '1'
+                }
+            })
+        } else if (ticketsRef.current && ticketsRef.current.length && enableTicket && tickets.length) {
+            _tickets = tickets
+            ticketsRef.current.forEach((ticket, index) => {
+                if (!_tickets!.find((t) => { return  t.id === ticket.id})) {
+                    _tickets!.push({
+                        ...ticket,
+                        _destroy: '1'
+                    } as any)
+                }
+            })
+        }
+
         const saveProps = {
             ...event,
             id: initEvent!.id,
@@ -738,7 +771,7 @@ function EditEvent({
             interval: repeat || undefined,
             event_count: repeatCounter,
             extra,
-            tickets: enableTicket && tickets.length ? tickets : null,
+            tickets: _tickets,
 
             auth_token: user.authToken || '',
         } as CreateRepeatEventProps
@@ -1454,6 +1487,7 @@ function EditEvent({
                                     value={tickets}
                                     onChange={
                                         (tickets) => {
+                                            console.log('setTicket', tickets)
                                             setTickets(tickets)
                                         }
                                     }/>

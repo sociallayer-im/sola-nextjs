@@ -2952,6 +2952,7 @@ export interface Participants {
     ticket_id: number | null,
     event_id: number,
     payment_status: string,
+    payment_data: null | string
 }
 
 export interface Event {
@@ -5149,7 +5150,7 @@ export async function setEventStatus(props: {
 
 export interface Ticket {
     id: number,
-    check_badge_id: number | null
+    check_badge_class_id: number | null
     content: string,
     created_at: string,
     end_time: string | null
@@ -5171,7 +5172,7 @@ export async function queryTickets (props: {
 
     const doc = gql`query MyQuery {
       tickets(where: {event_id: {_eq: ${props.event_id}}}) {
-        check_badge_id
+        check_badge_class_id
         content
         created_at
         end_time
@@ -5290,6 +5291,7 @@ export async function getParticipantDetail (props: {id?: number, event_id?: numb
 
     const doc = gql`query MyQuery {
         participants(where: {${variables}}) {
+          payment_data
           id
           profile_id
           profile {
@@ -5314,8 +5316,7 @@ export async function getParticipantDetail (props: {id?: number, event_id?: numb
     const res: any = await request(graphUrl, doc)
 
     // return res.participants[0] as Participants || null
-   return res.participants[0]?
-       {...res.participants[0], payment_status: false} as Participants : null
+   return res.participants[0] as Participants || null
 }
 
 export interface PopupCity {
@@ -5720,6 +5721,26 @@ export async function getGroupsBatch(ids: number[]): Promise<Group[]> {
 
     const resp: any = await request(graphUrl, doc)
     return resp.groups as Group[]
+}
+
+export async function updatePaymentStatus (props: {
+    next_token: string,
+    id: number,
+    auth_token: string,
+    status: string,
+    payment_status: string,
+    payment_data: string | null
+}) {
+    const res: any= await fetch.post({
+        url: `${apiUrl}/event/set_payment_status`,
+        data: props
+    })
+
+    if (res.data.result === 'error') {
+        throw new Error(res.data.message)
+    }
+
+    return res.data.participant as Participants
 }
 
 export default {

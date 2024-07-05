@@ -62,6 +62,9 @@ function Erc20TokenApproveHandler(
                 {hash}
             )
 
+            const delay = await setTimeout(() => {
+            }, 5000)
+
             !!props.onSuccess && props.onSuccess(hash)
         } catch (e: any) {
             console.error(e)
@@ -87,6 +90,7 @@ function Erc20TokenApproveHandler(
                 ]
             }).then((res: any) => {
                 if (res !== undefined && res >= BigInt(props.amount)) {
+                    console.log('BigInt(props.amount)BigInt(props.amount)', BigInt(props.amount))
                     props.onSuccess?.('')
                 }
             }).finally(() => {

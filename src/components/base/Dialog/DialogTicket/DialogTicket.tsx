@@ -38,11 +38,11 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
 
     const [busy, setBusy] = useState(false)
 
-    const hasBadgePermission = !props.ticket.check_badge_id || (!!props.ticket.check_badge_id && OwnedBadge)
+    const hasBadgePermission = !props.ticket.check_badge_class_id || (!!props.ticket.check_badge_class_id && OwnedBadge)
 
     useEffect(() => {
         if (!!user.id && !!badge) {
-            queryBadgelet({owner_id: user.id, badge_id: badge.id, page: 1}).then((res) => {
+            queryBadgelet({owner_id: user.id, badge_class_id: badge.id, page: 1}).then((res) => {
                 setOwnedBadge(!!res.length)
             })
         } else {
@@ -61,8 +61,8 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
     useEffect(() => {
         setSoldOut(props.ticket.quantity === 0)
 
-        if (props.ticket.check_badge_id) {
-            queryBadgeDetail({id: props.ticket.check_badge_id}).then((res) => {
+        if (props.ticket.check_badge_class_id) {
+            queryBadgeDetail({id: props.ticket.check_badge_class_id}).then((res) => {
                 res && setBadge(res)
             })
         }
@@ -310,7 +310,9 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
                     setApproved(true)
                 }}
                 content={(trigger, busy) => {
-                    setBusy(busy)
+                    setTimeout(() => {
+                        setBusy(busy)
+                    }, 0)
                     return <AppButton
                         disabled={busy || !!errorMsg}
                         special

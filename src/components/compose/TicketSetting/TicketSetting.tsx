@@ -5,20 +5,20 @@ import AppInput from "@/components/base/AppInput";
 import AppRadio from "@/components/base/AppRadio/AppRadio";
 import {Select} from "baseui/select";
 import AppButton from "@/components/base/AppButton/AppButton";
-import {Badge, Group, Profile, queryBadge, queryBadgeDetail, Ticket} from "@/service/solas";
+import {Badge, getParticipantDetail, Group, Profile, queryBadge, queryBadgeDetail, Ticket} from "@/service/solas";
 import DialogIssuePrefill from "@/components/eventSpecial/DialogIssuePrefill/DialogIssuePrefill";
 import {OpenDialogProps} from "@/components/provider/DialogProvider/DialogProvider";
 import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
 import {Delete} from "baseui/icon";
 import {paymentTokenList} from '@/payment_settring'
-import {parseUnits, formatUnits} from "viem/utils";
+import {formatUnits, parseUnits} from "viem/utils";
 import {Datepicker} from "baseui/datepicker";
 import {TimePicker} from 'baseui/timepicker';
 
 const emptyTicket: Partial<Ticket> = {
     title: '',
     content: '',
-    check_badge_id: null,
+    check_badge_class_id: null,
     payment_chain: null,
     payment_target_address: null,
     payment_token_address: null,
@@ -50,10 +50,10 @@ function Ticket({creator, ...props}: {
     const [errMsg, setErrMsg] = useState<ErrorMsg | null>(null)
 
     useEffect(() => {
-        if (props.ticket.check_badge_id && badges.length > 0) {
-            setBadgeDetail(badges.find((badge) => badge.id === props.ticket.check_badge_id) || null)
-        } else if (props.ticket.check_badge_id) {
-            queryBadgeDetail({id: props.ticket.check_badge_id}).then((res) => {
+        if (props.ticket.check_badge_class_id && badges.length > 0) {
+            setBadgeDetail(badges.find((badge) => badge.id === props.ticket.check_badge_class_id) || null)
+        } else if (props.ticket.check_badge_class_id) {
+            queryBadgeDetail({id: props.ticket.check_badge_class_id}).then((res) => {
                 if (res) {
                     setBadgeDetail(res)
                 }
@@ -61,7 +61,7 @@ function Ticket({creator, ...props}: {
         } else {
             setBadgeDetail(null)
         }
-    }, [props.ticket.check_badge_id])
+    }, [props.ticket.check_badge_class_id])
 
     useEffect(() => {
         document.querySelectorAll('.ticket-payment input').forEach((input) => {
@@ -99,7 +99,7 @@ function Ticket({creator, ...props}: {
                     if (res.badgeId) {
                         props.onChange && props.onChange({
                             ...props.ticket,
-                            check_badge_id: res.badgeId
+                            check_badge_class_id: res.badgeId
                         })
                     }
                 }}
@@ -158,7 +158,7 @@ function Ticket({creator, ...props}: {
                       })
                   }}
                   placeholder={lang['Name_Of_Tickets']}/>
-        { errMsg?.title && <div className={styles['error-msg']}>{'Please input ticket name'}</div> }
+        {errMsg?.title && <div className={styles['error-msg']}>{'Please input ticket name'}</div>}
 
         <div className={styles['item-title']}>{lang['Ticket_Description']}</div>
         <AppInput value={props.ticket.content || ''}
@@ -250,18 +250,18 @@ function Ticket({creator, ...props}: {
                             }}
                         />
                     </div>
-                   <div className={styles['width-limit-3']}>
-                       <AppInput
-                           type={'number'}
-                           placeholder={lang['Price']}
-                           onChange={e => {
-                               props.onChange && props.onChange({
-                                   ...props.ticket,
-                                   payment_token_price: parseUnits(e.target.value , token.decimals!).toString()
-                               })
-                           }}
-                           value={formatUnits(BigInt(props.ticket.payment_token_price || 0), token.decimals!)}/>
-                   </div>
+                    <div className={styles['width-limit-3']}>
+                        <AppInput
+                            type={'number'}
+                            placeholder={lang['Price']}
+                            onChange={e => {
+                                props.onChange && props.onChange({
+                                    ...props.ticket,
+                                    payment_token_price: parseUnits(e.target.value, token.decimals!).toString()
+                                })
+                            }}
+                            value={formatUnits(BigInt(props.ticket.payment_token_price || 0), token.decimals!)}/>
+                    </div>
                 </div>
             </div>
         }
@@ -280,7 +280,8 @@ function Ticket({creator, ...props}: {
                         }}
                         placeholder={lang['Receiving_Wallet_Address']}/>
                 </div>
-                { errMsg?.payment_target_address && <div className={styles['error-msg']}>{'Please input receiving wallet address'}</div> }
+                {errMsg?.payment_target_address &&
+                    <div className={styles['error-msg']}>{'Please input receiving wallet address'}</div>}
             </>
         }
 
@@ -357,7 +358,7 @@ function Ticket({creator, ...props}: {
                     <div className={styles['time-picker']}>
                         <Datepicker
                             value={new Date(props.ticket.end_time!)}
-                            onChange={({ date }) => {
+                            onChange={({date}) => {
                                 props.onChange && props.onChange({
                                     ...props.ticket,
                                     end_time: Array.isArray(date) ? date[0]?.toISOString() : date?.toISOString()
@@ -377,7 +378,7 @@ function Ticket({creator, ...props}: {
                                     props: {
                                         overrides: {
                                             Dropdown: {
-                                                style: ({ $theme  } : any) => ({
+                                                style: ({$theme}: any) => ({
                                                     minHeight: '300px',
                                                 })
                                             }
@@ -397,18 +398,18 @@ function Ticket({creator, ...props}: {
         </div>
 
         {
-            !props.ticket.check_badge_id &&
+            !props.ticket.check_badge_class_id &&
             <div className={styles['width-limit-4']}>
                 <AppButton onClick={showBadges}>{lang['Select_A_Badge']}</AppButton>
             </div>
         }
 
         {!!badgeDetail &&
-            <div className={'banded-badge'}>
+            <div className={styles['banded-badge']}>
                 <Delete size={22} onClick={e => {
                     props.onChange && props.onChange({
                         ...props.ticket,
-                        check_badge_id: undefined
+                        check_badge_class_id: undefined
                     })
                 }
                 }/>
@@ -421,6 +422,7 @@ function Ticket({creator, ...props}: {
 
 function TicketSetting(props: { creator: Group | Profile, onChange?: (tickets: Partial<Ticket>[]) => any, value: Partial<Ticket>[] }, ref: any) {
     const [errorMsg, setErrorMsg] = useState<ErrorMsg[]>([])
+    const {showLoading, showToast} = useContext(DialogsContext)
 
     const verify = () => {
         let res = true
@@ -476,10 +478,24 @@ function TicketSetting(props: { creator: Group | Profile, onChange?: (tickets: P
                         newTickets[index] = ticket
                         props.onChange && props.onChange(newTickets)
                     }}
-                    onDelete={() => {
-                        const newTickets = [...props.value]
-                        newTickets.splice(index, 1)
-                        props.onChange && props.onChange(newTickets)
+                    onDelete={async () => {
+                        const unload = showLoading()
+                        try {
+                            const checkSomebodyPaid = await getParticipantDetail({
+                                ticket_id: ticket.id
+                            })
+
+                            if (!!checkSomebodyPaid) {
+                                showToast('Cannot delete ticket type that somebody has paid')
+                                return
+                            }
+
+                            const newTickets = [...props.value]
+                            newTickets.splice(index, 1)
+                            props.onChange && props.onChange(newTickets)
+                        } finally {
+                            unload()
+                        }
                     }}/>
             })
         }

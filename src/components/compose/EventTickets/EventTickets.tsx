@@ -25,8 +25,8 @@ function TicketItem({
     const token = chain ? chain.tokenList.find(item => item.id === ticket.payment_token_name) : undefined
 
     useEffect(() => {
-        if (ticket.check_badge_id) {
-            queryBadgeDetail({id: ticket.check_badge_id}).then((res) => {
+        if (ticket.check_badge_class_id) {
+            queryBadgeDetail({id: ticket.check_badge_class_id}).then((res) => {
                 res && setBadge(res)
             })
         }
@@ -40,7 +40,7 @@ function TicketItem({
         <div className={styles['item-des']}>{ticket.content}</div>
 
         {
-            ticket.check_badge_id !== null && badge &&
+            ticket.check_badge_class_id !== null && badge &&
             <div className={styles['item-badge']}>
                 <div className={styles['title']}>Need to have badge</div>
                 <div className={styles['info']}>
@@ -57,7 +57,7 @@ function TicketItem({
         }
 
         {
-            ticket.check_badge_id === null && ticket.payment_token_price === null &&
+            ticket.check_badge_class_id === null && ticket.payment_token_price === null &&
             <div className={styles['item-price']}>{'Free'}</div>
         }
 
@@ -84,7 +84,8 @@ function EventTickets({canAccess = true, ...props}: { event: Event, tickets: Tic
             getParticipantDetail({event_id: props.event.id, profile_id: user.id!}).then((res) => {
                 if (!!res) {
                     const ticket = props.tickets.find(item => item.id === res.ticket_id)
-
+                    console.log('ticketticket', ticket)
+                    console.log('res', res)
                     if (!!ticket && res.payment_status !== 'success' && ticket.payment_token_price !== null) {
                         setUserPendingPayment(res)
                     } else {
@@ -108,7 +109,8 @@ function EventTickets({canAccess = true, ...props}: { event: Event, tickets: Tic
                 close={close}/>,
             size: [400, 'auto'],
             position: 'bottom',
-            closeable: false
+            closeable: false,
+            shellClose: false
         })
     }
 

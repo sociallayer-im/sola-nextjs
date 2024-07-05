@@ -211,7 +211,7 @@ function DialogProvider (props: DialogProviderProps) {
                     position: openDialogProps.position || undefined,
                     handleClose: close,
                     closeable: openDialogProps.closeable,
-                    shellClose: openDialogProps.shellClose || true
+                    shellClose: openDialogProps.shellClose
                 }
 
                 return (

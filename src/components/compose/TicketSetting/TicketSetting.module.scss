@@ -165,3 +165,47 @@
     border: 0;
   }
 }
+
+.banded-badge {
+  display: flex;
+  width: 114px;
+  height: 114px;
+  padding: 12px 29px;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  border-radius: 12px;
+  background: var(--fill-3-dark, #ECF2EE);
+  box-sizing: border-box;
+  margin-top: 12px;
+  position: relative;
+  margin-left: 12px;
+
+
+  >div {
+    width: 100px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: center;
+  }
+
+  svg {
+    z-index: 12;
+    position: absolute;
+    right: 6px;
+    top: 6px;
+    cursor: pointer;
+
+    path {
+      fill: #999;
+    }
+  }
+
+  img {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+  }
+}
