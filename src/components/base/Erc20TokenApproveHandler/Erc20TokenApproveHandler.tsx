@@ -40,6 +40,8 @@ function Erc20TokenApproveHandler(
             setBusy(true)
             if (chain?.id !== props.chainId) {
                 await switchNetworkAsync?.(props.chainId)
+                setBusy(false)
+                return
             }
 
             const opt = {
@@ -55,7 +57,6 @@ function Erc20TokenApproveHandler(
             }
 
             console.log(opt)
-
             const {request} = await publicClient.simulateContract(opt)
             const hash = await walletClient.writeContract(request)
             const transaction = await publicClient.waitForTransactionReceipt(

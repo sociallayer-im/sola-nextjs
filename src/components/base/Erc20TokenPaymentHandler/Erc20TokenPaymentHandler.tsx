@@ -47,6 +47,7 @@ function Erc20TokenPaymentHandler(
                             tx,
                             payer: user.userName,
                             payer_address: address,
+                            to_address: props.to,
                             token: props.token,
                             auth_token: user.authToken || '',
                             chain_id: props.chainId,

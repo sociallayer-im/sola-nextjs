@@ -8,6 +8,7 @@ export interface Props {
     tx: string,
     payer: string,
     payer_address: string
+    to_address: string
     token: string
     auth_token: string
     chain_id: number,
@@ -120,7 +121,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     console.log('check',
         decodedLog.eventName !== 'PaymentTrasnfered',
         decodedLog.args.from.toLowerCase() !== body.payer_address.toLowerCase(),
-        decodedLog.args.to.toLowerCase() !== body.payer_address.toLowerCase(),
+        decodedLog.args.to.toLowerCase() !== body.to_address.toLowerCase(),
         decodedLog.args.token.toLowerCase() !== body.token.toLowerCase(),
         decodedLog.args.productId.toString() !== body.productId.toString(),
         decodedLog.args.itemId.toString() !== body.itemId.toString(),
@@ -129,7 +130,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     if (decodedLog.eventName !== 'PaymentTrasnfered'
         || decodedLog.args.from.toLowerCase() !== body.payer_address.toLowerCase()
-        || decodedLog.args.to.toLowerCase() !== body.payer_address.toLowerCase()
+        || decodedLog.args.to.toLowerCase() !== body.to_address.toLowerCase()
         || decodedLog.args.token.toLowerCase() !== body.token.toLowerCase()
         || decodedLog.args.productId.toString() !== body.productId.toString()
         || decodedLog.args.itemId.toString() !== body.itemId.toString()
