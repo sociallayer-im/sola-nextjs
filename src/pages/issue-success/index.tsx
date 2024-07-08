@@ -35,12 +35,12 @@ function IssueSuccessPage(props: any) {
 
                 setInfo({
                     sender: voucher!.sender,
-                    name: voucher!.badge.name,
-                    cover: voucher!.badge.image_url,
+                    name: voucher!.badge_class.name,
+                    cover: voucher!.badge_class.image_url,
                     link: genShareLink(voucher!.id, code || undefined),
                 })
 
-                setGroup(voucher!.badge.group || null)
+                setGroup(voucher!.badge_class.group || null)
             }
 
             // if (presendId) {

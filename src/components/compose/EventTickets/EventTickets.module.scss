@@ -1,0 +1,122 @@
+.event-ticket-list {
+  .event-ticket-title {
+    color: #000;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 24px;
+    margin-bottom: 14px;
+  }
+
+  .scroll {
+    max-height: 300px;
+    overflow: auto;
+    margin-bottom: 12px;
+    padding-right: 6px;
+
+    &::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background-color: #f1f1f1;
+      border-radius: 6px;
+    }
+  }
+
+  .list {
+    display: flex;
+    flex-flow: column nowrap;
+    border-radius: 4px;
+    border: 1px solid var(--Fill-2-Medium, #F2F2F1);
+    background: #FFF;
+    padding: 16px;
+
+    &.dialog {
+      padding: 0;
+      border: 0;
+    }
+
+    .item {
+      padding: 16px;
+      background: #F8F9F8;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      box-sizing: border-box;
+      cursor: pointer;
+      border: 2px solid  #F8F9F8;
+
+      &.selected {
+        background: #EFFFF9;
+        border: 2px solid var(--Fill-2-Medium, #BAFFAD);
+      }
+
+      &.disable {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      .item-title {
+        color: var(--Text-4-Headline, #272928);
+        font-size: 20px;
+        font-style: normal;
+        font-weight: 600;
+        line-height: 28px;
+      }
+
+      .item-waiting-payment {
+        display: flex;
+        flex-flow: row nowrap;
+        justify-content: flex-end;
+        color: #ff7900;
+      }
+
+      .item-des {
+        color: var(--Text-2-Secondary, #7B7C7B);
+        font-size: 14px;
+        font-style: normal;
+        font-weight: 400;
+        line-height: 22px;
+      }
+
+      .item-price {
+        color: var(--Secondary-Color-Brand4-3-Normal, #F26692);
+        font-size: 20px;
+        font-style: normal;
+        font-weight: 600;
+        line-height: 28px;
+      }
+    }
+  }
+}
+
+.item-badge {
+  margin-bottom: 12px;
+  margin-top: 12px;
+  .title {
+    color: var(--Text-2-Secondary, #7B7C7B);
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 24px;
+  }
+
+  .info {
+    color: var(--Text-4-Headline, #272928);
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 24px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    img {
+      width: 34px;
+      height: 34px;
+      margin-right: 8px;
+      border-radius: 50%;
+      vertical-align: middle;
+    }
+  }
+}

@@ -16,7 +16,7 @@ import UserProvider from "@/components/provider/UserProvider/UserProvider";
 import theme from "@/theme"
 import {Provider as StyletronProvider} from 'styletron-react'
 import {BaseProvider} from 'baseui'
-import {mainnet, moonbeam} from 'wagmi/chains'
+import {avalancheFuji, polygon, mainnet} from 'wagmi/chains'
 import {InjectedConnector} from 'wagmi/connectors/injected'
 import {publicProvider} from 'wagmi/providers/public'
 import {configureChains, createConfig, WagmiConfig} from 'wagmi'
@@ -40,7 +40,7 @@ const farcasterConfig = {
 };
 
 const inject = new InjectedConnector({
-    chains: [mainnet, moonbeam],
+    chains: [polygon, avalancheFuji],
 } as any)
 
 // const walletConnectConnect = new WalletConnectConnector({
@@ -51,7 +51,7 @@ const inject = new InjectedConnector({
 // })
 
 const {chains, publicClient, webSocketPublicClient} = configureChains(
-    [mainnet, moonbeam],
+    [polygon, avalancheFuji],
     [publicProvider()],
 )
 
@@ -63,12 +63,12 @@ const config = createConfig({
         //  walletConnectConnect,
         inject,
         new JoyIdConnector(
-            {
-                chains: [mainnet, moonbeam],
-                options: {
-                    joyidAppURL: 'https://app.joy.id'
-                }
-            })
+        {
+            chains: [mainnet, polygon, avalancheFuji],
+            options: {
+                joyidAppURL: 'https://app.joy.id'
+            }
+        })
     ],
 })
 

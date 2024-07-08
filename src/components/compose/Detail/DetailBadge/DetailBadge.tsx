@@ -56,7 +56,7 @@ function DetailBadge(props: DetailBadgeProps) {
                 return item.status === 'accepted'
             })
             badgelets = badgelets.map(item => {
-                item.badge = props.badge
+                item.badge_class = props.badge
                 return item
             })
             setBadgelets(badgelets)
@@ -207,7 +207,7 @@ function DetailBadge(props: DetailBadgeProps) {
                                                         title={lang['BadgeDialog_Label_Creat_Time']}
                                                         content={formatTime(badgelet.created_at)}/>
 
-                                                    {badgelet.badge.badge_type === 'private' &&
+                                                    {badgelet.badge_class.badge_type === 'private' &&
                                                         <DetailArea
                                                             title={lang['BadgeDialog_Label_Private']}
                                                             content={lang['BadgeDialog_Label_Private_text']}/>

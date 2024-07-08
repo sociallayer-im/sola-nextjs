@@ -157,12 +157,12 @@ function DetailBadgelet(props: DetailBadgeletProps) {
                 }
                 onClose={props.handleClose}/>
 
-            {(badgelet.badge.badge_type === 'private' && !isBadgeletOwner) ?
+            {(badgelet.badge_class.badge_type === 'private' && !isBadgeletOwner) ?
                 <>
                     <DetailCover src={'/images/badge_private.png'} />
                     <DetailName> 🔒 </DetailName>
                     <DetailRow>
-                        <DetailCreator isGroup={!!badgelet.badge.group} profile={badgelet.badge.group || badgelet.creator}/>
+                        <DetailCreator isGroup={!!badgelet.badge_class.group} profile={badgelet.badge_class.group || badgelet.creator}/>
                     </DetailRow>
                     <DetailScrollBox style={{maxHeight: swiperMaxHeight - 60 + 'px', marginLeft: 0}}>
                         <DetailArea
@@ -178,7 +178,7 @@ function DetailBadgelet(props: DetailBadgeletProps) {
                             title={lang['BadgeDialog_Label_Creat_Time']}
                             content={formatTime(badgelet.created_at)}/>
 
-                        {badgelet.badge.badge_type === 'private' &&
+                        {badgelet.badge_class.badge_type === 'private' &&
                             <DetailArea
                                 title={lang['BadgeDialog_Label_Private']}
                                 content={lang['BadgeDialog_Label_Private_text']}/>
@@ -186,10 +186,10 @@ function DetailBadgelet(props: DetailBadgeletProps) {
                     </DetailScrollBox>
                 </>
                 : <>
-                    <DetailCover src={metadata?.image || badgelet.badge.image_url}></DetailCover>
-                    <DetailName> {metadata?.name || badgelet.badge.name} </DetailName>
+                    <DetailCover src={metadata?.image || badgelet.badge_class.image_url}></DetailCover>
+                    <DetailName> {metadata?.name || badgelet.badge_class.name} </DetailName>
                     <DetailRow>
-                        <DetailCreator isGroup={!!badgelet.badge.group} profile={badgelet.badge.group || badgelet.creator}/>
+                        <DetailCreator isGroup={!!badgelet.badge_class.group} profile={badgelet.badge_class.group || badgelet.creator}/>
                     </DetailRow>
                     <DetailScrollBox style={{maxHeight: swiperMaxHeight - 60 + 'px', marginLeft: 0}}>
                         {
@@ -216,7 +216,7 @@ function DetailBadgelet(props: DetailBadgeletProps) {
                             title={lang['BadgeDialog_Label_Creat_Time']}
                             content={formatTime(badgelet.created_at)}/>
 
-                        {badgelet.badge.badge_type === 'private' &&
+                        {badgelet.badge_class.badge_type === 'private' &&
                             <DetailArea
                                 title={lang['BadgeDialog_Label_Private']}
                                 content={lang['BadgeDialog_Label_Private_text']}/>

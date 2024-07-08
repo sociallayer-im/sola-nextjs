@@ -128,13 +128,15 @@ interface Dialog {
     content: () => ReactNode
     type?: string
     itemId?: number,
+    closeable?: boolean,
     shellClose?: boolean
 }
 
 export interface OpenDialogProps {
     content: (close: any) => ReactNode,
     size?: (number | string)[],
-    position?: 'bottom' | 'center',
+    position?: 'bottom' | 'center'
+    closeable?: boolean
     shellClose?: boolean
 }
 
@@ -208,7 +210,8 @@ function DialogProvider (props: DialogProviderProps) {
                     size: openDialogProps.size || [320, 450],
                     position: openDialogProps.position || undefined,
                     handleClose: close,
-                    shellClose: openDialogProps.shellClose || true
+                    closeable: openDialogProps.closeable,
+                    shellClose: openDialogProps.shellClose
                 }
 
                 return (

@@ -53,7 +53,7 @@ function Issue() {
         const unload = showLoading()
         try {
             const presend = await solas.createPresend({
-                badge_id: badge?.id!,
+                badge_class_id: badge?.id!,
                 message: SearchParams?.get('reason') || '',
                 counter: data.presendAmount ? Number(data.presendAmount) : null,
                 auth_token: user.authToken || ''

@@ -224,13 +224,13 @@ function DetailNftpasslet(props: DetailNftpassletProps) {
                 slotLeft={nftpasslet.display === 'hide' && <DetailBadgeletPrivateMark/>}
                 onClose={props.handleClose}/>
 
-            <DetailCover src={nftpasslet.badge.image_url}></DetailCover>
-            <DetailName> {nftpasslet.badge.name} </DetailName>
+            <DetailCover src={nftpasslet.badge_class.image_url}></DetailCover>
+            <DetailName> {nftpasslet.badge_class.name} </DetailName>
 
             <DetailRow>
                 {!showQrcode
-                    && <DetailCreator isGroup={!!nftpasslet.badge.group}
-                                      profile={nftpasslet.badge.group || nftpasslet.creator}/>
+                    && <DetailCreator isGroup={!!nftpasslet.badge_class.group}
+                                      profile={nftpasslet.badge_class.group || nftpasslet.creator}/>
                 }
                 <DetailTransferable onClick={(e) => {
                     transfer({badgelet: props.nftpasslet})

@@ -13,8 +13,6 @@ function ImgLazy(props: React.DetailedHTMLProps<React.ImgHTMLAttributes<HTMLImag
         if (inView) {
             setReady(true)
         }
-
-        setReady(true)
     }, [inView])
 
     const getSrc = (src?: string) => {

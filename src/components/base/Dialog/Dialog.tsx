@@ -8,8 +8,10 @@ export interface DialogProps {
     noShell?: boolean,
     shellClose?: boolean,
     handleClose?: (...rest: any[]) => any
+    closeable?: boolean
     position?: 'center' | 'bottom' | ''
 }
+
 
 function Dialog ({shellClose=true, position = '', ...props }: DialogProps) {
     const { children } = props

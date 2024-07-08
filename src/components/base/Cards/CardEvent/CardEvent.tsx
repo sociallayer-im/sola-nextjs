@@ -6,6 +6,7 @@ import {
     Group,
     joinEvent,
     Participants,
+    queryTickets,
     queryEventDetail,
     queryGroupDetail,
     setEventStatus
@@ -22,6 +23,9 @@ import useCalender from "@/hooks/addToCalendar/addToCalendar";
 import AppButton from "@/components/base/AppButton/AppButton";
 import useEvent, {EVENT} from "@/hooks/globalEvent";
 import usePicture from "@/hooks/pictrue";
+import dynamic from 'next/dynamic'
+
+const EventTickets = dynamic(() => import('@/components/compose/EventTickets/EventTickets'), {ssr: false})
 
 export interface CardEventProps {
     event: Event,
@@ -42,7 +46,7 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
     const {lang} = useContext(langContext)
     const [isCreated, setIsCreated] = useState(false)
     const {user} = useContext(userContext)
-    const {showToast, showLoading, openConfirmDialog} = useContext(DialogsContext)
+    const {showToast, showLoading, openConfirmDialog, openDialog} = useContext(DialogsContext)
     const [hasRegistered, setHasRegistered] = useState(false)
     const {addToCalenderDialog} = useCalender()
     const [_, emit] = useEvent(EVENT.setEventStatus)
@@ -59,7 +63,8 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
         if (user.id) {
             setIsCreated(props.event.owner_id === user.id)
             setHasRegistered(!!props.event.participants?.some(item => {
-                return item.profile_id === user.id
+                return (item.profile_id === user.id && item.status === 'applied' && item.ticket_id === null) ||
+                    (item.profile_id === user.id && item.status === 'applied' && !!item.ticket_id && item.payment_status === 'success')
             }))
         } else {
             setHasRegistered(false)

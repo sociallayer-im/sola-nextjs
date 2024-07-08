@@ -207,7 +207,7 @@ export function IssueBadge() {
         const unload = showLoading()
         try {
             const vouchers = await sendBadgeByWallet({
-                badge_id: Number(params!.badgeId!),
+                badge_class_id: Number(params!.badgeId!),
                 receivers: selectedCsvRow,
                 auth_token: user.authToken || '',
                 reason: reason
@@ -237,7 +237,7 @@ export function IssueBadge() {
 
         try {
             const presend = await solas.createPresend({
-                badge_id: Number(params!.badgeId!),
+                badge_class_id: Number(params!.badgeId!),
                 message: reason || '',
                 counter: presendAmount,
                 auth_token: user.authToken || ''

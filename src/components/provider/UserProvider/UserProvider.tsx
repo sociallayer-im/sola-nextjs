@@ -130,6 +130,7 @@ function UserProvider(props: UserProviderProps) {
     }
 
     const logOut = () => {
+        console.trace('logOut====')
         disconnect()
         solanaWallet.disconnect()
         // signOut && signOut()

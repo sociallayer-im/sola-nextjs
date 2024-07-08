@@ -66,7 +66,7 @@ function DetailBadgeletMenu (props: DetalBadgeletMenuProps) {
                     </MenuItem>
                 </>
         }
-        { (props.badgelet.badge.badge_type === 'nftpass' || props.badgelet.badge.badge_type === 'gift') &&
+        { (props.badgelet.badge_class.badge_type === 'nftpass' || props.badgelet.badge_class.badge_type === 'gift') &&
             <MenuItem onClick={ () => { transfer({badgelet: props.badgelet}) } }>
                 { lang['Dialog_Transfer_Confirm'] }
             </MenuItem>

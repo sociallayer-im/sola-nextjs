@@ -19,15 +19,15 @@ function DialogTransferAccept(props: DialogTransferAcceptProps) {
     }, [])
 
     const title = props.badgelet ?
-        props.badgelet.badge.badge_type === 'nftpass' ? lang['Detail_Transfer_Accept_Title_Nft']
+        props.badgelet.badge_class.badge_type === 'nftpass' ? lang['Detail_Transfer_Accept_Title_Nft']
             : lang['Detail_Transfer_Accept_Title_Gift']
         : lang['Detail_Transfer_Accept_Title_Point']
 
     return (<div className={'detail-transfer-accept'}>
         <div className={'title'}>{title}</div>
-        <img className={'cover'} src={props.badgelet?.badge?.image_url || props.pointItem?.point.image_url} alt=""/>
+        <img className={'cover'} src={props.badgelet?.badge_class?.image_url || props.pointItem?.point.image_url} alt=""/>
         <div className={'item-name'}>{
-            props.badgelet?.badge?.name || props.pointItem?.point.name
+            props.badgelet?.badge_class?.name || props.pointItem?.point.name
         }</div>
         <ReasonText text={props.badgelet?.content || props.pointItem?.point.content || ''} />
         <div className={'sender-title'}>{lang['Detail_Transfer_Accept_From']}</div>

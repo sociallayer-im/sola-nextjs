@@ -5,6 +5,16 @@
   display: flex;
   flex-flow: column nowrap;
 
+  .mobile-item {
+    display: none
+  }
+
+  @media(max-width: 450px) {
+    .mobile-item {
+      display: block;
+    }
+  }
+
   .event-detail-content {
     padding: 12px;
     display: flex;
@@ -16,7 +26,6 @@
     width: 100vw;
     flex: 1;
     padding-bottom: 60px;
-    box-sizing: border-box;
   }
 
   .event-share-btn {
@@ -287,6 +296,12 @@
           position: relative;
           color: var(--Fill-6-Dark, #272928);
           font-weight: 600;
+
+          @media(max-width: 450px) {
+            & {
+                font-size: 12px;
+            }
+          }
 
           > div {
             z-index: 2;

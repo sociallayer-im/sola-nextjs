@@ -26,10 +26,11 @@ import {
     queryEvent,
     queryEventDetail,
     queryGroupDetail,
-    RepeatEventSetBadge,
     RepeatEventUpdate,
     setEventBadge,
-    updateEvent
+    updateEvent,
+    RepeatEventSetBadge,
+    Ticket, queryTickets,
 } from '@/service/solas'
 import DialogsContext from '@/components/provider/DialogProvider/DialogsContext'
 import SelectCreator from '@/components/compose/SelectCreator/SelectCreator'
@@ -45,9 +46,11 @@ import AppFlexTextArea from "@/components/base/AppFlexTextArea/AppFlexTextArea";
 import AppEventTimeInput from "@/components/base/AppEventTimeInput/AppEventTimeInput";
 import IssuesInput from "@/components/base/IssuesInput/IssuesInput";
 import * as dayjsLib from "dayjs";
+import TicketSetting from "@/components/compose/TicketSetting/TicketSetting";
 import RichTextEditor from "@/components/compose/RichTextEditor/Editor";
 import TimeSlot from "@/components/compose/themu/TimeSlotNew";
 import EventDefaultCover from "@/components/base/EventDefaultCover";
+
 
 const utc = require('dayjs/plugin/utc')
 const timezone = require('dayjs/plugin/timezone')
@@ -66,7 +69,7 @@ interface Draft {
     enable_min_participants: boolean,
     enable_max_participants: boolean,
     tags: string[],
-    badge_id: number | null,
+    badge_class_id: number | null,
     creator: Group | Profile | null,
     start_time: string,
     end_time: string,
@@ -155,6 +158,10 @@ function CreateEvent(props: CreateEventPageProps) {
     const [padgeLink, setPadgeLink] = useState<string | null>(null)
 
     const [needPublish, setNeedPublish] = useState(false)
+
+    const [enableTicket, setEnableTicket] = useState(false)
+    const [tickets, setTickets] = useState<Partial<Ticket>[]>([])
+    const ticketSettingRef = useRef<{verify : () => boolean} | null>(null)
 
     const [enableNotes, setEnableNotes] = useState(false)
     const [notes, setNotes] = useState('')
@@ -309,7 +316,7 @@ function CreateEvent(props: CreateEventPageProps) {
                 max_participants: maxParticipants,
                 min_participants: minParticipants,
                 tags: label,
-                badge_id: badgeId,
+                badge_class_id: badgeId,
                 creator: creator,
                 enable_min_participants: enableMinParticipants,
                 enable_max_participants: enableMaxParticipants,
@@ -471,10 +478,19 @@ function CreateEvent(props: CreateEventPageProps) {
                 setEnableMinParticipants(false)
             }
 
+            queryTickets({event_id: event.id}).then((res) => {
+                if (res && res.length > 0) {
+                    setTickets(res)
+                    setEnableTicket(true)
+                } else {
+                    setEnableTicket(false)
+                }
+            })
+
             setTelegram(event.telegram_contact_group || '')
 
             setLabel(event.tags ? event.tags : [])
-            setBadgeId(event.badge_id)
+            setBadgeId(event.badge_class_id)
             setEventType(event.event_type || 'event')
             setPadgeLink(event.padge_link || null)
 
@@ -504,7 +520,6 @@ function CreateEvent(props: CreateEventPageProps) {
                         setEnableCoHost(false)
                         setCohost([''])
                     }
-
                 } else {
                     const profile = await queryGroupDetail(Number(event.host_info))
                     setCreator(profile)
@@ -525,7 +540,6 @@ function CreateEvent(props: CreateEventPageProps) {
             if (event.external_url) {
                 setExternalUrl(event.external_url)
             }
-
 
             if (event.notes) {
                 setEnableNotes(true)
@@ -735,6 +749,11 @@ function CreateEvent(props: CreateEventPageProps) {
     }
 
     const checkForm = () => {
+        if (enableTicket && (!ticketSettingRef?.current?.verify())) {
+            showToast('Invalid ticket setting')
+            return false
+        }
+
         if (!user.id) {
             showToast('Please login first')
             return false
@@ -826,7 +845,7 @@ function CreateEvent(props: CreateEventPageProps) {
             end_time: hasDuration ? ending : null,
             max_participant: enableMaxParticipants ? maxParticipants : null,
             min_participant: enableMinParticipants ? minParticipants : null,
-            badge_id: badgeId,
+            badge_class_id: badgeId,
             group_id: eventGroup?.id,
             meeting_url: onlineUrl || null,
             venue_id: locationInfo.venue_id,
@@ -841,6 +860,7 @@ function CreateEvent(props: CreateEventPageProps) {
             interval: repeat!,
             repeat_start_time: start as any,
             event_count: repeatCounter,
+            tickets: enableTicket && tickets.length ? tickets : null,
             external_url: externalUrl,
             padge_link: padgeLink,
             notes: enableNotes ? notes : null,
@@ -853,7 +873,7 @@ function CreateEvent(props: CreateEventPageProps) {
                 if (badgeId) {
                     const setBadge = await RepeatEventSetBadge({
                         recurring_event_id: newEvent.recurring_event_id!,
-                        badge_id: badgeId,
+                        badge_class_id: badgeId,
                         auth_token: user.authToken || ''
                     })
                 }
@@ -869,7 +889,7 @@ function CreateEvent(props: CreateEventPageProps) {
                 if (badgeId) {
                     const setBadge = await setEventBadge({
                         id: newEvent.id,
-                        badge_id: badgeId,
+                        badge_class_id: badgeId,
                         auth_token: user.authToken || ''
                     })
                 }
@@ -893,42 +913,9 @@ function CreateEvent(props: CreateEventPageProps) {
     }
 
     const handleSave = async () => {
-        if (!user.id) {
-            showToast('Please login first')
-            return
-        }
+        const check = checkForm()
+        if (!check) return
 
-        if (siteOccupied) {
-            showToast(lang['Activity_Detail_site_Occupied'])
-            // window.location.href = location.pathname + '#SiteError'
-            return
-        }
-
-        if (new Date(start) > new Date(ending)) {
-            showToast('start time should be earlier than ending time')
-            return
-        }
-
-
-        if (!title) {
-            showToast('please input title')
-            return
-        }
-
-        if (startTimeError) {
-            showToast(startTimeError)
-            return
-        }
-
-        if (telegramError) {
-            showToast('Invalid telegram Group Url')
-            return
-        }
-
-        if (labelError) {
-            showToast('The maximum number of tags is 3')
-            return
-        }
 
         const saveProps: CreateEventProps = {
             id: props.eventId!,
@@ -941,7 +928,7 @@ function CreateEvent(props: CreateEventPageProps) {
             venue_id: locationInfo.venue_id,
             max_participant: enableMaxParticipants ? maxParticipants : null,
             min_participant: enableMinParticipants ? minParticipants : null,
-            badge_id: badgeId,
+            badge_class_id: badgeId,
             meeting_url: onlineUrl || null,
             auth_token: user.authToken || '',
             event_type: eventType,
@@ -950,11 +937,13 @@ function CreateEvent(props: CreateEventPageProps) {
             formatted_address: locationInfo.formatted_address,
             recurring_event_id: currEvent!.recurring_event_id || undefined,
             timezone,
+            tickets: enableTicket && tickets.length ? tickets : null,
             geo_lng: locationInfo.lng,
             geo_lat: locationInfo.lat,
             external_url: externalUrl,
             padge_link: padgeLink,
             notes: enableNotes ? notes : null,
+
         }
 
         if (currEvent?.recurring_event_id) {
@@ -1035,10 +1024,10 @@ function CreateEvent(props: CreateEventPageProps) {
                     host_info: info.json,
                     operators: info.cohostId,
                 })
-                if (saveProps.badge_id) {
+                if (saveProps.badge_class_id) {
                     const setBadge = await setEventBadge({
                         id: saveProps.id!,
-                        badge_id: saveProps.badge_id,
+                        badge_class_id: saveProps.badge_class_id,
                         auth_token: user.authToken || ''
                     })
                 }
@@ -1071,10 +1060,10 @@ function CreateEvent(props: CreateEventPageProps) {
                         selector: repeatEventSelectorRef.current
                     })
 
-                    if (saveProps.badge_id) {
+                    if (saveProps.badge_class_id) {
                         const setBadge = await RepeatEventSetBadge({
                             auth_token: user.authToken || '',
-                            badge_id: saveProps.badge_id,
+                            badge_class_id: saveProps.badge_class_id,
                             recurring_event_id: saveProps.recurring_event_id!,
                             selector: repeatEventSelectorRef.current
                         })
@@ -1451,6 +1440,30 @@ function CreateEvent(props: CreateEventPageProps) {
                             </div>
                         }
 
+                        <div className={'input-area'}>
+                            <div className={'toggle'}>
+                                <div className={'item-title'}>{lang['Ticket_Type_Setting']}</div>
+                                <div className={'item-value'}>
+
+                                    <Toggle checked={enableTicket} onChange={e => {
+                                        setEnableTicket(!enableTicket)
+                                    }}/>
+                                </div>
+                            </div>
+                        </div>
+
+                        {
+                            enableTicket && creator &&
+                            <TicketSetting
+                                ref={ticketSettingRef}
+                                creator={creator}
+                                value={tickets}
+                                onChange={
+                                (tickets) => {
+                                    setTickets(tickets)
+                                }
+                            }/>
+                        }
 
                         {langType === 'cn' && false &&
                             <div className={'input-area'}>

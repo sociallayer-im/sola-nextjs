@@ -15,6 +15,8 @@ import {
     queryBadgeDetail,
     queryEvent,
     queryEventDetail,
+    queryTickets,
+    Ticket,
     queryGroupDetail,
     queryProfileByEmail,
     queryUserGroup,
@@ -41,15 +43,18 @@ import MapContext from "@/components/provider/MapProvider/MapContext";
 import ImgLazy from "@/components/base/ImgLazy/ImgLazy";
 import EventDefaultCover from "@/components/base/EventDefaultCover";
 import {Swiper, SwiperSlide} from 'swiper/react'
-import {FreeMode, Mousewheel} from "swiper";
+import {Mousewheel, FreeMode} from "swiper";
+import EventTickets from "@/components/compose/EventTickets/EventTickets";
 import EventNotes from "@/components/base/EventNotes/EventNotes";
 import RichTextDisplayer from "@/components/compose/RichTextEditor/Displayer";
 import removeMarkdown from "markdown-to-text"
 import {StatefulPopover} from "baseui/popover";
 import {AVNeeds, SeatingStyle} from "@/pages/event/[groupname]/create";
 
+
 import * as dayjsLib from "dayjs";
 import Empty from "@/components/base/Empty";
+import useEvent, {EVENT} from "@/hooks/globalEvent";
 import useZuAuth from "@/service/zupass/useZuAuth";
 
 const utc = require('dayjs/plugin/utc')
@@ -76,8 +81,8 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
     const {setEventGroup, eventGroup, ready, isManager, joined: isMember} = useContext(EventHomeContext)
     const {getMeetingName, getUrl} = useGetMeetingName()
     const {MapReady} = useContext(MapContext)
+    const [needUpdate, _] = useEvent(EVENT.participantUpdate)
     const zuAuthLogin = useZuAuth()
-
 
     const [tab, setTab] = useState(1)
     const [isHoster, setIsHoster] = useState(false)
@@ -96,6 +101,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
     const [hasPermission, setHasPermission] = useState(false)
     const [eventSite, setEventSite] = useState<any | null>(null)
     const [showMap, setShowMap] = useState(false)
+    const [tickets, setTickets] = useState<Ticket[]>([])
     const [group, setGroup] = useState<Group | null>(null)
 
     const [cohost, setCohost] = useState<ProfileSimple[]>([])
@@ -116,6 +122,10 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                 router.push('/error')
                 return
             }
+
+            queryTickets({event_id: res.id}).then((res) => {
+                setTickets(res)
+            })
 
             setEvent(res)
             setEventSite(res.venue)
@@ -199,8 +209,8 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                 setHoster(res.owner as Profile)
             }
 
-            if (res?.badge_id) {
-                const badge = await queryBadgeDetail({id: res.badge_id})
+            if (res?.badge_class_id) {
+                const badge = await queryBadgeDetail({id: res.badge_class_id})
                 setBadge(badge)
             }
 
@@ -216,7 +226,12 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
     async function checkJoined() {
         if (hoster && user.id) {
             const eventParticipants = event?.participants || []
-            const joined = eventParticipants.find((item: Participants) => item.profile.id === user.id && item.status !== 'cancel')
+            const joined = eventParticipants.find((item: Participants) => {
+                const ticket = tickets.find(t => t.id === item.ticket_id)
+                return (!item.ticket_id && item.profile.id === user.id && item.status === 'applied') // no tickets needed
+                    || (!!ticket && !!item.ticket_id && item.profile.id === user.id && item.status === 'applied' && item.payment_status === 'success' ) // paid ticket
+                    || (!!ticket && !!item.ticket_id && item.profile.id === user.id && item.status === 'applied' && ticket.payment_token_price === null) // free ticket
+            })
             setIsJoined(!!joined)
         }
     }
@@ -300,10 +315,10 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
     }
 
     useEffect(() => {
-        if (params?.eventid) {
+        if (params?.eventid || needUpdate) {
             fetchData()
         }
-    }, [params])
+    }, [params, needUpdate])
 
     useEffect(() => {
         if (event && event.group_id && ready) {
@@ -354,7 +369,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
         setIsHoster(hoster?.id === user.id ||
             (!!(hoster as Group)?.creator && (hoster as Group)?.creator.id === user.id))
         checkJoined()
-    }, [hoster, user.id])
+    }, [hoster, user.id, tickets])
 
     useEffect(() => {
         setIsGroupOwner(group?.creator.id === user.id)
@@ -578,7 +593,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                 modules={[FreeMode, Mousewheel]}
                                                 spaceBetween={12}>
                                                 {speaker.map((item, index) => {
-                                                    return <SwiperSlide className={'slide'}>
+                                                    return <SwiperSlide className={'slide'} key={item.username! + index}>
                                                         <div className={'host-item'} key={item.username! + index}
                                                              onClick={e => {
                                                                  if (!!item?.username && item.id) {
@@ -727,8 +742,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                             <div>{user.nickname || user.userName}</div>
                                         </div>
                                         {!isJoined ?
-                                            <div className={'des'}>Welcome! To join the event, please attend
-                                                below.</div>
+                                            <div className={'des'}>Welcome to join the event.</div>
                                             :
                                             <div className={'des'}>You have registered, we’d love to have you join
                                                 us.</div>
@@ -756,6 +770,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                         <i className="icon-calendar" style={{marginRight: '8px'}}/>
                                                         {lang['Activity_Detail_Btn_add_Calender']}</AppButton>
                                                 }
+
 
 
                                                 {!isJoined && !canceled &&
@@ -789,7 +804,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                         onClick={e => {
                                                             handleHostCheckIn()
                                                         }}>{
-                                                        event.badge_id
+                                                        event.badge_class_id
                                                             ? lang['Activity_Host_Check_And_Send']
                                                             : lang['Activity_Detail_Btn_Checkin']
                                                     }</AppButton>
@@ -830,6 +845,17 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                              }}>
                                             <div>{lang['Activity_Des']}</div>
                                         </div>
+                                        { tickets.length > 0 &&
+                                            <>
+                                                <div className={'split mobile-item'}/>
+                                                <div className={tab === 4 ? 'tab-title mobile-item active' : 'mobile-item tab-title'}
+                                                     onClick={e => {
+                                                         setTab(4)
+                                                     }}>
+                                                    <div>{lang['Tickets']}</div>
+                                                </div>
+                                            </>
+                                        }
                                         <div className={'split'}/>
                                         <div className={tab === 2 ? 'tab-title active' : 'tab-title'}
                                              onClick={e => {
@@ -953,6 +979,11 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                 <ListCheckLog eventId={Number(params?.eventid)}/>
                                             </div>
                                         </div>}
+
+                                    {
+                                        tab === 4 && !!event &&
+                                        <EventTickets tickets={tickets} event={event} canAccess={canAccess}/>
+                                    }
                                 </div>
                             </div>
                         </div>
@@ -995,6 +1026,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                         <div>{user.nickname || user.userName}</div>
                                     </div>
                                     {!isJoined ?
+
                                         <div className={'des'}>Welcome! To join the event, please register below.</div>
                                         :
                                         <div className={'des'}>You have registered for the event. We’d love to have you
@@ -1022,6 +1054,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                 {lang['Activity_Detail_Btn_add_Calender']}</AppButton>
                                         }
 
+
                                         {!isJoined && !canceled &&
                                             <AppButton special onClick={e => {
                                                 handleJoin()
@@ -1045,7 +1078,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                 onClick={e => {
                                                     handleHostCheckIn()
                                                 }}>{
-                                                event.badge_id
+                                                event.badge_class_id
                                                     ? lang['Activity_Host_Check_And_Send']
                                                     : lang['Activity_Detail_Btn_Checkin']
                                             }</AppButton>
@@ -1081,6 +1114,10 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                         }} special size={'compact'}>{lang['Activity_login_btn']}</AppButton>
                                     </div>
                                 </div>
+                            }
+
+                            { !!event && tickets.length > 0 &&
+                                <EventTickets tickets={tickets} event={event} canAccess={canAccess}/>
                             }
                         </div>
                     </div>

@@ -55,9 +55,9 @@ function BadgeDetail(props: { badgelet: Badgelet }) {
         })
     }
 
-    const title = badgelet.badge.badge_type !== 'private'
-        ? badgelet.badge.title
-        : isBadgeletOwner ? badgelet.badge.title
+    const title = badgelet.badge_class.badge_type !== 'private'
+        ? badgelet.badge_class.title
+        : isBadgeletOwner ? badgelet.badge_class.title
             : ' 🔒 '
 
     const metadata = badgelet.metadata ? JSON.parse(badgelet.metadata) : {}
@@ -72,14 +72,14 @@ function BadgeDetail(props: { badgelet: Badgelet }) {
                 }
             </div>}/>
 
-            {badgelet.badge.badge_type !== 'private' || isBadgeletOwner || isBadgeletCreator?
+            {badgelet.badge_class.badge_type !== 'private' || isBadgeletOwner || isBadgeletCreator?
                 <div className={styles['content']}>
                     <div className={styles['left']}>
-                        <DetailCover className={styles['cover']} src={badgelet.badge.image_url}/>
-                        <DetailName className={styles['left-name']}> {badgelet.badge.title} </DetailName>
+                        <DetailCover className={styles['cover']} src={badgelet.badge_class.image_url}/>
+                        <DetailName className={styles['left-name']}> {badgelet.badge_class.title} </DetailName>
                         <DetailRow className={styles['action']}>
-                            <DetailCreator isGroup={!!badgelet.badge.group}
-                                           profile={badgelet.badge.group || badgelet.creator}/>
+                            <DetailCreator isGroup={!!badgelet.badge_class.group}
+                                           profile={badgelet.badge_class.group || badgelet.creator}/>
                         </DetailRow>
                         {isBadgeletOwner &&
                             <BtnGroup>
@@ -107,7 +107,7 @@ function BadgeDetail(props: { badgelet: Badgelet }) {
                     </div>
                     <div className={styles['right']}>
                         <div className={styles['head']}>
-                            <h1 className={styles['name']}>{badgelet.badge.title}</h1>
+                            <h1 className={styles['name']}>{badgelet.badge_class.title}</h1>
                             {
                                 isBadgeletOwner && <DetailBadgeletMenu badgelet={badgelet}/>
                             }
@@ -170,8 +170,8 @@ function BadgeDetail(props: { badgelet: Badgelet }) {
                         <DetailCover className={styles['cover']} src={'/images/badge_private.png'}/>
                         <DetailName className={styles['left-name']}> {'🔒'} </DetailName>
                         <DetailRow className={styles['action']}>
-                            <DetailCreator isGroup={!!badgelet.badge.group}
-                                           profile={badgelet.badge.group || badgelet.creator}/>
+                            <DetailCreator isGroup={!!badgelet.badge_class.group}
+                                           profile={badgelet.badge_class.group || badgelet.creator}/>
                         </DetailRow>
                     </div>
                     <div className={styles['right']}>

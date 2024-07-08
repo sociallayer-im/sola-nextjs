@@ -259,7 +259,6 @@ function LocationInput(props: LocationInputProps) {
 
     return (<div className={'input-area event-location-input'}>
         <input type="text" id={'map'}/>
-        <div className={'input-area-title'}>{lang['Activity_Form_Where']}</div>
         <div className={'input-area-sub-title'}>{lang['Activity_Detail_Offline_location']}</div>
 
         {!createMode &&
