@@ -4037,7 +4037,7 @@ export async function divineBeastRemerge(props: DivineBeastRmergeProps) {
 
 export async function getEventGroup() {
     const doc = gql`query MyQuery {
-      groups(where: {event_enabled: {_eq: true}, group_tags:{_contains: [":top"]}, status: {_neq: "freezed"}}) {
+      groups(where: {event_enabled: {_eq: true}, status: {_neq: "freezed"}}) {
         farcaster
         timezone
         events_count
@@ -5742,6 +5742,59 @@ export async function updatePaymentStatus (props: {
 
     return res.data.participant as Participants
 }
+
+export async function getTopEventGroup() {
+    const doc = gql`query MyQuery {
+      groups(where: {event_enabled: {_eq: true}, group_tags:{_contains: [":top"]}, status: {_neq: "freezed"}}) {
+        farcaster
+        timezone
+        events_count
+        memberships_count
+        group_tags
+        about
+        permissions
+        banner_image_url
+        banner_link_url
+        banner_text
+        can_join_event
+        can_publish_event
+        can_view_event
+        created_at
+        map_enabled
+        event_enabled
+        event_tags
+        id
+        image_url
+        lens
+        location
+        nickname
+        status
+        telegram
+        twitter
+        username
+        discord
+        ens
+        memberships(where: {role: {_eq: "owner"}}) {
+          id
+          role
+          profile {
+            id
+            nickname
+            username
+            image_url
+          }
+        }
+      }
+    }`
+
+    const res: any = await request(graphUrl, doc)
+    return res.groups.map((item: any) => {
+        item.domain = item.username + process.env.NEXT_PUBLIC_SOLAS_DOMAIN
+        item.creator = item.memberships[0]?.profile || null
+        return item
+    })
+}
+
 
 export default {
     removeMarker,

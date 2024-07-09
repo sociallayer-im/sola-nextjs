@@ -6,7 +6,6 @@ import Script from 'next/script'
 import {Analytics} from '@vercel/analytics/react';
 import Layout from "@/components/Layout/Layout";
 import fetch from "@/utils/fetch";
-import { SpeedInsights } from "@vercel/speed-insights/next"
 
 // providers
 import LangProvider from "@/components/provider/LangProvider/LangProvider"
@@ -82,7 +81,6 @@ function MyApp({Component, pageProps, ...props}: any) {
 
     return (
         <>
-            <SpeedInsights/>
             <PageBacProvider>
                 <Head>
                     <link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
