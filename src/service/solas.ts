@@ -4037,7 +4037,7 @@ export async function divineBeastRemerge(props: DivineBeastRmergeProps) {
 
 export async function getEventGroup() {
     const doc = gql`query MyQuery {
-      groups(where: {event_enabled: {_eq: true}, status: {_neq: "freezed"}}) {
+      groups(where: {event_enabled: {_eq: true}, group_tags:{_contains: [":top"]}, status: {_neq: "freezed"}}) {
         farcaster
         timezone
         events_count
