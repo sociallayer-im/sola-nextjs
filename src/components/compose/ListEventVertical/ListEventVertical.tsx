@@ -19,7 +19,7 @@ import {PageBackContext} from "@/components/provider/PageBackProvider";
 const dayjs: any = dayjsLib
 let scrollInterval:any = null
 
-function ListEventVertical(props: { initData?: Event[], patch?: string }) {
+function ListEventVertical({eventGroup, ...props}: { initData?: Event[], patch?: string, eventGroup: Group }) {
     const router = useRouter()
     const searchParams = useSearchParams()
     const params = useParams()
@@ -27,9 +27,9 @@ function ListEventVertical(props: { initData?: Event[], patch?: string }) {
     const [tab2Index, setTab2Index] = useState<'coming' | 'past'>(searchParams?.get('tab') as any || 'coming')
     const {lang} = useContext(LangContext)
     const {showLoading} = useContext(DialogsContext)
-    const {eventGroup, availableList, setEventGroup} = useContext(EventHomeContext)
     const [needUpdate, _] = useEvent(EVENT.setEventStatus)
     const {applyScroll} = useContext(PageBackContext)
+
 
     const [selectTag, setSelectTag] = useState<string[]>([])
     const [loadAll, setIsLoadAll] = useState(true)
@@ -190,6 +190,10 @@ function ListEventVertical(props: { initData?: Event[], patch?: string }) {
         return urlObj.toString().replace(location.origin, '')
     }
 
+    useEffect(()=> {
+        console.log('list =>', list)
+    }, [list])
+
     const getEvent = async (init?: boolean, search?: string) => {
         if (!eventGroup?.id) {
             return []
@@ -199,17 +203,21 @@ function ListEventVertical(props: { initData?: Event[], patch?: string }) {
         pageRef.current = init ? pageRef.current : pageRef.current + 1
         try {
             if (tab2IndexRef.current == 'coming') {
+
                 const res = await queryComing(
                     init ? 1 : pageRef.current,
                     init ? pageRef.current * 10: 10,
                     search
                 )
+
+                console.log('resresresresresresres', res, init)
                 const unique = res.filter((item) => !list.find((i) => i.id === item.id))
                 setList(init ? res : [...list, ...unique])
                 setLoading(false)
                 setIsLoadAll(res.length < 10)
                 if (unique.length === 0 && checkedComingEmpty.current) {
                     await changeTab('past')
+                    return
                 }
             } else if (tab2IndexRef.current == 'past') {
                 const res = await queryPass(

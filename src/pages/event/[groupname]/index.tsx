@@ -19,14 +19,14 @@ import {useTime5} from "@/hooks/formatTime";
 import * as dayjsLib from "dayjs";
 const dayjs: any = dayjsLib
 
-function Home(props: { badges: Badge[], initEvent?: Group, initList?: Event[], membership?: Membership[] }) {
+function Home(props: { badges: Badge[], initEvent: Group, initList?: Event[], membership?: Membership[] }) {
     const {user} = useContext(UserContext)
     const router = useRouter()
     const pathname = usePathname()
     const {lang} = useContext(LangContext)
     const {showToast, openConnectWalletDialog} = useContext(DialogsContext)
     const {ready, joined, isManager, setEventGroup} = useContext(EventHomeContext)
-    const eventGroup = useContext(EventHomeContext).eventGroup || props.initEvent || undefined
+    const eventGroup = props.initEvent
     const startIssueBadge = useIssueBadge()
     const {MapReady} = useContext(MapContext)
     const {defaultAvatar} = usePicture()
@@ -112,12 +112,14 @@ function Home(props: { badges: Badge[], initEvent?: Group, initList?: Event[], m
                         </div>
                     }
 
-                    <div className={`center ${mode === 'public' ? '' : 'hide'}`}>
-                        {!isMaodao || pathname?.includes('event-home') ?
-                            <ListEventVertical initData={props.initList || []}/>
-                            : <MaodaoListEventVertical/>
-                        }
-                    </div>
+                    { !!eventGroup &&
+                        <div className={`center ${mode === 'public' ? '' : 'hide'}`}>
+                            {!isMaodao || pathname?.includes('event-home') ?
+                                <ListEventVertical initData={props.initList || []} eventGroup={eventGroup as Group}/>
+                                : <MaodaoListEventVertical/>
+                            }
+                        </div>
+                    }
 
                     <div className={`center ${mode === 'my' ? '' : 'hide'}`}>
                         <ListMyEvent/>
@@ -213,7 +215,6 @@ export const getServerSideProps: any = (async (context: any) => {
     })
 
     const badges = await queryBadge({group_id: targetGroup[0]?.id!, page: 1})
-
 
     return {
         props: {
