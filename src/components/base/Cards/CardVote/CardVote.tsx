@@ -143,7 +143,7 @@ function CardVote(props: { item: Vote }) {
 
         if (props.item.eligibility=== 'has_badge' || props.item.eligibility === 'badge_count') {
             if (badge) {
-                const hasBadge = badge.badgelets.find((badgelet) => badgelet.owner.id === user.id)
+                const hasBadge = badge.badges.find((badgelet) => badgelet.owner.id === user.id)
                 setCanVote(!!hasBadge)
                 return
             }

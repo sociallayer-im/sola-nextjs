@@ -77,7 +77,7 @@ function DialogMarkerCheckIn(props: DialogNftCheckInProps) {
                     auth_token: user.authToken || '',
                     id: Number(resMarkerId),
                     check_type: 'comment',
-                    badgelet_id: badgeletId
+                    badge_id: badgeletId
                 })
                 showToast('Checked !')
                 emitCheckIn(Number(resMarkerId))

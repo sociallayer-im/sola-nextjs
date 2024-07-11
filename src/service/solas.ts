@@ -40,7 +40,7 @@ export const voucherSchema = (props: QueryPresendProps) => {
         id
         strategy
         receiver_address
-        badgelets {
+        badges {
           badge_class_id
           content
           id
@@ -605,7 +605,7 @@ export interface Badge {
     transferable?: boolean
     unlocking?: null | string
     metadata?: string
-    badgelets?: Badgelet[]
+    badges?: Badgelet[]
 }
 
 export type NftPass = Badge
@@ -735,7 +735,7 @@ export interface QueryBadgeDetailProps {
 }
 
 export interface BadgeWithBadgelets extends Badge {
-    badgelets: Badgelet[]
+    badges: Badgelet[]
 }
 
 export async function queryBadgeDetail(props: QueryBadgeDetailProps): Promise<BadgeWithBadgelets | null> {
@@ -765,7 +765,7 @@ export async function queryBadgeDetail(props: QueryBadgeDetailProps): Promise<Ba
         title
         transferable
         permissions
-        badgelets(where: {status: {_neq: "rejected"}}) {
+        badges(where: {status: {_neq: "rejected"}}) {
           created_at
           id
           image_url
@@ -827,7 +827,7 @@ export async function queryPresend(props: QueryPresendProps): Promise<Presend[]>
 }
 
 export interface PresendWithBadgelets extends Presend {
-    badgelets: Badgelet[]
+    badges: Badgelet[]
 }
 
 export interface QueryPresendDetailProps {
@@ -931,7 +931,7 @@ export async function queryBadgelet(props: QueryBadgeletProps): Promise<Badgelet
     }
 
     const doc = gql`query MyQuery {
-      badgelets(where: {${variables}, ${status}}, limit: 20, offset: ${props.page * 20 - 20}, order_by: {id: desc}) {
+      badges(where: {${variables}, ${status}}, limit: 20, offset: ${props.page * 20 - 20}, order_by: {id: desc}) {
         metadata
         badge_class_id
         content
@@ -975,7 +975,7 @@ export async function queryBadgelet(props: QueryBadgeletProps): Promise<Badgelet
 
     const res: any = await request(graphUrl, doc)
 
-    return res.badgelets as Badgelet[]
+    return res.badges as Badgelet[]
 
     // return res.badgelets.sort((a: Badgelet, b: Badgelet) => {
     //     return b.display === 'top' ? 1 : -1
@@ -1260,7 +1260,7 @@ export async function acceptBadgelet(props: AcceptBadgeletProp): Promise<Badgele
         throw new Error(res.data.message)
     }
 
-    return res.data.badgelet
+    return res.data.badges
 }
 
 export interface RejectVoucherProp {
@@ -1281,7 +1281,7 @@ export async function rejectVoucher(props: RejectVoucherProp): Promise<void> {
 }
 
 export interface RejectBadgeletProp {
-    badgelet_id: number,
+    badge_id: number,
     auth_token: string
 }
 
@@ -1318,7 +1318,7 @@ export interface SetBadgeletStatusProps {
 export async function setBadgeletStatus(props: SetBadgeletStatusProps) {
     checkAuth(props)
     const res: any = await fetch.post({
-        url: `${apiUrl}/badgelet/update`,
+        url: `${apiUrl}/badge/update`,
         data: {
             id: props.id,
             auth_token: props.auth_token,
@@ -2104,7 +2104,7 @@ export async function searchBadge(props: SearchBadgeProps): Promise<Badge[]> {
         title
         transferable
         permissions
-        badgelets(where: {status: {_neq: "rejected"}}) {
+        badges(where: {status: {_neq: "rejected"}}) {
           created_at
           id
           image_url
@@ -2417,13 +2417,13 @@ export async function rejectPoint(props: AcceptPointProp) {
 }
 
 export interface CheckInProps {
-    badgelet_id: number
+    badge_id: number
     auth_token: string
 }
 
 export interface CheckInSimple {
     id: number,
-    badgelet_id: number,
+    badge_id: number,
     profile_id: number,
     created_at: string,
     memo: null | string
@@ -2463,13 +2463,13 @@ export async function consume(props: CheckInProps): Promise<Badgelet> {
 
 export interface QueryCheckInListProps {
     profile_id?: number,
-    badgelet_id?: number,
+    badge_id?: number,
     badge_class_id?: number
 }
 
 export interface CheckIn {
     id: number,
-    badgelet: Badgelet,
+    badge: Badgelet,
     created_at: string,
     memo: null | string,
     profile: ProfileSimple,
@@ -2483,8 +2483,8 @@ export async function queryCheckInList(props: QueryCheckInListProps): Promise<Ch
         variables += `profile_id: {_eq: ${props.profile_id}},`
     }
 
-    if (props.badgelet_id) {
-        variables += `badgelet_id: {_eq: ${props.badgelet_id}},`
+    if (props.badge_id) {
+        variables += `badge_id: {_eq: ${props.badge_id}},`
     }
 
     if (props.badge_class_id) {
@@ -2500,10 +2500,10 @@ export async function queryCheckInList(props: QueryCheckInListProps): Promise<Ch
         created_at
         id
         profile_id
-        badgelet_id
+        badge_id
         check_type
         image_url
-        badgelet {
+        badge {
           badge_class_id
           image_url
           id
@@ -2543,7 +2543,7 @@ export async function setEmail(props: SetEmailProps) {
 }
 
 export interface BadgeTransferProps {
-    badgelet_id: number,
+    badge_id: number,
     target_id: number,
     auth_token: string
 }
@@ -2567,7 +2567,7 @@ export async function badgeTransfer(props: BadgeTransferProps): Promise<Badgelet
 }
 
 export interface BadgeRevokeProps {
-    badgelet_id: number,
+    badge_id: number,
     auth_token: string
 }
 
@@ -2575,7 +2575,7 @@ export async function badgeRevoke(props: BadgeRevokeProps): Promise<Badgelet> {
     checkAuth(props)
 
     const res: any = await fetch.post({
-        url: `${apiUrl}/badgelet/burn`,
+        url: `${apiUrl}/badge/burn`,
         data: {
             ...props,
         }
@@ -2585,11 +2585,11 @@ export async function badgeRevoke(props: BadgeRevokeProps): Promise<Badgelet> {
         throw new Error(res.data.message || 'transfer fail')
     }
 
-    return res.data.badgelet
+    return res.data.badge
 }
 
 interface BadgeBurnProps {
-    badgelet_id: number,
+    badge_id: number,
     auth_token: string
 }
 
@@ -2597,7 +2597,7 @@ export async function badgeletBurn(props: BadgeBurnProps): Promise<Badgelet> {
     checkAuth(props)
 
     const res: any = await fetch.post({
-        url: `${apiUrl}/badgelet/burn`,
+        url: `${apiUrl}/badge/burn`,
         data: {
             ...props,
         }
@@ -2607,12 +2607,12 @@ export async function badgeletBurn(props: BadgeBurnProps): Promise<Badgelet> {
         throw new Error(res.data.message || 'Burn fail')
     }
 
-    return res.data.badgelet
+    return res.data.badge
 }
 
 export interface QueryUserActivityProps {
     badge_class_id?: number
-    badgelet_id?: number,
+    badge_id?: number,
     point_id?: number,
     point_item_id?: number,
     initiator_id?: number,
@@ -2623,7 +2623,7 @@ export interface QueryUserActivityProps {
 export interface Activity {
     "id": number,
     "badge_class_id": null | number
-    "badgelet_id": null | number,
+    "badge_id": null | number,
     "point_id": null | number,
     "point_item_id": null,
     "initiator_id": null | number,
@@ -4013,7 +4013,7 @@ export async function divineBeastMerge(props: DivineBeastMergeProps) {
 
 export interface DivineBeastRmergeProps {
     auth_token: string,
-    badgelet_id: number,
+    badge_id: number,
     metadata: string,
     image_url: string,
     value: number,
@@ -4549,7 +4549,7 @@ export async function queryMarkers(props: {
             map_checkins_count
             map_checkins {
               profile_id
-               badgelet_id
+               badge_id
                check_type
                content
                created_at
@@ -4568,7 +4568,7 @@ export interface MarkerCheckinDetail {
     profile_id: number
     profile: ProfileSimple,
     marker: Marker,
-    badgelet_id: number | null,
+    badge_id: number | null,
     check_type: string,
     content: string | null,
     image_url: string | null,
@@ -4589,7 +4589,7 @@ export async function markersCheckinList({page = 1, ...props}: {
           username
         }
         profile_id
-        badgelet_id
+        badge_id
         check_type
         content
         created_at
@@ -4636,7 +4636,7 @@ export async function markerCheckin(props: {
     auth_token: string,
     id?: number,
     check_type: string
-    badgelet_id?: number,
+    badge_id?: number,
 }) {
 
     checkAuth(props)
@@ -4829,7 +4829,7 @@ export interface Voucher {
     receiver_id: number,
     sender: ProfileSimple,
     sender_id: number,
-    badgelets: Badgelet[]
+    badges: Badgelet[]
     strategy: 'code' | 'account'
     receiver_address: string | null
 }
@@ -4893,7 +4893,7 @@ export async function queryVoucherDetail(id?: number, badge_class_id?: number, r
         counter
         claimed_at
         claimed_by_server
-        badgelets {
+        badges {
           badge_class_id
           content
           id
@@ -4978,22 +4978,22 @@ export async function queryGroupEventCheckins(group_id: number) {
     return res.participants_aggregate.aggregate.count as number
 }
 
-export async function getSwapCode(props: { auth_token: string, badgelet_id: number }) {
+export async function getSwapCode(props: { auth_token: string, badge_id: number }) {
     checkAuth(props)
 
     const res: any = await fetch.post({
-        url: `${apiUrl}/badgelet/swap_code`,
+        url: `${apiUrl}/badge/swap_code`,
         data: props
     })
 
     return res.data.token as string
 }
 
-export async function swapBadgelet(props: { auth_token: string, badgelet_id: number, swap_token: string }) {
+export async function swapBadgelet(props: { auth_token: string, badge_id: number, swap_token: string }) {
     checkAuth(props)
 
     const res: any = await fetch.post({
-        url: `${apiUrl}/badgelet/swap`,
+        url: `${apiUrl}/badge/swap`,
         data: props
     })
 }
@@ -5460,7 +5460,7 @@ export async function userManageGroups(userid: number) {
 }
 
 export async function combine(props: {
-    badgelet_ids: number[],
+    badge_ids: number[],
     auth_token: string,
     color: string,
     new_badge_id: number
@@ -5468,11 +5468,11 @@ export async function combine(props: {
     checkAuth(props)
 
     const res: any = await fetch.post({
-        url: `${apiUrl}/badgelet/wamo_go_merge`,
+        url: `${apiUrl}/badge/wamo_go_merge`,
         data: props
     })
 
-    return res.data.badgelet_id as number
+    return res.data.badge_id as number
 }
 
 export async function queryTimeLineEvent(groupid: number, from: string, to: string): Promise<{ latest: Event[], curr: Event[], first: Event[] }> {
@@ -5547,7 +5547,7 @@ export async function getRecurringEvents(id: number) {
 
 export async function queryBadgeletWithTop(props: { owner_id: number, page: number }): Promise<{ top: Badgelet[], others: Badgelet[] }> {
     const doc = gql`query MyQuery {
-      top: badgelets(where: {owner_id: {_eq: "${props.owner_id}"}, status: {_neq: "burned"}, display: {_eq: "top"}}, order_by: {id: desc}) {
+      top: badges(where: {owner_id: {_eq: "${props.owner_id}"}, status: {_neq: "burned"}, display: {_eq: "top"}}, order_by: {id: desc}) {
         metadata
         badge_class_id
         content
@@ -5587,7 +5587,7 @@ export async function queryBadgeletWithTop(props: { owner_id: number, page: numb
           username
         }
       },
-      others: badgelets(where: {owner_id: {_eq: "${props.owner_id}"}, status: {_neq: "burned"}, display: {_neq: "top"}}, limit: 20, offset: ${props.page * 20 - 20}, order_by: {id: desc}) {
+      others: badges(where: {owner_id: {_eq: "${props.owner_id}"}, status: {_neq: "burned"}, display: {_neq: "top"}}, limit: 20, offset: ${props.page * 20 - 20}, order_by: {id: desc}) {
         metadata
         badge_class_id
         content

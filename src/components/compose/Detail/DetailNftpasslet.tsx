@@ -91,7 +91,7 @@ function DetailNftpasslet(props: DetailNftpassletProps) {
 
     const getRecords = async () => {
         const list = await queryCheckInList({
-            badgelet_id: nftpasslet.id,
+            badge_id: nftpasslet.id,
             profile_id: nftpasslet.owner.id,
         })
         setRecords(list)
@@ -145,7 +145,7 @@ function DetailNftpasslet(props: DetailNftpassletProps) {
         const unload = showLoading()
         try {
             const reject = await solas.rejectBadgelet({
-                badgelet_id: nftpasslet.id,
+                badge_id: nftpasslet.id,
                 auth_token: user.authToken || ''
             })
 

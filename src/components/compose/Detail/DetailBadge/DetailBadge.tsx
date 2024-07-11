@@ -52,7 +52,7 @@ function DetailBadge(props: DetailBadgeProps) {
     useEffect(() => {
         async function getBadgelet() {
             const badgeWithBadgelets = await solas.queryBadgeDetail({id: props.badge.id})
-            let badgelets = badgeWithBadgelets!.badgelets.filter(item => {
+            let badgelets = badgeWithBadgelets!.badges.filter(item => {
                 return item.status === 'accepted'
             })
             badgelets = badgelets.map(item => {

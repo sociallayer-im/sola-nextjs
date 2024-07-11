@@ -267,7 +267,7 @@ function Merge() {
         const unload = showLoading()
         try {
             await combine({
-                badgelet_ids: badglets.map(badgelet => badgelet.id).slice(0, combineAmount),
+                badge_ids: badglets.map(badgelet => badgelet.id).slice(0, combineAmount),
                 auth_token: user.authToken || '',
                 new_badge_id: targetBadgeId,
                 color

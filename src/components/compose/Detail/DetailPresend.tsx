@@ -56,7 +56,7 @@ function DetailPresend (props: DetailPresendProps ) {
 
             setDetail(presendWithBadgelets)
 
-            const receiver = presendWithBadgelets.badgelets.map(item => {
+            const receiver = presendWithBadgelets.badges.map(item => {
                 return item.owner
             })
 

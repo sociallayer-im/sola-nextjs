@@ -91,7 +91,7 @@ function PresendQrcode(props: PresendQrcodeProp) {
                         { !!presendWithBadgelets &&
                             <div className='limit'>
                                 <i className='icon-profile'></i>
-                                <span>{ lang['Presend_Qrcode_Limit']([presendWithBadgelets.badgelets.length + presend.counter]) }</span>
+                                <span>{ lang['Presend_Qrcode_Limit']([presendWithBadgelets.badges.length + presend.counter]) }</span>
                             </div>
                         }
                         <div className='time'>

@@ -43,7 +43,7 @@ const useTransferOrRevoke = () => {
                     // showTransferAccept({badgelet: props.badgelet, pointItem: props.pointItem})
                     try {
                         const transfer = await badgeTransfer({
-                            badgelet_id: props.badgelet?.id!,
+                            badge_id: props.badgelet?.id!,
                             target_id: selected[0],
                             auth_token: user.authToken || '',
                         })
@@ -92,7 +92,7 @@ const useTransferOrRevoke = () => {
                 const unloading = showLoading()
                 try {
                     const res = await badgeletBurn({
-                        badgelet_id: props.badgelet?.id || 0,
+                        badge_id: props.badgelet?.id || 0,
                         auth_token: user.authToken || '',
                     })
                     updateNftpass(res)

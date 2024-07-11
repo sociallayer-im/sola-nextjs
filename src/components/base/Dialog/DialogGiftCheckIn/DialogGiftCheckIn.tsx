@@ -40,7 +40,7 @@ function DialogGiftCheckIn(props: DialogNftCheckInProps) {
         try {
             const checkInRes = await consume({
                 auth_token: res_split[0],
-                badgelet_id: Number(res_split[1])
+                badge_id: Number(res_split[1])
             })
             showToast(lang['Gift_Detail_check_remain']([checkInRes.value]))
         } catch (e: any) {

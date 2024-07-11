@@ -211,9 +211,9 @@ function DetailVoucher({redirect=true, ...props}: DetailBadgeletProps) {
                                     : '#'}
                                 image={voucher.receiver?.image_url || defaultAvatar(voucher.receiver?.id)}/>
                             : <DetailReceivers
-                        length={ voucher.counter + voucher.badgelets.length}
+                        length={ voucher.counter + voucher.badges.length}
                         placeholder={ true }
-                        receivers={ voucher.badgelets.map(i => i.owner) || [] as any }
+                        receivers={ voucher.badges.map(i => i.owner) || [] as any }
                         title={ lang['BadgeDialog_Label_Issuees']} />
                     }
 

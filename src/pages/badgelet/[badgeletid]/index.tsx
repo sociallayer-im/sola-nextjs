@@ -43,7 +43,7 @@ function BadgeDetail(props: { badgelet: Badgelet }) {
 
     const handleSwap = async () => {
         const unload = showLoading()
-        const code = await getSwapCode({badgelet_id: badgelet.id, auth_token: user.authToken || ''})
+        const code = await getSwapCode({badge_id: badgelet.id, auth_token: user.authToken || ''})
         unload()
         openDialog({
             content: (close: any) => <DialogBadgeSwap

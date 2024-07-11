@@ -32,7 +32,7 @@ function DialogSwapScan(props: DialogNftCheckInProps) {
             try {
                 await swapBadgelet({
                     auth_token: user.authToken || '',
-                    badgelet_id: props.badgeletId,
+                    badge_id: props.badgeletId,
                     swap_token: token
                 })
                 setTimeout(() => {

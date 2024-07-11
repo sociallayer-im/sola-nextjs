@@ -82,7 +82,7 @@ function BadgeDetail(props: { badge: Badge, memberships: Membership[] }) {
                         <DetailRow className={styles['action']}>
                             <DetailCreator isGroup={!!badge.group}
                                            profile={badge.group || badge.creator}/>
-                            <ReceiverCount count={badge.badgelets?.length || 0}/>
+                            <ReceiverCount count={badge.badges?.length || 0}/>
                         </DetailRow>
                         <BtnGroup>
                             {(loginUserIsSender || isGroupManager || isIssuer || isGroupOwner) &&
@@ -100,7 +100,7 @@ function BadgeDetail(props: { badge: Badge, memberships: Membership[] }) {
                             <DetailBadgeMenu isGroupManager={isGroupManager} badge={props.badge}/>
                         </div>
                         {
-                            badge.badgelets!.length > 0 ?
+                            badge.badges!.length > 0 ?
                                 <div style={{maxWidth: '590px', width: '100%', overflow: 'hidden'}}>
                                     <Swiper
                                         ref={swiper}
@@ -111,11 +111,11 @@ function BadgeDetail(props: { badge: Badge, memberships: Membership[] }) {
                                         slidesPerView={'auto'}>
 
                                         <div className={styles['pagination']}>
-                                            <SwiperPagination total={badge.badgelets!.length} showNumber={3}/>
+                                            <SwiperPagination total={badge.badges!.length} showNumber={3}/>
                                         </div>
 
                                         {
-                                            badge.badgelets!.map((badgelet, index) =>
+                                            badge.badges!.map((badgelet, index) =>
                                                 <SwiperSlide className='badge-detail-swiper-slide' key={badgelet.id}>
                                                     <DetailScrollBox>
 
@@ -226,7 +226,7 @@ function BadgeDetail(props: { badge: Badge, memberships: Membership[] }) {
                         <DetailRow className={styles['action']}>
                             <DetailCreator isGroup={!!badge.group}
                                            profile={badge.group || badge.creator}/>
-                            <ReceiverCount count={badge.badgelets?.length || 0}/>
+                            <ReceiverCount count={badge.badges?.length || 0}/>
                         </DetailRow>
                     </div>
                     <div className={styles['right']}>
@@ -235,7 +235,7 @@ function BadgeDetail(props: { badge: Badge, memberships: Membership[] }) {
                             <DetailBadgeMenu isGroupManager={isGroupManager} badge={props.badge}/>
                         </div>
                         {
-                            badge.badgelets!.length > 0 ?
+                            badge.badges!.length > 0 ?
                                 <div style={{maxWidth: '590px', width: '100%', overflow: 'hidden'}}>
                                     <Swiper
                                         ref={swiper}
@@ -246,11 +246,11 @@ function BadgeDetail(props: { badge: Badge, memberships: Membership[] }) {
                                         slidesPerView={'auto'}>
 
                                         <div className={styles['pagination']}>
-                                            <SwiperPagination total={badge.badgelets!.length} showNumber={3}/>
+                                            <SwiperPagination total={badge.badges!.length} showNumber={3}/>
                                         </div>
 
                                         {
-                                            badge.badgelets!.map((badgelet, index) =>
+                                            badge.badges!.map((badgelet, index) =>
                                                 <SwiperSlide className='badge-detail-swiper-slide' key={badgelet.id}>
                                                     <DetailScrollBox>
 

@@ -83,7 +83,7 @@ function DialogBurn(props: AddressListProps) {
             const task: any[] = []
             selectedBadgeletId.map(item => {
                 task.push(badgeRevoke({
-                    badgelet_id: item,
+                    badge_id: item,
                     auth_token: user?.authToken || ''
                 }))
             })
@@ -118,7 +118,7 @@ function DialogBurn(props: AddressListProps) {
 
     const getBadgelet = async () => {
         const res = await solas.queryBadgeDetail({id: props.badge.id})
-        const list = res!.badgelets.filter(item => {
+        const list = res!.badges.filter(item => {
             return item.status === 'accepted'
         })
 

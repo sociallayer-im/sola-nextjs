@@ -128,7 +128,7 @@ function DivineBeast(props: { badgelet?: Badgelet, hide?: number, poap?: number,
 
                         const reMerge = await divineBeastRemerge({
                             auth_token: user.authToken || '',
-                            badgelet_id: badgelet!.id,
+                            badge_id: badgelet!.id,
                             image_url: newPic,
                             value: selectedItem.length,
                             metadata: JSON.stringify({

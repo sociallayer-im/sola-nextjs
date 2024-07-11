@@ -158,7 +158,7 @@ function DetailGiftItem(props: DetailNftpassletProps) {
         const unload = showLoading()
         try {
             const reject = await solas.rejectBadgelet({
-                badgelet_id: nftpasslet.id,
+                badge_id: nftpasslet.id,
                 auth_token: user.authToken || ''
             })
 
