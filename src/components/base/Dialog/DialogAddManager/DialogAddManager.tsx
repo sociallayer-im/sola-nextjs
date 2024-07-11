@@ -1,4 +1,4 @@
-import {useContext, useEffect, useState} from 'react'
+import {useContext, useEffect, useMemo, useState} from 'react'
 import PageBack from '../../PageBack';
 import langContext from '../../../provider/LangProvider/LangContext'
 import UserContext from '../../../provider/UserProvider/UserContext'
@@ -8,6 +8,7 @@ import Empty from '../../Empty'
 import AppButton, {BTN_KIND, BTN_SIZE} from '../../AppButton/AppButton'
 import DialogsContext from '../../../provider/DialogProvider/DialogsContext'
 import useEvent, {EVENT} from "../../../../hooks/globalEvent";
+import AppInput from "@/components/base/AppInput"
 
 export interface AddressListProps {
     handleClose?: () => any
@@ -22,6 +23,8 @@ function DialogAddManager(props: AddressListProps) {
     const {showToast, showLoading} = useContext(DialogsContext)
     const [selectedProfileId, setSelectedProfileId] = useState<number[]>([])
     const [_, emitUpdate] = useEvent(EVENT.managerListUpdate)
+    const [search, setSearch] = useState('')
+
 
     const addVale = (profileId: number) => {
         const index = selectedProfileId.indexOf(profileId)
@@ -56,11 +59,21 @@ function DialogAddManager(props: AddressListProps) {
         }
     }
 
-    const profileList = props.members.filter((item) => {
-        return !props.managers.find((manager) => {
-            return manager.id === item.id
+    const profileList = useMemo(() => {
+        const members = props.members.filter((item) => {
+            return !props.managers.find((manager) => {
+                return manager.id === item.id
+            })
         })
-    })
+        if (search === '') {
+            return members
+        } else {
+            return members.filter((item) => {
+                return item.nickname?.toLowerCase().includes(search.toLowerCase()) || item.username!.toLowerCase().includes(search.toLowerCase())
+            })
+        }
+
+    }, [props.managers, props.members, search])
 
     return (<div className='address-list-dialog'>
         <div className='top-side'>
@@ -73,7 +86,16 @@ function DialogAddManager(props: AddressListProps) {
                 </div>
             </div>
             <div className={'user-search-result'}>
+
                 <div className={'center'}>
+                   <div className={'profile-search'} style={{margin: '12px 0'}}>
+                       <AppInput
+                           startEnhancer={() => <i  className={'icon-search'}/>}
+                           placeholder={'Search...'}
+                           value={search}
+                           onChange={e => {setSearch(e.target.value)}} />
+                   </div>
+
                     {profileList.length ?
                         <AddressList selected={selectedProfileId} data={profileList} onClick={(item) => {
                             addVale(item.id)
