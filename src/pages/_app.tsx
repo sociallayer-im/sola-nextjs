@@ -81,9 +81,13 @@ function MyApp({Component, pageProps, ...props}: any) {
 
     return (
         <>
+            <Script src="/analyse/rollbar.js" />
             <PageBacProvider>
                 <Head>
                     <link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+                    <script defer data-domain="app.sola.day" src="https://analytics.wamo.club/js/script.js"></script>
+                    {/* eslint-disable-next-line @next/next/no-sync-scripts */}
+                    <script src="/analyse/rollbar.js"></script>
                     <meta name="viewport"
                           content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
                     <title>{process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'maodao' ? 'Ready Player Club' : 'Social Layer'}</title>
