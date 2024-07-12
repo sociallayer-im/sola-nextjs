@@ -757,6 +757,8 @@ function EditEvent({
                     } as any)
                 }
             })
+        } else if (enableTicket && tickets.length) {
+            _tickets = tickets
         }
 
         const saveProps = {

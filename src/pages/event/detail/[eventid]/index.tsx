@@ -771,9 +771,8 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                         {lang['Activity_Detail_Btn_add_Calender']}</AppButton>
                                                 }
 
-
-
-                                                {!isJoined && !canceled &&
+                                                
+                                                {!isJoined && !canceled && !tickets.length &&
                                                     <AppButton special onClick={e => {
                                                         handleJoin()
                                                     }}>{lang['Activity_Detail_Btn_Attend']}</AppButton>
@@ -1055,7 +1054,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                         }
 
 
-                                        {!isJoined && !canceled &&
+                                        {!isJoined && !canceled && !tickets.length &&
                                             <AppButton special onClick={e => {
                                                 handleJoin()
                                             }}>{lang['Activity_Detail_Btn_Attend']}</AppButton>

@@ -481,13 +481,16 @@ function TicketSetting(props: { creator: Group | Profile, onChange?: (tickets: P
                     onDelete={async () => {
                         const unload = showLoading()
                         try {
-                            const checkSomebodyPaid = await getParticipantDetail({
-                                ticket_id: ticket.id
-                            })
 
-                            if (!!checkSomebodyPaid) {
-                                showToast('Cannot delete ticket type that somebody has paid')
-                                return
+                            if (!!ticket.id) {
+                                const checkSomebodyPaid = await getParticipantDetail({
+                                    ticket_id: ticket.id
+                                })
+
+                                if (!!checkSomebodyPaid) {
+                                    showToast('Cannot delete ticket type that somebody has paid')
+                                    return
+                                }
                             }
 
                             const newTickets = [...props.value]
