@@ -22,6 +22,7 @@ import { Virtual, Pagination, Autoplay, Navigation } from 'swiper'
 import 'swiper/css';
 import discoverData from "@/data/discover.data";
 import Footer from "@/components/base/Footer";
+import Feedback from "@/components/feedback/feedback";
 
 export interface GroupWithMemberCount extends Group {
     member_count: number
@@ -253,9 +254,9 @@ function Discover({eventGroups, popupCities } : {eventGroups: Group[], popupCiti
                     <div className={styles['name']}>@SocialLayer_im</div>
                 </Link>
             </div>
-
             <Footer />
         </div>
+        <Feedback />
     </div>
 }
 
