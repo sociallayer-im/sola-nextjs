@@ -56,6 +56,7 @@ import * as dayjsLib from "dayjs";
 import Empty from "@/components/base/Empty";
 import useEvent, {EVENT} from "@/hooks/globalEvent";
 import useZuAuth from "@/service/zupass/useZuAuth";
+import {isHideLocation} from "@/global_config";
 
 const utc = require('dayjs/plugin/utc')
 const timezone = require('dayjs/plugin/timezone')
@@ -507,7 +508,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                             {
                                 event.cover_url ?
                                     <ImgLazy src={event.cover_url} alt="" width={624}/>
-                                    : <EventDefaultCover event={event} width={324} height={324} showLocation={event.group_id !== 3409 || isOperator || isGroupOwner || isHoster || isJoined || isManager}/>
+                                    : <EventDefaultCover event={event} width={324} height={324} showLocation={!isHideLocation(event.group_id) || isOperator || isGroupOwner || isHoster || isJoined || isManager}/>
                             }
                         </div>
 
@@ -643,7 +644,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                         <div className={'detail-item'}>
                                             <i className={'icon-Outline'}/>
                                             {
-                                                (isJoined || isManager || isOperator || isGroupOwner || isHoster || isMember || event.group_id !== 3409) ? <>
+                                                (isJoined || isManager || isOperator || isGroupOwner || isHoster || isMember || !isHideLocation(event.group_id)) ? <>
                                                         {event.formatted_address ?
                                                             <a href={genGoogleMapUrl(event.id)}
                                                                target={'_blank'}>
@@ -658,13 +659,13 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                             }
                                         </div>
                                         {
-                                            !!eventSite && eventSite.link && (isJoined || isManager || isOperator || isGroupOwner || isHoster || isMember || event.group_id != 3409) &&
+                                            !!eventSite && eventSite.link && (isJoined || isManager || isOperator || isGroupOwner || isHoster || isMember || !isHideLocation(event.group_id)) &&
                                             <div className={'venue-link'}><a href={eventSite.link}
                                                                              target="_blank">{'View venue photos'}</a>
                                             </div>
                                         }
 
-                                        {MapReady && (isJoined || isManager || isOperator || isGroupOwner || isHoster || isMember || event.group_id !== 3409) &&
+                                        {MapReady && (isJoined || isManager || isOperator || isGroupOwner || isHoster || isMember || !isHideLocation(event.group_id)) &&
                                             <>
                                                 <div className={'switch-preview-map'}
                                                      onClick={() => {
@@ -687,7 +688,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                     </>
                                 }
 
-                                {event.meeting_url && (isJoined || isManager || isOperator || isGroupOwner || isHoster || isMember || event.group_id !== 3409) &&
+                                {event.meeting_url && (isJoined || isManager || isOperator || isGroupOwner || isHoster || isMember || !isHideLocation(event.group_id)) &&
                                     <div className={'detail-item'} onClick={e => {
                                         if (isJoined) {
                                             copy(event!.meeting_url!)
@@ -771,7 +772,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                         {lang['Activity_Detail_Btn_add_Calender']}</AppButton>
                                                 }
 
-                                                
+
                                                 {!isJoined && !canceled && !tickets.length &&
                                                     <AppButton special onClick={e => {
                                                         handleJoin()
@@ -992,7 +993,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                             {
                                 event.cover_url ?
                                     <ImgLazy src={event.cover_url} alt="" width={624}/>
-                                    : <EventDefaultCover event={event} width={324} height={324} showLocation={event.group_id !== 3409 || isOperator || isGroupOwner || isHoster || isJoined || isManager} />
+                                    : <EventDefaultCover event={event} width={324} height={324} showLocation={!isHideLocation(event.group_id) || isOperator || isGroupOwner || isHoster || isJoined || isManager} />
                             }
                         </div>
                         <div className={'center'}>

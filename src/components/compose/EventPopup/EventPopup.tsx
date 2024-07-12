@@ -7,6 +7,7 @@ import Displayer from "@/components/compose/RichTextEditor/Displayer";
 import Link from "next/link";
 
 import * as dayjsLib from "dayjs";
+import {isHideLocation} from "@/global_config";
 const dayjs: any = dayjsLib
 
 export function EventPopup({event, timezone, close}: { event: SolarEvent, timezone: string, close: () => any }) {
@@ -55,7 +56,7 @@ export function EventPopup({event, timezone, close}: { event: SolarEvent, timezo
                     </div>
 
                     {
-                        event.group_id !== 3409 && event.location &&
+                        !isHideLocation(event.group_id)&& event.location &&
                         <div className={'detail'}
                              style={{color: '#272928', fontSize: '12px'}}> <i className="icon-Outline" />
                             {event.location}
@@ -68,7 +69,7 @@ export function EventPopup({event, timezone, close}: { event: SolarEvent, timezo
                 {
                     event.cover_url ?
                         <img src={event.cover_url} width={100} alt=""/>
-                        : <EventDefaultCover event={event} width={100} height={100} showLocation={event.group_id !== 3409}/>
+                        : <EventDefaultCover event={event} width={100} height={100} showLocation={!isHideLocation(event.group_id)}/>
                 }
             </div>
         </div>

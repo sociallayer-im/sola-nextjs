@@ -22,6 +22,7 @@ import timezoneList from "@/utils/timezone";
 import {getLabelColor} from "@/hooks/labelColor";
 import {PageBackContext} from "@/components/provider/PageBackProvider";
 import EventDefaultCover from "@/components/base/EventDefaultCover";
+import {isHideLocation} from "@/global_config";
 
 const utc = require('dayjs/plugin/utc')
 const timezone = require('dayjs/plugin/timezone')
@@ -160,7 +161,7 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
                         people: host,
                         start_time: event.start_time,
                         end_time: event.end_time,
-                        location: (event.group_id != 3409 || !!user.id) ? event.location : undefined,
+                        location: (!isHideLocation(event.group_id) || !!user.id) ? event.location : undefined,
                         calendarId: calendarId,
                         link: `/event/detail/${event.id}`,
                         description: event.content,

@@ -24,6 +24,7 @@ import AppButton from "@/components/base/AppButton/AppButton";
 import useEvent, {EVENT} from "@/hooks/globalEvent";
 import usePicture from "@/hooks/pictrue";
 import dynamic from 'next/dynamic'
+import {isHideLocation} from "@/global_config";
 
 const EventTickets = dynamic(() => import('@/components/compose/EventTickets/EventTickets'), {ssr: false})
 
@@ -250,21 +251,21 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
                         </div>
                     }
 
-                    {!!eventDetail.location && !eventDetail.venue && (eventDetail.group_id !== 3409 || !!user.id) &&
+                    {!!eventDetail.location && !eventDetail.venue && (!isHideLocation(eventDetail.group_id) || !!user.id) &&
                         <div className={'detail'}>
                             <i className={'icon-Outline'}/>
                             <span>{eventDetail.location}</span>
                         </div>
                     }
 
-                    {!!eventDetail.venue && (eventDetail.group_id !== 3409 || !!user.id) &&
+                    {!!eventDetail.venue && (!isHideLocation(eventDetail.group_id) || !!user.id) &&
                         <div className={'detail'}>
                             <i className={'icon-Outline'}/>
                             <span>{eventDetail.venue!.title}</span>
                         </div>
                     }
 
-                    {!!eventDetail.meeting_url && (eventDetail.group_id !== 3409 || !!user.id) &&
+                    {!!eventDetail.meeting_url && (!isHideLocation(eventDetail.group_id) || !!user.id) &&
                         <div className={'detail'}>
                             <i className={'icon-link'}/>
                             <span>{eventDetail.meeting_url}</span>
@@ -283,14 +284,14 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
                 {
                     props.event.cover_url ?
                         <ImgLazy src={props.event.cover_url} width={280} alt=""/>
-                        : <EventDefaultCover event={props.event} width={140} height={140} showLocation={props.event.group_id !== 3409}/>
+                        : <EventDefaultCover event={props.event} width={140} height={140} showLocation={!isHideLocation(props.event.group_id)}/>
                 }
             </div>
             <div className={(fixed || hasMarker && !fixed) ? 'post marker mobile' : 'post mobile'}>
                 {
                     props.event.cover_url ?
                         <ImgLazy src={props.event.cover_url} width={280} alt=""/>
-                        : <EventDefaultCover event={props.event} width={100} height={100} showLocation={props.event.group_id !== 3409}/>
+                        : <EventDefaultCover event={props.event} width={100} height={100} showLocation={!isHideLocation(props.event.group_id)}/>
                 }
             </div>
         </div>

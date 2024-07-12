@@ -18,6 +18,7 @@ import {useSearchParams} from "next/navigation";
 import {PageBackContext} from "@/components/provider/PageBackProvider";
 import Check from "baseui/icon/check";
 import UserContext from "@/components/provider/UserProvider/UserContext";
+import {isHideLocation} from "@/global_config";
 
 const utc = require('dayjs/plugin/utc')
 const timezone = require('dayjs/plugin/timezone')
@@ -227,7 +228,7 @@ function Gan(props: { group: Group, eventSite: EventSites[] }) {
                             start: dayjs.tz(new Date(event.start_time!), timezoneSelected[0].id).format('YYYY-MM-DD HH:mm'),
                             end: dayjs.tz(new Date(event.end_time!).getTime(), timezoneSelected[0].id).format('YYYY-MM-DD HH:mm'),
                             progress: progress,
-                            location: (event.group_id != 3409 || !!user.id) ? event.location : '',
+                            location: (!isHideLocation(event.group_id) || !!user.id) ? event.location : '',
                             avatar: event.owner.image_url || defaultAvatar(event.owner.id),
                             host: event.owner.username,
                             host_info: event.host_info,
@@ -360,14 +361,14 @@ function Gan(props: { group: Group, eventSite: EventSites[] }) {
                                         {
                                             task.event.cover_url ?
                                                 <img src={task.event.cover_url} width={280} alt=""/>
-                                                : <EventDefaultCover event={task.event} width={140} height={140} showLocation={task.event.group_id !== 3409}/>
+                                                : <EventDefaultCover event={task.event} width={140} height={140} showLocation={!isHideLocation(task.event.group_id)}/>
                                         }
                                     </div>
                                     <div className={'post mobile'}>
                                         {
                                             task.event.cover_url ?
                                                 <img src={task.event.cover_url} width={280} alt=""/>
-                                                : <EventDefaultCover event={task.event} width={100} height={100} showLocation={task.event.group_id !== 3409} />
+                                                : <EventDefaultCover event={task.event} width={100} height={100} showLocation={!isHideLocation(task.event.group_id)} />
                                         }
                                     </div>
                                 </div>

@@ -26,6 +26,7 @@ import {EventPopup} from "@/components/compose/EventPopup/EventPopup";
 import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
 
 import * as dayjsLib from "dayjs";
+import {isHideLocation} from "@/global_config";
 
 const utc = require('dayjs/plugin/utc')
 const timezone = require('dayjs/plugin/timezone')
@@ -925,7 +926,7 @@ function EventCard({
         </div>
 
 
-        {!!event.location && !event.venue && (event.group_id != 3409 || !!user.id) &&
+        {!!event.location && !event.venue && (!isHideLocation(event.group_id) || !!user.id) &&
             <div className={styles['schedule-event-card-position']}
                  onClick={e => {
                      e.stopPropagation()
@@ -943,7 +944,7 @@ function EventCard({
             </div>
         }
 
-        {!!event.venue && (event.group_id != 3409 || !!user.id) &&
+        {!!event.venue && (!isHideLocation(event.group_id) || !!user.id) &&
             <div className={styles['schedule-event-card-position']}
                  onClick={e => {
                      e.stopPropagation()
