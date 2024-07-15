@@ -2,6 +2,12 @@ var _rollbarConfig = {
     accessToken: '9ffefdc9e2f0447fbc07990f55be8c9c',
     captureUncaught: true,
     captureUnhandledRejections: true,
+    ignoredMessages: [
+        'Script error.',
+        'TypeError: Network request failed',
+        'Uncaught TypeError: Cannot redefine property: ethereum',
+        '/Minified React error/'
+    ],
     payload: {
         environment: 'testenv',
         // context: 'rollbar/test'

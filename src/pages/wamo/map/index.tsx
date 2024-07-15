@@ -231,7 +231,7 @@ function ComponentName(props: { markerType: string | null, eventGroup: Group} ) 
                     const swiperIndex = markers.findIndex(item => {
                         return item.id === markerList[0].id
                     })
-                    swiperRef.current.slideTo(swiperIndex, 300, false)
+                   !!swiperRef.current && swiperRef.current.slideTo(swiperIndex, 300, false)
                 })
 
                 markersRef.current.push(markerView)
@@ -277,7 +277,7 @@ function ComponentName(props: { markerType: string | null, eventGroup: Group} ) 
                             return item.id === targetEvent!.id
                         })
 
-                        swiperRef.current.slideTo(swiperIndex, 300, false)
+                      !!swiperRef.current && swiperRef.current.slideTo(swiperIndex, 300, false)
                     }
 
                     const isAction = a.domEvent.target.getAttribute('data-action')

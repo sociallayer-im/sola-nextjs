@@ -52,8 +52,6 @@
     "@solana/wallet-adapter-wallets": "^0.19.25",
     "@solana/wallet-standard-util": "^1.1.1",
     "@solana/web3.js": "file:src/libs/@solana/web3.js",
-    "@vercel/analytics": "^1.1.1",
-    "@vercel/speed-insights": "^1.0.11",
     "@zxing/library": "^0.20.0",
     "add": "^2.0.6",
     "alchemy-sdk": "^2.10.1",

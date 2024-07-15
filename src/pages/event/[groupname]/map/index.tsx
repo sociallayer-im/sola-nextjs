@@ -286,7 +286,7 @@ function ComponentName(props: { markerType: string | null, group?: Group, isIfra
                     const swiperIndex = markers.findIndex(item => {
                         return item.id === markerList[0].id
                     })
-                    swiperRef.current.slideTo(swiperIndex, 300, false)
+                   !!swiperRef.current && swiperRef.current.slideTo(swiperIndex, 300, false)
                 })
 
                 markersRef.current.push(markerView)
@@ -332,7 +332,7 @@ function ComponentName(props: { markerType: string | null, group?: Group, isIfra
                             return item.id === targetEvent!.id
                         })
 
-                        swiperRef.current.slideTo(swiperIndex, 300, false)
+                      !!swiperRef.current && swiperRef.current.slideTo(swiperIndex, 300, false)
                     }
 
                     const isAction = a.domEvent.target.getAttribute('data-action')
@@ -361,9 +361,7 @@ function ComponentName(props: { markerType: string | null, group?: Group, isIfra
                 })
                 showMarkerInMapCenter(target || markers[0], true)
                 setCurrSwiperIndex(target_index)
-                if (swiperRef.current) {
-                    swiperRef.current.slideTo(target_index, 0, false)
-                }
+                !!swiperRef.current && swiperRef.current.slideTo(target_index, 0, false)
             } else {
                 showMarkerInMapCenter(markers[0], true)
             }
