@@ -3,7 +3,6 @@ import '@/styles/index.sass'
 import 'swiper/css'
 import NextNProgress from 'nextjs-progressbar';
 import Script from 'next/script'
-import {Analytics} from '@vercel/analytics/react';
 import Layout from "@/components/Layout/Layout";
 import fetch from "@/utils/fetch";
 
@@ -109,8 +108,6 @@ function MyApp({Component, pageProps, ...props}: any) {
                                                                     <NextNProgress options={{showSpinner: false}}/>
                                                                     <Component {...pageProps} />
                                                                     <Subscriber/>
-                                                                    <Analytics/>
-
                                                                 </DisplayLay>
                                                             </NotificationsProvider>
                                                         </EventHomeProvider>
