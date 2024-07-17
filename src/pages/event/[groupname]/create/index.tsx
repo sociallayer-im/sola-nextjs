@@ -1491,6 +1491,9 @@ function EditEvent({
                                         (tickets) => {
                                             console.log('setTicket', tickets)
                                             setTickets(tickets)
+                                            if (!tickets.length) {
+                                                setEnableTicket(false)
+                                            }
                                         }
                                     }/>
                             }
