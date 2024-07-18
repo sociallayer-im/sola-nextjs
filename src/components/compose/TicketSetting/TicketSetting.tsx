@@ -255,6 +255,9 @@ function Ticket({creator, ...props}: {
                             type={'number'}
                             placeholder={lang['Price']}
                             onChange={e => {
+                                if (Number(e.target.value) < 0) {
+                                    return
+                                }
                                 props.onChange && props.onChange({
                                     ...props.ticket,
                                     payment_token_price: parseUnits(e.target.value, token.decimals!).toString()
