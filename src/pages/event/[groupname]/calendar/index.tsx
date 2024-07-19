@@ -88,6 +88,7 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
     const [timezoneSelected, setTimezoneSelected] = useState<{ label: string, id: string }[]>([])
     const [venue, setVenue] = useState<number>(0)
     const [presetDate, setPresetDate] = useState<string>(searchParams?.get('date') || '')
+    const [view, setView] = useState<string>(searchParams?.get('view') || 'month')
 
     let presetTag = searchParams?.get('tag')
     const [selectedTags, setSelectedTags] = useState<string[]>(presetTag ? presetTag.split(',') : [])
@@ -271,7 +272,7 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
                             })
                         ],
                         calendars,
-                        defaultView: 'week',
+                        defaultView: view,
                         events: eventList as any,
                         customMultiMenus: customMenus,
                         _customComponentFns: {
@@ -282,6 +283,17 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
                                 createEvent(dateTime)
                             },
                             onRangeUpdate(range: { start: string, end: string }) {
+                                const interval = dayjs(range.end.replace(/-/g, '/')).diff(dayjs(range.start.replace(/-/g, '/')), 'day')
+                                let view = 'month'
+                                if (interval === 0) {
+                                    view = 'day'
+                                } else if (interval > 20) {
+                                    view = 'month'
+                                } else {
+                                    view = 'week'
+                                }
+
+                                setView(view)
                                 setPresetDate(range.start.split(' ')[0])
                             },
                             onEventClick(calendarEvent: any) {
@@ -294,6 +306,8 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
                             },
                         },
                     } as any)
+
+                    console.log('scheduleXRef.current', scheduleXRef.current)
 
                     scheduleXRef.current.render(calendarRef.current)
 
@@ -317,19 +331,23 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
 
 
     useEffect(() => {
-        history.replaceState(null, '', genHref({date: presetDate, tag: selectedTags.join(',')}))
-    }, [selectedTags, presetDate])
+        history.replaceState(null, '', genHref({date: presetDate, tag: selectedTags.join(','), view}))
+    }, [selectedTags, presetDate, view])
 
-    const genHref = ({date, tag}: { date?: string, tag?: string }) => {
-        if (date && tag) {
-            return `?date=${date}&tag=${encodeURIComponent(tag)}`
-        } else if (date) {
-            return `?date=${date}`
-        } else if (tag) {
-            return `?tag=${tag}`
-        } else {
-            return ''
+    const genHref = ({date, tag, view}: { date?: string, tag?: string, view?: string }): string => {
+        // 根据传参生成query string
+        const query = new URLSearchParams()
+        if (date) {
+            query.set('date', date)
         }
+        if (tag) {
+            query.set('tag', tag)
+        }
+        if (view) {
+            query.set('view', view)
+        }
+
+        return '?' + query.toString()
     }
 
     const createEvent = (dateTime: string) => {
