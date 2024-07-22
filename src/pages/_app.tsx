@@ -14,7 +14,7 @@ import UserProvider from "@/components/provider/UserProvider/UserProvider";
 import theme from "@/theme"
 import {Provider as StyletronProvider} from 'styletron-react'
 import {BaseProvider} from 'baseui'
-import {avalancheFuji, polygon, mainnet} from 'wagmi/chains'
+import {avalancheFuji, polygon, mainnet, optimism, base, arbitrum} from 'wagmi/chains'
 import {InjectedConnector} from 'wagmi/connectors/injected'
 import {publicProvider} from 'wagmi/providers/public'
 import {configureChains, createConfig, WagmiConfig} from 'wagmi'
@@ -38,7 +38,7 @@ const farcasterConfig = {
 };
 
 const inject = new InjectedConnector({
-    chains: [polygon, avalancheFuji],
+    chains: [mainnet, polygon, avalancheFuji, optimism, base, arbitrum],
 } as any)
 
 // const walletConnectConnect = new WalletConnectConnector({
@@ -49,7 +49,7 @@ const inject = new InjectedConnector({
 // })
 
 const {chains, publicClient, webSocketPublicClient} = configureChains(
-    [polygon, avalancheFuji],
+    [mainnet, polygon, avalancheFuji, optimism, base, arbitrum],
     [publicProvider()],
 )
 

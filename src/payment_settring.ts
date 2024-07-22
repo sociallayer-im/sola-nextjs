@@ -1,4 +1,21 @@
-export const paymentTokenList = [{
+export const paymentTokenList = [
+    {
+        chain: "Ethereum",
+        id: 'ethereum',
+        chainId: 1,
+        icon: '/images/ethereum-icon.webp',
+        payHub: '0x98baA8b1DAb47079bbAC345Dd0A4Bd149CA93e4B',
+        tokenList: [
+            {
+                name: 'USDT',
+                id: 'usdt',
+                contract: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
+                icon: '/images/tether_32.webp',
+                decimals: 6
+            }
+        ]
+    },
+    {
     chain: 'Polygon',
     id: 'polygon',
     chainId: 137,
@@ -36,6 +53,56 @@ export const paymentTokenList = [{
     ]
 },
     {
+        chain: 'Optimism',
+        id: 'optimism',
+        chainId: 10,
+        icon: '/images/op.png',
+        payHub: '0x98baA8b1DAb47079bbAC345Dd0A4Bd149CA93e4B',
+        tokenList: [
+            {
+                name: 'USDT',
+                id: 'usdt',
+                contract: '0x94b008aa00579c1307b0ef2c499ad98a8ce58e58',
+                icon: '/images/tether_32.webp',
+                decimals: 6
+            }
+        ]
+    },
+    {
+        chain: 'Arbitrum',
+        id: 'arbitrum',
+        chainId: 42161,
+        icon: '/images/arbitrum.png',
+        payHub: '0x98baA8b1DAb47079bbAC345Dd0A4Bd149CA93e4B',
+        tokenList: [
+            {
+                name: 'USDT',
+                id: 'usdt',
+                contract: '0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9',
+                icon: '/images/tether_32.webp',
+                decimals: 6
+            }
+        ]
+
+    },
+    {
+        chain: 'Base',
+        id: 'base',
+        chainId: 8453,
+        icon: '/images/base_chain.png',
+        payHub: '0x98baA8b1DAb47079bbAC345Dd0A4Bd149CA93e4B',
+        tokenList: [
+            {
+                name: 'USDC',
+                id: 'USDC',
+                contract: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
+                icon: '/images/usdc_32.webp',
+                decimals: 6
+            }
+        ]
+
+    },
+    {
         chain: 'Fuji Testnet',
         id: 'fuji',
         chainId: 43113,
@@ -50,7 +117,7 @@ export const paymentTokenList = [{
                 decimals: 6
             }
         ]
-    }
+    },
 ]
 
 export const erc20_abi = [{
