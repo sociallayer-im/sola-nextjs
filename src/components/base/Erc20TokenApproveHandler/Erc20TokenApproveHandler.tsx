@@ -23,7 +23,7 @@ function Erc20TokenApproveHandler(
         chainId: number
         onSuccess?: (hash: string) => any
         onErrMsg?: (message: string) => any
-    }, ref
+    }, ref: any
 ) {
     const publicClient: any = usePublicClient({chainId: props.chainId})
     const {data: walletClient}: any = useWalletClient({chainId: props.chainId})

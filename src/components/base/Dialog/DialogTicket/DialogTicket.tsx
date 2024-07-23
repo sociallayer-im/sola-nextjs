@@ -36,7 +36,7 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
     const {address} = useAccount()
     const formatTime = useTime()
 
-    const [busy, setBusy] = useState(false)
+    const [busy, setBusy] = useState(true)
     const [paymentIndex, setPaymentIndex] = useState(0)
 
     const reFleshAllowanceRef = useRef<any>(null)
@@ -90,11 +90,10 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
                         const paymentData = JSON.parse(res.payment_data)
                         const targetPaymentIndex = payments.findIndex((item) => {
 
-                            return  item.chain.chainId === paymentData.chain_id &&
+                            return  item.chain!.chainId === paymentData.chain_id &&
                                     item.token.contract === paymentData.token &&
                                     item.payment.payment_token_price === paymentData.amount
                         })
-
 
                         if (targetPaymentIndex !== -1) {
                             setPaymentIndex(targetPaymentIndex)
@@ -161,6 +160,14 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
         }
     }
 
+    const [balance, setBalance] = useState<string | null>(null)
+
+    useEffect(() => {
+        if (payments.length && !!balance && !busy && Number(balance) < Number(payments[paymentIndex].payment.payment_token_price)) {
+            setErrorMsg('Insufficient balance')
+        }
+    }, [balance, busy, payments])
+
     return (<div className={styles['dialog-ticket']}>
         <div className={styles['dialog-title']}>
             <div>{'Event'}</div>
@@ -226,8 +233,9 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
 
                         getValueLabel={() => {
                             return <div className={styles['payment-label']}>
-                                <img src={payments[paymentIndex].chain.icon} alt=""/>
-                                {props.ticket.payment_metadata[paymentIndex].payment_token_price / 10 ** (payments[paymentIndex].token.decimals)} {payments[paymentIndex].token.name.toUpperCase()}
+                                <img src={payments![paymentIndex]!.chain!.icon} alt=""/>
+                               <span> {Number(props.ticket.payment_metadata[paymentIndex]!.payment_token_price || '0') / (10**payments![paymentIndex]!.token!.decimals || 0)}</span>
+                               <span>{payments[paymentIndex]!.token.name.toUpperCase()}</span>
                             </div>
                         }}
 
@@ -238,7 +246,7 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
                             </div>
                         }}
 
-                        onChange={({option}) => {
+                        onChange={({option} : any) => {
                             setPaymentIndex(option.index as any)
                         }}
                     />
@@ -250,7 +258,7 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
                         <div className={styles['left']}>
                             {
                                 payments[paymentIndex].chain &&
-                                <img src={payments[paymentIndex].chain.icon} alt=""/>
+                                <img src={payments![paymentIndex!].chain!.icon} alt=""/>
                             }
                             <div>{shotAddress(props.ticket.payment_metadata[paymentIndex].payment_target_address!)}</div>
                         </div>
@@ -268,13 +276,17 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
                     <div className={styles['value']}>
                         {
                             !!address ? <Erc20Balance
-                                    chanId={payments[paymentIndex].chain.chainId}
+                                    onChange={(balance) => {
+                                        console.log('balancebalancebalance', balance)
+                                        setBalance(balance)
+                                    }}
+                                    chanId={payments![paymentIndex]!.chain!.chainId}
                                     account={address}
-                                    token={payments[paymentIndex].token.contract}
-                                    decimals={payments[paymentIndex].token.decimals}/>
+                                    token={payments[paymentIndex]!.token!.contract}
+                                    decimals={payments[paymentIndex]!.token!.decimals}/>
                                 : '--'
                         }
-                        <span>{payments[paymentIndex].token.name?.toUpperCase()}</span>
+                        <span>{payments[paymentIndex]!.token!.name?.toUpperCase()}</span>
                     </div>
                 </div>
             </>
@@ -321,11 +333,11 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
             <Erc20TokenPaymentHandler
                 eventId={props.event.id}
                 ticketId={props.ticket.id}
-                token={payments[paymentIndex].token.contract}
+                token={payments![paymentIndex]!.token!.contract}
                 to={props.ticket.payment_metadata[paymentIndex]!.payment_target_address!}
                 amount={props.ticket.payment_metadata[paymentIndex]!.payment_token_price?.toString() || '0'}
-                decimals={payments[paymentIndex].token.decimals}
-                chainId={payments[paymentIndex].chain.chainId}
+                decimals={payments![paymentIndex]!.token!.decimals}
+                chainId={payments![paymentIndex]!.chain!.chainId}
                 onErrMsg={(errMsg: string) => {
                     emit('payment-error')
                     setErrorMsg(errMsg)
@@ -369,11 +381,11 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
             && hasBadgePermission &&
             <Erc20TokenApproveHandler
                 ref={reFleshAllowanceRef}
-                token={payments[paymentIndex].token.contract}
+                token={payments![paymentIndex]!.token!.contract}
                 to={props.ticket.payment_metadata[paymentIndex]!.payment_target_address!}
                 amount={props.ticket.payment_metadata[paymentIndex]!.payment_token_price?.toString() || '0'}
-                decimals={payments[paymentIndex].token.decimals}
-                chainId={payments[paymentIndex].chain.chainId}
+                decimals={payments![paymentIndex]!.token!.decimals}
+                chainId={payments![paymentIndex]!.chain!.chainId}
                 onErrMsg={(errMsg: string) => {
                     setErrorMsg(errMsg)
                 }}

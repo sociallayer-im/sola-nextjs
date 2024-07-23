@@ -264,10 +264,10 @@ function Ticket({creator, ...props}: {
                                     getValueLabel={(option) => {
                                         return <span>{(option.option as any).name}</span>
                                     }}
-                                    value={[payments[index].token] as any}
+                                    value={[payments![index]!.token!] as any}
                                     clearable={false}
                                     searchable={false}
-                                    options={payments[index].chain.tokenList as any}
+                                    options={payments![index]!.chain!.tokenList as any}
                                     onChange={(params) => {
                                         handleChangePayment({
                                             ...payment,
