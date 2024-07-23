@@ -36,7 +36,7 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
     const {address} = useAccount()
     const formatTime = useTime()
 
-    const [busy, setBusy] = useState(true)
+    const [busy, setBusy] = useState(false)
     const [paymentIndex, setPaymentIndex] = useState(0)
 
     const reFleshAllowanceRef = useRef<any>(null)

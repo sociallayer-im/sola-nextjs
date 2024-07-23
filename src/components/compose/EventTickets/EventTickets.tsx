@@ -107,8 +107,7 @@ function EventTickets({
             getParticipantDetail({event_id: props.event.id, profile_id: user.id!}).then((res) => {
                 if (!!res) {
                     const ticket = props.tickets.find(item => item.id === res.ticket_id)
-
-                    if (!!ticket && res.payment_status === 'success') {
+                    if (!!ticket && (res.payment_status === 'success' || !ticket.payment_metadata!.length)) {
                         setUserPendingPayment(null)
                         setUserHasPaid(res)
                     } else if (!!ticket && res.payment_status !== 'success' && !!res.payment_data) {
