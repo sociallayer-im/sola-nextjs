@@ -53,7 +53,7 @@ function Erc20TokenApproveHandler(
                 args: [
                     payHubContract,
                     //BigInt(props.amount)
-                    BigInt(500)
+                    BigInt(500 * 10**props.decimals)
                 ]
             }
 
