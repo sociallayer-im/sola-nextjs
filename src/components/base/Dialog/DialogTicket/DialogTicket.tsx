@@ -163,10 +163,10 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
     const [balance, setBalance] = useState<string | null>(null)
 
     useEffect(() => {
-        if (payments.length && !!balance && !busy && Number(balance) < Number(payments[paymentIndex].payment.payment_token_price)) {
+        if (hasBadgePermission && payments.length && !!balance && !busy && Number(balance) < Number(payments[paymentIndex].payment.payment_token_price)) {
             setErrorMsg('Insufficient balance')
         }
-    }, [balance, busy, payments])
+    }, [balance, busy, payments, hasBadgePermission])
 
     return (<div className={styles['dialog-ticket']}>
         <div className={styles['dialog-title']}>

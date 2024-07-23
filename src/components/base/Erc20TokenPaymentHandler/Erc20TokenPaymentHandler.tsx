@@ -119,6 +119,14 @@ function Erc20TokenPaymentHandler(
                 }
             }
 
+            if (chain?.id !== props.chainId) {
+                await switchNetworkAsync?.(props.chainId)
+                setBusy(false)
+                setSending(false)
+                setVerifying(false)
+                return
+            }
+
             // create an order
             const join = await joinEvent(
                 {
