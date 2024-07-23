@@ -94,7 +94,7 @@ export const paymentTokenList = [
         tokenList: [
             {
                 name: 'USDC',
-                id: 'USDC',
+                id: 'usdc',
                 contract: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
                 icon: '/images/usdc_32.webp',
                 decimals: 6

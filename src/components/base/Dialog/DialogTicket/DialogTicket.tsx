@@ -1,4 +1,4 @@
-import {useContext, useEffect, useState} from 'react'
+import {useContext, useEffect, useMemo, useRef, useState} from 'react'
 import styles from './DialogTicket.module.scss'
 import LangContext from "@/components/provider/LangProvider/LangContext";
 import useCopy from "@/hooks/copy";
@@ -15,9 +15,9 @@ import useTime from "@/hooks/formatTime";
 import {paymentTokenList} from "@/payment_settring";
 import UserContext from "@/components/provider/UserProvider/UserContext";
 import useEvent, {EVENT} from "@/hooks/globalEvent";
-import {formatUnits} from "viem/utils";
-import { Spinner } from 'baseui/icon'
 import ButtonLoading from "@/components/base/ButtonLoading";
+import {Select} from "baseui/select";
+import {index} from "@zxing/text-encoding/es2015/encoding/indexes";
 
 
 function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket }) {
@@ -37,6 +37,9 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
     const formatTime = useTime()
 
     const [busy, setBusy] = useState(false)
+    const [paymentIndex, setPaymentIndex] = useState(0)
+
+    const reFleshAllowanceRef = useRef<any>(null)
 
     const hasBadgePermission = !props.ticket.check_badge_class_id || (!!props.ticket.check_badge_class_id && OwnedBadge)
 
@@ -50,13 +53,62 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
         }
     }, [user.id, badge])
 
+    const payments = useMemo(() => {
+        if (props.ticket.payment_metadata!.length === 0) return []
+        return props.ticket.payment_metadata!.map((payment, index) => {
+            const chain = paymentTokenList.find((chain) => chain.id === payment.payment_chain)
+
+            let token: any = undefined
+            if (!!chain) {
+                token = chain.tokenList.find((t: any) => t.id === payment.payment_token_name)
+            }
+
+            return {
+                chain,
+                token,
+                payment,
+                index,
+                label: `${Number(payment.payment_token_price) / 10 ** (token?.decimals || 0)} ${payment.payment_token_name}`
+            }
+        })
+    }, [props.ticket])
+
     useEffect(() => {
-       if (user.id) {
-           getParticipantDetail({profile_id: user.id, ticket_id: props.ticket.id}).then((res) => {
-               res && setApproved(true)
-           })
-       }
-    }, [user.id])
+        if (user.id) {
+            getParticipantDetail({profile_id: user.id, ticket_id: props.ticket.id}).then((res) => {
+                if (!res) {
+                    setApproved(false)
+                    return
+                }
+
+                if (!res.payment_data) {
+                    setApproved(true)
+                } else {
+                    if (res.payment_data.startsWith('0x')) {
+                        setApproved(true)
+                    } else {
+                        const paymentData = JSON.parse(res.payment_data)
+                        const targetPaymentIndex = payments.findIndex((item) => {
+
+                            return  item.chain.chainId === paymentData.chain_id &&
+                                    item.token.contract === paymentData.token &&
+                                    item.payment.payment_token_price === paymentData.amount
+                        })
+
+
+                        if (targetPaymentIndex !== -1) {
+                            setPaymentIndex(targetPaymentIndex)
+                        }
+                    }
+                }
+            })
+        }
+    }, [user.id, payments])
+
+    useEffect(() => {
+        setApproved(false)
+        setErrorMsg('')
+    }, [paymentIndex])
 
     useEffect(() => {
         setSoldOut(props.ticket.quantity === 0)
@@ -109,15 +161,10 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
         }
     }
 
-    const chain = props.ticket.payment_chain ? paymentTokenList.find(item => item.id === props.ticket.payment_chain) : undefined
-
-    let token = !!chain ?
-        chain.tokenList.find(item => item.id === props.ticket.payment_token_name) : undefined
-
     return (<div className={styles['dialog-ticket']}>
         <div className={styles['dialog-title']}>
             <div>{'Event'}</div>
-            { !busy &&
+            {!busy &&
                 <svg
                     onClick={props.close}
                     className={styles['close']} xmlns="http://www.w3.org/2000/svg" width="14" height="15"
@@ -161,49 +208,73 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
                     </div>
                 </div>
             }
+        </div>
 
-            {props.ticket.payment_target_address &&
+        {!!payments.length &&
+            <>
+                <div className={styles['payment-title']}>Payment</div>
+                <div className={styles['price']}>
+                    <div className={styles['label']}>Price</div>
+                </div>
+                <div className={styles['select']}>
+                    <Select
+                        disabled={busy}
+                        value={[props.ticket.payment_metadata[paymentIndex]] as any}
+                        options={payments as any}
+                        clearable={false}
+                        searchable={false}
+
+                        getValueLabel={() => {
+                            return <div className={styles['payment-label']}>
+                                <img src={payments[paymentIndex].chain.icon} alt=""/>
+                                {props.ticket.payment_metadata[paymentIndex].payment_token_price / 10 ** (payments[paymentIndex].token.decimals)} {payments[paymentIndex].token.name.toUpperCase()}
+                            </div>
+                        }}
+
+                        getOptionLabel={({option}: any) => {
+                            return <div className={styles['payment-label']}>
+                                <img src={option.chain.icon} alt=""/>
+                                {option.payment.payment_token_price / 10 ** (option.token.decimals)} {option.payment.payment_token_name.toUpperCase()}
+                            </div>
+                        }}
+
+                        onChange={({option}) => {
+                            setPaymentIndex(option.index as any)
+                        }}
+                    />
+                </div>
+
                 <div className={styles['receiver']}>
                     <div className={styles['receiver-des']}>Payments will be sent to</div>
                     <div className={styles['address']}>
                         <div className={styles['left']}>
                             {
-                                chain &&
-                                <img src={chain.icon} alt=""/>
+                                payments[paymentIndex].chain &&
+                                <img src={payments[paymentIndex].chain.icon} alt=""/>
                             }
-                            <div>{shotAddress(props.ticket.payment_target_address)}</div>
+                            <div>{shotAddress(props.ticket.payment_metadata[paymentIndex].payment_target_address!)}</div>
                         </div>
                         <div className={styles['copy']}
                              onClick={e => {
-                                 copyWithDialog(props.ticket.payment_target_address!)
+                                 copyWithDialog(props.ticket.payment_metadata[paymentIndex].payment_target_address!)
                              }}>
                             {lang['Profile_Show_Copy']}
                         </div>
                     </div>
                 </div>
-            }
-        </div>
 
-        {props.ticket.payment_token_price !== null && !!token && !!chain &&
-            <>
-                <div className={styles['payment-title']}>Payment</div>
-                <div className={styles['price']}>
-                    <div className={styles['label']}>Price</div>
-                    <div
-                        className={styles['value']}>{formatUnits(BigInt(props.ticket.payment_token_price), token.decimals!)} {props.ticket.payment_token_name?.toUpperCase()}</div>
-                </div>
                 <div className={styles['balance']}>
                     <div className={styles['label']}>Balance</div>
                     <div className={styles['value']}>
                         {
                             !!address ? <Erc20Balance
-                                    chanId={chain.chainId}
+                                    chanId={payments[paymentIndex].chain.chainId}
                                     account={address}
-                                    token={props.ticket.payment_token_address!}
-                                    decimals={token.decimals}/>
+                                    token={payments[paymentIndex].token.contract}
+                                    decimals={payments[paymentIndex].token.decimals}/>
                                 : '--'
                         }
-                        <span>{props.ticket.payment_token_name?.toUpperCase()}</span>
+                        <span>{payments[paymentIndex].token.name?.toUpperCase()}</span>
                     </div>
                 </div>
             </>
@@ -232,8 +303,8 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
             && !stopSales
             && !soldOut
             && !!user.id
-            && !!chain
-            && hasBadgePermission &&
+            && hasBadgePermission
+            && !!payments.length &&
             <AppButton special onClick={e => {
                 connectWallet()
             }}>{'Connect Wallet'}</AppButton>
@@ -241,8 +312,7 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
 
 
         {!!address
-            && !!token
-            && !!chain
+            && !!payments.length
             && approved
             && !stopSales
             && !soldOut
@@ -251,11 +321,11 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
             <Erc20TokenPaymentHandler
                 eventId={props.event.id}
                 ticketId={props.ticket.id}
-                token={props.ticket.payment_token_address!}
-                to={props.ticket.payment_target_address!}
-                amount={props.ticket.payment_token_price?.toString() || '0'}
-                decimals={token.decimals}
-                chainId={chain.chainId}
+                token={payments[paymentIndex].token.contract}
+                to={props.ticket.payment_metadata[paymentIndex]!.payment_target_address!}
+                amount={props.ticket.payment_metadata[paymentIndex]!.payment_token_price?.toString() || '0'}
+                decimals={payments[paymentIndex].token.decimals}
+                chainId={payments[paymentIndex].chain.chainId}
                 onErrMsg={(errMsg: string) => {
                     emit('payment-error')
                     setErrorMsg(errMsg)
@@ -266,10 +336,11 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
                     props.close()
                 }}
                 content={(trigger, busy, sending, verifying) => {
-                    setBusy(busy || verifying)
+                    setTimeout(() => {setBusy(busy || verifying)}, 100)
                     return errorMsg ? <AppButton special onClick={e => {
                             setErrorMsg('')
-                            setApproved(true)
+                            setApproved(false)
+                            reFleshAllowanceRef.current && reFleshAllowanceRef.current.reFleshAllowance()
                         }
                         }>{'Retry'}</AppButton>
                         : <AppButton
@@ -290,19 +361,19 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
         }
 
         {!!address
-            && !!token
-            && !!chain
+            && !!payments.length
             && !approved
             && !soldOut
             && !stopSales
             && !!user.id
             && hasBadgePermission &&
             <Erc20TokenApproveHandler
-                token={props.ticket.payment_token_address!}
-                to={props.ticket.payment_target_address!}
-                amount={props.ticket.payment_token_price?.toString() || '0'}
-                decimals={token.decimals}
-                chainId={chain.chainId}
+                ref={reFleshAllowanceRef}
+                token={payments[paymentIndex].token.contract}
+                to={props.ticket.payment_metadata[paymentIndex]!.payment_target_address!}
+                amount={props.ticket.payment_metadata[paymentIndex]!.payment_token_price?.toString() || '0'}
+                decimals={payments[paymentIndex].token.decimals}
+                chainId={payments[paymentIndex].chain.chainId}
                 onErrMsg={(errMsg: string) => {
                     setErrorMsg(errMsg)
                 }}
@@ -312,7 +383,7 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
                 content={(trigger, busy) => {
                     setTimeout(() => {
                         setBusy(busy)
-                    }, 0)
+                    }, 100)
                     return <AppButton
                         disabled={busy || !!errorMsg}
                         special
@@ -326,7 +397,7 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
             />
         }
 
-        {!!user.id && !chain && hasBadgePermission && !stopSales && !soldOut &&
+        {!!user.id && !payments.length && hasBadgePermission && !stopSales && !soldOut &&
             <AppButton special onClick={e => {
                 freePay()
             }}>{lang['Get_A_Ticket']}</AppButton>

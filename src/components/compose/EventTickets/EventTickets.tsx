@@ -1,4 +1,4 @@
-import {useContext, useEffect, useState} from 'react'
+import {useContext, useEffect, useMemo, useState} from 'react'
 import {Badge, Event, getParticipantDetail, Participants, queryBadgeDetail, Ticket} from '@/service/solas'
 import styles from './EventTickets.module.scss'
 import langContext from "@/components/provider/LangProvider/LangContext";
@@ -8,7 +8,7 @@ import DialogTicket from "@/components/base/Dialog/DialogTicket/DialogTicket";
 import ImgLazy from "@/components/base/ImgLazy/ImgLazy";
 import userContext from "@/components/provider/UserProvider/UserContext";
 import useEvent, {EVENT} from "@/hooks/globalEvent";
-import {parseUnits, formatUnits} from "viem/utils";
+import {formatUnits} from "viem/utils";
 import {paymentTokenList} from "@/payment_settring";
 
 function TicketItem({
@@ -21,8 +21,19 @@ function TicketItem({
 
     const [badge, setBadge] = useState<Badge | null>(null)
 
-    const chain = ticket.payment_chain ? paymentTokenList.find(item => item.id === ticket.payment_chain) : undefined
-    const token = chain ? chain.tokenList.find(item => item.id === ticket.payment_token_name) : undefined
+    const chain = useMemo(() => {
+        return ticket.payment_metadata.length && ticket.payment_metadata[0].payment_chain ? paymentTokenList.find(item => item.id === ticket.payment_metadata[0].payment_chain) : undefined
+    }, [ticket])
+
+    const token = useMemo(() => {
+        if (!chain) return undefined
+        return chain?.tokenList.find(item => item.id === ticket.payment_metadata[0].payment_token_name)
+    }, [chain, ticket])
+
+    const chainsIcons = useMemo(() => {
+        const chains = ticket.payment_metadata.map(item => item.payment_chain)
+        return chains.map(chain => paymentTokenList.find(item => item.id === chain)?.icon).reverse()
+    }, [ticket])
 
     useEffect(() => {
         if (ticket.check_badge_class_id) {
@@ -51,13 +62,22 @@ function TicketItem({
         }
 
         {
-            ticket.payment_token_price !== null &&
-            <div
-                className={styles['item-price']}>{formatUnits(BigInt(ticket.payment_token_price), token?.decimals!)} {ticket.payment_token_name?.toUpperCase()}</div>
+            ticket.payment_metadata?.length !== 0 &&
+            <div className={styles['price-info']}>
+                <div
+                    className={styles['item-price']}>{formatUnits(BigInt(ticket.payment_metadata[0].payment_token_price || 0), token?.decimals!)} {ticket.payment_metadata[0].payment_token_name?.toUpperCase()}</div>
+                <div className={styles['chain-icons']}>
+                    {
+                        chainsIcons.map((icon, index) => {
+                            return <img key={index} src={icon} alt="" width={20} height={20}/>
+                        })
+                    }
+                </div>
+            </div>
         }
 
         {
-            ticket.check_badge_class_id === null && ticket.payment_token_price === null &&
+            ticket.payment_metadata?.length === 0 &&
             <div className={styles['item-price']}>{'Free'}</div>
         }
 
@@ -68,7 +88,10 @@ function TicketItem({
     </div>
 }
 
-function EventTickets({canAccess = true, ...props}: { event: Event, tickets: Ticket[], canAccess?: boolean , isDialog?: boolean}) {
+function EventTickets({
+                          canAccess = true,
+                          ...props
+                      }: { event: Event, tickets: Ticket[], canAccess?: boolean, isDialog?: boolean }) {
 
     const {lang} = useContext(langContext)
     const {openDialog, showToast} = useContext(DialogsContext)
@@ -86,10 +109,17 @@ function EventTickets({canAccess = true, ...props}: { event: Event, tickets: Tic
                     const ticket = props.tickets.find(item => item.id === res.ticket_id)
                     console.log('ticketticket', ticket)
                     console.log('res', res)
-                    if (!!ticket && res.payment_status !== 'success' && ticket.payment_token_price !== null) {
+                    if (!ticket.payment_metadata.length) {
+                        setUserHasPaid(res)
+                        setUserPendingPayment(null)
+                    } else if (!!ticket && res.payment_status === 'success') {
+                        setUserPendingPayment(null)
+                        setUserHasPaid(res)
+                    } else if (!!ticket && res.payment_status !== 'success' && !!res.payment_data) {
+                        setUserHasPaid(null)
                         setUserPendingPayment(res)
                     } else {
-                        setUserHasPaid(res)
+                        setUserHasPaid(null)
                         setUserPendingPayment(null)
                     }
                 } else {
@@ -140,13 +170,13 @@ function EventTickets({canAccess = true, ...props}: { event: Event, tickets: Tic
                         {'You have purchased the ticket'}
                     </AppButton>
                     : canAccess ?
-                    <AppButton special onClick={() => {
-                        if (!selectedTicket) {
-                            showToast('Please select a ticket')
-                            return
-                        }
-                        selectedTicket && showTicketDialog(selectedTicket)
-                    }}>{lang['Get_A_Ticket']}</AppButton>
+                        <AppButton special onClick={() => {
+                            if (!selectedTicket) {
+                                showToast('Please select a ticket')
+                                return
+                            }
+                            selectedTicket && showTicketDialog(selectedTicket)
+                        }}>{lang['Get_A_Ticket']}</AppButton>
                         : <AppButton disabled>
                             {'Only for group members'}
                         </AppButton>

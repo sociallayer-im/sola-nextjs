@@ -91,7 +91,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             id: body.eventId,
             status: participant.status,
             payment_status: participant.payment_status,
-            payment_data: body.tx,
+            payment_data: JSON.stringify({
+                tx: body.tx,
+                chain_id: body.chain_id,
+                amount: body.amount,
+                token: body.token,
+                payer_address: body.payer_address,
+                to_address: body.to_address,
+            }),
         })
     }
 
@@ -138,12 +145,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     ) {
         res.status(200).json({result: 'failed', message: "verify failed 1"})
     } else {
+        // res.status(200).json({result: 'failed', message: "verify failed test"})
+        // return
+
         try {
             const updatePaymentData = await updatePaymentStatus({
                 next_token: process.env.NEXT_TOKEN || '',
                 auth_token: body.auth_token,
                 id: body.eventId,
-                payment_data: body.tx,
+                payment_data: JSON.stringify({
+                    tx: body.tx,
+                    chain_id: body.chain_id,
+                    amount: body.amount,
+                    token: body.token,
+                    payer_address: body.payer_address,
+                    to_address: body.to_address,
+                }),
                 status: 'applied',
                 payment_status: 'success'
             })

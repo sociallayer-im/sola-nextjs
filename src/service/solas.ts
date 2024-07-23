@@ -5163,7 +5163,14 @@ export interface Ticket {
     payment_token_name: string | null
     quantity: number | null,
     status: string
-    title: string
+    title: string,
+    payment_metadata: {
+        payment_chain: string | null
+        payment_target_address: string | null
+        payment_token_address: string | null
+        payment_token_price: string | null
+        payment_token_name: string | null
+    }[]
 }
 
 export async function queryTickets (props: {
@@ -5172,6 +5179,7 @@ export async function queryTickets (props: {
 
     const doc = gql`query MyQuery {
       tickets(where: {event_id: {_eq: ${props.event_id}}}) {
+        payment_metadata
         check_badge_class_id
         content
         created_at
@@ -5192,8 +5200,28 @@ export async function queryTickets (props: {
 
     const res: any = await request(graphUrl, doc)
     return res.tickets.map((item: any) => {
+        let payment_metadata: any[] = []
+        if (
+            item.payment_chain &&
+            item.payment_target_address &&
+            item.payment_token_address &&
+            item.payment_token_price &&
+            item.payment_token_name
+        ) {
+            payment_metadata = [{
+                payment_chain: item.payment_chain,
+                payment_target_address: item.payment_target_address,
+                payment_token_address: item.payment_token_address,
+                payment_token_price: item.payment_token_price,
+                payment_token_name: item.payment_token_name
+            }]
+        } else {
+            payment_metadata = JSON.parse(item.payment_metadata || '[]')
+        }
+
         return {
             ...item,
+            payment_metadata: payment_metadata,
             end_time: item.end_time ?
                 item.end_time.endsWith('Z') ?
                     item.end_time :

@@ -1,4 +1,4 @@
-import {forwardRef, useContext, useEffect, useImperativeHandle, useState} from 'react'
+import {forwardRef, useContext, useEffect, useImperativeHandle, useMemo, useState} from 'react'
 import styles from './TicketSetting.module.scss'
 import LangContext from "@/components/provider/LangProvider/LangContext";
 import AppInput from "@/components/base/AppInput";
@@ -19,11 +19,7 @@ const emptyTicket: Partial<Ticket> = {
     title: '',
     content: '',
     check_badge_class_id: null,
-    payment_chain: null,
-    payment_target_address: null,
-    payment_token_address: null,
-    payment_token_name: null,
-    payment_token_price: null,
+    payment_metadata: [],
     quantity: null,
     end_time: null,
 }
@@ -31,7 +27,7 @@ const emptyTicket: Partial<Ticket> = {
 interface ErrorMsg {
     index: number,
     title: boolean,
-    payment_target_address: boolean,
+    payment_target_address: number[],
 }
 
 function Ticket({creator, ...props}: {
@@ -41,13 +37,48 @@ function Ticket({creator, ...props}: {
     errorMsg?: ErrorMsg[]
     onChange?: (ticket: Partial<Ticket>) => any
     onDelete?: (ticket: Partial<Ticket>) => any
-}) {
+})
+{
     const {lang} = useContext(LangContext)
     const {openDialog, showLoading} = useContext(DialogsContext)
 
     const [badges, setBadges] = useState<Badge[]>([])
     const [badgeDetail, setBadgeDetail] = useState<Badge | null>(null)
-    const [errMsg, setErrMsg] = useState<ErrorMsg | null>(null)
+
+    const errMsg = useMemo(() => {
+        if (!props.errorMsg) return null
+        return props.errorMsg.find((msg) => msg.index === props.index) || null
+    }, [props.errorMsg])
+
+    const handleChangePayment = (payment: any, index: number) => {
+        const newPayments = [...props.ticket.payment_metadata!]
+        newPayments[index] = payment
+        props.onChange && props.onChange({
+            ...props.ticket,
+            payment_metadata: newPayments
+        })
+    }
+
+    const addPayment = () => {
+        props.onChange && props.onChange({
+            ...props.ticket,
+            payment_metadata: [ ...props.ticket.payment_metadata!, {
+                payment_chain: paymentTokenList[0].id,
+                payment_token_name: paymentTokenList[0].tokenList[0].id,
+                payment_token_price: 0,
+                payment_token_address: paymentTokenList[0].tokenList[0].contract,
+            }] as any
+        })
+    }
+
+    const removePayment = (index: number) => {
+        const newPayments = [...props.ticket.payment_metadata!]
+        newPayments.splice(index, 1)
+        props.onChange && props.onChange({
+            ...props.ticket,
+            payment_metadata: newPayments
+        })
+    }
 
     useEffect(() => {
         if (props.ticket.check_badge_class_id && badges.length > 0) {
@@ -69,12 +100,6 @@ function Ticket({creator, ...props}: {
         })
     }, [])
 
-    useEffect(() => {
-        if (props.errorMsg?.length) {
-            const target = props.errorMsg.find((msg) => msg.index === props.index)
-            setErrMsg(target || null)
-        }
-    }, [props.errorMsg])
 
     const showBadges = async () => {
         const queryProp = !!(creator as Group)?.creator ? {
@@ -109,23 +134,26 @@ function Ticket({creator, ...props}: {
         } as OpenDialogProps)
     }
 
-    const chain = props.ticket.payment_token_price !== null ? paymentTokenList.find((chain) => chain.id === props.ticket.payment_chain)! : undefined
+    const payments = useMemo(() => {
+        if (props.ticket.payment_metadata!.length === 0) return []
+        return props.ticket.payment_metadata!.map(payment => {
+            const chain = paymentTokenList.find((chain) => chain.id === payment.payment_chain)
 
+            let token: any = undefined
+            if (!!chain) {
+                token = chain.tokenList.find((t: any) => t.id === payment.payment_token_name)
+            }
 
-    let token: any = undefined
-    if (chain) {
-        const tokenExist = chain.tokenList.find((t: any) => {
-            return t.id === props.ticket.payment_token_name
+            return {
+                chain,
+                token
+            }
         })
-        if (tokenExist) {
-            token = tokenExist
-        } else {
-            token = chain.tokenList[0]
-        }
-    }
+    }, [props.ticket])
 
-    console.log(`ticket: ${(props.index || 0) + 1}`, props.ticket)
-    console.log(`token: ${(props.index || 0) + 1}`, token)
+    // console.log(`ticket: ${(props.index || 0) + 1}`, props.ticket)
+    // console.log(`token: ${(props.index || 0) + 1}`, token)
+    // console.log(`payments: ${(props.index || 0) + 1}`, payments)
 
     return (<div className={styles['ticket-form']}>
         <div className={styles['title']}>
@@ -177,116 +205,137 @@ function Ticket({creator, ...props}: {
                 <div className={styles['ticket-type']} onClick={e => {
                     props.onChange && props.onChange({
                         ...props.ticket,
-                        payment_token_price: null,
-                        payment_chain: null,
-                        payment_token_name: null,
-                        payment_token_address: null,
-                        payment_target_address: null
+                        payment_metadata: []
                     })
                 }}>
-                    <AppRadio checked={props.ticket.payment_token_price === null}/>
+                    <AppRadio checked={props.ticket.payment_metadata?.length === 0}/>
                     {'Free'}
                 </div>
                 <div className={styles['ticket-type']}
                      onClick={e => {
                          props.onChange && props.onChange({
                              ...props.ticket,
-                             payment_token_price: parseUnits('0', paymentTokenList[0].tokenList[0].decimals).toString(),
-                             payment_chain: paymentTokenList[0].id,
-                             payment_token_name: paymentTokenList[0].tokenList[0].id,
-                             payment_token_address: paymentTokenList[0].tokenList[0].contract,
+                             payment_metadata: [{
+                                 payment_token_price: "0",
+                                 payment_chain: paymentTokenList[0].id,
+                                 payment_token_name: paymentTokenList[0].tokenList[0].id,
+                                 payment_token_address: paymentTokenList[0].tokenList[0].contract,
+                             }] as any
                          })
                      }}>
-                    <AppRadio checked={props.ticket.payment_token_price !== null}/>
+                    <AppRadio checked={props.ticket.payment_metadata?.length !== 0}/>
                     {'Payment'}
                 </div>
             </div>
         </div>
 
-        {props.ticket.payment_token_price !== null && !!chain && !!token &&
-            <div className={styles['item-title-inline']}>
-                <div className={styles['label']}>{lang['Price']}</div>
+        {props.ticket.payment_metadata!.length > 0 && props.ticket.payment_metadata!.map((payment, index) => {
+            return <div className={styles['payment-list-item']} key={index}>
+                <div>
+                    <div className={styles['item-title-inline']} style={{marginTop: '8px'}}>
+                        <div className={styles['value']} style={{flex: 1}}>
+                            <div className={styles['label']}>{lang['Price']}</div>
+                            <div className={`${styles['ticket-payment']} ticket-payment`}>
+                                <Select
+                                    getOptionLabel={(option) => {
+                                        return <span>{(option.option as any).chain}</span>
+                                    }}
+                                    getValueLabel={(option) => {
+                                        return <span>{(option.option as any).chain}</span>
+                                    }}
+                                    value={[payments[index].chain] as any}
+                                    clearable={false}
+                                    searchable={false}
+                                    options={paymentTokenList}
+                                    onChange={(params) => {
+                                        handleChangePayment({
+                                            ...payment,
+                                            payment_chain: (params.option as any).id,
+                                            payment_token_name: (params.option as any).tokenList[0].id,
+                                            payment_token_address: (params.option as any).tokenList[0].contract,
+                                        }, index)
+                                    }}
+                                />
 
-                <div className={styles['value']}>
-                    <div className={`${styles['ticket-payment']} ticket-payment`}>
-                        <Select
-                            getOptionLabel={(option) => {
-                                return <span>{(option.option as any).chain}</span>
-                            }}
-                            getValueLabel={(option) => {
-                                return <span>{(option.option as any).chain}</span>
-                            }}
-                            value={[chain]}
-                            clearable={false}
-                            searchable={false}
-                            options={paymentTokenList}
-                            onChange={(params) => {
-                                props.onChange && props.onChange({
-                                    ...props.ticket,
-                                    payment_chain: (params.option as any).id,
-                                    payment_token_name: (params.option as any).tokenList[0].id,
-                                    payment_token_address: (params.option as any).tokenList[0].contract,
-                                })
-                            }}
-                        />
+                                <Select
+                                    getOptionLabel={(option) => {
+                                        return <span>{(option.option as any).name}</span>
+                                    }}
+                                    getValueLabel={(option) => {
+                                        return <span>{(option.option as any).name}</span>
+                                    }}
+                                    value={[payments[index].token] as any}
+                                    clearable={false}
+                                    searchable={false}
+                                    options={payments[index].chain.tokenList as any}
+                                    onChange={(params) => {
+                                        handleChangePayment({
+                                            ...payment,
+                                            payment_token_name: (params.option as any).id,
+                                            payment_token_address: (params.option as any).contract,
+                                        }, index)
+                                    }}
+                                />
+                            </div>
+                            <div className={styles['width-limit-3']} style={{flex: 1}}>
+                                <AppInput
+                                    type={'number'}
+                                    placeholder={lang['Price']}
+                                    onChange={e => {
+                                        if (Number(e.target.value) < 0) {
+                                            return
+                                        }
+                                        handleChangePayment({
+                                            ...payment,
+                                            payment_token_price: parseUnits(e.target.value, payments[index].token.decimals!).toString()
+                                        }, index)
+                                    }}
+                                    value={formatUnits(BigInt(payment.payment_token_price || 0), payments[index].token.decimals!)}/>
+                            </div>
+                        </div>
+                    </div>
 
-                        <Select
-                            getOptionLabel={(option) => {
-                                return <span>{(option.option as any).name}</span>
-                            }}
-                            getValueLabel={(option) => {
-                                return <span>{(option.option as any).name}</span>
-                            }}
-                            value={[token]}
-                            clearable={false}
-                            searchable={false}
-                            options={chain.tokenList as any}
-                            onChange={(params) => {
-                                props.onChange && props.onChange({
-                                    ...props.ticket,
-                                    payment_token_name: (params.option as any).id,
-                                    payment_token_address: (params.option as any).contract,
-                                })
-                            }}
-                        />
+                    <div className={styles['item-title-inline']} style={{marginTop: '8px'}}>
+
+                        <div className={styles['value']} style={{flex: 1}}>
+                            <div className={styles['label']}>{lang['Receiving_Wallet_Address']}</div>
+                            <AppInput
+                                value={payment.payment_target_address || ''}
+                                onChange={(e) => {
+                                    handleChangePayment({
+                                        ...payment,
+                                        payment_target_address: e.target.value
+                                    }, index)
+                                }}
+                                placeholder={lang['Receiving_Wallet_Address']}/>
+                        </div>
                     </div>
-                    <div className={styles['width-limit-3']}>
-                        <AppInput
-                            type={'number'}
-                            placeholder={lang['Price']}
-                            onChange={e => {
-                                if (Number(e.target.value) < 0) {
-                                    return
-                                }
-                                props.onChange && props.onChange({
-                                    ...props.ticket,
-                                    payment_token_price: parseUnits(e.target.value, token.decimals!).toString()
-                                })
-                            }}
-                            value={formatUnits(BigInt(props.ticket.payment_token_price || 0), token.decimals!)}/>
-                    </div>
+                    {errMsg?.payment_target_address?.includes(index) &&
+                        <div className={styles['error-msg']}>{'Please input receiving wallet address'}</div>
+                    }
                 </div>
+                { payments.length === index + 1 ?
+                    <div style={{marginLeft: '12px', cursor: 'pointer'}} onClick={addPayment}>
+                        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="0.5" y="0.5" width="31" height="31" rx="15.5" fill="white"/>
+                            <rect x="0.5" y="0.5" width="31" height="31" rx="15.5" stroke="#6CD7B2"/>
+                            <path fillRule="evenodd" clipRule="evenodd"
+                                  d="M15.5 12C15.2239 12 15 12.2239 15 12.5V15H12.5C12.2239 15 12 15.2239 12 15.5V16.5C12 16.7761 12.2239 17 12.5 17H15V19.5C15 19.7761 15.2239 20 15.5 20H16.5C16.7762 20 17 19.7761 17 19.5V17H19.5C19.7761 17 20 16.7761 20 16.5V15.5C20 15.2239 19.7761 15 19.5 15H17V12.5C17 12.2239 16.7762 12 16.5 12H15.5Z"
+                                  fill="#6CD7B2"/>
+                        </svg>
+                    </div> :
+                    <div style={{marginLeft: '12px', cursor: 'pointer'}} onClick={e => {removePayment(index)}}>
+                        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="0.5" y="0.5" width="31" height="31" rx="15.5" fill="white"/>
+                            <rect x="0.5" y="0.5" width="31" height="31" rx="15.5" stroke="#7B7C7B"/>
+                            <path fillRule="evenodd" clipRule="evenodd" d="M19.5 15C19.7761 15 20 15.2239 20 15.5V16.5C20 16.7761 19.7761 17 19.5 17H12.5C12.2239 17 12 16.7761 12 16.5V15.5C12 15.2239 12.2239 15 12.5 15H19.5Z" fill="#7B7C7B"/>
+                        </svg>
+                    </div>
+                }
             </div>
+        })
         }
 
-        {props.ticket.payment_token_price !== null &&
-            <>
-                <div className={styles['item-title']}>{lang['Receiving_Wallet_Address']}</div>
-                <div className={styles['width-limit-2']}>
-                    <AppInput
-                        value={props.ticket.payment_target_address || ''}
-                        onChange={(e) => {
-                            props.onChange && props.onChange({
-                                ...props.ticket,
-                                payment_target_address: e.target.value
-                            })
-                        }}
-                        placeholder={lang['Receiving_Wallet_Address']}/>
-                </div>
-                {errMsg?.payment_target_address &&
-                    <div className={styles['error-msg']}>{'Please input receiving wallet address'}</div>}
-            </>
-        }
 
         <div className={styles['item-title-inline']}>
             <div className={styles['label']}> {lang['Ticket_Amount']}</div>
@@ -434,18 +483,22 @@ function TicketSetting(props: { creator: Group | Profile, onChange?: (tickets: P
             let errMsg: ErrorMsg = {
                 index,
                 title: false,
-                payment_target_address: false,
+                payment_target_address: [],
             }
 
             if (!ticket.title) {
                 errMsg.title = true
             }
 
-            if (ticket.payment_token_price !== null && !ticket.payment_target_address) {
-                errMsg.payment_target_address = true
+            if (!!ticket.payment_metadata?.length) {
+                ticket.payment_metadata.forEach((payment, i) => {
+                    if (!payment.payment_target_address) {
+                        errMsg.payment_target_address.push(i)
+                    }
+                })
             }
 
-            if (errMsg.title || errMsg.payment_target_address) {
+            if (errMsg.title || errMsg.payment_target_address.length) {
                 newErrorMsg.push(errMsg)
                 res = false
             }

@@ -99,7 +99,11 @@ function Erc20TokenPaymentHandler(
                     setBusy(true)
                     setSending(false)
                     setVerifying(true)
-                    const verify = await _verifyPayment(participant.id, participant.payment_data!)
+                    let paymentTx= participant.payment_data!
+                    if (!paymentTx.startsWith('0x')) {
+                        paymentTx = JSON.parse(paymentTx).tx
+                    }
+                    const verify = await _verifyPayment(participant.id, paymentTx)
                     if (!!verify) {
                         setBusy(false)
                         setSending(false)
