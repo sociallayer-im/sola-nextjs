@@ -347,6 +347,10 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
             query.set('view', view)
         }
 
+        if (searchParams?.get('group')) {
+            query.set('group', searchParams.get('group') as string)
+        }
+
         return '?' + query.toString()
     }
 
