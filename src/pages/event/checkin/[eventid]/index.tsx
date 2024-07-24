@@ -1,5 +1,5 @@
 import {useParams, useRouter} from 'next/navigation'
-import {useContext, useEffect, useRef, useState} from 'react'
+import {useContext, useEffect, useMemo, useRef, useState} from 'react'
 import {
     checkIsManager,
     Event,
@@ -7,8 +7,8 @@ import {
     getProfile,
     Participants,
     Profile,
-    queryEventDetail,
-    sendEventBadge
+    queryEventDetail, queryTickets,
+    sendEventBadge, Ticket
 } from "@/service/solas";
 import userContext from "@/components/provider/UserProvider/UserContext";
 import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
@@ -21,6 +21,7 @@ import ListCheckinUser from "@/components/compose/ListCheckinUser/ListCheckinUse
 import ListEventParticipants from "@/components/compose/ListEventParticipants/ListEventParticipants";
 import ListCheckLog from "@/components/compose/ListCheckLog/ListCheckLog";
 import useEvent, {EVENT} from "@/hooks/globalEvent";
+import fa from "@walletconnect/legacy-modal/dist/cjs/browser/languages/fa";
 
 function EventCheckIn() {
     const router = useRouter()
@@ -42,6 +43,25 @@ function EventCheckIn() {
     const formatTime = useTime2()
     const {lang} = useContext(langContext)
     const timeOut = useRef<any>(null)
+    const [tickets, setTickets] = useState<Ticket[]>([])
+    const [ready, setReady] = useState(false)
+
+    const filteredParticipants = useMemo(() => {
+        if (!participants.length) return []
+        if (!tickets.length) return participants
+        return participants.filter(participant => {
+            if (!participant.ticket_id) return true
+
+            const ticket = tickets.find((ticket) => {
+                return ticket.id == participant.ticket_id
+            })
+
+            if (ticket!.payment_metadata.length === 0) {
+                return true
+            } else return participant.payment_status === 'success';
+
+        })
+    }, [participants, tickets])
 
     async function init(needLoading = true) {
         let unload: any = () => {
@@ -53,6 +73,11 @@ function EventCheckIn() {
 
             try {
                 const eventDetails = await queryEventDetail({id: Number(params?.eventid)})
+                queryTickets({event_id: Number(params?.eventid)})
+                    .then((res) => {
+                    setTickets(res)
+                })
+                    .finally(() => {setReady(true)})
                 setEvent(eventDetails)
                 setIsCheckLog(eventDetails!.event_type === 'checklog')
                 setParticipants(eventDetails?.participants?.sort((a, b) => {
@@ -220,18 +245,23 @@ function EventCheckIn() {
                                 <ListCheckLog eventId={Number(params?.eventid)}/>
                             </>
                             : <>
-                                <div className={'title'}>{
-                                    lang['Activity_Registered_participants']
-                                } <span>({hasCheckin.length} / {participants.length})</span>
-                                </div>
-                                <ListEventParticipants
-                                    isHost={isHoster || isManager || isOperator || isGroupOwner}
-                                    eventId={Number(params?.eventid || 0)}
-                                    participants={participants}
-                                    onChecked={(item) => {
-                                        init()
-                                    }}
-                                />
+                            { ready &&
+                                <>
+                                    <div className={'title'}>{
+                                        lang['Activity_Registered_participants']
+                                    } <span>({hasCheckin.length} / {filteredParticipants.length})</span>
+                                    </div>
+                                    <ListEventParticipants
+                                        isHost={isHoster || isManager || isOperator || isGroupOwner}
+                                        eventId={Number(params?.eventid || 0)}
+                                        participants={filteredParticipants}
+                                        onChecked={(item) => {
+                                            init()
+                                        }}
+                                    />
+                                </>
+                            }
+
                             </>
                         }
                     </div>

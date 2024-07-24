@@ -28,8 +28,8 @@ function ListEventParticipants(props: ListCheckinUserProps) {
     const {showLoading, showToast, openConfirmDialog} = useContext(DialogsContext)
 
     useEffect(() => {
-
-    }, [])
+        setParticipants(props.participants)
+    }, [props.participants])
 
     const handleCheckin = async (item: Participants) => {
         if (!user.id) return

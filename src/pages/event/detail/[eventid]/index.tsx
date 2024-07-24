@@ -1,5 +1,5 @@
 import {useParams, useRouter} from 'next/navigation'
-import {useContext, useEffect, useState} from 'react'
+import {useContext, useEffect, useMemo, useState} from 'react'
 import {
     Badge,
     checkEventPermission,
@@ -108,6 +108,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
     const [cohost, setCohost] = useState<ProfileSimple[]>([])
     const [speaker, setSpeaker] = useState<ProfileSimple[]>([])
     const [repeatEventDetail, setRepeatEventDetail] = useState<RecurringEvent | null>(null)
+    const [ticketReady, setTicketReady] = useState(false)
 
     async function fetchData() {
         if (params?.eventid) {
@@ -126,6 +127,8 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
 
             queryTickets({event_id: res.id}).then((res) => {
                 setTickets(res)
+            }).finally(()=>{
+                setTicketReady(true)
             })
 
             setEvent(res)
@@ -314,6 +317,24 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
             position: 'bottom'
         })
     }
+
+    const filteredParticipants = useMemo(() => {
+        if (!participants.length || !ticketReady) return []
+        if (!tickets.length) return participants
+
+        return participants.filter(participant => {
+            if (!participant.ticket_id) return true
+
+            const ticket = tickets.find((ticket) => {
+                return ticket.id == participant.ticket_id
+            })
+
+            if (ticket!.payment_metadata.length === 0) {
+                return true
+            } else return participant.payment_status === 'success';
+
+        })
+    }, [participants, tickets])
 
     useEffect(() => {
         if (params?.eventid || needUpdate) {
@@ -861,7 +882,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                              onClick={e => {
                                                  setTab(2)
                                              }}>
-                                            <div>{lang['Activity_Participants']}({participants.length})</div>
+                                            <div>{lang['Activity_Participants']}({filteredParticipants.length})</div>
                                         </div>
                                     </div>
                                 </div>
@@ -961,7 +982,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                             fetchData()
                                                         }}
                                                         showDownload={isHoster || isOperator || isGroupOwner || isManager}
-                                                        participants={participants}
+                                                        participants={filteredParticipants}
                                                         isHost={isHoster || isOperator || isGroupOwner || isManager}
                                                         eventId={Number(params?.eventid)}
                                                         tickets={tickets}
