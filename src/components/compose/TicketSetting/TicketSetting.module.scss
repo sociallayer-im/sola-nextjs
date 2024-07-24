@@ -8,6 +8,7 @@
 
 .ticket-setting-list {
   margin-bottom: 40px;
+
   .add-btn {
     color: var(--Text-4-Headline, #272928);
     font-size: 16px;
@@ -37,6 +38,10 @@
 
   .width-limit-2 {
     max-width: 520px;
+  }
+
+  .width-limit-3 {
+     min-width: 50px;
   }
 
 
@@ -107,6 +112,7 @@
     display: flex;
     align-items: center;
     flex-flow: row wrap;
+
     .label {
       margin-right: 12px;
       white-space: nowrap;
@@ -116,6 +122,12 @@
       display: flex;
       flex-flow: row nowrap;
       align-items: center;
+
+      @media (max-width: 800px) {
+        & {
+          flex-flow: row wrap;
+        }
+      }
     }
   }
 
@@ -163,7 +175,7 @@
     font-size: 14px;
   }
 
-  >div {
+  > div {
     margin-right: 12px;
   }
 
@@ -193,7 +205,7 @@
   margin-left: 12px;
 
 
-  >div {
+  > div {
     width: 100px;
     white-space: nowrap;
     overflow: hidden;
@@ -227,6 +239,12 @@
   border-bottom: 1px solid #f1f1f1;
   display: flex;
   flex-flow: row nowrap;
-  align-items:center;
-  margin-bottom: 12px
+  align-items: center;
+  margin-bottom: 12px;
+
+  @media (max-width: 800px) {
+    & {
+      padding: 0 0 12px 0;
+    }
+  }
 }
