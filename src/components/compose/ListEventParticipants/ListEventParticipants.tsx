@@ -1,5 +1,5 @@
 import {useContext, useEffect, useState} from 'react'
-import {Participants, unJoinEvent, eventCheckIn} from "@/service/solas";
+import {Participants, unJoinEvent, eventCheckIn, Ticket} from "@/service/solas";
 import usePicture from "../../../hooks/pictrue";
 import LangContext from "../../provider/LangProvider/LangContext";
 import UserContext from "../../provider/UserProvider/UserContext";
@@ -14,6 +14,7 @@ interface ListCheckinUserProps {
     eventId: number
     onChecked?: (participants: Participants) => any
     showDownload?: boolean
+    tickets?: Ticket[]
 }
 
 function ListEventParticipants(props: ListCheckinUserProps) {
@@ -123,6 +124,7 @@ function ListEventParticipants(props: ListCheckinUserProps) {
         {
             participants.map((item, index) => {
                 const checked = item.status === 'checked'
+                const ticket = (props.tickets || []).find(ticket => ticket.id === item.ticket_id)
 
                 return <div className={styles['user-list-item']} key={index}>
                     <Link href={item.profile.username ? `/profile/${item.profile.username}` : ''} className={styles['left']}
@@ -134,6 +136,10 @@ function ListEventParticipants(props: ListCheckinUserProps) {
                         </div>
                     </Link>
                     <div className={styles['right']}>
+                        {!!ticket  &&
+                            <div className={styles['ticket']}>{ticket.title}</div>
+                        }
+
                         {
                             user.id === item.profile.id && item.status !== 'cancel' &&
                             <div className={styles['unjoin']} onClick={handleUnJoin}>{lang['Activity_Detail_Btn_unjoin']}</div>

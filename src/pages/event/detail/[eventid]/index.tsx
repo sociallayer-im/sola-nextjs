@@ -964,6 +964,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                         participants={participants}
                                                         isHost={isHoster || isOperator || isGroupOwner || isManager}
                                                         eventId={Number(params?.eventid)}
+                                                        tickets={tickets}
                                                     />
                                                 }
 
