@@ -1,7 +1,7 @@
 import {NextApiRequest, NextApiResponse} from "next/dist/shared/lib/utils"
 import {getParticipantDetail, myProfile, Profile, updatePaymentStatus} from "@/service/solas"
 import {createPublicClient, decodeEventLog, http} from 'viem'
-import {avalancheFuji, bsc, polygon} from 'viem/chains'
+import {arbitrum, avalancheFuji, base, mainnet, optimism, polygon} from 'wagmi/chains'
 import {payhub_abi, paymentTokenList} from "@/payment_settring"
 
 export interface Props {
@@ -19,12 +19,12 @@ export interface Props {
 }
 
 const getChainByChainId = (chainId: number) => {
-    if (chainId === 137) {
-        return polygon
-    } else if (chainId === 56) {
-        return bsc
-    } else if (chainId === 43113) {
-        return avalancheFuji
+    const chains = [avalancheFuji, polygon, mainnet, optimism, base, arbitrum]
+    const chain = chains.find((item) => item.id === chainId)
+    if (!chain) {
+        throw new Error('chain not found:' + chainId)
+    } else {
+        return chain
     }
 }
 
@@ -133,7 +133,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         decodedLog.args.productId.toString() !== body.productId.toString(),
         decodedLog.args.itemId.toString() !== body.itemId.toString(),
         decodedLog.args.amount.toString() !== body.amount
-        )
+    )
 
     if (decodedLog.eventName !== 'PaymentTrasnfered'
         || decodedLog.args.from.toLowerCase() !== body.payer_address.toLowerCase()
