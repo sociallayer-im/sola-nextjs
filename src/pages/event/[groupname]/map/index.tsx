@@ -146,6 +146,12 @@ function ComponentName(props: { markerType: string | null, group?: Group, isIfra
                 auth_token: user.authToken ? user.authToken : undefined,
             })
 
+        } if (type === 'all') {
+            res = await queryMarkers({
+                group_id: eventGroup?.id || undefined,
+                with_checkins: user.authToken ? true : undefined,
+                auth_token: user.authToken ? user.authToken : undefined,
+            })
         } else {
             res = await queryMarkers({
                 category: selectedType!,
@@ -523,12 +529,6 @@ function ComponentName(props: { markerType: string | null, group?: Group, isIfra
                        }}>Share me + </div>
                    }
 
-                   {/*<div className={`${styles['menu-item']} ${!selectedType ? styles['menu-item-active'] : ''}`}*/}
-                   {/*     onClick={() => {*/}
-                   {/*         setSelectedType('')*/}
-                   {/*         router.push(`/event/${eventGroup?.username}/map`)*/}
-                   {/*     }}>All*/}
-                   {/*</div>*/}
                    {
                        menuList.map((item, index) => {
                            const isSelected = selectedType === item.category
@@ -542,6 +542,12 @@ function ComponentName(props: { markerType: string | null, group?: Group, isIfra
                                        className={`${styles['menu-item']} ${isSelected ? styles['menu-item-active'] : ''}`}>{item.label}</div>
                        })
                    }
+
+                   <div className={`${styles['menu-item']} ${selectedType === 'all' ? styles['menu-item-active'] : ''}`}
+                        onClick={() => {
+                            setSelectedType('all')
+                        }}>All Markers
+                   </div>
                </div>
                { selectingMarkerPoint &&
                    <div className={styles['top-menu']} style={{marginTop: '50px', height: 'auto'}}>

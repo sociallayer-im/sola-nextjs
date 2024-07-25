@@ -34,6 +34,24 @@ export const markerTypeList2: MarkerType[] = [
         category: 'attractions',
         pin: '/images/marker/Vision Spot.png',
         pin_checked: '/images/marker/Vision Spot_checked.png',
+    },
+    {
+        label: 'Co-working',
+        category: 'co-working',
+        pin: '/images/map_marker.png',
+        pin_checked: '/images/map_marker.png',
+    },
+    {
+        label: 'Intentional Community',
+        category: 'intentional-community',
+        pin: '/images/map_marker.png',
+        pin_checked: '/images/map_marker.png',
+    },
+    {
+        label: 'Book & Zine',
+        category: 'book-zine',
+        pin: '/images/map_marker.png',
+        pin_checked: '/images/map_marker.png',
     }
 ]
 

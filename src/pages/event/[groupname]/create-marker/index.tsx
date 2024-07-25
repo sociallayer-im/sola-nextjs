@@ -376,7 +376,7 @@ function ComponentName() {
                             }}/>
                     </div>
 
-                    {!marker.id &&
+                    {true &&
                         <SelectorMarkerType
                             exclude={['share']}
                             onChange={(markerType) => {
