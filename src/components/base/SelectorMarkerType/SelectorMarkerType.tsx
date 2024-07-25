@@ -42,8 +42,8 @@ export const markerTypeList2: MarkerType[] = [
         pin_checked: '/images/map_marker.png',
     },
     {
-        label: 'Intentional Community',
-        category: 'intentional-community',
+        label: 'Community',
+        category: 'community',
         pin: '/images/map_marker.png',
         pin_checked: '/images/map_marker.png',
     },

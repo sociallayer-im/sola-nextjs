@@ -546,6 +546,8 @@ function ComponentName(props: { markerType: string | null, group?: Group, isIfra
                    <div className={`${styles['menu-item']} ${selectedType === 'all' ? styles['menu-item-active'] : ''}`}
                         onClick={() => {
                             setSelectedType('all')
+                            const patch = `/event/${eventGroup?.username}/map?type=all`
+                            window.history.pushState({}, '', patch)
                         }}>All Markers
                    </div>
                </div>
