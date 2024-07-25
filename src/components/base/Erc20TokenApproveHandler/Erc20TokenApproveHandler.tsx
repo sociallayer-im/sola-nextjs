@@ -1,4 +1,4 @@
-import {ReactNode, useContext, useEffect, useState} from 'react'
+import {ReactNode, useContext, useEffect, useState, forwardRef, useImperativeHandle} from 'react'
 import {
     useContractWrite,
     useAccount,
@@ -15,7 +15,7 @@ import DialogsContext from "@/components/provider/DialogProvider/DialogsContext"
 
 function Erc20TokenApproveHandler(
     props: {
-        content?: (trigger: (() => void) | undefined, busy: boolean) => ReactNode
+        content?: (trigger: (() => void) | undefined,  busy: boolean) => ReactNode
         token: string
         decimals: number
         amount: string
@@ -23,7 +23,7 @@ function Erc20TokenApproveHandler(
         chainId: number
         onSuccess?: (hash: string) => any
         onErrMsg?: (message: string) => any
-    }
+    }, ref: any
 ) {
     const publicClient: any = usePublicClient({chainId: props.chainId})
     const {data: walletClient}: any = useWalletClient({chainId: props.chainId})
@@ -32,6 +32,38 @@ function Erc20TokenApproveHandler(
     const [busy, setBusy] = useState(false)
     const { switchNetworkAsync } = useSwitchNetwork()
     const { chain } = useNetwork()
+
+
+
+
+    const reFleshAllowance = () => {
+        if (address) {
+            setBusy(true)
+            publicClient.readContract({
+                address: props.token as any,
+                abi: erc20_abi,
+                functionName: 'allowance',
+                chainId: props.chainId,
+                args: [
+                    address,
+                    payHubContract
+                ]
+            }).then((res: any) => {
+                if (res !== undefined && res >= BigInt(props.amount)) {
+                    console.log('BigInt(props.amount)BigInt(props.amount)', BigInt(props.amount))
+                    props.onSuccess?.('')
+                }
+            }).finally(() => {
+                setBusy(false)
+            })
+        }
+    }
+
+    useImperativeHandle(ref, () => {
+        return {
+            reFleshAllowance
+        }
+    })
 
     const payHubContract = paymentTokenList.find((item) => item.chainId === props.chainId)?.payHub
 
@@ -53,7 +85,7 @@ function Erc20TokenApproveHandler(
                 args: [
                     payHubContract,
                     //BigInt(props.amount)
-                    BigInt(500 * 10**props.decimals)
+                    BigInt(500 * 10 ** props.decimals)
                 ]
             }
 
@@ -79,34 +111,15 @@ function Erc20TokenApproveHandler(
     }
 
     useEffect(() => {
-        if (address) {
-            setBusy(true)
-            publicClient.readContract({
-                address: props.token as any,
-                abi: erc20_abi,
-                functionName: 'allowance',
-                chainId: props.chainId,
-                args: [
-                    address,
-                    payHubContract
-                ]
-            }).then((res: any) => {
-                if (res !== undefined && res >= BigInt(props.amount)) {
-                    console.log('BigInt(props.amount)BigInt(props.amount)', BigInt(props.amount))
-                    props.onSuccess?.('')
-                }
-            }).finally(() => {
-                setBusy(false)
-            })
-        }
-    }, [address])
+        reFleshAllowance()
+    }, [address, props.token, props.chainId])
 
     return (<>
         {props.content ? props.content(() => {
             handleApprove()
-        }, busy) : null
+        },  busy) : null
         }
     </>)
 }
 
-export default Erc20TokenApproveHandler
+export default forwardRef(Erc20TokenApproveHandler)

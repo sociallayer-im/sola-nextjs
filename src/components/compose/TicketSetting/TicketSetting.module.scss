@@ -1,3 +1,11 @@
+.chain-name {
+  max-width: 10vw;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: block;
+}
+
 .ticket-setting-list {
   margin-bottom: 40px;
 
@@ -33,9 +41,9 @@
   }
 
   .width-limit-3 {
-    width: 80px;
-    margin-right: 12px;
+     min-width: 50px;
   }
+
 
   .width-limit-4 {
     width: 160px;
@@ -85,6 +93,12 @@
     line-height: 24px;
     margin-bottom: 8px;
     margin-top: 27px;
+
+    .value {
+      display: flex;
+      flex-flow: row nowrap;
+      align-items: center;
+    }
   }
 
   .item-title-inline {
@@ -98,14 +112,22 @@
     display: flex;
     align-items: center;
     flex-flow: row wrap;
+
     .label {
       margin-right: 12px;
+      white-space: nowrap;
     }
 
     .value {
       display: flex;
-      flex-flow: row wrap;
+      flex-flow: row nowrap;
       align-items: center;
+
+      @media (max-width: 800px) {
+        & {
+          flex-flow: row wrap;
+        }
+      }
     }
   }
 
@@ -153,7 +175,7 @@
     font-size: 14px;
   }
 
-  >div {
+  > div {
     margin-right: 12px;
   }
 
@@ -183,7 +205,7 @@
   margin-left: 12px;
 
 
-  >div {
+  > div {
     width: 100px;
     white-space: nowrap;
     overflow: hidden;
@@ -207,5 +229,22 @@
     width: 60px;
     height: 60px;
     border-radius: 50%;
+  }
+}
+
+.payment-list-item {
+  padding: 0 12px 12px 12px;
+  border-radius: 8px;
+  overflow: hidden;
+  border-bottom: 1px solid #f1f1f1;
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  margin-bottom: 12px;
+
+  @media (max-width: 800px) {
+    & {
+      padding: 0 0 12px 0;
+    }
   }
 }

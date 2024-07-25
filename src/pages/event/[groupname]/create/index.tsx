@@ -761,6 +761,16 @@ function EditEvent({
             _tickets = tickets
         }
 
+        if (!!_tickets && _tickets.length) {
+            _tickets = _tickets.map((ticket) => {
+                return {
+                    ...ticket,
+                    payment_metadata: JSON.stringify(ticket.payment_metadata || []) as any,
+                }
+            })
+        }
+
+
         const saveProps = {
             ...event,
             id: initEvent!.id,
@@ -932,6 +942,7 @@ function EditEvent({
             return
         }
 
+
         const props = {
             ...event,
             operators: cohostIds,
@@ -942,7 +953,12 @@ function EditEvent({
             interval: repeat || undefined,
             event_count: repeatCounter,
             extra,
-            tickets: enableTicket && tickets.length ? tickets : null,
+            tickets: enableTicket && tickets.length ? tickets.map((ticket) => {
+                return {
+                    ...ticket,
+                    payment_metadata: JSON.stringify(ticket.payment_metadata || []) as any,
+                }
+            }) : null,
 
             auth_token: user.authToken || '',
         } as CreateRepeatEventProps

@@ -99,7 +99,11 @@ function Erc20TokenPaymentHandler(
                     setBusy(true)
                     setSending(false)
                     setVerifying(true)
-                    const verify = await _verifyPayment(participant.id, participant.payment_data!)
+                    let paymentTx= participant.payment_data!
+                    if (!paymentTx.startsWith('0x')) {
+                        paymentTx = JSON.parse(paymentTx).tx
+                    }
+                    const verify = await _verifyPayment(participant.id, paymentTx)
                     if (!!verify) {
                         setBusy(false)
                         setSending(false)
@@ -113,6 +117,14 @@ function Erc20TokenPaymentHandler(
                         throw new Error('Verify failed')
                     }
                 }
+            }
+
+            if (chain?.id !== props.chainId) {
+                await switchNetworkAsync?.(props.chainId)
+                setBusy(false)
+                setSending(false)
+                setVerifying(false)
+                return
             }
 
             // create an order

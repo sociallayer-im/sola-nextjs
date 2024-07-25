@@ -1,4 +1,24 @@
 .event-ticket-list {
+  .price-info {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .chain-icons {
+    display: flex;
+
+    img {
+      background:  #fff;
+      box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.1);
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      margin-left: -6px;
+    }
+  }
+
   .event-ticket-title {
     color: #000;
     font-size: 16px;
