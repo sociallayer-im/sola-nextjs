@@ -60,13 +60,13 @@ const config = createConfig({
     connectors: [
         //  walletConnectConnect,
         inject,
-        new JoyIdConnector(
-        {
-            chains: [mainnet, polygon, avalancheFuji],
-            options: {
-                joyidAppURL: 'https://app.joy.id'
-            }
-        })
+        // new JoyIdConnector(
+        // {
+        //     chains: [mainnet, polygon, avalancheFuji],
+        //     options: {
+        //         joyidAppURL: 'https://app.joy.id'
+        //     }
+        // })
     ],
 })
 
