@@ -507,18 +507,20 @@ function ComponentName(props: { markerType: string | null, group?: Group, isIfra
         {!props.isIframe &&
            <>
                <div className={styles['top-menu']}>
-                   {(isMember || isManager) &&
-                       <div className={styles['menu-item-create']} onClick={() => {
-                           setSelectingMarkerPoint(true)
-                           selectingMarkerPointRef.current = true
-                           // https://maps.gstatic.com/mapfiles/openhand_8_8.cur
-                           const map:any = document.querySelector('#gmap > div > div.gm-style > div:nth-child(1) > div:nth-child(2)')
-                           if (map) {
-                               map.style.cursor = "url('/images/map_marker_cur.png'),default"
-                           }
-                       }}>Create a Marker +
-                       </div>
-                   }
+                   <div className={styles['menu-item-create']} onClick={() => {
+                       if (!user.id) {
+                           openConnectWalletDialog()
+                           return
+                       }
+                       setSelectingMarkerPoint(true)
+                       selectingMarkerPointRef.current = true
+                       // https://maps.gstatic.com/mapfiles/openhand_8_8.cur
+                       const map:any = document.querySelector('#gmap > div > div.gm-style > div:nth-child(1) > div:nth-child(2)')
+                       if (map) {
+                           map.style.cursor = "url('/images/map_marker_cur.png'),default"
+                       }
+                   }}>Create a Marker +
+                   </div>
                    {(isMember || isManager) &&
                        <div className={styles['menu-item-create']} onClick={() => {
                            if (!user.id) {
