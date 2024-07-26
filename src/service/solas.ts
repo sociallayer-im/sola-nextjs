@@ -5207,6 +5207,7 @@ export async function queryTickets (props: {
             item.payment_token_address &&
             item.payment_token_price &&
             item.payment_token_name
+            && (!item.payment_metadata || item.payment_metadata === '[]')
         ) {
             payment_metadata = [{
                 payment_chain: item.payment_chain,

@@ -89,11 +89,12 @@ function TicketItem({
 }
 
 function EventTickets({
-                          canAccess = true,
+                         
                           ...props
                       }: { event: Event, tickets: Ticket[], canAccess?: boolean, isDialog?: boolean }) {
 
     const {lang} = useContext(langContext)
+    const canAccess = true
     const {openDialog, showToast} = useContext(DialogsContext)
     const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(props.tickets[0] || null)
     const {user} = useContext(userContext)
