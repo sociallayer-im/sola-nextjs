@@ -1,4 +1,4 @@
-const twitterRegex = /^https?:\/\/(?:www\.)?twitter\.com\/([A-Za-z0-9_]{1,15})\/?$/;
+const twitterRegex = /^https?:\/\/(?:www\.)?x\.com\/([A-Za-z0-9_]{1,15})\/?$/;
 const telegramRegex = /^https?:\/\/(?:www\.)?t\.me\/([A-Za-z0-9_]{1,15})\/?$/;
 const githubRegex = /^https?:\/\/(?:www\.)?github\.com\/([A-Za-z0-9_]{1,15})\/?$/;
 const ensRegex = /^https?:\/\/app\.ens\.domains\/([A-Za-z0-9_\.]{1,32})\/?$/;
