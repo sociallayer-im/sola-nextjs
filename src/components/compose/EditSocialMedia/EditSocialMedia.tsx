@@ -4,7 +4,7 @@ import DialogsContext from '../../provider/DialogProvider/DialogsContext'
 import {OpenDialogProps} from '../../provider/DialogProvider/DialogProvider'
 import { Delete } from 'baseui/icon'
 import AppButton, {BTN_KIND, BTN_SIZE} from '../../base/AppButton/AppButton'
-import useSocialMedia from "../../../hooks/socialMedia";
+import useSocialMedia from "../../../hooks/socialMedia"
 
 export interface EditSocialMediaProps {
     value: string,
@@ -17,6 +17,7 @@ export interface EditSocialMediaProps {
 
 export interface EditDialogProps {
     title: string,
+    des: string,
     value: string,
     onConfirm: (value: string) => any
     handleClose: () => any
@@ -37,6 +38,7 @@ function EditDialog(props: EditDialogProps) {
     const { lang } = useContext(langContext)
     const [value, setValue] = useState(props.value)
 
+
     useEffect(() => {
         if (input.current) {
             input.current.focus()
@@ -56,6 +58,8 @@ function EditDialog(props: EditDialogProps) {
         <input type="text" ref={ input } value={ value } onChange={(e) => {
             setValue(e.target.value.trim())
         }}/>
+        <div className='dialog-des'>{props.des}</div>
+
         <AppButton
             special
             onClick={ handleConfirm }
@@ -68,6 +72,7 @@ function EditSocialMedia(props: EditSocialMediaProps) {
     const {lang} = useContext(langContext)
     const {openDialog} = useContext(DialogsContext)
     const {url2Id} = useSocialMedia()
+    const {getTips} = useSocialMedia()
 
     useEffect(() => {
 
@@ -78,6 +83,7 @@ function EditSocialMedia(props: EditSocialMediaProps) {
             content: (close: any) => <EditDialog
                 title={props.title}
                 value={props.value}
+                des={props.type ? getTips(props.type) : ''}
                 onConfirm={(value) => {
                     !!props.onChange && props.onChange(value)
                 }}

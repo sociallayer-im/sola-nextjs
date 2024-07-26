@@ -10,6 +10,9 @@
   cursor: pointer
   align-items: center
   height: 48px
+
+
+
   .media-edit-btn
     width: 60px
     height: 27px
@@ -21,14 +24,22 @@
     line-height: 27px
     text-align: center
     color: #272928
+
 .edit-media-edit-dialog
   width: 100%
   height: 100%
   background: #fff
-  box-shadow: 0 0 18px rgba(0,0,0,0.2)
+  box-shadow: 0 0 18px rgba(0, 0, 0, 0.2)
   border-radius: 16px
   padding: 16px
   box-sizing: border-box
+
+  .dialog-des
+    font-size: 14px
+    color: #999
+    margin: 12px 0
+    white-space: pre-wrap
+
   .dialog-title
     display: flex
     flex-flow: row nowrap
@@ -37,6 +48,7 @@
     font-size: 16px
     line-height: 24px
     color: #272928
+
     .dialog-close-title
       height: 24px
       width: 24px
@@ -47,29 +59,33 @@
       background: #F8F8F8
       color: #D2D2D2
       cursor: pointer
+
   & > input
     height: 48px
     backdrop-filter: blur(10px)
     border-radius: 8px
-    background: rgba(236,238,250,0.2)
+    background: rgba(236, 238, 250, 0.2)
     width: 100%
     color: #272928
     font-size: 16px
     border: 0
     outline: none
-    margin-bottom: 16px
+    margin-bottom: 8px
     margin-top: 8px
     padding: 0 12px
     box-sizing: border-box
+
 .edit-media-title
   display: flex
   flex-flow: row nowrap
   align-items: center
   font-weight: bold
   color: #272928
+
   i
     font-size: 18px
     margin-right: 6px
+
   svg
     font-size: 18px
     margin-right: 6px

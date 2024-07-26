@@ -5,6 +5,15 @@ const ensRegex = /^https?:\/\/app\.ens\.domains\/([A-Za-z0-9_\.]{1,32})\/?$/;
 const lensRegex = /^https?:\/\/(?:www\.)?lenster\.xyz\/u\/([A-Za-z0-9_]{1,15})\/?$/;
 const farcasterRegex = /^https?:\/\/warpcast\.com\/([A-Za-z0-9_]{1,15})\/?$/;
 
+const tips = {
+    twitter: 'eg. "https://twitter.com/xxxx"  \nor username "xxx" without "@"',
+    telegram: 'eg. ”https://t.me/xxx“ \nor username "xxx" without "@"' ,
+    github:  'eg. "https://github.com/xxx" \nor username "xxx"',
+    ens: 'eg. "https://app.ens.domains/xxx.eth" \nor domain "xxx.eth"',
+    lens: 'eg. "https://lenster.xyz/u/xxx" \nor lens handel "xxx"  without "@"',
+    farcaster: 'eg. "https://warpcast.com/xxx" \nor username "xxx" without "@"',
+}
+
 function useSocialMedia () {
     const url2Id = (socialMedia: string, type: string) => {
 
@@ -126,7 +135,11 @@ function useSocialMedia () {
         return socialMedia
     }
 
-    return {url2Id, id2Url}
+    const getTips = (type: string) => {
+        return tips[type]
+    }
+
+    return {url2Id, id2Url, getTips}
 }
 
 export default useSocialMedia
