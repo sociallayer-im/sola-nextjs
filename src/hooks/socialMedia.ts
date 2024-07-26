@@ -5,7 +5,7 @@ const ensRegex = /^https?:\/\/app\.ens\.domains\/([A-Za-z0-9_\.]{1,32})\/?$/;
 const lensRegex = /^https?:\/\/(?:www\.)?lenster\.xyz\/u\/([A-Za-z0-9_]{1,15})\/?$/;
 const farcasterRegex = /^https?:\/\/warpcast\.com\/([A-Za-z0-9_]{1,15})\/?$/;
 
-const tips = {
+const tips: any = {
     twitter: 'eg. "https://twitter.com/xxxx"  \nor username "xxx" without "@"',
     telegram: 'eg. ”https://t.me/xxx“ \nor username "xxx" without "@"' ,
     github:  'eg. "https://github.com/xxx" \nor username "xxx"',
