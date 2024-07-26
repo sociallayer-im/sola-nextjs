@@ -89,7 +89,7 @@ function TicketItem({
 }
 
 function EventTickets({
-                         
+
                           ...props
                       }: { event: Event, tickets: Ticket[], canAccess?: boolean, isDialog?: boolean }) {
 
@@ -108,16 +108,26 @@ function EventTickets({
             getParticipantDetail({event_id: props.event.id, profile_id: user.id!}).then((res) => {
                 if (!!res) {
                     const ticket = props.tickets.find(item => item.id === res.ticket_id)
-                    if (!!ticket && (res.payment_status === 'success' || !ticket.payment_metadata!.length)) {
+                    // 通过票务参加
+                    if (!!ticket) {
+                       if (res.payment_status === 'success' || ticket.payment_metadata!.length === 0) {
+                           // 已经支付或者是免费票
+                            setUserPendingPayment(null)
+                            setUserHasPaid(res)
+                        } else if (res.payment_status !== 'success' && !!res.payment_data) {
+                           // 未支付
+                            setUserHasPaid(null)
+                            setUserPendingPayment(res)
+                        } else if (res.payment_status !== 'success' && !res.payment_data) {
+                            setUserHasPaid(null)
+                            setUserPendingPayment(null)
+                        }
+                    } else {
+                        // 没有设置门票的情况
                         setUserPendingPayment(null)
                         setUserHasPaid(res)
-                    } else if (!!ticket && res.payment_status !== 'success' && !!res.payment_data) {
-                        setUserHasPaid(null)
-                        setUserPendingPayment(res)
-                    } else {
-                        setUserHasPaid(null)
-                        setUserPendingPayment(null)
                     }
+
                 } else {
                     setUserHasPaid(null)
                     setUserPendingPayment(null)

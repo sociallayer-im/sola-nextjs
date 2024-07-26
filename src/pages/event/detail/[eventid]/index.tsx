@@ -232,9 +232,9 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
             const eventParticipants = event?.participants || []
             const joined = eventParticipants.find((item: Participants) => {
                 const ticket = tickets.find(t => t.id === item.ticket_id)
-                return (!item.ticket_id && item.profile.id === user.id && item.status === 'applied') // no tickets needed
-                    || (!!ticket && !!item.ticket_id && item.profile.id === user.id && item.status === 'applied' && item.payment_status === 'success' ) // paid ticket
-                    || (!!ticket && !!item.ticket_id && item.profile.id === user.id && item.status === 'applied' && ticket.payment_token_price === null) // free ticket
+                return (!item.ticket_id && item.profile.id === user.id && (item.status === 'applied' || item.status === 'attending')) // no tickets needed
+                    || (!!ticket && !!item.ticket_id && item.profile.id === user.id && (item.status === 'applied' || item.status === 'attending') && item.payment_status === 'success' ) // paid ticket
+                    || (!!ticket && !!item.ticket_id && item.profile.id === user.id && (item.status === 'applied' || item.status === 'attending') && ticket.payment_token_price === null) // free ticket
             })
             setIsJoined(!!joined)
         }
