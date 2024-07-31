@@ -260,6 +260,12 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
                         dayjs.tz(new Date().getTime(), timezoneSelected[0].id).format('YYYY-MM-DD')
 
                     scheduleXRef.current = createCalendar({
+                        weekOptions: {
+                            gridHeight: 2880
+                        },
+                        monthGridOptions: {
+                            nEventsPerDay: 30
+                        },
                         views: [viewMonthGrid, viewMonthAgenda, viewDay, viewWeek],
                         minDate: dayjs.tz(dayList[0].timestamp, timezoneSelected[0].id).format('YYYY-MM-DD'),
                         maxDate: dayjs.tz(dayList[dayList.length - 1].timestamp, timezoneSelected[0].id).format('YYYY-MM-DD'),
