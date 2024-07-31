@@ -40,8 +40,6 @@ export const getLabelColor = (label?: string, light?: number) => {
     let res = ''
     if (label) {
         res = stringToColor(label)
-        console.log('color-label', label, res)
-        // res = labelColors[(label[0].charCodeAt(0) + label[label.length - 1].charCodeAt(0)) % labelColors.length]
     } else {
         res = '#e6934c'
     }

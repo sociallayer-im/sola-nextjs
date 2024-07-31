@@ -643,6 +643,7 @@ const langCN: LangConfig = {
   Timeline_View: '时间轴视图',
   Download_the_list_of_all_participants: '下载所有参与者名单',
   More_Settings: '更多设置',
+  Private: '私密',
 }
 
 

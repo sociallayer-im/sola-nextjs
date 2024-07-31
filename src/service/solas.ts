@@ -3065,6 +3065,7 @@ export interface QueryEventProps {
     search?: string,
     cache?: boolean,
     offset?: number
+    only_private?: boolean
 }
 
 
@@ -3098,7 +3099,9 @@ export async function queryEvent(props: QueryEventProps): Promise<Event[]> {
         variables += `recurring_event_id: {_eq: ${props.recurring_event_id}}, `
     }
 
-    if (!props.allow_private) {
+    if (props.only_private) {
+        variables += `display: {_eq: "private"}, `
+    } else if (!props.allow_private) {
         variables += `display: {_neq: "private"}, `
     }
 

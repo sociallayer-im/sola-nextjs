@@ -647,6 +647,7 @@ const langEN = {
     Timeline_View: 'Timeline view',
     Download_the_list_of_all_participants: 'Download the list of all participants',
     More_Settings: 'More Settings',
+    Private: 'Private',
 }
 
 

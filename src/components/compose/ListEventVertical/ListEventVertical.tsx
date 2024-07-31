@@ -1,5 +1,5 @@
 import {useParams, usePathname, useRouter, useSearchParams} from "next/navigation";
-import React, {useContext, useEffect, useRef, useState} from 'react'
+import React, {useContext, useEffect, useMemo, useRef, useState} from 'react'
 import LangContext from "../../provider/LangProvider/LangContext";
 import Empty from "../../base/Empty";
 import CardEvent from "../../base/Cards/CardEvent/CardEvent";
@@ -12,6 +12,7 @@ import Link from "next/link";
 import useEvent, {EVENT} from "@/hooks/globalEvent";
 import {StatefulPopover} from "baseui/popover";
 import AppInput from "@/components/base/AppInput";
+import userContext from "@/components/provider/UserProvider/UserContext";
 
 import * as dayjsLib from "dayjs";
 import {PageBackContext} from "@/components/provider/PageBackProvider";
@@ -24,11 +25,12 @@ function ListEventVertical({eventGroup, ...props}: { initData?: Event[], patch?:
     const searchParams = useSearchParams()
     const params = useParams()
     const pathname = usePathname()
-    const [tab2Index, setTab2Index] = useState<'coming' | 'past'>(searchParams?.get('tab') as any || 'coming')
+    const [tab2Index, setTab2Index] = useState<'coming' | 'past' | 'private'>(searchParams?.get('tab') as any || 'coming')
     const {lang} = useContext(LangContext)
     const {showLoading} = useContext(DialogsContext)
     const [needUpdate, _] = useEvent(EVENT.setEventStatus)
     const {applyScroll} = useContext(PageBackContext)
+    const {user} = useContext(userContext)
 
 
     const [selectTag, setSelectTag] = useState<string[]>([])
@@ -42,10 +44,18 @@ function ListEventVertical({eventGroup, ...props}: { initData?: Event[], patch?:
 
     const tagRef = useRef<string>(searchParams?.get('tag') || '')
     const checkedComingEmpty =  useRef(true)
-    const tab2IndexRef = useRef<'coming' | 'past'>(tab2Index)
+    const tab2IndexRef = useRef<'coming' | 'past' | 'private'>(tab2Index)
     const filter = useRef<'' | 'coming' | 'past' | 'today' | 'week' | 'month'>('')
     const searchRef = useRef<any>(null)
     const [searchKeyword, setSearchKeyword] = useState('')
+
+    const isGroupOwner = useMemo(() => {
+        if (!user.id || !eventGroup) {
+            return false
+        }
+
+        return user.id === eventGroup.creator.id
+    }, [eventGroup, user])
 
     const queryPass = async (page: number, page_size: number, search?: string) => {
         return await queryEvent({
@@ -56,6 +66,19 @@ function ListEventVertical({eventGroup, ...props}: { initData?: Event[], patch?:
             event_order: 'desc',
             group_id: eventGroup?.id || undefined,
             tag: tagRef.current || undefined,
+            page_size
+        })
+    }
+
+    const queryPrivate = async (page: number, page_size: number, search?: string) => {
+        return await queryEvent({
+            page: page,
+            search: search,
+            // end_time_lte: new Date().toISOString(),
+            event_order: 'desc',
+            group_id: eventGroup?.id || undefined,
+            tag: tagRef.current || undefined,
+            only_private: true,
             page_size
         })
     }
@@ -210,7 +233,6 @@ function ListEventVertical({eventGroup, ...props}: { initData?: Event[], patch?:
                     search
                 )
 
-                console.log('resresresresresresres', res, init)
                 const unique = res.filter((item) => !list.find((i) => i.id === item.id))
                 setList(init ? res : [...list, ...unique])
                 setLoading(false)
@@ -221,6 +243,16 @@ function ListEventVertical({eventGroup, ...props}: { initData?: Event[], patch?:
                 }
             } else if (tab2IndexRef.current == 'past') {
                 const res = await queryPass(
+                    init ? 1 : pageRef.current,
+                    init ? pageRef.current * 10: 10,
+                    search
+                )
+                const unique = res.filter((item) => !list.find((i) => i.id === item.id))
+                setList(init ? res : [...list, ...unique])
+                setIsLoadAll(res.length < 10)
+                setLoading(false)
+            } else if (tab2IndexRef.current == 'private') {
+                const res = await queryPrivate(
                     init ? 1 : pageRef.current,
                     init ? pageRef.current * 10: 10,
                     search
@@ -268,7 +300,7 @@ function ListEventVertical({eventGroup, ...props}: { initData?: Event[], patch?:
         }
     }, [needUpdate])
 
-    const changeTab = async (tab: 'past' | 'coming', notRedirect?: boolean) => {
+    const changeTab = async (tab: 'past' | 'coming' | 'private', notRedirect?: boolean) => {
         setTab2Index(tab)
         tab2IndexRef.current = tab
         pageRef.current = 1
@@ -314,6 +346,12 @@ function ListEventVertical({eventGroup, ...props}: { initData?: Event[], patch?:
         }
     }, [eventGroup])
 
+    useEffect(() => {
+        if (!user.id && tab2IndexRef.current === 'private') {
+            changeTab('coming')
+        }
+    }, [user.id]);
+
     return (
         <div className={'module-tabs'}>
             <div className={'tab-titles'}>
@@ -327,7 +365,7 @@ function ListEventVertical({eventGroup, ...props}: { initData?: Event[], patch?:
                               e.preventDefault()
                               changeTab('coming')
                           }}
-                          className={tab2Index != 'past' ? 'module-title' : 'tab-title'}>
+                          className={tab2Index === 'coming' ? 'module-title' : 'tab-title'}>
                         {lang['Activity_Coming']}
                     </Link>
                     <Link href={props.patch ?
@@ -342,6 +380,21 @@ function ListEventVertical({eventGroup, ...props}: { initData?: Event[], patch?:
                           className={tab2Index === 'past' ? 'module-title' : 'tab-title'}>
                         {lang['Activity_Past']}
                     </Link>
+                    {
+                        isGroupOwner &&
+                        <Link href={props.patch ?
+                            `${props.patch}?tab=private`
+                            : params?.groupname ?
+                                `/event/${eventGroup?.username}?tab=past`
+                                : `/?tab=past`} shallow
+                              onClick={e => {
+                                  e.preventDefault()
+                                  changeTab('private')
+                              }}
+                              className={tab2Index === 'private' ? 'module-title' : 'tab-title'}>
+                            {lang['Private']}
+                        </Link>
+                    }
                 </div>
 
                 <StatefulPopover
