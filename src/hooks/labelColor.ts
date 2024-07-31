@@ -1,68 +1,3 @@
-export const labelColors = [
-    // '#1685a9',
-    // '#5567ff',
-    // '#cca4e3',
-    // '#FFC400',
-    // '#FF7A45',
-    // '#9eb636',
-    // '#439b82',
-    // '#FAC699',
-    // '#75D4F0',
-    // '#e73f9e',
-    // '#15CB82',
-    // '#FE6CAB',
-    // '#d06833',
-    // '#FD8CE2',
-    // '#a98175',
-    // '#8080FF',
-    // '#057748',
-
-    '#e6934c',
-    '#b856f6',
-    '#70aee0',
-    '#a0e58f',
-    '#b359ee',
-    '#5fa0fc',
-    '#df8d98',
-    '#6faddf',
-    '#b6cf8c',
-    '#a0e58f',
-    '#8d5bf0',
-    '#a1ebd5',
-]
-
-const defaultLabels = [
-    "公益课",
-    "工作坊",
-    "讲座沙龙",
-    "人工智能",
-    "区块链",
-    "创作者经济",
-    "社群与协作",
-    "身心可持续",
-    "坞民日常",
-    "山海讲堂"
-]
-
-export const colorMap = {
-    "Week 4": '#e6934c',
-    "Week 3": '#b856f6',
-    "Week 2": '#70aee0',
-    "Week 1": '#a0e58f',
-    "Weekend 4": '#e6934c',
-    "Weekend 3": '#b359ee',
-    "Weekend 2": '#5fa0fc',
-    "Weekend 1": '#a0e68f',
-    "All Weekends": '#5fa0fc',
-    "Week 3 & 4": '#df8d98',
-    "Week 2 & 3": '#6faddf',
-    "Week 1 & 2": '#b6cf8c',
-    "Month Standard & Builder": '#000000',
-    "Team - Green": '#a0e58f',
-    "Kid - Month Long Purple": '#8d5bf0',
-    "Kids by week": '#a1ebd5',
-}
-
 const hexToRgb = (str: string) => {
     let hexs = null;
     let reg = /^\#?[0-9A-Fa-f]{6}$/;
@@ -84,16 +19,31 @@ export const getLightColor = (color: string, level: number) => {
     }
     return `rgb(${rgb![0]},${rgb![1]},${rgb![2]})`  // [159, 206, 255]
 }
+
+export function stringToColor(str: string) {
+    // 使用一个简单的哈希函数将字符串转换为数值
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+        hash = (str.charCodeAt(i) + ((hash << 5) - hash)) * 2;
+    }
+    // 转换为颜色代码
+    let color = '#';
+    for (let i = 0; i < 3; i++) {
+        const value = (hash >> (i * 8)) & 0xFF;
+        color += ('00' + value.toString(16)).substr(-2);
+    }
+    return color;
+}
+
+
 export const getLabelColor = (label?: string, light?: number) => {
     let res = ''
     if (label) {
-        if (defaultLabels.indexOf(label) !== -1) {
-            res = labelColors[defaultLabels.indexOf(label)]
-        } else {
-            res = labelColors[(label[0].charCodeAt(0) + label[label.length - 1].charCodeAt(0)) % labelColors.length]
-        }
+        res = stringToColor(label)
+        console.log('color-label', label, res)
+        // res = labelColors[(label[0].charCodeAt(0) + label[label.length - 1].charCodeAt(0)) % labelColors.length]
     } else {
-        res = labelColors[0]
+        res = '#e6934c'
     }
 
 
