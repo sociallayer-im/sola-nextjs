@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev:turbo": "next dev --turbo",
     "dev2": "next dev -H 192.168.3.34 -p 3000",
     "dev:https": "next dev --experimental-https",
     "build": "next build",
@@ -77,7 +78,7 @@
     "lodash": "^4.17.21",
     "markdown-it": "^14.0.0",
     "markdown-to-text": "^0.1.1",
-    "next": "^13.5.5",
+    "next": "^14.0.4",
     "next-with-less": "^3.0.1",
     "nextjs-progressbar": "^0.0.16",
     "notistack": "^3.0.1",

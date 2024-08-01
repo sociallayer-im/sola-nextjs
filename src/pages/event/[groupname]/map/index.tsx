@@ -146,7 +146,7 @@ function ComponentName(props: { markerType: string | null, group?: Group, isIfra
                 auth_token: user.authToken ? user.authToken : undefined,
             })
 
-        } if (type === 'all') {
+        } else if (type === 'all') {
             res = await queryMarkers({
                 group_id: eventGroup?.id || undefined,
                 with_checkins: user.authToken ? true : undefined,
