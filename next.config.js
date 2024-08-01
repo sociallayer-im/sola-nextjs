@@ -9,7 +9,7 @@ const nextConfig = {
         ignoreDuringBuilds: true
     },
     compiler: {
-        // removeConsole: process.env.NODE_ENV === "production"
+        removeConsole: process.env.NODE_ENV === "production"
     },
     images: {
         remotePatterns: [
@@ -32,18 +32,6 @@ const nextConfig = {
                 pathname: '/*/**'
             }
         ]
-    },
-    experimental: {
-        turbo: {
-            rules: {
-                '*.sass': {
-                    loaders: ['sass-loader']
-                },
-            },
-            resolveAlias: {
-                '@': 'src/',
-            }
-        }
     }
 }
 

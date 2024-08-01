@@ -5177,11 +5177,21 @@ export interface Ticket {
 }
 
 export async function queryTickets (props: {
-    event_id: number,
+    event_id?: number,
+    id?: number,
 }) {
 
+    let variables = ''
+    if (props.id) {
+        variables += `id: {_eq: ${props.id}},`
+    }
+
+    if (props.event_id) {
+        variables += `event_id: {_eq: ${props.event_id}},`
+    }
+
     const doc = gql`query MyQuery {
-      tickets(where: {event_id: {_eq: ${props.event_id}}}) {
+      tickets(where: {${variables}}) {
         payment_metadata
         check_badge_class_id
         content
@@ -5825,6 +5835,22 @@ export async function getTopEventGroup() {
         item.creator = item.memberships[0]?.profile || null
         return item
     })
+}
+
+export async function getStripeClientSecret(props: {
+    auth_token: string,
+    ticket_id: number,
+}) {
+    checkAuth(props)
+    const res: any = await fetch.post({
+        url: `${apiUrl}/service/stripe_client_secret`,
+        data: props
+    })
+
+    const secret = res.data.client_secret as string
+    console.log('client_secret', secret)
+
+    return secret
 }
 
 

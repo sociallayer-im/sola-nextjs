@@ -295,26 +295,27 @@ function Ticket({creator, ...props}: {
                         </div>
                     </div>
 
-                    <div className={styles['item-title-inline']} style={{marginTop: '8px'}}>
-
-                        <div className={styles['value']} style={{flex: 1}}>
-                            <div className={styles['label']}>{lang['Receiving_Wallet_Address']}</div>
-                            <AppInput
-                                value={payment.payment_target_address || ''}
-                                onChange={(e) => {
-                                    handleChangePayment({
-                                        ...payment,
-                                        payment_target_address: e.target.value
-                                    }, index)
-                                }}
-                                placeholder={lang['Receiving_Wallet_Address']}/>
+                    { payment.payment_chain !== 'stripe' &&
+                        <div className={styles['item-title-inline']} style={{marginTop: '8px'}}>
+                            <div className={styles['value']} style={{flex: 1}}>
+                                <div className={styles['label']}>{lang['Receiving_Wallet_Address']}</div>
+                                <AppInput
+                                    value={payment.payment_target_address || ''}
+                                    onChange={(e) => {
+                                        handleChangePayment({
+                                            ...payment,
+                                            payment_target_address: e.target.value
+                                        }, index)
+                                    }}
+                                    placeholder={lang['Receiving_Wallet_Address']}/>
+                            </div>
                         </div>
-                    </div>
+                    }
                     {errMsg?.payment_target_address?.includes(index) &&
                         <div className={styles['error-msg']}>{'Please input receiving wallet address'}</div>
                     }
                 </div>
-                { payments.length === index + 1 ?
+                {payments.length === index + 1 ?
                     <div style={{marginLeft: '12px', cursor: 'pointer'}} onClick={addPayment}>
                         <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <rect x="0.5" y="0.5" width="31" height="31" rx="15.5" fill="white"/>
@@ -492,7 +493,7 @@ function TicketSetting(props: { creator: Group | Profile, onChange?: (tickets: P
 
             if (!!ticket.payment_metadata?.length) {
                 ticket.payment_metadata.forEach((payment, i) => {
-                    if (!payment.payment_target_address) {
+                    if (!payment.payment_target_address && payment.payment_chain != 'stripe') {
                         errMsg.payment_target_address.push(i)
                     }
                 })

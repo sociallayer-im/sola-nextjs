@@ -103,6 +103,22 @@ export const paymentTokenList = [
 
     },
     {
+        chain: 'Stripe',
+        id: 'stripe',
+        chainId: 0,
+        icon: '/images/stripe.png',
+        payHub: '',
+        tokenList: [
+            {
+                name: 'USD',
+                id: 'usd',
+                contract: '',
+                icon: '/images/usd.png',
+                decimals: 0
+            }
+        ]
+    },
+    {
         chain: 'Fuji Testnet',
         id: 'fuji',
         chainId: 43113,
