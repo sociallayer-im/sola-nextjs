@@ -3703,6 +3703,9 @@ export interface JoinEventProps {
     id: number,
     auth_token: string,
     ticket_id?: number,
+    chain?: string,
+    amount?: number,
+    ticket_price?: number
 }
 
 export async function joinEvent(props: JoinEventProps) {
@@ -3719,6 +3722,22 @@ export async function joinEvent(props: JoinEventProps) {
     return res.data.participant as Participants
 }
 
+export interface TicketItem {
+    amount : null | string
+    chain : null | string
+    discount_data: null | string
+    discount_value : null| string
+    event_id: number
+    id: number
+    order_number: string
+    participant_id: string
+    profile_id: string
+    status : string
+    ticket_id : string
+    ticket_price :  null | string
+    txhash: null | string
+}
+
 export async function joinEventWithTicketItem(props: JoinEventProps) {
     checkAuth(props)
     const res: any = await fetch.post({
@@ -3730,9 +3749,9 @@ export async function joinEventWithTicketItem(props: JoinEventProps) {
         throw new Error(res.data.message || 'Join event fail')
     }
 
-    return res.data.participant as {
+    return res.data as {
         participant: Participants,
-        ticket_item: any
+        ticket_item: TicketItem
     }
 }
 
@@ -5856,7 +5875,7 @@ export async function getTopEventGroup() {
 
 export async function getStripeClientSecret(props: {
     auth_token: string,
-    ticket_id: number,
+    ticket_item_id: number,
 }) {
     checkAuth(props)
     const res: any = await fetch.post({
