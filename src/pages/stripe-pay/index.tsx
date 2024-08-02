@@ -18,6 +18,7 @@ import {useRouter} from "next/navigation"
 import EventDefaultCover from "@/components/base/EventDefaultCover"
 import DialogsContext from "@/components/provider/DialogProvider/DialogsContext"
 import LangContext from "@/components/provider/LangProvider/LangContext"
+import {formatUnits} from "viem/utils";
 
 const api_key = 'pk_test_51OeSy4DtkneJ1BkLE1bqaFXFfKaIDC2vVvNSjxYITOpeHCOjqLcnrphytnpFpilM816hYXxtOEsmsXk1tLiwRU1s00OXWHHvaS'
 const stripePromise = loadStripe(api_key)
@@ -60,7 +61,7 @@ export default function StripePay({ticketId, paymentIndex}: { ticketId: number |
             id: eventDetail.id,
             ticket_id: ticketId,
             chain: payment.payment_chain!,
-            amount: 1,
+            amount: Number(payment.payment_token_price)!,
             ticket_price: Number(payment.payment_token_price)!,
         })
     }
@@ -130,7 +131,9 @@ export default function StripePay({ticketId, paymentIndex}: { ticketId: number |
 
                                 <div className={styles['price-tit']}>Price</div>
                                 <div
-                                    className={styles['price']}>${ticket?.payment_metadata?.[paymentIndex!]!.payment_token_price}</div>
+                                    className={styles['price']}>
+                                    ${formatUnits(BigInt(ticket?.payment_metadata?.[paymentIndex!]!.payment_token_price || 0), 2)}
+                                    </div>
 
 
                                 <div className={styles['sub-title']}>Ticket Type</div>
@@ -139,7 +142,8 @@ export default function StripePay({ticketId, paymentIndex}: { ticketId: number |
                                         <div className={styles['ticket-title']}>{ticket?.title}</div>
                                         <div className={styles['ticket-content']}>{ticket?.content}</div>
                                         <div
-                                            className={styles['ticket-price']}>{ticket?.payment_metadata?.[paymentIndex!]!.payment_token_price} USD
+                                            className={styles['ticket-price']}>
+                                            {formatUnits(BigInt(ticket?.payment_metadata?.[paymentIndex!]!.payment_token_price || 0), 2)} USD
                                         </div>
                                     </div>
                                     <div className={styles['ticket-cover']}>
@@ -256,7 +260,11 @@ function CheckoutForm(props: { ticket: Ticket, eventDetail: Event }) {
 
     return (
         <form id="payment-form" onSubmit={handleSubmit}>
-            <PaymentElement id="payment-element" options={paymentElementOptions}/>
+            <PaymentElement
+                onReady={(el) => {
+                    console.log('el', el)
+                }}
+                id="payment-element" options={paymentElementOptions}/>
 
             <div className={styles['pay-btn']}>
                 <AppButton

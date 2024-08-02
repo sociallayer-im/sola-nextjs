@@ -28,6 +28,7 @@ interface ErrorMsg {
     index: number,
     title: boolean,
     payment_target_address: number[],
+    min_price: number[],
 }
 
 function Ticket({creator, ...props}: {
@@ -314,6 +315,9 @@ function Ticket({creator, ...props}: {
                     {errMsg?.payment_target_address?.includes(index) &&
                         <div className={styles['error-msg']}>{'Please input receiving wallet address'}</div>
                     }
+                    {errMsg?.min_price?.includes(index) &&
+                        <div className={styles['error-msg']}>{'Price cannot be less than $4'}</div>
+                    }
                 </div>
                 {payments.length === index + 1 ?
                     <div style={{marginLeft: '12px', cursor: 'pointer'}} onClick={addPayment}>
@@ -485,6 +489,7 @@ function TicketSetting(props: { creator: Group | Profile, onChange?: (tickets: P
                 index,
                 title: false,
                 payment_target_address: [],
+                min_price:[]
             }
 
             if (!ticket.title) {
@@ -496,10 +501,16 @@ function TicketSetting(props: { creator: Group | Profile, onChange?: (tickets: P
                     if (!payment.payment_target_address && payment.payment_chain != 'stripe') {
                         errMsg.payment_target_address.push(i)
                     }
+
+                    if (payment.payment_chain === 'stripe' && Number(payment.payment_token_price) < 400) {
+                        alert(payment.payment_token_price)
+                        errMsg.min_price.push(i)
+                    }
                 })
+
             }
 
-            if (errMsg.title || errMsg.payment_target_address.length) {
+            if (errMsg.title || errMsg.payment_target_address.length || errMsg.min_price.length) {
                 newErrorMsg.push(errMsg)
                 res = false
             }

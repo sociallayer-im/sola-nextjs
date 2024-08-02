@@ -114,7 +114,7 @@ export const paymentTokenList = [
                 id: 'usd',
                 contract: '',
                 icon: '/images/usd.png',
-                decimals: 0
+                decimals: 2
             }
         ]
     },
