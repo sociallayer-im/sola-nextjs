@@ -1,10 +1,18 @@
-import {Event, getStripeClientSecret, queryEvent, queryTickets, Ticket} from "@/service/solas"
+import {
+    checkEventPermission,
+    Event,
+    getStripeClientSecret,
+    joinEventWithTicketItem,
+    queryEvent,
+    queryTickets,
+    Ticket
+} from "@/service/solas"
 import {useContext, useEffect, useState} from "react"
 import {loadStripe} from '@stripe/stripe-js'
 import {Elements, PaymentElement, useElements, useStripe} from '@stripe/react-stripe-js'
 import userContext from "@/components/provider/UserProvider/UserContext"
 import styles from './stripe_pay.module.scss'
-import AppButton from "@/components/base/AppButton/AppButton"
+import AppButton, {BTN_KIND} from "@/components/base/AppButton/AppButton"
 import {ArrowLeft} from 'baseui/icon'
 import {useRouter} from "next/navigation"
 import EventDefaultCover from "@/components/base/EventDefaultCover"
@@ -18,35 +26,69 @@ export default function StripePay({ticketId, paymentIndex}: { ticketId: number |
         throw new Error('Invalid ticketId or paymentIndex')
     }
     const router = useRouter()
-    const {showLoading} = useContext(DialogsContext)
+    const {showLoading, showToast} = useContext(DialogsContext)
 
     const {user} = useContext(userContext)
     const [clientSecret, setClientSecret] = useState("");
 
     const [ticket, setTicket] = useState<Ticket | null>(null)
-    const [event, setEvent] = useState<Event | null>(null)
+    const [eventDetail, setEventDetail] = useState<Event | null>(null)
+    const [errorMsg, setErrorMsg] = useState('')
 
-    const returnPath = `/event/detail/${event?.id}`
+    const returnPath = `/event/detail/${eventDetail?.id}`
+
+    const handleJoin = async (eventDetail: Event, ticketId: number) => {
+        const participantsAll = eventDetail?.participants || []
+        const participants = participantsAll.filter(item => item.status !== 'cancel')
+
+        if (eventDetail?.max_participant !== null && eventDetail?.max_participant !== undefined && eventDetail?.max_participant <= participants.length) {
+            showToast('The event has reached its maximum capacity.')
+            return
+        }
+
+        try {
+            const hasPermission = await checkEventPermission({id: eventDetail!.id, auth_token: user.authToken || ''})
+            if (!hasPermission) {
+                showToast('You do not have permission to join this event.')
+                return
+            }
+
+            const join = await joinEventWithTicketItem({id: eventDetail.id, ticket_id: ticketId,  auth_token: user.authToken || ''})
+        } catch (e: any) {
+            console.error(e)
+            showToast(e.message || 'An unexpected error occurred.')
+        }
+    }
 
     useEffect(() => {
         (async () => {
             if (ticketId && user.id) {
                const unload = showLoading(true)
                 try {
-                    const tickets = await queryTickets({id: ticketId})
-                    !!tickets[0] && setTicket(tickets[0])
 
-                    const clientSecret = await getStripeClientSecret({
-                        auth_token: user.authToken || '',
-                        ticket_id: ticketId
-                    })
+                   const tickets = await queryTickets({id: ticketId})
+                    !!tickets[0] && setTicket(tickets[0])
 
                     if (!!tickets[0]) {
                         const event = await queryEvent({id: tickets[0].event_id, page: 1})
-                        setEvent(event[0])
-                    }
+                        setEventDetail(event[0])
 
-                    setClientSecret(clientSecret)
+
+                        await handleJoin(event[0], ticketId)
+
+
+                        const clientSecret = await getStripeClientSecret({
+                            auth_token: user.authToken || '',
+                            ticket_id: ticketId
+                        })
+
+                        setClientSecret(clientSecret)
+                    } else {
+                        unload()
+                        throw new Error('Ticket not found')
+                    }
+                }  catch (e: any) {
+                    setErrorMsg(e.message || 'An unexpected error occurred.')
                 } finally {
                     unload()
                 }
@@ -62,53 +104,56 @@ export default function StripePay({ticketId, paymentIndex}: { ticketId: number |
     };
 
     return <div className={styles['page']}>
-        <div className={styles['center']}>
-            <div className={styles['info']}>
-                <div className={styles['back']} onClick={e => {
-                    router.replace(returnPath)
-                }}>
-                    <ArrowLeft/>
-                    Back
-                </div>
+        {!errorMsg ?
+            <div className={styles['center']}>
+                <div className={styles['info']}>
+                    <div className={styles['back']} onClick={e => {
+                        router.replace(returnPath)
+                    }}>
+                        <ArrowLeft/>
+                        Back
+                    </div>
 
-                <div className={styles['price-tit']}>Price</div>
-                <div className={styles['price']}>${ticket?.payment_metadata?.[paymentIndex!]!.payment_token_price}</div>
+                    <div className={styles['price-tit']}>Price</div>
+                    <div
+                        className={styles['price']}>${ticket?.payment_metadata?.[paymentIndex!]!.payment_token_price}</div>
 
-                {
-                    !!event &&
-                    <>
-                        <div className={styles['sub-title']}>Ticket Type</div>
-                        <div className={styles['ticket-type']}>
-                            <div className={styles['ticket-info']}>
-                                <div className={styles['ticket-title']}>{ticket?.title}</div>
-                                <div className={styles['ticket-content']}>{ticket?.content}</div>
-                                <div
-                                    className={styles['ticket-price']}>{ticket?.payment_metadata?.[paymentIndex!]!.payment_token_price} USD
+                    {
+                        !!eventDetail &&
+                        <>
+                            <div className={styles['sub-title']}>Ticket Type</div>
+                            <div className={styles['ticket-type']}>
+                                <div className={styles['ticket-info']}>
+                                    <div className={styles['ticket-title']}>{ticket?.title}</div>
+                                    <div className={styles['ticket-content']}>{ticket?.content}</div>
+                                    <div
+                                        className={styles['ticket-price']}>{ticket?.payment_metadata?.[paymentIndex!]!.payment_token_price} USD
+                                    </div>
+                                </div>
+                                <div className={styles['ticket-cover']}>
+                                    {
+                                        eventDetail.cover_url ?
+                                            <img src={eventDetail.cover_url} alt=""/>
+                                            : <EventDefaultCover event={eventDetail} width={120} height={120}/>
+                                    }
                                 </div>
                             </div>
-                            <div className={styles['ticket-cover']}>
-                                {
-                                    event.cover_url ?
-                                        <img src={event.cover_url} alt=""/>
-                                        : <EventDefaultCover event={event} width={120} height={120}/>
-                                }
-                            </div>
-                        </div>
-                    </>
-                }
+                        </>
+                    }
 
+                </div>
+                <div className={styles['form']}>
+                    <h1>Stripe Payment</h1>
+
+                    {!!user.id && !!ticket && !!clientSecret && !!eventDetail &&
+                        <Elements options={options} stripe={stripePromise}>
+                            <CheckoutForm ticket={ticket} eventDetail={eventDetail}/>
+                        </Elements>
+                    }
+                </div>
             </div>
-            <div className={styles['form']}>
-                <h1>Stripe Payment</h1>
-
-
-                {!!user.id && !!ticket && !!clientSecret &&
-                    <Elements options={options} stripe={stripePromise}>
-                        <CheckoutForm ticket={ticket}/>
-                    </Elements>
-                }
-            </div>
-        </div>
+            : <div>{errorMsg}</div>
+        }
     </div>
 }
 
@@ -125,9 +170,10 @@ export async function getServerSideProps(context: any) {
 }
 
 
-function CheckoutForm(props: { ticket: Ticket }) {
+function CheckoutForm(props: { ticket: Ticket, eventDetail: Event }) {
     const stripe = useStripe();
     const elements = useElements();
+    const {user} = useContext(userContext)
 
     const [message, setMessage] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -172,6 +218,8 @@ function CheckoutForm(props: { ticket: Ticket }) {
 
         setIsLoading(true);
 
+
+
         const {error} = await stripe.confirmPayment({
             elements,
             confirmParams: {
@@ -198,10 +246,11 @@ function CheckoutForm(props: { ticket: Ticket }) {
 
             <div className={styles['pay-btn']}>
                 <AppButton
-                    special={true}
+                    kind={BTN_KIND.primary}
                     disabled={isLoading || !stripe || !elements}
                     isLoading={isLoading}
                     onClick={handleSubmit}
+                    style={{width: '100%'}}
                 >
                     Pay now
                 </AppButton>

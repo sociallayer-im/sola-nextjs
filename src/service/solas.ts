@@ -3719,6 +3719,23 @@ export async function joinEvent(props: JoinEventProps) {
     return res.data.participant as Participants
 }
 
+export async function joinEventWithTicketItem(props: JoinEventProps) {
+    checkAuth(props)
+    const res: any = await fetch.post({
+        url: `${apiUrl}/event/join`,
+        data: props
+    })
+
+    if (res.data.result === 'error') {
+        throw new Error(res.data.message || 'Join event fail')
+    }
+
+    return res.data.participant as {
+        participant: Participants,
+        ticket_item: any
+    }
+}
+
 export async function unJoinEvent(props: JoinEventProps) {
     checkAuth(props)
     const res: any = await fetch.post({
