@@ -1,5 +1,5 @@
 import {useContext, useEffect, useRef, useState} from 'react'
-import {EventSites} from "@/service/solas";
+import {EventSites, VenueTimeslot} from "@/service/solas";
 import AppInput from "../../base/AppInput";
 import {Delete, ArrowRight} from "baseui/icon";
 import DialogsContext from "../../provider/DialogProvider/DialogsContext";
@@ -213,10 +213,11 @@ function EventSiteInput(props: LocationInputProps) {
                         console.log('time slot value', value)
                         setNewEventSite({
                             ...newEventSite!,
-                            timeslots: value ? JSON.stringify(value) : null
+                            timeslots: null,
+                            venue_timeslots: value
                         })
                     }}
-                    value={newEventSite!.timeslots ?  JSON.parse(newEventSite!.timeslots) : null}
+                    value={newEventSite!.venue_timeslots}
                     close={close} />
             },
             size: ['100%', '100%']

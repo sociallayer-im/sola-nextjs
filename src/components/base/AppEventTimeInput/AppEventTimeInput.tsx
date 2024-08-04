@@ -144,7 +144,7 @@ function AppDateInput({
         setFrom(newDate)
 
 
-        const new_to = dayjs(newDate.getTime()).add(30, 'minute').toDate()
+        const new_to = dayjs(newDate.getTime()).add(15, 'minute').toDate()
         setTo(new_to)
     }
 
@@ -163,7 +163,7 @@ function AppDateInput({
     function changeFromTime(date: Date) {
         setFrom(date)
 
-        const new_to = dayjs(date.getTime()).add(30, 'minute').toDate()
+        const new_to = dayjs(date.getTime()).add(15, 'minute').toDate()
         setTo(new_to)
     }
 
@@ -270,7 +270,7 @@ function AppDateInput({
                 <div className={`${styles['time-input']} ${disabled ? styles['disabled'] : ''}`}>
                     <TimePicker
                         disabled={!!disabled}
-                        step={60 * 30}
+                        step={60 * 15}
                         value={from}
                         format={'24'}
                         overrides={{
@@ -330,7 +330,7 @@ function AppDateInput({
                 <div className={`${styles['time-input']} ${disabled ? styles['disabled'] : ''}`}>
                     <TimePicker
                         disabled={!!disabled}
-                        step={60 * 30}
+                        step={60 * 15}
                         value={to}
                         format={'24'}
                         overrides={{

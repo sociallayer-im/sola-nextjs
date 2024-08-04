@@ -200,7 +200,8 @@ function Dashboard() {
             link: null,
             capacity: null,
             overrides: null,
-            visibility: null
+            visibility: null,
+            venue_timeslots: null
         })
         setEventSite(_eventSite)
     }

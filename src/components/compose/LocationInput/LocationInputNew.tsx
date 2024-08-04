@@ -86,10 +86,10 @@ function LocationInput(props: LocationInputProps) {
     const sessionToken = useRef<any>(null)
 
     const checkAvailable = (option: Partial<EventSites>, start_time: string, end_time: string, timezone: string) => {
-        if (!!option && !!option.timeslots && start_time && end_time) {
+        if (!!option && !!option.venue_timeslots && start_time && end_time) {
             const day = dayjs.tz(new Date(start_time).getTime(), timezone).day()
             const dayFullName = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
-            const target: any = JSON.parse(option.timeslots!).find((item: { day: string, disable: boolean }) => item.day === dayFullName[day])
+            const target: any = option.venue_timeslots.find(item => item.day_of_week === dayFullName[day])
 
             const startTime = dayjs.tz(start_time, timezone)
             const endTime = dayjs.tz(start_time, timezone)

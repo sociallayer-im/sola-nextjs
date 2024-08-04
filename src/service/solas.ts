@@ -2936,7 +2936,8 @@ export interface EventSites {
     capacity: number | null,
     overrides: null | string[],
     require_approval?: boolean,
-    visibility: null | 'all' | 'manager'
+    visibility: null | 'all' | 'manager',
+    venue_timeslots: null | VenueTimeslot[]
 }
 
 export interface Participants {
@@ -3692,6 +3693,14 @@ export async function getEventSide(groupId?: number, allowRemoved?: boolean): Pr
         capacity
         overrides
         require_approval
+        venue_timeslots {
+          id
+          venue_id
+          start_at
+          end_at
+          day_of_week
+          disabled
+        }
       }
     }`
 
@@ -5825,6 +5834,15 @@ export async function getTopEventGroup() {
         item.creator = item.memberships[0]?.profile || null
         return item
     })
+}
+
+export interface VenueTimeslot {
+    id?: number
+    day_of_week: 'Monday' | 'Tuesday' | 'Wednesday' | 'Thursday' | 'Friday' | 'Saturday' | 'Sunday',
+    disabled: boolean,
+    start_at: string,
+    end_at: string,
+    _destroy?: string
 }
 
 
