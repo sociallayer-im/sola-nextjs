@@ -56,7 +56,7 @@ function genSlotOption(slotInfo: TimeSlotItem[]): SlotOption[] {
                     id: startDate.format('HH:mm'),
                     label: startDate.format('HH:mm')
                 })
-                startDate = startDate.add(30, 'minute')
+                startDate = startDate.add(15, 'minute')
             }
             return soloOptions
         })
@@ -385,7 +385,7 @@ function TimeSlotInput({
                         value={data.from as any}
                         options={genStartOption(slotOptions, data.date)}
                         onChange={({value}) => {
-                            const to = dayjs(strToDate(value[0].id as string)).add(30, 'minute').format('HH:mm')
+                            const to = dayjs(strToDate(value[0].id as string)).add(15, 'minute').format('HH:mm')
                             setData({
                                 ...data,
                                 from: value as Slot[],
