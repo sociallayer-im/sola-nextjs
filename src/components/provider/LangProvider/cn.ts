@@ -644,6 +644,8 @@ const langCN: LangConfig = {
   Download_the_list_of_all_participants: '下载所有参与者名单',
   More_Settings: '更多设置',
   Private: '私密',
+  Go_To_Event_Detail: '前往活动详情',
+  Create_Next_Event: '创建下一个活动',
 }
 
 
