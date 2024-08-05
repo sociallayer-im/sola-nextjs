@@ -240,7 +240,14 @@ export default function DialogTimeSlotEdit(props: { close: any, value: VenueTime
                     const hasError = OverlapErr.some(err => !!err)
                     if (hasError) return
 
-                    props.onConfirm && props.onConfirm(allTime ? null : slot)
+                    if (allTime) {
+                        const _slot = slot
+                            .filter(s => !!s.id)
+                            .map(s => ({...s, _destroy: '1'}))
+                        props.onConfirm && props.onConfirm(_slot)
+                    } else {
+                        props.onConfirm && props.onConfirm(slot)
+                    }
                     props.close()
                 }}>Confirm</AppButton>
             </div>

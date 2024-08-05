@@ -12,10 +12,12 @@ import fa from "@walletconnect/legacy-modal/dist/cjs/browser/languages/fa";
 const utc = require('dayjs/plugin/utc')
 const timezone = require('dayjs/plugin/timezone')
 const isSameOrAfter = require('dayjs/plugin/isSameOrAfter')
+const isBetween = require('dayjs/plugin/isBetween')
 const dayjs: any = dayjsLib
 dayjs.extend(utc)
 dayjs.extend(timezone)
 dayjs.extend(isSameOrAfter)
+dayjs.extend(isBetween)
 
 
 export interface LocationInputValue {
@@ -89,10 +91,10 @@ function LocationInput(props: LocationInputProps) {
         if (!!option && !!option.venue_timeslots && start_time && end_time) {
             const day = dayjs.tz(new Date(start_time).getTime(), timezone).day()
             const dayFullName = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
-            const target: any = option.venue_timeslots.find(item => item.day_of_week === dayFullName[day])
+            const target = option.venue_timeslots.find(item => item.day_of_week === dayFullName[day])
 
-            const startTime = dayjs.tz(start_time, timezone)
-            const endTime = dayjs.tz(start_time, timezone)
+            const startTime = dayjs.tz(new Date(start_time).getTime(), timezone)
+            const endTime = dayjs.tz(new Date(end_time).getTime(), timezone)
             const availableStart = option.start_date ? dayjs.tz(option.start_date, timezone) : null
             const availableEnd = option.end_date ? dayjs.tz(option.end_date, timezone).hour(23).minute(59) : null
 
@@ -102,14 +104,19 @@ function LocationInput(props: LocationInputProps) {
             } else if (!availableStart && availableEnd) {
                 available = endTime.isBefore(availableEnd)
             } else if (availableStart && availableEnd) {
-                console.log('here', startTime.isSameOrAfter(availableStart), endTime.isBefore(availableEnd))
                 available = startTime.isSameOrAfter(availableStart) && endTime.isBefore(availableEnd)
             }
 
-            if (option.overrides) {
-                const overrides = option.overrides
-                const override = overrides.find((item: string) => {
-                    return item === startTime.format('YYYY/MM/DD') || item === endTime.format('YYYY/MM/DD')
+            if (!!option.venue_overrides) {
+                const overrides = option.venue_overrides
+                const override = overrides.find((item) => {
+                    const itemStartTime = item.start_at || '00:00'
+                    const itemEndTime =  item.end_at || '23:59'
+
+                    const itemStart = dayjs.tz(`${item.day} ${itemStartTime}`, timezone)
+                    const itemEnd = dayjs.tz(`${item.day} ${itemEndTime}`, timezone)
+
+                    return startTime.isBetween(itemStart, itemEnd, null, '[]') || endTime.isBetween(itemStart, itemEnd, null, '[]')
                 })
 
                 if (override) {
@@ -117,7 +124,7 @@ function LocationInput(props: LocationInputProps) {
                 }
             }
 
-            return !(target.disable || !available);
+            return !(target?.disabled || !available);
         } else {
             return  true
         }
