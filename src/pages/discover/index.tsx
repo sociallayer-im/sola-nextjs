@@ -15,7 +15,7 @@ import solas, {
     queryPopupCity
 } from "@/service/solas";
 import usePicture from "@/hooks/pictrue";
-import {useTime3} from "@/hooks/formatTime";
+import {useTime3, useTimePopupCity} from "@/hooks/formatTime";
 import LangContext from "@/components/provider/LangProvider/LangContext";
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { Virtual, Pagination, Autoplay, Navigation } from 'swiper'
@@ -33,21 +33,10 @@ function Discover({eventGroups, popupCities } : {eventGroups: Group[], popupCiti
     const {showLoading} = useContext(DialogsContext)
     const startIssueBadge = useIssueBadge()
     const {defaultAvatar} = usePicture()
-    const formatTime = useTime3()
-    const [timeStr, setTimeString] = useState('')
+    const formatTime = useTimePopupCity()
     const {lang} = useContext(LangContext)
 
     const featureds = popupCities.filter(item => item.group_tags?.includes(':featured'))
-
-    useEffect(() => {
-        if (popupCities.length > 0) {
-            const featuredItem = popupCities.find(item => item.group_tags?.includes(':featured'))
-            if (typeof window !== 'undefined' && featuredItem) {
-                const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
-                setTimeString(formatTime(featuredItem.start_date!, featuredItem.end_date!, timezone).data)
-            }
-        }
-    }, [])
 
     let topPopupCities: PopupCity[] = []
     let normalPopupCities: PopupCity[] = []
@@ -112,7 +101,7 @@ function Discover({eventGroups, popupCities } : {eventGroups: Group[], popupCiti
 
                                             <div className={styles['item']}>
                                                 <i className={'icon-calendar'}/>
-                                                <div>{timeStr}</div>
+                                                <div>{formatTime(featured.start_date!, featured.end_date!).data}</div>
                                             </div>
 
                                             <div className={styles['item']}>
