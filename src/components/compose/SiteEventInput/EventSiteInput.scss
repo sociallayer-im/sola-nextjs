@@ -146,6 +146,31 @@
       }
     }
   }
+
+  .override-item {
+    display: flex;
+    flex-flow: row nowrap;
+    margin-top: 12px;
+    align-items: center;
+  }
+  .info {
+    border-radius: 10px;
+    background: var(--Fill-1-Light-Disabled, #F8F9F8);
+    padding: 10px;
+    flex: 1;
+    margin-right: 12px;
+    display: flex;
+    flex-flow: row nowrap;
+    font-size: 16px;
+    align-items: center;
+    >div {
+      flex: 1;
+    }
+
+    i {
+      font-size: 16px;
+    }
+  }
 }
 
 .slots {
