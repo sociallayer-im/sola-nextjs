@@ -33,18 +33,7 @@ const nextConfig = {
             }
         ]
     },
-    experimental: {
-        turbo: {
-            rules: {
-                '*.sass': {
-                    loaders: ['sass-loader']
-                },
-            },
-            resolveAlias: {
-                '@': 'src/',
-            }
-        }
-    }
+    experimental: {}
 }
 
 module.exports = withBundleAnalyzer(nextConfig)
