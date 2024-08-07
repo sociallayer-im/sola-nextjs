@@ -2937,8 +2937,8 @@ export interface EventSites {
     overrides: null | string[],
     require_approval?: boolean,
     visibility: null | 'all' | 'manager',
-    venue_timeslots: null | VenueTimeslot[]
-    venue_overrides: null | VenueOverride[]
+    venue_timeslots: VenueTimeslot[]
+    venue_overrides: VenueOverride[]
 }
 
 export interface Participants {

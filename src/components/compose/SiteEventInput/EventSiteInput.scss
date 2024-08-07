@@ -147,28 +147,54 @@
     }
   }
 
+  .add-override-btn {
+    display: inline-flex;
+    padding: 12px;
+    flex-flow: row nowrap;
+    align-items: center;
+    cursor: pointer;
+    border-radius: var(--Radii-radius-button, 8px);
+    background: var(--Fill-2-Medium, #F7F7F7);
+    box-shadow: 0px 1px 2px 0px rgba(16, 24, 40, 0.05);
+    color: var(--Text-4-Headline, #272928);
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 22px; /* 157.143% */
+    margin-top: 12px;
+    &:hover {
+      opacity: 0.7;
+    }
+  }
+
   .override-item {
     display: flex;
     flex-flow: row nowrap;
     margin-top: 12px;
     align-items: center;
-  }
-  .info {
-    border-radius: 10px;
-    background: var(--Fill-1-Light-Disabled, #F8F9F8);
-    padding: 10px;
-    flex: 1;
-    margin-right: 12px;
-    display: flex;
-    flex-flow: row nowrap;
-    font-size: 16px;
-    align-items: center;
-    >div {
+
+    .info {
+      cursor: pointer;
+      border-radius: 10px;
+      background: var(--Fill-1-Light-Disabled, #F8F9F8);
+      padding: 10px;
       flex: 1;
+      margin-right: 12px;
+      display: flex;
+      flex-flow: row nowrap;
+      font-size: 16px;
+      align-items: center;
+      >div {
+        flex: 1;
+      }
+
+      i {
+        font-size: 16px;
+      }
     }
 
-    i {
-      font-size: 16px;
+    >svg {
+      cursor: pointer;
     }
   }
 }

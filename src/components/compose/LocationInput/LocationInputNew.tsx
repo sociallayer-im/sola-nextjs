@@ -98,6 +98,18 @@ function LocationInput(props: LocationInputProps) {
             const availableStart = option.start_date ? dayjs.tz(option.start_date, timezone) : null
             const availableEnd = option.end_date ? dayjs.tz(option.end_date, timezone).hour(23).minute(59) : null
 
+            const overrideAvailable = option.venue_overrides!.filter((item) => {
+                return !item.disabled
+            })
+            if (overrideAvailable.length) {
+               const available = overrideAvailable.find((item) => {
+                    return startTime.isBetween(dayjs.tz(`${item.day} ${item.start_at}`, timezone), dayjs.tz(`${item.day} ${item.end_at}`, timezone), null, '[]')
+                        || endTime.isBetween(dayjs.tz(`${item.day} ${item.start_at}`, timezone), dayjs.tz(`${item.day} ${item.end_at}`, timezone), null, '[]')
+                })
+
+                return !!available
+            }
+
             let available = true
             if (availableStart && !availableEnd) {
                 available = startTime.isSameOrAfter(availableStart)
@@ -107,21 +119,19 @@ function LocationInput(props: LocationInputProps) {
                 available = startTime.isSameOrAfter(availableStart) && endTime.isBefore(availableEnd)
             }
 
-            if (!!option.venue_overrides) {
-                const overrides = option.venue_overrides
-                const override = overrides.find((item) => {
-                    const itemStartTime = item.start_at || '00:00'
-                    const itemEndTime =  item.end_at || '23:59'
+            const overrides = option.venue_overrides!
+            const override = overrides.find((item) => {
+                const itemStartTime = item.start_at || '00:00'
+                const itemEndTime =  item.end_at || '23:59'
 
-                    const itemStart = dayjs.tz(`${item.day} ${itemStartTime}`, timezone)
-                    const itemEnd = dayjs.tz(`${item.day} ${itemEndTime}`, timezone)
+                const itemStart = dayjs.tz(`${item.day} ${itemStartTime}`, timezone)
+                const itemEnd = dayjs.tz(`${item.day} ${itemEndTime}`, timezone)
+                return item.disabled && startTime.isBetween(itemStart, itemEnd, null, '[]') || endTime.isBetween(itemStart, itemEnd, null, '[]')
 
-                    return startTime.isBetween(itemStart, itemEnd, null, '[]') || endTime.isBetween(itemStart, itemEnd, null, '[]')
-                })
+            })
 
-                if (override) {
-                    available = false
-                }
+            if (override) {
+                available = false
             }
 
             return !(target?.disabled || !available);
