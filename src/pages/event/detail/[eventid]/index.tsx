@@ -20,7 +20,7 @@ import {
     queryGroupDetail,
     queryProfileByEmail,
     queryUserGroup,
-    RecurringEvent
+    RecurringEvent, setEventStatus
 } from "@/service/solas";
 import LangContext from "@/components/provider/LangProvider/LangContext";
 import {useTime2, useTime3} from "@/hooks/formatTime";
@@ -476,6 +476,34 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
 
     const genGoogleMapUrl = (id: number) => {
         return `/event/${eventGroup?.username}/map/?target_event=${id}`
+    }
+
+    const handlePublish = (e: any) => {
+        e.preventDefault()
+        openConfirmDialog({
+            title: lang['Are_You_Sure_To_Publish_This_Event'],
+            content: `${event!.title}`,
+            confirmLabel: lang['Yes'],
+            cancelLabel: lang['No'],
+            onConfirm: async (close: any) => {
+                const unload = showLoading()
+                try {
+                    await setEventStatus({
+                        id: event!.id,
+                        status: 'open',
+                        auth_token: user.authToken || ''
+                    })
+                    unload()
+                    showToast('Publish success')
+                    router.refresh()
+                    close()
+                } catch (e: any) {
+                    unload()
+                    close()
+                    showToast(e.message)
+                }
+            }
+        })
     }
 
     return (<>
@@ -1041,7 +1069,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                             }
 
 
-                            {user.userName && canAccess && event.status !== 'pending' && !props.event?.external_url &&
+                            {user.userName && canAccess  && !props.event?.external_url &&
                                 <div className={'event-login-status'}>
                                     <div className={'user-info'}>
                                         <img src={user.avatar || defaultAvatar(user.id!)} alt=""/>
@@ -1077,10 +1105,14 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                         }
 
 
-                                        {!isJoined && !canceled && !tickets.length &&
+                                        {!isJoined && !canceled && !tickets.length &&  event.status !== 'pending' &&
                                             <AppButton special onClick={e => {
                                                 handleJoin()
                                             }}>{lang['Activity_Detail_Btn_Attend']}</AppButton>
+                                        }
+
+                                        {  event.status === 'pending' && (isManager || isGroupOwner) &&
+                                            <AppButton special onClick={handlePublish}>{lang['Publish']}</AppButton>
                                         }
 
                                         {!canceled && isJoined && inProgress && !!event.meeting_url &&
@@ -1095,7 +1127,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                     </div>
 
                                     <div className={'event-action'}>
-                                        {(isHoster || isManager || isOperator || isGroupOwner || isJoined) && !canceled &&
+                                        {(isHoster || isManager || isOperator || isGroupOwner || isJoined) && !canceled && event.status !== 'pending' &&
                                             <AppButton
                                                 onClick={e => {
                                                     handleHostCheckIn()

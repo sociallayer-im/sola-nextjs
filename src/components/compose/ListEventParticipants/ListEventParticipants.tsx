@@ -136,7 +136,7 @@ function ListEventParticipants(props: ListCheckinUserProps) {
                         </div>
                     </Link>
                     <div className={styles['right']}>
-                        {!!ticket  &&
+                        {!!ticket && props.isHost &&
                             <div className={styles['ticket']}>{ticket.title}</div>
                         }
 
