@@ -1,7 +1,6 @@
 import {useParams} from "next/navigation"
 import {useContext, useEffect, useState, useRef} from 'react'
 import PageBack from "@/components/base/PageBack";
-import EventHomeContext from "@/components/provider/EventHomeProvider/EventHomeContext";
 import {
     Group,
     createEventSite,
@@ -200,7 +199,9 @@ function Dashboard() {
             link: null,
             capacity: null,
             overrides: null,
-            visibility: null
+            visibility: null,
+            venue_timeslots: [],
+            venue_overrides: []
         })
         setEventSite(_eventSite)
     }
