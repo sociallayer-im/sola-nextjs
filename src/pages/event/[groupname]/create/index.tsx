@@ -744,7 +744,13 @@ function EditEvent({
             _tickets = ticketsRef.current.map(ticket => {
                 return {
                     ...ticket,
-                    _destroy: '1'
+                    _destroy: '1',
+                    payment_methods: ticket.payment_methods ? ticket.payment_methods.map(p => {
+                        return {
+                            ...p,
+                            _destroy: '1'
+                        }
+                    }) : []
                 }
             })
         } else if (ticketsRef.current && ticketsRef.current.length && enableTicket && tickets.length) {
@@ -760,16 +766,6 @@ function EditEvent({
         } else if (enableTicket && tickets.length) {
             _tickets = tickets
         }
-
-        if (!!_tickets && _tickets.length) {
-            _tickets = _tickets.map((ticket) => {
-                return {
-                    ...ticket,
-                    payment_metadata: JSON.stringify(ticket.payment_metadata || []) as any,
-                }
-            })
-        }
-
 
         const saveProps = {
             ...event,
@@ -953,12 +949,7 @@ function EditEvent({
             interval: repeat || undefined,
             event_count: repeatCounter,
             extra,
-            tickets: enableTicket && tickets.length ? tickets.map((ticket) => {
-                return {
-                    ...ticket,
-                    payment_metadata: JSON.stringify(ticket.payment_metadata || []) as any,
-                }
-            }) : null,
+            tickets: enableTicket && tickets.length ? tickets : null,
 
             auth_token: user.authToken || '',
         } as CreateRepeatEventProps

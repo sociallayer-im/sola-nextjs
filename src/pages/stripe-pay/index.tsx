@@ -23,9 +23,9 @@ import {formatUnits} from "viem/utils";
 const api_key = 'pk_test_51OeSy4DtkneJ1BkLE1bqaFXFfKaIDC2vVvNSjxYITOpeHCOjqLcnrphytnpFpilM816hYXxtOEsmsXk1tLiwRU1s00OXWHHvaS'
 const stripePromise = loadStripe(api_key)
 
-export default function StripePay({ticketId, paymentIndex}: { ticketId: number | null, paymentIndex: number | null }) {
-    if (ticketId === null || !paymentIndex === null) {
-        throw new Error('Invalid ticketId or paymentIndex')
+export default function StripePay({ticketId, methodId}: { ticketId: number | null, methodId: number | null }) {
+    if (ticketId === null || !methodId === null) {
+        throw new Error('Invalid ticketId or methodId')
     }
     const router = useRouter()
     const {showLoading, showToast, openConnectWalletDialog} = useContext(DialogsContext)
@@ -40,7 +40,7 @@ export default function StripePay({ticketId, paymentIndex}: { ticketId: number |
 
     const returnPath = `/event/detail/${eventDetail?.id}`
 
-    const handleJoin = async (eventDetail: Event, ticket: Ticket, paymentIndex: number) => {
+    const handleJoin = async (eventDetail: Event, ticket: Ticket, methodId: number) => {
         const participantsAll = eventDetail?.participants || []
         const participants = participantsAll.filter(item => item.status !== 'cancel')
 
@@ -54,21 +54,25 @@ export default function StripePay({ticketId, paymentIndex}: { ticketId: number |
             throw new Error('You do not have permission to join this event.')
         }
 
-        const payment = ticket.payment_metadata[paymentIndex]
+        const payment = ticket.payment_methods.find(p => {
+            return p.id === methodId
+        })
 
         return await joinEventWithTicketItem({
             auth_token: user.authToken || '',
             id: eventDetail.id,
             ticket_id: ticketId,
-            chain: payment.payment_chain!,
-            amount: Number(payment.payment_token_price)!,
-            ticket_price: Number(payment.payment_token_price)!,
+            chain: payment!.chain!,
+            amount: payment!.price,
+            ticket_price: payment!.price,
         })
     }
 
+    const targetPayment = ticket?.payment_methods.find(item => item.id === methodId)
+
     useEffect(() => {
         (async () => {
-            if (ticketId && user.id && paymentIndex !== null) {
+            if (ticketId && user.id && methodId !== null) {
                 const unload = showLoading(true)
                 try {
 
@@ -80,7 +84,7 @@ export default function StripePay({ticketId, paymentIndex}: { ticketId: number |
                         setEventDetail(event[0])
 
 
-                        const {participant, ticket_item} = await handleJoin(event[0], tickets[0], paymentIndex)
+                        const {participant, ticket_item} = await handleJoin(event[0], tickets[0], methodId)
                         const clientSecret = await getStripeClientSecret({
                             auth_token: user.authToken || '',
                             ticket_item_id: ticket_item.id
@@ -99,7 +103,7 @@ export default function StripePay({ticketId, paymentIndex}: { ticketId: number |
                 }
             }
         })()
-    }, [ticketId, paymentIndex, user])
+    }, [ticketId, methodId, user])
 
     const options = {
         clientSecret,
@@ -132,7 +136,7 @@ export default function StripePay({ticketId, paymentIndex}: { ticketId: number |
                                 <div className={styles['price-tit']}>Price</div>
                                 <div
                                     className={styles['price']}>
-                                    ${formatUnits(BigInt(ticket?.payment_metadata?.[paymentIndex!]!.payment_token_price || 0), 2)}
+                                    ${formatUnits(BigInt(targetPayment?.price || 0), 2)}
                                     </div>
 
 
@@ -143,7 +147,7 @@ export default function StripePay({ticketId, paymentIndex}: { ticketId: number |
                                         <div className={styles['ticket-content']}>{ticket?.content}</div>
                                         <div
                                             className={styles['ticket-price']}>
-                                            {formatUnits(BigInt(ticket?.payment_metadata?.[paymentIndex!]!.payment_token_price || 0), 2)} USD
+                                            {formatUnits(BigInt(targetPayment?.price || 0), 2)} USD
                                         </div>
                                     </div>
                                     <div className={styles['ticket-cover']}>
@@ -178,12 +182,12 @@ export default function StripePay({ticketId, paymentIndex}: { ticketId: number |
 
 export async function getServerSideProps(context: any) {
     const ticketId = context.query?.ticket
-    const paymentIndex = context.query?.index
+    const paymentMethodId = context.query?.methodid
 
     return {
         props: {
             ticketId: ticketId ? parseInt(ticketId) : null,
-            paymentIndex: paymentIndex ? parseInt(paymentIndex) : null
+            methodId: paymentMethodId ? parseInt(paymentMethodId) : null
         }
     }
 }
@@ -192,7 +196,6 @@ export async function getServerSideProps(context: any) {
 function CheckoutForm(props: { ticket: Ticket, eventDetail: Event }) {
     const stripe = useStripe();
     const elements = useElements();
-    const {user} = useContext(userContext)
 
     const [message, setMessage] = useState('');
     const [isLoading, setIsLoading] = useState(false);

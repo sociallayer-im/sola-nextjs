@@ -55,13 +55,13 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
     }, [user.id, badge])
 
     const payments = useMemo(() => {
-        if (props.ticket.payment_metadata!.length === 0) return []
-        return props.ticket.payment_metadata!.map((payment, index) => {
-            const chain = paymentTokenList.find((chain) => chain.id === payment.payment_chain)
+        if (props.ticket.payment_methods!.length === 0) return []
+        return props.ticket.payment_methods!.map((payment, index) => {
+            const chain = paymentTokenList.find((chain) => chain.id === payment.chain)
 
             let token: any = undefined
             if (!!chain) {
-                token = chain.tokenList.find((t: any) => t.id === payment.payment_token_name)
+                token = chain.tokenList.find((t: any) => t.id === payment.token_name)
             }
 
             return {
@@ -69,7 +69,7 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
                 token,
                 payment,
                 index,
-                label: `${Number(payment.payment_token_price) / 10 ** (token?.decimals || 0)} ${payment.payment_token_name}`
+                label: `${Number(payment.price) / 10 ** (token?.decimals || 0)} ${payment.token_name}`
             }
         })
     }, [props.ticket])
@@ -93,7 +93,7 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
 
                             return item.chain!.chainId === paymentData.chain_id &&
                                 item.token.contract === paymentData.token &&
-                                item.payment.payment_token_price === paymentData.amount
+                                item.payment.price.toString() === paymentData.amount
                         })
 
                         if (targetPaymentIndex !== -1) {
@@ -168,7 +168,7 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
     const [balance, setBalance] = useState<string | null>(null)
 
     useEffect(() => {
-        if (hasBadgePermission && payments.length && !!balance && !busy && Number(balance) < Number(payments[paymentIndex].payment.payment_token_price)) {
+        if (hasBadgePermission && payments.length && !!balance && !busy && Number(balance) < Number(payments[paymentIndex].payment.price)) {
             setErrorMsg('Insufficient balance')
         }
     }, [balance, busy, payments, hasBadgePermission])
@@ -231,15 +231,15 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
                 <div className={styles['select']}>
                     <Select
                         disabled={busy}
-                        value={[props.ticket.payment_metadata[paymentIndex]] as any}
-                        options={payments as any}
+                        value={[props.ticket.payment_methods[paymentIndex]] as any}
+                        options={payments}
                         clearable={false}
                         searchable={false}
 
                         getValueLabel={() => {
                             return <div className={styles['payment-label']}>
                                 <img src={payments![paymentIndex]!.chain!.icon} alt=""/>
-                                <span> {Number(props.ticket.payment_metadata[paymentIndex]!.payment_token_price || '0') / (10 ** payments![paymentIndex]!.token!.decimals || 0)}</span>
+                                <span> {Number(props.ticket.payment_methods[paymentIndex]!.price || '0') / (10 ** payments![paymentIndex]!.token!.decimals || 0)}</span>
                                 <span>{payments[paymentIndex]!.token.name.toUpperCase()}</span>
                             </div>
                         }}
@@ -247,7 +247,7 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
                         getOptionLabel={({option}: any) => {
                             return <div className={styles['payment-label']}>
                                 <img src={option.chain.icon} alt=""/>
-                                {option.payment.payment_token_price / 10 ** (option.token.decimals)} {option.payment.payment_token_name.toUpperCase()}
+                                {option.payment.price / 10 ** (option.token.decimals)} {option.payment.token_name.toUpperCase()}
                             </div>
                         }}
 
@@ -257,7 +257,7 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
                     />
                 </div>
 
-                {!!props.ticket.payment_metadata[paymentIndex].payment_target_address && !isStripe &&
+                {!!props.ticket.payment_methods[paymentIndex].receiver_address && !isStripe &&
                     <div className={styles['receiver']}>
                         <div className={styles['receiver-des']}>Payments will be sent to</div>
                         <div className={styles['address']}>
@@ -266,11 +266,11 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
                                     payments[paymentIndex].chain &&
                                     <img src={payments![paymentIndex!].chain!.icon} alt=""/>
                                 }
-                                <div>{shotAddress(props.ticket.payment_metadata[paymentIndex].payment_target_address!)}</div>
+                                <div>{shotAddress(props.ticket.payment_methods[paymentIndex].receiver_address!)}</div>
                             </div>
                             <div className={styles['copy']}
                                  onClick={e => {
-                                     copyWithDialog(props.ticket.payment_metadata[paymentIndex].payment_target_address!)
+                                     copyWithDialog(props.ticket.payment_methods[paymentIndex].receiver_address!)
                                  }}>
                                 {lang['Profile_Show_Copy']}
                             </div>
@@ -338,7 +338,7 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
             !!user.id
             && isStripe &&
             <AppButton special onClick={e => {
-                router.push(`/stripe-pay?ticket=${props.ticket.id}&index=${paymentIndex}`)
+                router.push(`/stripe-pay?ticket=${props.ticket.id}&methodid=${props.ticket.payment_methods[paymentIndex].id}`)
                 props.close()
             }}>{'Go to pay'}</AppButton>
         }
@@ -355,8 +355,8 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
                 eventId={props.event.id}
                 ticketId={props.ticket.id}
                 token={payments![paymentIndex]!.token!.contract}
-                to={props.ticket.payment_metadata[paymentIndex]!.payment_target_address!}
-                amount={props.ticket.payment_metadata[paymentIndex]!.payment_token_price?.toString() || '0'}
+                to={props.ticket.payment_methods[paymentIndex]!.receiver_address!}
+                amount={props.ticket.payment_methods[paymentIndex]!.price?.toString() || '0'}
                 decimals={payments![paymentIndex]!.token!.decimals}
                 chainId={payments![paymentIndex]!.chain!.chainId}
                 onErrMsg={(errMsg: string) => {
@@ -406,8 +406,8 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
             <Erc20TokenApproveHandler
                 ref={reFleshAllowanceRef}
                 token={payments![paymentIndex]!.token!.contract}
-                to={props.ticket.payment_metadata[paymentIndex]!.payment_target_address!}
-                amount={props.ticket.payment_metadata[paymentIndex]!.payment_token_price?.toString() || '0'}
+                to={props.ticket.payment_methods[paymentIndex]!.receiver_address!}
+                amount={props.ticket.payment_methods[paymentIndex]!.price?.toString() || '0'}
                 decimals={payments![paymentIndex]!.token!.decimals}
                 chainId={payments![paymentIndex]!.chain!.chainId}
                 onErrMsg={(errMsg: string) => {

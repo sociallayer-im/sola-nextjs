@@ -5209,7 +5209,9 @@ export interface Ticket {
         payment_token_address: string | null
         payment_token_price: string | null
         payment_token_name: string | null
-    }[]
+    }[],
+    payment_methods: PaymentMethod[]
+    payment_methods_attributes: PaymentMethod[]
 }
 
 export async function queryTickets (props: {
@@ -5228,6 +5230,16 @@ export async function queryTickets (props: {
 
     const doc = gql`query MyQuery {
       tickets(where: {${variables}}) {
+        payment_methods {
+            id
+            item_type
+            chain
+            kind
+            token_name
+            token_address
+            receiver_address
+            price
+        }
         payment_metadata
         check_badge_class_id
         content
@@ -5889,6 +5901,17 @@ export async function getStripeClientSecret(props: {
     return secret
 }
 
+export interface PaymentMethod {
+    id?: number
+    item_type: string // 'Ticket'
+    item_id?: number // ticket id
+    chain: string
+    token_name:  null |string
+    token_address:  null | string
+    receiver_address: null | string
+    price: number
+    _destroy?: string
+}
 
 export default {
     removeMarker,

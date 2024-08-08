@@ -22,16 +22,16 @@ function TicketItem({
     const [badge, setBadge] = useState<Badge | null>(null)
 
     const chain = useMemo(() => {
-        return ticket.payment_metadata.length && ticket.payment_metadata[0].payment_chain ? paymentTokenList.find(item => item.id === ticket.payment_metadata[0].payment_chain) : undefined
+        return ticket.payment_methods.length && ticket.payment_methods[0].chain ? paymentTokenList.find(item => item.id === ticket.payment_methods[0].chain) : undefined
     }, [ticket])
 
     const token = useMemo(() => {
         if (!chain) return undefined
-        return chain?.tokenList.find(item => item.id === ticket.payment_metadata[0].payment_token_name)
+        return chain?.tokenList.find(item => item.id === ticket.payment_methods[0].token_name)
     }, [chain, ticket])
 
     const chainsIcons = useMemo(() => {
-        const chains = ticket.payment_metadata.map(item => item.payment_chain)
+        const chains = ticket.payment_methods.map(item => item.chain)
         return chains.map(chain => paymentTokenList.find(item => item.id === chain)?.icon).reverse()
     }, [ticket])
 
@@ -62,10 +62,10 @@ function TicketItem({
         }
 
         {
-            ticket.payment_metadata?.length !== 0 &&
+            ticket.payment_methods?.length !== 0 &&
             <div className={styles['price-info']}>
                 <div
-                    className={styles['item-price']}>{formatUnits(BigInt(ticket.payment_metadata[0].payment_token_price || 0), token?.decimals!)} {ticket.payment_metadata[0].payment_token_name?.toUpperCase()}</div>
+                    className={styles['item-price']}>{formatUnits(BigInt(ticket.payment_methods[0].price || 0), token?.decimals!)} {ticket.payment_methods[0].token_name?.toUpperCase()}</div>
                 <div className={styles['chain-icons']}>
                     {
                         chainsIcons.map((icon, index) => {
@@ -77,7 +77,7 @@ function TicketItem({
         }
 
         {
-            ticket.payment_metadata?.length === 0 &&
+            ticket.payment_methods?.length === 0 &&
             <div className={styles['item-price']}>{'Free'}</div>
         }
 
@@ -110,7 +110,7 @@ function EventTickets({
                     const ticket = props.tickets.find(item => item.id === res.ticket_id)
                     // 通过票务参加
                     if (!!ticket) {
-                       if (res.payment_status === 'success' || ticket.payment_metadata!.length === 0) {
+                       if (res.payment_status === 'success' || ticket.payment_methods!.length === 0) {
                            // 已经支付或者是免费票
                             setUserPendingPayment(null)
                             setUserHasPaid(res)
