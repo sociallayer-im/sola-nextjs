@@ -165,7 +165,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             res.status(200).json({result: 'success', message: ""})
         } catch (e: any) {
             console.log('e')
-            res.status(200).json({result: 'fail', message: e.message || 'verify fail 2'})
+            res.status(200).json({result: 'failed', message: e.message || 'verify fail 2'})
         }
     }
 }
