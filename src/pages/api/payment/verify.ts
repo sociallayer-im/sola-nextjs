@@ -84,23 +84,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         res.status(200).json({result: 'failed', message: "tx info not found"})
     }
 
-    if (body.tx !== participant.payment_data) {
-        const updatePaymentData = await updatePaymentStatus({
-            next_token: process.env.NEXT_TOKEN || '',
-            auth_token: body.auth_token,
-            id: body.eventId,
-            status: participant.status,
-            payment_status: participant.payment_status,
-            payment_data: JSON.stringify({
-                tx: body.tx,
-                chain_id: body.chain_id,
-                amount: body.amount,
-                token: body.token,
-                payer_address: body.payer_address,
-                to_address: body.to_address,
-            }),
-        })
-    }
+    const updatePaymentData = await updatePaymentStatus({
+        next_token: process.env.NEXT_TOKEN || '',
+        auth_token: body.auth_token,
+        id: body.eventId,
+        status: participant.status,
+        payment_status: participant.payment_status,
+        payment_data: JSON.stringify({
+            tx: body.tx,
+            chain_id: body.chain_id,
+            amount: body.amount,
+            token: body.token,
+            payer_address: body.payer_address,
+            to_address: body.to_address,
+        }),
+    })
 
     const payhubContract = paymentTokenList.find((item) => item.chainId === body.chain_id)?.payHub
     const eventLog = txInfo.logs.find((log: any) => {
