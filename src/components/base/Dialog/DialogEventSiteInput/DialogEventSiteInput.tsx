@@ -25,7 +25,8 @@ export interface GMapSearchResult {
 export interface LocationInputProps {
     initValue: EventSites,
     onChange?: (value: EventSites) => any
-    error?: boolean
+    locationError?: boolean
+    titleError?: boolean
     hasTimeSlotError?: (hasError: boolean) => any
 }
 
@@ -143,8 +144,13 @@ function DialogEventSiteInput(props: LocationInputProps) {
     }, [showSearchRes])
 
     const reset = () => {
-        setNewEventSite(props.initValue)
-        resetSelect()
+        setNewEventSite({
+            ...newEventSite,
+            title: '',
+        })
+        setSearchKeyword('')
+        setGmapSearchResult([])
+        setShowSearchRes(false)
     }
 
     const resetSelect = () => {
@@ -152,6 +158,16 @@ function DialogEventSiteInput(props: LocationInputProps) {
         setGmapSearchResult([])
         setShowSearchRes(false)
         setCustomLocationDetail(null)
+        setNewEventSite(
+            {
+                ...newEventSite!,
+                formatted_address: ``,
+                title: '',
+                location: '',
+                geo_lng: null,
+                geo_lat: null
+            }
+        )
     }
 
     const handleSelectSearchRes = async (result: GMapSearchResult) => {
@@ -282,6 +298,7 @@ function DialogEventSiteInput(props: LocationInputProps) {
             <div>Name of venue</div>
         </div>
         <AppInput
+            errorMsg={props.titleError ? 'please input title' : undefined}
             startEnhancer={() => <i className={'icon-edit'}/>}
             endEnhancer={() => <Delete size={24} onClick={reset} className={'delete'}/>}
             placeholder={'Enter location'}
@@ -307,7 +324,7 @@ function DialogEventSiteInput(props: LocationInputProps) {
                     }
                     <AppInput
                         readOnly
-                        errorMsg={props.error ? 'please select location' : undefined}
+                        errorMsg={props.locationError ? 'please select location' : undefined}
                         onFocus={(e) => {
                             setSearchKeyword(newEventSite?.formatted_address || '');
                             setShowSearchRes(true)
