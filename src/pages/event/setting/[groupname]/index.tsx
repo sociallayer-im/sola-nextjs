@@ -12,7 +12,6 @@ import {
     queryGroupDetail, getGroupMembers, getGroupMembership
 } from "@/service/solas";
 import LangContext from "@/components/provider/LangProvider/LangContext";
-import EventSiteInput from "@/components/compose/SiteEventInput/EventSiteInput";
 import AppButton from "@/components/base/AppButton/AppButton";
 import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
 import UserContext from "@/components/provider/UserProvider/UserContext";
@@ -23,11 +22,12 @@ import EventTagInput from "@/components/compose/EventTagInput/EventTagInput";
 import AppRadio from "@/components/base/AppRadio/AppRadio";
 import Timezone from "@/utils/timezone";
 import {Select} from "baseui/select";
+import DialogEventSiteInput from "@/components/base/Dialog/DialogEventSiteInput/DialogEventSiteInput";
 
 function Dashboard() {
     const params = useParams()
     const {lang} = useContext(LangContext)
-    const {showToast, showLoading} = useContext(DialogsContext)
+    const {showToast, showLoading, openConfirmDialog} = useContext(DialogsContext)
     const {user} = useContext(UserContext)
 
     const oldEventSite = useRef<EventSites[]>([])
@@ -52,6 +52,10 @@ function Dashboard() {
     const [timezone, setTimezone] = useState<string | null>(null)
     const [showTimezone, setShowTimezone] = useState(false)
 
+    const [editingVenueIndex, setEditingVenueIndex] = useState<number>(0)
+    const [showEditingVenue, setShowEditingVenue] = useState(false)
+
+    const [hasTimeSlotError, setHasTimeSlotError] = useState(false)
 
     const [ready, setReady] = useState(false)
 
@@ -126,10 +130,12 @@ function Dashboard() {
         setEventSite(eventSite.sort((e1, e2) => {
             return e1.id - e2.id
         }))
-        oldEventSite.current = eventSite
+        oldEventSite.current = JSON.parse(JSON.stringify(eventSite))
     }
 
     const saveEventSite = async function () {
+        if (hasTimeSlotError) return
+
         const check = eventSite
             .filter(e => e.title && !e.formatted_address)
             .map(e => eventSite.indexOf(e))
@@ -138,40 +144,25 @@ function Dashboard() {
         if (!check.length) {
             const unload = showLoading()
             try {
-                const task = eventSite.filter(e => {
-                    return e.title && e.formatted_address
-                })
-                    .map(e => {
-                        if (e.id) {
-                            return updateEventSite({...e,
-                                auth_token: user.authToken || '',
-                                venue_id: e.id,
-                            })
-                        } else {
-                            return createEventSite({...e,
-                                auth_token: user.authToken || '',
-                                owner_id: user.id || 0,
-                                group_id: eventGroup?.id || 0,
-                            })
-                        }
-                    })
-
-                const deleteTask = oldEventSite.current
-                    .map(e => {
-                    const item = eventSite.find(e2 => e2.id === e.id)
-                    return !item ? removeEventSite({
+                const target = eventSite[editingVenueIndex]
+                if (target.id) {
+                    await updateEventSite({...target,
                         auth_token: user.authToken || '',
-                        id: e.id,
+                        venue_id: target.id,
                     })
-                        : null
-                })
-                    .filter(a => !!a) as Promise<any>[]
+                } else {
+                    await createEventSite({...target,
+                        auth_token: user.authToken || '',
+                        owner_id: user.id || 0,
+                        group_id: eventGroup?.id || 0,
+                    })
+                }
 
-                await Promise.all([...task, ...deleteTask])
                 const newGroup = await queryGroupDetail(eventGroup!.id)
                 setEventGroup(newGroup)
                 unload()
                 showToast('Save venues success')
+                setShowEditingVenue(false)
             } catch (e) {
                 unload()
                 console.error(e)
@@ -204,6 +195,8 @@ function Dashboard() {
             venue_overrides: []
         })
         setEventSite(_eventSite)
+        setEditingVenueIndex(_eventSite.length - 1)
+        setShowEditingVenue(true)
     }
 
     const setBannerImage = async function () {
@@ -248,6 +241,36 @@ function Dashboard() {
         setEventGroup(newGroup)
         unload()
         showToast('Update success')
+    }
+
+    const handleRemoveEventSite = async (id: number) => {
+        const target = eventSite.find(e => e.id === id)
+
+        openConfirmDialog({
+            confirmLabel: 'Remove',
+            confirmBtnColor: '#F64F4F',
+            confirmTextColor: '#fff',
+            title: `Remove venue`,
+            content: `Are you sure you want to remove this venue? [${target?.title}]`,
+            onConfirm: async (close: any) => {
+                const unload = showLoading()
+                try {
+                    await removeEventSite({
+                        auth_token: user.authToken || '',
+                        id: id,
+                    })
+                    const newGroup = await queryGroupDetail(eventGroup!.id)
+                    setEventGroup(newGroup)
+                    unload()
+                    showToast('Remove venue success')
+                } catch (e) {
+                    unload()
+                    console.error(e)
+                    showToast('Remove venue failed')
+                }
+                close()
+            }
+        })
     }
 
     return (<>
@@ -418,26 +441,29 @@ function Dashboard() {
                             </div>
 
                             {
-                                eventSite.map((item, i) => {
-                                    return <EventSiteInput
-                                        key={item.id || i}
-                                        index={i + 1}
-                                        initValue={item}
-                                        error={errorInputItem.includes(i)}
-                                        onDelete={(index) => {
-                                            const newEventSiteList = [...eventSite]
-                                            const res = newEventSiteList.filter((item, index1) => {
-                                                return index1 !== i
-                                            })
-
-                                            setEventSite(res)
+                                eventSite.map((item, index) => {
+                                    return <div key={item.id} className={'venue-list-item'}>
+                                        <div className={'info'} onClick={(e) => {
+                                            setEditingVenueIndex(index)
+                                            setShowEditingVenue(true)
+                                        }}>
+                                            <div>
+                                                <div>{item.title}</div>
+                                            </div>
+                                            <i className={'icon-edit'}/>
+                                        </div>
+                                        <svg onClick={e => {
+                                            handleRemoveEventSite(item.id)
                                         }}
-
-                                        onChange={newEventSite => {
-                                            const newEventSiteList = [...eventSite]
-                                            newEventSiteList[i] = newEventSite
-                                            setEventSite(newEventSiteList)
-                                        }}/>
+                                             width="32" height="32" viewBox="0 0 32 32" fill="none"
+                                             xmlns="http://www.w3.org/2000/svg">
+                                            <rect x="0.5" y="0.5" width="31" height="31" rx="15.5" fill="white"/>
+                                            <rect x="0.5" y="0.5" width="31" height="31" rx="15.5" stroke="#7B7C7B"/>
+                                            <path fillRule="evenodd" clipRule="evenodd"
+                                                  d="M19.5 15C19.7761 15 20 15.2239 20 15.5V16.5C20 16.7761 19.7761 17 19.5 17H12.5C12.2239 17 12 16.7761 12 16.5V15.5C12 15.2239 12.2239 15 12.5 15H19.5Z"
+                                                  fill="#7B7C7B"/>
+                                        </svg>
+                                    </div>
                                 })
                             }
 
@@ -453,7 +479,54 @@ function Dashboard() {
                             </div>
 
                         </div>
+                    </div>
+                </div>
+            }
+
+            {showEditingVenue &&
+                <div className={'dashboard-dialog dashboard-event-site-list'}>
+                    <div className={'center'}>
+                        <div className={'dashboard-dialog-head'}>
+                            <PageBack title={'Edit venue'} onClose={() => {
+                                if (eventSite.find(c => !c.id)) {
+                                    const newEventSite = eventSite.filter(c => c.id)
+                                    setEventSite(newEventSite)
+                                } else {
+                                    const newEventSite = [...eventSite]
+                                    newEventSite[editingVenueIndex] = JSON.parse(JSON.stringify(oldEventSite.current[editingVenueIndex]))
+                                    console.log('newEventSite[editingVenueIndex]', newEventSite[editingVenueIndex])
+                                    setEventSite(newEventSite)
+                                }
+                                setShowEditingVenue(false)
+                            }}/>
+                        </div>
+                        <div className={'dialog-inner'}>
+                            <DialogEventSiteInput
+                                initValue={eventSite[editingVenueIndex]}
+                                error={errorInputItem.includes(editingVenueIndex)}
+                                onChange={newEventSite => {
+                                    const newEventSiteList = [...eventSite]
+                                    newEventSiteList[editingVenueIndex] = newEventSite
+                                    setEventSite(newEventSiteList)
+                                }}
+                                hasTimeSlotError={(hasError) => {setHasTimeSlotError(hasError)}}
+                            />
+                        </div>
                         <div className={'action-bar'}>
+                            <AppButton style={{marginRight: '12px'}} onClick={
+                                e => {
+                                    if (eventSite.find(c => !c.id)) {
+                                        const newEventSite = eventSite.filter(c => c.id)
+                                        setEventSite(newEventSite)
+                                    } else {
+                                        const newEventSite = [...eventSite]
+                                        newEventSite[editingVenueIndex] = JSON.parse(JSON.stringify(oldEventSite.current[editingVenueIndex]))
+                                        console.log('newEventSite[editingVenueIndex]', newEventSite[editingVenueIndex])
+                                        setEventSite(newEventSite)
+                                    }
+                                    setShowEditingVenue(false)
+                                }
+                            }>Cancel</AppButton>
                             <AppButton special onClick={saveEventSite}>Save</AppButton>
                         </div>
                     </div>

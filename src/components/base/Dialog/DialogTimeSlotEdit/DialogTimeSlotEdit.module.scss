@@ -65,7 +65,7 @@
 
 .title {
   color: #272928;
-  font-size: 16px;
+  font-size: 14px;
   font-style: normal;
   font-weight: 600;
 }
@@ -80,8 +80,9 @@
 }
 
 .slot-item {
-  &.disable {
+  *.disable {
     opacity: 0.5;
+    pointer-events: none;
   }
 
   > .row:first-child {

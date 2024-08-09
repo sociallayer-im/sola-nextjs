@@ -23,15 +23,19 @@ export interface TimeSlotItem {
     slot: { start: string, end: string, _destroy?: number }[]
 }
 
-const emptySlot: VenueTimeslot[] = [
-    {day_of_week: 'Monday', disabled: false, start_at: '08:00', end_at: '20:00'},
-    {day_of_week: 'Tuesday', disabled: false, start_at: '08:00', end_at: '20:00'},
-    {day_of_week: 'Wednesday', disabled: false, start_at: '08:00', end_at: '20:00'},
-    {day_of_week: 'Thursday', disabled: false, start_at: '08:00', end_at: '20:00'},
-    {day_of_week: 'Friday', disabled: false, start_at: '08:00', end_at: '20:00'},
-    {day_of_week: 'Saturday', disabled: false, start_at: '08:00', end_at: '20:00'},
-    {day_of_week: 'Sunday', disabled: false, start_at: '08:00', end_at: '20:00'},
+const emptySlot: VenueTimeslotWithIndex[] = [
+    {day_of_week: 'Monday', disabled: false, start_at: '08:00', end_at: '20:00', _index: 0},
+    {day_of_week: 'Tuesday', disabled: false, start_at: '08:00', end_at: '20:00', _index: 1},
+    {day_of_week: 'Wednesday', disabled: false, start_at: '08:00', end_at: '20:00', _index: 2},
+    {day_of_week: 'Thursday', disabled: false, start_at: '08:00', end_at: '20:00',_index: 3},
+    {day_of_week: 'Friday', disabled: false, start_at: '08:00', end_at: '20:00', _index: 4},
+    {day_of_week: 'Saturday', disabled: false, start_at: '08:00', end_at: '20:00', _index: 5},
+    {day_of_week: 'Sunday', disabled: false, start_at: '08:00', end_at: '20:00', _index: 6},
 ]
+
+interface VenueTimeslotWithIndex extends VenueTimeslot {
+    _index: number
+}
 
 const toDate = (time: string) => {
     const [hour, minute] = time.split(':')
@@ -52,17 +56,19 @@ const subtract = (time: string, offset: number) => {
     return dayjs().hour(parseInt(hour)).minute(parseInt(minute)).second(0).millisecond(0).subtract(offset, 'minute').toDate()
 }
 
-export default function DialogTimeSlotEdit(props: { close: any, value: VenueTimeslot[] | null, onConfirm?: (value:  VenueTimeslot[] | null) => any }) {
+export default function DialogTimeSlotEdit(props: { close: any, value: VenueTimeslot[], onChange?: (value:  VenueTimeslot[]) => any, hasTimeSlotError?: (hasError:  boolean) => any }) {
     const [slot, setSlot] = useState(props.value && props.value.length ? props.value : emptySlot)
 
     const [allTime, setAllTime] = useState(!props.value || !props.value.length)
     const [OverlapErr, setOverlapErr] = useState(['', '', '', '', '', '', ''])
 
+    useEffect(() => {
+        !!props.onChange && props.onChange(slot)
+    }, [slot]);
+
     const showSlot = useMemo(() => {
         // mon -> sun
-        interface VenueTimeslotWithIndex extends VenueTimeslot {
-            _index: number
-        }
+
 
         let showSlots = [[],[],[],[],[],[],[]] as VenueTimeslotWithIndex[][]
 
@@ -112,34 +118,42 @@ export default function DialogTimeSlotEdit(props: { close: any, value: VenueTime
                 })
             }
         })
-
+        !!props.hasTimeSlotError && props.hasTimeSlotError(errMsg.some(i => !!i))
         setOverlapErr(errMsg)
     }, [showSlot])
 
     return <div className={styles['dialog-time-slot-edit']}>
         <div className={styles['center']}>
-            <div className={styles['header']}>
-                <PageBack title={'Time Slot'} onClose={() => {
-                    props.close()
-                }}/>
-            </div>
             <div className={styles['body']}>
                 <div className={styles['item']} onClick={e => {
-                    setAllTime(!allTime)
+                    if (!allTime) {
+                        setSlot(slot.filter(s => !!s.id).map(s => {
+                            s._destroy = '1'
+                            return s
+                        }))
+                        setAllTime(true)
+                    } else {
+                        if (props.value && props.value.length) {
+                            setSlot(props.value.map(i => {
+                                return {...i, _destroy: undefined}
+                            }))
+                        } else {
+                            setSlot((JSON.parse(JSON.stringify(emptySlot))))
+                        }
+                        setAllTime(false)
+                    }
                 }}>
                     <div className={styles['row']}>
                         <div className={styles['title']}>Opening hours 24/7</div>
                         <AppRadio checked={allTime}/>
                     </div>
                 </div>
-                <div className={styles['row']}>
-                    <div className={styles['title']}>Available Date</div>
-                </div>
+
                 <div>
                     {
-                        showSlot.map((item, index) => {
+                       !allTime && showSlot.map((item, index) => {
                             return <div
-                                className={`${styles['slot-item']} ${item[0].disabled || allTime ? styles['disable'] : ''}`}
+                                className={`${styles['slot-item']}`}
                                 key={index}>
                                 <div className={styles['row']}>
                                     <div className={styles['title']}>{item[0].day_of_week}</div>
@@ -162,7 +176,7 @@ export default function DialogTimeSlotEdit(props: { close: any, value: VenueTime
                                     item.length &&
                                     <>
                                         {item.map((s, i) => {
-                                            return <div key={i} className={styles['row']}>
+                                            return <div key={i} className={item[0].disabled ? `${styles['row']} ${styles['disable']}` : styles['row']}>
                                                 <div className={styles['select']}>
                                                     <TimePicker
                                                         disabled={item[0].disabled || allTime}
@@ -226,32 +240,6 @@ export default function DialogTimeSlotEdit(props: { close: any, value: VenueTime
                     }
                 </div>
             </div>
-            <div className={styles['actions']}>
-                <AppButton size={'compact'} onClick={e => {
-                    setSlot(slot.map(s => {
-                        return {
-                            ...s,
-                            _destroy: undefined
-                        }
-                    }))
-                    props.close()
-                }}>Cancel</AppButton>
-                <AppButton size={'compact'} special onClick={e => {
-                    const hasError = OverlapErr.some(err => !!err)
-                    if (hasError) return
-
-                    if (allTime) {
-                        const _slot = slot
-                            .filter(s => !!s.id)
-                            .map(s => ({...s, _destroy: '1'}))
-                        props.onConfirm && props.onConfirm(_slot)
-                    } else {
-                        props.onConfirm && props.onConfirm(slot)
-                    }
-                    props.close()
-                }}>Confirm</AppButton>
-            </div>
-
         </div>
 
     </div>
