@@ -151,7 +151,10 @@
   }
 
   .add-event-site-btn {
-    display: flex;
+    border-radius: 8px;
+    background: var(--Fill-2-Medium, #F7F7F7);
+    display: inline-flex;
+    padding: 12px 18px;
     align-items: center;
     color: var(--color-text-main);
     font-size: 14px;
@@ -159,6 +162,7 @@
     font-weight: 600;
     line-height: 22px; /* 157.143% */
     margin-top: 12px;
+    cursor: pointer;
 
     svg {
       margin-right: 4px;
