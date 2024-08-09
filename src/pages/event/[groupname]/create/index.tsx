@@ -434,19 +434,14 @@ function EditEvent({
             const availableStart = venueInfo.start_date ? dayjs.tz(venueInfo.start_date, event.timezone) : null
             const availableEnd = venueInfo.end_date ? dayjs.tz(venueInfo.end_date, event.timezone).hour(23).minute(59) : null
 
-            const overrideAvailable = venueInfo.venue_overrides!.filter((item) => {
-                return !item.disabled
+            const hasOverride =  venueInfo.venue_overrides!.find((item) => {
+                return startTime.isBetween(dayjs.tz(`${item.day} ${item.start_at}`, event.timezone), dayjs.tz(`${item.day} ${item.end_at}`, event.timezone), null, '[]')
+                    || endTime.isBetween(dayjs.tz(`${item.day} ${item.start_at}`, event.timezone), dayjs.tz(`${item.day} ${item.end_at}`, event.timezone), null, '[]')
             })
-            if (overrideAvailable.length) {
-                const available = overrideAvailable.find((item) => {
-                    return startTime.isBetween(dayjs.tz(`${item.day} ${item.start_at}`, event.timezone), dayjs.tz(`${item.day} ${item.end_at}`, event.timezone), null, '[]')
-                        || endTime.isBetween(dayjs.tz(`${item.day} ${item.start_at}`, event.timezone), dayjs.tz(`${item.day} ${item.end_at}`, event.timezone), null, '[]')
-                })
 
-                if (!!available) {
-                    setDayDisable('')
-                    return
-                }
+            if (!!hasOverride) {
+                setDayDisable(!hasOverride.disabled ? '' : 'The date you selected is not available for the current venue')
+                return
             }
 
             let available = true
