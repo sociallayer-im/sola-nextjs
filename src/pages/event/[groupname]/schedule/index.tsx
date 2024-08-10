@@ -620,10 +620,15 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
                                             clearable={false}
                                             searchable={false}
                                             options={timezoneList}
-                                            getValueLabel={({option}) => <div style={{display: 'flex'}}>
-                                                <div style={{maxWidth: '100px', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', marginRight: '3px'}}>{option.label!.split(' ')[0]}</div>
-                                                <div>{option.label!.split(' ')[1]}</div>
-                                            </div>}
+                                            getValueLabel={({option}) => {
+                                                let labelArry = (option.label as string).split(' ')[0].split('/')
+                                                let gmtOffset = (option.label as string).split(' ')[1]
+                                                return <div style={{display: 'flex'}}>
+                                                    <div style={{maxWidth: '100px', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', marginRight: '3px'}}>
+                                                        {labelArry[labelArry.length - 1]}
+                                                    </div>
+                                                    <div>{gmtOffset}</div>
+                                                </div>}}
                                             onChange={(params) => {
                                                 localStorage.setItem('schedule-timezone', JSON.stringify(params.value))
                                                 setTimezoneSelected(params.value as any)
@@ -706,10 +711,15 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
                             clearable={false}
                             searchable={false}
                             options={timezoneList}
-                            getValueLabel={({option}) => <div style={{display: 'flex'}}>
-                                <div style={{maxWidth: '100px', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', marginRight: '3px'}}>{option.label!.split(' ')[0]}</div>
-                                <div>{option.label!.split(' ')[1]}</div>
-                            </div>}
+                            getValueLabel={({option}) => {
+                                let labelArry = (option.label as string).split(' ')[0].split('/')
+                                let gmtOffset = (option.label as string).split(' ')[1]
+                                return <div style={{display: 'flex'}}>
+                                    <div style={{maxWidth: '100px', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', marginRight: '3px'}}>
+                                        {labelArry[labelArry.length - 1]}
+                                    </div>
+                                    <div>{gmtOffset}</div>
+                            </div>}}
                             onChange={(params) => {
                                 localStorage.setItem('schedule-timezone', JSON.stringify(params.value))
                                 setTimezoneSelected(params.value as any)
