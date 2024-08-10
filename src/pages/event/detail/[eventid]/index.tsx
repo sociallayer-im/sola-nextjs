@@ -237,6 +237,8 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                     || (!!ticket && !!item.ticket_id && item.profile.id === user.id && (item.status === 'applied' || item.status === 'attending') && ticket.payment_token_price === null) // free ticket
             })
             setIsJoined(!!joined)
+        } else {
+            setIsJoined(false)
         }
     }
 
