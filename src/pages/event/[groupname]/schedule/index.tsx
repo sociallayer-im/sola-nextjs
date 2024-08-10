@@ -355,7 +355,8 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
             const historyTimeZone = localStorage.getItem('schedule-timezone')
             if (historyTimeZone) {
                 setTimezoneSelected(JSON.parse(historyTimeZone))
-            } else if (props.group.timezone) {
+            } else
+                if (props.group.timezone) {
                 setTimezoneSelected([{
                     id: props.group.timezone,
                     label: timezoneList.find(item => item.id === props.group.timezone)!.label
@@ -619,6 +620,10 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
                                             clearable={false}
                                             searchable={false}
                                             options={timezoneList}
+                                            getValueLabel={({option}) => <div style={{display: 'flex'}}>
+                                                <div style={{maxWidth: '100px', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', marginRight: '3px'}}>{option.label!.split(' ')[0]}</div>
+                                                <div>{option.label!.split(' ')[1]}</div>
+                                            </div>}
                                             onChange={(params) => {
                                                 localStorage.setItem('schedule-timezone', JSON.stringify(params.value))
                                                 setTimezoneSelected(params.value as any)
@@ -701,6 +706,10 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
                             clearable={false}
                             searchable={false}
                             options={timezoneList}
+                            getValueLabel={({option}) => <div style={{display: 'flex'}}>
+                                <div style={{maxWidth: '100px', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', marginRight: '3px'}}>{option.label!.split(' ')[0]}</div>
+                                <div>{option.label!.split(' ')[1]}</div>
+                            </div>}
                             onChange={(params) => {
                                 localStorage.setItem('schedule-timezone', JSON.stringify(params.value))
                                 setTimezoneSelected(params.value as any)
