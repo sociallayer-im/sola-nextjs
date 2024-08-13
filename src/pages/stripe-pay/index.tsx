@@ -2,7 +2,7 @@ import {
     checkEventPermission,
     Event,
     getStripeClientSecret,
-    joinEventWithTicketItem,
+    joinEventWithTicketItem, Participants,
     queryEvent,
     queryTickets,
     Ticket
@@ -40,6 +40,18 @@ export default function StripePay({ticketId, methodId}: { ticketId: number | nul
 
     const returnPath = `/event/detail/${eventDetail?.id}`
 
+    async function checkJoined() {
+        if (user.id) {
+            const eventParticipants = eventDetail?.participants || []
+            const joined = eventParticipants.find((item: Participants) => {
+                return (!item.ticket_id && item.profile.id === user.id && (item.status === 'applied' || item.status === 'attending')) // no tickets needed
+                    || (!!item.ticket_id && item.profile.id === user.id && (item.status === 'applied' || item.status === 'attending') && item.payment_status.includes('succe')) // paid ticket
+            })
+
+            return !!joined
+        }
+    }
+
     const handleJoin = async (eventDetail: Event, ticket: Ticket, methodId: number) => {
         const participantsAll = eventDetail?.participants || []
         const participants = participantsAll.filter(item => item.status !== 'cancel')
@@ -75,6 +87,10 @@ export default function StripePay({ticketId, methodId}: { ticketId: number | nul
             if (ticketId && user.id && methodId !== null) {
                 const unload = showLoading(true)
                 try {
+                    const checkJoin = await checkJoined()
+                    if (checkJoin) {
+                        router.replace(`/event/detail/${eventDetail?.id}`)
+                    }
 
                     const tickets = await queryTickets({id: ticketId})
                     !!tickets[0] && setTicket(tickets[0])
@@ -103,7 +119,7 @@ export default function StripePay({ticketId, methodId}: { ticketId: number | nul
                 }
             }
         })()
-    }, [ticketId, methodId, user])
+    }, [ticketId, methodId, user, eventDetail])
 
     const options = {
         clientSecret,
@@ -199,6 +215,7 @@ function CheckoutForm(props: { ticket: Ticket, eventDetail: Event }) {
 
     const [message, setMessage] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const {showToast} = useContext(DialogsContext)
 
     useEffect(() => {
         if (!stripe) {
@@ -248,10 +265,14 @@ function CheckoutForm(props: { ticket: Ticket, eventDetail: Event }) {
             },
         });
 
-        if (error.type === "card_error" || error.type === "validation_error") {
-            setMessage(error.message || error.type);
+        if (!!error) {
+            if (error.type === "card_error" || error.type === "validation_error") {
+                setMessage(error.message || error.type);
+            } else {
+                setMessage("An unexpected error occurred.");
+            }
         } else {
-            setMessage("An unexpected error occurred.");
+            showToast('Payment successful')
         }
 
         setIsLoading(false);
@@ -264,9 +285,6 @@ function CheckoutForm(props: { ticket: Ticket, eventDetail: Event }) {
     return (
         <form id="payment-form" onSubmit={handleSubmit}>
             <PaymentElement
-                onReady={(el) => {
-                    console.log('el', el)
-                }}
                 id="payment-element" options={paymentElementOptions}/>
 
             <div className={styles['pay-btn']}>
