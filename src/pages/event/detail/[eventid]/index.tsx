@@ -537,19 +537,27 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
             !!event &&
             <div className={'event-detail'}>
                 <div className={'event-detail-head'}>
-                    <PageBack
-                        menu={() =>
-                            <div className={'event-top-btn'}>
-                                {(isHoster || isManager || isOperator || isGroupOwner) && !canceled &&
-                                    <Link href={`/event/edit/${event?.id}`}>
-                                        <i className={'icon-edit'}></i>{lang['Activity_Detail_Btn_Modify']}</Link>
-                                }
-                                {event?.status !== 'pending' &&
-                                    <Link href={`/event/success/${event?.id}`}>
-                                        <img src="/images/icon_share.svg" alt=""/>{lang['IssueFinish_Title']}</Link>
-                                }
-                            </div>}
-                    />
+                    <div className={'event-detail-head-menu'}>
+                        <div className={'event-detail-head-event-home'}>
+                            {!!group &&
+                                <Link href={`/event/${group?.username}`}>
+                                    <img src={group?.image_url || defaultAvatar(group.id)} alt=""/>
+                                    <div>{group?.nickname || group?.username}</div>
+                                </Link>
+                            }
+                        </div>
+                        <div className={'event-top-btn'}>
+                            {(isHoster || isManager || isOperator || isGroupOwner) && !canceled &&
+                                <Link href={`/event/edit/${event?.id}`}>
+                                    <i className={'icon-edit'}></i>{lang['Activity_Detail_Btn_Modify']}</Link>
+                            }
+                            {event?.status !== 'pending' &&
+                                <Link href={`/event/success/${event?.id}`}>
+                                    <img src="/images/icon_share.svg" alt=""/>{lang['IssueFinish_Title']}</Link>
+                            }
+                        </div>
+
+                    </div>
                 </div>
                 <div className={'event-detail-content'}>
                     <div className={'event-detail-content-main'}>
