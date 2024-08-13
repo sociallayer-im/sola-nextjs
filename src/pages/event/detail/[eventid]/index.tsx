@@ -1,4 +1,4 @@
-import {useParams, useRouter} from 'next/navigation'
+import {useParams, useRouter, useSearchParams} from 'next/navigation'
 import {useContext, useEffect, useMemo, useState} from 'react'
 import {
     Badge,
@@ -70,6 +70,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
     const [event, setEvent] = useState<Event | null>(props.event || null)
     const [hoster, setHoster] = useState<Profile | null>(null)
     const params = useParams()
+    const searchParams = useSearchParams()
     const {lang} = useContext(LangContext)
     const formatTime = useTime3()
     const formatTime2 = useTime2()
@@ -233,10 +234,14 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
             const joined = eventParticipants.find((item: Participants) => {
                 const ticket = tickets.find(t => t.id === item.ticket_id)
                 return (!item.ticket_id && item.profile.id === user.id && (item.status === 'applied' || item.status === 'attending')) // no tickets needed
-                    || (!!ticket && !!item.ticket_id && item.profile.id === user.id && (item.status === 'applied' || item.status === 'attending') && item.payment_status === 'success' ) // paid ticket
-                    || (!!ticket && !!item.ticket_id && item.profile.id === user.id && (item.status === 'applied' || item.status === 'attending') && ticket.payment_token_price === null) // free ticket
+                    || (!!ticket && !!item.ticket_id && item.profile.id === user.id && (item.status === 'applied' || item.status === 'attending') && item.payment_status.includes('succe')) // paid ticket
+                    || (!!ticket && !!item.ticket_id && item.profile.id === user.id && (item.status === 'applied' || item.status === 'attending') && ticket.payment_methods.length === 0) // free ticket
             })
+
             setIsJoined(!!joined)
+            if (!!joined && !!searchParams?.get('payment_intent')) {
+                showToast('Payment success')
+            }
         }
     }
 

@@ -110,15 +110,15 @@ function EventTickets({
                     const ticket = props.tickets.find(item => item.id === res.ticket_id)
                     // 通过票务参加
                     if (!!ticket) {
-                       if (res.payment_status === 'success' || ticket.payment_methods!.length === 0) {
+                       if (res.payment_status.includes('succe') || ticket.payment_methods!.length === 0) {
                            // 已经支付或者是免费票
                             setUserPendingPayment(null)
                             setUserHasPaid(res)
-                        } else if (res.payment_status !== 'success' && !!res.payment_data) {
+                        } else if (!res.payment_status.includes('succe') && !!res.payment_data) {
                            // 未支付
                             setUserHasPaid(null)
                             setUserPendingPayment(res)
-                        } else if (res.payment_status !== 'success' && !res.payment_data) {
+                        } else if (!res.payment_status.includes('succe') && !res.payment_data) {
                             setUserHasPaid(null)
                             setUserPendingPayment(null)
                         }
