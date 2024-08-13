@@ -77,7 +77,7 @@ function HomeUserPanel({showSchedule=true, ...props}: {
                 <div className={'group-card'}>
                     {
                         process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'maodao' ?
-                            <Link href={`/group/${eventGroup.username}`} className={'center'}>
+                            <Link href={`/group/${eventGroup.username}?tab=6`} className={'center'}>
                                 <div className={'left'}>
                                     <img className={'avatar'}
                                          src={eventGroup?.image_url || defaultAvatar(eventGroup?.id)} alt=""/>
@@ -92,12 +92,12 @@ function HomeUserPanel({showSchedule=true, ...props}: {
                             </Link>
                             :
                             <div className={'center'}>
-                                <Link href={`/group/${eventGroup.username}`} className={'left'}>
+                                <Link href={`/group/${eventGroup.username}?tab=6`} className={'left'}>
                                     <img className={'avatar'}
                                          src={eventGroup?.image_url || defaultAvatar(eventGroup?.id)} alt=""/>
                                     <span>{eventGroup?.nickname || eventGroup?.username || '--'}</span>
                                 </Link>
-                                <Link href={`/group/${eventGroup.username}`} className={'right'}>
+                                <Link href={`/group/${eventGroup.username}?tab=6`} className={'right'}>
                                     {memberCount} {lang['Group_detail_tabs_member'].toLowerCase()}
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"
                                          fill="none">

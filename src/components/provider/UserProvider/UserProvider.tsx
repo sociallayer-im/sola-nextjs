@@ -370,11 +370,13 @@ function UserProvider(props: UserProviderProps) {
         const loginType = AuthStorage.getLastLoginType()
         if (!loginType) return
 
-        if (loginType === 'wallet') {
-            walletLogin()
-        } else {
-            login()
-        }
+        // if (loginType === 'wallet') {
+        //     walletLogin()
+        // } else {
+        //     login()
+        // }
+
+        login()
     }, [data])
 
     useEffect(() => {
