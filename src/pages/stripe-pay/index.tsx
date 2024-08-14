@@ -45,7 +45,7 @@ export default function StripePay({ticketId, methodId}: { ticketId: number | nul
             const eventParticipants = eventDetail?.participants || []
             const joined = eventParticipants.find((item: Participants) => {
                 return (!item.ticket_id && item.profile.id === user.id && (item.status === 'applied' || item.status === 'attending')) // no tickets needed
-                    || (!!item.ticket_id && item.profile.id === user.id && (item.status === 'applied' || item.status === 'attending') && item.payment_status.includes('succe')) // paid ticket
+                    || (!!item.ticket_id && item.profile.id === user.id && (item.status === 'applied' || item.status === 'attending') && item.payment_status?.includes('succe')) // paid ticket
             })
 
             return !!joined
@@ -87,11 +87,6 @@ export default function StripePay({ticketId, methodId}: { ticketId: number | nul
             if (ticketId && user.id && methodId !== null) {
                 const unload = showLoading(true)
                 try {
-                    const checkJoin = await checkJoined()
-                    if (checkJoin) {
-                        router.replace(`/event/detail/${eventDetail?.id}`)
-                    }
-
                     const tickets = await queryTickets({id: ticketId})
                     !!tickets[0] && setTicket(tickets[0])
 
@@ -99,6 +94,11 @@ export default function StripePay({ticketId, methodId}: { ticketId: number | nul
                         const event = await queryEvent({id: tickets[0].event_id, page: 1})
                         setEventDetail(event[0])
 
+                        const checkJoin = await checkJoined()
+                        if (checkJoin) {
+                            router.replace(`/event/detail/${eventDetail?.id}`)
+                            return
+                        }
 
                         const {participant, ticket_item} = await handleJoin(event[0], tickets[0], methodId)
                         const clientSecret = await getStripeClientSecret({
@@ -119,7 +119,7 @@ export default function StripePay({ticketId, methodId}: { ticketId: number | nul
                 }
             }
         })()
-    }, [ticketId, methodId, user, eventDetail])
+    }, [ticketId, methodId, user])
 
     const options = {
         clientSecret,
