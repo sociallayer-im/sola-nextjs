@@ -46,7 +46,12 @@ export const voucherSchema = (props: QueryPresendProps) => {
         variables += `receiver_address: {_eq: "${props.address}"},`
     }
 
-    return gql`vouchers(where: {counter: {_neq: 0}, ${variables}, expires_at: {_gt: "${new Date().toISOString()}"}} limit: 20, offset: ${props.page * 20 - 20}, order_by: {created_at: desc}) {
+    let expires_doc = `expires_at: {_gt: "${new Date().toISOString()}"}`
+    if (props.includeExpires) {
+        expires_doc = ''
+    }
+
+    return gql`vouchers(where: {counter: {_neq: 0}, ${variables}, ${expires_doc}} limit: 20, offset: ${props.page * 20 - 20}, order_by: {created_at: desc}) {
         id
         strategy
         receiver_address
@@ -823,7 +828,8 @@ interface QueryPresendProps {
     group_id?: number,
     id?: number
     receiver_id?: number,
-    address?: string
+    address?: string,
+    includeExpires?:boolean
 }
 
 export interface Presend extends Voucher {
@@ -841,11 +847,13 @@ export interface PresendWithBadgelets extends Presend {
 }
 
 export interface QueryPresendDetailProps {
-    id: number
+    id: number,
+    includeExpires?: boolean
 }
 
 export async function queryPresendDetail(props: QueryPresendDetailProps): Promise<PresendWithBadgelets> {
-    const presend = await queryPresend({page: 1, id: props.id})
+    const presend = await queryPresend({page: 1, id: props.id, includeExpires: props.includeExpires})
+    console.log('presend', presend)
     return presend[0] as PresendWithBadgelets
 }
 
@@ -5682,12 +5690,17 @@ export async function queryBadgeletWithTop(props: { owner_id: number, page: numb
 export async function checkEventPermission(props: { id: number, auth_token: string }) {
     checkAuth(props)
 
-    const res: any = await fetch.post({
-        url: `${apiUrl}/event/check_permission`,
-        data: props
-    })
+   try {
+       const res: any = await fetch.post({
+           url: `${apiUrl}/event/check_permission`,
+           data: props
+       })
 
-    return res.data.message === 'join allowed'
+       return res.data.message === 'join allowed'
+   } catch (e: any) {
+       console.warn(e)
+       return false
+   }
     // return false
 }
 
@@ -5695,10 +5708,8 @@ export interface GroupPass {
     id: number,
     created_at: string,
     days_allowed: null | string,
-    days_disallowed: null | string,
     end_date: null | string,
     group_id: null | number,
-    pass_type: null | string,
     profile_id: number,
     start_date: null | string,
     updated_at: string,
@@ -5714,10 +5725,8 @@ export async function getGroupPass({profile_id, group_id}: { profile_id: number,
             id
             created_at
             days_allowed
-            days_disallowed
             end_date
             group_id
-            pass_type
             profile_id
             start_date
             updated_at
