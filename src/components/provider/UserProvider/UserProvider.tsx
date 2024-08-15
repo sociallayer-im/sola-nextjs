@@ -131,9 +131,13 @@ function UserProvider(props: UserProviderProps) {
 
     const logOut = () => {
         console.trace('logOut====')
-        disconnect()
-        solanaWallet.disconnect()
-        // signOut && signOut()
+        try {
+            disconnect()
+            solanaWallet.disconnect()
+            // signOut && signOut()
+        } catch (e: any) {
+            console.warn(e)
+        }
 
         if (userInfo.wallet) {
             AuthStorage.burnAuth(userInfo.wallet)

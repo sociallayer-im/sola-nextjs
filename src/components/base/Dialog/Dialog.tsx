@@ -37,7 +37,7 @@ function Dialog ({shellClose=true, position = '', ...props }: DialogProps) {
     }
 
     const close = () => {
-        console.log('close dialog dialogContent', dialogContent)
+        console.log('close dialog dialogContent')
         if (props.handleClose && dialogContent && dialogContent.current) {
             dialogContent.current!.className = contentClassName.replace('active', '')
             setTimeout(() => {

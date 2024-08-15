@@ -1,7 +1,17 @@
 import {signInWithEthereum} from './SIWE'
 import fetch from '../utils/fetch'
 import Alchemy from "@/service/alchemy/alchemy";
-import {gql, request} from 'graphql-request'
+import {gql, request as gqlRequest} from 'graphql-request'
+
+const request = (
+    url: string,
+    document: any,
+    variables?: any,
+    requestHeaders?: any
+) => {
+    console.log('gql doc :' + document)
+    return gqlRequest(url, document, variables, requestHeaders)
+}
 
 const apiUrl = process.env.NEXT_PUBLIC_API!
 const graphUrl = process.env.NEXT_PUBLIC_GRAPH!

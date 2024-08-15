@@ -383,10 +383,13 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
                 setPageSize(1)
             }
 
-            if (clientWidth >= 450) {
-                (window.document.querySelector('.schedule-head') as any)!.style.height = 'auto';
-            } else {
-                (window.document.querySelector('.schedule-head') as any)!.style.height = '180px';
+            const header: any = window.document.querySelector('.schedule-head')
+            if (!!header) {
+                if (clientWidth >= 450) {
+                    header.style.height = 'auto';
+                } else {
+                    header.style.height = '180px';
+                }
             }
         }
 
@@ -398,20 +401,23 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
 
         const scrollBar2 = scroll2Ref.current
 
-        const checkScroll = (e: any) => {
 
+        const checkScroll = (e: any) => {
             if (scrollBar2.scrollTop > 0) {
-                (window.document.querySelector('.schedule-head') as any)!.style.height = '0';
-                (window.document.querySelector('.event-list') as any)!.style.minHeight = `100vh`;
+                const header: any = (window as any).document.querySelector('.schedule-head')
+                const list: any = (window as any).document.querySelector('.event-list')
+                !!header && (header.style.height = '0');
+                !!list && (list.style.minHeight = `100vh`);
             } else {
-                const hadleScroll = () => {
-                    (window.document.querySelector('.schedule-head') as any)!.style.height = '180px';
+                const handleScroll = () => {
+                    const header: any = (window as any).document.querySelector('.schedule-head')
+                    !!header && (header.style.height = '180px');
                 }
                 if (scrollDebounce.current) {
                     clearTimeout(scrollDebounce.current)
                 }
                 scrollDebounce.current = setTimeout(() => {
-                    hadleScroll()
+                    handleScroll()
                 }, 100)
             }
         }
