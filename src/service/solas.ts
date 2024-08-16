@@ -3729,13 +3729,14 @@ export interface TicketItem {
     discount_value : null| string
     event_id: number
     id: number
-    order_number: string
+    order_number: number
     participant_id: string
     profile_id: string
     status : string
     ticket_id : string
     ticket_price :  null | string
     txhash: null | string
+    payment_method_id: number
 }
 
 export async function joinEventWithTicketItem(props: JoinEventProps) {
@@ -5911,6 +5912,80 @@ export interface PaymentMethod {
     receiver_address: null | string
     price: number
     _destroy?: string
+}
+
+export async function rsvp(props: {auth_token: string, id: number, ticket_id: number, payment_method_id?: number, promo_code?: string}){
+    checkAuth(props)
+
+    const res: any = await fetch.post({
+        url: `${apiUrl}/event/rsvp`,
+        data: props
+    })
+
+    if (res.data.result === 'error') {
+        throw new Error(res.data.message)
+    }
+
+    return {
+        participant: res.data.participant as Participants,
+        ticket_item: res.data.ticket_item as TicketItem
+    }
+}
+
+export async function SetTicketPaymentStatus (props: {
+    next_token: string,
+    chain: string,
+    product_id: number,
+    item_id: number,
+    amount: number
+    txhash: string
+    auth_token: string
+}) {
+    const res: any= await fetch.post({
+        url: `${apiUrl}/event/set_ticket_payment_status`,
+        data: props
+    })
+
+    if (res.data.result === 'error') {
+        throw new Error(res.data.message)
+    }
+
+    return res.data.participant as Participants
+}
+
+export async function getTicketItemDetail (props: {id?: number, participant_id?: number}) {
+    let variables = ''
+    if (props.id) {
+        variables += `id: {_eq: ${props.id}}, `
+    }
+
+    if (props.participant_id) {
+        variables += `participant_id: {_eq: ${props.participant_id}}, `
+    }
+
+    const doc = `query MyQuery {
+        ticket_items(where: {${variables}}) {
+            id
+            amount
+            chain
+            created_at
+            discount_data
+            discount_value
+            event_id
+            order_number
+            participant_id
+            profile_id
+            status
+            ticket_id
+            ticket_price
+            txhash
+            payment_method_id
+            order_number
+        }
+    }`
+
+    const res: any = await request(graphUrl, doc)
+    return res.ticket_items[0] as TicketItem || null
 }
 
 export default {

@@ -4,7 +4,7 @@ import {
     getStripeClientSecret,
     joinEventWithTicketItem, Participants,
     queryEvent,
-    queryTickets,
+    queryTickets, rsvp,
     Ticket
 } from "@/service/solas"
 import React, {useContext, useEffect, useState} from "react"
@@ -44,8 +44,9 @@ export default function StripePay({ticketId, methodId}: { ticketId: number | nul
         if (user.id) {
             const eventParticipants = eventDetail?.participants || []
             const joined = eventParticipants.find((item: Participants) => {
+                console.log('Participants', item)
                 return (!item.ticket_id && item.profile.id === user.id && (item.status === 'applied' || item.status === 'attending')) // no tickets needed
-                    || (!!item.ticket_id && item.profile.id === user.id && (item.status === 'applied' || item.status === 'attending') && item.payment_status.includes('succe')) // paid ticket
+                    || (!!item.ticket_id && item.profile.id === user.id && (item.status === 'applied' || item.status === 'attending') && item.payment_status?.includes('succe')) // paid ticket
             })
 
             return !!joined
@@ -66,17 +67,11 @@ export default function StripePay({ticketId, methodId}: { ticketId: number | nul
             throw new Error('You do not have permission to join this event.')
         }
 
-        const payment = ticket.payment_methods.find(p => {
-            return p.id === methodId
-        })
-
-        return await joinEventWithTicketItem({
+        return await rsvp({
             auth_token: user.authToken || '',
             id: eventDetail.id,
             ticket_id: ticketId,
-            chain: payment!.chain!,
-            amount: payment!.price,
-            ticket_price: payment!.price,
+            payment_method_id: methodId,
         })
     }
 
@@ -87,11 +82,6 @@ export default function StripePay({ticketId, methodId}: { ticketId: number | nul
             if (ticketId && user.id && methodId !== null) {
                 const unload = showLoading(true)
                 try {
-                    const checkJoin = await checkJoined()
-                    if (checkJoin) {
-                        router.replace(`/event/detail/${eventDetail?.id}`)
-                    }
-
                     const tickets = await queryTickets({id: ticketId})
                     !!tickets[0] && setTicket(tickets[0])
 
@@ -99,6 +89,11 @@ export default function StripePay({ticketId, methodId}: { ticketId: number | nul
                         const event = await queryEvent({id: tickets[0].event_id, page: 1})
                         setEventDetail(event[0])
 
+                        const checkJoin = await checkJoined()
+                        if (checkJoin) {
+                            router.replace(`/event/detail/${eventDetail?.id}`)
+                            return
+                        }
 
                         const {participant, ticket_item} = await handleJoin(event[0], tickets[0], methodId)
                         const clientSecret = await getStripeClientSecret({
@@ -119,7 +114,7 @@ export default function StripePay({ticketId, methodId}: { ticketId: number | nul
                 }
             }
         })()
-    }, [ticketId, methodId, user, eventDetail])
+    }, [ticketId, methodId, user])
 
     const options = {
         clientSecret,

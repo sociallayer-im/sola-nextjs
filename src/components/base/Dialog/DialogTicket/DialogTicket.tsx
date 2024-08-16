@@ -10,7 +10,16 @@ import Erc20TokenPaymentHandler from "@/components/base/Erc20TokenPaymentHandler
 import Erc20TokenApproveHandler from "@/components/base/Erc20TokenApproveHandler/Erc20TokenApproveHandler";
 import Erc20Balance from "@/components/base/Erc20Balance/Erc20Balance";
 import EventDefaultCover from "@/components/base/EventDefaultCover";
-import {Badge, Event, getParticipantDetail, joinEvent, queryBadgeDetail, queryBadgelet, Ticket} from '@/service/solas'
+import {
+    Badge,
+    Event,
+    getParticipantDetail, getTicketItemDetail,
+    joinEvent,
+    queryBadgeDetail,
+    queryBadgelet,
+    rsvp,
+    Ticket
+} from '@/service/solas'
 import useTime from "@/hooks/formatTime";
 import {paymentTokenList} from "@/payment_settring";
 import UserContext from "@/components/provider/UserProvider/UserContext";
@@ -75,34 +84,28 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
     }, [props.ticket])
 
     useEffect(() => {
-        if (user.id) {
-            getParticipantDetail({profile_id: user.id, ticket_id: props.ticket.id}).then((res) => {
-                if (!res) {
+        (async () => {
+            if (user.id) {
+                const participant = await getParticipantDetail({profile_id: user.id, ticket_id: props.ticket.id})
+                if (!participant) {
                     setApproved(false)
                     return
                 }
 
-                if (!res.payment_data) {
-                    setApproved(true)
-                } else {
-                    if (res.payment_data.startsWith('0x')) {
+                const ticket_item = await getTicketItemDetail({participant_id: participant.id})
+                if (!!ticket_item) {
+                    const methodIndex = props.ticket.payment_methods.findIndex((p => p.id === ticket_item.payment_method_id))
+                    if (methodIndex !== -1) {
+                        setPaymentIndex(methodIndex)
                         setApproved(true)
                     } else {
-                        const paymentData = JSON.parse(res.payment_data)
-                        const targetPaymentIndex = payments.findIndex((item) => {
-
-                            return item.chain!.chainId === paymentData.chain_id &&
-                                item.token.contract === paymentData.token &&
-                                item.payment.price.toString() === paymentData.amount
-                        })
-
-                        if (targetPaymentIndex !== -1) {
-                            setPaymentIndex(targetPaymentIndex)
-                        }
+                        setApproved(false)
                     }
+                } else {
+                    setApproved(false)
                 }
-            })
-        }
+            }
+        })()
     }, [user.id, payments])
 
     useEffect(() => {
@@ -144,10 +147,10 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
         const unload = showLoading()
 
         try {
-            const join = await joinEvent(
+            const join = await rsvp(
                 {
-                    id: props.event.id,
                     auth_token: user.authToken || '',
+                    id: props.event.id,
                     ticket_id: props.ticket.id,
                 }
             )
@@ -353,6 +356,7 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
             && !isStripe &&
             <Erc20TokenPaymentHandler
                 eventId={props.event.id}
+                methodId={props.ticket.payment_methods[paymentIndex]!.id!}
                 ticketId={props.ticket.id}
                 token={payments![paymentIndex]!.token!.contract}
                 to={props.ticket.payment_methods[paymentIndex]!.receiver_address!}

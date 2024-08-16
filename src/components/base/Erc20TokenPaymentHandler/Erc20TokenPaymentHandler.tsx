@@ -1,7 +1,7 @@
 import {ReactNode, useContext, useState} from 'react'
 import {useAccount, useNetwork, usePublicClient, useSwitchNetwork, useWalletClient} from "wagmi";
 import {payhub_abi, paymentTokenList} from "@/payment_settring";
-import {getParticipantDetail, joinEvent} from "@/service/solas";
+import {getParticipantDetail, joinEvent, rsvp} from "@/service/solas";
 import UserContext from "@/components/provider/UserProvider/UserContext";
 import fetch from "@/utils/fetch"
 
@@ -20,6 +20,7 @@ function Erc20TokenPaymentHandler(
         to: string
         chainId: number
         ticketId: number
+        methodId: number
         eventId: number
         onSuccess?: (hash: string) => any
         onErrMsg?: (message: string) => any
@@ -128,11 +129,12 @@ function Erc20TokenPaymentHandler(
             }
 
             // create an order
-            const join = await joinEvent(
+            const join = await rsvp(
                 {
-                    id: props.eventId,
                     auth_token: user.authToken || '',
+                    id: props.eventId,
                     ticket_id: props.ticketId,
+                    payment_method_id: props.methodId,
                 }
             )
 
@@ -148,7 +150,7 @@ function Erc20TokenPaymentHandler(
                     props.token,
                     BigInt(props.amount),
                     props.ticketId,
-                    join.id
+                    join.participant.id
                 ]
             }
 
@@ -165,7 +167,7 @@ function Erc20TokenPaymentHandler(
             setSending(false)
             setVerifying(true)
 
-            const verify = await _verifyPayment(join.id, hash)
+            const verify = await _verifyPayment(join.participant.id, hash)
             setVerifying(false)
 
             if (!!verify) {

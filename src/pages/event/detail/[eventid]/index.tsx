@@ -234,7 +234,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
             const joined = eventParticipants.find((item: Participants) => {
                 const ticket = tickets.find(t => t.id === item.ticket_id)
                 return (!item.ticket_id && item.profile.id === user.id && (item.status === 'applied' || item.status === 'attending')) // no tickets needed
-                    || (!!ticket && !!item.ticket_id && item.profile.id === user.id && (item.status === 'applied' || item.status === 'attending') && item.payment_status.includes('succe')) // paid ticket
+                    || (!!ticket && !!item.ticket_id && item.profile.id === user.id && (item.status === 'applied' || item.status === 'attending') && item.payment_status?.includes('succe')) // paid ticket
                     || (!!ticket && !!item.ticket_id && item.profile.id === user.id && (item.status === 'applied' || item.status === 'attending') && ticket.payment_methods.length === 0) // free ticket
             })
 
@@ -336,7 +336,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
 
             if (ticket!.payment_metadata.length === 0) {
                 return true
-            } else return participant.payment_status === 'success';
+            } else return participant.payment_status?.includes('succe');
 
         })
     }, [participants, tickets])

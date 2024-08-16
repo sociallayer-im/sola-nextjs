@@ -1,5 +1,12 @@
 import {NextApiRequest, NextApiResponse} from "next/dist/shared/lib/utils"
-import {getParticipantDetail, myProfile, Profile, updatePaymentStatus} from "@/service/solas"
+import {
+    getParticipantDetail,
+    getTicketItemDetail,
+    myProfile,
+    Profile,
+    SetTicketPaymentStatus,
+    updatePaymentStatus
+} from "@/service/solas"
 import {createPublicClient, decodeEventLog, http} from 'viem'
 import {arbitrum, avalancheFuji, base, mainnet, optimism, polygon} from 'wagmi/chains'
 import {payhub_abi, paymentTokenList} from "@/payment_settring"
@@ -78,12 +85,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     const txInfo = await publicClient.getTransactionReceipt({hash: body.tx})
-    console.log('txInfo', txInfo)
+    // console.log('txInfo', txInfo)
 
     if (!txInfo) {
         res.status(200).json({result: 'failed', message: "tx info not found"})
     }
 
+    // set txhash to save unverified payment
     if (body.tx !== participant.payment_data) {
         const updatePaymentData = await updatePaymentStatus({
             next_token: process.env.NEXT_TOKEN || '',
@@ -91,18 +99,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             id: body.eventId,
             status: participant.status,
             payment_status: participant.payment_status,
-            payment_data: JSON.stringify({
-                tx: body.tx,
-                chain_id: body.chain_id,
-                amount: body.amount,
-                token: body.token,
-                payer_address: body.payer_address,
-                to_address: body.to_address,
-            }),
+            payment_data: body.tx,
         })
     }
 
-    const payhubContract = paymentTokenList.find((item) => item.chainId === body.chain_id)?.payHub
+    const paymentChain = paymentTokenList.find((item) => item.chainId === body.chain_id)
+    if (!paymentChain) {
+        res.status(200).json({result: 'failed', message: "Invalid chain"})
+        return
+    }
+
+    const payhubContract = paymentChain.payHub
     const eventLog = txInfo.logs.find((log: any) => {
         return log.address === payhubContract!.toLowerCase()
     })
@@ -123,17 +130,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         topics: eventLog.topics
     })
 
-    console.log('decoded', decodedLog)
+    // console.log('decoded', decodedLog)
 
-    console.log('check',
-        decodedLog.eventName !== 'PaymentTrasnfered',
-        decodedLog.args.from.toLowerCase() !== body.payer_address.toLowerCase(),
-        decodedLog.args.to.toLowerCase() !== body.to_address.toLowerCase(),
-        decodedLog.args.token.toLowerCase() !== body.token.toLowerCase(),
-        decodedLog.args.productId.toString() !== body.productId.toString(),
-        decodedLog.args.itemId.toString() !== body.itemId.toString(),
-        decodedLog.args.amount.toString() !== body.amount
-    )
+    // console.log('check',
+    //     decodedLog.eventName !== 'PaymentTrasnfered',
+    //     decodedLog.args.from.toLowerCase() !== body.payer_address.toLowerCase(),
+    //     decodedLog.args.to.toLowerCase() !== body.to_address.toLowerCase(),
+    //     decodedLog.args.token.toLowerCase() !== body.token.toLowerCase(),
+    //     decodedLog.args.productId.toString() !== body.productId.toString(),
+    //     decodedLog.args.itemId.toString() !== body.itemId.toString(),
+    //     decodedLog.args.amount.toString() !== body.amount
+    // )
 
     if (decodedLog.eventName !== 'PaymentTrasnfered'
         || decodedLog.args.from.toLowerCase() !== body.payer_address.toLowerCase()
@@ -148,21 +155,24 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         // res.status(200).json({result: 'failed', message: "verify failed test"})
         // return
 
+        const ticketItem = await getTicketItemDetail({
+            participant_id: participant.id,
+        })
+
+        if (!ticketItem) {
+            res.status(200).json({result: 'failed', message: "ticket item not found"})
+            return
+        }
+
         try {
-            const updatePaymentData = await updatePaymentStatus({
+            const updatePaymentData = await SetTicketPaymentStatus({
                 next_token: process.env.NEXT_TOKEN || '',
-                auth_token: body.auth_token,
-                id: body.eventId,
-                payment_data: JSON.stringify({
-                    tx: body.tx,
-                    chain_id: body.chain_id,
-                    amount: body.amount,
-                    token: body.token,
-                    payer_address: body.payer_address,
-                    to_address: body.to_address,
-                }),
-                status: 'applied',
-                payment_status: 'success'
+                chain: paymentChain.chain.toLowerCase(),
+                product_id: body.eventId,
+                item_id: ticketItem.order_number,
+                amount: Number(body.amount),
+                txhash: body.tx,
+                auth_token: body.auth_token
             })
             res.status(200).json({result: 'success', message: ""})
         } catch (e: any) {

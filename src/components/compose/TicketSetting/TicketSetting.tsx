@@ -85,7 +85,7 @@ function Ticket({creator, ...props}: {
                 }
             ] as PaymentMethod[],
             payment_methods_attributes: [
-                ...props.ticket.payment_methods_attributes!,
+                ...props.ticket.payment_methods!,
                 {
                     item_type: 'Ticket',
                     chain: paymentTokenList[0].id,
