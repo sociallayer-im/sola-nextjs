@@ -214,28 +214,40 @@ function CreateEventSuccess() {
                         </div>
                     </div>
 
-                    <div className={'center'}>
-                        <AppButton special onClick={e => {
-                            if (eventGroup) {
-                                router.push(`/event/${eventGroup.username}`)
-                            } else {
-                                router.push('/')
-                            }
-                        }}>{lang['Back_To_Event_Home']}</AppButton>
+                    <div style={{"display": 'flex', width: '335px', margin: '0 auto'}}>
+                        <div className={'center'} style={{margin: '0'}}>
+                            <AppButton  special onClick={e => {
+                                copyLink()
+                            }}>{lang['IssueFinish_CopyLink']}</AppButton>
+                        </div>
 
+                        {!isMobile() &&
+                            <div className={'center'} style={{margin: '0 0 0 12px'}}>
+                                <AppButton onClick={e => {
+                                    downloadCard()
+                                }}>{lang['Save_Card']}</AppButton>
+                            </div>
+                        }
                     </div>
-
-                    {!isMobile() &&
-                        <div className={'center'}>
-                            <AppButton onClick={e => {
-                                downloadCard()
-                            }}>{lang['Save_Card']}</AppButton>
-                        </div>}
 
                     <div className={'center'}>
                         <AppButton onClick={e => {
-                            copyLink()
-                        }}>{lang['IssueFinish_CopyLink']}</AppButton>
+                            if (eventGroup) {
+                                router.push(`/event/detail/${params?.eventid}`)
+                            } else {
+                                router.push('/')
+                            }
+                        }}>{lang['Go_To_Event_Detail']}</AppButton>
+                    </div>
+
+                    <div className={'center'}>
+                        <AppButton onClick={e => {
+                            if (eventGroup) {
+                                router.push(`/event/${eventGroup.username}/create`)
+                            } else {
+                                router.push('/')
+                            }
+                        }}>{lang['Create_Next_Event']}</AppButton>
 
                     </div>
                 </>

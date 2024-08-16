@@ -131,9 +131,13 @@ function UserProvider(props: UserProviderProps) {
 
     const logOut = () => {
         console.trace('logOut====')
-        disconnect()
-        solanaWallet.disconnect()
-        // signOut && signOut()
+        try {
+            disconnect()
+            solanaWallet.disconnect()
+            // signOut && signOut()
+        } catch (e: any) {
+            console.warn(e)
+        }
 
         if (userInfo.wallet) {
             AuthStorage.burnAuth(userInfo.wallet)
@@ -345,7 +349,7 @@ function UserProvider(props: UserProviderProps) {
         const loginType = AuthStorage.getLastLoginType()
         if (!loginType) return
 
-        console.log('Login ...')
+        console.log('Auto Login ...')
         console.log('Login type: ', loginType)
 
         let auth = AuthStorage.getAuth()
@@ -362,19 +366,19 @@ function UserProvider(props: UserProviderProps) {
         await setProfile({authToken})
     }
 
-    // useEffect(() => {
-    //     login()
-    // }, [])
+    useEffect(() => {
+        login()
+    }, [])
 
     useEffect(() => {
+        const auth = AuthStorage.getAuth()
         const loginType = AuthStorage.getLastLoginType()
-        if (!loginType) return
 
-        if (loginType === 'wallet') {
+        if (!auth && loginType === 'wallet') {
             walletLogin()
-        } else {
-            login()
         }
+
+        // login()
     }, [data])
 
     useEffect(() => {

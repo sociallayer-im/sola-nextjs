@@ -352,10 +352,7 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
         })
 
         try {
-            const historyTimeZone = localStorage.getItem('schedule-timezone')
-            if (historyTimeZone) {
-                setTimezoneSelected(JSON.parse(historyTimeZone))
-            } else if (props.group.timezone) {
+            if (props.group.timezone) {
                 setTimezoneSelected([{
                     id: props.group.timezone,
                     label: timezoneList.find(item => item.id === props.group.timezone)!.label
@@ -386,10 +383,13 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
                 setPageSize(1)
             }
 
-            if (clientWidth >= 450) {
-                (window.document.querySelector('.schedule-head') as any)!.style.height = 'auto';
-            } else {
-                (window.document.querySelector('.schedule-head') as any)!.style.height = '208px';
+            const header: any = window.document.querySelector('.schedule-head')
+            if (!!header) {
+                if (clientWidth >= 450) {
+                    header.style.height = 'auto';
+                } else {
+                    header.style.height = '180px';
+                }
             }
         }
 
@@ -401,20 +401,23 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
 
         const scrollBar2 = scroll2Ref.current
 
-        const checkScroll = (e: any) => {
 
+        const checkScroll = (e: any) => {
             if (scrollBar2.scrollTop > 0) {
-                (window.document.querySelector('.schedule-head') as any)!.style.height = '0';
-                (window.document.querySelector('.event-list') as any)!.style.minHeight = `100vh`;
+                const header: any = (window as any).document.querySelector('.schedule-head')
+                const list: any = (window as any).document.querySelector('.event-list')
+                !!header && (header.style.height = '0');
+                !!list && (list.style.minHeight = `100vh`);
             } else {
-                const hadleScroll = () => {
-                    (window.document.querySelector('.schedule-head') as any)!.style.height = '208px';
+                const handleScroll = () => {
+                    const header: any = (window as any).document.querySelector('.schedule-head')
+                    !!header && (header.style.height = '180px');
                 }
                 if (scrollDebounce.current) {
                     clearTimeout(scrollDebounce.current)
                 }
                 scrollDebounce.current = setTimeout(() => {
-                    hadleScroll()
+                    handleScroll()
                 }, 100)
             }
         }
@@ -610,21 +613,23 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
                 <div className={styles['schedule-menu-2']}>
                     <div className={styles['schedule-menu-center']}>
                         <div className={styles['mouth']}>
-                            <div className={'curr-month'}>{mouthName[currMonth]} {currYear}</div>
+                            <div className={'curr-month'} style={{marginRight: '12px'}}>{mouthName[currMonth]} {currYear}</div>
                             {timezoneSelected.length !== 0 &&
                                 <>
-                                    <div className={`${styles['timezone-selected']} input-disable`}>
-                                        <Select
-                                            value={timezoneSelected}
-                                            clearable={false}
-                                            searchable={false}
-                                            options={timezoneList}
-                                            onChange={(params) => {
-                                                localStorage.setItem('schedule-timezone', JSON.stringify(params.value))
-                                                setTimezoneSelected(params.value as any)
-                                            }}
-                                        />
-                                    </div>
+                                    <StatefulTooltip content={() => {
+                                        let labelArry = (timezoneSelected[0].label as string).split(' ')[0].split('/')
+                                        let gmtOffset = (timezoneSelected[0].label as string).split(' ')[1]
+                                        return <div>{labelArry} {gmtOffset}</div>
+                                    }}>
+                                        <svg style={{padding: '0 8px'}} className="icon" viewBox="0 0 1024 1024"
+                                             version="1.1"
+                                             xmlns="http://www.w3.org/2000/svg" p-id="1476" width="22" height="22">
+                                            <path
+                                                d="M512 97.52381c228.912762 0 414.47619 185.563429 414.47619 414.47619s-185.563429 414.47619-414.47619 414.47619S97.52381 740.912762 97.52381 512 283.087238 97.52381 512 97.52381z m0 73.142857C323.486476 170.666667 170.666667 323.486476 170.666667 512s152.81981 341.333333 341.333333 341.333333 341.333333-152.81981 341.333333-341.333333S700.513524 170.666667 512 170.666667z m45.32419 487.619047v73.142857h-68.510476l-0.024381-73.142857h68.534857z m-4.047238-362.008381c44.251429 8.923429 96.889905 51.126857 96.889905 112.518096 0 61.415619-50.151619 84.650667-68.120381 96.134095-17.993143 11.50781-24.722286 24.771048-24.722286 38.863238V609.52381h-68.534857v-90.672762c0-21.504 6.89981-36.571429 26.087619-49.883429l4.315429-2.852571 38.497524-25.6c24.551619-16.530286 24.210286-49.712762 9.020952-64.365715a68.998095 68.998095 0 0 0-60.391619-15.481904c-42.715429 8.387048-47.640381 38.521905-47.932952 67.779047v16.554667H390.095238c0-56.953905 6.534095-82.773333 36.912762-115.395048 34.03581-36.449524 81.993143-42.300952 126.268952-33.328762z"
+                                                p-id="1477"></path>
+                                        </svg>
+                                    </StatefulTooltip>
+
 
                                     <div className={styles['page-slide']}>
                                         <StatefulTooltip
@@ -694,59 +699,7 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
                         }
                     </div>
                 </div>
-                <div className={`${styles['schedule-menu-2']} ${styles['wap']}`}>
-                    <div className={`${styles['timezone-selected']} input-disable`}>
-                        <Select
-                            value={timezoneSelected}
-                            clearable={false}
-                            searchable={false}
-                            options={timezoneList}
-                            onChange={(params) => {
-                                localStorage.setItem('schedule-timezone', JSON.stringify(params.value))
-                                setTimezoneSelected(params.value as any)
-                            }}
-                        />
-                    </div>
-                    <div className={styles['page-slide']}>
-                        <svg
-                            className={isStart ? styles['disable'] : ''}
-                            onClick={lastPage}
-                            xmlns="http://www.w3.org/2000/svg"
-                            width={20}
-                            height={20}
-                            viewBox="0 0 20 20"
-                            fill="none">
-                            <path
-                                d="M7.8334 10.0013L14.2501 18.3346H11.0834L4.66675 10.0013L11.0834 1.66797H14.2501L7.8334 10.0013Z"
-                                fill="#272928"
-                            />
-                        </svg>
-                        <svg
-                            onClick={() => {
-                                toToday()
-                            }}
-                            xmlns="http://www.w3.org/2000/svg"
-                            width={28}
-                            height={40}
-                            viewBox="0 0 28 40"
-                            fill="none">
-                            <circle cx={14} cy={20} r={3} fill="#272928"/>
-                        </svg>
-                        <svg
-                            className={isEnd ? styles['disable'] : ''}
-                            onClick={nextPage}
-                            xmlns="http://www.w3.org/2000/svg"
-                            width={20}
-                            height={20}
-                            viewBox="0 0 20 20"
-                            fill="none">
-                            <path
-                                d="M15.3332 10.0013L8.91659 18.3346H5.74991L12.1666 10.0013L5.74991 1.66797H8.91659L15.3332 10.0013Z"
-                                fill="#272928"
-                            />
-                        </svg>
-                    </div>
-                </div>
+
             </div>
         </div>
         <div className={`${styles['content-bg']}`}>

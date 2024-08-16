@@ -175,6 +175,62 @@ export function useTime3() {
     }
 }
 
+export function useTimePopupCity() {
+    const {lang, langType} = useContext(LangContext)
+
+    return (from: string, to: string) => {
+        const fromStr = from
+        const toStr = to
+
+        const fromDate = dayjs(fromStr)
+        const toDate = dayjs(toStr)
+
+        const now = dayjs()
+        const isToday = fromDate.date() === now.date() && fromDate.month() === now.month() && fromDate.year() === now.year()
+        const isTomorrow = fromDate.date() - now.date() === 1 && fromDate.month() === now.month() && fromDate.year() === now.year()
+
+        const f_mon = lang['Month_Name'][fromDate.month()].toUpperCase()
+        const f_date = fromDate.date() + ''
+        const f_hour = fromDate.hour() + ''
+        const f_min = fromDate.minute() + ''
+        const f_year = fromDate.year() + ''
+        const f_day = lang['Day_Name'][fromDate.day()]
+
+        const t_mon = lang['Month_Name'][toDate.month()].toUpperCase()
+        const t_date = toDate.date() + ''
+        const t_hour = toDate.hour() + ''
+        const t_min = toDate.minute() + ''
+        const t_year = toDate.year() + ''
+        const t_day = lang['Day_Name'][toDate.day()]
+
+
+        const differentYear = f_year !== t_year
+        const differentMonth = t_mon !== f_mon || differentYear
+        const differentDate = t_date !== f_date || differentMonth || differentYear
+
+
+        const utcOffset = fromDate.utcOffset() >= 0 ?
+            '+' + fromDate.utcOffset() / 60 :
+            fromDate.utcOffset() / 60
+
+        const todayOrTomorrow = isToday ?
+            lang['Event_Today'] + ' ' :
+            isTomorrow ?
+                lang['Event_Tomorrow'] + ' ':
+                ''
+
+        const gmtStr = timezone === 'America/Los_Angeles' ? `PDT` : `GMT${utcOffset}`
+
+        return {
+            data: langType === 'cn'
+                ? `${differentYear ? ' ' + f_year + ',': ''} ${todayOrTomorrow}${f_mon}${f_date.padStart(2, '0')}日 ${differentDate ? "" : f_day}${differentDate ? `- ${differentYear ? ' ' + t_year + ',': ''}${differentMonth ? t_mon : '' } ${t_date.padStart(2, '0')}日` : ''}`
+                : `${todayOrTomorrow}${f_day}, ${f_mon} ${f_date.padStart(2, '0')}${differentYear ? ' ,' + f_year : ''} ${differentDate ? `- ${t_day}, ${t_mon} ${t_date.padStart(2, '0')}${differentYear ? ' ,' + t_year: ''}` : ''}`,
+
+            time: `${f_hour.padStart(2, '0')}:${f_min.padStart(2, '0')} — ${t_hour.padStart(2, '0')}:${t_min.padStart(2, '0')} ${gmtStr}`
+        }
+    }
+}
+
 export function useTime4 (from: string, to: string, timezone: string = 'UTC') {
     const fromStr = from.endsWith('Z') ? from : from + 'Z'
     const toStr = to.endsWith('Z') ? to : to + 'Z'

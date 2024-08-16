@@ -125,7 +125,7 @@ export default function DialogTimeSlotEdit(props: { close: any, value: TimeSlotI
                                                     <TimePicker
                                                         disabled={item.disable || allTime}
                                                         format={'24'}
-                                                        step={1800}
+                                                        step={60 * 15}
                                                         maxTime={subtract(s.end, 30)}
                                                         value={toDate(s.start)}
                                                         onChange={(date) => {
@@ -144,7 +144,7 @@ export default function DialogTimeSlotEdit(props: { close: any, value: TimeSlotI
                                                         }
                                                         disabled={item.disable || allTime}
                                                         format={'24'}
-                                                        step={60 * 30}
+                                                        step={60 * 15}
                                                         value={toDate(s.end)}
                                                         onChange={(date) => {
                                                             if (date) {

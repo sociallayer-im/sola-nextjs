@@ -4,18 +4,19 @@ import ImgLazy from "@/components/base/ImgLazy/ImgLazy";
 import Link from 'next/link'
 import {PopupCity} from "@/service/solas";
 import usePicture from "@/hooks/pictrue";
-import {useTime3} from "@/hooks/formatTime";
+import {useTime3, useTimePopupCity} from "@/hooks/formatTime";
 
 function CardPopupCity({popupCity}: { popupCity: PopupCity }) {
     const {defaultAvatar} = usePicture()
-    const formatTime = useTime3()
+    const formatTime = useTimePopupCity()
     const [timeStr, setTimeString] = useState('')
 
     useEffect(() => {
         if (typeof window !== 'undefined') {
             // 获得浏览器时区
             const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
-            setTimeString(formatTime(popupCity.start_date!, popupCity.end_date!, timezone).data)
+            console.log('timezone', timezone, popupCity.start_date, popupCity.end_date)
+            setTimeString(formatTime(popupCity.start_date!, popupCity.end_date!).data)
         } else {
             setTimeString(formatTime(popupCity.start_date!, popupCity.end_date!).data)
         }
