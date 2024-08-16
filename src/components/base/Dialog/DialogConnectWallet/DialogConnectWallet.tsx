@@ -129,7 +129,7 @@ function DialogConnectWallet(props: DialogConnectWalletProps) {
             </div>
             {connectors.map((connector) => (
                 (!connector.ready) || (isEdgeCity && connector.name === 'JoyID') ?
-                    <></>
+                    null
                     : <div className={'connect-item'}
                            key={connector.id}
                            onClick={() => handleConnectWallet(connector)}>

@@ -51,7 +51,8 @@ function DetailPresend (props: DetailPresendProps ) {
 
         async function getReceiver () {
             const presendWithBadgelets = await solas.queryPresendDetail({
-                id: props.presend.id
+                id: props.presend.id,
+                includeExpires: true
             })
 
             setDetail(presendWithBadgelets)

@@ -1,7 +1,17 @@
 import {signInWithEthereum} from './SIWE'
 import fetch from '../utils/fetch'
 import Alchemy from "@/service/alchemy/alchemy";
-import {gql, request} from 'graphql-request'
+import {gql, request as gqlRequest} from 'graphql-request'
+
+const request = (
+    url: string,
+    document: any,
+    variables?: any,
+    requestHeaders?: any
+) => {
+    console.log('gql doc :' + document)
+    return gqlRequest(url, document, variables, requestHeaders)
+}
 
 const apiUrl = process.env.NEXT_PUBLIC_API!
 const graphUrl = process.env.NEXT_PUBLIC_GRAPH!
@@ -36,7 +46,12 @@ export const voucherSchema = (props: QueryPresendProps) => {
         variables += `receiver_address: {_eq: "${props.address}"},`
     }
 
-    return gql`vouchers(where: {counter: {_neq: 0}, ${variables}, expires_at: {_gt: "${new Date().toISOString()}"}} limit: 20, offset: ${props.page * 20 - 20}, order_by: {created_at: desc}) {
+    let expires_doc = `expires_at: {_gt: "${new Date().toISOString()}"}`
+    if (props.includeExpires) {
+        expires_doc = ''
+    }
+
+    return gql`vouchers(where: {counter: {_neq: 0}, ${variables}, ${expires_doc}} limit: 20, offset: ${props.page * 20 - 20}, order_by: {created_at: desc}) {
         id
         strategy
         receiver_address
@@ -813,7 +828,8 @@ interface QueryPresendProps {
     group_id?: number,
     id?: number
     receiver_id?: number,
-    address?: string
+    address?: string,
+    includeExpires?:boolean
 }
 
 export interface Presend extends Voucher {
@@ -831,11 +847,13 @@ export interface PresendWithBadgelets extends Presend {
 }
 
 export interface QueryPresendDetailProps {
-    id: number
+    id: number,
+    includeExpires?: boolean
 }
 
 export async function queryPresendDetail(props: QueryPresendDetailProps): Promise<PresendWithBadgelets> {
-    const presend = await queryPresend({page: 1, id: props.id})
+    const presend = await queryPresend({page: 1, id: props.id, includeExpires: props.includeExpires})
+    console.log('presend', presend)
     return presend[0] as PresendWithBadgelets
 }
 
@@ -3795,13 +3813,14 @@ export interface TicketItem {
     discount_value : null| string
     event_id: number
     id: number
-    order_number: string
+    order_number: number
     participant_id: string
     profile_id: string
     status : string
     ticket_id : string
     ticket_price :  null | string
     txhash: null | string
+    payment_method_id: number
 }
 
 export async function joinEventWithTicketItem(props: JoinEventProps) {
@@ -5812,12 +5831,17 @@ export async function queryBadgeletWithTop(props: { owner_id: number, page: numb
 export async function checkEventPermission(props: { id: number, auth_token: string }) {
     checkAuth(props)
 
-    const res: any = await fetch.post({
-        url: `${apiUrl}/event/check_permission`,
-        data: props
-    })
+   try {
+       const res: any = await fetch.post({
+           url: `${apiUrl}/event/check_permission`,
+           data: props
+       })
 
-    return res.data.message === 'join allowed'
+       return res.data.message === 'join allowed'
+   } catch (e: any) {
+       console.warn(e)
+       return false
+   }
     // return false
 }
 
@@ -5825,10 +5849,8 @@ export interface GroupPass {
     id: number,
     created_at: string,
     days_allowed: null | string,
-    days_disallowed: null | string,
     end_date: null | string,
     group_id: null | number,
-    pass_type: null | string,
     profile_id: number,
     start_date: null | string,
     updated_at: string,
@@ -5844,10 +5866,8 @@ export async function getGroupPass({profile_id, group_id}: { profile_id: number,
             id
             created_at
             days_allowed
-            days_disallowed
             end_date
             group_id
-            pass_type
             profile_id
             start_date
             updated_at
@@ -5995,6 +6015,7 @@ export interface PaymentMethod {
     _destroy?: string
 }
 
+
 export interface VenueTimeslot {
     id?: number
     venue_id?: number,
@@ -6013,6 +6034,80 @@ export interface VenueOverride {
     start_at: string,
     end_at: string,
     _destroy?: string
+}
+
+    export async function rsvp(props: {auth_token: string, id: number, ticket_id: number, payment_method_id?: number, promo_code?: string}){
+    checkAuth(props)
+
+    const res: any = await fetch.post({
+        url: `${apiUrl}/event/rsvp`,
+        data: props
+    })
+
+    if (res.data.result === 'error') {
+        throw new Error(res.data.message)
+    }
+
+    return {
+        participant: res.data.participant as Participants,
+        ticket_item: res.data.ticket_item as TicketItem
+    }
+}
+
+export async function SetTicketPaymentStatus (props: {
+    next_token: string,
+    chain: string,
+    product_id: number,
+    item_id: number,
+    amount: number
+    txhash: string
+    auth_token: string
+}) {
+    const res: any= await fetch.post({
+        url: `${apiUrl}/event/set_ticket_payment_status`,
+        data: props
+    })
+
+    if (res.data.result === 'error') {
+        throw new Error(res.data.message)
+    }
+
+    return res.data.participant as Participants
+}
+
+export async function getTicketItemDetail (props: {id?: number, participant_id?: number}) {
+    let variables = ''
+    if (props.id) {
+        variables += `id: {_eq: ${props.id}}, `
+    }
+
+    if (props.participant_id) {
+        variables += `participant_id: {_eq: ${props.participant_id}}, `
+    }
+
+    const doc = `query MyQuery {
+        ticket_items(where: {${variables}}) {
+            id
+            amount
+            chain
+            created_at
+            discount_data
+            discount_value
+            event_id
+            order_number
+            participant_id
+            profile_id
+            status
+            ticket_id
+            ticket_price
+            txhash
+            payment_method_id
+            order_number
+        }
+    }`
+
+    const res: any = await request(graphUrl, doc)
+    return res.ticket_items[0] as TicketItem || null
 }
 
 export default {
