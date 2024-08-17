@@ -2954,7 +2954,9 @@ export interface EventSites {
     capacity: number | null,
     overrides: null | string[],
     require_approval?: boolean,
-    visibility: null | 'all' | 'manager'
+    visibility: null | 'all' | 'manager',
+    venue_timeslots: VenueTimeslot[]
+    venue_overrides: VenueOverride[]
 }
 
 export interface Participants {
@@ -3207,6 +3209,22 @@ export async function queryEvent(props: QueryEventProps): Promise<Event[]> {
             overrides
             start_date
             end_date
+            venue_timeslots {
+                id
+                venue_id
+                day_of_week
+                disabled
+                start_at
+                end_at
+            }
+            venue_overrides {
+                id
+                venue_id
+                day
+                disabled
+                start_at
+                end_at
+            }
         }
         event_type
         formatted_address
@@ -3468,6 +3486,22 @@ export async function queryCohostingEvent(props: { id: number, email?: string })
             geo_lat
             geo_lng
             require_approval
+            venue_timeslots {
+                id
+                venue_id
+                day_of_week
+                disabled
+                start_at
+                end_at
+            }
+            venue_overrides {
+                id
+                venue_id
+                day
+                disabled
+                start_at
+                end_at
+            }
         }
         event_type
         formatted_address
@@ -3631,6 +3665,22 @@ export async function queryMyEvent({page = 1, page_size = 10, ...props}: QueryMy
                formatted_address
                geo_lat
                geo_lng
+          venue_timeslots {
+                id
+                venue_id
+                day_of_week
+                disabled
+                start_at
+                end_at
+            }
+            venue_overrides {
+                id
+                venue_id
+                day
+                disabled
+                start_at
+                end_at
+            }
           }
          owner {
             id
@@ -3710,6 +3760,22 @@ export async function getEventSide(groupId?: number, allowRemoved?: boolean): Pr
         capacity
         overrides
         require_approval
+        venue_timeslots {
+                id
+                venue_id
+                day_of_week
+                disabled
+                start_at
+                end_at
+        }
+        venue_overrides {
+                id
+                venue_id
+                day
+                disabled
+                start_at
+                end_at
+        }
       }
     }`
 
@@ -3747,8 +3813,8 @@ export interface TicketItem {
     discount_value : null| string
     event_id: number
     id: number
-    order_number: number
-    participant_id: string
+    order_number: string
+    participant_id: number
     profile_id: string
     status : string
     ticket_id : string
@@ -3820,6 +3886,22 @@ export async function searchEvent(keyword: string, group_id?: number): Promise<E
             formatted_address
             geo_lat
             geo_lng
+            venue_timeslots {
+                id
+                venue_id
+                day_of_week
+                disabled
+                start_at
+                end_at
+            }
+            venue_overrides {
+                id
+                venue_id
+                day
+                disabled
+                start_at
+                end_at
+            }
         }
          owner {
             id
@@ -5933,7 +6015,28 @@ export interface PaymentMethod {
     _destroy?: string
 }
 
-export async function rsvp(props: {auth_token: string, id: number, ticket_id: number, payment_method_id?: number, promo_code?: string}){
+
+export interface VenueTimeslot {
+    id?: number
+    venue_id?: number,
+    day_of_week: 'Monday' | 'Tuesday' | 'Wednesday' | 'Thursday' | 'Friday' | 'Saturday' | 'Sunday',
+    disabled: boolean,
+    start_at: string,
+    end_at: string,
+    _destroy?: string
+}
+
+export interface VenueOverride {
+    id?: number
+    venue_id: number,
+    day: string, // '2022-01-01'
+    disabled: boolean,
+    start_at: string,
+    end_at: string,
+    _destroy?: string
+}
+
+    export async function rsvp(props: {auth_token: string, id: number, ticket_id: number, payment_method_id?: number, promo_code?: string}){
     checkAuth(props)
 
     const res: any = await fetch.post({
@@ -5955,10 +6058,9 @@ export async function SetTicketPaymentStatus (props: {
     next_token: string,
     chain: string,
     product_id: number,
-    item_id: number,
+    item_id: string,
     amount: number
     txhash: string
-    auth_token: string
 }) {
     const res: any= await fetch.post({
         url: `${apiUrl}/event/set_ticket_payment_status`,
@@ -5972,7 +6074,7 @@ export async function SetTicketPaymentStatus (props: {
     return res.data.participant as Participants
 }
 
-export async function getTicketItemDetail (props: {id?: number, participant_id?: number}) {
+export async function getTicketItemDetail (props: {id?: number, participant_id?: number, order_number?: string}) {
     let variables = ''
     if (props.id) {
         variables += `id: {_eq: ${props.id}}, `
@@ -5980,6 +6082,10 @@ export async function getTicketItemDetail (props: {id?: number, participant_id?:
 
     if (props.participant_id) {
         variables += `participant_id: {_eq: ${props.participant_id}}, `
+    }
+
+    if (props.order_number) {
+        variables += `order_number: {_eq: "${props.order_number}"}, `
     }
 
     const doc = `query MyQuery {
@@ -6005,6 +6111,24 @@ export async function getTicketItemDetail (props: {id?: number, participant_id?:
 
     const res: any = await request(graphUrl, doc)
     return res.ticket_items[0] as TicketItem || null
+}
+
+export async function getPaymentMethod (props: {id: number}) {
+    const doc = `query MyQuery {
+        payment_methods(where: {id: {_eq: ${props.id}}}) {
+            id
+            item_type
+            item_id
+            chain
+            token_name
+            token_address
+            receiver_address
+            price
+        }
+    }`
+
+    const res: any = await request(graphUrl, doc)
+    return res.payment_methods[0] as PaymentMethod || null
 }
 
 export default {

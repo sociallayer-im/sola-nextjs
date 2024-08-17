@@ -1,5 +1,13 @@
 import {useContext, useEffect, useMemo, useState} from 'react'
-import {Badge, Event, getParticipantDetail, Participants, queryBadgeDetail, Ticket} from '@/service/solas'
+import {
+    Badge,
+    Event,
+    getParticipantDetail,
+    getTicketItemDetail,
+    Participants,
+    queryBadgeDetail,
+    Ticket
+} from '@/service/solas'
 import styles from './EventTickets.module.scss'
 import langContext from "@/components/provider/LangProvider/LangContext";
 import AppButton from "@/components/base/AppButton/AppButton";
@@ -104,36 +112,32 @@ function EventTickets({
 
 
     useEffect(() => {
-        if (user.userName || needUpdate) {
-            getParticipantDetail({event_id: props.event.id, profile_id: user.id!}).then((res) => {
-                if (!!res) {
-                    const ticket = props.tickets.find(item => item.id === res.ticket_id)
-                    // 通过票务参加
-                    if (!!ticket) {
-                       if (res.payment_status?.includes('succe') || ticket.payment_methods!.length === 0) {
-                           // 已经支付或者是免费票
-                            setUserPendingPayment(null)
-                            setUserHasPaid(res)
-                        } else if (!res.payment_status?.includes('succe') && !!res.payment_data) {
-                           // 未支付
-                            setUserHasPaid(null)
-                            setUserPendingPayment(res)
-                        } else if (!res.payment_status?.includes('succe') && !res.payment_data) {
-                            setUserHasPaid(null)
-                            setUserPendingPayment(null)
-                        }
-                    } else {
-                        // 没有设置门票的情况
-                        setUserPendingPayment(null)
-                        setUserHasPaid(res)
-                    }
-
-                } else {
+        (async () => {
+            if (user.userName || needUpdate) {
+                const participant = await getParticipantDetail({event_id: props.event.id, profile_id: user.id!})
+                if (!participant) {
                     setUserHasPaid(null)
                     setUserPendingPayment(null)
+                    return
                 }
-            })
-        }
+
+                if (!participant.ticket_id) {
+                    // 可能不是经过票务参加
+                    setUserHasPaid(participant)
+                    setUserPendingPayment(null)
+                    return
+                }
+
+                // 票务参数
+                if (participant.payment_status === 'succeeded') {
+                    setUserPendingPayment(null)
+                    setUserHasPaid(participant)
+                } else {
+                    setUserPendingPayment(participant)
+                    setUserHasPaid(null)
+                }
+            }
+        })()
     }, [user.id, needUpdate])
 
 

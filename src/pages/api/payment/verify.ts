@@ -172,7 +172,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 item_id: ticketItem.order_number,
                 amount: Number(body.amount),
                 txhash: body.tx,
-                auth_token: body.auth_token
             })
             res.status(200).json({result: 'success', message: ""})
         } catch (e: any) {

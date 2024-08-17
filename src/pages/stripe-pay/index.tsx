@@ -7,7 +7,7 @@ import {
     queryTickets, rsvp,
     Ticket
 } from "@/service/solas"
-import React, {useContext, useEffect, useState} from "react"
+import React, {useContext, useEffect, useMemo, useState} from "react"
 import {loadStripe} from '@stripe/stripe-js'
 import {Elements, PaymentElement, useElements, useStripe} from '@stripe/react-stripe-js'
 import userContext from "@/components/provider/UserProvider/UserContext"
@@ -46,7 +46,7 @@ export default function StripePay({ticketId, methodId}: { ticketId: number | nul
             const joined = eventParticipants.find((item: Participants) => {
                 console.log('Participants', item)
                 return (!item.ticket_id && item.profile.id === user.id && (item.status === 'applied' || item.status === 'attending')) // no tickets needed
-                    || (!!item.ticket_id && item.profile.id === user.id && (item.status === 'applied' || item.status === 'attending') && item.payment_status?.includes('succe')) // paid ticket
+                    || (!!item.ticket_id && item.profile.id === user.id && (item.status === 'applied' || item.status === 'attending') && item.payment_status === 'succeeded') // paid ticket
             })
 
             return !!joined
@@ -75,7 +75,9 @@ export default function StripePay({ticketId, methodId}: { ticketId: number | nul
         })
     }
 
-    const targetPayment = ticket?.payment_methods.find(item => item.id === methodId)
+    const targetPayment = useMemo(() => {
+        return ticket?.payment_methods.find(item => item.id === methodId)
+    }, [methodId, ticket?.payment_methods])
 
     useEffect(() => {
         (async () => {
@@ -174,8 +176,6 @@ export default function StripePay({ticketId, methodId}: { ticketId: number | nul
                     }
 
                     <div className={styles['form']}>
-
-
                         {!!user.id && !!ticket && !!clientSecret && !!eventDetail &&
                             <>
                                 <h1>Stripe Payment</h1>
