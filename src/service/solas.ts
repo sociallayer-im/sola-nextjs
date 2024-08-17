@@ -3813,8 +3813,8 @@ export interface TicketItem {
     discount_value : null| string
     event_id: number
     id: number
-    order_number: number
-    participant_id: string
+    order_number: string
+    participant_id: number
     profile_id: string
     status : string
     ticket_id : string
@@ -6058,10 +6058,9 @@ export async function SetTicketPaymentStatus (props: {
     next_token: string,
     chain: string,
     product_id: number,
-    item_id: number,
+    item_id: string,
     amount: number
     txhash: string
-    auth_token: string
 }) {
     const res: any= await fetch.post({
         url: `${apiUrl}/event/set_ticket_payment_status`,
@@ -6075,7 +6074,7 @@ export async function SetTicketPaymentStatus (props: {
     return res.data.participant as Participants
 }
 
-export async function getTicketItemDetail (props: {id?: number, participant_id?: number}) {
+export async function getTicketItemDetail (props: {id?: number, participant_id?: number, order_number?: string}) {
     let variables = ''
     if (props.id) {
         variables += `id: {_eq: ${props.id}}, `
@@ -6083,6 +6082,10 @@ export async function getTicketItemDetail (props: {id?: number, participant_id?:
 
     if (props.participant_id) {
         variables += `participant_id: {_eq: ${props.participant_id}}, `
+    }
+
+    if (props.order_number) {
+        variables += `order_number: {_eq: "${props.order_number}"}, `
     }
 
     const doc = `query MyQuery {
@@ -6108,6 +6111,24 @@ export async function getTicketItemDetail (props: {id?: number, participant_id?:
 
     const res: any = await request(graphUrl, doc)
     return res.ticket_items[0] as TicketItem || null
+}
+
+export async function getPaymentMethod (props: {id: number}) {
+    const doc = `query MyQuery {
+        payment_methods(where: {id: {_eq: ${props.id}}}) {
+            id
+            item_type
+            item_id
+            chain
+            token_name
+            token_address
+            receiver_address
+            price
+        }
+    }`
+
+    const res: any = await request(graphUrl, doc)
+    return res.payment_methods[0] as PaymentMethod || null
 }
 
 export default {
