@@ -132,7 +132,6 @@ function EventTickets({
                 if (participant.payment_status === 'succeeded') {
                     setUserPendingPayment(null)
                     setUserHasPaid(participant)
-                    return
                 } else {
                     setUserPendingPayment(participant)
                     setUserHasPaid(null)

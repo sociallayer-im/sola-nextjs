@@ -85,7 +85,7 @@ function Erc20TokenApproveHandler(
                 args: [
                     payHubContract,
                     //BigInt(props.amount)
-                    BigInt(500 * 10 ** props.decimals)
+                    process.env.NEXT_PUBLIC_PAYMENT_SETTING === 'production' ? BigInt(500 * 10 ** props.decimals) : BigInt(props.amount)
                 ]
             }
 
