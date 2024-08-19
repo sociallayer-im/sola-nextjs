@@ -6131,6 +6131,15 @@ export async function getPaymentMethod (props: {id: number}) {
     return res.payment_methods[0] as PaymentMethod || null
 }
 
+export async function getStripeApiKey(props: {event_id: number}) {
+    const res: any= await fetch.get({
+        url: `${apiUrl}/service/stripe_app_key?event_id=${props.event_id}`,
+        data: {}
+    })
+
+    return res.data.app_key as string
+}
+
 export default {
     removeMarker,
     queryMarkers,
