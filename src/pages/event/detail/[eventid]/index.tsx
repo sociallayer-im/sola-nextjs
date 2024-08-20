@@ -334,9 +334,9 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                 return ticket.id == participant.ticket_id
             })
 
-            if (ticket!.payment_metadata.length === 0) {
+            if (ticket!.payment_methods.length === 0) {
                 return true
-            } else return participant.payment_status?.includes('succe');
+            } else return participant.payment_status === 'succeeded';
 
         })
     }, [participants, tickets])
