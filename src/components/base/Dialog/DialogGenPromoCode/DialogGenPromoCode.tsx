@@ -14,16 +14,6 @@ import DialogPromoDetail from "@/components/base/Dialog/DialogPromoDetail/Dialog
 
 const dayjs: any = dayjsLib
 
-function generateCode(length: number) {
-    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    let result = '';
-    const charactersLength = characters.length;
-    for (let i = 0; i < length; i++) {
-        result += characters.charAt(Math.floor(Math.random() * charactersLength));
-    }
-    return result.toUpperCase();
-}
-
 const emptyPromoCode: PromoCode = {
     selector_type: 'code',
     label: '',
@@ -44,10 +34,7 @@ export default function DialogGenPromoCode(props: {
     event: Event,
     onChange: (promoCodes: PromoCode[]) => any
 }) {
-    const [promoCode, setPromoCode] = useState<PromoCode>({
-        ...JSON.parse(JSON.stringify(emptyPromoCode)),
-        code: generateCode(8)
-    })
+    const [promoCode, setPromoCode] = useState<PromoCode>(JSON.parse(JSON.stringify(emptyPromoCode)))
     const [busy, setBusy] = useState(false)
     const {showLoading, showToast, openDialog} = useContext(DialogsContext)
     const {user} = useContext(userContext)
@@ -108,14 +95,12 @@ export default function DialogGenPromoCode(props: {
             }
 
             const res = await updateEvent(event)
-            setPromoCode({
-                ...JSON.parse(JSON.stringify(emptyPromoCode)),
-                code: generateCode(8)
-            })
-            openDialog({
-                content: (close: any) => <DialogPromoDetail close={close} promoCode={_promoCode}/>,
-                size: ['100%', '100%']
-            })
+            setPromoCode(JSON.parse(JSON.stringify(emptyPromoCode)))
+            handleShowList()
+            // openDialog({
+            //     content: (close: any) => <DialogPromoDetail close={close} promoCode={_promoCode}/>,
+            //     size: ['100%', '100%']
+            // })
             // showToast('Generate promo code successfully')
         } catch (e: any) {
             console.error(e)
@@ -136,7 +121,7 @@ export default function DialogGenPromoCode(props: {
                         setPromoCode({
                             ...promoCode,
                             discount: 8000,
-                            discount_type: promoCode.discount_type === 'ratio' ? 'amount' : 'ratio'
+                            discount_type: 'ratio'
                         })
                     }}>
                         <AppRadio checked={promoCode.discount_type === 'ratio'}/>
@@ -165,8 +150,8 @@ export default function DialogGenPromoCode(props: {
                     <div style={{cursor: 'pointer'}} onClick={(e: any) => {
                         setPromoCode({
                             ...promoCode,
-                            discount: 1,
-                            discount_type: promoCode.discount_type === 'ratio' ? 'amount' : 'ratio'
+                            discount: 100,
+                            discount_type: 'amount'
                         })
                     }}>
                         <AppRadio checked={promoCode.discount_type === 'amount'}/>
@@ -177,11 +162,11 @@ export default function DialogGenPromoCode(props: {
                             <>
                                 <div className={styles['input']}>
                                     <AppInput type={'number'} style={{textAlign: 'center'}}
-                                              value={promoCode.discount + ''}
+                                              value={promoCode.discount / 100 + ''}
                                               onChange={e => {
                                                   setPromoCode({
                                                       ...promoCode,
-                                                      discount: parseFloat(e.target.value)
+                                                      discount: parseFloat(e.target.value) * 100
                                                   })
                                               }}
                                     /></div>

@@ -22,9 +22,7 @@ import {paymentTokenList} from "@/payment_settring";
 function TicketItem({
                         ticket,
                         selected,
-                        disable,
-                        waitForPayment
-                    }: { ticket: Ticket, selected?: boolean, disable?: boolean, waitForPayment?: boolean }) {
+                    }: { ticket: Ticket, selected?: boolean, disable?: boolean}) {
 
 
     const [badge, setBadge] = useState<Badge | null>(null)
@@ -53,7 +51,7 @@ function TicketItem({
 
 
     return <div
-        className={`${styles['item']} ${selected ? styles['selected'] : ''} ${disable ? styles['disable'] : ''}`}
+        className={`${styles['item']} ${selected ? styles['selected'] : ''}`}
         key={ticket.id}>
         <div className={styles['item-title']}>{ticket.title}</div>
         <div className={styles['item-des']}>{ticket.content}</div>
@@ -88,11 +86,6 @@ function TicketItem({
             ticket.payment_methods?.length === 0 &&
             <div className={styles['item-price']}>{'Free'}</div>
         }
-
-        {
-            waitForPayment &&
-            <div className={styles['item-waiting-payment']}>{'Waiting for payment'}</div>
-        }
     </div>
 }
 
@@ -106,7 +99,6 @@ function EventTickets({
     const {openDialog, showToast} = useContext(DialogsContext)
     const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(props.tickets[0] || null)
     const {user} = useContext(userContext)
-    const [userPendingPayment, setUserPendingPayment] = useState<Participants | null>(null)
     const [userHasPaid, setUserHasPaid] = useState<Participants | null>(null)
     const [needUpdate, _] = useEvent(EVENT.participantUpdate)
 
@@ -117,23 +109,19 @@ function EventTickets({
                 const participant = await getParticipantDetail({event_id: props.event.id, profile_id: user.id!})
                 if (!participant) {
                     setUserHasPaid(null)
-                    setUserPendingPayment(null)
                     return
                 }
 
                 if (!participant.ticket_id) {
                     // 可能不是经过票务参加
                     setUserHasPaid(participant)
-                    setUserPendingPayment(null)
                     return
                 }
 
                 // 票务参数
                 if (participant.payment_status === 'succeeded') {
-                    setUserPendingPayment(null)
                     setUserHasPaid(participant)
                 } else {
-                    setUserPendingPayment(participant)
                     setUserHasPaid(null)
                 }
             }
@@ -160,13 +148,10 @@ function EventTickets({
             <div className={`${props.isDialog ? styles['scroll'] : ''}`}>
                 {
                     props.tickets.map((item, index) => {
-                        const disable = !!userPendingPayment && userPendingPayment.ticket_id !== item.id
                         return <div key={item.id} onClick={() => {
-                            !disable && setSelectedTicket(item)
+                            setSelectedTicket(item)
                         }}>
                             <TicketItem
-                                waitForPayment={!!userPendingPayment && !disable}
-                                disable={disable}
                                 selected={selectedTicket?.id === item.id && !userHasPaid}
                                 ticket={item}/>
                         </div>

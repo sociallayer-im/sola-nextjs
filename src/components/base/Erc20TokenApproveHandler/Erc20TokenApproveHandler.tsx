@@ -24,7 +24,6 @@ function Erc20TokenApproveHandler(
         methodId: number
         onResult?: (needApprove: boolean ,hash?: string) => any
         onErrMsg?: (message: string) => any
-        order_number?: string
     }, ref: any
 ) {
     const publicClient: any = usePublicClient({chainId: props.chainId})

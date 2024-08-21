@@ -6157,7 +6157,7 @@ export async function queryPromoCodes (props: {event_id: number}) {
     }
 
     const doc = `query MyQuery {
-        promo_codes (where: {${variables}}) {
+        promo_codes (where: {${variables}}, order_by: {id: desc}) {
             id
             event_id
             selector_type

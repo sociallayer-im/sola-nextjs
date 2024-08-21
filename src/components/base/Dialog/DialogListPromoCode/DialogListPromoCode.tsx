@@ -37,9 +37,9 @@ export default function DialogListPromoCode(props: {
                     { props.promoCodes.map(p => {
                         let discount = ''
                         if (p.discount_type === 'ratio') {
-                            discount = `${100 - p.discount / 100}% OFF`
+                            discount = `${100 - p.discount / 100}% off`
                         } else {
-                            discount = `$${p.discount} USD`
+                            discount = `$${p.discount / 100} USD off`
                         }
 
                         return <div className={styles['item']} key={p.id} onClick={e => {

@@ -2,7 +2,7 @@ import styles from './DialogPromoDetail.module.scss';
 import PageBack from "@/components/base/PageBack";
 import {PromoCode} from "@/service/solas"
 import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
-import React, {useContext, useEffect} from "react";
+import React, {useContext, useEffect, useMemo} from "react";
 import useCopy from "@/hooks/copy";
 import * as dayjsLib from "dayjs";
 import Empty from "@/components/base/EmptySmall";
@@ -22,9 +22,15 @@ export default function DialogPromoDetail(props: {
         showToast('Copied')
     }
 
-    useEffect(() => {
-
-    }, [props.promoCode.ticket_item_ids]);
+    const discountType = useMemo(() => {
+        let txt = ''
+        if (props.promoCode.discount_type === 'ratio') {
+            txt = `${(10000 - props.promoCode.discount) / 100}% off`
+        } else {
+            txt = `${props.promoCode.discount / 100} USD off`
+        }
+        return txt
+    }, [props.promoCode])
 
     return <div className={styles['dialog']}>
         <div className={styles['center']}>
@@ -34,7 +40,7 @@ export default function DialogPromoDetail(props: {
             <div className={styles['body']}>
                 {
                     <div className={styles['show-detail']}>
-                        <div className={styles['title']}>You’ve generated a promo code codes</div>
+                        <div className={styles['title']}>You’ve generated a {discountType} promo code</div>
                         <div className={styles['des']}>Please sending to your guest until <span style={{fontWeight: '600'}}>{dayjs(props.promoCode.expiry_time).format('MMM DD, YYYY')}</span></div>
                         <div className={styles['des']}>Remaining uses: <span style={{fontWeight: '600'}}>{props.promoCode.max_allowed_usages - props.promoCode.order_usage_count}</span>
                         </div>

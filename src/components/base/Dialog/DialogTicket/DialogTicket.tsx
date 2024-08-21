@@ -52,7 +52,6 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
     const [promoCode, setPromoCode] = useState('')
     const [validPromoCode, setValidPromoCode] = useState<null | PromoCode>(null)
     const [promoCodeError, setPromoCodeError] = useState('')
-    const [userTicketItems, setUserTicketItems] = useState<TicketItem[]>([])
 
     const reFleshAllowanceRef = useRef<any>(null)
 
@@ -87,24 +86,6 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
             }
         })
     }, [props.ticket])
-
-    useEffect(() => {
-        (async () => {
-            if (user.id) {
-                const ticketItems = await queryTicketItems({profile_id: user.id, event_id: props.event.id})
-                setUserTicketItems(ticketItems)
-
-                if (!!ticketItems.length) {
-                    const methodIndex = props.ticket.payment_methods.findIndex(p => {
-                        return !!ticketItems.find((item) => item.payment_method_id === p.id)
-                    })
-                    if (methodIndex !== -1) {
-                        setPaymentIndex(methodIndex)
-                    }
-                }
-            }
-        })()
-    }, [user.id, payments])
 
     useEffect(() => {
         setApproved(false)
@@ -216,38 +197,23 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
         setValidPromoCode(target)
     }
 
-    const matchTicketItem = useMemo(() => {
-        return userTicketItems.find((item) => item.payment_method_id === payments[paymentIndex].payment.id)
-    }, [userTicketItems, payments, paymentIndex])
-
     const finalPrice = useMemo(() => {
         let price: number
-        if (matchTicketItem) {
-            price = matchTicketItem.amount
-        } else if (!validPromoCode) {
+        if (!validPromoCode) {
             price = payments![paymentIndex].payment.price
         } else {
             if (validPromoCode.discount_type === 'ratio') {
                 price = Number(payments![paymentIndex].payment.price || '0') * validPromoCode.discount / 10000
             } else {
-                price = Number(payments![paymentIndex].payment.price || '0') - validPromoCode.discount * 10 ** (payments![paymentIndex]!.token!.decimals || 0)
+                price = Number(payments![paymentIndex].payment.price || '0') - (validPromoCode.discount / 100) * 10 ** (payments![paymentIndex]!.token!.decimals || 0)
             }
         }
         return price
-    }, [validPromoCode, paymentIndex, payments, matchTicketItem])
+    }, [validPromoCode, paymentIndex, payments])
 
     const discount = useMemo(() => {
         return payments[paymentIndex]!.payment.price - finalPrice
     }, [finalPrice, paymentIndex, payments])
-
-    const pendingOrder = useMemo(() => {
-        if (!!matchTicketItem) {
-            const localstorageOrders = getOrder(matchTicketItem.order_number)
-            return localstorageOrders || null
-        } else {
-            return null
-        }
-    }, [matchTicketItem])
 
     return (<div className={styles['dialog-ticket']}>
         <div className={styles['dialog-title']}>
@@ -317,8 +283,10 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
                             getValueLabel={() => {
                                 return <div className={styles['payment-label']}>
                                     <div className={styles['icon']}>
-                                        <img className={styles['token']} src={payments![paymentIndex]!.token!.icon} alt=""/>
-                                        <img className={styles['chain']} src={payments![paymentIndex]!.chain!.icon} alt=""/>
+                                        <img className={styles['token']} src={payments![paymentIndex]!.token!.icon}
+                                             alt=""/>
+                                        <img className={styles['chain']} src={payments![paymentIndex]!.chain!.icon}
+                                             alt=""/>
                                     </div>
                                     <span> {Number(props.ticket.payment_methods[paymentIndex]!.price || '0') / (10 ** payments![paymentIndex]!.token!.decimals || 0)}</span>
                                     <span>{payments[paymentIndex]!.token.name.toUpperCase()}</span>
@@ -380,7 +348,8 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
                                 </div>
                                 <div className={styles['balance']}>
                                     <div className={styles['label']}>Final Price</div>
-                                    <div className={styles['total']}>{finalPrice / (10 ** payments![paymentIndex]!.token!.decimals || 0)} {payments[paymentIndex]!.token!.name?.toUpperCase()}</div>
+                                    <div
+                                        className={styles['total']}>{finalPrice / (10 ** payments![paymentIndex]!.token!.decimals || 0)} {payments[paymentIndex]!.token!.name?.toUpperCase()}</div>
                                 </div>
                             </>
                     }
@@ -412,26 +381,24 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
                 </>
             }
 
-            {!matchTicketItem &&
-                <div className={styles['promo']}>
-                    <div className={styles['promo-title']}>Input the promo code</div>
-                    <div className={styles['promo-input']}>
-                        <AppInput value={promoCode}
-                                  onChange={e => {
-                                      setPromoCode(e.target.value)
-                                  }}
-                                  placeholder={'Promo code'}/>
-                        {!!promoCode && !validPromoCode &&
-                            <AppButton onClick={checkPromoCode}>Confirm</AppButton>
-                        }
-                        {
-                            !!validPromoCode &&
-                            <AppButton onClick={removePromoCode}>Remove</AppButton>
-                        }
-                    </div>
-                    <div className={styles['errorMsg']}>{promoCodeError}</div>
+            <div className={styles['promo']}>
+                <div className={styles['promo-title']}>Input the promo code</div>
+                <div className={styles['promo-input']}>
+                    <AppInput value={promoCode}
+                              onChange={e => {
+                                  setPromoCode(e.target.value)
+                              }}
+                              placeholder={'Promo code'}/>
+                    {!!promoCode && !validPromoCode &&
+                        <AppButton onClick={checkPromoCode}>Confirm</AppButton>
+                    }
+                    {
+                        !!validPromoCode &&
+                        <AppButton onClick={removePromoCode}>Remove</AppButton>
+                    }
                 </div>
-            }
+                <div className={styles['errorMsg']}>{promoCodeError}</div>
+            </div>
 
             {!!errorMsg &&
                 <div className={styles['error-msg']}>{errorMsg}</div>
@@ -475,7 +442,7 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
 
             {!!address
                 && !!payments.length
-                && (approved || !!pendingOrder)
+                && approved
                 && !stopSales
                 && !soldOut
                 && !!user.id
@@ -527,12 +494,8 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
                 />
             }
 
-            <div>pendingOrder: {pendingOrder?.order_number}</div>
-            <div>matchTicketItem: {matchTicketItem?.order_number}</div>
-
             {!!address
                 && !!payments.length
-                && !pendingOrder
                 && !approved
                 && !soldOut
                 && !stopSales
@@ -541,7 +504,6 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
                 && !isStripe &&
                 <Erc20TokenApproveHandler
                     methodId={props.ticket.payment_methods[paymentIndex]!.id!}
-                    order_number={matchTicketItem?.order_number}
                     ref={reFleshAllowanceRef}
                     token={payments![paymentIndex]!.token!.contract}
                     to={props.ticket.payment_methods[paymentIndex]!.receiver_address!}
@@ -581,43 +543,3 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
 }
 
 export default DialogTicket
-
-interface PendingOrder {
-    order_number: string
-    tx: string
-}
-
-function getOrders() {
-    const orders = localStorage.getItem('pending_orders')
-    return orders ? JSON.parse(orders) as PendingOrder[] : []
-}
-
-function saveOrders(orders: PendingOrder[]) {
-    localStorage.setItem('pending_orders', JSON.stringify(orders))
-}
-
-function addOrder(order_number: string, tx: string) {
-    const orders = getOrders()
-    orders.push({order_number, tx})
-    saveOrders(orders)
-}
-
-function deleteOrder(order_number: string) {
-    let orders = getOrders();
-    orders = orders.filter(order => order.order_number !== order_number);
-    saveOrders(orders);
-}
-
-function updateOrderTx(ticket_order: PendingOrder) {
-    const orders = getOrders();
-    const orderIndex = orders.findIndex(order => order.order_number === ticket_order.order_number);
-    if (orderIndex !== -1) {
-        orders[orderIndex].tx = ticket_order.tx;
-        saveOrders(orders);
-    }
-}
-
-function getOrder(order_number: string) {
-    const orders = getOrders();
-    return orders.find(order => order.order_number === order_number);
-}
