@@ -1167,18 +1167,22 @@ function EditEvent({
                 <div className={styles['create-page-wrapper']}>
                     <PageBack
                         title={lang['Activity_Create_title']}
-                        menu={() => <div>
-                            <AppButton
-                                onClick={showGenPromoCodeDialog}
-                                style={{fontSize: '12px!important'}} kind={'primary'} size={'compact'}>Promo Code</AppButton>
-                        </div>
+                        menu={() => {
+                            return initEvent ?
+                            <div>
+                                <AppButton
+                                    onClick={showGenPromoCodeDialog}
+                                    style={{fontSize: '12px!important'}} kind={'primary'} size={'compact'}>Promo
+                                    Code</AppButton>
+                            </div> : null
+                        }
                         }
                     />
                     <div className={styles['flex']}>
                         <div className={styles['create-form']}>
 
                             <div className={styles['input-area']}>
-                                <div className={styles['input-area-title']}>{lang['Activity_Form_Name']}</div>
+                            <div className={styles['input-area-title']}>{lang['Activity_Form_Name']}</div>
                                 <AppInput
                                     clearable
                                     maxLength={100}

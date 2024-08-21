@@ -6,7 +6,7 @@ import {
     queryEvent,
     queryTickets,
     rsvp,
-    Ticket
+    Ticket, TicketItem
 } from "@/service/solas"
 import React, {useContext, useEffect, useMemo, useState} from "react"
 import {loadStripe} from '@stripe/stripe-js'
@@ -22,7 +22,7 @@ import LangContext from "@/components/provider/LangProvider/LangContext"
 import {formatUnits} from "viem/utils";
 
 
-export default function StripePay({ticketId, methodId}: { ticketId: number | null, methodId: number | null }) {
+export default function StripePay({ticketId, methodId, promoCode}: { ticketId: number | null, methodId: number | null, promoCode: string | null }) {
     if (ticketId === null || !methodId === null) {
         throw new Error('Invalid ticketId or methodId')
     }
@@ -37,6 +37,7 @@ export default function StripePay({ticketId, methodId}: { ticketId: number | nul
     const [eventDetail, setEventDetail] = useState<Event | null>(null)
     const [errorMsg, setErrorMsg] = useState('')
     const [apiKey, setApiKey] = useState('')
+    const [ticketItem, setTicketItem] = useState<TicketItem | null>(null)
 
     const returnPath = `/event/detail/${eventDetail?.id}`
 
@@ -80,7 +81,7 @@ export default function StripePay({ticketId, methodId}: { ticketId: number | nul
         }
     }
 
-    const handleJoin = async (eventDetail: Event, ticket: Ticket, methodId: number) => {
+    const handleJoin = async (eventDetail: Event, ticket: Ticket, methodId: number, promoCode?: string) => {
         const participantsAll = eventDetail?.participants || []
         const participants = participantsAll.filter(item => item.status !== 'cancel')
 
@@ -99,6 +100,7 @@ export default function StripePay({ticketId, methodId}: { ticketId: number | nul
             id: eventDetail.id,
             ticket_id: ticketId,
             payment_method_id: methodId,
+            promo_code: promoCode
         })
     }
 
@@ -124,12 +126,13 @@ export default function StripePay({ticketId, methodId}: { ticketId: number | nul
                             return
                         }
 
-                        const {participant, ticket_item} = await handleJoin(event[0], tickets[0], methodId)
+                        const {participant, ticket_item} = await handleJoin(event[0], tickets[0], methodId, promoCode || undefined)
                         const clientSecret = await getStripeClientSecret({
                             auth_token: user.authToken || '',
                             ticket_item_id: ticket_item.id
                         })
 
+                        setTicketItem(ticket_item)
                         setClientSecret(clientSecret)
                     } else {
                         unload()
@@ -163,7 +166,7 @@ export default function StripePay({ticketId, methodId}: { ticketId: number | nul
                     }} special size={'compact'}>{lang['Activity_login_btn']}</AppButton>
                 </div> :
                 <div className={styles['center']}>
-                    {!!eventDetail &&
+                    {!!eventDetail && !!ticketItem &&
                         <>
                             <div className={styles['info']}>
                                 <div className={styles['back']} onClick={e => {
@@ -176,7 +179,7 @@ export default function StripePay({ticketId, methodId}: { ticketId: number | nul
                                 <div className={styles['price-tit']}>Price</div>
                                 <div
                                     className={styles['price']}>
-                                    ${formatUnits(BigInt(targetPayment?.price || 0), 2)}
+                                    ${formatUnits(BigInt(ticketItem?.amount || 0), 2)}
                                 </div>
 
 
@@ -221,11 +224,13 @@ export default function StripePay({ticketId, methodId}: { ticketId: number | nul
 export async function getServerSideProps(context: any) {
     const ticketId = context.query?.ticket
     const paymentMethodId = context.query?.methodid
+    const promoCode = context.query?.promo
 
     return {
         props: {
             ticketId: ticketId ? parseInt(ticketId) : null,
-            methodId: paymentMethodId ? parseInt(paymentMethodId) : null
+            methodId: paymentMethodId ? parseInt(paymentMethodId) : null,
+            promoCode: promoCode || null
         }
     }
 }

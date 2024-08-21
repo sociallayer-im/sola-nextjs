@@ -468,7 +468,7 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
                 !!user.id
                 && isStripe &&
                 <AppButton special onClick={e => {
-                    router.push(`/stripe-pay?ticket=${props.ticket.id}&methodid=${props.ticket.payment_methods[paymentIndex].id}`)
+                    router.push(`/stripe-pay?ticket=${props.ticket.id}&methodid=${props.ticket.payment_methods[paymentIndex].id}&promo=${validPromoCode?.code}`)
                     props.close()
                 }}>{'Go to pay'}</AppButton>
             }
@@ -526,6 +526,9 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
                     }}
                 />
             }
+
+            <div>pendingOrder: {pendingOrder?.order_number}</div>
+            <div>matchTicketItem: {matchTicketItem?.order_number}</div>
 
             {!!address
                 && !!payments.length
