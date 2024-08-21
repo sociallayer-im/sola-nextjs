@@ -6051,6 +6051,137 @@ export async function queryScheduleEvent(props: QueryEventProps): Promise<Event[
         host_info
         id
         min_participant
+      }
+    }`
+
+    const resp: any = await request(graphUrl, doc)
+    return resp.events.map((item: any) => {
+        return {
+            ...item,
+            end_time: item.end_time && !item.end_time.endsWith('Z') ? item.end_time + 'Z' : item.end_time,
+            start_time: item.end_time && !item.start_time.endsWith('Z') ? item.start_time + 'Z' : item.start_time,
+        }
+    }) as Event[]
+}
+
+export async function queryMapEvent(props: QueryEventProps): Promise<Event[]> {
+    const page_size = props.page_size || 10
+    let variables = ''
+    let order = `order_by: {id: ${props.event_order || 'desc'}}, `
+
+    if (props.id) {
+        variables += `id: {_eq: ${props.id}},`
+    }
+
+    if (props.owner_id) {
+        variables += `owner_id: {_eq: ${props.owner_id}},`
+    }
+
+    if (props.tag) {
+        variables += `tags: {_contains:["${props.tag}"]}, `
+    }
+
+    if (props.tags) {
+        const tags = props.tags.map(t => `"${t}"`).join(',')
+        variables = `tags: {_contains: [${tags}]}, `
+    }
+
+    if (props.venue_id) {
+        variables += `venue_id: {_eq: ${props.venue_id}}, `
+    }
+
+    if (props.recurring_event_id) {
+        variables += `recurring_event_id: {_eq: ${props.recurring_event_id}}, `
+    }
+
+    if (props.only_private) {
+        variables += `display: {_eq: "private"}, `
+    } else if (!props.allow_private) {
+        variables += `display: {_neq: "private"}, `
+    }
+
+    if (props.start_time_from && props.start_time_to) {
+        order = `order_by: {start_time: ${props.event_order || 'desc'}}, `
+        variables += `start_time: {_gte: "${props.start_time_from}"}, _and: {start_time: {_lte: "${props.start_time_to}"}}, `
+    } else if (props.start_time_from) {
+        order = `order_by: {start_time: ${props.event_order || 'desc'}}, `
+        variables += `start_time: {_gte: "${props.start_time_from}"}, `
+    } else if (props.start_time_to) {
+        order = `order_by: {start_time: ${props.event_order || 'desc'}}, `
+        variables += `start_time: {_lte: "${props.start_time_to}"}, `
+    }
+
+
+    if (props.end_time_gte && props.end_time_lte) {
+        order = `order_by: {end_time: ${props.event_order || 'desc'}}, `
+        variables += `end_time: {_gte: "${props.end_time_gte}"}, _and: {end_time: {_lte: "${props.end_time_lte}"}}, `
+    } else if (props.end_time_gte) {
+        order = `order_by: {start_time: ${props.event_order || 'desc'}}, `
+        variables += `end_time: {_gte: "${props.end_time_gte}"}, `
+    } else if (props.end_time_lte) {
+        order = `order_by: {end_time: ${props.event_order || 'desc'}}, `
+        variables += `end_time: {_lte: "${props.end_time_lte}"}, `
+    }
+
+    if (props.group_id) {
+        variables += `group_id: {_eq: ${props.group_id}}, `
+    }
+
+
+    if (props.search) {
+        variables += `title: {_iregex: "${props.search}"}, `
+    }
+
+    let status = `"open", "new", "normal"`
+    if (props.show_pending_event) {
+        status = status + ', "pending"'
+    }
+
+    if (props.show_rejected_event) {
+        status = status + ', "rejected"'
+    }
+
+    if (props.show_cancel_event) {
+        status = status + ', "cancel"'
+    }
+
+    variables = variables.replace(/,$/, '')
+
+    const doc = gql`query MyQuery ${props.cache? '@cached' : ''} {
+      events (where: {${variables}, status: {_in: [${status}]}} ${order} limit: ${page_size}, offset: ${props.offset || ((props.page - 1) * page_size)}) {
+        extra
+        requirement_tags
+        operators
+        padge_link
+        badge_class_id
+        notes
+        geo_lat
+        geo_lng
+        cover_url
+        created_at
+        end_time
+        formatted_address
+        location
+        owner_id
+        owner {
+            id
+            username
+            nickname
+            image_url
+        }
+        title
+        timezone
+        status
+        tags
+        start_time
+        require_approval
+        participants_count
+        max_participant
+        meeting_url
+        group_id
+        host_info
+        id
+        min_participant
         participants(where: {status: {_neq: "cancel"}}) {
           id
           profile_id
