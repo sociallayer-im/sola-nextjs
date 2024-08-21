@@ -22,6 +22,7 @@ function Erc20TokenPaymentHandler(
         ticketId: number
         methodId: number
         eventId: number
+        promo_code?: string,
         onSuccess?: (hash: string) => any
         onErrMsg?: (message: string) => any
     }
@@ -92,7 +93,7 @@ function Erc20TokenPaymentHandler(
                     if (!!ticketItem) {
                         const order = getOrder(ticketItem.order_number)
                         if (!!order) {
-                            setBusy(false)
+                            setBusy(true)
                             setSending(false)
                             setVerifying(true)
                             const verify = await _verifyPayment(ticketItem.order_number, order.tx)
@@ -129,6 +130,7 @@ function Erc20TokenPaymentHandler(
                     id: props.eventId,
                     ticket_id: props.ticketId,
                     payment_method_id: props.methodId,
+                    promo_code: props.promo_code
                 }
             )
 

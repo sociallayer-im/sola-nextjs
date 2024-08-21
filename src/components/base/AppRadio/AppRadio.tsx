@@ -1,4 +1,4 @@
-function AppRadio(props: { onClick?: any, checked: boolean }) {
+function AppRadio(props: { checked: boolean }) {
     return (<div style={{paddingRight: '8px', height: '24px', width: '24px'}}>
         {
             props.checked ?
