@@ -1,10 +1,11 @@
 import {
     checkEventPermission,
-    Event,
+    Event, getStripeApiKey,
     getStripeClientSecret,
-    joinEventWithTicketItem, Participants,
+    Participants,
     queryEvent,
-    queryTickets, rsvp,
+    queryTickets,
+    rsvp,
     Ticket
 } from "@/service/solas"
 import React, {useContext, useEffect, useMemo, useState} from "react"
@@ -20,8 +21,6 @@ import DialogsContext from "@/components/provider/DialogProvider/DialogsContext"
 import LangContext from "@/components/provider/LangProvider/LangContext"
 import {formatUnits} from "viem/utils";
 
-const api_key = 'pk_test_51OeSy4DtkneJ1BkLE1bqaFXFfKaIDC2vVvNSjxYITOpeHCOjqLcnrphytnpFpilM816hYXxtOEsmsXk1tLiwRU1s00OXWHHvaS'
-const stripePromise = loadStripe(api_key)
 
 export default function StripePay({ticketId, methodId}: { ticketId: number | null, methodId: number | null }) {
     if (ticketId === null || !methodId === null) {
@@ -37,8 +36,36 @@ export default function StripePay({ticketId, methodId}: { ticketId: number | nul
     const [ticket, setTicket] = useState<Ticket | null>(null)
     const [eventDetail, setEventDetail] = useState<Event | null>(null)
     const [errorMsg, setErrorMsg] = useState('')
+    const [apiKey, setApiKey] = useState('')
 
     const returnPath = `/event/detail/${eventDetail?.id}`
+
+    useEffect(() => {
+        (async () => {
+            if (!eventDetail) return
+
+            const unload = showLoading(true)
+            try {
+                const key = await getStripeApiKey({event_id: eventDetail.id})
+                setApiKey(key)
+            } catch (e) {
+                console.error(e)
+                setErrorMsg('Get stripe key failed')
+            } finally {
+                unload()
+            }
+        })()
+    }, [eventDetail?.id])
+
+    const stripePromise = useMemo(() => {
+        if (!apiKey) return null
+        try {
+            return loadStripe(apiKey)
+        } catch (e:any) {
+            setErrorMsg(e.message)
+            return null
+        }
+    }, [apiKey])
 
     async function checkJoined() {
         if (user.id) {
@@ -126,7 +153,7 @@ export default function StripePay({ticketId, methodId}: { ticketId: number | nul
     };
 
     return <div className={styles['page']}>
-        {!errorMsg ?
+        {!errorMsg  ?
             !user.id ?
                 <div className={'home-login-panel'}>
                     <img src="/images/balloon.png" alt=""/>
@@ -150,7 +177,7 @@ export default function StripePay({ticketId, methodId}: { ticketId: number | nul
                                 <div
                                     className={styles['price']}>
                                     ${formatUnits(BigInt(targetPayment?.price || 0), 2)}
-                                    </div>
+                                </div>
 
 
                                 <div className={styles['sub-title']}>Ticket Type</div>
@@ -176,7 +203,7 @@ export default function StripePay({ticketId, methodId}: { ticketId: number | nul
                     }
 
                     <div className={styles['form']}>
-                        {!!user.id && !!ticket && !!clientSecret && !!eventDetail &&
+                        {!!user.id && !!ticket && !!clientSecret && !!eventDetail && !!stripePromise &&
                             <>
                                 <h1>Stripe Payment</h1>
                                 <Elements options={options} stripe={stripePromise}>
