@@ -6018,11 +6018,20 @@ export async function queryScheduleEvent(props: QueryEventProps): Promise<Event[
 
     const doc = gql`query MyQuery ${props.cache? '@cached' : ''} {
       events (where: {${variables}, status: {_in: [${status}]}} ${order} limit: ${page_size}, offset: ${props.offset || ((props.page - 1) * page_size)}) {
-        id
-        display
+        extra
+        requirement_tags
+        operators
+        padge_link
+        badge_class_id
+        notes
+        geo_lat
+        geo_lng
         cover_url
+        created_at
         end_time
+        formatted_address
         location
+        owner_id
         owner {
             id
             username
@@ -6030,11 +6039,29 @@ export async function queryScheduleEvent(props: QueryEventProps): Promise<Event[
             image_url
         }
         title
+        timezone
         status
         tags
         start_time
+        require_approval
+        participants_count
+        max_participant
         meeting_url
+        group_id
         host_info
+        id
+        min_participant
+        participants(where: {status: {_neq: "cancel"}}) {
+          id
+          profile_id
+          profile {
+            id
+            address
+            username
+            nickname
+            image_url
+          }
+        }
       }
     }`
 
