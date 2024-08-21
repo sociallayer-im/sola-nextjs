@@ -1,4 +1,12 @@
-import {Event as SolarEvent, EventSites, getEventSide, getGroups, Group, queryEvent} from "@/service/solas";
+import {
+    Event as SolarEvent,
+    EventSites,
+    getEventSide,
+    getGroups,
+    Group,
+    queryEventDetail,
+    queryScheduleEvent
+} from "@/service/solas";
 import {useContext, useEffect, useRef, useState} from "react";
 import {createCalendar, viewDay, viewMonthAgenda, viewMonthGrid, viewWeek} from '@/libs/schedule-x-calendar/core'
 import '@schedule-x/theme-default/dist/index.css'
@@ -12,16 +20,11 @@ import {createEventsServicePlugin} from '@schedule-x/events-service'
 import {createCurrentTimePlugin} from '@schedule-x/current-time'
 import {createScrollControllerPlugin} from '@schedule-x/scroll-controller'
 import ScheduleHeader from "@/components/base/ScheduleHeader";
-import usePicture from "@/hooks/pictrue";
-import Displayer from "@/components/compose/RichTextEditor/Displayer";
-import Link from "next/link";
 import {EventPopup} from "@/components/compose/EventPopup/EventPopup";
 
 import * as dayjsLib from "dayjs";
 import timezoneList from "@/utils/timezone";
 import {getLabelColor} from "@/hooks/labelColor";
-import {PageBackContext} from "@/components/provider/PageBackProvider";
-import EventDefaultCover from "@/components/base/EventDefaultCover";
 import {isHideLocation} from "@/global_config";
 
 const utc = require('dayjs/plugin/utc')
@@ -79,7 +82,7 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
     const eventGroup = props.group
     const calendarRef = useRef<any>(null)
     const scheduleXRef = useRef<any>(null)
-    const {openConfirmDialog, openDialog} = useContext(DialogsContext)
+    const {openConfirmDialog, openDialog, showLoading} = useContext(DialogsContext)
     const {user} = useContext(userContext)
     const formatTime = useTime()
     const router = useRouter()
@@ -134,7 +137,7 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
     useEffect(() => {
         if (timezoneSelected[0]) {
             const dayList = getCalendarData(timezoneSelected[0].id)
-            queryEvent({
+            queryScheduleEvent({
                 group_id: eventGroup.id,
                 start_time_from: new Date(dayList[0].timestamp).toISOString(),
                 start_time_to: new Date(dayList[dayList.length - 1].timestamp).toISOString(),
@@ -304,11 +307,20 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
                             },
                             onEventClick(calendarEvent: any) {
                                 console.log('onEventClick', calendarEvent)
-                                openDialog({
-                                    content: (close: any) => {return <EventPopup close={close} event={calendarEvent.event} timezone={timezoneSelected[0].id} />},
-                                    size: [450, 'auto'],
-                                    position: 'bottom',
-                                })
+                                const unload = showLoading()
+                                queryEventDetail({id: calendarEvent.event.id})
+                                    .then(e => {
+                                        unload()
+                                        openDialog({
+                                            content: (close: any) => {
+                                                return <EventPopup close={close} event={e}
+                                                                   timezone={timezoneSelected[0].id}/>
+                                            },
+                                            size: [450, 'auto'],
+                                            position: 'bottom',
+                                        })
+                                    })
+
                             },
                         },
                     } as any)
