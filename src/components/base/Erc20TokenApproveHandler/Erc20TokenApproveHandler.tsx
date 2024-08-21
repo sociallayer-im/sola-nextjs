@@ -21,8 +21,10 @@ function Erc20TokenApproveHandler(
         amount: string
         to: string
         chainId: number
-        onSuccess?: (hash: string) => any
+        methodId: number
+        onResult?: (needApprove: boolean ,hash?: string) => any
         onErrMsg?: (message: string) => any
+        order_number?: string
     }, ref: any
 ) {
     const publicClient: any = usePublicClient({chainId: props.chainId})
@@ -32,8 +34,6 @@ function Erc20TokenApproveHandler(
     const [busy, setBusy] = useState(false)
     const { switchNetworkAsync } = useSwitchNetwork()
     const { chain } = useNetwork()
-
-
 
 
     const reFleshAllowance = () => {
@@ -51,7 +51,9 @@ function Erc20TokenApproveHandler(
             }).then((res: any) => {
                 if (res !== undefined && res >= BigInt(props.amount)) {
                     console.log('BigInt(props.amount)BigInt(props.amount)', BigInt(props.amount))
-                    props.onSuccess?.('')
+                    props.onResult?.(false)
+                } else {
+                    props.onResult?.(true)
                 }
             }).finally(() => {
                 setBusy(false)
@@ -99,7 +101,7 @@ function Erc20TokenApproveHandler(
             const delay = await setTimeout(() => {
             }, 5000)
 
-            !!props.onSuccess && props.onSuccess(hash)
+            !!props.onResult && props.onResult(false, hash)
         } catch (e: any) {
             console.error(e)
             if (!e.message.includes('rejected')) {
@@ -112,7 +114,7 @@ function Erc20TokenApproveHandler(
 
     useEffect(() => {
         reFleshAllowance()
-    }, [address, props.token, props.chainId])
+    }, [address, props.token, props.chainId, props.amount])
 
     return (<>
         {props.content ? props.content(() => {

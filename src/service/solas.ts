@@ -3807,7 +3807,7 @@ export async function joinEvent(props: JoinEventProps) {
 }
 
 export interface TicketItem {
-    amount : null | string
+    amount : number
     chain : null | string
     discount_data: null | string
     discount_value : null| string
@@ -6074,6 +6074,7 @@ export async function SetTicketPaymentStatus (props: {
     return res.data.participant as Participants
 }
 
+
 export async function getTicketItemDetail (props: {id?: number, participant_id?: number, order_number?: string}) {
     let variables = ''
     if (props.id) {
@@ -6129,6 +6130,95 @@ export async function getPaymentMethod (props: {id: number}) {
 
     const res: any = await request(graphUrl, doc)
     return res.payment_methods[0] as PaymentMethod || null
+}
+
+export interface PromoCode {
+    id?: number
+    event_id?: number
+    selector_type: string,
+    label: string,
+    code: string,
+    receiver_address: string | null,
+    discount_type: string,
+    discount: number,
+    applicable_ticket_ids: number[] | null,
+    ticket_item_ids: number[] | null,
+    expiry_time: string,
+    max_allowed_usages: number
+    order_usage_count: number
+    _destroy?: string
+}
+
+export async function queryPromoCodes (props: {event_id: number}) {
+    let variables = ''
+
+    if (props.event_id) {
+        variables = `event_id: {_eq: ${props.event_id}}`
+    }
+
+    const doc = `query MyQuery {
+        promo_codes (where: {${variables}}) {
+            id
+            event_id
+            selector_type
+            label
+            code
+            receiver_address
+            discount_type
+            discount
+            applicable_ticket_ids
+            ticket_item_ids
+            expiry_time
+            max_allowed_usages
+            order_usage_count
+            }
+    }`
+
+    const res: any = await request(graphUrl, doc)
+    return res.promo_codes as PromoCode[]
+}
+
+export async function queryTicketItems (props: {event_id?: number, participant_id?: number, order_number?: string, profile_id?: number}) {
+    let variables = ''
+    if (props.event_id) {
+        variables += `event_id: {_eq: ${props.event_id}}, `
+    }
+
+    if (props.participant_id) {
+        variables += `participant_id: {_eq: ${props.participant_id}}, `
+    }
+
+    if (props.order_number) {
+        variables += `order_number: {_eq: "${props.order_number}"}, `
+    }
+
+    if (props.profile_id) {
+        variables += `profile_id: {_eq: ${props.profile_id}}, `
+    }
+
+    const doc = `query MyQuery {
+        ticket_items(where: {${variables}}) {
+            id
+            amount
+            chain
+            created_at
+            discount_data
+            discount_value
+            event_id
+            order_number
+            participant_id
+            profile_id
+            status
+            ticket_id
+            ticket_price
+            txhash
+            payment_method_id
+            order_number
+        }
+    }`
+
+    const res: any = await request(graphUrl, doc)
+    return res.ticket_items as TicketItem[]
 }
 
 export default {

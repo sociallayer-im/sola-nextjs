@@ -14,11 +14,11 @@ import {
     Badge,
     Event,
     getParticipantDetail, getTicketItemDetail,
-    joinEvent,
+    joinEvent, PromoCode,
     queryBadgeDetail,
-    queryBadgelet,
+    queryBadgelet, queryPromoCodes, queryTicketItems,
     rsvp,
-    Ticket
+    Ticket, TicketItem
 } from '@/service/solas'
 import useTime from "@/hooks/formatTime";
 import {paymentTokenList} from "@/payment_settring";
@@ -27,6 +27,7 @@ import useEvent, {EVENT} from "@/hooks/globalEvent";
 import ButtonLoading from "@/components/base/ButtonLoading";
 import {Select} from "baseui/select";
 import {useRouter} from "next/navigation"
+import AppInput from "@/components/base/AppInput";
 
 
 function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket }) {
@@ -48,6 +49,10 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
 
     const [busy, setBusy] = useState(false)
     const [paymentIndex, setPaymentIndex] = useState(0)
+    const [promoCode, setPromoCode] = useState('')
+    const [validPromoCode, setValidPromoCode] = useState<null | PromoCode>(null)
+    const [promoCodeError, setPromoCodeError] = useState('')
+    const [userTicketItems, setUserTicketItems] = useState<TicketItem[]>([])
 
     const reFleshAllowanceRef = useRef<any>(null)
 
@@ -86,23 +91,16 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
     useEffect(() => {
         (async () => {
             if (user.id) {
-                const participant = await getParticipantDetail({profile_id: user.id, ticket_id: props.ticket.id})
-                if (!participant) {
-                    setApproved(false)
-                    return
-                }
+                const ticketItems = await queryTicketItems({profile_id: user.id, event_id: props.event.id})
+                setUserTicketItems(ticketItems)
 
-                const ticket_item = await getTicketItemDetail({participant_id: participant.id})
-                if (!!ticket_item) {
-                    const methodIndex = props.ticket.payment_methods.findIndex((p => p.id === ticket_item.payment_method_id))
+                if (!!ticketItems.length) {
+                    const methodIndex = props.ticket.payment_methods.findIndex(p => {
+                        return !!ticketItems.find((item) => item.payment_method_id === p.id)
+                    })
                     if (methodIndex !== -1) {
                         setPaymentIndex(methodIndex)
-                        setApproved(true)
-                    } else {
-                        setApproved(false)
                     }
-                } else {
-                    setApproved(false)
                 }
             }
         })()
@@ -176,6 +174,81 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
         }
     }, [balance, busy, payments, hasBadgePermission])
 
+    const removePromoCode = async () => {
+        setValidPromoCode(null)
+        setPromoCode('')
+        setApproved(false)
+    }
+
+    const checkPromoCode = async () => {
+        const unload = showLoading()
+        const codes = await queryPromoCodes({event_id: props.event.id})
+        if (!codes.length) {
+            setPromoCodeError('Invalid promo code')
+            setValidPromoCode(null)
+            unload()
+            return
+        }
+
+        const target = codes.find(c => c.code === promoCode)
+        if (!target) {
+            setPromoCodeError('Invalid promo code')
+            setValidPromoCode(null)
+            unload()
+            return
+        }
+
+        if (target.max_allowed_usages === target.order_usage_count) {
+            setPromoCodeError('Promo code has been used up')
+            setValidPromoCode(null)
+            unload()
+            return
+        }
+
+        if (new Date(target.expiry_time).getTime() < new Date().getTime()) {
+            setPromoCodeError('Promo code has expired')
+            setValidPromoCode(null)
+            unload()
+            return
+        }
+
+        unload()
+        setValidPromoCode(target)
+    }
+
+    const matchTicketItem = useMemo(() => {
+        return userTicketItems.find((item) => item.payment_method_id === payments[paymentIndex].payment.id)
+    }, [userTicketItems, payments, paymentIndex])
+
+    const finalPrice = useMemo(() => {
+        let price: number
+        if (matchTicketItem) {
+            price = matchTicketItem.amount
+        } else if (!validPromoCode) {
+            price = payments![paymentIndex].payment.price
+        } else {
+            if (validPromoCode.discount_type === 'ratio') {
+                price = Number(payments![paymentIndex].payment.price || '0') * validPromoCode.discount / 10000
+            } else {
+                price = Number(payments![paymentIndex].payment.price || '0') - validPromoCode.discount * 10 ** (payments![paymentIndex]!.token!.decimals || 0)
+            }
+        }
+        return price
+    }, [validPromoCode, paymentIndex, payments, matchTicketItem])
+
+    const discount = useMemo(() => {
+        return payments[paymentIndex]!.payment.price - finalPrice
+    }, [finalPrice, paymentIndex, payments])
+
+    const pendingOrder = useMemo(() => {
+        if (!!matchTicketItem) {
+            const localstorageOrders = getOrder(matchTicketItem.order_number)
+            return localstorageOrders || null
+        } else {
+            return null
+        }
+    }, [matchTicketItem])
+
     return (<div className={styles['dialog-ticket']}>
         <div className={styles['dialog-title']}>
             <div>{'Event'}</div>
@@ -205,244 +278,343 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
                 <div className={styles['location']}>{props.event.location}</div>
             </div>
         </div>
-        <div className={styles['type-name-title']}>Ticket type</div>
-        <div className={styles['type-name']}>{props.ticket.title}</div>
 
-        <div className={styles['detail']}>
-            {
-                !!badge &&
-                <div className={styles['badge']}>
-                    <div className={styles['title']}>{'Need to have badge'}</div>
-                    <div className={styles['info']}>
-                        <div className={styles['name']}>
-                            <img src={badge.image_url} alt=""/>
-                            <div>{badge.title}</div>
-                        </div>
-                        {OwnedBadge && <div className={styles['owned']}>Owned</div>}
-                        {!OwnedBadge && user.id && <div className={styles['owned']}>Not Collected</div>}
-                    </div>
-                </div>
-            }
-        </div>
+        <div className={styles['scroll']}>
+            <div className={styles['type-name-title']}>Ticket type</div>
+            <div className={styles['type-name']}>{props.ticket.title}</div>
 
-        {!!payments.length &&
-            <>
-                <div className={styles['payment-title']}>Payment</div>
-                <div className={styles['price']}>
-                    <div className={styles['label']}>Price</div>
-                </div>
-                <div className={styles['select']}>
-                    <Select
-                        disabled={busy}
-                        value={[props.ticket.payment_methods[paymentIndex]] as any}
-                        options={payments}
-                        clearable={false}
-                        searchable={false}
-
-                        getValueLabel={() => {
-                            return <div className={styles['payment-label']}>
-                                <img src={payments![paymentIndex]!.chain!.icon} alt=""/>
-                                <span> {Number(props.ticket.payment_methods[paymentIndex]!.price || '0') / (10 ** payments![paymentIndex]!.token!.decimals || 0)}</span>
-                                <span>{payments[paymentIndex]!.token.name.toUpperCase()}</span>
+            <div className={styles['detail']}>
+                {
+                    !!badge &&
+                    <div className={styles['badge']}>
+                        <div className={styles['title']}>{'Need to have badge'}</div>
+                        <div className={styles['info']}>
+                            <div className={styles['name']}>
+                                <img src={badge.image_url} alt=""/>
+                                <div>{badge.title}</div>
                             </div>
-                        }}
-
-                        getOptionLabel={({option}: any) => {
-                            return <div className={styles['payment-label']}>
-                                <img src={option.chain.icon} alt=""/>
-                                {option.payment.price / 10 ** (option.token.decimals)} {option.payment.token_name.toUpperCase()}
-                            </div>
-                        }}
-
-                        onChange={({option}: any) => {
-                            setPaymentIndex(option.index as any)
-                        }}
-                    />
-                </div>
-
-                {!!props.ticket.payment_methods[paymentIndex].receiver_address && !isStripe &&
-                    <div className={styles['receiver']}>
-                        <div className={styles['receiver-des']}>Payments will be sent to</div>
-                        <div className={styles['address']}>
-                            <div className={styles['left']}>
-                                {
-                                    payments[paymentIndex].chain &&
-                                    <img src={payments![paymentIndex!].chain!.icon} alt=""/>
-                                }
-                                <div>{shotAddress(props.ticket.payment_methods[paymentIndex].receiver_address!)}</div>
-                            </div>
-                            <div className={styles['copy']}
-                                 onClick={e => {
-                                     copyWithDialog(props.ticket.payment_methods[paymentIndex].receiver_address!)
-                                 }}>
-                                {lang['Profile_Show_Copy']}
-                            </div>
+                            {OwnedBadge && <div className={styles['owned']}>Owned</div>}
+                            {!OwnedBadge && user.id && <div className={styles['owned']}>Not Collected</div>}
                         </div>
                     </div>
                 }
+            </div>
 
+            {!!payments.length &&
+                <>
+                    <div className={styles['payment-title']}>Payment</div>
+                    <div className={styles['price']}>
+                        <div className={styles['label']}>Price</div>
+                    </div>
+                    <div className={styles['select']}>
+                        <Select
+                            disabled={busy}
+                            value={[props.ticket.payment_methods[paymentIndex]] as any}
+                            options={payments}
+                            clearable={false}
+                            searchable={false}
 
-                <div className={styles['balance']}>
-                    {!isStripe &&
-                        <>
-                            <div className={styles['label']}>Balance</div>
-                            <div className={styles['value']}>
-                                {
-                                    !!address ? <Erc20Balance
-                                            onChange={(balance) => {
-                                                setBalance(balance)
-                                            }}
-                                            chanId={payments![paymentIndex]!.chain!.chainId}
-                                            account={address}
-                                            token={payments[paymentIndex]!.token!.contract}
-                                            decimals={payments[paymentIndex]!.token!.decimals}/>
-                                        : '--'
-                                }
-                                <span>{payments[paymentIndex]!.token!.name?.toUpperCase()}</span>
+                            getValueLabel={() => {
+                                return <div className={styles['payment-label']}>
+                                    <div className={styles['icon']}>
+                                        <img className={styles['token']} src={payments![paymentIndex]!.token!.icon} alt=""/>
+                                        <img className={styles['chain']} src={payments![paymentIndex]!.chain!.icon} alt=""/>
+                                    </div>
+                                    <span> {Number(props.ticket.payment_methods[paymentIndex]!.price || '0') / (10 ** payments![paymentIndex]!.token!.decimals || 0)}</span>
+                                    <span>{payments[paymentIndex]!.token.name.toUpperCase()}</span>
+                                </div>
+                            }}
+
+                            getOptionLabel={({option}: any) => {
+                                return <div className={styles['payment-label']}>
+                                    <div className={styles['icon']}>
+                                        <img className={styles['token']} src={option.token.icon} alt=""/>
+                                        <img className={styles['chain']} src={option.chain.icon} alt=""/>
+                                    </div>
+                                    {option.payment.price / 10 ** (option.token.decimals)} {option.payment.token_name.toUpperCase()}
+                                </div>
+                            }}
+
+                            onChange={({option}: any) => {
+                                setPaymentIndex(option.index as any)
+                            }}
+                        />
+                    </div>
+
+                    {!!props.ticket.payment_methods[paymentIndex].receiver_address && !isStripe &&
+                        <div className={styles['receiver']}>
+                            <div className={styles['receiver-des']}>Payments will be sent to</div>
+                            <div className={styles['address']}>
+                                <div className={styles['left']}>
+                                    {
+                                        payments[paymentIndex].chain &&
+                                        <img src={payments![paymentIndex!].chain!.icon} alt=""/>
+                                    }
+                                    <div>{shotAddress(props.ticket.payment_methods[paymentIndex].receiver_address!)}</div>
+                                </div>
+                                <div className={styles['copy']}
+                                     onClick={e => {
+                                         copyWithDialog(props.ticket.payment_methods[paymentIndex].receiver_address!)
+                                     }}>
+                                    {lang['Profile_Show_Copy']}
+                                </div>
                             </div>
-                        </>
+                        </div>
                     }
-                </div>
-            </>
-        }
 
-        {!!errorMsg &&
-            <div className={styles['error-msg']}>{errorMsg}</div>
-        }
+                    {
+                        finalPrice === props.ticket.payment_methods[paymentIndex]!.price ?
+                            <div className={styles['balance']}>
+                                <div className={styles['label']}>Total</div>
+                                <div
+                                    className={styles['total']}>{Number(props.ticket.payment_methods[paymentIndex]!.price || '0') / (10 ** payments![paymentIndex]!.token!.decimals || 0)} {payments[paymentIndex]!.token!.name?.toUpperCase()}</div>
+                            </div> :
+                            <>
+                                <div className={styles['balance']}>
+                                    <div className={styles['label']}>Original Price</div>
+                                    <div>{Number(props.ticket.payment_methods[paymentIndex]!.price || '0') / (10 ** payments![paymentIndex]!.token!.decimals || 0)} {payments[paymentIndex]!.token!.name?.toUpperCase()}</div>
+                                </div>
+                                <div className={styles['balance']}>
+                                    <div className={styles['label']}></div>
+                                    <div>-{discount / (10 ** payments![paymentIndex]!.token!.decimals || 0)} {payments[paymentIndex]!.token!.name?.toUpperCase()}</div>
+                                </div>
+                                <div className={styles['balance']}>
+                                    <div className={styles['label']}>Final Price</div>
+                                    <div className={styles['total']}>{finalPrice / (10 ** payments![paymentIndex]!.token!.decimals || 0)} {payments[paymentIndex]!.token!.name?.toUpperCase()}</div>
+                                </div>
+                            </>
+                    }
 
-        {
-            soldOut &&
-            <AppButton disabled>{'Sold Out'}</AppButton>
-        }
 
-        {
-            stopSales &&
-            <AppButton disabled>{'Stop ticket sales'}</AppButton>
-        }
-
-        {
-            !hasBadgePermission &&
-            <AppButton disabled>{'Need to have badge'}</AppButton>
-        }
-
-        {!address
-            && !stopSales
-            && !soldOut
-            && !!user.id
-            && hasBadgePermission
-            && !!payments.length
-            && !isStripe &&
-            <AppButton special onClick={e => {
-                connectWallet()
-            }}>{'Connect Wallet'}</AppButton>
-        }
-
-        {
-            !!user.id
-            && isStripe &&
-            <AppButton special onClick={e => {
-                router.push(`/stripe-pay?ticket=${props.ticket.id}&methodid=${props.ticket.payment_methods[paymentIndex].id}`)
-                props.close()
-            }}>{'Go to pay'}</AppButton>
-        }
-
-        {!!address
-            && !!payments.length
-            && approved
-            && !stopSales
-            && !soldOut
-            && !!user.id
-            && hasBadgePermission
-            && !isStripe &&
-            <Erc20TokenPaymentHandler
-                eventId={props.event.id}
-                methodId={props.ticket.payment_methods[paymentIndex]!.id!}
-                ticketId={props.ticket.id}
-                token={payments![paymentIndex]!.token!.contract}
-                to={props.ticket.payment_methods[paymentIndex]!.receiver_address!}
-                amount={props.ticket.payment_methods[paymentIndex]!.price?.toString() || '0'}
-                decimals={payments![paymentIndex]!.token!.decimals}
-                chainId={payments![paymentIndex]!.chain!.chainId}
-                onErrMsg={(errMsg: string) => {
-                    emit('payment-error')
-                    setErrorMsg(errMsg)
-                }}
-                onSuccess={(txHash: string) => {
-                    emit('payment-success')
-                    showToast('Payment successful')
-                    props.close()
-                }}
-                content={(trigger, busy, sending, verifying) => {
-                    setTimeout(() => {
-                        setBusy(busy || verifying)
-                    }, 100)
-                    return errorMsg ? <AppButton special onClick={e => {
-                            setErrorMsg('')
-                            setApproved(false)
-                            reFleshAllowanceRef.current && reFleshAllowanceRef.current.reFleshAllowance()
+                    <div className={styles['balance']}>
+                        {!isStripe &&
+                            <>
+                                <div className={styles['label']}>Balance</div>
+                                <div className={styles['value']}>
+                                    <img style={{width: '18px', height: '18px', borderRadius: '50%'}}
+                                         src={payments![paymentIndex]!.token.icon} alt=""/>
+                                    {
+                                        !!address ? <Erc20Balance
+                                                onChange={(balance) => {
+                                                    setBalance(balance)
+                                                }}
+                                                chanId={payments![paymentIndex]!.chain!.chainId}
+                                                account={address}
+                                                token={payments[paymentIndex]!.token!.contract}
+                                                decimals={payments[paymentIndex]!.token!.decimals}/>
+                                            : '--'
+                                    }
+                                    <span>{payments[paymentIndex]!.token!.name?.toUpperCase()}</span>
+                                </div>
+                            </>
                         }
-                        }>{'Retry'}</AppButton>
-                        : <AppButton
+                    </div>
+                </>
+            }
+
+            {!matchTicketItem &&
+                <div className={styles['promo']}>
+                    <div className={styles['promo-title']}>Input the promo code</div>
+                    <div className={styles['promo-input']}>
+                        <AppInput value={promoCode}
+                                  onChange={e => {
+                                      setPromoCode(e.target.value)
+                                  }}
+                                  placeholder={'Promo code'}/>
+                        {!!promoCode && !validPromoCode &&
+                            <AppButton onClick={checkPromoCode}>Confirm</AppButton>
+                        }
+                        {
+                            !!validPromoCode &&
+                            <AppButton onClick={removePromoCode}>Remove</AppButton>
+                        }
+                    </div>
+                    <div className={styles['errorMsg']}>{promoCodeError}</div>
+                </div>
+            }
+
+            {!!errorMsg &&
+                <div className={styles['error-msg']}>{errorMsg}</div>
+            }
+
+            {
+                soldOut &&
+                <AppButton disabled>{'Sold Out'}</AppButton>
+            }
+
+            {
+                stopSales &&
+                <AppButton disabled>{'Stop ticket sales'}</AppButton>
+            }
+
+            {
+                !hasBadgePermission &&
+                <AppButton disabled>{'Need to have badge'}</AppButton>
+            }
+
+            {!address
+                && !stopSales
+                && !soldOut
+                && !!user.id
+                && hasBadgePermission
+                && !!payments.length
+                && !isStripe &&
+                <AppButton special onClick={e => {
+                    connectWallet()
+                }}>{'Connect Wallet'}</AppButton>
+            }
+
+            {
+                !!user.id
+                && isStripe &&
+                <AppButton special onClick={e => {
+                    router.push(`/stripe-pay?ticket=${props.ticket.id}&methodid=${props.ticket.payment_methods[paymentIndex].id}`)
+                    props.close()
+                }}>{'Go to pay'}</AppButton>
+            }
+
+            {!!address
+                && !!payments.length
+                && (approved || !!pendingOrder)
+                && !stopSales
+                && !soldOut
+                && !!user.id
+                && hasBadgePermission
+                && !isStripe &&
+                <Erc20TokenPaymentHandler
+                    promo_code={validPromoCode?.code || undefined}
+                    eventId={props.event.id}
+                    methodId={props.ticket.payment_methods[paymentIndex]!.id!}
+                    ticketId={props.ticket.id}
+                    token={payments![paymentIndex]!.token!.contract}
+                    to={props.ticket.payment_methods[paymentIndex]!.receiver_address!}
+                    amount={finalPrice.toString() || '0'}
+                    decimals={payments![paymentIndex]!.token!.decimals}
+                    chainId={payments![paymentIndex]!.chain!.chainId}
+                    onErrMsg={(errMsg: string) => {
+                        emit('payment-error')
+                        setErrorMsg(errMsg)
+                    }}
+                    onSuccess={(txHash: string) => {
+                        emit('payment-success')
+                        showToast('Payment successful')
+                        props.close()
+                    }}
+                    content={(trigger, busy, sending, verifying) => {
+                        setTimeout(() => {
+                            setBusy(busy || verifying)
+                        }, 100)
+                        return errorMsg ? <AppButton special onClick={e => {
+                                setErrorMsg('')
+                                setApproved(false)
+                                reFleshAllowanceRef.current && reFleshAllowanceRef.current.reFleshAllowance()
+                            }
+                            }>{'Retry'}</AppButton>
+                            : <AppButton
+                                disabled={busy || !!errorMsg}
+                                special
+                                onClick={async (e) => {
+                                    setErrorMsg('')
+                                    trigger?.()
+                                }}>{
+                                sending ?
+                                    <ButtonLoading>Sending Transaction</ButtonLoading> :
+                                    verifying ?
+                                        <ButtonLoading>Verifying</ButtonLoading> :
+                                        'Pay'
+                            }</AppButton>
+                    }}
+                />
+            }
+
+            {!!address
+                && !!payments.length
+                && !pendingOrder
+                && !approved
+                && !soldOut
+                && !stopSales
+                && !!user.id
+                && hasBadgePermission
+                && !isStripe &&
+                <Erc20TokenApproveHandler
+                    methodId={props.ticket.payment_methods[paymentIndex]!.id!}
+                    order_number={matchTicketItem?.order_number}
+                    ref={reFleshAllowanceRef}
+                    token={payments![paymentIndex]!.token!.contract}
+                    to={props.ticket.payment_methods[paymentIndex]!.receiver_address!}
+                    amount={finalPrice.toString() || '0'}
+                    decimals={payments![paymentIndex]!.token!.decimals}
+                    chainId={payments![paymentIndex]!.chain!.chainId}
+                    onErrMsg={(errMsg: string) => {
+                        setErrorMsg(errMsg)
+                    }}
+                    onResult={(needApprove, hash) => {
+                        setApproved(!needApprove)
+                    }}
+                    content={(trigger, busy) => {
+                        setTimeout(() => {
+                            setBusy(busy)
+                        }, 100)
+                        return <AppButton
                             disabled={busy || !!errorMsg}
                             special
                             onClick={async (e) => {
                                 setErrorMsg('')
                                 trigger?.()
-                            }}>{
-                            sending ?
-                                <ButtonLoading>Sending Transaction</ButtonLoading> :
-                                verifying ?
-                                    <ButtonLoading>Verifying</ButtonLoading> :
-                                    'Pay'
-                        }</AppButton>
-                }}
-            />
-        }
+                            }}>{busy ?
+                            <ButtonLoading>Approving</ButtonLoading>
+                            : 'Approve'}</AppButton>
+                    }}
+                />
+            }
 
-        {!!address
-            && !!payments.length
-            && !approved
-            && !soldOut
-            && !stopSales
-            && !!user.id
-            && hasBadgePermission
-            && !isStripe &&
-            <Erc20TokenApproveHandler
-                ref={reFleshAllowanceRef}
-                token={payments![paymentIndex]!.token!.contract}
-                to={props.ticket.payment_methods[paymentIndex]!.receiver_address!}
-                amount={props.ticket.payment_methods[paymentIndex]!.price?.toString() || '0'}
-                decimals={payments![paymentIndex]!.token!.decimals}
-                chainId={payments![paymentIndex]!.chain!.chainId}
-                onErrMsg={(errMsg: string) => {
-                    setErrorMsg(errMsg)
-                }}
-                onSuccess={(txHash: string) => {
-                    setApproved(true)
-                }}
-                content={(trigger, busy) => {
-                    setTimeout(() => {
-                        setBusy(busy)
-                    }, 100)
-                    return <AppButton
-                        disabled={busy || !!errorMsg}
-                        special
-                        onClick={async (e) => {
-                            setErrorMsg('')
-                            trigger?.()
-                        }}>{busy ?
-                        <ButtonLoading>Approving</ButtonLoading>
-                        : 'Approve'}</AppButton>
-                }}
-            />
-        }
-
-        {!!user.id && !payments.length && hasBadgePermission && !stopSales && !soldOut &&
-            <AppButton special onClick={e => {
-                freePay()
-            }}>{lang['Get_A_Ticket']}</AppButton>
-        }
+            {!!user.id && !payments.length && hasBadgePermission && !stopSales && !soldOut &&
+                <AppButton special onClick={e => {
+                    freePay()
+                }}>{lang['Get_A_Ticket']}</AppButton>
+            }
+        </div>
     </div>)
 }
 
 export default DialogTicket
+
+interface PendingOrder {
+    order_number: string
+    tx: string
+}
+
+function getOrders() {
+    const orders = localStorage.getItem('pending_orders')
+    return orders ? JSON.parse(orders) as PendingOrder[] : []
+}
+
+function saveOrders(orders: PendingOrder[]) {
+    localStorage.setItem('pending_orders', JSON.stringify(orders))
+}
+
+function addOrder(order_number: string, tx: string) {
+    const orders = getOrders()
+    orders.push({order_number, tx})
+    saveOrders(orders)
+}
+
+function deleteOrder(order_number: string) {
+    let orders = getOrders();
+    orders = orders.filter(order => order.order_number !== order_number);
+    saveOrders(orders);
+}
+
+function updateOrderTx(ticket_order: PendingOrder) {
+    const orders = getOrders();
+    const orderIndex = orders.findIndex(order => order.order_number === ticket_order.order_number);
+    if (orderIndex !== -1) {
+        orders[orderIndex].tx = ticket_order.tx;
+        saveOrders(orders);
+    }
+}
+
+function getOrder(order_number: string) {
+    const orders = getOrders();
+    return orders.find(order => order.order_number === order_number);
+}
