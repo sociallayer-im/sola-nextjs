@@ -91,8 +91,12 @@ function Erc20TokenApproveHandler(
                 {hash}
             )
 
-            const delay = await setTimeout(() => {
-            }, 5000)
+
+            function sleep(time:number){
+                return new Promise((resolve) => setTimeout(resolve, time));
+            }
+
+            await sleep(5000)
 
             !!props.onResult && props.onResult(false, hash)
         } catch (e: any) {
