@@ -18,6 +18,7 @@ import userContext from "@/components/provider/UserProvider/UserContext";
 import useEvent, {EVENT} from "@/hooks/globalEvent";
 import {formatUnits} from "viem/utils";
 import {paymentTokenList} from "@/payment_settring";
+import BigNumber from "bignumber.js";
 
 function TicketItem({
                         ticket,
@@ -49,6 +50,25 @@ function TicketItem({
         }
     }, [ticket])
 
+    const price = useMemo(() => {
+        if (ticket.payment_methods.length === 0) {
+            return 'Free'
+        }
+
+        const prices = ticket.payment_methods.map(item => {
+            const targetToken = paymentTokenList.find(chain => chain.id === item.chain)
+            const targetTokenDetail = targetToken?.tokenList.find(token => token.id === item.token_name)
+
+            return BigNumber(item.price).dividedBy(BigNumber(10).pow(targetTokenDetail?.decimals || 0)).toNumber()
+        })
+
+        const maxPrice = Math.max(...prices)
+        const minPrice = Math.min(...prices)
+
+        return maxPrice === minPrice ? `${minPrice} USD` : `${minPrice}-${maxPrice} USD`
+
+    }, [ticket])
+
 
     return <div
         className={`${styles['item']} ${selected ? styles['selected'] : ''}`}
@@ -71,7 +91,7 @@ function TicketItem({
             ticket.payment_methods?.length !== 0 &&
             <div className={styles['price-info']}>
                 <div
-                    className={styles['item-price']}>{formatUnits(BigInt(ticket.payment_methods[0].price || 0), token?.decimals!)} {ticket.payment_methods[0].token_name?.toUpperCase()}</div>
+                    className={styles['item-price']}>{price}</div>
                 <div className={styles['chain-icons']}>
                     {
                         chainsIcons.map((icon, index) => {

@@ -209,7 +209,12 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
             }
         }
 
-        return Math.max(price, 0)
+        if (payments![paymentIndex].chain?.id === 'stripe' && price < 4) {
+            return 0
+        } else {
+            return Math.max(price, 0)
+        }
+
     }, [validPromoCode, paymentIndex, payments])
 
     const discount = useMemo(() => {

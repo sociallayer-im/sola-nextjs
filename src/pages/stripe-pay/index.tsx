@@ -127,6 +127,15 @@ export default function StripePay({ticketId, methodId, promoCode}: { ticketId: n
                         }
 
                         const {participant, ticket_item} = await handleJoin(event[0], tickets[0], methodId, promoCode || undefined)
+
+                        // 处理价格为0直接购买成功的情况
+                        if (participant.payment_status === 'succeeded') {
+                            unload()
+                            showToast('Payment success')
+                            router.replace(`/event/detail/${event[0].id}`)
+                            return
+                        }
+
                         const clientSecret = await getStripeClientSecret({
                             auth_token: user.authToken || '',
                             ticket_item_id: ticket_item.id

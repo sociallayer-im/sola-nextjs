@@ -134,6 +134,18 @@ function Erc20TokenPaymentHandler(
                 }
             )
 
+            // 处理价格为0直接购买成功的情况
+            if (join.participant.payment_status === 'succeeded') {
+                loadingRef?.()
+                !!props.onSuccess && props.onSuccess('')
+                setTimeout(() => {
+                    setBusy(false)
+                    setSending(false)
+                    setVerifying(false)
+                }, 300)
+                return
+            }
+
             // pay
             const opt = {
                 address: payhubContract as any,
