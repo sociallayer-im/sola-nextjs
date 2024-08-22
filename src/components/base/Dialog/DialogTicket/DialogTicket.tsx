@@ -208,7 +208,8 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
                 price = Number(payments![paymentIndex].payment.price || '0') - (validPromoCode.discount / 100) * 10 ** (payments![paymentIndex]!.token!.decimals || 0)
             }
         }
-        return price
+
+        return Math.max(price, 0)
     }, [validPromoCode, paymentIndex, payments])
 
     const discount = useMemo(() => {
@@ -406,7 +407,7 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
 
             {
                 soldOut &&
-                <AppButton disabled>{'Sold Out'}</AppButton>
+                <AppButton disabled>{'Ticket sold out'}</AppButton>
             }
 
             {
@@ -433,9 +434,11 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
 
             {
                 !!user.id
-                && isStripe &&
-                <AppButton special onClick={e => {
-                    router.push(`/stripe-pay?ticket=${props.ticket.id}&methodid=${props.ticket.payment_methods[paymentIndex].id}&promo=${validPromoCode?.code}`)
+                && isStripe
+                && !soldOut
+                && !stopSales
+                && <AppButton special onClick={e => {
+                    router.push(`/stripe-pay?ticket=${props.ticket.id}&methodid=${props.ticket.payment_methods[paymentIndex].id}${validPromoCode?.code ? `&promo=${validPromoCode.code}` : ''}`)
                     props.close()
                 }}>{'Go to pay'}</AppButton>
             }
