@@ -440,7 +440,10 @@ function EditEvent({
         if (!!venueInfo && !!venueInfo.venue_timeslots && event.start_time) {
             const day = dayjs.tz(new Date(event.start_time).getTime(), event.timezone).day()
             const dayFullName = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
-            const target = venueInfo.venue_timeslots.find(item => item.day_of_week === dayFullName[day])
+            const target: any = JSON.parse(venueInfo.timeslots!).find((item: {
+                day: string,
+                disable: boolean
+            }) => item.day === dayFullName[day])
 
             const startTime = dayjs.tz(new Date(event.start_time).getTime(), event.timezone)
             const endTime = dayjs.tz(new Date(event.end_time!).getTime(), event.timezone)
@@ -1183,7 +1186,7 @@ function EditEvent({
                     <PageBack
                         title={lang['Activity_Create_title']}
                         menu={() => {
-                            return initEvent && isManager ?
+                            return initEvent && (isManager || initEvent?.owner.id === user.id) ?
                             <div>
                                 <AppButton
                                     onClick={showGenPromoCodeDialog}
