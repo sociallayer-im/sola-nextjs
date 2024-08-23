@@ -480,24 +480,27 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
                 </>
             }
 
-            <div className={styles['promo']}>
-                <div className={styles['promo-title']}>Input the promo code</div>
-                <div className={styles['promo-input']}>
-                    <AppInput value={promoCode}
-                              onChange={e => {
-                                  setPromoCode(e.target.value)
-                              }}
-                              placeholder={'Promo code'}/>
-                    {!!promoCode && !validPromoCode &&
-                        <AppButton onClick={checkPromoCode}>Confirm</AppButton>
-                    }
-                    {
-                        !!validPromoCode &&
-                        <AppButton onClick={removePromoCode}>Remove</AppButton>
-                    }
+            {!!props.ticket.payment_methods.length &&
+                <div className={styles['promo']}>
+                    <div className={styles['promo-title']}>Input the promo code</div>
+                    <div className={styles['promo-input']}>
+                        <AppInput value={promoCode}
+                                  onChange={e => {
+                                      setPromoCode(e.target.value)
+                                  }}
+                                  placeholder={'Promo code'}/>
+                        {!!promoCode && !validPromoCode &&
+                            <AppButton onClick={checkPromoCode}>Confirm</AppButton>
+                        }
+                        {
+                            !!validPromoCode &&
+                            <AppButton onClick={removePromoCode}>Remove</AppButton>
+                        }
+                    </div>
+                    <div className={styles['errorMsg']}>{promoCodeError}</div>
                 </div>
-                <div className={styles['errorMsg']}>{promoCodeError}</div>
-            </div>
+            }
+
 
             {!!errorMsg &&
                 <div className={styles['error-msg']}>{errorMsg}</div>

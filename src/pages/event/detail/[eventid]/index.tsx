@@ -20,7 +20,7 @@ import {
     queryGroupDetail,
     queryProfileByEmail,
     queryUserGroup,
-    RecurringEvent, setEventStatus
+    RecurringEvent, setEventStatus, TicketItem, queryTicketItems
 } from "@/service/solas";
 import LangContext from "@/components/provider/LangProvider/LangContext";
 import {useTime2, useTime3} from "@/hooks/formatTime";
@@ -105,6 +105,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
     const [showMap, setShowMap] = useState(false)
     const [tickets, setTickets] = useState<Ticket[]>([])
     const [group, setGroup] = useState<Group | null>(null)
+    const [ticketItems, setTicketItems] = useState<TicketItem[]>([])
 
     const [cohost, setCohost] = useState<ProfileSimple[]>([])
     const [speaker, setSpeaker] = useState<ProfileSimple[]>([])
@@ -130,6 +131,10 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                 setTickets(res)
             }).finally(()=>{
                 setTicketReady(true)
+            })
+
+            queryTicketItems({event_id: res.id}).then(res => {
+                setTicketItems(res)
             })
 
             setEvent(res)
@@ -1019,6 +1024,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
 
                                                 {!!hoster &&
                                                     <ListEventParticipants
+                                                        ticketItems={ticketItems}
                                                         onChange={e => {
                                                             fetchData()
                                                         }}

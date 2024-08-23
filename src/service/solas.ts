@@ -3815,12 +3815,16 @@ export interface TicketItem {
     id: number
     order_number: string
     participant_id: number
-    profile_id: string
+    profile_id: number
     status : string
     ticket_id : string
     ticket_price :  null | string
     txhash: null | string
     payment_method_id: number
+    promo_code_id: null | number
+    sender_address: null | string
+    created_at: string,
+    profile: ProfileSimple
 }
 
 export async function joinEventWithTicketItem(props: JoinEventProps) {
@@ -6061,6 +6065,7 @@ export async function SetTicketPaymentStatus (props: {
     item_id: string,
     amount: number
     txhash: string
+    sender_address: string
 }) {
     const res: any= await fetch.post({
         url: `${apiUrl}/event/set_ticket_payment_status`,
@@ -6091,6 +6096,8 @@ export async function getTicketItemDetail (props: {id?: number, participant_id?:
 
     const doc = `query MyQuery {
         ticket_items(where: {${variables}}) {
+            promo_code_id
+            sender_address
             id
             amount
             chain
@@ -6136,8 +6143,8 @@ export interface PromoCode {
     id?: number
     event_id?: number
     selector_type: string,
+    code: string
     label: string,
-    code: string,
     receiver_address: string | null,
     discount_type: string,
     discount: number,
@@ -6178,7 +6185,7 @@ export async function queryPromoCodes (props: {event_id: number}) {
     return res.promo_codes as PromoCode[]
 }
 
-export async function queryTicketItems (props: {event_id?: number, participant_id?: number, order_number?: string, profile_id?: number}) {
+export async function queryTicketItems (props: {event_id?: number, participant_id?: number, order_number?: string, profile_id?: number, promo_code_id?: number}) {
     let variables = ''
     if (props.event_id) {
         variables += `event_id: {_eq: ${props.event_id}}, `
@@ -6196,8 +6203,14 @@ export async function queryTicketItems (props: {event_id?: number, participant_i
         variables += `profile_id: {_eq: ${props.profile_id}}, `
     }
 
+    if (props.promo_code_id) {
+        variables += `promo_code_id: {_eq: ${props.promo_code_id}}, `
+    }
+
     const doc = `query MyQuery {
         ticket_items(where: {${variables}}) {
+            promo_code_id
+            sender_address
             id
             amount
             chain
@@ -6211,9 +6224,16 @@ export async function queryTicketItems (props: {event_id?: number, participant_i
             status
             ticket_id
             ticket_price
+            created_at
             txhash
             payment_method_id
             order_number
+            profile {
+                id,
+                username,
+                nickname,
+                image_url
+            }
         }
     }`
 
@@ -6228,6 +6248,18 @@ export async function getStripeApiKey(props: {event_id: number}) {
     })
 
     return res.data.app_key as string
+}
+
+export async function getPromoCode(props: {id: number, auth_token: string}) {
+    checkAuth(props)
+
+    const res: any = await fetch.get({
+        url: `${apiUrl}/event/get_promo_code`,
+        data: props
+    })
+
+    return res.data.code as string
+
 }
 
 
