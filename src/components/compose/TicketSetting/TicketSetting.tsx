@@ -89,7 +89,7 @@ function Ticket({creator, ...props}: {
 
         if (!chain || !token) {
             // 没有更多的支付方式
-            showToast('No more payment method')
+            showToast('No more payment methods')
             return
         }
 
@@ -317,16 +317,32 @@ function Ticket({creator, ...props}: {
                                         getValueLabel={(option) => {
                                             return <span>{(option.option as any).chain}</span>
                                         }}
+                                        filterOptions={(options: any) => {
+                                           return options.filter((option: PaymentSettingChain) => {
+                                               const available = option.tokenList.filter((token) => {
+                                                    return !props.ticket.payment_methods!.some((p) => {
+                                                         return p.token_address === token.contract
+                                                    })
+                                               })
+
+                                               return !!available.length
+                                            })
+                                        }}
                                         value={[payments[index].chain] as any}
                                         clearable={false}
                                         searchable={false}
                                         options={paymentTokenList}
                                         onChange={(params) => {
+                                            const targetToken = (params.option as any).tokenList.find((t: PaymentSettingToken) => {
+                                                const currPaymentToken = props.ticket.payment_methods?.map((method) => method.token_address) || []
+                                                return !currPaymentToken.includes(t.contract)
+                                            })
+
                                             handleChangePayment({
                                                 ...payment,
                                                 chain: (params.option as any).id,
-                                                token_name: (params.option as any).tokenList[0].id,
-                                                token_address: (params.option as any).tokenList[0].contract,
+                                                token_name: targetToken.id,
+                                                token_address: targetToken.contract,
                                             }, index)
                                         }}
                                     />
