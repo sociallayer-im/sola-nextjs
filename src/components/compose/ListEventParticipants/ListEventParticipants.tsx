@@ -1,11 +1,12 @@
 import {useContext, useEffect, useState} from 'react'
-import {Participants, unJoinEvent, eventCheckIn, Ticket} from "@/service/solas";
+import {Participants, unJoinEvent, eventCheckIn, Ticket, TicketItem} from "@/service/solas";
 import usePicture from "../../../hooks/pictrue";
 import LangContext from "../../provider/LangProvider/LangContext";
 import UserContext from "../../provider/UserProvider/UserContext";
 import DialogsContext from "../../provider/DialogProvider/DialogsContext";
 import styles from './ListEventParticipants.module.scss'
 import Link from "next/link";
+import copy from "@/utils/copy";
 
 interface ListCheckinUserProps {
     participants: Participants[],
@@ -15,6 +16,7 @@ interface ListCheckinUserProps {
     onChecked?: (participants: Participants) => any
     showDownload?: boolean
     tickets?: Ticket[]
+    ticketItems?: TicketItem[]
 }
 
 function ListEventParticipants(props: ListCheckinUserProps) {
@@ -30,6 +32,13 @@ function ListEventParticipants(props: ListCheckinUserProps) {
     useEffect(() => {
         setParticipants(props.participants)
     }, [props.participants])
+
+    const handleCopy = (text: string) => {
+        if (!text) return
+        copy(text)
+        showToast('Copied')
+    }
+
 
     const handleCheckin = async (item: Participants) => {
         if (!user.id) return
@@ -125,6 +134,9 @@ function ListEventParticipants(props: ListCheckinUserProps) {
             participants.map((item, index) => {
                 const checked = item.status === 'checked'
                 const ticket = (props.tickets || []).find(ticket => ticket.id === item.ticket_id)
+                const profileTicketItem = props.ticketItems?.find(ti => {
+                    return ti.event_id === props.eventId && ti.profile_id === item.profile.id
+                })
 
                 return <div className={styles['user-list-item']} key={index}>
                     <Link href={item.profile.username ? `/profile/${item.profile.username}` : ''} className={styles['left']}
@@ -132,7 +144,16 @@ function ListEventParticipants(props: ListCheckinUserProps) {
                         <img src={item.profile.image_url || defaultAvatar(item.profile.id)} alt=""/>
                         <div>
                             <div>{item.profile.nickname || item.profile.username || `user #${item.profile.id}`}</div>
-                            <div className={styles['address']}>{item.profile.address ? shortAddress(item.profile.address) :  ''}</div>
+                            {props.isHost && !!profileTicketItem &&
+                                <div className={styles['address']} onClick={e => {
+                                    e.preventDefault()
+                                    e.stopPropagation()
+                                    handleCopy(profileTicketItem.sender_address || '')
+                                }}>
+                                    {profileTicketItem.sender_address ? shortAddress(profileTicketItem.sender_address) : ''}
+                                </div>
+
+                            }
                         </div>
                     </Link>
                     <div className={styles['right']}>

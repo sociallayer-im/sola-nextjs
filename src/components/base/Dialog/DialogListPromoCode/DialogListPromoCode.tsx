@@ -1,11 +1,12 @@
 import styles from './DialogListPromoCode.module.scss';
 import PageBack from "@/components/base/PageBack";
-import {PromoCode} from "@/service/solas"
+import {getPromoCode, PromoCode, queryTicketItems} from "@/service/solas"
 import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
-import {useContext} from "react";
-import useCopy from "@/hooks/copy";
+import React, {useContext} from "react";
 import DialogPromoDetail from "@/components/base/Dialog/DialogPromoDetail/DialogPromoDetail"
 import * as dayjsLib from "dayjs";
+import userContext from "@/components/provider/UserProvider/UserContext";
+import Empty from "@/components/base/EmptySmall";
 
 const dayjs: any = dayjsLib
 
@@ -14,16 +15,27 @@ export default function DialogListPromoCode(props: {
     promoCodes: PromoCode[],
     selected?: PromoCode
 }) {
-    const {showToast, openDialog} = useContext(DialogsContext)
-    const {copy} = useCopy()
+    const {showToast, openDialog, showLoading} = useContext(DialogsContext)
+    const {user} = useContext(userContext)
 
-    const openDialogPromoDetail = (code: PromoCode) => {
-        openDialog({
-            content: (close: any) => {
-                return <DialogPromoDetail promoCode={code} close={close}/>
-            },
-            size: ['100%', '100%']
-        })
+    const openDialogPromoDetail = async (code: PromoCode) => {
+        const unload = showLoading()
+        try {
+            const codeStr = await getPromoCode({id: code.id!, auth_token: user.authToken || ''})
+            const history = await queryTicketItems({promo_code_id: code.id!})
+
+            openDialog({
+                content: (close: any) => {
+                    return <DialogPromoDetail history={history} promoCode={code} close={close} code={codeStr}/>
+                },
+                size: ['100%', '100%']
+            })
+        } catch (e: any) {
+            console.error(e)
+            showToast('Access denied')
+        } finally {
+            unload()
+        }
     }
 
 
@@ -34,7 +46,7 @@ export default function DialogListPromoCode(props: {
 
             <div className={styles['body']}>
                 <div className={styles['list']}>
-                    { props.promoCodes.map(p => {
+                    {props.promoCodes.map(p => {
                         let discount = ''
                         if (p.discount_type === 'ratio') {
                             discount = `${100 - p.discount / 100}% off`
@@ -46,7 +58,8 @@ export default function DialogListPromoCode(props: {
                             openDialogPromoDetail(p)
                         }}>
                             <div>
-                                <div className={styles['info']}>{discount}, {dayjs(p.expiry_time).format('MMM DD, YYYY')}</div>
+                                <div
+                                    className={styles['info']}>{discount}, {dayjs(p.expiry_time).format('MMM DD, YYYY')}</div>
                                 <div className={styles['memo']}>{p.label}</div>
                             </div>
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
@@ -58,6 +71,12 @@ export default function DialogListPromoCode(props: {
                         </div>
                     })}
                 </div>
+
+                { !props.promoCodes.length &&
+                    <div className={styles['empty']}>
+                        <Empty text={'No data'}/>
+                    </div>
+                }
             </div>
         </div>
     </div>
