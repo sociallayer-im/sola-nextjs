@@ -286,6 +286,7 @@
   flex-flow: row nowrap;
   align-items: center;
   font-weight: 600;
+  text-transform:capitalize;
 
   .icon {
     position: relative;
@@ -353,6 +354,7 @@
   line-height: normal;
   letter-spacing: 0.32px;
   margin-bottom: 12px;
+  margin-top: 30px;
 
   .promo-title {
     margin-bottom: 4px;
@@ -387,4 +389,60 @@
   font-size: 12px;
   color: #FF4D4F;
   margin-top: 6px;
+}
+
+
+.payment-tab {
+  border-radius: 8px;
+  background: var(--Fill-2-Medium, #F5F8F6);
+  display: flex;
+  padding: 4px;
+  align-items: center;
+  margin-bottom: 12px;
+
+  > div {
+    flex: 1;
+    border-radius: 6px;
+    display: flex;
+    height: 36px;
+    padding: 7px 18px;
+    justify-content: center;
+    align-items: center;
+    color: var(--Text-2-Secondary, #7B7C7B);
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 22px;
+    box-sizing: border-box;
+    cursor: pointer;
+  }
+
+  > div.active {
+    background: var(--Fill-1-Light-Disabled, #fff);
+    box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.05);
+    color: var(--Text-4-Headline, #272928);
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 22px; /* 157.143% */
+
+  }
+}
+
+.select-bar {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+
+  >div {
+    flex: 1;
+  }
+}
+
+.select-token {
+  margin-left: 12px;
+}
+
+.split {
+  border-bottom: 1px solid #f1f1f1;
+  margin-top: 16px;
 }

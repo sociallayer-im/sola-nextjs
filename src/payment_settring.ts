@@ -1,4 +1,21 @@
-export const paymentTokenList = process.env.NEXT_PUBLIC_PAYMENT_SETTING === 'production' ?
+export interface PaymentSettingChain {
+    chain: string,
+    id: string,
+    chainId: number,
+    icon: string,
+    payHub: string,
+    tokenList: PaymentSettingToken[]
+}
+
+export interface PaymentSettingToken {
+    name: string,
+    id: string,
+    contract: string,
+    icon: string,
+    decimals: number
+}
+
+export const paymentTokenList: PaymentSettingChain[] = process.env.NEXT_PUBLIC_PAYMENT_SETTING === 'production' ?
     [
         {
             chain: "Ethereum",
@@ -142,20 +159,20 @@ export const paymentTokenList = process.env.NEXT_PUBLIC_PAYMENT_SETTING === 'pro
                     icon: '/images/usdc_32.webp',
                     decimals: 6
                 },
-                {
-                    name: 'DAI',
-                    id: 'dai',
-                    contract: '0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063',
-                    icon: '/images/mcdDai_32.png',
-                    decimals: 18
-                },
-                {
-                    name: 'TEST',
-                    id: 'TEST',
-                    contract: '0x3e4d99a6Ad210b1806dC8e6790669863D0A490B8',
-                    icon: '/images/tether_32.webp',
-                    decimals: 18
-                },
+                // {
+                //     name: 'DAI',
+                //     id: 'dai',
+                //     contract: '0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063',
+                //     icon: '/images/mcdDai_32.png',
+                //     decimals: 18
+                // },
+                // {
+                //     name: 'TEST',
+                //     id: 'TEST',
+                //     contract: '0x3e4d99a6Ad210b1806dC8e6790669863D0A490B8',
+                //     icon: '/images/tether_32.webp',
+                //     decimals: 18
+                // },
             ]
         },
         {
@@ -224,22 +241,22 @@ export const paymentTokenList = process.env.NEXT_PUBLIC_PAYMENT_SETTING === 'pro
                 }
             ]
         },
-        {
-            chain: 'Fuji Testnet',
-            id: 'fuji',
-            chainId: 43113,
-            icon: '/images/fuji.png',
-            payHub: '0x408e8ef7b90F1356c13aAD15A877162AC259404c',
-            tokenList: [
-                {
-                    name: 'TUSDT',
-                    id: 'tusdt',
-                    contract: '0x70c34957154355a0bF048073eb1d4b7895359743',
-                    icon: '/images/tether_32.webp',
-                    decimals: 6
-                }
-            ]
-        },
+        // {
+        //     chain: 'Fuji Testnet',
+        //     id: 'fuji',
+        //     chainId: 43113,
+        //     icon: '/images/fuji.png',
+        //     payHub: '0x408e8ef7b90F1356c13aAD15A877162AC259404c',
+        //     tokenList: [
+        //         {
+        //             name: 'TUSDT',
+        //             id: 'tusdt',
+        //             contract: '0x70c34957154355a0bF048073eb1d4b7895359743',
+        //             icon: '/images/tether_32.webp',
+        //             decimals: 6
+        //         }
+        //     ]
+        // },
     ]
 
 export const erc20_abi = [{

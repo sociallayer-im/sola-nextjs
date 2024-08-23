@@ -10,18 +10,9 @@ import Erc20TokenPaymentHandler from "@/components/base/Erc20TokenPaymentHandler
 import Erc20TokenApproveHandler from "@/components/base/Erc20TokenApproveHandler/Erc20TokenApproveHandler";
 import Erc20Balance from "@/components/base/Erc20Balance/Erc20Balance";
 import EventDefaultCover from "@/components/base/EventDefaultCover";
-import {
-    Badge,
-    Event,
-    getParticipantDetail, getTicketItemDetail,
-    joinEvent, PromoCode,
-    queryBadgeDetail,
-    queryBadgelet, queryPromoCodes, queryTicketItems,
-    rsvp,
-    Ticket, TicketItem
-} from '@/service/solas'
+import {Badge, Event, PromoCode, queryBadgeDetail, queryBadgelet, queryPromoCodes, rsvp, Ticket} from '@/service/solas'
 import useTime from "@/hooks/formatTime";
-import {paymentTokenList} from "@/payment_settring";
+import {PaymentSettingChain, PaymentSettingToken, paymentTokenList} from "@/payment_settring";
 import UserContext from "@/components/provider/UserProvider/UserContext";
 import useEvent, {EVENT} from "@/hooks/globalEvent";
 import ButtonLoading from "@/components/base/ButtonLoading";
@@ -29,6 +20,10 @@ import {Select} from "baseui/select";
 import {useRouter} from "next/navigation"
 import AppInput from "@/components/base/AppInput";
 
+const shotAddress = (address: string) => {
+    const len = address.length
+    return address.slice(0, 6) + '...' + address.slice(len - 6, len)
+}
 
 function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket }) {
     const {lang} = useContext(LangContext)
@@ -48,7 +43,6 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
     const formatTime = useTime()
 
     const [busy, setBusy] = useState(false)
-    const [paymentIndex, setPaymentIndex] = useState(0)
     const [promoCode, setPromoCode] = useState('')
     const [validPromoCode, setValidPromoCode] = useState<null | PromoCode>(null)
     const [promoCodeError, setPromoCodeError] = useState('')
@@ -67,34 +61,66 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
         }
     }, [user.id, badge])
 
-    const payments = useMemo(() => {
+    interface ChainsOptions extends PaymentSettingChain {
+        label: string
+    }
+
+    const stripePaymentMethod = useMemo(() => {
+        return props.ticket.payment_methods.find(item => item.chain === 'stripe')
+    }, [props.ticket])
+
+    const cryptoChains = useMemo(() => {
         if (props.ticket.payment_methods!.length === 0) return []
-        return props.ticket.payment_methods!.map((payment, index) => {
-            const chain = paymentTokenList.find((chain) => chain.id === payment.chain)
+        let chains: ChainsOptions[] = []
+        props.ticket.payment_methods!
+            .filter(p => p.chain !== 'stripe')
+            .forEach(p => {
+                const chain = paymentTokenList.find(i => i.id === p.chain)
+                if (!!chain && !chains.some(c => c.id === chain.id)) {
+                    chains.push({
+                        ...chain,
+                        label: chain.chain
+                    })
+                }
+            })
+        return chains
+    }, [props.ticket])
+    const [currChain, setCurrChain] = useState<ChainsOptions | null>(cryptoChains[0] || (stripePaymentMethod ? paymentTokenList.find(i => i.id === 'stripe') : null))
 
-            let token: any = undefined
-            if (!!chain) {
-                token = chain.tokenList.find((t: any) => t.id === payment.token_name)
-            }
+    interface TokenOptions extends PaymentSettingToken {
+        label: string
+    }
 
+    const getTokenOptions = (chain: ChainsOptions) => {
+        const targetPayment = props.ticket.payment_methods.filter(item => item.chain === chain.id)
+        if (!targetPayment) return []
+
+        return chain.tokenList.filter((token) => {
+            return targetPayment.some(t => token.id === t.token_name)
+        }).map((token) => {
             return {
-                chain,
-                token,
-                payment,
-                index,
-                label: `${Number(payment.price) / 10 ** (token?.decimals || 0)} ${payment.token_name}`
+                ...token,
+                label: token.id
             }
         })
+    }
+
+    const [currToken, setCurrToken] = useState<TokenOptions | null>(currChain ? getTokenOptions(currChain)[0] : null)
+
+    const currPaymentMethod = useMemo(() => {
+        const res = props.ticket.payment_methods.find((item) => item.chain === currChain?.id && item.token_name === currToken?.id)
+        console.log('currPaymentMethod', res)
+        return res
+    }, [props.ticket, currChain, currToken])
+
+    const StipePayment = useMemo(() => {
+        return props.ticket.payment_methods.find(item => item.chain === 'stripe')
     }, [props.ticket])
 
     useEffect(() => {
         setApproved(false)
         setErrorMsg('')
-    }, [paymentIndex])
-
-    const isStripe = useMemo(() => {
-        return payments[paymentIndex]?.chain?.id === 'stripe'
-    }, [paymentIndex, payments])
+    }, [currPaymentMethod])
 
     useEffect(() => {
         setSoldOut(props.ticket.quantity === 0)
@@ -117,11 +143,6 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
         })
     }
 
-    const shotAddress = (address: string) => {
-        const len = address.length
-        return address.slice(0, 6) + '...' + address.slice(len - 6, len)
-    }
-
     const freePay = async () => {
         const unload = showLoading()
 
@@ -137,7 +158,6 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
             emit(join)
             props.close()
             showToast('Purchase successful')
-
             return join
         } catch (e: any) {
             console.error(e)
@@ -148,12 +168,6 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
     }
 
     const [balance, setBalance] = useState<string | null>(null)
-
-    useEffect(() => {
-        if (hasBadgePermission && payments.length && !!balance && !busy && Number(balance) < Number(payments[paymentIndex].payment.price)) {
-            setErrorMsg('Insufficient balance')
-        }
-    }, [balance, busy, payments, hasBadgePermission])
 
     const removePromoCode = async () => {
         setValidPromoCode(null)
@@ -197,29 +211,65 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
         setValidPromoCode(target)
     }
 
-    const finalPrice = useMemo(() => {
+    const finalPaymentPrice = useMemo(() => {
         let price: number
+        const methodPrice = currPaymentMethod?.price || 0
         if (!validPromoCode) {
-            price = payments![paymentIndex].payment.price
+            price = methodPrice
         } else {
             if (validPromoCode.discount_type === 'ratio') {
-                price = Number(payments![paymentIndex].payment.price || '0') * validPromoCode.discount / 10000
+                price = Number(methodPrice) * validPromoCode.discount / 10000
             } else {
-                price = Number(payments![paymentIndex].payment.price || '0') - (validPromoCode.discount / 100) * 10 ** (payments![paymentIndex]!.token!.decimals || 0)
+                price = Number(methodPrice) - (validPromoCode.discount / 100) * 10 ** (currToken?.decimals || 0)
             }
         }
 
-        if (payments![paymentIndex].chain?.id === 'stripe' && price < 4) {
+        if (currChain?.id === 'stripe' && price < 4) {
             return 0
         } else {
             return Math.max(price, 0)
         }
+    }, [currChain?.id, currPaymentMethod?.price, currToken?.decimals, validPromoCode])
 
-    }, [validPromoCode, paymentIndex, payments])
+    const paymentDiscount = useMemo(() => {
+        return (currPaymentMethod?.price || 0) - finalPaymentPrice
+    }, [currPaymentMethod?.price, finalPaymentPrice])
 
-    const discount = useMemo(() => {
-        return payments[paymentIndex]!.payment.price - finalPrice
-    }, [finalPrice, paymentIndex, payments])
+    useEffect(() => {
+        console.log('==>', hasBadgePermission, !!balance, !stopSales, !soldOut, Number(balance) < Number(finalPaymentPrice))
+        if (
+            hasBadgePermission
+            && !!balance
+            && !stopSales
+            && !soldOut
+            && currPaymentMethod?.chain !== 'stripe'
+            && Number(balance) < Number(finalPaymentPrice)) {
+            setErrorMsg('Insufficient balance')
+        } else {
+            setErrorMsg('')
+        }
+    }, [balance, currPaymentMethod, finalPaymentPrice, hasBadgePermission, soldOut, stopSales])
+
+    const switchToStripe = () => {
+        if (!StipePayment) return
+
+        setErrorMsg('')
+        const stripeChain = paymentTokenList.find(i => i.id === 'stripe')!
+        setCurrChain({...stripeChain, label: stripeChain.chain})
+        setCurrToken({...stripeChain.tokenList[0], label: stripeChain.tokenList[0].id})
+    }
+
+    const switchToCrypto = () => {
+        if (!cryptoChains.length) return
+
+        setErrorMsg('')
+        const method = props.ticket.payment_methods.find(item => item.chain !== 'stripe')
+
+        const chain = paymentTokenList.find(i => i.id === method?.chain)!
+        const token = chain.tokenList.find(i => i.id === method?.token_name)!
+        setCurrChain({...chain, label: chain.chain})
+        setCurrToken({...token, label: token.id})
+    }
 
     return (<div className={styles['dialog-ticket']}>
         <div className={styles['dialog-title']}>
@@ -272,118 +322,161 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
                 }
             </div>
 
-            {!!payments.length &&
+            {!!StipePayment && !!cryptoChains.length &&
+                <div className={styles['payment-tab']}>
+                    <div onClick={switchToCrypto}
+                         className={currChain?.id !== 'stripe' ? styles['active'] : ''}>
+                        Cypto
+                    </div>
+                    <div onClick={switchToStripe}
+                         className={currChain?.id === 'stripe' ? styles['active'] : ''}>Credit/Debit
+                        Card
+                    </div>
+                </div>
+            }
+
+            {!!props.ticket.payment_methods.length && !!currPaymentMethod &&
                 <>
-                    <div className={styles['payment-title']}>Payment</div>
-                    <div className={styles['price']}>
-                        <div className={styles['label']}>Price</div>
-                    </div>
-                    <div className={styles['select']}>
-                        <Select
-                            disabled={busy}
-                            value={[props.ticket.payment_methods[paymentIndex]] as any}
-                            options={payments}
-                            clearable={false}
-                            searchable={false}
+                    {currChain?.id !== 'stripe' &&
+                        <>
+                            <div className={styles['price']}>
+                                <div className={styles['label']}>Main chain</div>
+                            </div>
+                            <div className={styles['select-bar']}>
+                                <div className={styles['select']}>
+                                    <Select
+                                        disabled={busy}
+                                        value={[currChain] as any}
+                                        options={cryptoChains}
+                                        clearable={false}
+                                        searchable={false}
 
-                            getValueLabel={() => {
-                                return <div className={styles['payment-label']}>
-                                    <div className={styles['icon']}>
-                                        <img className={styles['token']} src={payments![paymentIndex]!.token!.icon}
-                                             alt=""/>
-                                        <img className={styles['chain']} src={payments![paymentIndex]!.chain!.icon}
-                                             alt=""/>
-                                    </div>
-                                    <span> {Number(props.ticket.payment_methods[paymentIndex]!.price || '0') / (10 ** payments![paymentIndex]!.token!.decimals || 0)}</span>
-                                    <span>{payments[paymentIndex]!.token.name.toUpperCase()}</span>
+                                        getValueLabel={() => {
+                                            return <div className={styles['payment-label']}>
+                                                <div className={styles['icon']}>
+                                                    <img className={styles['token']} src={currChain!.icon}
+                                                         alt=""/>
+                                                </div>
+                                                <span> {currChain?.chain}</span>
+                                            </div>
+                                        }}
+
+                                        getOptionLabel={({option}: any) => {
+                                            return <div className={styles['payment-label']}>
+                                                <div className={styles['icon']}>
+                                                    <img className={styles['token']} src={option!.icon}
+                                                         alt=""/>
+                                                </div>
+                                                <span> {option?.chain}</span>
+                                            </div>
+                                        }}
+
+                                        onChange={({option}: any) => {
+                                            setCurrChain(option)
+                                            setCurrToken(getTokenOptions(option)[0])
+                                        }}
+                                    />
                                 </div>
-                            }}
 
-                            getOptionLabel={({option}: any) => {
-                                return <div className={styles['payment-label']}>
-                                    <div className={styles['icon']}>
-                                        <img className={styles['token']} src={option.token.icon} alt=""/>
-                                        <img className={styles['chain']} src={option.chain.icon} alt=""/>
-                                    </div>
-                                    {option.payment.price / 10 ** (option.token.decimals)} {option.payment.token_name.toUpperCase()}
-                                </div>
-                            }}
+                                <div className={`${styles['select']} ${styles['select-token']}`}>
+                                    <Select
+                                        disabled={busy}
+                                        value={[currToken] as any}
+                                        options={getTokenOptions(currChain!)}
+                                        clearable={false}
+                                        searchable={false}
 
-                            onChange={({option}: any) => {
-                                setPaymentIndex(option.index as any)
-                            }}
-                        />
-                    </div>
+                                        getValueLabel={() => {
+                                            return <div className={styles['payment-label']}>
+                                                <div className={styles['icon']}>
+                                                    <img className={styles['token']} src={currToken!.icon}
+                                                         alt=""/>
+                                                </div>
+                                                <span> {currToken!.id.toUpperCase()}</span>
+                                            </div>
+                                        }}
 
-                    {!!props.ticket.payment_methods[paymentIndex].receiver_address && !isStripe &&
-                        <div className={styles['receiver']}>
-                            <div className={styles['receiver-des']}>Payments will be sent to</div>
-                            <div className={styles['address']}>
-                                <div className={styles['left']}>
-                                    {
-                                        payments[paymentIndex].chain &&
-                                        <img src={payments![paymentIndex!].chain!.icon} alt=""/>
-                                    }
-                                    <div>{shotAddress(props.ticket.payment_methods[paymentIndex].receiver_address!)}</div>
-                                </div>
-                                <div className={styles['copy']}
-                                     onClick={e => {
-                                         copyWithDialog(props.ticket.payment_methods[paymentIndex].receiver_address!)
-                                     }}>
-                                    {lang['Profile_Show_Copy']}
+                                        getOptionLabel={({option}: any) => {
+                                            return <div className={styles['payment-label']}>
+                                                <div className={styles['icon']}>
+                                                    <img className={styles['token']} src={option!.icon}
+                                                         alt=""/>
+                                                </div>
+                                                <span> {option!.id.toUpperCase()}</span>
+                                            </div>
+                                        }}
+
+                                        onChange={({option}: any) => {
+                                            setCurrToken(option)
+                                        }}
+                                    />
                                 </div>
                             </div>
-                        </div>
+                        </>
                     }
 
-                    {
-                        finalPrice === props.ticket.payment_methods[paymentIndex]!.price ?
+                    {currPaymentMethod.chain !== 'stripe' &&
+                        <div className={styles['split']}/>
+                    }
+                    <div className={styles['payment-title']}>Payment</div>
+                    {finalPaymentPrice === currPaymentMethod?.price ?
+                        <div className={styles['balance']}>
+                            <div className={styles['label']}>Total</div>
+                            <div
+                                className={styles['total']}>{finalPaymentPrice / (10 ** (currToken?.decimals || 0))} {currToken?.name} </div>
+                        </div> :
+                        <>
                             <div className={styles['balance']}>
-                                <div className={styles['label']}>Total</div>
+                                <div className={styles['label']}>Original Price</div>
+                                <div>{Number(currPaymentMethod!.price || '0') / (10 ** (currToken?.decimals || 0))} {currToken?.name}</div>
+                            </div>
+                            <div className={styles['balance']}>
+                                <div className={styles['label']}></div>
+                                <div>-{paymentDiscount / (10 ** (currToken?.decimals || 0))} {currToken?.name}</div>
+                            </div>
+                            <div className={styles['balance']}>
+                                <div className={styles['label']}>Final Price</div>
                                 <div
-                                    className={styles['total']}>{Number(props.ticket.payment_methods[paymentIndex]!.price || '0') / (10 ** payments![paymentIndex]!.token!.decimals || 0)} {payments[paymentIndex]!.token!.name?.toUpperCase()}</div>
-                            </div> :
-                            <>
-                                <div className={styles['balance']}>
-                                    <div className={styles['label']}>Original Price</div>
-                                    <div>{Number(props.ticket.payment_methods[paymentIndex]!.price || '0') / (10 ** payments![paymentIndex]!.token!.decimals || 0)} {payments[paymentIndex]!.token!.name?.toUpperCase()}</div>
-                                </div>
-                                <div className={styles['balance']}>
-                                    <div className={styles['label']}></div>
-                                    <div>-{discount / (10 ** payments![paymentIndex]!.token!.decimals || 0)} {payments[paymentIndex]!.token!.name?.toUpperCase()}</div>
-                                </div>
-                                <div className={styles['balance']}>
-                                    <div className={styles['label']}>Final Price</div>
-                                    <div
-                                        className={styles['total']}>{finalPrice / (10 ** payments![paymentIndex]!.token!.decimals || 0)} {payments[paymentIndex]!.token!.name?.toUpperCase()}</div>
-                                </div>
-                            </>
+                                    className={styles['total']}>{finalPaymentPrice / (10 ** (currToken?.decimals || 0))} {currToken?.name}</div>
+                            </div>
+                        </>
                     }
-
 
                     <div className={styles['balance']}>
-                        {!isStripe &&
+                        {currPaymentMethod?.chain !== 'stripe' && !!currToken && !!currChain &&
                             <>
                                 <div className={styles['label']}>Balance</div>
                                 <div className={styles['value']}>
                                     <img style={{width: '18px', height: '18px', borderRadius: '50%'}}
-                                         src={payments![paymentIndex]!.token.icon} alt=""/>
+                                         src={currToken.icon} alt=""/>
                                     {
                                         !!address ? <Erc20Balance
                                                 onChange={(balance) => {
+                                                    console.log('set balance', balance)
                                                     setBalance(balance)
                                                 }}
-                                                chanId={payments![paymentIndex]!.chain!.chainId}
+                                                chanId={currChain!.chainId}
                                                 account={address}
-                                                token={payments[paymentIndex]!.token!.contract}
-                                                decimals={payments[paymentIndex]!.token!.decimals}/>
+                                                token={currToken!.contract}
+                                                decimals={currToken!.decimals}/>
                                             : '--'
                                     }
-                                    <span>{payments[paymentIndex]!.token!.name?.toUpperCase()}</span>
+                                    <span>{currToken.name.toUpperCase()}</span>
                                 </div>
                             </>
                         }
                     </div>
+
+                    {currPaymentMethod?.chain !== 'stripe' &&
+                        <div style={{color: '#7B7C7B'}}>Payments will be sent to: <span style={{color: '#272928'}}>
+                        {shotAddress(currPaymentMethod?.receiver_address || '')}
+                            <i onClick={e => {
+                                copyWithDialog(currPaymentMethod?.receiver_address || '')
+                            }}
+                               className={'icon-copy'} style={{marginLeft: '4px', cursor: "pointer"}}/>
+                    </span>
+                        </div>
+                    }
                 </>
             }
 
@@ -430,8 +523,8 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
                 && !soldOut
                 && !!user.id
                 && hasBadgePermission
-                && !!payments.length
-                && !isStripe &&
+                && !!cryptoChains.length
+                && currPaymentMethod?.chain !== 'stripe' &&
                 <AppButton special onClick={e => {
                     connectWallet()
                 }}>{'Connect Wallet'}</AppButton>
@@ -439,33 +532,34 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
 
             {
                 !!user.id
-                && isStripe
+                && currPaymentMethod?.chain === 'stripe'
                 && !soldOut
                 && !stopSales
                 && <AppButton special onClick={e => {
-                    router.push(`/stripe-pay?ticket=${props.ticket.id}&methodid=${props.ticket.payment_methods[paymentIndex].id}${validPromoCode?.code ? `&promo=${validPromoCode.code}` : ''}`)
+                    router.push(`/stripe-pay?ticket=${props.ticket.id}&methodid=${currPaymentMethod!.id}${validPromoCode?.code ? `&promo=${validPromoCode.code}` : ''}`)
                     props.close()
                 }}>{'Go to pay'}</AppButton>
             }
 
             {!!address
-                && !!payments.length
-                && approved
+                && !!cryptoChains.length
+                && !!currPaymentMethod
                 && !stopSales
                 && !soldOut
                 && !!user.id
                 && hasBadgePermission
-                && !isStripe &&
+                && currPaymentMethod?.chain !== 'stripe'
+                && (approved || finalPaymentPrice === 0) &&
                 <Erc20TokenPaymentHandler
                     promo_code={validPromoCode?.code || undefined}
                     eventId={props.event.id}
-                    methodId={props.ticket.payment_methods[paymentIndex]!.id!}
+                    methodId={currPaymentMethod.id!}
                     ticketId={props.ticket.id}
-                    token={payments![paymentIndex]!.token!.contract}
-                    to={props.ticket.payment_methods[paymentIndex]!.receiver_address!}
-                    amount={finalPrice.toString() || '0'}
-                    decimals={payments![paymentIndex]!.token!.decimals}
-                    chainId={payments![paymentIndex]!.chain!.chainId}
+                    token={currToken!.contract}
+                    to={currPaymentMethod.receiver_address!}
+                    amount={finalPaymentPrice.toString() || '0'}
+                    decimals={currToken!.decimals}
+                    chainId={currChain!.chainId}
                     onErrMsg={(errMsg: string) => {
                         emit('payment-error')
                         setErrorMsg(errMsg)
@@ -503,21 +597,21 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
             }
 
             {!!address
-                && !!payments.length
+                && !!cryptoChains.length
+                && !!currPaymentMethod
                 && !approved
                 && !soldOut
                 && !stopSales
                 && !!user.id
+                && finalPaymentPrice !== 0
                 && hasBadgePermission
-                && !isStripe &&
+                && currPaymentMethod?.chain !== 'stripe' &&
                 <Erc20TokenApproveHandler
-                    methodId={props.ticket.payment_methods[paymentIndex]!.id!}
                     ref={reFleshAllowanceRef}
-                    token={payments![paymentIndex]!.token!.contract}
-                    to={props.ticket.payment_methods[paymentIndex]!.receiver_address!}
-                    amount={finalPrice.toString() || '0'}
-                    decimals={payments![paymentIndex]!.token!.decimals}
-                    chainId={payments![paymentIndex]!.chain!.chainId}
+                    token={currToken!.contract}
+                    amount={finalPaymentPrice.toString() || '0'}
+                    decimals={currToken!.decimals}
+                    chainId={currChain!.chainId}
                     onErrMsg={(errMsg: string) => {
                         setErrorMsg(errMsg)
                     }}
@@ -541,7 +635,7 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
                 />
             }
 
-            {!!user.id && !payments.length && hasBadgePermission && !stopSales && !soldOut &&
+            {!!user.id && !props.ticket.payment_methods.length && hasBadgePermission && !stopSales && !soldOut &&
                 <AppButton special onClick={e => {
                     freePay()
                 }}>{lang['Get_A_Ticket']}</AppButton>
