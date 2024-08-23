@@ -325,7 +325,7 @@ function Ticket({creator, ...props}: {
                                                     })
                                                })
 
-                                               return !!available.length
+                                               return !!available.length || option.id === payment.chain
                                             })
                                         }}
                                         value={[payments[index].chain] as any}
@@ -335,7 +335,7 @@ function Ticket({creator, ...props}: {
                                         onChange={(params) => {
                                             const targetToken = (params.option as any).tokenList.find((t: PaymentSettingToken) => {
                                                 const currPaymentToken = props.ticket.payment_methods?.map((method) => method.token_address) || []
-                                                return !currPaymentToken.includes(t.contract)
+                                                return !currPaymentToken.includes(t.contract) || t.contract === payment.token_address
                                             })
 
                                             handleChangePayment({
@@ -356,7 +356,8 @@ function Ticket({creator, ...props}: {
                                         }}
                                         filterOptions={(options: any) => {
                                             return options.filter((option: any) => {
-                                                return !props.ticket.payment_methods!.some((p) => {
+                                                return  payment.token_address === option.contract
+                                                    || !props.ticket.payment_methods!.some((p) => {
                                                     return p.token_address === option.contract
                                                 })
                                             })
