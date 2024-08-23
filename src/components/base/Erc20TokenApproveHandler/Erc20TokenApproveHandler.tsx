@@ -10,9 +10,7 @@ function Erc20TokenApproveHandler(
         token: string
         decimals: number
         amount: string
-        to: string
         chainId: number
-        methodId: number
         onResult?: (needApprove: boolean, hash?: string) => any
         onErrMsg?: (message: string) => any
     }, ref: any
@@ -21,7 +19,7 @@ function Erc20TokenApproveHandler(
     const {data: walletClient}: any = useWalletClient({chainId: props.chainId})
     const {address} = useAccount()
     const {showToast} = useContext(DialogsContext)
-    const [busy, setBusy] = useState(false)
+    const [busy, setBusy] = useState(true)
     const {switchNetworkAsync} = useSwitchNetwork()
     const {chain} = useNetwork()
 
