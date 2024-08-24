@@ -7,6 +7,7 @@ import DialogPromoDetail from "@/components/base/Dialog/DialogPromoDetail/Dialog
 import * as dayjsLib from "dayjs";
 import userContext from "@/components/provider/UserProvider/UserContext";
 import Empty from "@/components/base/EmptySmall";
+import LangContext from "@/components/provider/LangProvider/LangContext";
 
 const dayjs: any = dayjsLib
 
@@ -17,6 +18,7 @@ export default function DialogListPromoCode(props: {
 }) {
     const {showToast, openDialog, showLoading} = useContext(DialogsContext)
     const {user} = useContext(userContext)
+    const {lang} = useContext(LangContext)
 
     const openDialogPromoDetail = async (code: PromoCode) => {
         const unload = showLoading()
@@ -41,7 +43,7 @@ export default function DialogListPromoCode(props: {
 
     return <div className={styles['dialog']}>
         <div className={styles['center']}>
-            <PageBack title={'Generated History'}
+            <PageBack title={lang['Generated_History']}
                       onClose={props.close}/>
 
             <div className={styles['body']}>

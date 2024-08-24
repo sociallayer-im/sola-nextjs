@@ -29,7 +29,6 @@ import ButtonLoading from "@/components/base/ButtonLoading";
 import {Select} from "baseui/select";
 import {useRouter} from "next/navigation"
 import AppInput from "@/components/base/AppInput";
-import {interfaceDeclaration} from "@babel/types";
 
 const shotAddress = (address: string) => {
     const len = address.length
@@ -278,7 +277,7 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
 
     return (<div className={styles['dialog-ticket']}>
         <div className={styles['dialog-title']}>
-            <div>{'Event'}</div>
+            <div>{lang['Event']}</div>
             {!busy &&
                 <svg
                     onClick={props.close}
@@ -307,14 +306,14 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
         </div>
 
         <div className={styles['scroll']}>
-            <div className={styles['type-name-title']}>Ticket type</div>
+            <div className={styles['type-name-title']}>{lang['Ticket_Type']}</div>
             <div className={styles['type-name']}>{props.ticket.title}</div>
 
             <div className={styles['detail']}>
                 {
                     !!badge &&
                     <div className={styles['badge']}>
-                        <div className={styles['title']}>{'Need to have badge'}</div>
+                        <div className={styles['title']}>{lang['Need_To_Have_Badge']}</div>
                         <div className={styles['info']}>
                             <div className={styles['name']}>
                                 <img src={badge.image_url} alt=""/>
@@ -331,11 +330,10 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
                 <div className={styles['payment-tab']}>
                     <div onClick={switchToCrypto}
                          className={currChain?.id !== 'stripe' ? styles['active'] : ''}>
-                        Cypto
+                        {lang['Crypto']}
                     </div>
                     <div onClick={switchToStripe}
-                         className={currChain?.id === 'stripe' ? styles['active'] : ''}>Credit/Debit
-                        Card
+                         className={currChain?.id === 'stripe' ? styles['active'] : ''}>{lang['Credit_Debit_Card']}
                     </div>
                 </div>
             }
@@ -345,7 +343,7 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
                     {currChain?.id !== 'stripe' &&
                         <>
                             <div className={styles['price']}>
-                                <div className={styles['label']}>Main chain</div>
+                                <div className={styles['label']}>{lang['Main_Chain']}</div>
                             </div>
                             <div className={styles['select-bar']}>
                                 <div className={styles['select']}>
@@ -423,16 +421,16 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
                     {currPaymentMethod.chain !== 'stripe' &&
                         <div className={styles['split']}/>
                     }
-                    <div className={styles['payment-title']}>Payment</div>
+                    <div className={styles['payment-title']}>{lang['Payment']}</div>
                     {finalPaymentPrice === currPaymentMethod?.price ?
                         <div className={styles['balance']}>
-                            <div className={styles['label']}>Total</div>
+                            <div className={styles['label']}>{lang['Total']}</div>
                             <div
                                 className={styles['total']}>{finalPaymentPrice / (10 ** (currToken?.decimals || 0))} {currToken?.name} </div>
                         </div> :
                         <>
                             <div className={styles['balance']}>
-                                <div className={styles['label']}>Original Price</div>
+                                <div className={styles['label']}>{lang['Original_Price']}</div>
                                 <div>{Number(currPaymentMethod!.price || '0') / (10 ** (currToken?.decimals || 0))} {currToken?.name}</div>
                             </div>
                             <div className={styles['balance']}>
@@ -440,7 +438,7 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
                                 <div>-{paymentDiscount / (10 ** (currToken?.decimals || 0))} {currToken?.name}</div>
                             </div>
                             <div className={styles['balance']}>
-                                <div className={styles['label']}>Final Price</div>
+                                <div className={styles['label']}>{lang['Final_Price']}</div>
                                 <div
                                     className={styles['total']}>{finalPaymentPrice / (10 ** (currToken?.decimals || 0))} {currToken?.name}</div>
                             </div>
@@ -450,7 +448,7 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
                     <div className={styles['balance']}>
                         {currPaymentMethod?.chain !== 'stripe' && !!currToken && !!currChain &&
                             <>
-                                <div className={styles['label']}>Balance</div>
+                                <div className={styles['label']}>{lang['Balance']}</div>
                                 <div className={styles['value']}>
                                     <img style={{width: '18px', height: '18px', borderRadius: '50%'}}
                                          src={currToken.icon} alt=""/>
@@ -473,7 +471,7 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
                     </div>
 
                     {currPaymentMethod?.chain !== 'stripe' &&
-                        <div style={{color: '#7B7C7B', marginBottom: '12px'}}>Payments will be sent to: <span style={{color: '#272928'}}>
+                        <div style={{color: '#7B7C7B', marginBottom: '12px'}}>{lang['Payments_Will_Be_Sent_To']} <span style={{color: '#272928'}}>
                         {shotAddress(currPaymentMethod?.receiver_address || '')}
                             <i onClick={e => {
                                 copyWithDialog(currPaymentMethod?.receiver_address || '')
@@ -487,7 +485,7 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
 
             {!!props.ticket.payment_methods.length && !soldOut && !stopSales &&
                 <div className={styles['promo']}>
-                    <div className={styles['promo-title']}>Input the promo code</div>
+                    <div className={styles['promo-title']}>{lang['Input_The_Promo_Code']}</div>
                     <div className={styles['promo-input']}>
                         <AppInput value={promoCode}
                                   onChange={e => {
@@ -495,11 +493,11 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
                                   }}
                                   placeholder={'Promo code'}/>
                         {!!promoCode && !validPromoCode &&
-                            <AppButton onClick={checkPromoCode}>Confirm</AppButton>
+                            <AppButton onClick={checkPromoCode}>{lang['Verify']}</AppButton>
                         }
                         {
                             !!validPromoCode &&
-                            <AppButton onClick={removePromoCode}>Remove</AppButton>
+                            <AppButton onClick={removePromoCode}>{lang['Remove']}</AppButton>
                         }
                     </div>
                     <div className={styles['errorMsg']}>{promoCodeError}</div>

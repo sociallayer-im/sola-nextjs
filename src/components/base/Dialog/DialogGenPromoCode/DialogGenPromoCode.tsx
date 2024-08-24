@@ -10,7 +10,7 @@ import AppButton from "@/components/base/AppButton/AppButton"
 import DialogsContext from "@/components/provider/DialogProvider/DialogsContext"
 import userContext from "@/components/provider/UserProvider/UserContext"
 import DialogListPromoCode from "@/components/base/Dialog/DialogListPromoCode/DialogListPromoCode"
-import DialogPromoDetail from "@/components/base/Dialog/DialogPromoDetail/DialogPromoDetail"
+import LangContext from "@/components/provider/LangProvider/LangContext"
 
 const dayjs: any = dayjsLib
 
@@ -38,6 +38,7 @@ export default function DialogGenPromoCode(props: {
     const [busy, setBusy] = useState(false)
     const {showLoading, showToast, openDialog} = useContext(DialogsContext)
     const {user} = useContext(userContext)
+    const {lang} = useContext(LangContext)
 
     // errors
     const [discountError, setDiscountError] = useState('')
@@ -113,8 +114,8 @@ export default function DialogGenPromoCode(props: {
 
     return <div className={styles['dialog']}>
         <div className={styles['center']}>
-            <PageBack title={'Promo code'} onClose={props.close}
-                      menu={() => <div onClick={handleShowList} style={{fontWeight: 600, cursor: 'pointer'}}>Generated History</div>}/>
+            <PageBack title={lang['Promo_Code']} onClose={props.close}
+                      menu={() => <div onClick={handleShowList} style={{fontWeight: 600, cursor: 'pointer'}}>{lang['Generated_History']}</div>}/>
             <div className={styles['body']}>
                 <div className={`${styles['row']} ${styles['item']}`}>
                     <div style={{cursor: 'pointer'}} onClick={(e: any) => {
@@ -127,7 +128,7 @@ export default function DialogGenPromoCode(props: {
                         <AppRadio checked={promoCode.discount_type === 'ratio'}/>
                     </div>
                     <div className={styles['row']}>
-                        <div className={styles['title']}>Discount off</div>
+                        <div className={styles['title']}>{lang['Discount_Off']}</div>
                         {promoCode.discount_type === 'ratio' &&
                             <>
                                 <div className={styles['input']}>
@@ -157,7 +158,7 @@ export default function DialogGenPromoCode(props: {
                         <AppRadio checked={promoCode.discount_type === 'amount'}/>
                     </div>
                     <div className={styles['row']}>
-                        <div className={styles['title']}>Amount off</div>
+                        <div className={styles['title']}>{lang['Amount_Off']}</div>
                         {promoCode.discount_type === 'amount' &&
                             <>
                                 <div className={styles['input']}>
@@ -178,7 +179,7 @@ export default function DialogGenPromoCode(props: {
                 <div className={styles['error']}>{discountError}</div>
 
                 <div className={`${styles['row']} ${styles['item']}`} style={{marginTop: '30px'}}>
-                    <div className={styles['title']}>can be used</div>
+                    <div className={styles['title']}>{lang['Can_Be_Used']}</div>
                     <svg onClick={minusOne}
                          className={`${styles['btn']} ${promoCode.max_allowed_usages === 1 ? styles['disable'] : ''}`}
                          width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -209,12 +210,12 @@ export default function DialogGenPromoCode(props: {
                     </svg>
 
 
-                    <div className={styles['title']}>Time (s)</div>
+                    <div className={styles['title']}>{lang['Times']}</div>
                 </div>
                 <div className={styles['error']}>{useTimesError}</div>
 
                 <div className={`${styles['row']} ${styles['item']}`} style={{marginTop: '30px'}}>
-                    <div className={styles['title']}>Valid date</div>
+                    <div className={styles['title']}>{lang['Valid_Date']}</div>
                     <div className={styles['input']} style={{width: '160px'}}>
                         <div className={styles['date-picker']}>
                             <svg xmlns="http://www.w3.org/2000/svg" width="17" height="16" viewBox="0 0 17 16"
@@ -240,7 +241,7 @@ export default function DialogGenPromoCode(props: {
                 </div>
 
                 <div style={{marginTop: '30px', marginBottom: '12px'}}>
-                    <div className={styles['title']}>Label（Optional）</div>
+                    <div className={styles['title']}>{lang['Label_Optional']}</div>
                 </div>
                 <AppInput
                     placeholder={'Memo will show on the generate discount code List'}
@@ -256,7 +257,7 @@ export default function DialogGenPromoCode(props: {
                     <AppButton kind={'primary'}
                                onClick={handleGenerate}
                                isLoading={busy}
-                    >Generate</AppButton>
+                    >{lang['Generate']}</AppButton>
                 </div>
             </div>
         </div>

@@ -7,6 +7,7 @@ import useCopy from "@/hooks/copy";
 import * as dayjsLib from "dayjs";
 import Empty from "@/components/base/EmptySmall";
 import usePicture from "@/hooks/pictrue";
+import LangContext from "@/components/provider/LangProvider/LangContext";
 
 const dayjs: any = dayjsLib
 
@@ -20,6 +21,7 @@ export default function DialogPromoDetail(props: {
     const {showToast, showLoading} = useContext(DialogsContext)
     const {copy} = useCopy()
     const {defaultAvatar} = usePicture()
+    const {lang} = useContext(LangContext)
 
     const handleCopy = (code: string) => {
         copy(code)
@@ -38,17 +40,17 @@ export default function DialogPromoDetail(props: {
 
     return <div className={styles['dialog']}>
         <div className={styles['center']}>
-            <PageBack title={'Generated History'}
+            <PageBack title={lang['Promo_Code_Detail']}
                       onClose={props.close}/>
 
             <div className={styles['body']}>
                 {
                     <div className={styles['show-detail']}>
-                        <div className={styles['title']}>You’ve generated a {discountType} promo code</div>
-                        <div className={styles['des']}>Please sending to your guest until <span
+                        <div className={styles['title']}>{lang['You_Have_Generated_Code']([discountType])}</div>
+                        <div className={styles['des']}>{lang['Please_Sending_Until']}<span
                             style={{fontWeight: '600'}}>{dayjs(props.promoCode.expiry_time).format('MMM DD, YYYY')}</span>
                         </div>
-                        <div className={styles['des']}>Remaining uses: <span
+                        <div className={styles['des']}>{lang['Remaining_Uses']} <span
                             style={{fontWeight: '600'}}>{props.promoCode.max_allowed_usages - props.promoCode.order_usage_count}</span>
                         </div>
 
@@ -74,7 +76,7 @@ export default function DialogPromoDetail(props: {
                 }
 
                 <div className={styles['list']}>
-                    <div className={styles['list-title']}>History</div>
+                    <div className={styles['list-title']}>{lang['Usage_History']}</div>
                     {
                         !!props.history.length && props.history.map((item, index) => {
                             return <div className={styles['code-item']} key={index}>
