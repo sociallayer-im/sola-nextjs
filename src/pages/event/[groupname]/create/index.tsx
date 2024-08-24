@@ -1172,8 +1172,9 @@ function EditEvent({
                             <div>
                                 <AppButton
                                     onClick={showGenPromoCodeDialog}
-                                    style={{fontSize: '12px!important'}} kind={'primary'} size={'compact'}>Promo
-                                    Code</AppButton>
+                                    style={{fontSize: '12px!important'}} kind={'primary'} size={'compact'}>
+                                    {lang['Promo_Code']}
+                                </AppButton>
                             </div> : null
                         }
                         }
