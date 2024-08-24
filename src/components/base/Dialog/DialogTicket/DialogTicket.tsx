@@ -10,7 +10,17 @@ import Erc20TokenPaymentHandler from "@/components/base/Erc20TokenPaymentHandler
 import Erc20TokenApproveHandler from "@/components/base/Erc20TokenApproveHandler/Erc20TokenApproveHandler";
 import Erc20Balance from "@/components/base/Erc20Balance/Erc20Balance";
 import EventDefaultCover from "@/components/base/EventDefaultCover";
-import {Badge, Event, PromoCode, queryBadgeDetail, queryBadgelet, queryPromoCodes, rsvp, Ticket} from '@/service/solas'
+import {
+    Badge,
+    Event,
+    PromoCode,
+    queryBadgeDetail,
+    queryBadgelet,
+    queryPromoCodes,
+    rsvp,
+    Ticket, ValidPromoCode,
+    verifyPromoCode
+} from '@/service/solas'
 import useTime from "@/hooks/formatTime";
 import {PaymentSettingChain, PaymentSettingToken, paymentTokenList} from "@/payment_settring";
 import UserContext from "@/components/provider/UserProvider/UserContext";
@@ -19,6 +29,7 @@ import ButtonLoading from "@/components/base/ButtonLoading";
 import {Select} from "baseui/select";
 import {useRouter} from "next/navigation"
 import AppInput from "@/components/base/AppInput";
+import {interfaceDeclaration} from "@babel/types";
 
 const shotAddress = (address: string) => {
     const len = address.length
@@ -44,7 +55,9 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
 
     const [busy, setBusy] = useState(false)
     const [promoCode, setPromoCode] = useState('')
-    const [validPromoCode, setValidPromoCode] = useState<null | PromoCode>(null)
+
+
+    const [validPromoCode, setValidPromoCode] = useState<null | ValidPromoCode>(null)
     const [promoCodeError, setPromoCodeError] = useState('')
 
     const reFleshAllowanceRef = useRef<any>(null)
@@ -177,30 +190,22 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
 
     const checkPromoCode = async () => {
         const unload = showLoading()
-        const codes = await queryPromoCodes({event_id: props.event.id})
-        if (!codes.length) {
+        const verify = await verifyPromoCode({event_id: props.event.id, code: promoCode})
+        if (!verify) {
             setPromoCodeError('Invalid promo code')
             setValidPromoCode(null)
             unload()
             return
         }
 
-        const target = codes.find(c => c.code === promoCode)
-        if (!target) {
-            setPromoCodeError('Invalid promo code')
-            setValidPromoCode(null)
-            unload()
-            return
-        }
-
-        if (target.max_allowed_usages === target.order_usage_count) {
+        if (verify.max_allowed_usages === verify.order_usage_count) {
             setPromoCodeError('Promo code has been used up')
             setValidPromoCode(null)
             unload()
             return
         }
 
-        if (new Date(target.expiry_time).getTime() < new Date().getTime()) {
+        if (new Date(verify.expiry_time).getTime() < new Date().getTime()) {
             setPromoCodeError('Promo code has expired')
             setValidPromoCode(null)
             unload()
@@ -208,7 +213,7 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
         }
 
         unload()
-        setValidPromoCode(target)
+        setValidPromoCode(verify)
     }
 
     const finalPaymentPrice = useMemo(() => {
@@ -468,7 +473,7 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
                     </div>
 
                     {currPaymentMethod?.chain !== 'stripe' &&
-                        <div style={{color: '#7B7C7B'}}>Payments will be sent to: <span style={{color: '#272928'}}>
+                        <div style={{color: '#7B7C7B', marginBottom: '12px'}}>Payments will be sent to: <span style={{color: '#272928'}}>
                         {shotAddress(currPaymentMethod?.receiver_address || '')}
                             <i onClick={e => {
                                 copyWithDialog(currPaymentMethod?.receiver_address || '')
@@ -480,7 +485,7 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
                 </>
             }
 
-            {!!props.ticket.payment_methods.length &&
+            {!!props.ticket.payment_methods.length && !soldOut && !stopSales &&
                 <div className={styles['promo']}>
                     <div className={styles['promo-title']}>Input the promo code</div>
                     <div className={styles['promo-input']}>
@@ -579,6 +584,8 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
                         return errorMsg ? <AppButton special onClick={e => {
                                 setErrorMsg('')
                                 setApproved(false)
+                                setValidPromoCode(null)
+                                setPromoCode('')
                                 reFleshAllowanceRef.current && reFleshAllowanceRef.current.reFleshAllowance()
                             }
                             }>{'Retry'}</AppButton>

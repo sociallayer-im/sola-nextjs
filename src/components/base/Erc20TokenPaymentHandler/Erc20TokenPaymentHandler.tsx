@@ -189,9 +189,7 @@ function Erc20TokenPaymentHandler(
 
         } catch (e: any) {
             console.error(e)
-            if (!e.message.includes('rejected')) {
-                props.onErrMsg?.(e.message)
-            }
+            props.onErrMsg?.(e.message)
 
         } finally {
             setTimeout(() => {

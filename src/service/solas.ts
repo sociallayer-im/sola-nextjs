@@ -6262,6 +6262,24 @@ export async function getPromoCode(props: {id: number, auth_token: string}) {
 
 }
 
+export interface ValidPromoCode extends PromoCode {
+    code: string
+}
+
+
+export async function verifyPromoCode(props: {event_id: number,  code: string}) {
+    try {
+        const res: any = await fetch.get({
+            url: `${apiUrl}/event/check_promo_code`,
+            data: props
+        })
+
+        return res.data.promo_code as ValidPromoCode
+    } catch (e: any) {
+        return  null
+    }
+}
+
 
 export default {
     removeMarker,
