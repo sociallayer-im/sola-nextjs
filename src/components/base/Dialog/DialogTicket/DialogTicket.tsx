@@ -228,8 +228,6 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
             }
         }
 
-        alert(price)
-
         if (currChain?.id === 'stripe' && price < 400) {
             return 0
         } else {
