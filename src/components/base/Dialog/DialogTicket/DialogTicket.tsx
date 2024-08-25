@@ -278,7 +278,7 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
     return (<div className={styles['dialog-ticket']}>
         <div className={styles['dialog-title']}>
             <div>{lang['Event']}</div>
-            {!busy &&
+            {(!busy || soldOut ) &&
                 <svg
                     onClick={props.close}
                     className={styles['close']} xmlns="http://www.w3.org/2000/svg" width="14" height="15"
