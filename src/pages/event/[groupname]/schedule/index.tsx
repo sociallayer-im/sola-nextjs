@@ -28,10 +28,14 @@ import {isHideLocation} from "@/global_config";
 const utc = require('dayjs/plugin/utc')
 const timezone = require('dayjs/plugin/timezone')
 const isSameOrBefore = require('dayjs/plugin/isSameOrBefore')
+const updateLocale  = require('dayjs/plugin/updateLocale')
 const dayjs: any = dayjsLib
 dayjs.extend(utc)
 dayjs.extend(timezone)
 dayjs.extend(isSameOrBefore)
+dayjs.extend(updateLocale)
+dayjs.updateLocale(dayjs.locale(), {weekStart: 1})
+
 
 const dayName = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 const mouthName = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
@@ -75,8 +79,8 @@ const getCalendarData = (timeZone: string) => {
 
     // const timeStr = `${now.year()}-${now.month() + 1}-${now.date()} 00:00`
     // const _nowZero = dayjs(timeStr, timeZone)
-    const _from = now.subtract(182, 'day').startOf('week').add(1, 'day')
-    const _end = _from.add(52, 'week').endOf('week').subtract(1, 'day')
+    const _from = now.startOf('week').subtract(26, 'week')
+    const _end = _from.add(52, 'week').endOf('week')
 
     const _dayArray = []
     let current = _from
