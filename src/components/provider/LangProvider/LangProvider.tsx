@@ -2,12 +2,14 @@ import LangContext from './LangContext'
 import en, { LangConfig } from "./en"
 import cn from "./cn"
 import th from "./th"
+import es from "./es"
 import { ReactNode, useEffect, useState } from "react";
 
 export enum LangType {
     th='th',
     cn='cn',
-    en='en'
+    en='en',
+    es='es'
 }
 export interface LangProviderProps {
     children? : ReactNode
@@ -17,7 +19,8 @@ function LangProvider (props: LangProviderProps) {
     const langPackage = {
         en,
         cn,
-        th
+        th,
+        es
     }
 
     const [langType, setLangType] = useState(LangType.en)
@@ -45,6 +48,10 @@ function LangProvider (props: LangProviderProps) {
             switchLang(LangType.th)
             return
         }
+        if (storageLang === LangType.es) {
+            switchLang(LangType.es)
+            return
+        }
 
         if (navigator.language === 'zh-CN') {
             switchLang(LangType.cn)
@@ -52,6 +59,10 @@ function LangProvider (props: LangProviderProps) {
         }
         if (navigator.language === 'th') {
             switchLang(LangType.th)
+            return
+        }
+        if (navigator.language === 'es-ES') {
+            switchLang(LangType.es)
             return
         }
 
