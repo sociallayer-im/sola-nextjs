@@ -1,39 +1,27 @@
-import {ReactNode, useContext, useEffect, useState, forwardRef, useImperativeHandle} from 'react'
-import {
-    useContractWrite,
-    useAccount,
-    usePrepareContractWrite,
-    useSwitchNetwork,
-    useWaitForTransaction,
-    usePublicClient,
-    useNetwork, useWalletClient
-} from "wagmi";
-import {erc20_abi, payhub_abi, paymentTokenList} from "@/payment_settring";
-import {parseUnits} from "viem/utils";
+import {forwardRef, ReactNode, useContext, useEffect, useImperativeHandle, useState} from 'react'
+import {useAccount, useNetwork, usePublicClient, useSwitchNetwork, useWalletClient} from "wagmi";
+import {erc20_abi, paymentTokenList} from "@/payment_settring";
 import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
 
 
 function Erc20TokenApproveHandler(
     props: {
-        content?: (trigger: (() => void) | undefined,  busy: boolean) => ReactNode
+        content?: (trigger: (() => void) | undefined, busy: boolean) => ReactNode
         token: string
         decimals: number
         amount: string
-        to: string
         chainId: number
-        onSuccess?: (hash: string) => any
+        onResult?: (needApprove: boolean, hash?: string) => any
         onErrMsg?: (message: string) => any
     }, ref: any
 ) {
     const publicClient: any = usePublicClient({chainId: props.chainId})
     const {data: walletClient}: any = useWalletClient({chainId: props.chainId})
     const {address} = useAccount()
-    const {showLoading} = useContext(DialogsContext)
-    const [busy, setBusy] = useState(false)
-    const { switchNetworkAsync } = useSwitchNetwork()
-    const { chain } = useNetwork()
-
-
+    const {showToast} = useContext(DialogsContext)
+    const [busy, setBusy] = useState(true)
+    const {switchNetworkAsync} = useSwitchNetwork()
+    const {chain} = useNetwork()
 
 
     const reFleshAllowance = () => {
@@ -51,7 +39,9 @@ function Erc20TokenApproveHandler(
             }).then((res: any) => {
                 if (res !== undefined && res >= BigInt(props.amount)) {
                     console.log('BigInt(props.amount)BigInt(props.amount)', BigInt(props.amount))
-                    props.onSuccess?.('')
+                    props.onResult?.(false)
+                } else {
+                    props.onResult?.(true)
                 }
             }).finally(() => {
                 setBusy(false)
@@ -76,6 +66,10 @@ function Erc20TokenApproveHandler(
                 return
             }
 
+            const approveAmount = process.env.NEXT_PUBLIC_PAYMENT_SETTING === 'production'
+                ? (BigInt(props.amount) > BigInt(500 * 10 ** props.decimals) ? BigInt(props.amount) : BigInt(500 * 10 ** props.decimals))
+                : BigInt(props.amount)
+
             const opt = {
                 address: props.token as any,
                 abi: erc20_abi,
@@ -84,8 +78,7 @@ function Erc20TokenApproveHandler(
                 account: address,
                 args: [
                     payHubContract,
-                    //BigInt(props.amount)
-                    BigInt(500 * 10 ** props.decimals)
+                    approveAmount
                 ]
             }
 
@@ -96,10 +89,16 @@ function Erc20TokenApproveHandler(
                 {hash}
             )
 
-            const delay = await setTimeout(() => {
-            }, 5000)
 
-            !!props.onSuccess && props.onSuccess(hash)
+            function sleep(time:number){
+                return new Promise((resolve) => setTimeout(resolve, time));
+            }
+
+            await sleep(5000)
+
+            showToast('Approve success')
+
+            !!props.onResult && props.onResult(false, hash)
         } catch (e: any) {
             console.error(e)
             if (!e.message.includes('rejected')) {
@@ -112,12 +111,12 @@ function Erc20TokenApproveHandler(
 
     useEffect(() => {
         reFleshAllowance()
-    }, [address, props.token, props.chainId])
+    }, [address, props.token, props.chainId, props.amount])
 
     return (<>
         {props.content ? props.content(() => {
             handleApprove()
-        },  busy) : null
+        }, busy) : null
         }
     </>)
 }

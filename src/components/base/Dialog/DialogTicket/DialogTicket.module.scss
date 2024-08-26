@@ -169,6 +169,7 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 20px;
+    font-size: 16px;
 
     .label {
       color: var(--Text-2-Secondary, #7B7C7B);
@@ -185,6 +186,9 @@
       font-weight: 400;
       line-height: 24px;
       margin-left: 6px;
+      display: flex;
+      flex-flow: row nowrap;
+      align-items: center;
 
       span {
         color: var(--Text-4-Headline, #272928);
@@ -282,12 +286,30 @@
   flex-flow: row nowrap;
   align-items: center;
   font-weight: 600;
+  text-transform:capitalize;
 
-  img {
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
+  .icon {
+    position: relative;
+    width: 22px;
+    height: 22px;
     margin-right: 8px;
+
+
+    img {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+    }
+
+    .chain {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      position: absolute;
+      right: 0;
+      top: 0;
+      margin-top: -2px;
+    }
   }
 
   span {
@@ -300,16 +322,127 @@
     border: 0;
     background: #F8F9F8;
     border-radius: 8px;
-     > div {
-       border: 0;
-       background: #F8F9F8;
-       border-radius: 8px;
-       >div {
-         padding-top: 6px;
-         padding-bottom: 6px;
-         border: 0;
-       }
+
+    > div {
+      border: 0;
+      background: #F8F9F8;
+      border-radius: 8px;
+
+      > div {
+        padding-top: 6px;
+        padding-bottom: 6px;
+        border: 0;
+      }
     }
   }
 
+}
+
+.total {
+  color: var(--Secondary-Color-Brand4-3-Normal, #F26692);
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 28px;
+}
+
+.promo {
+  color: var(--Text-4-Headline, #272928);
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+  letter-spacing: 0.32px;
+  margin-bottom: 12px;
+  margin-top: 30px;
+
+  .promo-title {
+    margin-bottom: 4px;
+  }
+
+  .promo-input {
+    display: flex;
+    flex-flow: row nowrap;
+
+    :global(div[data-baseweb="input"]) {
+      flex: 1;
+      margin-right: 12px;
+    }
+
+    :global(button[data-baseweb="button"]) {
+      width: 90px;
+    }
+  }
+}
+
+.scroll {
+  height: auto;
+  max-height: 70svh;
+  overflow: auto;
+
+  @media(max-height: 800px) {
+    max-height: 350px;
+  }
+}
+
+.errorMsg {
+  font-size: 12px;
+  color: #FF4D4F;
+  margin-top: 6px;
+}
+
+
+.payment-tab {
+  border-radius: 8px;
+  background: var(--Fill-2-Medium, #F5F8F6);
+  display: flex;
+  padding: 4px;
+  align-items: center;
+  margin-bottom: 12px;
+
+  > div {
+    flex: 1;
+    border-radius: 6px;
+    display: flex;
+    height: 36px;
+    padding: 7px 18px;
+    justify-content: center;
+    align-items: center;
+    color: var(--Text-2-Secondary, #7B7C7B);
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 22px;
+    box-sizing: border-box;
+    cursor: pointer;
+  }
+
+  > div.active {
+    background: var(--Fill-1-Light-Disabled, #fff);
+    box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.05);
+    color: var(--Text-4-Headline, #272928);
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 22px; /* 157.143% */
+
+  }
+}
+
+.select-bar {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+
+  >div {
+    flex: 1;
+  }
+}
+
+.select-token {
+  margin-left: 12px;
+}
+
+.split {
+  border-bottom: 1px solid #f1f1f1;
+  margin-top: 16px;
 }

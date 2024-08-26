@@ -1,7 +1,7 @@
 import {ReactNode, useContext, useState} from 'react'
 import {useAccount, useNetwork, usePublicClient, useSwitchNetwork, useWalletClient} from "wagmi";
 import {payhub_abi, paymentTokenList} from "@/payment_settring";
-import {getParticipantDetail, joinEvent} from "@/service/solas";
+import {getParticipantDetail, getTicketItemDetail, rsvp} from "@/service/solas";
 import UserContext from "@/components/provider/UserProvider/UserContext";
 import fetch from "@/utils/fetch"
 
@@ -20,7 +20,9 @@ function Erc20TokenPaymentHandler(
         to: string
         chainId: number
         ticketId: number
+        methodId: number
         eventId: number
+        promo_code?: string,
         onSuccess?: (hash: string) => any
         onErrMsg?: (message: string) => any
     }
@@ -36,25 +38,16 @@ function Erc20TokenPaymentHandler(
     const [sending, setSending] = useState(false)
     const [verifying, setVerifying] = useState(false)
 
-    const _verifyPayment = async (participant_id: number, tx: string) => {
+    const _verifyPayment = async (order_number: string, tx: string) => {
         return new Promise((resolve, reject) => {
-            let remainTimes = 5
+            let remainTimes = 10
             const checkParticipant = async () => {
                 try {
                     const verify = await fetch.post({
-                        url: '/api/payment/verify',
+                        url: '/api/verify_payment',
                         data: {
                             tx,
-                            payer: user.userName,
-                            payer_address: address,
-                            to_address: props.to,
-                            token: props.token,
-                            auth_token: user.authToken || '',
-                            chain_id: props.chainId,
-                            amount: props.amount,
-                            productId: props.ticketId,
-                            itemId: participant_id,
-                            eventId: props.eventId
+                            order_number
                         }
                     })
 
@@ -88,33 +81,36 @@ function Erc20TokenPaymentHandler(
             const participant = await getParticipantDetail({event_id: props.eventId, profile_id: user.id!})
 
             // check already paid
-            if (!!participant && !!participant.payment_data) {
-                if (participant.payment_status === 'success') {
+            if (!!participant) {
+                if (participant.payment_status === 'succeeded') {
                     setBusy(false)
                     setSending(false)
                     setVerifying(false)
                     !!props.onSuccess && props.onSuccess('')
                     return
                 } else {
-                    setBusy(true)
-                    setSending(false)
-                    setVerifying(true)
-                    let paymentTx= participant.payment_data!
-                    if (!paymentTx.startsWith('0x')) {
-                        paymentTx = JSON.parse(paymentTx).tx
-                    }
-                    const verify = await _verifyPayment(participant.id, paymentTx)
-                    if (!!verify) {
-                        setBusy(false)
-                        setSending(false)
-                        setVerifying(false)
-                        !!props.onSuccess && props.onSuccess('')
-                        return
-                    } else {
-                        setBusy(false)
-                        setSending(false)
-                        setVerifying(false)
-                        throw new Error('Verify failed')
+                    const ticketItem = await getTicketItemDetail({participant_id: participant.id})
+                    if (!!ticketItem) {
+                        const order = getOrder(ticketItem.order_number)
+                        if (!!order) {
+                            setBusy(true)
+                            setSending(false)
+                            setVerifying(true)
+                            const verify = await _verifyPayment(ticketItem.order_number, order.tx)
+                            if (!!verify) {
+                                setBusy(false)
+                                setSending(false)
+                                setVerifying(false)
+                                !!props.onSuccess && props.onSuccess('')
+                                deleteOrder(ticketItem.order_number)
+                                return
+                            } else {
+                                setBusy(false)
+                                setSending(false)
+                                setVerifying(false)
+                                throw new Error('Verify failed')
+                            }
+                        }
                     }
                 }
             }
@@ -128,13 +124,27 @@ function Erc20TokenPaymentHandler(
             }
 
             // create an order
-            const join = await joinEvent(
+            const join = await rsvp(
                 {
-                    id: props.eventId,
                     auth_token: user.authToken || '',
+                    id: props.eventId,
                     ticket_id: props.ticketId,
+                    payment_method_id: props.methodId,
+                    promo_code: props.promo_code
                 }
             )
+
+            // 处理价格为0直接购买成功的情况
+            if (join.participant.payment_status === 'succeeded') {
+                loadingRef?.()
+                !!props.onSuccess && props.onSuccess('')
+                setTimeout(() => {
+                    setBusy(false)
+                    setSending(false)
+                    setVerifying(false)
+                }, 300)
+                return
+            }
 
             // pay
             const opt = {
@@ -147,8 +157,8 @@ function Erc20TokenPaymentHandler(
                     props.to,
                     props.token,
                     BigInt(props.amount),
-                    props.ticketId,
-                    join.id
+                    join.ticket_item.event_id, // productId
+                    join.ticket_item.order_number // itemId
                 ]
             }
 
@@ -158,19 +168,20 @@ function Erc20TokenPaymentHandler(
 
             const hash = await walletClient.writeContract(request)
 
-            const transaction = await publicClient.waitForTransactionReceipt(
-                {hash}
-            )
+            const transaction = await publicClient.waitForTransactionReceipt({hash})
 
             setSending(false)
             setVerifying(true)
+            addOrder(join.ticket_item.order_number, hash)
 
-            const verify = await _verifyPayment(join.id, hash)
+
+            const verify = await _verifyPayment(join.ticket_item.order_number, hash)
             setVerifying(false)
 
             if (!!verify) {
                 loadingRef?.()
-                console.log('transaction====', transaction)
+                console.log('transaction: ', transaction)
+                deleteOrder(join.ticket_item.order_number)
                 !!props.onSuccess && props.onSuccess(hash)
             } else {
                 throw new Error('Verify fail')
@@ -178,9 +189,7 @@ function Erc20TokenPaymentHandler(
 
         } catch (e: any) {
             console.error(e)
-            if (!e.message.includes('rejected')) {
-                props.onErrMsg?.(e.message)
-            }
+            props.onErrMsg?.(e.message)
 
         } finally {
             setTimeout(() => {
@@ -200,3 +209,47 @@ function Erc20TokenPaymentHandler(
 }
 
 export default Erc20TokenPaymentHandler
+
+// 实现一组方法：要求在localstorage中存储一个子元素为{ticket_order: string, tx: string} 的数组， 实现增删改查。
+interface PendingOrder {
+    order_number: string
+    tx: string
+}
+
+function getOrders() {
+    const orders = localStorage.getItem('pending_orders')
+    return orders ? JSON.parse(orders) as PendingOrder[] : []
+}
+
+function saveOrders(orders: PendingOrder[]) {
+    localStorage.setItem('pending_orders', JSON.stringify(orders))
+}
+
+function addOrder(order_number: string, tx: string) {
+    const orders = getOrders()
+    orders.push({order_number, tx})
+    saveOrders(orders)
+}
+
+function deleteOrder(order_number: string) {
+    let orders = getOrders();
+    orders = orders.filter(order => order.order_number !== order_number);
+    saveOrders(orders);
+}
+
+function updateOrderTx(ticket_order: PendingOrder) {
+    const orders = getOrders();
+    const orderIndex = orders.findIndex(order => order.order_number === ticket_order.order_number);
+    if (orderIndex !== -1) {
+        orders[orderIndex].tx = ticket_order.tx;
+        saveOrders(orders);
+    }
+}
+
+function getOrder(order_number: string) {
+    const orders = getOrders();
+    return orders.find(order => order.order_number === order_number);
+}
+
+
+

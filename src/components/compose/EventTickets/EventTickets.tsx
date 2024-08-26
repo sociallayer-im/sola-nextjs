@@ -1,5 +1,13 @@
 import {useContext, useEffect, useMemo, useState} from 'react'
-import {Badge, Event, getParticipantDetail, Participants, queryBadgeDetail, Ticket} from '@/service/solas'
+import {
+    Badge,
+    Event,
+    getParticipantDetail,
+    getTicketItemDetail,
+    Participants,
+    queryBadgeDetail,
+    Ticket
+} from '@/service/solas'
 import styles from './EventTickets.module.scss'
 import langContext from "@/components/provider/LangProvider/LangContext";
 import AppButton from "@/components/base/AppButton/AppButton";
@@ -10,28 +18,27 @@ import userContext from "@/components/provider/UserProvider/UserContext";
 import useEvent, {EVENT} from "@/hooks/globalEvent";
 import {formatUnits} from "viem/utils";
 import {paymentTokenList} from "@/payment_settring";
+import BigNumber from "bignumber.js";
 
 function TicketItem({
                         ticket,
                         selected,
-                        disable,
-                        waitForPayment
-                    }: { ticket: Ticket, selected?: boolean, disable?: boolean, waitForPayment?: boolean }) {
+                    }: { ticket: Ticket, selected?: boolean, disable?: boolean}) {
 
 
     const [badge, setBadge] = useState<Badge | null>(null)
 
     const chain = useMemo(() => {
-        return ticket.payment_metadata.length && ticket.payment_metadata[0].payment_chain ? paymentTokenList.find(item => item.id === ticket.payment_metadata[0].payment_chain) : undefined
+        return ticket.payment_methods.length && ticket.payment_methods[0].chain ? paymentTokenList.find(item => item.id === ticket.payment_methods[0].chain) : undefined
     }, [ticket])
 
     const token = useMemo(() => {
         if (!chain) return undefined
-        return chain?.tokenList.find(item => item.id === ticket.payment_metadata[0].payment_token_name)
+        return chain?.tokenList.find(item => item.id === ticket.payment_methods[0].token_name)
     }, [chain, ticket])
 
     const chainsIcons = useMemo(() => {
-        const chains = ticket.payment_metadata.map(item => item.payment_chain)
+        const chains = ticket.payment_methods.map(item => item.chain)
         return chains.map(chain => paymentTokenList.find(item => item.id === chain)?.icon).reverse()
     }, [ticket])
 
@@ -43,9 +50,28 @@ function TicketItem({
         }
     }, [ticket])
 
+    const price = useMemo(() => {
+        if (ticket.payment_methods.length === 0) {
+            return 'Free'
+        }
+
+        const prices = ticket.payment_methods.map(item => {
+            const targetToken = paymentTokenList.find(chain => chain.id === item.chain)
+            const targetTokenDetail = targetToken?.tokenList.find(token => token.id === item.token_name)
+
+            return BigNumber(item.price).dividedBy(BigNumber(10).pow(targetTokenDetail?.decimals || 0)).toNumber()
+        })
+
+        const maxPrice = Math.max(...prices)
+        const minPrice = Math.min(...prices)
+
+        return maxPrice === minPrice ? `${minPrice} USD` : `${minPrice}-${maxPrice} USD`
+
+    }, [ticket])
+
 
     return <div
-        className={`${styles['item']} ${selected ? styles['selected'] : ''} ${disable ? styles['disable'] : ''}`}
+        className={`${styles['item']} ${selected ? styles['selected'] : ''}`}
         key={ticket.id}>
         <div className={styles['item-title']}>{ticket.title}</div>
         <div className={styles['item-des']}>{ticket.content}</div>
@@ -62,10 +88,10 @@ function TicketItem({
         }
 
         {
-            ticket.payment_metadata?.length !== 0 &&
+            ticket.payment_methods?.length !== 0 &&
             <div className={styles['price-info']}>
                 <div
-                    className={styles['item-price']}>{formatUnits(BigInt(ticket.payment_metadata[0].payment_token_price || 0), token?.decimals!)} {ticket.payment_metadata[0].payment_token_name?.toUpperCase()}</div>
+                    className={styles['item-price']}>{price}</div>
                 <div className={styles['chain-icons']}>
                     {
                         chainsIcons.map((icon, index) => {
@@ -77,13 +103,8 @@ function TicketItem({
         }
 
         {
-            ticket.payment_metadata?.length === 0 &&
+            ticket.payment_methods?.length === 0 &&
             <div className={styles['item-price']}>{'Free'}</div>
-        }
-
-        {
-            waitForPayment &&
-            <div className={styles['item-waiting-payment']}>{'Waiting for payment'}</div>
         }
     </div>
 }
@@ -98,42 +119,33 @@ function EventTickets({
     const {openDialog, showToast} = useContext(DialogsContext)
     const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(props.tickets[0] || null)
     const {user} = useContext(userContext)
-    const [userPendingPayment, setUserPendingPayment] = useState<Participants | null>(null)
     const [userHasPaid, setUserHasPaid] = useState<Participants | null>(null)
     const [needUpdate, _] = useEvent(EVENT.participantUpdate)
 
 
     useEffect(() => {
-        if (user.userName || needUpdate) {
-            getParticipantDetail({event_id: props.event.id, profile_id: user.id!}).then((res) => {
-                if (!!res) {
-                    const ticket = props.tickets.find(item => item.id === res.ticket_id)
-                    // 通过票务参加
-                    if (!!ticket) {
-                       if (res.payment_status === 'success' || ticket.payment_metadata!.length === 0) {
-                           // 已经支付或者是免费票
-                            setUserPendingPayment(null)
-                            setUserHasPaid(res)
-                        } else if (res.payment_status !== 'success' && !!res.payment_data) {
-                           // 未支付
-                            setUserHasPaid(null)
-                            setUserPendingPayment(res)
-                        } else if (res.payment_status !== 'success' && !res.payment_data) {
-                            setUserHasPaid(null)
-                            setUserPendingPayment(null)
-                        }
-                    } else {
-                        // 没有设置门票的情况
-                        setUserPendingPayment(null)
-                        setUserHasPaid(res)
-                    }
+        (async () => {
+            if (user.userName || needUpdate) {
+                const participant = await getParticipantDetail({event_id: props.event.id, profile_id: user.id!})
+                if (!participant) {
+                    setUserHasPaid(null)
+                    return
+                }
 
+                if (!participant.ticket_id) {
+                    // 可能不是经过票务参加
+                    setUserHasPaid(participant)
+                    return
+                }
+
+                // 票务参数
+                if (participant.payment_status === 'succeeded') {
+                    setUserHasPaid(participant)
                 } else {
                     setUserHasPaid(null)
-                    setUserPendingPayment(null)
                 }
-            })
-        }
+            }
+        })()
     }, [user.id, needUpdate])
 
 
@@ -156,13 +168,10 @@ function EventTickets({
             <div className={`${props.isDialog ? styles['scroll'] : ''}`}>
                 {
                     props.tickets.map((item, index) => {
-                        const disable = !!userPendingPayment && userPendingPayment.ticket_id !== item.id
                         return <div key={item.id} onClick={() => {
-                            !disable && setSelectedTicket(item)
+                            setSelectedTicket(item)
                         }}>
                             <TicketItem
-                                waitForPayment={!!userPendingPayment && !disable}
-                                disable={disable}
                                 selected={selectedTicket?.id === item.id && !userHasPaid}
                                 ticket={item}/>
                         </div>

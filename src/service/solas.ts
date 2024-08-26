@@ -121,6 +121,7 @@ export const voucherSchema = (props: QueryPresendProps) => {
           image_url
         }
         receiver_id
+        receiver_id
         sender {
           id
           image_url
@@ -2954,7 +2955,7 @@ export interface EventSites {
     capacity: number | null,
     overrides: null | string[],
     require_approval?: boolean,
-    visibility: null | 'all' | 'manager'
+    visibility: null | 'all' | 'manager',
 }
 
 export interface Participants {
@@ -3721,6 +3722,9 @@ export interface JoinEventProps {
     id: number,
     auth_token: string,
     ticket_id?: number,
+    chain?: string,
+    amount?: number,
+    ticket_price?: number
 }
 
 export async function joinEvent(props: JoinEventProps) {
@@ -3735,6 +3739,44 @@ export async function joinEvent(props: JoinEventProps) {
     }
 
     return res.data.participant as Participants
+}
+
+export interface TicketItem {
+    amount : number
+    chain : null | string
+    discount_data: null | string
+    discount_value : null| string
+    event_id: number
+    id: number
+    order_number: string
+    participant_id: number
+    profile_id: number
+    status : string
+    ticket_id : string
+    ticket_price :  null | string
+    txhash: null | string
+    payment_method_id: number
+    promo_code_id: null | number
+    sender_address: null | string
+    created_at: string,
+    profile: ProfileSimple
+}
+
+export async function joinEventWithTicketItem(props: JoinEventProps) {
+    checkAuth(props)
+    const res: any = await fetch.post({
+        url: `${apiUrl}/event/join`,
+        data: props
+    })
+
+    if (res.data.result === 'error') {
+        throw new Error(res.data.message || 'Join event fail')
+    }
+
+    return res.data as {
+        participant: Participants,
+        ticket_item: TicketItem
+    }
 }
 
 export async function unJoinEvent(props: JoinEventProps) {
@@ -5191,15 +5233,37 @@ export interface Ticket {
         payment_token_address: string | null
         payment_token_price: string | null
         payment_token_name: string | null
-    }[]
+    }[],
+    payment_methods: PaymentMethod[]
+    payment_methods_attributes: PaymentMethod[]
 }
 
 export async function queryTickets (props: {
-    event_id: number,
+    event_id?: number,
+    id?: number,
 }) {
 
+    let variables = ''
+    if (props.id) {
+        variables += `id: {_eq: ${props.id}},`
+    }
+
+    if (props.event_id) {
+        variables += `event_id: {_eq: ${props.event_id}},`
+    }
+
     const doc = gql`query MyQuery {
-      tickets(where: {event_id: {_eq: ${props.event_id}}}) {
+      tickets(where: {${variables}}) {
+        payment_methods {
+            id
+            item_type
+            chain
+            kind
+            token_name
+            token_address
+            receiver_address
+            price
+        }
         payment_metadata
         check_badge_class_id
         content
@@ -5243,6 +5307,7 @@ export async function queryTickets (props: {
 
         return {
             ...item,
+            payment_methods: item.payment_methods || [],
             payment_metadata: payment_metadata,
             end_time: item.end_time ?
                 item.end_time.endsWith('Z') ?
@@ -5844,6 +5909,294 @@ export async function getTopEventGroup() {
         item.creator = item.memberships[0]?.profile || null
         return item
     })
+}
+
+export async function getStripeClientSecret(props: {
+    auth_token: string,
+    ticket_item_id: number,
+}) {
+    checkAuth(props)
+    const res: any = await fetch.post({
+        url: `${apiUrl}/service/stripe_client_secret`,
+        data: props
+    })
+
+    const secret = res.data.client_secret as string
+    console.log('client_secret', secret)
+
+    return secret
+}
+
+export interface PaymentMethod {
+    id?: number
+    item_type: string // 'Ticket'
+    item_id?: number // ticket id
+    chain: string
+    token_name:  null |string
+    token_address:  null | string
+    receiver_address: null | string
+    price: number
+    _destroy?: string
+}
+
+
+export interface VenueTimeslot {
+    id?: number
+    venue_id?: number,
+    day_of_week: 'Monday' | 'Tuesday' | 'Wednesday' | 'Thursday' | 'Friday' | 'Saturday' | 'Sunday',
+    disabled: boolean,
+    start_at: string,
+    end_at: string,
+    _destroy?: string
+}
+
+export interface VenueOverride {
+    id?: number
+    venue_id: number,
+    day: string, // '2022-01-01'
+    disabled: boolean,
+    start_at: string,
+    end_at: string,
+    _destroy?: string
+}
+
+    export async function rsvp(props: {auth_token: string, id: number, ticket_id: number, payment_method_id?: number, promo_code?: string}){
+    checkAuth(props)
+
+    const res: any = await fetch.post({
+        url: `${apiUrl}/event/rsvp`,
+        data: props
+    })
+
+    if (res.data.result === 'error') {
+        throw new Error(res.data.message)
+    }
+
+    return {
+        participant: res.data.participant as Participants,
+        ticket_item: res.data.ticket_item as TicketItem
+    }
+}
+
+export async function SetTicketPaymentStatus (props: {
+    next_token: string,
+    chain: string,
+    product_id: number,
+    item_id: string,
+    amount: number
+    txhash: string
+    sender_address: string
+}) {
+    const res: any= await fetch.post({
+        url: `${apiUrl}/event/set_ticket_payment_status`,
+        data: props
+    })
+
+    if (res.data.result === 'error') {
+        throw new Error(res.data.message)
+    }
+
+    return res.data.participant as Participants
+}
+
+
+export async function getTicketItemDetail (props: {id?: number, participant_id?: number, order_number?: string}) {
+    let variables = ''
+    if (props.id) {
+        variables += `id: {_eq: ${props.id}}, `
+    }
+
+    if (props.participant_id) {
+        variables += `participant_id: {_eq: ${props.participant_id}}, `
+    }
+
+    if (props.order_number) {
+        variables += `order_number: {_eq: "${props.order_number}"}, `
+    }
+
+    const doc = `query MyQuery {
+        ticket_items(where: {${variables}}) {
+            promo_code_id
+            sender_address
+            id
+            amount
+            chain
+            created_at
+            discount_data
+            discount_value
+            event_id
+            order_number
+            participant_id
+            profile_id
+            status
+            ticket_id
+            ticket_price
+            txhash
+            payment_method_id
+            order_number
+        }
+    }`
+
+    const res: any = await request(graphUrl, doc)
+    return res.ticket_items[0] as TicketItem || null
+}
+
+export async function getPaymentMethod (props: {id: number}) {
+    const doc = `query MyQuery {
+        payment_methods(where: {id: {_eq: ${props.id}}}) {
+            id
+            item_type
+            item_id
+            chain
+            token_name
+            token_address
+            receiver_address
+            price
+        }
+    }`
+
+    const res: any = await request(graphUrl, doc)
+    return res.payment_methods[0] as PaymentMethod || null
+}
+
+export interface PromoCode {
+    id?: number
+    event_id?: number
+    selector_type: string,
+    code: string
+    label: string,
+    receiver_address: string | null,
+    discount_type: string,
+    discount: number,
+    applicable_ticket_ids: number[] | null,
+    ticket_item_ids: number[] | null,
+    expiry_time: string,
+    max_allowed_usages: number
+    order_usage_count: number
+    _destroy?: string
+}
+
+export async function queryPromoCodes (props: {event_id: number}) {
+    let variables = ''
+
+    if (props.event_id) {
+        variables = `event_id: {_eq: ${props.event_id}}`
+    }
+
+    const doc = `query MyQuery {
+        promo_codes (where: {${variables}}, order_by: {id: desc}) {
+            id
+            event_id
+            selector_type
+            label
+            receiver_address
+            discount_type
+            discount
+            applicable_ticket_ids
+            ticket_item_ids
+            expiry_time
+            max_allowed_usages
+            order_usage_count
+            }
+    }`
+
+    const res: any = await request(graphUrl, doc)
+    return res.promo_codes as PromoCode[]
+}
+
+export async function queryTicketItems (props: {event_id?: number, participant_id?: number, order_number?: string, profile_id?: number, promo_code_id?: number}) {
+    let variables = ''
+    if (props.event_id) {
+        variables += `event_id: {_eq: ${props.event_id}}, `
+    }
+
+    if (props.participant_id) {
+        variables += `participant_id: {_eq: ${props.participant_id}}, `
+    }
+
+    if (props.order_number) {
+        variables += `order_number: {_eq: "${props.order_number}"}, `
+    }
+
+    if (props.profile_id) {
+        variables += `profile_id: {_eq: ${props.profile_id}}, `
+    }
+
+    if (props.promo_code_id) {
+        variables += `promo_code_id: {_eq: ${props.promo_code_id}}, `
+    }
+
+    const doc = `query MyQuery {
+        ticket_items(where: {${variables}}) {
+            promo_code_id
+            sender_address
+            id
+            amount
+            chain
+            created_at
+            discount_data
+            discount_value
+            event_id
+            order_number
+            participant_id
+            profile_id
+            status
+            ticket_id
+            ticket_price
+            created_at
+            txhash
+            payment_method_id
+            order_number
+            profile {
+                id,
+                username,
+                nickname,
+                image_url
+            }
+        }
+    }`
+
+    const res: any = await request(graphUrl, doc)
+    return res.ticket_items as TicketItem[]
+}
+
+export async function getStripeApiKey(props: {event_id: number}) {
+    const res: any= await fetch.get({
+        url: `${apiUrl}/service/stripe_app_key?event_id=${props.event_id}`,
+        data: {}
+    })
+
+    return res.data.app_key as string
+}
+
+export async function getPromoCode(props: {id: number, auth_token: string}) {
+    checkAuth(props)
+
+    const res: any = await fetch.get({
+        url: `${apiUrl}/event/get_promo_code`,
+        data: props
+    })
+
+    return res.data.code as string
+
+}
+
+export interface ValidPromoCode extends PromoCode {
+    code: string
+}
+
+
+export async function verifyPromoCode(props: {event_id: number,  code: string}) {
+    try {
+        const res: any = await fetch.get({
+            url: `${apiUrl}/event/check_promo_code`,
+            data: props
+        })
+
+        return res.data.promo_code as ValidPromoCode
+    } catch (e: any) {
+        return  null
+    }
 }
 
 

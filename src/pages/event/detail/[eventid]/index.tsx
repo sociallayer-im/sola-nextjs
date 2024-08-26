@@ -1,4 +1,4 @@
-import {useParams, useRouter} from 'next/navigation'
+import {useParams, useRouter, useSearchParams} from 'next/navigation'
 import {useContext, useEffect, useMemo, useState} from 'react'
 import {
     Badge,
@@ -20,7 +20,7 @@ import {
     queryGroupDetail,
     queryProfileByEmail,
     queryUserGroup,
-    RecurringEvent, setEventStatus
+    RecurringEvent, setEventStatus, TicketItem, queryTicketItems
 } from "@/service/solas";
 import LangContext from "@/components/provider/LangProvider/LangContext";
 import {useTime2, useTime3} from "@/hooks/formatTime";
@@ -70,6 +70,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
     const [event, setEvent] = useState<Event | null>(props.event || null)
     const [hoster, setHoster] = useState<Profile | null>(null)
     const params = useParams()
+    const searchParams = useSearchParams()
     const {lang} = useContext(LangContext)
     const formatTime = useTime3()
     const formatTime2 = useTime2()
@@ -104,6 +105,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
     const [showMap, setShowMap] = useState(false)
     const [tickets, setTickets] = useState<Ticket[]>([])
     const [group, setGroup] = useState<Group | null>(null)
+    const [ticketItems, setTicketItems] = useState<TicketItem[]>([])
 
     const [cohost, setCohost] = useState<ProfileSimple[]>([])
     const [speaker, setSpeaker] = useState<ProfileSimple[]>([])
@@ -129,6 +131,10 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                 setTickets(res)
             }).finally(()=>{
                 setTicketReady(true)
+            })
+
+            queryTicketItems({event_id: res.id}).then(res => {
+                setTicketItems(res)
             })
 
             setEvent(res)
@@ -233,10 +239,14 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
             const joined = eventParticipants.find((item: Participants) => {
                 const ticket = tickets.find(t => t.id === item.ticket_id)
                 return (!item.ticket_id && item.profile.id === user.id && (item.status === 'applied' || item.status === 'attending')) // no tickets needed
-                    || (!!ticket && !!item.ticket_id && item.profile.id === user.id && (item.status === 'applied' || item.status === 'attending') && item.payment_status === 'success' ) // paid ticket
-                    || (!!ticket && !!item.ticket_id && item.profile.id === user.id && (item.status === 'applied' || item.status === 'attending') && ticket.payment_token_price === null) // free ticket
+                    || (!!ticket && !!item.ticket_id && item.profile.id === user.id && (item.status === 'applied' || item.status === 'attending') && item.payment_status?.includes('succe')) // paid ticket
+                    || (!!ticket && !!item.ticket_id && item.profile.id === user.id && (item.status === 'applied' || item.status === 'attending') && ticket.payment_methods.length === 0) // free ticket
             })
+
             setIsJoined(!!joined)
+            if (!!joined && !!searchParams?.get('payment_intent')) {
+                showToast('Payment success')
+            }
         }
     }
 
@@ -329,9 +339,9 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                 return ticket.id == participant.ticket_id
             })
 
-            if (ticket!.payment_metadata.length === 0) {
+            if (ticket!.payment_methods.length === 0) {
                 return true
-            } else return participant.payment_status === 'success';
+            } else return participant.payment_status === 'succeeded';
 
         })
     }, [participants, tickets])
@@ -1014,6 +1024,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
 
                                                 {!!hoster &&
                                                     <ListEventParticipants
+                                                        ticketItems={ticketItems}
                                                         onChange={e => {
                                                             fetchData()
                                                         }}

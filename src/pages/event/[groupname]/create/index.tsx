@@ -20,17 +20,19 @@ import {
     Group,
     Profile,
     ProfileSimple,
+    PromoCode,
     queryBadge,
     queryBadgeDetail,
     queryEvent,
     queryGroupDetail,
+    queryPromoCodes,
+    queryTickets,
     RecurringEvent,
     RepeatEventSetBadge,
     RepeatEventUpdate,
     setEventBadge,
     Ticket,
     updateEvent,
-    queryTickets,
 } from "@/service/solas";
 import EventDefaultCover from "@/components/base/EventDefaultCover";
 import AppButton, {BTN_KIND} from "@/components/base/AppButton/AppButton";
@@ -50,7 +52,8 @@ import DialogsContext from "@/components/provider/DialogProvider/DialogsContext"
 // import IssuesInput from "@/components/base/IssuesInput/IssuesInput";
 import CohostInput, {emptyProfile} from "@/components/base/IssuesInput/CohostInput";
 import {usePathname, useRouter, useSearchParams} from "next/navigation";
-import Toggle from "@/components/base/Toggle/Toggle";
+import Toggle from "@/components/base/Toggle/Toggle"
+import DialogGenPromoCode from "@/components/base/Dialog/DialogGenPromoCode/DialogGenPromoCode"
 
 import * as dayjsLib from "dayjs";
 import TriangleDown from 'baseui/icon/triangle-down'
@@ -143,8 +146,11 @@ function EditEvent({
     // ticket
     const [enableTicket, setEnableTicket] = useState(false)
     const [tickets, setTickets] = useState<Partial<Ticket>[]>([])
-    const ticketSettingRef = useRef<{verify : () => boolean} | null>(null)
+    const ticketSettingRef = useRef<{ verify: () => boolean } | null>(null)
     const ticketsRef = useRef<Partial<Ticket>[]>([])
+
+    // promoCode
+    const [promoCodes, setPromoCodes] = useState<PromoCode[] | []>([])
 
     const [venueInfo, setVenueInfo] = useState<null | EventSites>(null)
     const [cohost, setCohost] = useState<string[]>([''])
@@ -208,7 +214,6 @@ function EditEvent({
         }
 
 
-
         if (initEvent) {
             // prefill
 
@@ -221,6 +226,14 @@ function EditEvent({
                     setEnableTicket(true)
                 } else {
                     setEnableTicket(false)
+                }
+            })
+
+            queryPromoCodes({event_id: initEvent.id}).then((res) => {
+                if (res && res.length > 0) {
+                    setPromoCodes(res)
+                } else {
+                    setPromoCodes([])
                 }
             })
 
@@ -425,7 +438,10 @@ function EditEvent({
         if (!!venueInfo && !!venueInfo.timeslots && event.start_time) {
             const day = dayjs.tz(new Date(event.start_time).getTime(), event.timezone).day()
             const dayFullName = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
-            const target: any = JSON.parse(venueInfo.timeslots!).find((item: { day: string, disable: boolean }) => item.day === dayFullName[day])
+            const target: any = JSON.parse(venueInfo.timeslots!).find((item: {
+                day: string,
+                disable: boolean
+            }) => item.day === dayFullName[day])
 
             const startTime = dayjs.tz(event.start_time, event.timezone)
             const endTime = dayjs.tz(event.start_time, event.timezone)
@@ -453,7 +469,7 @@ function EditEvent({
                 }
             }
 
-            if (target.disable || !available ) {
+            if (target.disable || !available) {
                 setDayDisable('The date you selected is not available for the current venue')
             } else {
                 setDayDisable('')
@@ -744,13 +760,21 @@ function EditEvent({
             _tickets = ticketsRef.current.map(ticket => {
                 return {
                     ...ticket,
-                    _destroy: '1'
+                    _destroy: '1',
+                    payment_methods: ticket.payment_methods ? ticket.payment_methods.map(p => {
+                        return {
+                            ...p,
+                            _destroy: '1'
+                        }
+                    }) : []
                 }
             })
         } else if (ticketsRef.current && ticketsRef.current.length && enableTicket && tickets.length) {
             _tickets = tickets
             ticketsRef.current.forEach((ticket, index) => {
-                if (!_tickets!.find((t) => { return  t.id === ticket.id})) {
+                if (!_tickets!.find((t) => {
+                    return t.id === ticket.id
+                })) {
                     _tickets!.push({
                         ...ticket,
                         _destroy: '1'
@@ -760,16 +784,6 @@ function EditEvent({
         } else if (enableTicket && tickets.length) {
             _tickets = tickets
         }
-
-        if (!!_tickets && _tickets.length) {
-            _tickets = _tickets.map((ticket) => {
-                return {
-                    ...ticket,
-                    payment_metadata: JSON.stringify(ticket.payment_metadata || []) as any,
-                }
-            })
-        }
-
 
         const saveProps = {
             ...event,
@@ -953,12 +967,7 @@ function EditEvent({
             interval: repeat || undefined,
             event_count: repeatCounter,
             extra,
-            tickets: enableTicket && tickets.length ? tickets.map((ticket) => {
-                return {
-                    ...ticket,
-                    payment_metadata: JSON.stringify(ticket.payment_metadata || []) as any,
-                }
-            }) : null,
+            tickets: enableTicket && tickets.length ? tickets : null,
 
             auth_token: user.authToken || '',
         } as CreateRepeatEventProps
@@ -1136,16 +1145,45 @@ function EditEvent({
         })
     }
 
+    const showGenPromoCodeDialog = () => {
+        openDialog({
+            content: (close: any) => {
+                return <DialogGenPromoCode
+                    close={close}
+                    promoCodes={promoCodes}
+                    event={initEvent!}
+                    onChange={(codes) => {
+                        console.log('codes', codes)
+                    }}
+                />
+            },
+            size: ['100%', '100%'],
+        })
+    }
+
     return (
         <>
             <div className={styles['create-event-page']}>
                 <div className={styles['create-page-wrapper']}>
-                    <PageBack title={lang['Activity_Create_title']}/>
+                    <PageBack
+                        title={lang['Activity_Create_title']}
+                        menu={() => {
+                            return initEvent && (isManager || initEvent?.owner.id === user.id) ?
+                            <div>
+                                <AppButton
+                                    onClick={showGenPromoCodeDialog}
+                                    style={{fontSize: '12px!important'}} kind={'primary'} size={'compact'}>
+                                    {lang['Promo_Code']}
+                                </AppButton>
+                            </div> : null
+                        }
+                        }
+                    />
                     <div className={styles['flex']}>
                         <div className={styles['create-form']}>
 
                             <div className={styles['input-area']}>
-                                <div className={styles['input-area-title']}>{lang['Activity_Form_Name']}</div>
+                            <div className={styles['input-area-title']}>{lang['Activity_Form_Name']}</div>
                                 <AppInput
                                     clearable
                                     maxLength={100}
@@ -1211,7 +1249,7 @@ function EditEvent({
                             {!!eventGroup &&
                                 <div className={styles['input-area']}>
                                     <LocationInput
-                                        role = {isManager ? 'manager' : undefined}
+                                        role={isManager ? 'manager' : undefined}
                                         event={event as any}
                                         initValue={event as any}
                                         eventGroup={eventGroup as Group}
@@ -1254,7 +1292,8 @@ function EditEvent({
                                 </div>
                             }
 
-                            {!!occupiedError && <div className={styles['start-time-error']} dangerouslySetInnerHTML={{__html: occupiedError}}></div>}
+                            {!!occupiedError && <div className={styles['start-time-error']}
+                                                     dangerouslySetInnerHTML={{__html: occupiedError}}></div>}
                             {!!dayDisable && <div className={styles['start-time-error']}>{dayDisable}</div>}
 
                             {event.venue_id && (eventGroup?.id === 3427 || eventGroup?.id === 3409) &&
@@ -1415,7 +1454,7 @@ function EditEvent({
                                 {/*        }}/>*/}
                                 {/*}*/}
 
-                                { enableCoHost &&
+                                {enableCoHost &&
                                     <CohostInput
                                         placeholder={'Enter your cohost’s name, domain, or wallet address'}
                                         allowInviteEmail={true}
@@ -1533,7 +1572,8 @@ function EditEvent({
                                 <>
                                     <div className={styles['input-area']}>
                                         <div className={styles['input-area-title']}>{lang['Activity_Form_Badge']}</div>
-                                        <div className={styles['input-area-des']}>{lang['Activity_Form_Badge_Des']}</div>
+                                        <div
+                                            className={styles['input-area-des']}>{lang['Activity_Form_Badge_Des']}</div>
                                         {!event.badge_class_id &&
                                             <div className={styles['add-badge']} onClick={async () => {
                                                 await showBadges()
@@ -1607,7 +1647,8 @@ function EditEvent({
                                 </>
                             }
                             {
-                                requireApproval && <div className={styles['require-approval']}>{`You will apply to use venue "${venueInfo?.title}"`}</div>
+                                requireApproval && <div
+                                    className={styles['require-approval']}>{`You will apply to use venue "${venueInfo?.title}"`}</div>
                             }
                             <div className={styles['btns']}>
 
@@ -1740,7 +1781,11 @@ export const getServerSideProps: any = async (context: any) => {
     }
 }
 
-function DialogShowMaxParticipant(props: { value: null | number, onChange: (value: number | null) => any, close: any }) {
+function DialogShowMaxParticipant(props: {
+    value: null | number,
+    onChange: (value: number | null) => any,
+    close: any
+}) {
     const [count, setCount] = useState(props.value || 30)
 
     return <div className={styles['dialog-max-participant']}>
