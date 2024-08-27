@@ -5335,7 +5335,7 @@ export async function queryTickets (props: {
     }
 
     const doc = gql`query MyQuery {
-      tickets(where: {${variables}}) {
+      tickets(where: {${variables}}, order_by: {id: asc}) {
         payment_methods {
             id
             item_type
