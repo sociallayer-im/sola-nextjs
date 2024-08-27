@@ -155,6 +155,15 @@ function Ticket({creator, ...props}: {
         })
     }, [])
 
+    useEffect(() => {
+        document.querySelectorAll('input[type=number]').forEach((input) => {
+            input.addEventListener('wheel', e => {
+                e.stopPropagation()
+                e.preventDefault()
+            })
+        })
+    }, [props.ticket.payment_methods]);
+
 
     const showBadges = async () => {
         const queryProp = !!(creator as Group)?.creator ? {
