@@ -6021,11 +6021,12 @@ export interface PaymentMethod {
     _destroy?: string
 }
 
+export type Weekday = 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday'
 
 export interface VenueTimeslot {
     id?: number
     venue_id?: number,
-    day_of_week: 'Monday' | 'Tuesday' | 'Wednesday' | 'Thursday' | 'Friday' | 'Saturday' | 'Sunday',
+    day_of_week: Weekday,
     disabled: boolean,
     start_at: string,
     end_at: string,

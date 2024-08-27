@@ -32,7 +32,7 @@ import {
     RepeatEventUpdate,
     setEventBadge,
     Ticket,
-    updateEvent,
+    updateEvent, Weekday,
 } from "@/service/solas";
 import EventDefaultCover from "@/components/base/EventDefaultCover";
 import AppButton, {BTN_KIND} from "@/components/base/AppButton/AppButton";
@@ -439,7 +439,7 @@ function EditEvent({
     useEffect(() => {
         if (!!venueInfo && !!venueInfo.venue_timeslots && event.start_time) {
             const day = dayjs.tz(new Date(event.start_time).getTime(), event.timezone).day()
-            const dayFullName = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+            const dayFullName:Weekday[] = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
             const target = venueInfo.venue_timeslots.find(item => item.day_of_week === dayFullName[day])
 
             const startTime = dayjs.tz(new Date(event.start_time).getTime(), event.timezone)

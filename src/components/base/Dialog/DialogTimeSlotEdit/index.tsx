@@ -24,13 +24,13 @@ export interface TimeSlotItem {
 }
 
 const emptySlot: VenueTimeslotWithIndex[] = [
-    {day_of_week: 'Monday', disabled: false, start_at: '08:00', end_at: '20:00', _index: 0},
-    {day_of_week: 'Tuesday', disabled: false, start_at: '08:00', end_at: '20:00', _index: 1},
-    {day_of_week: 'Wednesday', disabled: false, start_at: '08:00', end_at: '20:00', _index: 2},
-    {day_of_week: 'Thursday', disabled: false, start_at: '08:00', end_at: '20:00',_index: 3},
-    {day_of_week: 'Friday', disabled: false, start_at: '08:00', end_at: '20:00', _index: 4},
-    {day_of_week: 'Saturday', disabled: false, start_at: '08:00', end_at: '20:00', _index: 5},
-    {day_of_week: 'Sunday', disabled: false, start_at: '08:00', end_at: '20:00', _index: 6},
+    {day_of_week: 'monday', disabled: false, start_at: '08:00', end_at: '20:00', _index: 0},
+    {day_of_week: 'tuesday', disabled: false, start_at: '08:00', end_at: '20:00', _index: 1},
+    {day_of_week: 'wednesday', disabled: false, start_at: '08:00', end_at: '20:00', _index: 2},
+    {day_of_week: 'thursday', disabled: false, start_at: '08:00', end_at: '20:00',_index: 3},
+    {day_of_week: 'friday', disabled: false, start_at: '08:00', end_at: '20:00', _index: 4},
+    {day_of_week: 'saturday', disabled: false, start_at: '08:00', end_at: '20:00', _index: 5},
+    {day_of_week: 'sunday', disabled: false, start_at: '08:00', end_at: '20:00', _index: 6},
 ]
 
 interface VenueTimeslotWithIndex extends VenueTimeslot {
@@ -74,29 +74,31 @@ export default function DialogTimeSlotEdit(props: { close: any, value: VenueTime
 
         slot.forEach((item, index) => {
             switch (item.day_of_week) {
-                case 'Monday':
+                case 'monday':
                     !item._destroy && showSlots[0].push({...item, _index: index})
                     break
-                case 'Tuesday':
+                case 'tuesday':
                     !item._destroy && showSlots[1].push({...item, _index: index})
                     break
-                case 'Wednesday':
+                case 'wednesday':
                     !item._destroy && showSlots[2].push({...item, _index: index})
                     break
-                case 'Thursday':
+                case 'thursday':
                     !item._destroy && showSlots[3].push({...item, _index: index})
                     break
-                case 'Friday':
+                case 'friday':
                     !item._destroy && showSlots[4].push({...item, _index: index})
                     break
-                case 'Saturday':
+                case 'saturday':
                     !item._destroy && showSlots[5].push({...item, _index: index})
                     break
-                case 'Sunday':
+                case 'sunday':
                     !item._destroy && showSlots[6].push({...item, _index: index})
             }
         })
 
+        console.log('showSlots', showSlots)
+        console.log('slot', slot)
         return showSlots
     }, [slot])
 
@@ -149,6 +151,7 @@ export default function DialogTimeSlotEdit(props: { close: any, value: VenueTime
                     </div>
                 </div>
 
+                <div></div>
                 <div>
                     {
                        !allTime && showSlot.map((item, index) => {
