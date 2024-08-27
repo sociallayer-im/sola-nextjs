@@ -2956,6 +2956,8 @@ export interface EventSites {
     overrides: null | string[],
     require_approval?: boolean,
     visibility: null | 'all' | 'manager',
+    venue_timeslots: VenueTimeslot[]
+    venue_overrides: VenueOverride[]
 }
 
 export interface Participants {
@@ -3208,6 +3210,22 @@ export async function queryEvent(props: QueryEventProps): Promise<Event[]> {
             overrides
             start_date
             end_date
+            venue_timeslots {
+                id
+                venue_id
+                day_of_week
+                disabled
+                start_at
+                end_at
+            }
+            venue_overrides {
+                id
+                venue_id
+                day
+                disabled
+                start_at
+                end_at
+            }
         }
         event_type
         formatted_address
@@ -3469,6 +3487,22 @@ export async function queryCohostingEvent(props: { id: number, email?: string })
             geo_lat
             geo_lng
             require_approval
+            venue_timeslots {
+                id
+                venue_id
+                day_of_week
+                disabled
+                start_at
+                end_at
+            }
+            venue_overrides {
+                id
+                venue_id
+                day
+                disabled
+                start_at
+                end_at
+            }
         }
         event_type
         formatted_address
@@ -3632,6 +3666,22 @@ export async function queryMyEvent({page = 1, page_size = 10, ...props}: QueryMy
                formatted_address
                geo_lat
                geo_lng
+          venue_timeslots {
+                id
+                venue_id
+                day_of_week
+                disabled
+                start_at
+                end_at
+            }
+            venue_overrides {
+                id
+                venue_id
+                day
+                disabled
+                start_at
+                end_at
+            }
           }
          owner {
             id
@@ -3711,6 +3761,22 @@ export async function getEventSide(groupId?: number, allowRemoved?: boolean): Pr
         capacity
         overrides
         require_approval
+        venue_timeslots {
+                id
+                venue_id
+                day_of_week
+                disabled
+                start_at
+                end_at
+        }
+        venue_overrides {
+                id
+                venue_id
+                day
+                disabled
+                start_at
+                end_at
+        }
       }
     }`
 
@@ -3825,6 +3891,22 @@ export async function searchEvent(keyword: string, group_id?: number): Promise<E
             formatted_address
             geo_lat
             geo_lng
+            venue_timeslots {
+                id
+                venue_id
+                day_of_week
+                disabled
+                start_at
+                end_at
+            }
+            venue_overrides {
+                id
+                venue_id
+                day
+                disabled
+                start_at
+                end_at
+            }
         }
          owner {
             id

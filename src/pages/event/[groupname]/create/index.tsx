@@ -63,10 +63,12 @@ import TicketSetting from "@/components/compose/TicketSetting/TicketSetting";
 const utc = require('dayjs/plugin/utc')
 const timezone = require('dayjs/plugin/timezone')
 const isSameOrAfter = require('dayjs/plugin/isSameOrAfter')
+const isBetween = require('dayjs/plugin/isBetween')
 const dayjs: any = dayjsLib
 dayjs.extend(utc)
 dayjs.extend(timezone)
 dayjs.extend(isSameOrAfter)
+dayjs.extend(isBetween)
 
 
 const repeatEventEditOptions = [
@@ -435,18 +437,25 @@ function EditEvent({
 
     // check available day for curr venue
     useEffect(() => {
-        if (!!venueInfo && !!venueInfo.timeslots && event.start_time) {
+        if (!!venueInfo && !!venueInfo.venue_timeslots && event.start_time) {
             const day = dayjs.tz(new Date(event.start_time).getTime(), event.timezone).day()
             const dayFullName = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
-            const target: any = JSON.parse(venueInfo.timeslots!).find((item: {
-                day: string,
-                disable: boolean
-            }) => item.day === dayFullName[day])
+            const target = venueInfo.venue_timeslots.find(item => item.day_of_week === dayFullName[day])
 
-            const startTime = dayjs.tz(event.start_time, event.timezone)
-            const endTime = dayjs.tz(event.start_time, event.timezone)
+            const startTime = dayjs.tz(new Date(event.start_time).getTime(), event.timezone)
+            const endTime = dayjs.tz(new Date(event.end_time!).getTime(), event.timezone)
             const availableStart = venueInfo.start_date ? dayjs.tz(venueInfo.start_date, event.timezone) : null
             const availableEnd = venueInfo.end_date ? dayjs.tz(venueInfo.end_date, event.timezone).hour(23).minute(59) : null
+
+            const hasOverride =  venueInfo.venue_overrides!.find((item) => {
+                return startTime.isBetween(dayjs.tz(`${item.day} ${item.start_at}`, event.timezone), dayjs.tz(`${item.day} ${item.end_at}`, event.timezone), null, '[]')
+                    || endTime.isBetween(dayjs.tz(`${item.day} ${item.start_at}`, event.timezone), dayjs.tz(`${item.day} ${item.end_at}`, event.timezone), null, '[]')
+            })
+
+            if (!!hasOverride) {
+                setDayDisable(!hasOverride.disabled ? '' : 'The date you selected is not available for the current venue')
+                return
+            }
 
             let available = true
             if (availableStart && !availableEnd) {
@@ -458,10 +467,16 @@ function EditEvent({
                 available = startTime.isSameOrAfter(availableStart) && endTime.isBefore(availableEnd)
             }
 
-            if (venueInfo.overrides) {
-                const overrides = venueInfo.overrides
-                const override = overrides.find((item: string) => {
-                    return item === startTime.format('YYYY/MM/DD') || item === endTime.format('YYYY/MM/DD')
+            if (!!venueInfo.venue_overrides) {
+                const overrides = venueInfo.venue_overrides
+                const override = overrides.find((item) => {
+                    const itemStartTime = item.start_at || '00:00'
+                    const itemEndTime =  item.end_at || '23:59'
+
+                    const itemStart = dayjs.tz(`${item.day} ${itemStartTime}`, event.timezone)
+                    const itemEnd = dayjs.tz(`${item.day} ${itemEndTime}`, event.timezone)
+
+                    return startTime.isBetween(itemStart, itemEnd, null, '[]') || endTime.isBetween(itemStart, itemEnd, null, '[]')
                 })
 
                 if (override) {
@@ -469,7 +484,7 @@ function EditEvent({
                 }
             }
 
-            if (target.disable || !available) {
+            if (target?.disabled || !available ) {
                 setDayDisable('The date you selected is not available for the current venue')
             } else {
                 setDayDisable('')
@@ -1325,7 +1340,7 @@ function EditEvent({
                                 </>
                             }
 
-                            {!!venueInfo && venueInfo.timeslots && formReady &&
+                            {!!venueInfo && !!venueInfo.venue_timeslots && !!venueInfo.venue_timeslots.length && formReady &&
                                 <div className={styles['input-area']}>
                                     <div className={styles['input-area-title']}>{lang['Activity_Form_Starttime']}</div>
                                     <TimeSlotInput
@@ -1356,7 +1371,7 @@ function EditEvent({
                                 </div>
                             }
 
-                            {formReady && (!venueInfo || !venueInfo.timeslots) &&
+                            {formReady && (!venueInfo || !venueInfo.venue_timeslots || !venueInfo.venue_timeslots.length) &&
                                 <div className={styles['input-area']}>
                                     <div className={styles['input-area-title']}>{lang['Activity_Form_Starttime']}</div>
                                     <AppEventTimeInput

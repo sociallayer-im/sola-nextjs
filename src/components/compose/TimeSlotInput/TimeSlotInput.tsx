@@ -10,7 +10,7 @@ import {TimezonePicker} from "baseui/timezonepicker";
 import TriangleDown from 'baseui/icon/triangle-down'
 import dialogsContext from "@/components/provider/DialogProvider/DialogsContext";
 import AppButton from '@/components/base/AppButton/AppButton'
-import {Event, EventSites, queryEvent} from '@/service/solas'
+import {Event, EventSites, queryEvent, VenueTimeslot} from '@/service/solas'
 import {TimeSlotItem} from "@/components/base/Dialog/DialogTimeSlotEdit";
 
 const utc = require('dayjs/plugin/utc')
@@ -43,29 +43,36 @@ export interface SlotOption {
     options: Slot[][]
 }
 
-function genSlotOption(slotInfo: TimeSlotItem[]): SlotOption[] {
-    return slotInfo.map((item) => {
-        const slots = item.slot.map((slot) => {
-            const [startHour, startMinute] = slot.start.split(':')
-            const [endHour, endMinute] = slot.end.split(':')
-            let startDate = dayjs().hour(Number(startHour)).minute(Number(startMinute))
-            const endDate = dayjs().hour(Number(endHour)).minute(Number(endMinute))
-            const soloOptions = []
-            while (startDate.valueOf() <= endDate.valueOf()) {
-                soloOptions.push({
-                    id: startDate.format('HH:mm'),
-                    label: startDate.format('HH:mm')
-                })
-                startDate = startDate.add(15, 'minute')
-            }
-            return soloOptions
-        })
-        return {
-            day: item.day,
-            disable: item.disable,
-            options: slots
+function genSlotOption(slotInfo: VenueTimeslot[]): SlotOption[] {
+    let res: SlotOption[] = []
+
+    slotInfo.forEach(s => {
+        const exist = res.find(r => r.day === s.day_of_week)
+        const [startHour, startMinute] = s.start_at.split(':')
+        const [endHour, endMinute] = s.end_at.split(':')
+        let startDate = dayjs().hour(Number(startHour)).minute(Number(startMinute))
+        const endDate = dayjs().hour(Number(endHour)).minute(Number(endMinute))
+        const soloOptions = []
+        while (startDate.valueOf() <= endDate.valueOf()) {
+            soloOptions.push({
+                id: startDate.format('HH:mm'),
+                label: startDate.format('HH:mm')
+            })
+            startDate = startDate.add(15, 'minute')
+        }
+
+        if (!!exist) {
+            exist.options.push(soloOptions)
+        } else {
+            res.push({
+                day: s.day_of_week,
+                disable: s.disabled,
+                options: [soloOptions]
+            })
         }
     })
+
+    return  res
 }
 
 function genStartOption(slotInfo: SlotOption[], currDate: Date) {
@@ -239,9 +246,9 @@ function TimeSlotInput({
         date: new Date()
     })
 
+    const slotOptions = genSlotOption(props.eventSite.venue_timeslots || [])
 
-
-    const slotOptions = genSlotOption(JSON.parse(props.eventSite.timeslots!))
+    console.log('slotOptions')
 
     const repeatOptions: any = [
         {label: lang['Form_Repeat_Not'], id: ''},
@@ -249,7 +256,6 @@ function TimeSlotInput({
         {label: lang['Form_Repeat_Week'], id: "week"},
         {label: lang['Form_Repeat_Month'], id: "month"},
     ]
-
 
     let repeatDefault: { label: string, id: string }[] = [repeatOptions[0]]
     const [repeat, setRepeat] = useState<{ label: string, id: string }[]>(repeatDefault)

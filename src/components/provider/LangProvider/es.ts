@@ -448,7 +448,7 @@ const langEsData : Partial<LangConfig> = {
     "Login_Phone_input_Code_des": slotLang("Introduce el código que te enviamos a {phone} para completar la configuración de tu cuenta."),
     "Event_Site_Title": "Lugares",
     "Event_Site_Remove": "Eliminar",
-    "Event_Site_Location_title": slotLang("Ubicación del lugar {1}"),
+    "Event_Site_Location_title": "Ubicación del lugar",
     "Setting_Title": "Configuración de la Organización",
     "Setting_Event_site": "Lugares",
     "Setting_Dashboard": "Panel",
