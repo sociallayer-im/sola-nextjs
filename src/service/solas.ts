@@ -3825,7 +3825,14 @@ export interface TicketItem {
     promo_code_id: null | number
     sender_address: null | string
     created_at: string,
-    profile: ProfileSimple
+    profile: ProfileSimple,
+    event: {
+        group_id: number
+    },
+    ticket: {
+        title: string,
+        content: string
+    }
 }
 
 export async function joinEventWithTicketItem(props: JoinEventProps) {
@@ -6038,8 +6045,8 @@ export interface VenueOverride {
     venue_id: number,
     day: string, // '2022-01-01'
     disabled: boolean,
-    start_at: string,
-    end_at: string,
+    start_at: string | null,
+    end_at: string | null,
     _destroy?: string
 }
 
@@ -6211,6 +6218,13 @@ export async function queryTicketItems (props: {event_id?: number, participant_i
 
     const doc = `query MyQuery {
         ticket_items(where: {${variables}}) {
+            event {
+                group_id
+            }
+           ticket {
+                title
+                content
+            }
             promo_code_id
             sender_address
             id

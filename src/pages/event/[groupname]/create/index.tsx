@@ -448,8 +448,10 @@ function EditEvent({
             const availableEnd = venueInfo.end_date ? dayjs.tz(venueInfo.end_date, event.timezone).hour(23).minute(59) : null
 
             const hasOverride =  venueInfo.venue_overrides!.find((item) => {
-                return startTime.isBetween(dayjs.tz(`${item.day} ${item.start_at}`, event.timezone), dayjs.tz(`${item.day} ${item.end_at}`, event.timezone), null, '[]')
-                    || endTime.isBetween(dayjs.tz(`${item.day} ${item.start_at}`, event.timezone), dayjs.tz(`${item.day} ${item.end_at}`, event.timezone), null, '[]')
+                const start_at = item.start_at || '00:00'
+                const end_at =  item.end_at || '23:59'
+                return startTime.isBetween(dayjs.tz(`${item.day} ${start_at}`, event.timezone), dayjs.tz(`${item.day} ${end_at}`, event.timezone), null, '[]')
+                    || endTime.isBetween(dayjs.tz(`${item.day} ${start_at}`, event.timezone), dayjs.tz(`${item.day} ${end_at}`, event.timezone), null, '[]')
             })
 
             if (!!hasOverride) {

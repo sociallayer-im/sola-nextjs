@@ -98,8 +98,10 @@ function LocationInput(props: LocationInputProps) {
             const availableEnd = option.end_date ? dayjs.tz(option.end_date, timezone).hour(23).minute(59) : null
 
             const hasOverride = option.venue_overrides!.find((item) => {
-                return startTime.isBetween(dayjs.tz(`${item.day} ${item.start_at}`, timezone), dayjs.tz(`${item.day} ${item.end_at}`, timezone), null, '[]')
-                    || endTime.isBetween(dayjs.tz(`${item.day} ${item.start_at}`, timezone), dayjs.tz(`${item.day} ${item.end_at}`, timezone), null, '[]')
+                const start_at = item.start_at || '00:00'
+                const end_at =  item.end_at || '23:59'
+                return startTime.isBetween(dayjs.tz(`${item.day} ${start_at}`, timezone), dayjs.tz(`${item.day} ${end_at}`, timezone), null, '[]')
+                    || endTime.isBetween(dayjs.tz(`${item.day} ${start_at}`, timezone), dayjs.tz(`${item.day} ${end_at}`, timezone), null, '[]')
             })
 
             if (!!hasOverride) {
