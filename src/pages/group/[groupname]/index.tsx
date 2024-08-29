@@ -307,7 +307,7 @@ function GroupPage(props: any) {
                             {(selectedTab === '0' || loadedTabRrf.current.has('0')) &&
                                 <div className={`group-event ${selectedTab === '0' ? '' : 'hide'}`}>
                                     <div className={styles['fixed-box']}>
-                                        <div className={styles['name']}>{profile.username}</div>
+                                        <div className={styles['name']}>{profile.nickname || profile.username }</div>
 
                                         <Link href={`/event/${profile.username}`} className={styles['btn']}>See all events</Link>
                                     </div>
