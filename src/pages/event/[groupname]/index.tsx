@@ -155,6 +155,7 @@ function Home(props: { badges: Badge[], initEvent: Group, initList?: Event[], me
                     <HomeUserPanel membership={props.membership || []}
                                    badges={props.badges || []}
                                    isSide
+                                   group={props.initEvent}
                                    slot={() => {
                                        return <>
                                            {!!user.id
