@@ -10,7 +10,7 @@ import {TimezonePicker} from "baseui/timezonepicker";
 import TriangleDown from 'baseui/icon/triangle-down'
 import dialogsContext from "@/components/provider/DialogProvider/DialogsContext";
 import AppButton from '@/components/base/AppButton/AppButton'
-import {Event, EventSites, queryEvent, VenueTimeslot} from '@/service/solas'
+import {Event, EventSites, queryEvent, VenueTimeslot, Weekday} from '@/service/solas'
 import {TimeSlotItem} from "@/components/base/Dialog/DialogTimeSlotEdit";
 
 const utc = require('dayjs/plugin/utc')
@@ -21,7 +21,7 @@ dayjs.extend(timezone)
 
 const dayName = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 const mouthName = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-const dayFullName =  ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+const dayFullName:Weekday[] =  ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
 
 export function mapTimezone(value: any) {
     const target = timezoneList.find((item) => {

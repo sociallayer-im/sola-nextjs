@@ -1,5 +1,5 @@
 import {useContext, useEffect, useRef, useState} from 'react'
-import {EventSites, getEventSide, Group, Event} from "@/service/solas";
+import {EventSites, getEventSide, Group, Event, Weekday} from "@/service/solas";
 import {Select} from "baseui/select";
 import AppInput from "../../base/AppInput";
 import {Delete} from "baseui/icon";
@@ -89,7 +89,7 @@ function LocationInput(props: LocationInputProps) {
     const checkAvailable = (option: Partial<EventSites>, start_time: string, end_time: string, timezone: string) => {
         if (!!option && !!option.venue_timeslots && start_time && end_time) {
             const day = dayjs.tz(new Date(start_time).getTime(), timezone).day()
-            const dayFullName = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+            const dayFullName:Weekday[] = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
             const target = option.venue_timeslots.find(item => item.day_of_week === dayFullName[day])
 
             const startTime = dayjs.tz(new Date(start_time).getTime(), timezone)
@@ -98,8 +98,10 @@ function LocationInput(props: LocationInputProps) {
             const availableEnd = option.end_date ? dayjs.tz(option.end_date, timezone).hour(23).minute(59) : null
 
             const hasOverride = option.venue_overrides!.find((item) => {
-                return startTime.isBetween(dayjs.tz(`${item.day} ${item.start_at}`, timezone), dayjs.tz(`${item.day} ${item.end_at}`, timezone), null, '[]')
-                    || endTime.isBetween(dayjs.tz(`${item.day} ${item.start_at}`, timezone), dayjs.tz(`${item.day} ${item.end_at}`, timezone), null, '[]')
+                const start_at = item.start_at || '00:00'
+                const end_at =  item.end_at || '23:59'
+                return startTime.isBetween(dayjs.tz(`${item.day} ${start_at}`, timezone), dayjs.tz(`${item.day} ${end_at}`, timezone), null, '[]')
+                    || endTime.isBetween(dayjs.tz(`${item.day} ${start_at}`, timezone), dayjs.tz(`${item.day} ${end_at}`, timezone), null, '[]')
             })
 
             if (!!hasOverride) {

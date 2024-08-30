@@ -1,13 +1,10 @@
 import {useContext, useEffect, useRef, useState} from 'react'
 import {
     Event,
-    EventSites,
-    getEventSide,
     getGroups,
     getGroupsBatch,
-    Group,
-    queryEvent,
-    queryGroupDetail
+    Group, queryEventDetail,
+    queryScheduleEvent,
 } from "@/service/solas";
 import styles from './schedulenew.module.scss'
 import Link from 'next/link'
@@ -31,10 +28,14 @@ import {isHideLocation} from "@/global_config";
 const utc = require('dayjs/plugin/utc')
 const timezone = require('dayjs/plugin/timezone')
 const isSameOrBefore = require('dayjs/plugin/isSameOrBefore')
+const updateLocale  = require('dayjs/plugin/updateLocale')
 const dayjs: any = dayjsLib
 dayjs.extend(utc)
 dayjs.extend(timezone)
 dayjs.extend(isSameOrBefore)
+dayjs.extend(updateLocale)
+dayjs.updateLocale(dayjs.locale(), {weekStart: 1})
+
 
 const dayName = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 const mouthName = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
@@ -78,8 +79,8 @@ const getCalendarData = (timeZone: string) => {
 
     // const timeStr = `${now.year()}-${now.month() + 1}-${now.date()} 00:00`
     // const _nowZero = dayjs(timeStr, timeZone)
-    const _from = now.subtract(182, 'day').startOf('week').add(1, 'day')
-    const _end = _from.add(52, 'week').endOf('week').subtract(1, 'day')
+    const _from = now.startOf('week').subtract(26, 'week')
+    const _end = _from.add(52, 'week').endOf('week')
 
     const _dayArray = []
     let current = _from
@@ -121,7 +122,7 @@ const getCalendarData = (timeZone: string) => {
 }
 
 
-function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
+function ComponentName(props: { group: Group}) {
     const eventGroup = props.group
     const now = new Date()
     const scroll1Ref = useRef<any>(null)
@@ -171,15 +172,6 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
             color: getLabelColor(item)
         }
     }) || []
-
-    const venues = props.eventSite.map((item) => {
-        return {
-            id: item.id,
-            label: item.title,
-            color: null
-        }
-    }) || []
-
 
     const toToday = (initDate?: Date) => {
         const now = initDate || new Date()
@@ -246,7 +238,7 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
     useEffect(() => {
         const getEventList = async () => {
           const unload = showLoading()
-            const events = await queryEvent({
+            const events = await queryScheduleEvent({
                 group_id: eventGroup.id,
                 start_time_from: new Date(dayList[0].timestamp).toISOString(),
                 start_time_to: new Date(dayList[dayList.length - 1].timestamp).toISOString(),
@@ -783,8 +775,7 @@ export const getServerSideProps: any = (async (context: any) => {
     const groupname = context.params?.groupname
     if (groupname) {
         const group = await getGroups({username: groupname})
-        const eventSite = await getEventSide(group[0].id)
-        return {props: {group: group[0], eventSite: eventSite}}
+        return {props: {group: group[0]}}
     }
 })
 
@@ -801,7 +792,7 @@ function EventCard({
     const toTime = dayjs.tz(new Date(event.end_time!).getTime(), showTimezone).format('HH:mm')
     const fromDate = dayjs.tz(new Date(event.start_time!).getTime(), showTimezone).format('YYYY-MM-DD')
     const {user} = useContext(UserContext)
-    const {openDialog} = useContext(DialogsContext)
+    const {openDialog, showLoading} = useContext(DialogsContext)
 
     const offset = dayjs.tz(new Date(event.end_time!).getTime(), showTimezone).utcOffset()
     const utcOffset = offset >= 0 ?
@@ -813,9 +804,12 @@ function EventCard({
 
     const router = useRouter()
 
-    const showPopup = () => {
+    const showPopup = async () => {
+        const unload = showLoading()
+        const eventDetail = await queryEventDetail({id: event.id})
+        unload()
         openDialog({
-            content: (close: any) => {return <EventPopup close={close} event={event} timezone={showTimezone} />},
+            content: (close: any) => {return <EventPopup close={close} event={eventDetail} timezone={showTimezone} />},
             size: [450, 'auto'],
             position: 'bottom',
         })

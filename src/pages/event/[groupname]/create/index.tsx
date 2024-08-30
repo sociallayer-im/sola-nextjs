@@ -32,7 +32,7 @@ import {
     RepeatEventUpdate,
     setEventBadge,
     Ticket,
-    updateEvent,
+    updateEvent, Weekday,
 } from "@/service/solas";
 import EventDefaultCover from "@/components/base/EventDefaultCover";
 import AppButton, {BTN_KIND} from "@/components/base/AppButton/AppButton";
@@ -439,11 +439,8 @@ function EditEvent({
     useEffect(() => {
         if (!!venueInfo && !!venueInfo.venue_timeslots && event.start_time) {
             const day = dayjs.tz(new Date(event.start_time).getTime(), event.timezone).day()
-            const dayFullName = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
-            const target: any = JSON.parse(venueInfo.timeslots!).find((item: {
-                day: string,
-                disable: boolean
-            }) => item.day === dayFullName[day])
+            const dayFullName:Weekday[] = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
+            const target = venueInfo.venue_timeslots.find(item => item.day_of_week === dayFullName[day])
 
             const startTime = dayjs.tz(new Date(event.start_time).getTime(), event.timezone)
             const endTime = dayjs.tz(new Date(event.end_time!).getTime(), event.timezone)
@@ -451,8 +448,10 @@ function EditEvent({
             const availableEnd = venueInfo.end_date ? dayjs.tz(venueInfo.end_date, event.timezone).hour(23).minute(59) : null
 
             const hasOverride =  venueInfo.venue_overrides!.find((item) => {
-                return startTime.isBetween(dayjs.tz(`${item.day} ${item.start_at}`, event.timezone), dayjs.tz(`${item.day} ${item.end_at}`, event.timezone), null, '[]')
-                    || endTime.isBetween(dayjs.tz(`${item.day} ${item.start_at}`, event.timezone), dayjs.tz(`${item.day} ${item.end_at}`, event.timezone), null, '[]')
+                const start_at = item.start_at || '00:00'
+                const end_at =  item.end_at || '23:59'
+                return startTime.isBetween(dayjs.tz(`${item.day} ${start_at}`, event.timezone), dayjs.tz(`${item.day} ${end_at}`, event.timezone), null, '[]')
+                    || endTime.isBetween(dayjs.tz(`${item.day} ${start_at}`, event.timezone), dayjs.tz(`${item.day} ${end_at}`, event.timezone), null, '[]')
             })
 
             if (!!hasOverride) {

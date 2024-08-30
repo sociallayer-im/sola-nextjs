@@ -10,7 +10,7 @@ import {
     markersCheckinList,
     Participants,
     queryCheckInList,
-    queryEvent,
+    queryMapEvent,
     queryMarkers,
     queryMyEvent
 } from "@/service/solas";
@@ -79,7 +79,7 @@ function ComponentName(props: { markerType: string | null, group?: Group, isIfra
             //     sort_by: 'start_time',
             //     sort: 'asc'
             // })
-            res = (await queryEvent({
+            res = (await queryMapEvent({
                 page: 1,
                 end_time_gte: new Date().toISOString(),
                 event_order: 'asc',
@@ -108,7 +108,7 @@ function ComponentName(props: { markerType: string | null, group?: Group, isIfra
             if (searchParams?.get('target_event')) {
                 const targetEvent = res.find(item => item.id === Number(searchParams?.get('target_event')))
                 if (!targetEvent) {
-                    const targetEvent = await queryEvent({id: Number(searchParams?.get('target_event')), page: 1})
+                    const targetEvent = await queryMapEvent({id: Number(searchParams?.get('target_event')), page: 1})
                     if (targetEvent[0]) {
                         const target = {
                             ...targetEvent[0],

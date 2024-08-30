@@ -22,7 +22,7 @@ export const paymentTokenList: PaymentSettingChain[] = process.env.NEXT_PUBLIC_P
             id: 'ethereum',
             chainId: 1,
             icon: '/images/ethereum-icon.webp',
-            payHub: '0x98baA8b1DAb47079bbAC345Dd0A4Bd149CA93e4B',
+            payHub: '0xA73405D59e136f574a2FD690079B240f6fbff0a8',
             tokenList: [
                 {
                     name: 'USDT',
@@ -38,7 +38,7 @@ export const paymentTokenList: PaymentSettingChain[] = process.env.NEXT_PUBLIC_P
             id: 'polygon',
             chainId: 137,
             icon: '/images/polygon.svg',
-            payHub: '0xea6D3bEE13F1e5080FA4cF768db91682602c65D3',
+            payHub: '0xA73405D59e136f574a2FD690079B240f6fbff0a8',
             tokenList: [
                 {
                     name: 'USDT',
@@ -53,21 +53,7 @@ export const paymentTokenList: PaymentSettingChain[] = process.env.NEXT_PUBLIC_P
                     contract: '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174',
                     icon: '/images/usdc_32.webp',
                     decimals: 6
-                },
-                {
-                    name: 'DAI',
-                    id: 'dai',
-                    contract: '0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063',
-                    icon: '/images/mcdDai_32.png',
-                    decimals: 18
-                },
-                {
-                    name: 'TEST',
-                    id: 'TEST',
-                    contract: '0x3e4d99a6Ad210b1806dC8e6790669863D0A490B8',
-                    icon: '/images/tether_32.webp',
-                    decimals: 18
-                },
+                }
             ]
         },
         {
@@ -75,7 +61,7 @@ export const paymentTokenList: PaymentSettingChain[] = process.env.NEXT_PUBLIC_P
             id: 'optimism',
             chainId: 10,
             icon: '/images/op.png',
-            payHub: '0x98baA8b1DAb47079bbAC345Dd0A4Bd149CA93e4B',
+            payHub: '0xA73405D59e136f574a2FD690079B240f6fbff0a8',
             tokenList: [
                 {
                     name: 'USDT',
@@ -91,7 +77,7 @@ export const paymentTokenList: PaymentSettingChain[] = process.env.NEXT_PUBLIC_P
             id: 'arbitrum',
             chainId: 42161,
             icon: '/images/arbitrum.png',
-            payHub: '0x98baA8b1DAb47079bbAC345Dd0A4Bd149CA93e4B',
+            payHub: '0xA73405D59e136f574a2FD690079B240f6fbff0a8',
             tokenList: [
                 {
                     name: 'USDT',
@@ -108,7 +94,7 @@ export const paymentTokenList: PaymentSettingChain[] = process.env.NEXT_PUBLIC_P
             id: 'base',
             chainId: 8453,
             icon: '/images/base_chain.png',
-            payHub: '0x98baA8b1DAb47079bbAC345Dd0A4Bd149CA93e4B',
+            payHub: '0xA73405D59e136f574a2FD690079B240f6fbff0a8',
             tokenList: [
                 {
                     name: 'USDC',

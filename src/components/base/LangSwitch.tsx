@@ -21,6 +21,10 @@ function LangSwitch () {
                   onClick={ () => { switchLang(LangType.th); close() } }>
             { LangType.th.toUpperCase() }
         </MenuItem>
+        <MenuItem selected={langType === LangType.es}
+                  onClick={ () => { switchLang(LangType.es); close() } }>
+            { LangType.es.toUpperCase() }
+        </MenuItem>
     </>
 
     const overridesStyle = {

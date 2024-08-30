@@ -583,7 +583,7 @@ function Dashboard() {
                             }}/>
                         </div>
                         <div className={'dialog-inner'}>
-                            <div className={'permission-title'}>Publish</div>
+                            <div className={'permission-title'}>Create Events on Calendar</div>
                             <div className={'permission-item'} onClick={e => {setPermissionCanCreate('everyone')}}>
                                 <AppRadio checked={permissionCanCreate === 'everyone'} /> Everyone
                             </div>
@@ -594,7 +594,7 @@ function Dashboard() {
                                 <AppRadio checked={permissionCanCreate === 'manager'} /> Manager, Owner
                             </div>
 
-                            <div className={'permission-title'}>Apply</div>
+                            <div className={'permission-title'}>RSVP to Events</div>
                             <div className={'permission-item'} onClick={e => {setPermissionCanJoin('everyone')}}>
                                 <AppRadio checked={permissionCanJoin === 'everyone'} /> Everyone
                             </div>

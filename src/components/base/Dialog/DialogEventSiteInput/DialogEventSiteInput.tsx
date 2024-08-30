@@ -45,7 +45,6 @@ function DialogEventSiteInput(props: LocationInputProps) {
     const [customLocationDetail, setCustomLocationDetail] = useState<any>(props.initValue.formatted_address || null)
     const [enableAvailableDate, setEnableAvailableDate] = useState<boolean>(false)
 
-
     const mapService = useRef<any>(null)
     const delay = useRef<any>(null)
     const sessionToken = useRef<any>(null)

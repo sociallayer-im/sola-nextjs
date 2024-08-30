@@ -75,8 +75,8 @@ export default function DialogOverrideEdit(props: {
                 <div className={styles['time']}>
                     <TimePicker
                         format={'24'}
-                        value={new Date(`${newVenueOverride.day} ${newVenueOverride.start_at}`)}
-                        maxTime={new Date(`${newVenueOverride.day} ${newVenueOverride.end_at}`)}
+                        value={new Date(`${newVenueOverride.day} ${newVenueOverride.start_at || '00:00'}`)}
+                        maxTime={new Date(`${newVenueOverride.day} ${newVenueOverride.end_at || '23:59'}`)}
                         step={60 * 15}
                         onChange={date => {
                             const time = dayjs(date).format('HH:mm')
@@ -90,8 +90,8 @@ export default function DialogOverrideEdit(props: {
                     <div className={styles['to']}>to</div>
                     <TimePicker
                         format={'24'}
-                        value={new Date(`${newVenueOverride.day} ${newVenueOverride.end_at}`)}
-                        minTime={new Date(`${newVenueOverride.day} ${newVenueOverride.start_at}`)}
+                        value={new Date(`${newVenueOverride.day} ${newVenueOverride.end_at || '23:59'}`)}
+                        minTime={new Date(`${newVenueOverride.day} ${newVenueOverride.start_at || '00:00'}`)}
                         step={60 * 15}
                         onChange={date => {
                             const time = dayjs(date).format('HH:mm')
