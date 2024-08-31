@@ -40,6 +40,8 @@ interface ErrorMsg {
     min_price: number[],
 }
 
+const timeStep = 5
+
 function Ticket({creator, ...props}: {
     ticket: Partial<Ticket>,
     creator: Group | Profile,
@@ -535,6 +537,7 @@ function Ticket({creator, ...props}: {
                             }}
                         />
                         <TimePicker
+                            step={60 * timeStep}
                             value={new Date(props.ticket.end_time!)}
                             onChange={(date) => {
                                 props.onChange && props.onChange({

@@ -22,6 +22,7 @@ dayjs.extend(timezone)
 const dayName = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 const mouthName = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 const dayFullName:Weekday[] =  ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
+const timeStep = 5
 
 export function mapTimezone(value: any) {
     const target = timezoneList.find((item) => {
@@ -58,7 +59,7 @@ function genSlotOption(slotInfo: VenueTimeslot[]): SlotOption[] {
                 id: startDate.format('HH:mm'),
                 label: startDate.format('HH:mm')
             })
-            startDate = startDate.add(15, 'minute')
+            startDate = startDate.add(timeStep, 'minute')
         }
 
         if (!!exist) {
@@ -391,7 +392,7 @@ function TimeSlotInput({
                         value={data.from as any}
                         options={genStartOption(slotOptions, data.date)}
                         onChange={({value}) => {
-                            const to = dayjs(strToDate(value[0].id as string)).add(15, 'minute').format('HH:mm')
+                            const to = dayjs(strToDate(value[0].id as string)).add(timeStep, 'minute').format('HH:mm')
                             setData({
                                 ...data,
                                 from: value as Slot[],

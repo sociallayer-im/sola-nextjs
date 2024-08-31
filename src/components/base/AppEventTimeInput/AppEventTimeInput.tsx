@@ -20,6 +20,7 @@ dayjs.extend(timezone)
 
 const dayName = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 const mouthName = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+const timeStep = 5
 
 export function mapTimezone(value: any) {
     const target = timezoneList.find((item) => {
@@ -144,7 +145,7 @@ function AppDateInput({
         setFrom(newDate)
 
 
-        const new_to = dayjs(newDate.getTime()).add(15, 'minute').toDate()
+        const new_to = dayjs(newDate.getTime()).add(timeStep, 'minute').toDate()
         setTo(new_to)
     }
 
@@ -163,7 +164,7 @@ function AppDateInput({
     function changeFromTime(date: Date) {
         setFrom(date)
 
-        const new_to = dayjs(date.getTime()).add(15, 'minute').toDate()
+        const new_to = dayjs(date.getTime()).add(timeStep, 'minute').toDate()
         setTo(new_to)
     }
 
@@ -270,7 +271,7 @@ function AppDateInput({
                 <div className={`${styles['time-input']} ${disabled ? styles['disabled'] : ''}`}>
                     <TimePicker
                         disabled={!!disabled}
-                        step={60 * 15}
+                        step={60 * timeStep}
                         value={from}
                         format={'24'}
                         overrides={{
@@ -330,7 +331,7 @@ function AppDateInput({
                 <div className={`${styles['time-input']} ${disabled ? styles['disabled'] : ''}`}>
                     <TimePicker
                         disabled={!!disabled}
-                        step={60 * 15}
+                        step={60 * timeStep}
                         value={to}
                         format={'24'}
                         overrides={{
