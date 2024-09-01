@@ -50,6 +50,7 @@ import RichTextDisplayer from "@/components/compose/RichTextEditor/Displayer";
 import removeMarkdown from "markdown-to-text"
 import {StatefulPopover} from "baseui/popover";
 import {AVNeeds, SeatingStyle} from "@/pages/event/[groupname]/create";
+import DialogGenPromoCode from "@/components/base/Dialog/DialogGenPromoCode/DialogGenPromoCode";
 
 
 import * as dayjsLib from "dayjs";
@@ -516,6 +517,23 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
         })
     }
 
+    const showGenPromoCodeDialog = async () => {
+        if (!event) return
+        openDialog({
+            content: (close: any) => {
+                return <DialogGenPromoCode
+                    close={close}
+                    promoCodes={[]}
+                    event={event!}
+                    onChange={(codes) => {
+                        console.log('codes', codes)
+                    }}
+                />
+            },
+            size: ['100%', '100%'],
+        })
+    }
+
     return (<>
         <Head>
             <meta property="og:title" content={`${event?.title} | ${props.appName}`}/>
@@ -558,12 +576,23 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                         </div>
                         <div className={'event-top-btn'}>
                             {(isHoster || isManager || isOperator || isGroupOwner) && !canceled &&
-                                <Link href={`/event/edit/${event?.id}`}>
-                                    <i className={'icon-edit'}></i>{lang['Activity_Detail_Btn_Modify']}</Link>
+                                <>
+                                    <AppButton
+                                        onClick={showGenPromoCodeDialog}
+                                        kind={'primary'} size={'compact'}>
+                                        {lang['Promo_Code']}
+                                    </AppButton>
+                                    <Link href={`/event/edit/${event?.id}`}>
+                                        <i className={'icon-edit'}></i>
+                                        <span>{lang['Activity_Detail_Btn_Modify']}</span>
+                                    </Link>
+                                </>
                             }
                             {event?.status !== 'pending' &&
                                 <Link href={`/event/success/${event?.id}`}>
-                                    <img src="/images/icon_share.svg" alt=""/>{lang['IssueFinish_Title']}</Link>
+                                    <img src="/images/icon_share.svg" alt=""/>
+                                    <span>{lang['IssueFinish_Title']}</span>
+                                </Link>
                             }
                         </div>
 

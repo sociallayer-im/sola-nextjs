@@ -426,7 +426,30 @@
   display: inline-flex;
   flex-flow: row nowrap;
 
+  button {
+    white-space: nowrap;
+    display: inline-flex;
+    padding: 4px 12px;
+    justify-content: center;
+    align-items: center;
+    border-radius: 8px;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 24px;
+    text-decoration: none;
+    margin-left: 12px;
+
+    @media (max-width: 450px) {
+     & {
+       font-size:  14px;
+     }
+    }
+  }
+
+
   a {
+    white-space: nowrap;
     display: inline-flex;
     padding: 4px 8px;
     justify-content: center;
@@ -443,6 +466,16 @@
 
     img, i {
       margin-right: 6px;
+    }
+
+    @media (max-width: 450px) {
+      img, i {
+        margin-right: 0;
+      }
+
+      & span {
+        display: none;
+      }
     }
   }
 }
