@@ -683,6 +683,7 @@ const langEN = {
     Retry: 'Retry',
     Apply: 'Apply',
     Confirm: 'Confirm',
+    Pay: 'Pay',
 
 }
 

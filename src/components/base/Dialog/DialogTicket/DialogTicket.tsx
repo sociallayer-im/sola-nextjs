@@ -500,7 +500,7 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
                                           }}
                                           placeholder={'Promo code'}/>
                                 {!!promoCode && !validPromoCode &&
-                                    <AppButton black onClick={checkPromoCode}>{lang['Confirm']}</AppButton>
+                                    <AppButton black onClick={checkPromoCode}>{lang['Apply']}</AppButton>
                                 }
                                 {
                                     !!validPromoCode &&
@@ -607,7 +607,7 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
                                     <ButtonLoading>Sending Transaction</ButtonLoading> :
                                     verifying ?
                                         <ButtonLoading>Verifying</ButtonLoading> :
-                                        lang['Apply']
+                                        lang['Pay']
                             }</AppButton>
                     }}
                 />

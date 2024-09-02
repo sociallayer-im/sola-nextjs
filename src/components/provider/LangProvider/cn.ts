@@ -679,6 +679,7 @@ const langCN: LangConfig = {
   Retry: '重试',
   Apply: '使用',
   Confirm: '确认',
+  Pay: '支付',
 }
 
 
