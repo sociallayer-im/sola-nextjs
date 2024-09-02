@@ -357,7 +357,19 @@
   margin-top: 30px;
 
   .promo-title {
-    margin-bottom: 4px;
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    margin-bottom: 6px;
+    cursor: pointer;
+
+    &:hover {
+      opacity: 0.7;
+    }
+
+    svg {
+      margin-left: 4px;
+    }
   }
 
   .promo-input {

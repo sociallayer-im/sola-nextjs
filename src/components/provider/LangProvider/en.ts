@@ -679,6 +679,10 @@ const langEN = {
     Input_The_Promo_Code: 'Input the promo code',
     Verify: 'Verify',
     Remove: 'Remove',
+    Pay_By_Card: 'Pay by card',
+    Retry: 'Retry',
+    Apply: 'Apply',
+    Confirm: 'Confirm',
 
 }
 

@@ -10,6 +10,7 @@ import Erc20TokenPaymentHandler from "@/components/base/Erc20TokenPaymentHandler
 import Erc20TokenApproveHandler from "@/components/base/Erc20TokenApproveHandler/Erc20TokenApproveHandler";
 import Erc20Balance from "@/components/base/Erc20Balance/Erc20Balance";
 import EventDefaultCover from "@/components/base/EventDefaultCover";
+import TriangleDown from 'baseui/icon/triangle-down'
 import {
     Badge,
     Event,
@@ -54,6 +55,7 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
 
     const [busy, setBusy] = useState(false)
     const [promoCode, setPromoCode] = useState('')
+    const [showPromoCodeInput, setShowPromoCodeInput] = useState(false)
 
 
     const [validPromoCode, setValidPromoCode] = useState<null | ValidPromoCode>(null)
@@ -485,22 +487,29 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
 
             {!!props.ticket.payment_methods.length && !soldOut && !stopSales &&
                 <div className={styles['promo']}>
-                    <div className={styles['promo-title']}>{lang['Input_The_Promo_Code']}</div>
-                    <div className={styles['promo-input']}>
-                        <AppInput value={promoCode}
-                                  onChange={e => {
-                                      setPromoCode(e.target.value)
-                                  }}
-                                  placeholder={'Promo code'}/>
-                        {!!promoCode && !validPromoCode &&
-                            <AppButton onClick={checkPromoCode}>{lang['Verify']}</AppButton>
-                        }
-                        {
-                            !!validPromoCode &&
-                            <AppButton onClick={removePromoCode}>{lang['Remove']}</AppButton>
-                        }
+                    <div className={styles['promo-title']} onClick={e => {setShowPromoCodeInput(true)}}>
+                        {lang['Promo_Code']}
+                        { !showPromoCodeInput ? <TriangleDown size={18}/> :  null}
                     </div>
-                    <div className={styles['errorMsg']}>{promoCodeError}</div>
+                    { showPromoCodeInput &&
+                        <>
+                            <div className={styles['promo-input']}>
+                                <AppInput value={promoCode}
+                                          onChange={e => {
+                                              setPromoCode(e.target.value)
+                                          }}
+                                          placeholder={'Promo code'}/>
+                                {!!promoCode && !validPromoCode &&
+                                    <AppButton black onClick={checkPromoCode}>{lang['Confirm']}</AppButton>
+                                }
+                                {
+                                    !!validPromoCode &&
+                                    <AppButton onClick={removePromoCode}>{lang['Remove']}</AppButton>
+                                }
+                            </div>
+                            <div className={styles['errorMsg']}>{promoCodeError}</div>
+                        </>
+                    }
                 </div>
             }
 
@@ -544,7 +553,7 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
                 && <AppButton special onClick={e => {
                     router.push(`/stripe-pay?ticket=${props.ticket.id}&methodid=${currPaymentMethod!.id}${validPromoCode?.code ? `&promo=${validPromoCode.code}` : ''}`)
                     props.close()
-                }}>{'Go to pay'}</AppButton>
+                }}>{lang['Pay_By_Card']}</AppButton>
             }
 
             {!!address
@@ -586,7 +595,7 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
                                 setPromoCode('')
                                 reFleshAllowanceRef.current && reFleshAllowanceRef.current.reFleshAllowance()
                             }
-                            }>{'Retry'}</AppButton>
+                            }>{lang['Retry']}</AppButton>
                             : <AppButton
                                 disabled={busy || !!errorMsg}
                                 special
@@ -598,7 +607,7 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
                                     <ButtonLoading>Sending Transaction</ButtonLoading> :
                                     verifying ?
                                         <ButtonLoading>Verifying</ButtonLoading> :
-                                        'Pay'
+                                        lang['Apply']
                             }</AppButton>
                     }}
                 />

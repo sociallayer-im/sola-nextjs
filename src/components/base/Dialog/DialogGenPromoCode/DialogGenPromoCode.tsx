@@ -1,5 +1,5 @@
 import styles from './DialogGenPromoCode.module.scss'
-import {Event, PromoCode, queryPromoCodes, updateEvent} from "@/service/solas"
+import {Event, getPromoCode, PromoCode, queryPromoCodes, queryTicketItems, updateEvent} from "@/service/solas"
 import PageBack from "@/components/base/PageBack"
 import {useContext, useState} from "react"
 import AppInput from "@/components/base/AppInput"
@@ -11,6 +11,7 @@ import DialogsContext from "@/components/provider/DialogProvider/DialogsContext"
 import userContext from "@/components/provider/UserProvider/UserContext"
 import DialogListPromoCode from "@/components/base/Dialog/DialogListPromoCode/DialogListPromoCode"
 import LangContext from "@/components/provider/LangProvider/LangContext"
+import DialogPromoDetail from "@/components/base/Dialog/DialogPromoDetail/DialogPromoDetail";
 
 const dayjs: any = dayjsLib
 
@@ -97,18 +98,27 @@ export default function DialogGenPromoCode(props: {
 
             const res = await updateEvent(event)
             setPromoCode(JSON.parse(JSON.stringify(emptyPromoCode)))
-            handleShowList()
-            // openDialog({
-            //     content: (close: any) => <DialogPromoDetail close={close} promoCode={_promoCode}/>,
-            //     size: ['100%', '100%']
-            // })
-            // showToast('Generate promo code successfully')
-        } catch (e: any) {
-            console.error(e)
-            showToast(e.message || 'Generate promo code failed')
-        } finally {
+            const promoCodes = await queryPromoCodes({event_id: props.event.id})
+
+            if (!!promoCodes[0]) {
+                const code = await getPromoCode({id: promoCodes[0].id!, auth_token: user.authToken || ''})
+                openDialog({
+                    content: (close: any) => {
+                        return <DialogPromoDetail history={[]} promoCode={promoCodes[0]!} close={close} code={code}/>
+                    },
+                    size: ['100%', '100%']
+                })
+            }
+
             setBusy(false)
             unload()
+            showToast('Generate promo code success')
+
+        } catch (e: any) {
+            setBusy(false)
+            unload()
+            console.error(e)
+            showToast(e.message || 'Generate promo code failed')
         }
     }
 

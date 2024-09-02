@@ -675,6 +675,10 @@ const langCN: LangConfig = {
   Input_The_Promo_Code: '输入折扣码',
   Verify: '验证',
   Remove: '移除',
+  Pay_By_Card: '银行卡支付',
+  Retry: '重试',
+  Apply: '使用',
+  Confirm: '确认',
 }
 
 
