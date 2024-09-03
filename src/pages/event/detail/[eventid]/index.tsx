@@ -952,13 +952,18 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                 </div>
                                             </>
                                         }
-                                        <div className={'split'}/>
-                                        <div className={tab === 2 ? 'tab-title active' : 'tab-title'}
-                                             onClick={e => {
-                                                 setTab(2)
-                                             }}>
-                                            <div>{lang['Activity_Participants']}({filteredParticipants.length})</div>
-                                        </div>
+                                        {
+                                            (!tickets.length || isHoster || isManager || isOperator || isGroupOwner) &&
+                                            <>
+                                                <div className={'split'}/>
+                                                <div className={tab === 2 ? 'tab-title active' : 'tab-title'}
+                                                     onClick={e => {
+                                                         setTab(2)
+                                                     }}>
+                                                    <div>{lang['Activity_Participants']}({filteredParticipants.length})</div>
+                                                </div>
+                                            </>
+                                        }
                                     </div>
                                 </div>
 
@@ -976,38 +981,6 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                             }
 
                                             <div className={'center'}>
-                                                {!!event.wechat_contact_group &&
-                                                    <>
-                                                        <div
-                                                            className={'wechat-title'}>{lang['Activity_Detail_Wechat']}</div>
-                                                        {
-                                                            !!event.wechat_contact_person &&
-                                                            <div
-                                                                className={'wechat-account'}>{lang['Activity_Detail_Account']}
-                                                                <span onClick={e => {
-                                                                    copy(event?.wechat_contact_person!);
-                                                                    showToast('Copied!')
-                                                                }}>
-                                                        {event.wechat_contact_person}
-                                                        </span>
-                                                            </div>
-                                                        }
-                                                        <div className={'wechat-contact-group'} onClick={e => {
-                                                            showImage(event?.wechat_contact_group!)
-                                                        }}>
-                                                            <img src={event.wechat_contact_group} alt=""/>
-                                                        </div>
-                                                    </>
-                                                }
-                                                {!!event.telegram_contact_group &&
-                                                    <div className={'wechat-account'}>
-                                                        <div className={'wechat-title'}>Join the Telegram group</div>
-                                                        <a href={event.telegram_contact_group} target={'_blank'}>
-                                                            {event.telegram_contact_group}
-                                                        </a>
-                                                    </div>
-                                                }
-
                                                 {!!event.requirement_tags && (event.group_id === 3427 || event.group_id === 3409) && (isOperator || isManager || isHoster || isGroupOwner) &&
                                                     <>
                                                         {!!event.requirement_tags.filter((t) => {

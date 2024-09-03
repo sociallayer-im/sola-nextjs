@@ -98,9 +98,9 @@ function ListEventParticipants(props: ListCheckinUserProps) {
     }
 
     const downloadCSV = () => {
-        const title = ['Username', 'Nickname', 'Status']
+        const title = ['Username', 'Nickname', 'Status', 'RSVP time']
         const rows = participants.map((item, index) => {
-            return [item.profile.username, item.profile.nickname || '' ,item.status]
+            return [item.profile.username, item.profile.nickname || '' ,item.status, item.created_at + 'Z']
         })
 
         const csvContent = "data:text/csv;charset=utf-8,"
