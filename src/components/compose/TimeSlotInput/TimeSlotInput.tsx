@@ -431,6 +431,11 @@ function TimeSlotInput({
             <div className={`${styles['timezone']} ${disabled ? styles['disabled'] : ''}`}>
                 <div className={styles['offset']}>{getOffset(timezone)}</div>
                 <TimezonePicker
+                    additionalTimezones={[{
+                        id: 'UTC',
+                        label: '(GMT+0) UTC',
+                        offset: 0,
+                    }]}
                     disabled={!!disabled}
                     overrides={{
                         Select: {
