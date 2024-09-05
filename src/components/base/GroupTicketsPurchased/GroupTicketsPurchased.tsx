@@ -21,7 +21,9 @@ export default function GroupTicketsPurchased(props: {eventGroup?: Group}) {
             profile_id: user.id,
         }) .then(res => {
             const currGroupTicket = res.filter(ti => {
-                return ti.event.group_id === props.eventGroup?.id && ti.status === 'succeeded'
+                return ti.event.group_id === props.eventGroup?.id
+                    && ti.status === 'succeeded'
+                && ti.ticket.ticket_type === 'group'
             })
             setTicketItems(currGroupTicket)
         })

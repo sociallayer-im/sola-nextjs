@@ -3832,6 +3832,7 @@ export interface TicketItem {
     ticket: {
         title: string,
         content: string
+        ticket_type: string
     }
 }
 
@@ -6194,7 +6195,7 @@ export async function queryPromoCodes (props: {event_id: number}) {
     return res.promo_codes as PromoCode[]
 }
 
-export async function queryTicketItems (props: {event_id?: number, participant_id?: number, order_number?: string, profile_id?: number, promo_code_id?: number, isGroupTicket?: boolean}) {
+export async function queryTicketItems (props: {event_id?: number, participant_id?: number, order_number?: string, profile_id?: number, promo_code_id?: number}) {
     let variables = ''
     if (props.event_id) {
         variables += `event_id: {_eq: ${props.event_id}}, `
@@ -6216,10 +6217,6 @@ export async function queryTicketItems (props: {event_id?: number, participant_i
         variables += `promo_code_id: {_eq: ${props.promo_code_id}}, `
     }
 
-    if (props.isGroupTicket) {
-        variables += `ticket :{ticket_type:{_eq:"group_ticket"}}, `
-    }
-
     const doc = `query MyQuery {
         ticket_items(where: {${variables}}) {
             event {
@@ -6228,6 +6225,7 @@ export async function queryTicketItems (props: {event_id?: number, participant_i
            ticket {
                 title
                 content
+                ticket_type
             }
             promo_code_id
             sender_address
