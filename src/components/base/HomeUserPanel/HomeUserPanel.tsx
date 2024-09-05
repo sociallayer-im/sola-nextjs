@@ -13,6 +13,7 @@ import { StatefulPopover } from "baseui/popover";
 import {useTime5} from "@/hooks/formatTime";
 import ZupassTicket from "@/components/base/ZupassTicket/ZupassTicket";
 import EdgeToken from "@/components/base/EdgeToken/EdgeToken";
+import GroupTicketsPurchased from "@/components/base/GroupTicketsPurchased/GroupTicketsPurchased";
 
 function HomeUserPanel({showSchedule=true, ...props}: {
     membership: Membership[],
@@ -164,6 +165,10 @@ function HomeUserPanel({showSchedule=true, ...props}: {
                 </svg>
                 {lang['Activity_Calendar']}
             </Link>
+        }
+
+        { eventGroup?.id != 3409 && !!user && !!user.detail &&
+            <GroupTicketsPurchased eventGroup={props.group} />
         }
 
         {eventGroup?.id === 3409 && !!user && !!user.detail &&

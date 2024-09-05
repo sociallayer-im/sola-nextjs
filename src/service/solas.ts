@@ -3832,6 +3832,7 @@ export interface TicketItem {
     ticket: {
         title: string,
         content: string
+        ticket_type: string
     }
 }
 
@@ -6224,6 +6225,7 @@ export async function queryTicketItems (props: {event_id?: number, participant_i
            ticket {
                 title
                 content
+                ticket_type
             }
             promo_code_id
             sender_address

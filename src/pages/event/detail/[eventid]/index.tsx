@@ -51,6 +51,7 @@ import removeMarkdown from "markdown-to-text"
 import {StatefulPopover} from "baseui/popover";
 import {AVNeeds, SeatingStyle} from "@/pages/event/[groupname]/create";
 import DialogGenPromoCode from "@/components/base/Dialog/DialogGenPromoCode/DialogGenPromoCode";
+import TicketsPurchased from "@/components/base/TicketsPurchased/TicketsPurchased";
 
 
 import * as dayjsLib from "dayjs";
@@ -1189,6 +1190,10 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                         }} special size={'compact'}>{lang['Activity_login_btn']}</AppButton>
                                     </div>
                                 </div>
+                            }
+
+                            {tickets.length > 0 && !!group && !!event &&
+                                <TicketsPurchased eventGroup={group} event={event}/>
                             }
 
                             { !!event && tickets.length > 0 &&
