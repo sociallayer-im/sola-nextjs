@@ -1,7 +1,8 @@
 import {Connector, useAccount, useConnect} from 'wagmi'
-import {useContext, useEffect, useRef} from 'react'
+import {useContext, useEffect, useRef, useState} from 'react'
 import LangContext from '../../../provider/LangProvider/LangContext'
 import DialogsContext from '../../../provider/DialogProvider/DialogsContext'
+import {Spinner} from "baseui/icon";
 
 interface DialogConnectWalletProps {
     handleClose: (...rest: any[]) => any
@@ -9,7 +10,19 @@ interface DialogConnectWalletProps {
 
 function DialogConnectWalletForPay(props: DialogConnectWalletProps) {
     const unloading_1 = useRef<any>(null)
+
+    const [connectorsErr, setConnectorsErr] = useState<string>('')
     const {connect, connectors, error, isLoading, pendingConnector} = useConnect({
+        onError(error) {
+            if (!!error.message && error.message.includes('rejected')) {
+                return
+            } else {
+                setConnectorsErr(error.message || error.toString())
+            }
+        },
+        onMutate:() => {
+          setConnectorsErr('')
+        },
         onSettled: () => {
             if (unloading_1) {
                 unloading_1.current?.()
@@ -19,7 +32,7 @@ function DialogConnectWalletForPay(props: DialogConnectWalletProps) {
     })
     const {lang} = useContext(LangContext)
     const {isConnected} = useAccount()
-    const {showLoading} = useContext(DialogsContext)
+    const {showLoading, showToast} = useContext(DialogsContext)
 
     useEffect(() => {
         if (isConnected) {
@@ -56,15 +69,17 @@ function DialogConnectWalletForPay(props: DialogConnectWalletProps) {
                 }}/>
             </div>
             {connectors.map((connector) => {
-                return (!connector.ready) ?
-                    <></>
-                    : <div className={'connect-item'}
-                           key={connector.id}
-                           onClick={() => handleConnectWallet(connector)}>
-                        <img src={`/images/${connector.name.toLowerCase()}.png`} alt={connector.name}/>
-                        <div className='connect-name'>{connector.name}</div>
-                    </div>
+                return <div className={`connect-item ${connector.ready ? '' : 'disable'}`}
+                            key={connector.id}
+                            onClick={() => handleConnectWallet(connector)}>
+                    <img src={`/images/${connector.name.toLowerCase()}.png`} alt={connector.name}/>
+                    <div className='connect-name'>{connector.name}</div>
+                    {!connector.ready &&
+                        <div className={'spinner'}><Spinner size={20}/></div>
+                    }
+                </div>
             })}
+            <div className="error">{connectorsErr}</div>
         </div>
     )
 }

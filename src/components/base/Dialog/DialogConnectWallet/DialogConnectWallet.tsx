@@ -1,5 +1,5 @@
 import {Connector, useAccount, useConnect, useDisconnect} from 'wagmi'
-import {useContext, useEffect, useRef} from 'react'
+import {useContext, useEffect, useRef, useState} from 'react'
 import LangContext from '../../../provider/LangProvider/LangContext'
 import {setLastLoginType} from '@/utils/authStorage'
 import DialogsContext from '../../../provider/DialogProvider/DialogsContext'
@@ -8,6 +8,7 @@ import {useRouter} from 'next/navigation'
 // import {WalletContext as solanaWalletContext} from '@solana/wallet-adapter-react'
 // import {SignInButton} from '@farcaster/auth-kit';
 import useZuAuth from '@/service/zupass/useZuAuth'
+import {Spinner} from "baseui/icon";
 
 interface DialogConnectWalletProps {
     handleClose: (...rest: any[]) => any
@@ -22,7 +23,19 @@ const walletIcon: any = {
 
 function DialogConnectWallet(props: DialogConnectWalletProps) {
     const unloading_1 = useRef<any>(null)
+
+    const [connectorsErr, setConnectorsErr] = useState<string>('')
     const {connect, connectors, error, isLoading } = useConnect({
+        onError(error) {
+            if (!!error.message && error.message.includes('rejected')) {
+                return
+            } else {
+                setConnectorsErr(error.message || error.toString())
+            }
+        },
+        onMutate:() => {
+            setConnectorsErr('')
+        },
         onSettled: () => {
             if (unloading_1) {
                 unloading_1.current?.()
@@ -128,13 +141,16 @@ function DialogConnectWallet(props: DialogConnectWalletProps) {
                 </div>
             </div>
             {connectors.map((connector) => (
-                (!connector.ready) || (isEdgeCity && connector.name === 'JoyID') ?
+                (isEdgeCity && connector.name === 'JoyID') ?
                     null
-                    : <div className={'connect-item'}
+                    : <div className={`connect-item ${!connector.ready ? 'disable' : ''}`}
                            key={connector.id}
                            onClick={() => handleConnectWallet(connector)}>
                         <img src={walletIcon[connector.name.toLowerCase()] || `/images/injected.png`} alt={connector.name}/>
                         <div className='connect-name'>{connector.name}</div>
+                        {!connector.ready &&
+                            <div className={'spinner'}><Spinner size={20}/></div>
+                        }
                     </div>
             ))}
             {process.env.NEXT_PUBLIC_SPECIAL_VERSION !== 'maodao' &&
@@ -184,6 +200,8 @@ function DialogConnectWallet(props: DialogConnectWalletProps) {
             {/*    <img src="/images/farcaster.svg" alt="farcaster"/>*/}
             {/*    <div className='connect-name'>Farcaster</div>*/}
             {/*</div>*/}
+
+            <div className={'error'}>{connectorsErr}</div>
         </div>
     )
 }
