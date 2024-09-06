@@ -5326,6 +5326,7 @@ export interface Ticket {
     }[],
     payment_methods: PaymentMethod[]
     payment_methods_attributes: PaymentMethod[]
+    ticket_type: string
 }
 
 export async function queryTickets (props: {
@@ -5361,6 +5362,7 @@ export async function queryTickets (props: {
         end_time
         event_id
         id
+        ticket_type
         need_approval
         payment_chain
         payment_target_address
