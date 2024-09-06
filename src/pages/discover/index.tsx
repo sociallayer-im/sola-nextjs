@@ -151,7 +151,7 @@ function Discover({eventGroups, popupCities } : {eventGroups: Group[], popupCiti
 
             <div className={styles['group-list']}>
                 {
-                    eventGroups.slice(0, 8).map((group, index) => {
+                    eventGroups.slice(0, 16).map((group, index) => {
                         return <Link href={`/group/${group.username}`} key={index}>
                             <ImgLazy className={styles['cover']} width={64} height={64}
                                      src={group.image_url || defaultAvatar(group.id)}/>
