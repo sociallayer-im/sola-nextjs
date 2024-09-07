@@ -614,6 +614,14 @@ $border-color: #e0e0e0 !default;
   margin-top: 4px;
   display: flex;
   flex-flow: row nowrap;
+
+  span {
+    height: 18px;
+    max-width: 144px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+  }
 }
 
 .schedule-event-card-dot {

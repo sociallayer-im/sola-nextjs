@@ -59,7 +59,7 @@ const subtract = (time: string, offset: number) => {
 const timeStep = 5
 
 export default function DialogTimeSlotEdit(props: { close: any, value: VenueTimeslot[], onChange?: (value:  VenueTimeslot[]) => any, hasTimeSlotError?: (hasError:  boolean) => any }) {
-    const [slot, setSlot] = useState(props.value && props.value.length ? props.value : emptySlot)
+    const [slot, setSlot] = useState<VenueTimeslot[]>(props.value && props.value.length ? props.value : [])
 
     const [allTime,setAllTime] = useState(!props.value || !props.value.length)
     const [OverlapErr, setOverlapErr] = useState(['', '', '', '', '', '', ''])

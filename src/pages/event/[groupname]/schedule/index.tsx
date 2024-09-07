@@ -915,7 +915,7 @@ function EventCard({
                 {event.tags.map(tag => {
                     return <div key={tag} className={styles['schedule-event-card-tag']}>
                         <i className={styles['schedule-event-card-dot']} style={{background: getLabelColor(tag)}}/>
-                        {tag}
+                        <span>{tag}</span>
                     </div>
                 })}
             </>
