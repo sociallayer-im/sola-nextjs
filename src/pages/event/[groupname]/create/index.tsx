@@ -322,17 +322,14 @@ function EditEvent({
     // 检查event_site在设置的event.start_time和event.ending_time否可用
     useEffect(() => {
         async function checkOccupied() {
+            const unloading = showLoading()
             const start = event.start_time
             const ending = event.end_time
             if (event.venue_id && start && ending) {
-                const startDate = new Date(new Date(start).getFullYear(), new Date(start).getMonth(), new Date(start).getDate(), 0, 0, 0)
-                const endDate = new Date(new Date(ending).getFullYear(), new Date(ending).getMonth(), new Date(ending).getDate(), 23, 59, 59)
                 let events = await queryEvent({
                     venue_id: event.venue_id,
-                    start_time_from: startDate.toISOString(),
-                    start_time_to: endDate.toISOString(),
                     page: 1,
-                    page_size: 50,
+                    page_size: 100,
                     allow_private: true
                 })
 
@@ -365,6 +362,7 @@ function EditEvent({
                 setSiteOccupied(false)
                 setOccupiedError('')
             }
+            unloading()
         }
 
         checkOccupied()
