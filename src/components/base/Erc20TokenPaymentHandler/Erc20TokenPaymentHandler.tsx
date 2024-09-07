@@ -22,6 +22,7 @@ function Erc20TokenPaymentHandler(
         ticketId: number
         methodId: number
         eventId: number
+        isGroupTicket: boolean
         promo_code?: string,
         onSuccess?: (hash: string) => any
         onErrMsg?: (message: string) => any
@@ -80,8 +81,7 @@ function Erc20TokenPaymentHandler(
             const payhubContract = paymentTokenList.find((item) => item.chainId === props.chainId)?.payHub
             const participant = await getParticipantDetail({event_id: props.eventId, profile_id: user.id!})
 
-            // check already paid
-            if (!!participant) {
+            if (!!participant && !props.isGroupTicket) {
                 if (participant.payment_status === 'succeeded') {
                     setBusy(false)
                     setSending(false)
@@ -135,7 +135,7 @@ function Erc20TokenPaymentHandler(
             )
 
             // 处理价格为0直接购买成功的情况
-            if (join.participant.payment_status === 'succeeded') {
+            if (join.ticket_item.status === 'succeeded') {
                 loadingRef?.()
                 !!props.onSuccess && props.onSuccess('')
                 setTimeout(() => {

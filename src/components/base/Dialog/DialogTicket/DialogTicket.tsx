@@ -566,6 +566,7 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
                 && currPaymentMethod?.chain !== 'stripe'
                 && (approved || finalPaymentPrice === 0) &&
                 <Erc20TokenPaymentHandler
+                    isGroupTicket={props.ticket.ticket_type === 'group'}
                     promo_code={validPromoCode?.code || undefined}
                     eventId={props.event.id}
                     methodId={currPaymentMethod.id!}
