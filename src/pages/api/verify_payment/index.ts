@@ -9,7 +9,7 @@ import {
 } from "@/service/solas"
 import {createPublicClient, decodeEventLog, http} from 'viem'
 import {arbitrum, avalancheFuji, base, mainnet, optimism, polygon} from 'wagmi/chains'
-import {payhub_abi, paymentTokenList} from "@/payment_settring"
+import {payhub_abi, paymentTokenList} from "@/payment_setting"
 
 export interface Props {
     tx: string, // 交易hash

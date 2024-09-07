@@ -23,7 +23,7 @@ import {
     verifyPromoCode
 } from '@/service/solas'
 import useTime from "@/hooks/formatTime";
-import {PaymentSettingChain, PaymentSettingToken, paymentTokenList} from "@/payment_settring";
+import {PaymentSettingChain, PaymentSettingToken, paymentTokenList} from "@/payment_setting";
 import UserContext from "@/components/provider/UserProvider/UserContext";
 import useEvent, {EVENT} from "@/hooks/globalEvent";
 import ButtonLoading from "@/components/base/ButtonLoading";

@@ -18,22 +18,6 @@ export interface PaymentSettingToken {
 export const paymentTokenList: PaymentSettingChain[] = process.env.NEXT_PUBLIC_PAYMENT_SETTING === 'production' ?
     [
         {
-            chain: "Ethereum",
-            id: 'ethereum',
-            chainId: 1,
-            icon: '/images/ethereum-icon.webp',
-            payHub: '0xA73405D59e136f574a2FD690079B240f6fbff0a8',
-            tokenList: [
-                {
-                    name: 'USDT',
-                    id: 'usdt',
-                    contract: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
-                    icon: '/images/tether_32.webp',
-                    decimals: 6
-                }
-            ]
-        },
-        {
             chain: 'Polygon',
             id: 'polygon',
             chainId: 137,
@@ -52,6 +36,22 @@ export const paymentTokenList: PaymentSettingChain[] = process.env.NEXT_PUBLIC_P
                     id: 'usdc',
                     contract: '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174',
                     icon: '/images/usdc_32.webp',
+                    decimals: 6
+                }
+            ]
+        },
+        {
+            chain: "Ethereum",
+            id: 'ethereum',
+            chainId: 1,
+            icon: '/images/ethereum-icon.webp',
+            payHub: '0xA73405D59e136f574a2FD690079B240f6fbff0a8',
+            tokenList: [
+                {
+                    name: 'USDT',
+                    id: 'usdt',
+                    contract: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
+                    icon: '/images/tether_32.webp',
                     decimals: 6
                 }
             ]

@@ -1,6 +1,6 @@
 import {ReactNode, useContext, useState} from 'react'
 import {useAccount, useNetwork, usePublicClient, useSwitchNetwork, useWalletClient} from "wagmi";
-import {payhub_abi, paymentTokenList} from "@/payment_settring";
+import {payhub_abi, paymentTokenList} from "@/payment_setting";
 import {getParticipantDetail, getTicketItemDetail, rsvp} from "@/service/solas";
 import UserContext from "@/components/provider/UserProvider/UserContext";
 import fetch from "@/utils/fetch"

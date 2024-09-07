@@ -1,6 +1,6 @@
 import {forwardRef, ReactNode, useContext, useEffect, useImperativeHandle, useState} from 'react'
 import {useAccount, useNetwork, usePublicClient, useSwitchNetwork, useWalletClient} from "wagmi";
-import {erc20_abi, paymentTokenList} from "@/payment_settring";
+import {erc20_abi, paymentTokenList} from "@/payment_setting";
 import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
 
 

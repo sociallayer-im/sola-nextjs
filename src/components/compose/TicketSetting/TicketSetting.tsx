@@ -19,7 +19,7 @@ import DialogIssuePrefill from "@/components/eventSpecial/DialogIssuePrefill/Dia
 import {OpenDialogProps} from "@/components/provider/DialogProvider/DialogProvider";
 import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
 import {Delete} from "baseui/icon";
-import {PaymentSettingChain, PaymentSettingToken, paymentTokenList} from '@/payment_settring'
+import {PaymentSettingChain, PaymentSettingToken, paymentTokenList} from '@/payment_setting'
 import {formatUnits, parseUnits} from "viem/utils";
 import {Datepicker} from "baseui/datepicker";
 import {TimePicker} from 'baseui/timepicker';

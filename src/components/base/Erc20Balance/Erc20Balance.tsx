@@ -1,5 +1,5 @@
 import {useContractRead} from "wagmi";
-import {erc20_abi} from "@/payment_settring";
+import {erc20_abi} from "@/payment_setting";
 import {formatUnits} from "viem/utils";
 import {useEffect} from "react";
 

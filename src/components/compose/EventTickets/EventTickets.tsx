@@ -17,7 +17,7 @@ import ImgLazy from "@/components/base/ImgLazy/ImgLazy";
 import userContext from "@/components/provider/UserProvider/UserContext";
 import useEvent, {EVENT} from "@/hooks/globalEvent";
 import {formatUnits} from "viem/utils";
-import {paymentTokenList} from "@/payment_settring";
+import {paymentTokenList} from "@/payment_setting";
 import BigNumber from "bignumber.js";
 
 function TicketItem({
