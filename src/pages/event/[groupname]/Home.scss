@@ -315,6 +315,11 @@
       padding: 0 20px;
     }
 
+    .search-input {
+      display: flex;
+      flex-flow: row nowrap;
+    }
+
     .tag-list {
       padding-left: 20px;
       margin-top: 12px;
@@ -733,6 +738,17 @@
   transform: translateY(8px);
   border: 1px solid #CECED3;
   margin-left: 12px;
+  position: relative;
+
+  > .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    background: red;
+  }
 
  > div {
     margin-left: 8px;

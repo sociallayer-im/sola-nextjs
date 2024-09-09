@@ -267,6 +267,12 @@
       }
     }
 
+    .host-info {
+      word-break: break-word;
+      white-space: wrap!important;
+      line-height: 1.3rem!important;
+    }
+
     .detail {
       display: flex;
       align-items: center;

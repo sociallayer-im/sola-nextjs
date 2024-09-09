@@ -1,5 +1,5 @@
 import {useRouter} from "next/navigation";
-import {useContext, useEffect, useState} from 'react'
+import {useContext, useEffect, useMemo, useState} from 'react'
 import {
     Event,
     getGroupMembers,
@@ -52,6 +52,8 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
     const {addToCalenderDialog} = useCalender()
     const [_, emit] = useEvent(EVENT.setEventStatus)
     const [groupHost, setGroupHost] = useState<Group>()
+    const [cohost, setCohost] = useState<any | null>([])
+    const [speaker, setSpeaker] = useState<any | null>([])
     const {defaultAvatar} = usePicture()
 
     const now = new Date().getTime()
@@ -90,6 +92,13 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
                     } else {
                         setGroupHost(hostInfo.group_host)
                     }
+                }
+                if (hostInfo.speaker) {
+                    setSpeaker(hostInfo.speaker)
+                }
+
+                if (hostInfo.co_host) {
+                    setCohost(hostInfo.co_host)
                 }
             } else {
                 queryGroupDetail(Number(props.event?.host_info)).then(res => {
@@ -178,6 +187,25 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
         })
     }
 
+    const hostInfo = useMemo(() => {
+        let string = 'by '
+        if (groupHost) {
+            string += (groupHost.nickname || groupHost.username)
+        } else if (props.event.owner) {
+            string += (props.event.owner.nickname || props.event.owner.username)
+        }
+
+        if (cohost.length) {
+            string += `, ${cohost.map((item: any) => item.nickname || item.username).join(', ')}`
+        }
+
+        if (speaker.length) {
+            string += `, ${speaker.map((item: any) => item.nickname || item.username).join(', ')}`
+        }
+
+        return string.length > 3 ? string : ''
+    }, [groupHost, props.event, cohost, speaker])
+
     return (<Link href={`/event/detail/${props.event.id}`}
                   target={props.blank ? '_blank' : '_self'}
                   className={largeCard ? 'event-card large' : 'event-card'}>
@@ -227,22 +255,7 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
                             })
                         }
                     </div>
-
-                    {
-                        groupHost ?
-                            <div className={'detail'}>
-                                <ImgLazy src={groupHost.image_url || defaultAvatar(groupHost.id)} width={16} height={16}
-                                         alt=""/>
-                                <span>hosted by {groupHost?.nickname || groupHost?.username}</span>
-                            </div>
-                            : props.event.owner ?
-                                <div className={'detail'}>
-                                    <ImgLazy src={props.event.owner.image_url || defaultAvatar(props.event.owner.id)}
-                                             width={16} height={16} alt=""/>
-                                    <span>hosted by {`${props.event.owner?.nickname || props.event.owner?.username}`}</span>
-                                </div>
-                                : <></>
-                    }
+                    <div className={'detail host-info'}>{hostInfo}</div>
 
                     {!!eventDetail.start_time &&
                         <div className={'detail'}>

@@ -3087,6 +3087,7 @@ export interface QueryEventProps {
     cache?: boolean,
     offset?: number
     only_private?: boolean
+    venue_ids?: number[]
 }
 
 
@@ -3114,6 +3115,10 @@ export async function queryEvent(props: QueryEventProps): Promise<Event[]> {
 
     if (props.venue_id) {
         variables += `venue_id: {_eq: ${props.venue_id}}, `
+    }
+
+    if (props.venue_ids && !!props.venue_ids.length) {
+        variables += `venue_id: {_in: [${props.venue_ids.join(',')}]}, `
     }
 
     if (props.recurring_event_id) {

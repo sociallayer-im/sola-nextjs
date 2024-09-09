@@ -661,7 +661,8 @@ function EditEvent({
                 } : undefined,
             }
 
-            const extra = hosts.filter(p => p.id === 0 && !!p.email).map((p) => p.email!)
+            const _co_host_and_speaker = [...(enableCoHost ? hosts : []), ...(enableSpeakers ? speakers : [])]
+            const extra = _co_host_and_speaker.filter(p => p.id === 0 && !!p.email).map((p) => p.email!)
             const hasInvalid = extra.find(e => !e.includes('@') || !e.includes('.'))
 
             if (hasInvalid) {
@@ -1417,7 +1418,6 @@ function EditEvent({
                                     <CohostInput
                                         allowInviteEmail={true}
                                         placeholder={'Enter your speaker’s name, domain, or wallet address'}
-                                        emailPlaceholder={'Input email'}
                                         value={speakerList}
                                         onChange={(speakers) => {
                                             console.log('speaker list', speakers)
