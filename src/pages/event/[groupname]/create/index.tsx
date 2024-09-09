@@ -617,74 +617,6 @@ function EditEvent({
         return true
     }
 
-    const parseHostInfo = async () => {
-        const usernames = [...cohost, ...speakers].filter((u) => !!u)
-        if (!usernames.length) {
-            if (!!(creator as Group).creator) {
-                const hostinfo = {
-                    speaker: [],
-                    co_host: [],
-                    group_host: {
-                        id: creator!.id,
-                        creator: true,
-                        username: creator!.username,
-                        nickname: creator!.nickname,
-                        image_url: creator!.image_url,
-                    }
-                }
-                return {
-                    json: JSON.stringify(hostinfo),
-                    cohostId: null,
-                    speakerId: null
-                }
-            } else {
-                return {
-                    json: null,
-                    cohostId: null,
-                    speakerId: null
-                }
-            }
-        }
-
-        let profiles = await getProfileBatch(usernames)
-        if (profiles.length !== usernames.length) {
-            const missing = usernames.filter((u) => !profiles.find((p) => p.username === u))
-            if (missing.length) {
-                // throw new Error(`User 「${missing}」 not exist`)
-                missing.forEach((m, i) => {
-                    profiles.push({
-                        id: 0,
-                        username: m,
-                        nickname: null,
-                        image_url: '/images/default_avatar/avatar_0.png',
-                        sol_address: null
-                    } as any)
-                })
-            }
-        }
-
-        const cohostUser = profiles.filter((p) => cohost.some((u) => u === p.username))
-        const speakerUsers = profiles.filter((p) => speakers.some((u) => u === p.username))
-
-        const hostinfo = {
-            speaker: enableSpeakers ? speakerUsers : [],
-            co_host: enableCoHost ? cohostUser : [],
-            group_host: creator && !!(creator as Group).creator ? {
-                id: creator.id,
-                creator: true,
-                username: creator.username,
-                nickname: creator.nickname,
-                image_url: creator.image_url,
-            } : undefined,
-        }
-
-        return {
-            json: JSON.stringify(hostinfo),
-            cohostId: enableCoHost ? cohostUser.filter(p => !!p.id).map((p) => p.id) : null,
-            speakerId: enableSpeakers ? speakerUsers.filter(p => !!p.id).map((p) => p.id) : null
-        }
-    }
-
     const getHostInfo = async () => {
         const hosts = cohostList.filter(p => !!p.username)
         const speakers = speakerList.filter(p => !!p.username)
@@ -1460,15 +1392,6 @@ function EditEvent({
                                     <div className={styles['item-title']}>{'Invite a Co-host'}</div>
                                 </div>
 
-                                {/*{enableCoHost &&*/}
-                                {/*    <IssuesInput*/}
-                                {/*        value={cohost as any}*/}
-                                {/*        placeholder={`Co-host`}*/}
-                                {/*        onChange={(newIssues) => {*/}
-                                {/*            setCohost(newIssues)*/}
-                                {/*        }}/>*/}
-                                {/*}*/}
-
                                 {enableCoHost &&
                                     <CohostInput
                                         placeholder={'Enter your cohost’s name, domain, or wallet address'}
@@ -1489,19 +1412,12 @@ function EditEvent({
                                         className={styles['item-title']}>{'Invite a speaker to the event'}</div>
                                 </div>
 
-                                {/*{enableSpeakers &&*/}
-                                {/*    <IssuesInput*/}
-                                {/*        value={speakers as any}*/}
-                                {/*        placeholder={`Speaker`}*/}
-                                {/*        onChange={(newIssues) => {*/}
-                                {/*            setSpeakers(newIssues)*/}
-                                {/*        }}/>*/}
-                                {/*}*/}
-
                                 {
                                     enableSpeakers &&
                                     <CohostInput
+                                        allowInviteEmail={true}
                                         placeholder={'Enter your speaker’s name, domain, or wallet address'}
+                                        emailPlaceholder={'Input email'}
                                         value={speakerList}
                                         onChange={(speakers) => {
                                             console.log('speaker list', speakers)

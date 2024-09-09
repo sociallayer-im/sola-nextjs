@@ -12,6 +12,7 @@ export interface IssuesInputProps {
     value: ProfileSimple[],
     onChange: (value: ProfileSimple[]) => any,
     placeholder?: string
+    emailPlaceholder?: string
     allowAddressList?: boolean
     allowSearch?: boolean
     allowInviteEmail?: boolean
@@ -233,7 +234,7 @@ function CohostInput({allowAddressList = true, allowSearch = true, ...props}: Is
                         />
                         {value.id === 0 && value.username && props.allowInviteEmail &&
                             <AppInput
-                                placeholder={'Input the email to invite'}
+                                placeholder={props.emailPlaceholder || 'Input the email to invite'}
                                 value={value.email || ''}
                                 onChange={(e) => {
                                     onChangeEmail(e.target.value, index)
