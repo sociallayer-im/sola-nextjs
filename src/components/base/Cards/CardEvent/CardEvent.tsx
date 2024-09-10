@@ -188,22 +188,26 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
     }
 
     const hostInfo = useMemo(() => {
-        let string = 'by '
+        let str = []
         if (groupHost) {
-            string += (groupHost.nickname || groupHost.username)
+            str.push(`by ${(groupHost.nickname || groupHost.username)}`)
         } else if (props.event.owner) {
-            string += (props.event.owner.nickname || props.event.owner.username)
+            str.push(`by ${props.event.owner.nickname || props.event.owner.username}`)
         }
 
         if (cohost.length) {
-            string += `, ${cohost.map((item: any) => item.nickname || item.username).join(', ')}`
+            cohost.forEach((c: any) => {
+                str.push(`${c.nickname || c.username}`)
+            })
         }
 
         if (speaker.length) {
-            string += `, ${speaker.map((item: any) => item.nickname || item.username).join(', ')}`
+            speaker.forEach((s: any) => {
+                str.push(`${s.nickname || s.username}`)
+            })
         }
 
-        return string.length > 3 ? string : ''
+        return str
     }, [groupHost, props.event, cohost, speaker])
 
     return (<Link href={`/event/detail/${props.event.id}`}
@@ -255,7 +259,15 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
                             })
                         }
                     </div>
-                    <div className={'detail host-info'}>{hostInfo}</div>
+
+                    <div className={'host-info'}>
+                        <div className={'content'}>
+                            {!!hostInfo.length && hostInfo.map((name, index) => {
+                                return <span key={index}>{name}{index !== hostInfo.length - 1 ? ', ': ''}</span>
+                            })
+                        }</div>
+                        <div className={'num'}></div>
+                    </div>
 
                     {!!eventDetail.start_time &&
                         <div className={'detail'}>

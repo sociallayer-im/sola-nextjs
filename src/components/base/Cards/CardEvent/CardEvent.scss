@@ -268,9 +268,59 @@
     }
 
     .host-info {
-      word-break: break-word;
-      white-space: wrap!important;
-      line-height: 1.3rem!important;
+      display: flex;
+      flex-flow: row nowrap;
+      font-size: 14px;
+      color: #272928;
+
+      .content {
+        display: flex;
+        flex-flow: row nowrap;
+        overflow: hidden;
+        counter-reset: num;
+        animation: check;
+        animation-timeline: scroll(x self);
+        position: relative;
+        z-index: 2;
+        margin-right: -40px;
+        background: #fff;
+        margin-left: 0.2rem;
+
+
+        span {
+          white-space: nowrap;
+          animation: appear;
+          animation-timeline: view(inline);
+          animation-range: contain;
+          counter-increment: num;
+          margin-right: 0.2rem;
+        }
+
+        @keyframes appear{
+          from,to {
+            background-color: #fff;
+            counter-increment: num 0;
+          }
+        }
+        @keyframes check{
+          from,to {
+            -webkit-mask: linear-gradient(to right, #fff calc(100% - 30px), transparent);
+            margin-right: 0;
+          }
+        }
+      }
+
+      .num {
+        position: relative;
+        z-index: 1;
+      }
+
+      .num::after{
+        content: "+"counter(num);
+        background: linear-gradient(-90deg, #fff, rgba(255,255,255,0));
+        color: #191919;
+        border-radius: 4px;
+      }
     }
 
     .detail {
