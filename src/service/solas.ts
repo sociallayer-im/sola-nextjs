@@ -1082,7 +1082,9 @@ export interface Group extends Profile {
     events_count: number
     memberships_count: number
     group_tags: string | null
-    timezone: string | null
+    timezone: string | null,
+    start_date: string | null,
+    end_date: string | null,
 }
 
 export interface QueryUserGroupProps {
@@ -4196,6 +4198,8 @@ export async function divineBeastRemerge(props: DivineBeastRmergeProps) {
 export async function getEventGroup() {
     const doc = gql`query MyQuery {
       groups(where: {event_enabled: {_eq: true}, status: {_neq: "freezed"}}) {
+        start_date
+        end_date
         farcaster
         timezone
         events_count
@@ -5959,6 +5963,8 @@ export async function updatePaymentStatus (props: {
 export async function getTopEventGroup() {
     const doc = gql`query MyQuery {
       groups(where: {event_enabled: {_eq: true}, group_tags:{_contains: [":top"]}, status: {_neq: "freezed"}}) {
+        start_date
+        end_date
         farcaster
         timezone
         events_count

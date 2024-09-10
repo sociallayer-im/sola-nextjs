@@ -436,15 +436,10 @@ function EditEvent({
     // check available day for curr venue
     useEffect(() => {
         if (!!venueInfo && !!venueInfo.venue_timeslots && event.start_time) {
-            const day = dayjs.tz(new Date(event.start_time).getTime(), event.timezone).day()
-            const dayFullName:Weekday[] = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
-            const target = venueInfo.venue_timeslots.find(item => item.day_of_week === dayFullName[day])
-
             const startTime = dayjs.tz(new Date(event.start_time).getTime(), event.timezone)
             const endTime = dayjs.tz(new Date(event.end_time!).getTime(), event.timezone)
-            const availableStart = venueInfo.start_date ? dayjs.tz(venueInfo.start_date, event.timezone) : null
-            const availableEnd = venueInfo.end_date ? dayjs.tz(venueInfo.end_date, event.timezone).hour(23).minute(59) : null
 
+            // overrides 优先级最高
             const hasOverride =  venueInfo.venue_overrides!.find((item) => {
                 const start_at = item.start_at || '00:00'
                 const end_at =  item.end_at || '23:59'
@@ -457,37 +452,38 @@ function EditEvent({
                 return
             }
 
-            let available = true
+            // 判断 venue 的 start date 和 end date
+            let venueAvailable = true
+            const availableStart = venueInfo.start_date ? dayjs.tz(venueInfo.start_date, event.timezone) : null
+            const availableEnd = venueInfo.end_date ? dayjs.tz(venueInfo.end_date, event.timezone).hour(23).minute(59) : null
             if (availableStart && !availableEnd) {
-                available = startTime.isSameOrAfter(availableStart)
+                venueAvailable = startTime.isSameOrAfter(availableStart)
             } else if (!availableStart && availableEnd) {
-                available = endTime.isBefore(availableEnd)
+                venueAvailable = endTime.isBefore(availableEnd)
             } else if (availableStart && availableEnd) {
                 console.log('here', startTime.isSameOrAfter(availableStart), endTime.isBefore(availableEnd))
-                available = startTime.isSameOrAfter(availableStart) && endTime.isBefore(availableEnd)
+                venueAvailable = startTime.isSameOrAfter(availableStart) && endTime.isBefore(availableEnd)
             }
 
-            if (!!venueInfo.venue_overrides) {
-                const overrides = venueInfo.venue_overrides
-                const override = overrides.find((item) => {
-                    const itemStartTime = item.start_at || '00:00'
-                    const itemEndTime =  item.end_at || '23:59'
-
-                    const itemStart = dayjs.tz(`${item.day} ${itemStartTime}`, event.timezone)
-                    const itemEnd = dayjs.tz(`${item.day} ${itemEndTime}`, event.timezone)
-
-                    return startTime.isBetween(itemStart, itemEnd, null, '[]') || endTime.isBetween(itemStart, itemEnd, null, '[]')
-                })
-
-                if (override) {
-                    available = false
+            // 判断timeslot
+            let timeslotAvailable = true
+            const day = dayjs.tz(new Date(startTime).getTime(), event.timezone).day()
+            const dayFullName:Weekday[] = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
+            const timeslot = venueInfo.venue_timeslots.find(item => item.day_of_week === dayFullName[day])
+            if (!!timeslot) {
+                if (timeslot.disabled) {
+                    timeslotAvailable = false
+                } else {
+                    const eventStartTimeHour = startTime.format('HH:mm')
+                    const eventEndTimeHour = endTime.format('HH:mm')
+                    timeslotAvailable = eventStartTimeHour >= timeslot.start_at && eventEndTimeHour <= timeslot.end_at
                 }
             }
 
-            if (target?.disabled || !available ) {
-                setDayDisable('The date you selected is not available for the current venue')
-            } else {
+            if (timeslotAvailable && venueAvailable) {
                 setDayDisable('')
+            } else {
+                setDayDisable('The date you selected is not available for the current venue')
             }
         } else {
             setDayDisable('')
