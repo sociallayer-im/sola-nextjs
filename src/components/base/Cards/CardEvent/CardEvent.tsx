@@ -261,12 +261,14 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
                     </div>
 
                     <div className={'host-info'}>
-                        <div className={'content'}>
-                            {!!hostInfo.length && hostInfo.map((name, index) => {
-                                return <span key={index}>{name}{index !== hostInfo.length - 1 ? ', ': ''}</span>
-                            })
-                        }</div>
-                        <div className={'num'}></div>
+                        <div className={'wrap'}>
+                            <div className={'con'}>
+                                {!!hostInfo.length && hostInfo.map((name, index) => {
+                                        return <span className={'tag'} key={index}>{index === 0 ? '': ', '} {name}</span>
+                                    })
+                                }
+                            </div>
+                        </div>
                     </div>
 
                     {!!eventDetail.start_time &&
