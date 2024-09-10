@@ -434,6 +434,8 @@ export async function getGroups(props: GetGroupProps): Promise<Group[]> {
 
     const doc = gql`query MyQuery {
       groups(${condition}) {
+        start_date
+        end_date
         farcaster
         timezone
         events_count

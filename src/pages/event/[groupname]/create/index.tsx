@@ -308,16 +308,29 @@ function EditEvent({
 
     // check time
     useEffect(() => {
+        setStartTimeError('')
         if (event.start_time && event.end_time) {
             if (new Date(event.start_time) >= new Date(event.end_time)) {
                 setStartTimeError(lang['Activity_Form_Ending_Time_Error'])
-            } else {
-                setStartTimeError('')
+                return
+            }
+
+            const eventStartDate = dayjs.tz(event.start_time, event.timezone).format('YYYY-MM-DD')
+            const eventEndDate = dayjs.tz(event.end_time, event.timezone).format('YYYY-MM-DD')
+            if (group?.start_date && !group?.end_date && eventStartDate < group.start_date) {
+                setStartTimeError(`The event start date cannot be earlier than the group start date: ${group.start_date}`)
+                return
+            } else if (!group?.start_date && group?.end_date && eventEndDate > group.end_date) {
+                setStartTimeError(`The event end date cannot be later than the group end date: ${group.end_date}`)
+                return
+            } else if (group?.start_date && group?.end_date && (eventStartDate < group.start_date || eventEndDate > group.end_date)) {
+                setStartTimeError(`The event date must be within the group date range: ${group.start_date} to ${group.end_date}`)
+                return
             }
         } else {
             setStartTimeError('Please select a time slot')
         }
-    }, [event.start_time, event.end_time])
+    }, [event.start_time, event.end_time, group, event.timezone])
 
     // 检查event_site在设置的event.start_time和event.ending_time否可用
     useEffect(() => {
