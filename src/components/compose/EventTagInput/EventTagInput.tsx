@@ -1,4 +1,4 @@
-import {useRef} from 'react'
+import {useEffect, useState} from 'react'
 import AppInput from '@/components/base/AppInput'
 import {CheckIndeterminate, Plus} from 'baseui/icon'
 
@@ -15,6 +15,8 @@ function EventTagInput(props: IssuesInputProps) {
         props.onChange(copyValue)
     }
 
+    const [err, setErr] = useState('')
+
 
     const addItem = () => {
         const copyValue = [...props.value]
@@ -28,6 +30,19 @@ function EventTagInput(props: IssuesInputProps) {
         copyValue.splice(index, 1)
         props.onChange(copyValue)
     }
+
+    useEffect(() => {
+        // 检查重复
+        console.log(props.value)
+        const copyValue = [...props.value].map(item => item.trim())
+        const newSet = new Set(copyValue)
+        if (newSet.size !== copyValue.length) {
+            // 有重复的tag, 展示提示信息
+           setErr('Duplicate tag')
+        } else {
+           setErr('')
+        }
+    }, [props.value])
 
 
     const InputItem = (value: string, index: number) => {
@@ -65,6 +80,7 @@ function EventTagInput(props: IssuesInputProps) {
                 return InputItem(item, index)
             })
         }
+        <div className={'error'} style={{color: '#ff8c8c'}}>{err}</div>
     </div>)
 }
 

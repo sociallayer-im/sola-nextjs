@@ -235,13 +235,20 @@ function Dashboard() {
         showToast('Update permission success')
     }
 
-    const setTag = async function () {
+    const saveTag = async function () {
+        const copyValue = tags.filter(e => !!e).map(e => e.trim())
+        const newSet = new Set(copyValue)
+        if (newSet.size !== copyValue.length) {
+            // 有重复的tag
+            return
+        }
+
         const unload = showLoading()
         const update = await updateGroup({
             ...eventGroup,
             auth_token: user.authToken || '',
             id: eventGroup?.id || 1516,
-            event_tags: tags.filter(e => !!e),
+            event_tags: Array.from(newSet),
         } as any)
         const newGroup = await queryGroupDetail(eventGroup!.id)
         setEventGroup(newGroup)
@@ -426,7 +433,7 @@ function Dashboard() {
 
                         </div>
                         <div className={'action-bar'}>
-                            <AppButton special onClick={setTag}>Save</AppButton>
+                            <AppButton special onClick={saveTag}>Save</AppButton>
                         </div>
                     </div>
                 </div>
