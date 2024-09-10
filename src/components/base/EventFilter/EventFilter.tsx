@@ -61,9 +61,6 @@ export default function EventFilter(props: {
             value={venueSearchKeyword}/>
 
         <div className={styles['venue-list']}>
-            {!venueToShow.length && <div className={styles['empty']}>
-                <Empty/>
-            </div>}
             <div className={styles['scroll']}>
                 <div className={styles['venue-list-item']}>
                     <div><strong>All venue</strong></div>
@@ -87,6 +84,9 @@ export default function EventFilter(props: {
                         }
                     </div>
                 </div>
+                {!venueToShow.length && <div className={styles['empty']}>
+                    <Empty/>
+                </div>}
                 {
                     venueToShow.map((venue, index) => {
                         return <div className={styles['venue-list-item']} key={index}>
