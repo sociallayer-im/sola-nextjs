@@ -5,6 +5,7 @@ import {
     getGroupsBatch,
     Group, queryEventDetail,
     queryScheduleEvent,
+    getEventSide, EventSites
 } from "@/service/solas";
 import styles from './schedulenew.module.scss'
 import Link from 'next/link'
@@ -122,7 +123,7 @@ const getCalendarData = (timeZone: string) => {
 }
 
 
-function ComponentName(props: { group: Group}) {
+function ComponentName(props: { group: Group, eventSite:EventSites[]}) {
     const eventGroup = props.group
     const now = new Date()
     const scroll1Ref = useRef<any>(null)
@@ -150,9 +151,9 @@ function ComponentName(props: { group: Group}) {
     const [timezoneSelected, setTimezoneSelected] = useState<{ label: string, id: string }[]>([])
 
     let presetTag = searchParams?.get('tag')
+    let presetVenue = searchParams?.get('venue')
     const [selectedTags, setSelectedTags] = useState<string[]>(presetTag ? presetTag.split(',') : [])
-
-    const [venue, setVenue] = useState([{id: 0, label: 'All Venues', color: null}])
+    const [selectedVenue, setSelectedVenue] = useState<number[]>(presetVenue ? presetVenue.split(',').map(i => Number(i)) : [])
 
     const [pageSize, setPageSize] = useState(0)
     const [isEnd, setIsEnd] = useState(false)
@@ -170,6 +171,14 @@ function ComponentName(props: { group: Group}) {
             id: item,
             label: item,
             color: getLabelColor(item)
+        }
+    }) || []
+
+    const venues = props.eventSite.map((item) => {
+        return {
+            id: item.id,
+            label: item.title,
+            color: null
         }
     }) || []
 
@@ -211,18 +220,22 @@ function ComponentName(props: { group: Group}) {
         setIsEnd(targetPage === Math.ceil(showList.length / pageSize))
     }
 
-    const genHref = ({date, tag}: { date?: string, tag?: string }) => {
-        if (date && tag) {
-            return `?date=${date}&tag=${encodeURIComponent(tag)}`
-        } else if (date) {
-            return `?date=${date}`
-        } else if (tag) {
-            return `?tag=${tag}`
-        } else {
-            return ''
+    const genHref = ({date, tag, venue}: { date?: string, tag?: string, venue?: string }) => {
+        let search = '?'
+        if (date) {
+            search += `date=${date}`
         }
-    }
 
+        if (tag) {
+            search += search=== '?' ? `tag=${tag}` : `&tag=${tag}`
+        }
+
+        if (venue) {
+            search += search === '?' ? `venue=${venue}` : `&venue=${venue}`
+        }
+
+        return search === '?' ? '' : search
+    }
 
     useEffect(() => {
         if (timezoneSelected.length) {
@@ -256,7 +269,7 @@ function ComponentName(props: { group: Group}) {
                 }
             })
 
-            const groupIds = groupsHost.filter((i) => !!i) as number[]
+            const groupIds = Array.from(new Set(groupsHost.filter((i) => !!i) as number[]))
 
 
             if (groupsHost.length) {
@@ -462,14 +475,15 @@ function ComponentName(props: { group: Group}) {
         if (pageList[0]) {
             const props = {
                 tag: selectedTags.length ? selectedTags.join(',') : undefined,
-                date: dayjs.tz(pageList[0].timestamp, timezoneSelected[0].id).format('YYYY-MM-DD')
+                date: dayjs.tz(pageList[0].timestamp, timezoneSelected[0].id).format('YYYY-MM-DD'),
+                venue: selectedVenue.length ? selectedVenue.join(',') : undefined
             }
 
             const isIframe = location.href.includes('iframe')
             const params = genHref(props) + (isIframe ? `&group=${eventGroup.username}` : '')
             history.replaceState(null, '', params)
         }
-    }, [pageList, page, tags, timezoneSelected])
+    }, [pageList, page, tags, timezoneSelected, selectedVenue])
 
     const creatEventPatch = eventGroup?.username === 'web3festival' ? `/event/${eventGroup.username}/custom-create` : `/event/${eventGroup.username}/create`
 
@@ -487,6 +501,7 @@ function ComponentName(props: { group: Group}) {
         {
             !pathname?.includes('iframe') &&
             <ScheduleHeader group={eventGroup} params={genHref({
+                venue: selectedVenue.length ? selectedVenue.join(',') : undefined,
                 tag: selectedTags.length ? selectedTags.join(',') : undefined,
                 date: pageList.length ? dayjs.tz(pageList[0].timestamp, timezoneSelected[0].id).format('YYYY-MM-DD') : undefined
             })}/>
@@ -574,30 +589,44 @@ function ComponentName(props: { group: Group}) {
                         />
                     </div>
                     <div className={styles['menu-item'] + ' input-disable'}>
-                        {/*<Select*/}
-                        {/*    labelKey={'label'}*/}
-                        {/*    valueKey={'id'}*/}
-                        {/*    clearable={false}*/}
-                        {/*    creatable={false}*/}
-                        {/*    searchable={false}*/}
-                        {/*    value={venue}*/}
-                        {/*    getOptionLabel={(opt: any) => {*/}
-                        {/*        return <div className={styles['label-item']}>*/}
-
-                        {/*            {opt.option.label}*/}
-                        {/*        </div>*/}
-                        {/*    }}*/}
-                        {/*    getValueLabel={(opt: any) => {*/}
-                        {/*        return <div className={styles['label-item']}>*/}
-
-                        {/*            {opt.option.label}*/}
-                        {/*        </div>*/}
-                        {/*    }}*/}
-                        {/*    options={[{id: 0, label: 'All Venues', color: null}, ...venues as any]}*/}
-                        {/*    onChange={({option}) => {*/}
-                        {/*        setVenue([option] as any)*/}
-                        {/*    }}*/}
-                        {/*/>*/}
+                        <Select
+                            labelKey={'label'}
+                            valueKey={'id'}
+                            clearable={false}
+                            creatable={false}
+                            searchable={false}
+                            value={[{id: '', label: '', color: null}] as any}
+                            getOptionLabel={(opt: any) => {
+                                return <div className={styles['label-item']}>
+                                    {
+                                        selectedVenue.includes(opt.option.id) ?
+                                            <Check size={22}/>
+                                            : <span style={{marginRight: '22px'}}/>
+                                    }
+                                    {opt.option.label}
+                                </div>
+                            }}
+                            getValueLabel={(opt: any) => {
+                                return <div className={styles['label-item']}>
+                                    {!!selectedVenue.length &&
+                                        <i className={styles['label-notice']}
+                                           style={{background: 'red'}}/>
+                                    }
+                                    Venues
+                                </div>
+                            }}
+                            options={[{id: 0, label: 'All Venues', color: null}, ...venues as any]}
+                            onChange={({option}) => {
+                                if (!option) return
+                                if (option.id === 0) {
+                                    setSelectedVenue([])
+                                } else if (selectedVenue.includes(option!.id as any)) {
+                                    setSelectedVenue(selectedVenue.filter(i => i !== option.id))
+                                } else {
+                                    setSelectedVenue([...selectedVenue, option.id as any])
+                                }
+                            }}
+                        />
                     </div>
                 </div>
             </div>
@@ -748,6 +777,17 @@ function ComponentName(props: { group: Group}) {
                                                 return e.tags?.indexOf(t) === -1
                                             })
                                         })
+                                        .filter((e:Event) => {
+                                            if (selectedVenue.length === 0) {
+                                                return true
+                                            }
+
+                                            if (!e.venue_id) {
+                                                return false
+                                            }
+
+                                            return selectedVenue.includes(e.venue_id)
+                                        })
                                         .map((e: Event) => {
                                             return <EventCard
                                                 groupHostCache={groupHostCache}
@@ -775,7 +815,8 @@ export const getServerSideProps: any = (async (context: any) => {
     const groupname = context.params?.groupname
     if (groupname) {
         const group = await getGroups({username: groupname})
-        return {props: {group: group[0]}}
+        const eventSite = await getEventSide(group[0].id)
+        return {props: {group: group[0], eventSite: eventSite}}
     }
 })
 

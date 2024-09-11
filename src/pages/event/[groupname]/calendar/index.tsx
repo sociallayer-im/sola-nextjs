@@ -89,12 +89,14 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
     const searchParams = useSearchParams()
 
     const [timezoneSelected, setTimezoneSelected] = useState<{ label: string, id: string }[]>([])
-    const [venue, setVenue] = useState<number>(0)
     const [presetDate, setPresetDate] = useState<string>(searchParams?.get('date') || '')
     const [view, setView] = useState<string>(searchParams?.get('view') || 'month')
 
     let presetTag = searchParams?.get('tag')
+    let presetVenue = searchParams?.get('venue')
     const [selectedTags, setSelectedTags] = useState<string[]>(presetTag ? presetTag.split(',') : [])
+    const [venue, setVenue] = useState<number[]>(presetVenue ? presetVenue.split(',').map(i => Number(i)) : [])
+
 
     useEffect(() => {
         try {
@@ -145,7 +147,7 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
                 tags: selectedTags.length ? selectedTags : undefined,
                 event_order: 'asc',
                 page_size: 1000,
-                venue_id: venue || undefined
+                venue_ids: venue.length ? venue : undefined
             }).then(res => {
                 const eventList = res.map((event: SolarEvent) => {
                     let host = [event.owner.username]
@@ -239,7 +241,7 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
                             options: [
                                 {
                                     label: `<div class="${styles['drop-list']}"> All Venues</div>`,
-                                    value: ''
+                                    value: 0
                                 },
                                 ...(props.eventSite || []).map((venue) => {
                                     return {
@@ -248,15 +250,16 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
                                     }
                                 })
                             ],
-                            onClick: (value: { label: string, value: any }) => {
-                                setVenue(value.value)
+                            onClick: (value: number[]) => {
+                                setVenue(value)
                             },
+                            placeholder: 'Venues',
                             multiple: false,
-                            defaultSelectedIndex: 0
+                            defaultValue: venue
                         } : undefined
 
-                    // const customMenus = [customTagFilter, venueFilter].filter(Boolean)
-                    const customMenus = customTagFilter ? [customTagFilter] : undefined
+                    const customMenus = [customTagFilter, venueFilter].filter(Boolean)
+                    // const customMenus = customTagFilter ? [customTagFilter] : undefined
 
                     const selectedDate = presetDate ?
                         dayjs.tz(presetDate, timezoneSelected[0].id).format('YYYY-MM-DD') :
@@ -349,10 +352,10 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
 
 
     useEffect(() => {
-        history.replaceState(null, '', genHref({date: presetDate, tag: selectedTags.join(','), view}))
+        history.replaceState(null, '', genHref({date: presetDate, tag: selectedTags.join(','), view, venue: venue.join(',')}))
     }, [selectedTags, presetDate, view])
 
-    const genHref = ({date, tag, view}: { date?: string, tag?: string, view?: string }): string => {
+    const genHref = ({date, tag, view, venue}: { date?: string, tag?: string, view?: string, venue?: string }): string => {
         // 根据传参生成query string
         const query = new URLSearchParams()
         if (date) {
@@ -363,6 +366,9 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
         }
         if (view) {
             query.set('view', view)
+        }
+        if (venue) {
+            query.set('venue', venue)
         }
 
         if (searchParams?.get('group')) {
@@ -408,6 +414,7 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
 
     return <div>
         <ScheduleHeader group={eventGroup} params={genHref({
+            venue: venue.join(','),
             date: presetDate,
             tag: selectedTags.join(',')
         })}/>

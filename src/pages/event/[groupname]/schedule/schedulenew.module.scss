@@ -328,9 +328,7 @@ $border-color: #e0e0e0 !default;
   align-items: flex-start;
 
   @media (max-width: 450px) {
-    & .menu-item:last-child {
-      display: none;
-    }
+
 
     :global(.event-label-list) {
       flex-flow: row nowrap;

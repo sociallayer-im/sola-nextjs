@@ -6426,6 +6426,10 @@ export async function queryScheduleEvent(props: QueryEventProps): Promise<Event[
         variables += `venue_id: {_eq: ${props.venue_id}}, `
     }
 
+    if (props.venue_ids) {
+        variables += `venue_id: {_in: [${props.venue_ids.join(',')}]}, `
+    }
+
     if (props.recurring_event_id) {
         variables += `recurring_event_id: {_eq: ${props.recurring_event_id}}, `
     }
@@ -6486,6 +6490,7 @@ export async function queryScheduleEvent(props: QueryEventProps): Promise<Event[
     const doc = gql`query MyQuery ${props.cache? '@cached' : ''} {
       events (where: {${variables}, status: {_in: [${status}]}} ${order} limit: ${page_size}, offset: ${props.offset || ((props.page - 1) * page_size)}) {
         extra
+        venue_id
         requirement_tags
         operators
         padge_link
