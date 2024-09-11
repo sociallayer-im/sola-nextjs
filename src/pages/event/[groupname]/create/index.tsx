@@ -482,17 +482,18 @@ function EditEvent({
             let timeslotAvailable = true
             const day = dayjs.tz(new Date(startTime).getTime(), event.timezone).day()
             const dayFullName:Weekday[] = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
-            const timeslot = venueInfo.venue_timeslots.find(item => item.day_of_week === dayFullName[day])
-            if (!!timeslot) {
-                if (timeslot.disabled) {
+            const timeslots = venueInfo.venue_timeslots.filter(item => item.day_of_week === dayFullName[day])
+            if (!!timeslots.length) {
+                if (timeslots[0].disabled) {
                     timeslotAvailable = false
                 } else {
                     const eventStartTimeHour = startTime.format('HH:mm')
                     const eventEndTimeHour = endTime.format('HH:mm')
-                    timeslotAvailable = eventStartTimeHour >= timeslot.start_at && eventEndTimeHour <= timeslot.end_at
+                    timeslotAvailable = timeslots.some(timeslot => {
+                        return eventStartTimeHour >= timeslot.start_at && eventEndTimeHour <= timeslot.end_at
+                    })
                 }
             }
-
             if (timeslotAvailable && venueAvailable) {
                 setDayDisable('')
             } else {
