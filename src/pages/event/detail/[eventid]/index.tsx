@@ -982,7 +982,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                             }
 
                                             <div className={'center'}>
-                                                {!!event.requirement_tags && (event.group_id === 3427 || event.group_id === 3409) && (isOperator || isManager || isHoster || isGroupOwner) &&
+                                                {!!event.requirement_tags && !!event.group_id && [3427, 3409, 3463, 3454].includes(event.group_id) && (isOperator || isManager || isHoster || isGroupOwner) &&
                                                     <>
                                                         {!!event.requirement_tags.filter((t) => {
                                                                 return SeatingStyle.includes(t)

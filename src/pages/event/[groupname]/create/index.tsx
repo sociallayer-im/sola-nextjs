@@ -1254,7 +1254,7 @@ function EditEvent({
                                                      dangerouslySetInnerHTML={{__html: occupiedError}}></div>}
                             {!!dayDisable && <div className={styles['start-time-error']}>{dayDisable}</div>}
 
-                            {event.venue_id && (eventGroup?.id === 3427 || eventGroup?.id === 3409) &&
+                            {!!event.venue_id && !!eventGroup?.id && [3427, 3409, 3463, 3454].includes(eventGroup?.id) &&
                                 <>
                                     <div className={styles['input-area']}>
                                         <div className={styles['input-area-title']}>{'Seating arrangement style'}</div>
