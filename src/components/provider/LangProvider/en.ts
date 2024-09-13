@@ -217,7 +217,7 @@ const langEN = {
     Activity_Form_Checklog: 'Set as a punch in location',
     Activity_Form_Name: 'Event Name',
     Activity_Form_Details: 'Event Description (Optional)',
-    Activity_Form_online_address: 'Meeting URL (Optional)',
+    Activity_Form_online_address: 'URL(Optional)',
     Activity_Form_Starttime: 'When will it happen?',
     Activity_Form_Ending: 'When will it Ending?',
     Activity_Form_Where: 'Where is the event taking place?',
