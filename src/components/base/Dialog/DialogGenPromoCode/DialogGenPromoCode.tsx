@@ -76,8 +76,8 @@ export default function DialogGenPromoCode(props: {
         setDiscountError('')
         setUseTimesError('')
 
-        if (promoCode.discount <= 0) {
-            setDiscountError('Discount must be greater than 0')
+        if (promoCode.discount < 0) {
+            setDiscountError('Discount must be greater than 100%')
             return
         }
 
