@@ -35,7 +35,8 @@ export interface CardEventProps {
     attend?: boolean,
     canPublish?: boolean,
     onRemove?: (event: Event) => void,
-    blank?: boolean
+    blank?: boolean,
+    timezone?: string
 }
 
 const localeTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone
@@ -210,6 +211,14 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
         return str
     }, [groupHost, props.event, cohost, speaker])
 
+    const displayTimezone = useMemo(() => {
+        if (props.timezone && props.timezone === 'UTC') {
+            return localeTimezone
+        } else {
+            return eventDetail.timezone || localeTimezone
+        }
+    }, [props.timezone, eventDetail.timezone])
+
     return (<Link href={`/event/detail/${props.event.id}`}
                   target={props.blank ? '_blank' : '_self'}
                   className={largeCard ? 'event-card large' : 'event-card'}>
@@ -274,7 +283,7 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
                     {!!eventDetail.start_time &&
                         <div className={'detail'}>
                             <i className={'icon-calendar'}/>
-                            <span>{formatTime(eventDetail.start_time, eventDetail.timezone || localeTimezone)}</span>
+                            <span>{formatTime(eventDetail.start_time, displayTimezone)}</span>
                         </div>
                     }
 

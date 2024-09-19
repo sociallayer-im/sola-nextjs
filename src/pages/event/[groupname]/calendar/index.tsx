@@ -100,16 +100,14 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
 
     useEffect(() => {
         try {
-            const historyTimeZone = localStorage.getItem('schedule-timezone')
-            if (historyTimeZone) {
-                setTimezoneSelected(JSON.parse(historyTimeZone))
-            } else if (props.group.timezone) {
+            const localTimezone = dayjs.tz.guess()
+            if (props.group.timezone) {
+                const displayTimezone = props.group.timezone === 'UTC' ? localTimezone : props.group.timezone
                 setTimezoneSelected([{
-                    id: props.group.timezone,
-                    label: timezoneList.find(item => item.id === props.group.timezone)!.label
+                    id: displayTimezone,
+                    label: timezoneList.find(item => item.id === displayTimezone)!.label
                 }])
             } else {
-                const localTimezone = dayjs.tz.guess()
                 const timezoneInfo = timezoneList.find(item => item.id === localTimezone) || {
                     id: 'UTC',
                     label: 'UTC+00:00'
@@ -117,6 +115,7 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
                 setTimezoneSelected([timezoneInfo])
             }
         } catch (e: any) {
+            console.error(e)
         }
     }, [])
 

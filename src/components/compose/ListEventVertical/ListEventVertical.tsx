@@ -469,7 +469,9 @@ function ListEventVertical({eventGroup, ...props}: { initData?: Event[], patch?:
                     <div className={'list'}>
                         {
                             listToShow.map((item, index) => {
-                                return <CardEvent fixed={false} key={item.id}
+                                return <CardEvent
+                                    timezone={eventGroup.timezone || undefined}
+                                    fixed={false} key={item.id}
                                                   event={item}/>
                             })
                         }
