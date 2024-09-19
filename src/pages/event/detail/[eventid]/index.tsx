@@ -157,9 +157,10 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                     setNotStart(true)
                 }
 
-                if (now >= start && now <= end) {
+                if (now >= start) {
                     setInProgress(true)
                 }
+
                 if (now > end) {
                     setOutOfDate(true)
                 }
@@ -176,7 +177,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                 if (now < start) {
                     setNotStart(true)
                 }
-                if (now > start) {
+                if (now >= start) {
                     setInProgress(true)
                 }
             }
@@ -795,7 +796,13 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                         <i className={'icon-link'}/>
                                         <div>
                                             <div className={'main'}>{getMeetingName(event.meeting_url)}</div>
-                                            <div className={'sub'}>{event.meeting_url}</div>
+                                            {
+                                                event.meeting_url.startsWith('https') || event.meeting_url.startsWith('http') ?
+                                                    <a className={'sub'} href={event.meeting_url}
+                                                       target={'_blank'}>{event.meeting_url}</a>
+                                                    : <div className={'sub'}>{event.meeting_url}</div>
+                                            }
+
                                         </div>
                                     </div>
                                 }
@@ -862,7 +869,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                                 endTime: event!.end_time!,
                                                                 location: eventSite?.title || event!.location || '',
                                                                 details: event!.content,
-                                                                url: window.location.href
+                                                                url: event!.meeting_url || window.location.href
                                                             })
                                                         }}>
                                                         <i className="icon-calendar" style={{marginRight: '8px'}}/>
@@ -876,7 +883,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                     }}>{lang['Activity_Detail_Btn_Attend']}</AppButton>
                                                 }
 
-                                                {!canceled && isJoined && !isHoster && !isManager && !isOperator && !isGroupOwner &&
+                                                {!canceled && isJoined && !isHoster && !isManager && !isOperator && !isGroupOwner && !event.meeting_url &&
                                                     <AppButton
                                                         special
                                                         onClick={e => {
@@ -889,7 +896,9 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                         onClick={e => {
                                                             copy(event!.meeting_url!);
                                                             showToast('Online location has been copied!')
-                                                            // window.open(getUrl(event!.online_location!) || '#', '_blank')
+                                                            if (event!.meeting_url!.startsWith('http') || event!.meeting_url!.startsWith('https')) {
+                                                                window.open(getUrl(event!.meeting_url!) || '#', '_blank')
+                                                            }
                                                         }}
                                                         special>{lang['Activity_Detail_Btn_AttendOnline']}</AppButton>
                                                 }
@@ -1119,7 +1128,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                         endTime: event!.end_time!,
                                                         location: eventSite?.title || event!.location || '',
                                                         details: event!.content,
-                                                        url: window.location.href
+                                                        url: event!.meeting_url || window.location.href
                                                     })
                                                 }}>
                                                 <i className="icon-calendar" style={{marginRight: '8px'}}/>
@@ -1137,19 +1146,29 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                             <AppButton special onClick={handlePublish}>{lang['Publish']}</AppButton>
                                         }
 
+                                        {!canceled && isJoined && !isHoster && !isManager && !isOperator && !isGroupOwner && !event.meeting_url &&
+                                            <AppButton
+                                                special
+                                                onClick={e => {
+                                                    handleUserCheckIn()
+                                                }}>{lang['Activity_Detail_Btn_Checkin']}</AppButton>
+                                        }
+
                                         {!canceled && isJoined && inProgress && !!event.meeting_url &&
                                             <AppButton
                                                 onClick={e => {
                                                     copy(event!.meeting_url!);
                                                     showToast('Online location has been copied!')
-                                                    // window.open(getUrl(event!.online_location!) || '#', '_blank')
+                                                    if (event!.meeting_url!.startsWith('http') || event!.meeting_url!.startsWith('https')) {
+                                                        window.open(getUrl(event!.meeting_url!) || '#', '_blank')
+                                                    }
                                                 }}
                                                 special>{lang['Activity_Detail_Btn_AttendOnline']}</AppButton>
                                         }
                                     </div>
 
                                     <div className={'event-action'}>
-                                        {(isHoster || isManager || isOperator || isGroupOwner || isJoined) && !canceled && event.status !== 'pending' &&
+                                        {(isHoster || isManager || isOperator || isGroupOwner) && !canceled && event.status !== 'pending' &&
                                             <AppButton
                                                 onClick={e => {
                                                     handleHostCheckIn()

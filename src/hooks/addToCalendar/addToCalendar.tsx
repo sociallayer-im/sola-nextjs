@@ -82,6 +82,7 @@ function DialogAddToCalendar({close, event} : {close: any, event: AddToCalenderP
             start: event.startTime,
             duration: [(new Date(event.endTime).getTime() - new Date(event.startTime).getTime()) / 1000 / 60 / 60, "hour"],
             location: event.location,
+            url: event.url,
         };
 
         let url = ''

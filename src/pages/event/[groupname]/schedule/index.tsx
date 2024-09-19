@@ -371,6 +371,7 @@ function ComponentName(props: { group: Group, eventSite:EventSites[]}) {
                 setTimezoneSelected([timezoneInfo])
             }
         } catch (e: any) {
+            console.error(e)
         }
 
         const calcPageSize = () => {
