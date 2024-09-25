@@ -475,10 +475,6 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
                     {currPaymentMethod?.chain !== 'stripe' &&
                         <div style={{color: '#7B7C7B', marginBottom: '12px'}}>{lang['Payments_Will_Be_Sent_To']} <span style={{color: '#272928'}}>
                         {shotAddress(currPaymentMethod?.receiver_address || '')}
-                            <i onClick={e => {
-                                copyWithDialog(currPaymentMethod?.receiver_address || '')
-                            }}
-                               className={'icon-copy'} style={{marginLeft: '4px', cursor: "pointer"}}/>
                     </span>
                         </div>
                     }
