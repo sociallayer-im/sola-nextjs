@@ -285,8 +285,8 @@ function TimeSlotInput({
             content: (close: any) => {
                 return <DialogRepeatOption
                     disabled={!!repeatDisabled}
-                    from={strToDate(data.from?.[0]!.id as string)}
-                    to={strToDate(data.to?.[0]!.id as string)}
+                    from={strToDate(data.from?.[0]!.id as string, data.date)}
+                    to={strToDate(data.to?.[0]!.id as string, data.date)}
                     repeatEvents={repeatEvents}
                     close={close}
                     initRepeat={repeat}
