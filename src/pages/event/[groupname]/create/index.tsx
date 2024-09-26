@@ -1126,7 +1126,7 @@ function EditEvent({
                     <PageBack
                         title={lang['Activity_Create_title']}
                         menu={() => {
-                            return initEvent && (isManager || initEvent?.owner.id === user.id) ?
+                            return initEvent && (isManager || initEvent?.owner.id === user.id) && !!tickets.length ?
                             <div>
                                 <AppButton
                                     onClick={showGenPromoCodeDialog}

@@ -579,11 +579,13 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                         <div className={'event-top-btn'}>
                             {(isHoster || isManager || isOperator || isGroupOwner) && !canceled &&
                                 <>
+                                { !!tickets.length &&
                                     <AppButton
                                         onClick={showGenPromoCodeDialog}
                                         kind={'primary'} size={'compact'}>
                                         {lang['Promo_Code']}
                                     </AppButton>
+                                }
                                     <Link href={`/event/edit/${event?.id}`}>
                                         <i className={'icon-edit'}></i>
                                         <span>{lang['Activity_Detail_Btn_Modify']}</span>
