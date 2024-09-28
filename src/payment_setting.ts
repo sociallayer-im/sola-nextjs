@@ -95,7 +95,7 @@ export const paymentTokenList: PaymentSettingChain[] = process.env.NEXT_PUBLIC_P
             id: 'ethereum',
             chainId: 1,
             icon: '/images/ethereum-icon.webp',
-            payHub: '0xA73405D59e136f574a2FD690079B240f6fbff0a8',
+            payHub: '0xd0059CFcc8c1E5678a20dc4b008A7dDf4dB3A9f2',
             tokenList: [
                 {
                     name: 'USDT',
