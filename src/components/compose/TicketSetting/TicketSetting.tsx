@@ -388,9 +388,13 @@ function Ticket({creator, ...props}: {
                                 </div>
                                 <div className={styles['width-limit-3']} style={{flex: 1}}>
                                     <AppInput
-                                        type={'number'}
+                                        type={'tel'}
                                         placeholder={lang['Price']}
                                         onChange={e => {
+                                            if (isNaN(Number(e.target.value))) {
+                                                return
+                                            }
+
                                             if (Number(e.target.value) < 0) {
                                                 return
                                             }
@@ -485,12 +489,16 @@ function Ticket({creator, ...props}: {
                         <div className={styles['width-limit-3']}>
                             <AppInput
                                 onChange={e => {
+                                    if (isNaN(e.target.value)) {
+                                        return
+                                    }
+
                                     props.onChange && props.onChange({
                                         ...props.ticket,
                                         quantity: e.target.value >= 0 ? e.target.value * 1 : 0
                                     })
                                 }}
-                                type={'number'}
+                                type={'tel'}
                                 placeholder={'Quantity'}
                                 value={props.ticket.quantity ? props.ticket.quantity + '' : '0'}/>
                         </div>

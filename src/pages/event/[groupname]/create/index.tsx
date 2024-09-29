@@ -1737,7 +1737,7 @@ function DialogShowMaxParticipant(props: {
         <div className={styles['select-label']}>Maximum</div>
         <input
             className={styles['max-participant-input']}
-            type={'number'}
+            type={'tel'}
             value={Number(count) + ''}
             onChange={
                 e => {

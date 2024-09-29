@@ -442,7 +442,7 @@ export function IssueBadge() {
                             <div className={styles['presend-amount']}>
                                 <div>Send</div>
                                 <AppInput
-                                    type="number"
+                                    type="tel"
                                     value={presendAmount.toString()} onChange={e => {
                                     const inputValue = e.target.value
                                     const onlyNumbers = /^[0-9]*$/; // 正则表达式匹配数字

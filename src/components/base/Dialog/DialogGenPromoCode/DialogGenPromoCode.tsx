@@ -142,9 +142,13 @@ export default function DialogGenPromoCode(props: {
                         {promoCode.discount_type === 'ratio' &&
                             <>
                                 <div className={styles['input']}>
-                                    <AppInput type={'number'} style={{textAlign: 'center'}}
+                                    <AppInput type={'tel'} style={{textAlign: 'center'}}
                                               value={(10000 - promoCode.discount) / 100 + ''}
                                               onChange={e => {
+                                                  if (isNaN(Number(e.target.value))) {
+                                                      return
+                                                  }
+
                                                   setPromoCode({
                                                       ...promoCode,
                                                       discount: 10000 - parseFloat(e.target.value) * 100
@@ -171,10 +175,13 @@ export default function DialogGenPromoCode(props: {
                         <div className={styles['title']}>{lang['Amount_Off']}</div>
                         {promoCode.discount_type === 'amount' &&
                             <>
-                                <div className={styles['input']}>
-                                    <AppInput type={'number'} style={{textAlign: 'center'}}
+                                <div className={styles['tel']}>
+                                    <AppInput type={'tel'} style={{textAlign: 'center'}}
                                               value={promoCode.discount / 100 + ''}
                                               onChange={e => {
+                                                  if (isNaN(Number(e.target.value))) {
+                                                      return
+                                                  }
                                                   setPromoCode({
                                                       ...promoCode,
                                                       discount: parseFloat(e.target.value) * 100
@@ -200,9 +207,12 @@ export default function DialogGenPromoCode(props: {
                               fill="#272928"/>
                     </svg>
                     <div className={styles['input']}>
-                        <AppInput type={'number'} style={{textAlign: 'center'}}
+                        <AppInput type={'tel'} style={{textAlign: 'center'}}
                                   value={promoCode.max_allowed_usages + ''}
                                   onChange={e => {
+                                      if (isNaN(Number(e.target.value))) {
+                                          return
+                                      }
                                       setPromoCode({
                                           ...promoCode,
                                           max_allowed_usages: parseFloat(e.target.value)

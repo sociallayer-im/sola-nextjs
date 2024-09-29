@@ -483,9 +483,12 @@ function TimeSlot(props: {
                 <div className={'repeat-counter'}>
                     <div className={'title'}>How many times does it repeat?</div>
                     <div className={'repeat-counter-input'}>
-                        <input type="number"
+                        <input type="tel"
                                value={Boolean(counter) ? counter : ''}
                                onChange={e => {
+                                   if (isNaN(Number(e.target.value))) {
+                                       return
+                                   }
                                    setCounter(e.target.value as any * 1)
                                }}/>
                         <span>times</span>

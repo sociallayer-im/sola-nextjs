@@ -630,7 +630,7 @@ function DialogRepeatOption({from, to, close, initRepeat, times, onChange, disab
             <div className={'ends-input'}>
                 <div className={styles['repeat-counter-input']}>
                     <input disabled={repeat[0].id === '' || disabled}
-                           type={'number'}
+                           type={'tel'}
                            value={Number(counter) + ''}
                            onChange={e => {
                                let value = e.target.value as any
