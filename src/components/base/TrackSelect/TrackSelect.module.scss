@@ -1,0 +1,23 @@
+.track-select {
+  display: flex;
+  flex-flow: row wrap;
+}
+
+.item {
+  border-radius: 8px;
+  border: 1px solid #EDEDED;
+  padding: 8px 12px;
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  margin-right: 12px;
+}
+
+.item.active {
+  border-radius: 8px;
+  border: 1px solid var(--Fill-6-Dark, #272928);
+  background: var(--Fill-6-Dark, #272928);
+  color: #fff
+}

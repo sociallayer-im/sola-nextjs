@@ -16,7 +16,7 @@ import {
     getGroupMemberShips,
     getProfile,
     getProfileBatch,
-    getRecurringEvents,
+    getRecurringEvents, getTracks,
     Group,
     Profile,
     ProfileSimple,
@@ -31,7 +31,7 @@ import {
     RepeatEventSetBadge,
     RepeatEventUpdate,
     setEventBadge,
-    Ticket,
+    Ticket, Track,
     updateEvent, Weekday,
 } from "@/service/solas";
 import EventDefaultCover from "@/components/base/EventDefaultCover";
@@ -49,11 +49,11 @@ import {Delete} from "baseui/icon";
 import DialogIssuePrefill from "@/components/eventSpecial/DialogIssuePrefill/DialogIssuePrefill";
 import {OpenDialogProps} from "@/components/provider/DialogProvider/DialogProvider";
 import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
-// import IssuesInput from "@/components/base/IssuesInput/IssuesInput";
 import CohostInput, {emptyProfile} from "@/components/base/IssuesInput/CohostInput";
 import {usePathname, useRouter, useSearchParams} from "next/navigation";
 import Toggle from "@/components/base/Toggle/Toggle"
 import DialogGenPromoCode from "@/components/base/Dialog/DialogGenPromoCode/DialogGenPromoCode"
+import TrackSelect from "@/components/base/TrackSelect/TrackSelect";
 
 import * as dayjsLib from "dayjs";
 import TriangleDown from 'baseui/icon/triangle-down'
@@ -97,8 +97,9 @@ const getNearestTime = (timeStr?: string) => {
 function EditEvent({
                        initEvent,
                        group,
+                       tracks,
                        initCreator
-                   }: { initEvent?: Event, group?: Group, initCreator?: Profile | Group }) {
+                   }: { initEvent?: Event, group?: Group, initCreator?: Profile | Group, tracks: Track[] }) {
     if (!group && !initEvent) {
         throw new Error('group or event is required')
     }
@@ -185,6 +186,7 @@ function EditEvent({
         display: 'normal',
         requirement_tags: [],
         extra: null,
+        track_id: null,
     })
 
 
@@ -1140,8 +1142,22 @@ function EditEvent({
                     <div className={styles['flex']}>
                         <div className={styles['create-form']}>
 
+                            {!!tracks.length &&
+                                <div className={styles['input-area']}>
+                                    <div className={styles['input-area-title']}>{'Event Track'}</div>
+                                    <TrackSelect
+                                        tracks={tracks}
+                                        multi={false}
+                                        value={event.track_id ? [event.track_id] : []}
+                                        onChange={tracks => {
+                                            setEvent({...event, track_id: tracks[0]})
+                                        }}
+                                    />
+                                </div>
+                            }
+
                             <div className={styles['input-area']}>
-                            <div className={styles['input-area-title']}>{lang['Activity_Form_Name']}</div>
+                                <div className={styles['input-area-title']}>{lang['Activity_Form_Name']}</div>
                                 <AppInput
                                     clearable
                                     maxLength={100}
@@ -1638,7 +1654,7 @@ function EditEvent({
                         </div>
 
                         <div className={styles['event-cover']}>
-                            {!!event.cover_url &&
+                        {!!event.cover_url &&
                                 <div className={styles['cover-preview']}>
                                     <img src={event.cover_url} alt=""/>
                                     <i className={'icon-close ' + styles['delete-cover']}
@@ -1687,7 +1703,8 @@ export const getServerSideProps: any = async (context: any) => {
 
     if (groupname) {
         const group = await queryGroupDetail(undefined, groupname)
-        return {props: {group}}
+        const tracks = group ? await getTracks({groupId: group.id}) : []
+        return {props: {group, tracks}}
     } else if (eventid) {
         const events = await queryEvent({
             id: Number(eventid),
@@ -1696,25 +1713,27 @@ export const getServerSideProps: any = async (context: any) => {
             show_cancel_event: true,
             allow_private: true
         })
+
         if (!events[0]) {
             return {props: {}}
         } else {
-            const [group, creator] = await Promise.all(
+            const [group, creator, tracks] = await Promise.all(
                 [
                     queryGroupDetail(events[0].group_id!),
-                    getProfile({id: events[0].owner_id})
+                    getProfile({id: events[0].owner_id}),
+                    getTracks({groupId: events[0].group_id!})
                 ]
             )
 
             if (!!events[0].host_info) {
                 const info = JSON.parse(events[0].host_info!)
                 if (info.group_host) {
-                    return {props: {group: group, initEvent: events[0], initCreator: info.group_host}}
+                    return {props: {group: group, initEvent: events[0], initCreator: info.group_host, tracks}}
                 } else {
-                    return {props: {group: group, initEvent: events[0], initCreator: creator}}
+                    return {props: {group: group, initEvent: events[0], initCreator: creator, tracks}}
                 }
             } else {
-                return {props: {group: group, initEvent: events[0], initCreator: creator}}
+                return {props: {group: group, initEvent: events[0], initCreator: creator, tracks}}
             }
         }
     } else {
