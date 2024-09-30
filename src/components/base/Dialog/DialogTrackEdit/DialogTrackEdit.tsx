@@ -127,10 +127,11 @@ export default function DialogTrackEdit(props: {
     return <div className={styles['dialog']}>
         <div className={styles['center']}>
             <PageBack onClose={props.close}
-                      title={'Edit track'}
+                      title={''}
             />
         </div>
         <div className={styles['scroll']}>
+            <div className={styles['title']}>Edit track</div>
             <div className={styles['center']}>
                 <div className={styles['from']}>
                     <div className={styles['input-item']}>

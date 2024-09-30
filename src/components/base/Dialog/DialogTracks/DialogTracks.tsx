@@ -65,15 +65,16 @@ export default function DialogTrack(props: {
 
     return <div className={styles['dialog']}>
         <div className={styles['center']}>
-            <PageBack  onClose={props.close}
-                       title={'Event tracks'}
+            <PageBack onClose={props.close}
+                      title={''}
             />
             <div className={styles['scroll']}>
-                { tracks.map((track, index) => {
+                <div className={styles['title']}>Event Tracks</div>
+                {tracks.map((track, index) => {
                     return <div key={index} className={styles['items']}>
                         <div className={styles['left']}>
                             <div>{track.title}</div>
-                            <i className={'icon-edit'} onClick={e => handleAddTrack(track)} />
+                            <i className={'icon-edit'} onClick={e => handleAddTrack(track)}/>
                         </div>
                         <svg className={styles['del-btn']}
                              onClick={e => handleAlert(track)}

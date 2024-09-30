@@ -12,12 +12,12 @@
 }
 
 .scroll {
-  height: calc(100svh - 38px);
+  height: calc(100svh - 68px);
   overflow: auto;
 }
 
 .from {
-  padding: 24px 0;
+  padding:0 0 24px 0;
 }
 
 
@@ -108,4 +108,11 @@
 .icon {
   max-height: 120px;
   max-width: 100%;
+}
+
+.title {
+  font-size: 20px;
+  font-weight: 600;
+  text-align: center;
+  margin: 12px 0;
 }
