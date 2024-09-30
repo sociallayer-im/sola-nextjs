@@ -20,7 +20,7 @@ import {
     queryGroupDetail,
     queryProfileByEmail,
     queryUserGroup,
-    RecurringEvent, setEventStatus, TicketItem, queryTicketItems
+    RecurringEvent, setEventStatus, TicketItem, queryTicketItems, queryTrackDetail, Track
 } from "@/service/solas";
 import LangContext from "@/components/provider/LangProvider/LangContext";
 import {useTime2, useTime3} from "@/hooks/formatTime";
@@ -67,7 +67,7 @@ dayjs.extend(utc)
 dayjs.extend(timezone)
 
 
-function EventDetail(props: { event: Event | null, appName: string, host: string, des: string }) {
+function EventDetail(props: { event: Event | null, appName: string, host: string, des: string, track: Track | null }) {
     const router = useRouter()
     const [event, setEvent] = useState<Event | null>(props.event || null)
     const [hoster, setHoster] = useState<Profile | null>(null)
@@ -87,6 +87,11 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
     const {MapReady} = useContext(MapContext)
     const [needUpdate, _] = useEvent(EVENT.participantUpdate)
     const zuAuthLogin = useZuAuth()
+
+    const isTrackManager = useMemo(() => {
+        if (!user.id) return false
+        return props.track?.manager_ids?.includes(user.id)
+    }, [props.track, user])
 
     const [tab, setTab] = useState(1)
     const [isHoster, setIsHoster] = useState(false)
@@ -577,7 +582,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                             }
                         </div>
                         <div className={'event-top-btn'}>
-                            {(isHoster || isManager || isOperator || isGroupOwner) && !canceled &&
+                            {(isHoster || isManager || isOperator || isGroupOwner || isTrackManager) && !canceled &&
                                 <>
                                 { !!tickets.length &&
                                     <AppButton
@@ -608,7 +613,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                             {
                                 event.cover_url ?
                                     <ImgLazy src={event.cover_url} alt="" width={624}/>
-                                    : <EventDefaultCover event={event} width={324} height={324} showLocation={!isHideLocation(event.group_id) || isOperator || isGroupOwner || isHoster || isJoined || isManager}/>
+                                    : <EventDefaultCover event={event} width={324} height={324} showLocation={!isHideLocation(event.group_id) || isOperator || isGroupOwner || isHoster || isJoined || isManager || isTrackManager}/>
                             }
                         </div>
 
@@ -744,7 +749,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                         <div className={'detail-item'}>
                                             <i className={'icon-Outline'}/>
                                             {
-                                                (isJoined || isManager || isOperator || isGroupOwner || isHoster || isMember || !isHideLocation(event.group_id)) ? <>
+                                                (isJoined || isManager || isOperator || isGroupOwner || isHoster || isMember || isTrackManager || !isHideLocation(event.group_id)) ? <>
                                                         {event.formatted_address ?
                                                             <a href={genGoogleMapUrl(event.id)}
                                                                target={'_blank'}>
@@ -759,13 +764,13 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                             }
                                         </div>
                                         {
-                                            !!eventSite && eventSite.link && (isJoined || isManager || isOperator || isGroupOwner || isHoster || isMember || !isHideLocation(event.group_id)) &&
+                                            !!eventSite && eventSite.link && (isJoined || isManager || isOperator || isGroupOwner || isHoster || isMember || isTrackManager || !isHideLocation(event.group_id)) &&
                                             <div className={'venue-link'}><a href={eventSite.link}
                                                                              target="_blank">{'View venue photos'}</a>
                                             </div>
                                         }
 
-                                        {MapReady && (isJoined || isManager || isOperator || isGroupOwner || isHoster || isMember || !isHideLocation(event.group_id)) &&
+                                        {MapReady && (isJoined || isManager || isOperator || isGroupOwner || isHoster || isMember || isTrackManager || !isHideLocation(event.group_id)) &&
                                             <>
                                                 <div className={'switch-preview-map'}
                                                      onClick={() => {
@@ -788,7 +793,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                     </>
                                 }
 
-                                {event.meeting_url && (isJoined || isManager || isOperator || isGroupOwner || isHoster || isMember || !isHideLocation(event.group_id)) &&
+                                {event.meeting_url && (isJoined || isManager || isOperator || isGroupOwner || isHoster || isMember || isTrackManager || !isHideLocation(event.group_id)) &&
                                     <div className={'detail-item'} onClick={e => {
                                         if (isJoined) {
                                             copy(event!.meeting_url!)
@@ -885,7 +890,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                     }}>{lang['Activity_Detail_Btn_Attend']}</AppButton>
                                                 }
 
-                                                {!canceled && isJoined && !isHoster && !isManager && !isOperator && !isGroupOwner && !event.meeting_url &&
+                                                {!canceled && isJoined && !isHoster && !isManager && !isOperator && !isGroupOwner && !isTrackManager && !event.meeting_url &&
                                                     <AppButton
                                                         special
                                                         onClick={e => {
@@ -907,7 +912,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                             </div>
 
                                             <div className={'center'}>
-                                                {(isHoster || isManager || isOperator || isGroupOwner) && !canceled &&
+                                                {(isHoster || isManager || isOperator || isGroupOwner) && !canceled && !isTrackManager &&
                                                     <AppButton
                                                         onClick={e => {
                                                             handleHostCheckIn()
@@ -965,7 +970,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                             </>
                                         }
                                         {
-                                            (!tickets.length || isHoster || isManager || isOperator || isGroupOwner) &&
+                                            (!tickets.length || isHoster || isManager || isOperator || isGroupOwner || isTrackManager) &&
                                             <>
                                                 <div className={'split'}/>
                                                 <div className={tab === 2 ? 'tab-title active' : 'tab-title'}
@@ -993,7 +998,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                             }
 
                                             <div className={'center'}>
-                                                {!!event.requirement_tags && !!event.group_id && [3427, 3409, 3463, 3454].includes(event.group_id) && (isOperator || isManager || isHoster || isGroupOwner) &&
+                                                {!!event.requirement_tags && !!event.group_id && [3427, 3409, 3463, 3454].includes(event.group_id) && (isOperator || isManager || isHoster || isGroupOwner || isTrackManager ) &&
                                                     <>
                                                         {!!event.requirement_tags.filter((t) => {
                                                                 return SeatingStyle.includes(t)
@@ -1023,7 +1028,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
 
                                                 {!!event.notes &&
                                                     <EventNotes
-                                                        hide={!isJoined && !isHoster && !isOperator && !isGroupOwner}
+                                                        hide={!isJoined && !isHoster && !isOperator && !isGroupOwner && !isTrackManager}
                                                         notes={event.notes}/>
                                                 }
                                             </div>
@@ -1042,9 +1047,9 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                         onChange={e => {
                                                             fetchData()
                                                         }}
-                                                        showDownload={isHoster || isOperator || isGroupOwner || isManager}
+                                                        showDownload={isHoster || isOperator || isGroupOwner || isManager || isTrackManager}
                                                         participants={filteredParticipants}
-                                                        isHost={isHoster || isOperator || isGroupOwner || isManager}
+                                                        isHost={isHoster || isOperator || isGroupOwner || isManager || isTrackManager}
                                                         eventId={Number(params?.eventid)}
                                                         tickets={tickets}
                                                     />
@@ -1076,7 +1081,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                             {
                                 event.cover_url ?
                                     <ImgLazy src={event.cover_url} alt="" width={624}/>
-                                    : <EventDefaultCover event={event} width={324} height={324} showLocation={!isHideLocation(event.group_id) || isOperator || isGroupOwner || isHoster || isJoined || isManager} />
+                                    : <EventDefaultCover event={event} width={324} height={324} showLocation={!isHideLocation(event.group_id) || isOperator || isGroupOwner || isHoster || isJoined || isManager || isTrackManager} />
                             }
                         </div>
                         <div className={'center'}>
@@ -1144,11 +1149,11 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                             }}>{lang['Activity_Detail_Btn_Attend']}</AppButton>
                                         }
 
-                                        {  event.status === 'pending' && (isManager || isGroupOwner) &&
+                                        {  event.status === 'pending' && (isManager || isGroupOwner || isTrackManager) &&
                                             <AppButton special onClick={handlePublish}>{lang['Publish']}</AppButton>
                                         }
 
-                                        {!canceled && isJoined && !isHoster && !isManager && !isOperator && !isGroupOwner && !event.meeting_url &&
+                                        {!canceled && isJoined && !isHoster && !isManager && !isOperator && !isGroupOwner && !isTrackManager && !event.meeting_url &&
                                             <AppButton
                                                 special
                                                 onClick={e => {
@@ -1170,7 +1175,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                     </div>
 
                                     <div className={'event-action'}>
-                                        {(isHoster || isManager || isOperator || isGroupOwner) && !canceled && event.status !== 'pending' &&
+                                        {(isHoster || isManager || isOperator || isGroupOwner || isTrackManager) && !canceled && event.status !== 'pending' &&
                                             <AppButton
                                                 onClick={e => {
                                                     handleHostCheckIn()
@@ -1234,12 +1239,14 @@ export const getServerSideProps: any = (async (context: any) => {
     const eventid = context.params?.eventid
     if (eventid) {
         const detail = await queryEventDetail({id: eventid})
+        const track = detail?.track_id ? await queryTrackDetail(detail.track_id) : null
         return {
             props: {
                 event: detail || null,
                 host: process.env.NEXT_PUBLIC_HOST,
                 appName: process.env.NEXT_PUBLIC_APP_NAME,
-                des: removeMarkdown(detail?.content || '')
+                des: removeMarkdown(detail?.content || ''),
+                track: track || null
             },
         }
     } else {

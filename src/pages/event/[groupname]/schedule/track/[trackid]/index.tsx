@@ -7,7 +7,7 @@ import {
     queryScheduleEvent,
     getEventSide, EventSites, Track, getTracks
 } from "@/service/solas";
-import styles from './schedulenew.module.scss'
+import styles from '../../schedulenew.module.scss'
 import Link from 'next/link'
 import UserContext from "@/components/provider/UserProvider/UserContext";
 import LangContext from "@/components/provider/LangProvider/LangContext";
@@ -75,13 +75,25 @@ interface DateItem {
     o: any
 }
 
-const getCalendarData = (timeZone: string) => {
+const getCalendarData = (timeZone: string, track?: Track) => {
     const now = dayjs.tz(new Date().getTime(), timeZone)
+    const trackStart = track?.start_date ? dayjs.tz(track.start_date, timeZone) : undefined
+    const trackEnd = track?.end_date ? dayjs.tz(track.end_date, timeZone) : undefined
 
     // const timeStr = `${now.year()}-${now.month() + 1}-${now.date()} 00:00`
     // const _nowZero = dayjs(timeStr, timeZone)
-    const _from = now.startOf('week').subtract(26, 'week')
-    const _end = _from.add(52, 'week').endOf('week')
+    let _from = now.startOf('week').subtract(26, 'week')
+    let _end = _from.add(52, 'week').endOf('week')
+
+    if (!!trackStart && trackStart.isAfter(now)) {
+        _from = trackStart.startOf('week')
+    }
+
+    if (!!trackEnd) {
+        _end = trackEnd.endOf('week')
+    }
+
+    console.log('getCalendarData', _from.format('YYYY-MM-DD'), _end.format('YYYY-MM-DD'))
 
     const _dayArray = []
     let current = _from
@@ -123,7 +135,7 @@ const getCalendarData = (timeZone: string) => {
 }
 
 
-function ComponentName(props: { group: Group, eventSite:EventSites[], tracks: Track[]}) {
+function ComponentName(props: { group: Group, eventSite:EventSites[], tracks: Track[], currTrack: Track}) {
     const eventGroup = props.group
     const now = new Date()
     const scroll1Ref = useRef<any>(null)
@@ -242,7 +254,7 @@ function ComponentName(props: { group: Group, eventSite:EventSites[], tracks: Tr
         if (timezoneSelected.length) {
             document.querySelector('.schedule-content')?.classList.add(styles['fade-out'])
             setPage(0)
-            setDayList(getCalendarData(timezoneSelected[0].id))
+            setDayList(getCalendarData(timezoneSelected[0].id, props.currTrack))
             setTimeout(() => {
                 document.querySelector('.schedule-content')?.classList.remove(styles['fade-out'])
             }, 200)
@@ -259,6 +271,7 @@ function ComponentName(props: { group: Group, eventSite:EventSites[], tracks: Tr
                 page: 1,
                 event_order: 'asc',
                 page_size: 1000,
+                track_id: props.currTrack.id
             })
 
             const groupsHost = events
@@ -396,7 +409,7 @@ function ComponentName(props: { group: Group, eventSite:EventSites[], tracks: Tr
                 if (clientWidth >= 450) {
                     header.style.height = 'auto';
                 } else {
-                    header.style.height = '180px';
+                    header.style.height = '220px';
                 }
             }
         }
@@ -419,7 +432,7 @@ function ComponentName(props: { group: Group, eventSite:EventSites[], tracks: Tr
             } else {
                 const handleScroll = () => {
                     const header: any = (window as any).document.querySelector('.schedule-head')
-                    !!header && (header.style.height = '180px');
+                    !!header && (header.style.height = '220px');
                 }
                 if (scrollDebounce.current) {
                     clearTimeout(scrollDebounce.current)
@@ -501,31 +514,17 @@ function ComponentName(props: { group: Group, eventSite:EventSites[], tracks: Tr
     })
 
     return (<div className={styles['schedule-page']}>
-        {
-            !pathname?.includes('iframe') &&
-            <ScheduleHeader group={eventGroup} params={genHref({
-                venue: selectedVenue.length ? selectedVenue.join(',') : undefined,
-                tag: selectedTags.length ? selectedTags.join(',') : undefined,
-                date: pageList.length ? dayjs.tz(pageList[0].timestamp, timezoneSelected[0].id).format('YYYY-MM-DD') : undefined
-            })}/>
-        }
-
-
         <div className={`${styles['schedule-head']} schedule-head`}>
             <div className={styles['page-center']}>
                 <div className={styles['schedule-title']}>
                     <div className={styles['schedule-title-left']}>
                         <div className={'group-name'}>
-                            {
-                                pathname?.includes('iframe') ?
-                                    <img src="/images/logo.svg" alt="" width={94} height={29}/> :
-                                    <Link href={`/event/${eventGroup.username}`}>
-                                        {!!showLogo ?
-                                            <img src={showLogo.logo} height={36} width={230} alt=""/>
-                                            : (eventGroup.nickname || eventGroup.username)
-                                        }
-                                    </Link>
-                            }
+                            <Link href={`/event/${eventGroup.username}`}>
+                                {!!props.currTrack.icon_url ?
+                                    <img src={props.currTrack.icon_url} height={36} alt=""/>
+                                    : (eventGroup.nickname || eventGroup.username)
+                                }
+                            </Link>
                             <div> {lang['Activity_Calendar']}</div>
                         </div>
                     </div>
@@ -548,6 +547,7 @@ function ComponentName(props: { group: Group, eventSite:EventSites[], tracks: Tr
                         </svg>
                     </Link>
                 </div>
+                <div className={styles['track-des']}>{props.currTrack.about}</div>
                 <div className={styles['schedule-menu-1']}>
                     <div className={styles['menu-item'] + ' input-disable'}>
                         <Select
@@ -638,7 +638,7 @@ function ComponentName(props: { group: Group, eventSite:EventSites[], tracks: Tr
                             clearable={false}
                             creatable={false}
                             searchable={false}
-                            value={[{id: 0, title: 'All Tracks'}] as any}
+                            value={[props.currTrack] as any}
                             options={[{id: 0, title: 'All Tracks'}, ...props.tracks as any]}
                             onChange={({option}) => {
                                 if (option) {
@@ -837,11 +837,12 @@ export default ComponentName
 
 export const getServerSideProps: any = (async (context: any) => {
     const groupname = context.params?.groupname
+    const trackid = context.params?.trackid
     if (groupname) {
         const group = await getGroups({username: groupname})
         const eventSite = await getEventSide(group[0].id)
         const tracks = await getTracks({groupId: group[0].id})
-        return {props: {group: group[0], eventSite: eventSite, tracks}}
+        return {props: {group: group[0], eventSite: eventSite, tracks, currTrack: tracks.find(t => t.id === Number(trackid))}}
     }
 })
 

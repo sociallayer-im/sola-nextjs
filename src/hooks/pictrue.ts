@@ -90,15 +90,19 @@ export default function usePicture () {
                         ia[i] = byteString.charCodeAt(i);
                     }
                     let blob = new Blob([ia], {type: 'image/png'});
+                    const unload = showLoading()
                     const newImage = await solas.uploadImage({
                         file: blob,
                         uploader: user.wallet || user.email || '',
                         auth_token: user.authToken || ''
                     })
+                    unload()
                     resolve(newImage)
                 }
             } catch (e: any) {
                 reject(e)
+            } finally {
+
             }
         })
     }

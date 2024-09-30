@@ -63,14 +63,11 @@ export default function DialogTrackEdit(props: {
     }
 
     const handleUpload = async () => {
-        const unload = showLoading()
         try {
             const url = await upload()
             setTrack({...track, icon_url: url})
         } catch (e: any) {
             showToast(e.message)
-        } finally {
-            unload()
         }
     }
 

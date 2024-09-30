@@ -1,5 +1,5 @@
 import styles from './EventFilter.module.scss';
-import {EventSites} from "@/service/solas";
+import {EventSites, Track} from "@/service/solas";
 import AppInput from "@/components/base/AppInput";
 import {useMemo, useState} from "react";
 import Empty from "@/components/base/Empty";
@@ -9,13 +9,16 @@ import AppButton from "@/components/base/AppButton/AppButton";
 export default function EventFilter(props: {
     close: () => any,
     venues: EventSites[],
+    tracks: Track[],
+    currTrackId: number | undefined,
     currVenueIds: number[],
     time: '' | 'coming' | 'past' | 'today' | 'week' | 'month',
-    onConfirm?: (res: { venueIds: number[], time: '' | 'coming' | 'past' | 'today' | 'week' | 'month' }) => any
+    onConfirm?: (res: { venueIds: number[], time: '' | 'coming' | 'past' | 'today' | 'week' | 'month', trackId: number | undefined }) => any
 }) {
     const [venueSearchKeyword, setVenueSearchKeyword] = useState('')
     const [currVenueIds, setCurrVenueIds] = useState(props.currVenueIds)
     const [time, setTime] = useState(props.time)
+    const [trackId, setTrackId] = useState(props.currTrackId)
 
     const handleSelectVenue = (venueId: number) => {
         if (currVenueIds.includes(venueId)) {
@@ -34,7 +37,8 @@ export default function EventFilter(props: {
     const handleConfirm = () => {
         !!props.onConfirm && props.onConfirm({
             venueIds: currVenueIds,
-            time: time
+            time: time,
+            trackId
         })
         props.close()
     }
@@ -42,6 +46,7 @@ export default function EventFilter(props: {
     const handleReset = () => {
         setTime('')
         setCurrVenueIds([])
+        setTrackId(undefined)
     }
 
     return <div className={styles['dialog']}>
@@ -49,6 +54,19 @@ export default function EventFilter(props: {
             <div className={styles['text']}>Filters</div>
             <div className={styles['reset']} onClick={handleReset}>Reset</div>
         </div>
+
+        <div className={styles['item-title']}>Event Track</div>
+        <div className={styles['times']}>
+            {
+                props.tracks.map((track, index) => {
+                    return <div key={index} className={trackId === track.id ? styles['active'] : ''} onClick={e => {
+                        setTrackId(track.id)
+                    }}>{track.tag || track.title}
+                    </div>
+                })
+            }
+        </div>
+
 
         <div className={styles['item-title']}>Venues</div>
         <AppInput

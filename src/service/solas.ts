@@ -3092,7 +3092,8 @@ export interface QueryEventProps {
     cache?: boolean,
     offset?: number
     only_private?: boolean
-    venue_ids?: number[]
+    venue_ids?: number[],
+    track_id?: number
 }
 
 
@@ -3128,6 +3129,10 @@ export async function queryEvent(props: QueryEventProps): Promise<Event[]> {
 
     if (props.recurring_event_id) {
         variables += `recurring_event_id: {_eq: ${props.recurring_event_id}}, `
+    }
+
+    if (props.track_id) {
+        variables += `track_id: {_eq: ${props.track_id}}, `
     }
 
     if (props.only_private) {
@@ -6439,6 +6444,10 @@ export async function queryScheduleEvent(props: QueryEventProps): Promise<Event[
         variables += `recurring_event_id: {_eq: ${props.recurring_event_id}}, `
     }
 
+    if (props.track_id) {
+        variables += `track_id: {_eq: ${props.track_id}}, `
+    }
+
     if (props.only_private) {
         variables += `display: {_eq: "private"}, `
     } else if (!props.allow_private) {
@@ -6743,4 +6752,24 @@ export async function updateTrack(props: EditTrackProps) {
     return res.data.tracks.sort((a: Track, b: Track) => {
         return a.id! - b.id!
     }) as Track[]
+}
+
+export async function queryTrackDetail(id: number) {
+    const doc = gql`query MyQuery {
+      tracks(where: {id: {_eq: ${id}}}) {
+        id
+        tag
+        title
+        kind
+        icon_url
+        about
+        group_id
+        start_date
+        end_date
+        manager_ids
+      }
+    }`
+
+    const res: any = await request(graphUrl, doc)
+    return res.tracks[0] as Track || null
 }

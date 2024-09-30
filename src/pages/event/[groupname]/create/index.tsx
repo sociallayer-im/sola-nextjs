@@ -140,6 +140,7 @@ function EditEvent({
     const [startTimeError, setStartTimeError] = useState('')
     const [labelError, setLabelError] = useState(false)
     const [dayDisable, setDayDisable] = useState('')
+    const [trackDayError, setTrackDayError] = useState('')
     const [capacityError, setCapacityError] = useState('')
 
     // data
@@ -506,6 +507,43 @@ function EditEvent({
         }
     }, [event, venueInfo])
 
+    // check track day
+    useEffect(() => {
+        if (!event.track_id) {
+            setTrackDayError('')
+            return
+        }
+
+        const targetTrack = tracks.find((track) => track.id === event.track_id)
+        if (!!targetTrack) {
+            const eventStartTime = dayjs.tz(new Date(event.start_time!).getTime(), event.timezone).format('YYYY-MM-DD')
+            const eventEndTime = dayjs.tz(new Date(event.end_time!).getTime(), event.timezone).format('YYYY-MM-DD')
+            if (targetTrack.start_date && !targetTrack.end_date) {
+                if (eventStartTime < targetTrack.start_date) {
+                    setTrackDayError(`The event start date cannot be earlier than the track start date: ${targetTrack.start_date}`)
+                } else {
+                    setTrackDayError('')
+                }
+            } else if (!targetTrack.start_date && targetTrack.end_date) {
+                if (eventEndTime >= targetTrack.end_date) {
+                    setTrackDayError(`The event end date cannot be later than the track end date: ${targetTrack.end_date}`)
+                } else {
+                    setTrackDayError('')
+                }
+            } else if (targetTrack.start_date && targetTrack.end_date) {
+                if (eventStartTime < targetTrack.start_date || eventEndTime >= targetTrack!.end_date) {
+                    setTrackDayError(`The event date must be within the track date range: ${targetTrack.start_date} to ${targetTrack.end_date}`)
+                } else {
+                    setTrackDayError('')
+                }
+            } else {
+                setTrackDayError('')
+            }
+        } else {
+            setTrackDayError('')
+        }
+    }, [tracks, event]);
+
     // check max_participant
     useEffect(() => {
         if (venueInfo?.capacity && !event.max_participant) {
@@ -598,6 +636,11 @@ function EditEvent({
 
         if (startTimeError) {
             showToast(startTimeError)
+            return false
+        }
+
+        if (trackDayError) {
+            showToast(trackDayError)
             return false
         }
 
@@ -1358,6 +1401,8 @@ function EditEvent({
                                         }}/>
                                 </div>
                             }
+
+                            {!!trackDayError && <div className={styles['start-time-error']} style={{marginTop: '-24px'}}>{trackDayError}</div>}
 
                             {repeatCounterError &&
                                 <div className={styles['start-time-error']}>
