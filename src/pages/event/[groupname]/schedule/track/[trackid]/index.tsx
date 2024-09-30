@@ -284,8 +284,7 @@ function ComponentName(props: { group: Group, eventSite:EventSites[], tracks: Tr
             })
 
             const groupIds = Array.from(new Set(groupsHost.filter((i) => !!i) as number[]))
-
-
+            
             if (groupsHost.length) {
                 getGroupsBatch(groupIds).then(res => {
                     setGroupHostCache(res)
