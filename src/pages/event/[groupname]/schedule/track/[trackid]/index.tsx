@@ -198,8 +198,14 @@ function ComponentName(props: { group: Group, eventSite:EventSites[], tracks: Tr
     const toToday = (initDate?: Date) => {
         const now = initDate || new Date()
         let date = dayjs.tz(now.getTime(), timezoneSelected[0].id)
+
+        const trackStart = props.currTrack.start_date ? dayjs.tz(props.currTrack.start_date, timezoneSelected[0].id) : undefined
+        if (!!trackStart && trackStart.isAfter(date)) {
+            date = trackStart
+        }
+
         if (pageSize === 7) {
-            date = date.startOf('week').add(1, 'day')
+            date = date.startOf('week')
             console.log('date week', date.toDate())
         }
 
@@ -210,6 +216,7 @@ function ComponentName(props: { group: Group, eventSite:EventSites[], tracks: Tr
         })
 
         console.log('startIndex', startIndex)
+        if (startIndex < 0) return
 
         const targetPage = Math.ceil((startIndex + 1) / pageSize)
 
@@ -322,13 +329,14 @@ function ComponentName(props: { group: Group, eventSite:EventSites[], tracks: Tr
 
     useEffect(() => {
         if (pageSize && showList.length && timezoneSelected.length) {
-            if (!initedRef.current) {
-                const initDate = searchParams?.get('date')
-                toToday(initDate ? dayjs.tz(initDate, timezoneSelected[0].id).toDate() : undefined)
-                initedRef.current = true
-            } else {
-                toToday()
-            }
+            // if (!initedRef.current) {
+            //     const initDate = searchParams?.get('date')
+            //     toToday(initDate ? dayjs.tz(initDate, timezoneSelected[0].id).toDate() : undefined)
+            //     initedRef.current = true
+            // } else {
+            //     toToday()
+            // }
+            toToday()
         }
     }, [pageSize, showList, timezoneSelected])
 
@@ -343,6 +351,7 @@ function ComponentName(props: { group: Group, eventSite:EventSites[], tracks: Tr
                 for (let i = 0; i < pageSize; i++) {
                     !!showList[(page - 1) * pageSize + i] && list.push(showList[(page - 1) * pageSize + i])
                 }
+
                 setPageList(list)
                 if (!!list[0]) {
                     setCurrMonth(dayjs.tz(list[0].timestamp, timezoneSelected[0].id).month())

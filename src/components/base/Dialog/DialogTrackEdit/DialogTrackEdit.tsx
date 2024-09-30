@@ -235,6 +235,11 @@ export default function DialogTrackEdit(props: {
                                         if (date) {
                                             const newVal = Array.isArray(date) ? date[0] : date
                                             setTrack({...track, start_date: dayjs(newVal).format('YYYY-MM-DD')})
+                                        } else {
+                                            setTrack({
+                                                ...track,
+                                                start_date: null
+                                            })
                                         }
                                     }}
                                 />
@@ -244,6 +249,11 @@ export default function DialogTrackEdit(props: {
                                         if (date) {
                                             const newVal = Array.isArray(date) ? date[0] : date
                                             setTrack({...track, end_date: dayjs(newVal).format('YYYY-MM-DD')})
+                                        } else {
+                                            setTrack({
+                                                ...track,
+                                                end_date: null
+                                            })
                                         }
                                     }}
                                     value={track.end_date ? new Date(track.end_date) : undefined}/>
