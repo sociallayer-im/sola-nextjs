@@ -7,6 +7,11 @@ import fetch from "@/utils/fetch"
 
 let loadingRef: any = null
 
+function sleep(time:number){
+    return new Promise((resolve) => setTimeout(resolve, time));
+}
+
+
 function Erc20TokenPaymentHandler(
     props: {
         content?: (
@@ -71,6 +76,22 @@ function Erc20TokenPaymentHandler(
 
             checkParticipant()
         })
+    }
+
+    const pollingQueryTx = async (tx: string) => {
+        let leftTimes = 10;
+        while (leftTimes > 0) {
+            try {
+                await publicClient.waitForTransactionReceipt({hash: tx});
+                return; // Exit if successful
+            } catch (e) {
+                leftTimes--;
+                if (leftTimes === 0) {
+                    throw new Error('Transaction receipt retrieval failed after 10 attempts');
+                }
+                await sleep(1000); // Wait for 1 second before retrying
+            }
+        }
     }
 
     const handlePay = async () => {
@@ -168,7 +189,8 @@ function Erc20TokenPaymentHandler(
 
             const hash = await walletClient.writeContract(request)
 
-            const transaction = await publicClient.waitForTransactionReceipt({hash})
+            // const transaction = await publicClient.waitForTransactionReceipt({hash})
+            await pollingQueryTx(hash)
 
             setSending(false)
             setVerifying(true)
@@ -180,7 +202,7 @@ function Erc20TokenPaymentHandler(
 
             if (!!verify) {
                 loadingRef?.()
-                console.log('transaction: ', transaction)
+                console.log('transaction: ', hash)
                 deleteOrder(join.ticket_item.order_number)
                 !!props.onSuccess && props.onSuccess(hash)
             } else {

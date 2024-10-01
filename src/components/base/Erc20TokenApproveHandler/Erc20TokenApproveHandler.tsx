@@ -1,7 +1,14 @@
 import {forwardRef, ReactNode, useContext, useEffect, useImperativeHandle, useState} from 'react'
-import {useAccount, useNetwork, usePublicClient, useSwitchNetwork, useWalletClient} from "wagmi";
+import {useAccount, useContractRead, useNetwork, usePublicClient, useSwitchNetwork, useWalletClient} from "wagmi";
 import {erc20_abi, paymentTokenList} from "@/payment_setting";
 import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
+
+function sleep(time:number){
+    return new Promise((resolve) => setTimeout(resolve, time));
+}
+
+
+const MAX_APPROVAL_ACCOUNT = '115792089237316195423570985008687907853269984665640564039457584007913129639935'
 
 
 function Erc20TokenApproveHandler(
@@ -22,6 +29,22 @@ function Erc20TokenApproveHandler(
     const [busy, setBusy] = useState(true)
     const {switchNetworkAsync} = useSwitchNetwork()
     const {chain} = useNetwork()
+
+    const pollingQueryTx = async (tx: string) => {
+        let leftTimes = 10;
+        while (leftTimes > 0) {
+            try {
+                await publicClient.waitForTransactionReceipt({hash: tx});
+                return; // Exit if successful
+            } catch (e) {
+                leftTimes--;
+                if (leftTimes === 0) {
+                    throw new Error('Transaction receipt retrieval failed after 10 attempts');
+                }
+                await sleep(1000); // Wait for 1 second before retrying
+            }
+        }
+    }
 
 
     const reFleshAllowance = () => {
@@ -60,6 +83,7 @@ function Erc20TokenApproveHandler(
     const handleApprove = async () => {
         try {
             setBusy(true)
+
             if (chain?.id !== props.chainId) {
                 await switchNetworkAsync?.(props.chainId)
                 setBusy(false)
@@ -67,8 +91,9 @@ function Erc20TokenApproveHandler(
             }
 
             const approveAmount = process.env.NEXT_PUBLIC_PAYMENT_SETTING === 'production'
-                ? (BigInt(props.amount) > BigInt(500 * 10 ** props.decimals) ? BigInt(props.amount) : BigInt(500 * 10 ** props.decimals))
+                ? BigInt(MAX_APPROVAL_ACCOUNT)
                 : BigInt(props.amount)
+
 
             const opt = {
                 address: props.token as any,
@@ -85,20 +110,30 @@ function Erc20TokenApproveHandler(
             console.log(opt)
             const {request} = await publicClient.simulateContract(opt)
             const hash = await walletClient.writeContract(request)
-            const transaction = await publicClient.waitForTransactionReceipt(
-                {hash}
-            )
-
-
-            function sleep(time:number){
-                return new Promise((resolve) => setTimeout(resolve, time));
-            }
+            // const transaction = await publicClient.waitForTransactionReceipt(
+            //     {hash}
+            // )
+            await pollingQueryTx(hash)
 
             await sleep(5000)
 
+
+            const allowance = await publicClient.readContract({
+                address: props.token as any,
+                abi: erc20_abi,
+                functionName: 'allowance',
+                chainId: props.chainId,
+                args: [
+                    address,
+                    payHubContract
+                ]
+            })
+
+            if (allowance >= BigInt(props.amount)) {
+                !!props.onResult && props.onResult(false, hash)
+            }
             showToast('Approve success')
 
-            !!props.onResult && props.onResult(false, hash)
         } catch (e: any) {
             console.error(e)
             if (!e.message.includes('rejected')) {

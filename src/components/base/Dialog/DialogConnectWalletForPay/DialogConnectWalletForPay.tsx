@@ -8,6 +8,14 @@ interface DialogConnectWalletProps {
     handleClose: (...rest: any[]) => any
 }
 
+const walletIcon: any = {
+    'metamask': '/images/metamask.png',
+    'joyid': '/images/joyid.png',
+    'trust wallet': '/images/trust_wallet.webp',
+    'rabby wallet': '/images/rabby wallet.png',
+    'walletconnect': 'https://seastar-auth.vercel.app/images/wallet_connect.webp'
+}
+
 function DialogConnectWalletForPay(props: DialogConnectWalletProps) {
     const unloading_1 = useRef<any>(null)
 
@@ -72,7 +80,7 @@ function DialogConnectWalletForPay(props: DialogConnectWalletProps) {
                 return <div className={`connect-item ${connector.ready ? '' : 'disable'}`}
                             key={connector.id}
                             onClick={() => handleConnectWallet(connector)}>
-                    <img src={`/images/${connector.name.toLowerCase()}.png`} alt={connector.name}/>
+                    <img src={walletIcon[connector.name.toLowerCase()] || `/images/injected.png`}  alt={connector.name}/>
                     <div className='connect-name'>{connector.name}</div>
                     {!connector.ready &&
                         <div className={'spinner'}><Spinner size={20}/></div>

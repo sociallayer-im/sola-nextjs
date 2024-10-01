@@ -18,7 +18,8 @@ const walletIcon: any = {
     'metamask': '/images/metamask.png',
     'joyid': '/images/joyid.png',
     'trust wallet': '/images/trust_wallet.webp',
-    'rabby wallet': '/images/rabby wallet.png'
+    'rabby wallet': '/images/rabby wallet.png',
+    'walletconnect': 'https://seastar-auth.vercel.app/images/wallet_connect.webp'
 }
 
 function DialogConnectWallet(props: DialogConnectWalletProps) {
