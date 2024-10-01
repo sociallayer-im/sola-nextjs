@@ -101,9 +101,12 @@ function ListEventParticipants(props: ListCheckinUserProps) {
     }
 
     const downloadCSV = () => {
-        const title = ['Username', 'Nickname', 'Status', 'RSVP time']
+        const title = ['Username', 'Nickname', 'Email', 'Payment wallet address', 'Status', 'RSVP time']
         const rows = participants.map((item, index) => {
-            return [item.profile.username, item.profile.nickname || '' ,item.status, item.created_at + 'Z']
+            const profileTicketItem = props.ticketItems?.find(ti => {
+                return ti.event_id === props.eventId && ti.profile_id === item.profile.id
+            })
+            return [item.profile.username, item.profile.nickname || '', item.profile.email || '', profileTicketItem?.sender_address || '',  item.status, item.created_at + 'Z']
         })
 
         const csvContent = "data:text/csv;charset=utf-8,"
@@ -147,6 +150,9 @@ function ListEventParticipants(props: ListCheckinUserProps) {
                         <img src={item.profile.image_url || defaultAvatar(item.profile.id)} alt=""/>
                         <div>
                             <div>{item.profile.nickname || item.profile.username || `user #${item.profile.id}`}</div>
+                            {props.isHost && item.profile.email &&
+                                <div className={styles['address']}>{item.profile.email}</div>
+                            }
                             {props.isHost && !!profileTicketItem &&
                                 <div className={styles['address']} onClick={e => {
                                     e.preventDefault()

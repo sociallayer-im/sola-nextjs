@@ -3273,6 +3273,7 @@ export async function queryEvent(props: QueryEventProps): Promise<Event[]> {
             username
             nickname
             image_url
+            email
           }
           role
           status
