@@ -626,6 +626,7 @@ const langEN = {
     Event_Notes_: 'Event Note (Display after confirming attendance)',
     Input_Notes: 'Input the note of the event',
     Featured: 'Featured',
+    Chiangmai_Popup_Cities: 'Chiangmai Pop-up Season',
     Events_Of_Popup_Cities: 'Pop Up Cities',
     Communities: 'Communities',
     See_All_Communities: 'See all communities',

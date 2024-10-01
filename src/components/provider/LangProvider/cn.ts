@@ -622,6 +622,7 @@ const langCN: LangConfig = {
   Event_Notes_: '活动笔记 (确定参加活动后展示)',
   Input_Notes: '输入活动笔记',
   Featured: '特别推荐',
+  Chiangmai_Popup_Cities: '清迈 Pop-up 季',
   Events_Of_Popup_Cities: 'Pop-up Cities 活动',
   Communities: '社区',
   See_All_Communities: '查看全部社区',

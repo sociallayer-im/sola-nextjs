@@ -118,6 +118,18 @@ function Discover({eventGroups, popupCities } : {eventGroups: Group[], popupCiti
             }
 
             <h2 className={styles['page-title']}>
+                <div>{lang['Chiangmai_Popup_Cities']}</div>
+            </h2>
+
+            <div className={styles['popup-city-list']}>
+                {
+                    _sortedPopupCities.filter((x) => x.group_tags && x.group_tags.indexOf(":cnx") >= 0).map((popupCity, index) => {
+                        return <CardPopupCity popupCity={popupCity} key={popupCity.id}/>
+                    })
+                }
+            </div>
+
+            <h2 className={styles['page-title']}>
                 <div>{lang['Events_Of_Popup_Cities']}</div>
                 <Link href={'/popup-city'}>
                     {lang['See_All_Popup_Cities_Events']}
@@ -131,7 +143,7 @@ function Discover({eventGroups, popupCities } : {eventGroups: Group[], popupCiti
 
             <div className={styles['popup-city-list']}>
                 {
-                    _sortedPopupCities.map((popupCity, index) => {
+                    _sortedPopupCities.filter((x) => !x.group_tags || x.group_tags.indexOf(":cnx") < 0).map((popupCity, index) => {
                         return <CardPopupCity popupCity={popupCity} key={popupCity.id}/>
                     })
                 }
