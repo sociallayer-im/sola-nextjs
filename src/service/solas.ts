@@ -3167,7 +3167,7 @@ export async function queryEvent(props: QueryEventProps): Promise<Event[]> {
         variables += `title: {_iregex: "${props.search}"}, `
     }
 
-    let status = `"open", "published`
+    let status = `"open", "published"`
     if (props.show_pending_event) {
         status = status + ', "pending"'
     }
@@ -6473,7 +6473,7 @@ export async function queryScheduleEvent(props: QueryEventProps): Promise<Event[
         variables += `title: {_iregex: "${props.search}"}, `
     }
 
-    let status = `"open", "published`
+    let status = `"open", "published"`
     if (props.show_pending_event) {
         status = status + ', "pending"'
     }
@@ -6605,7 +6605,7 @@ export async function queryMapEvent(props: QueryEventProps): Promise<Event[]> {
         variables += `title: {_iregex: "${props.search}"}, `
     }
 
-    let status = `"open", "published`
+    let status = `"open", "published"`
     if (props.show_pending_event) {
         status = status + ', "pending"'
     }
