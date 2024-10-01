@@ -16,6 +16,7 @@ import {Provider as StyletronProvider} from 'styletron-react'
 import {BaseProvider} from 'baseui'
 import {avalancheFuji, polygon, mainnet, optimism, base, arbitrum} from 'wagmi/chains'
 import {InjectedConnector} from 'wagmi/connectors/injected'
+// import {WalletConnectConnector} from 'wagmi/connectors/walletConnect'
 import {publicProvider} from 'wagmi/providers/public'
 import {configureChains, createConfig, WagmiConfig} from 'wagmi'
 import {styletron} from '@/styletron'
@@ -37,19 +38,39 @@ const farcasterConfig = {
     siweUri: process.env.NEXT_PUBLIC_HOST,
 };
 
+const ethChain = {
+    ...mainnet,
+    rpcUrls: {
+        alchemy: {
+            http: ['https://eth-mainnet.g.alchemy.com/v2'],
+            webSocket: ['wss://eth-mainnet.g.alchemy.com/v2'],
+        },
+        infura: {
+            http: ['https://mainnet.infura.io/v3'],
+            webSocket: ['wss://mainnet.infura.io/ws/v3'],
+        },
+        default: {
+            http: ['https://mainnet.infura.io/v3/df69a66a46e94a1bb0e0f2914af8b403'],
+        },
+        public: {
+            http: ['https://mainnet.infura.io/v3/df69a66a46e94a1bb0e0f2914af8b403'],
+        },
+    },
+}
+
 const inject = new InjectedConnector({
-    chains: [mainnet, polygon, avalancheFuji, optimism, base, arbitrum],
+    chains: [ethChain, polygon, avalancheFuji, optimism, base, arbitrum],
 } as any)
 
 // const walletConnectConnect = new WalletConnectConnector({
-//     chains: [mainnet, moonbeam],
+//     chains: [ethChain, polygon, avalancheFuji, optimism, base, arbitrum],
 //     options: {
 //         projectId: '291f8dbc68b408d4552ec4e7193c1b47'
 //     }
 // })
 
 const {chains, publicClient, webSocketPublicClient} = configureChains(
-    [mainnet, polygon, avalancheFuji, optimism, base, arbitrum],
+    [ethChain, polygon, avalancheFuji, optimism, base, arbitrum],
     [publicProvider()],
 )
 
@@ -58,8 +79,8 @@ const config = createConfig({
     publicClient,
     webSocketPublicClient,
     connectors: [
-        //  walletConnectConnect,
         inject,
+        // walletConnectConnect,
         // new JoyIdConnector(
         // {
         //     chains: [mainnet, polygon, avalancheFuji],
