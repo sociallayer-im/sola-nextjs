@@ -3013,8 +3013,8 @@ export interface Event {
     category: null | string,
     status: string,
     telegram_contact_group?: null | string,
-    recurring_event_id: null | number,
-    recurring_event: null | {
+    recurring_id: null | number,
+    recurring: null | {
         id: number
         interval: string
         start_time: string
@@ -3082,7 +3082,7 @@ export interface QueryEventProps {
     page_size?: number,
     show_pending_event?: boolean,
     show_rejected_event?: boolean,
-    recurring_event_id?: number,
+    recurring_id?: number,
     show_cancel_event?: boolean,
     group_ids?: number[]
     allow_private?: boolean,
@@ -3125,8 +3125,8 @@ export async function queryEvent(props: QueryEventProps): Promise<Event[]> {
         variables += `venue_id: {_in: [${props.venue_ids.join(',')}]}, `
     }
 
-    if (props.recurring_event_id) {
-        variables += `recurring_event_id: {_eq: ${props.recurring_event_id}}, `
+    if (props.recurring_id) {
+        variables += `recurring_id: {_eq: ${props.recurring_id}}, `
     }
 
     if (props.only_private) {
@@ -3260,10 +3260,10 @@ export async function queryEvent(props: QueryEventProps): Promise<Event[]> {
         id
         location_viewport
         min_participant
-        recurring_event {
+        recurring {
           id
         }
-        recurring_event_id
+        recurring_id
         participants(where: {status: {_neq: "cancel"}}) {
           id
           profile_id
@@ -3321,8 +3321,8 @@ export async function queryPendingEvent(props: QueryEventProps): Promise<Event[]
         variables += `venue_id: {_eq: ${props.venue_id}}, `
     }
 
-    if (props.recurring_event_id) {
-        variables += `recurring_event_id: {_eq: ${props.recurring_event_id}}, `
+    if (props.recurring_id) {
+        variables += `recurring_id: {_eq: ${props.recurring_id}}, `
     }
 
     if (props.start_time_from && props.start_time_to) {
@@ -3415,10 +3415,10 @@ export async function queryPendingEvent(props: QueryEventProps): Promise<Event[]
         id
         location_viewport
         min_participant
-        recurring_event {
+        recurring {
           id
         }
-        recurring_event_id
+        recurring_id
         participants(where: {status: {_neq: "cancel"}}) {
           id
           profile_id
@@ -3539,10 +3539,10 @@ export async function queryCohostingEvent(props: { id: number, email?: string })
         id
         location_viewport
         min_participant
-        recurring_event {
+        recurring {
           id
         }
-        recurring_event_id
+        recurring_id
         participants(where: {status: {_neq: "cancel"}}) {
           id
           profile_id
@@ -3950,10 +3950,10 @@ export async function searchEvent(keyword: string, group_id?: number): Promise<E
         id
         location_viewport
         min_participant
-        recurring_event {
+        recurring {
           id
         }
-        recurring_event_id
+        recurring_id
         participants(where: {status: {_neq: "cancel"}}) {
           id
           profile_id
@@ -4393,7 +4393,7 @@ export async function eventCheckIn(props: EventCheckInProps) {
 export interface CancelRepeatProps {
     auth_token: string,
     selector: 'one' | 'after' | 'all',
-    recurring_event_id: number,
+    recurring_id: number,
     event_id?: number,
 }
 
@@ -4401,7 +4401,7 @@ export async function cancelRepeatEvent(props: CancelRepeatProps) {
     checkAuth(props)
 
     const res: any = await fetch.post({
-        url: `${apiUrl}/recurring_event/cancel_event`,
+        url: `${apiUrl}/recurring/cancel_event`,
         data: props
     })
 
@@ -4420,7 +4420,7 @@ export interface CreateRepeatEventProps extends CreateEventProps {
 export async function createRepeatEvent(props: CreateRepeatEventProps) {
     checkAuth(props)
     const res: any = await fetch.post({
-        url: `${apiUrl}/recurring_event/create`,
+        url: `${apiUrl}/recurring/create`,
         data: props
     })
 
@@ -4428,7 +4428,7 @@ export async function createRepeatEvent(props: CreateRepeatEventProps) {
         throw new Error(res.data.message)
     }
 
-    const event = await queryEvent({recurring_event_id: res.data.recurring_event_id, page: 1, allow_private: true})
+    const event = await queryEvent({recurring_id: res.data.recurring_id, page: 1, allow_private: true})
     return event[0]
 }
 
@@ -4472,14 +4472,14 @@ export async function RepeatEventInvite(props: RepeatEventInviteProps) {
 export interface RepeatEventSetBadgeProps {
     auth_token: string,
     badge_class_id: number,
-    recurring_event_id: number,
+    recurring_id: number,
     selector?: 'one' | 'after' | 'all'
 }
 
 export async function RepeatEventSetBadge(props: RepeatEventSetBadgeProps) {
     checkAuth(props)
     const res: any = await fetch.post({
-        url: `${apiUrl}/recurring_event/set_badge`,
+        url: `${apiUrl}/recurring/set_badge`,
         data: props
     })
 
@@ -4500,7 +4500,7 @@ export interface RepeatEventUpdateProps extends CreateEventProps {
 export async function RepeatEventUpdate(props: RepeatEventUpdateProps) {
     checkAuth(props)
     const res: any = await fetch.post({
-        url: `${apiUrl}/recurring_event/update`,
+        url: `${apiUrl}/recurring/update`,
         data: props
     })
 
@@ -5747,7 +5747,7 @@ export interface RecurringEvent {
 
 export async function getRecurringEvents(id: number) {
     const doc = `query MyQuery{
-      recurring_events(where: {id: {_eq: ${id}}}) {
+      recurrings(where: {id: {_eq: ${id}}}) {
         end_time
         event_count
         id
@@ -5758,9 +5758,9 @@ export async function getRecurringEvents(id: number) {
     }`
 
     const res: any = await request(graphUrl, doc)
-    return res.recurring_events[0] ? {
-        ...res.recurring_events[0],
-        start_time: res.recurring_events[0].start_time + 'z'
+    return res.recurrings[0] ? {
+        ...res.recurrings[0],
+        start_time: res.recurrings[0].start_time + 'z'
     } as RecurringEvent : null
 }
 
@@ -6431,8 +6431,8 @@ export async function queryScheduleEvent(props: QueryEventProps): Promise<Event[
         variables += `venue_id: {_in: [${props.venue_ids.join(',')}]}, `
     }
 
-    if (props.recurring_event_id) {
-        variables += `recurring_event_id: {_eq: ${props.recurring_event_id}}, `
+    if (props.recurring_id) {
+        variables += `recurring_id: {_eq: ${props.recurring_id}}, `
     }
 
     if (props.only_private) {
@@ -6563,8 +6563,8 @@ export async function queryMapEvent(props: QueryEventProps): Promise<Event[]> {
         variables += `venue_id: {_eq: ${props.venue_id}}, `
     }
 
-    if (props.recurring_event_id) {
-        variables += `recurring_event_id: {_eq: ${props.recurring_event_id}}, `
+    if (props.recurring_id) {
+        variables += `recurring_id: {_eq: ${props.recurring_id}}, `
     }
 
     if (props.only_private) {

@@ -227,8 +227,8 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                 setBadge(badge)
             }
 
-            if (res?.recurring_event_id) {
-                const repeatEvent = await getRecurringEvents(res.recurring_event_id)
+            if (res?.recurring_id) {
+                const repeatEvent = await getRecurringEvents(res.recurring_id)
                 setRepeatEventDetail(repeatEvent as RecurringEvent)
             }
         } else {
@@ -277,7 +277,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
 
     async function showAllRepeatEvent() {
         const unloading = showLoading()
-        const events = await queryEvent({recurring_event_id: event!.recurring_event_id!, page: 1, page_size: 1000})
+        const events = await queryEvent({recurring_id: event!.recurring_id!, page: 1, page_size: 1000})
         unloading()
 
         openDialog({
