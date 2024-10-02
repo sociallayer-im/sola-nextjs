@@ -17,8 +17,9 @@ import {BaseProvider} from 'baseui'
 import {avalancheFuji, polygon, mainnet, optimism, base, arbitrum} from 'wagmi/chains'
 import {InjectedConnector} from 'wagmi/connectors/injected'
 // import {WalletConnectConnector} from 'wagmi/connectors/walletConnect'
+import {WalletConnectConnector as CustomWalletConnectConnector} from '@/libs/walletconnect-connector/walletconnect'
 import {publicProvider} from 'wagmi/providers/public'
-import {configureChains, createConfig, WagmiConfig} from 'wagmi'
+import {configureChains, Connector, createConfig, WagmiConfig} from 'wagmi'
 import {styletron} from '@/styletron'
 import Head from 'next/head'
 import MapProvider from "@/components/provider/MapProvider/MapProvider";
@@ -58,21 +59,21 @@ const ethChain = {
     },
 }
 
-const inject = new InjectedConnector({
-    chains: [ethChain, polygon, avalancheFuji, optimism, base, arbitrum],
-} as any)
-
-// const walletConnectConnect = new WalletConnectConnector({
-//     chains: [ethChain, polygon, avalancheFuji, optimism, base, arbitrum],
-//     options: {
-//         projectId: '291f8dbc68b408d4552ec4e7193c1b47'
-//     }
-// })
-
 const {chains, publicClient, webSocketPublicClient} = configureChains(
     [ethChain, polygon, avalancheFuji, optimism, base, arbitrum],
     [publicProvider()],
 )
+
+const inject = new InjectedConnector({
+    chains: chains,
+} as any)
+
+const walletConnectConnector: any = new CustomWalletConnectConnector({
+    chains: chains,
+    options: {
+        projectId: '75f461ff2b14465255978cb9e730a6ac'
+    }
+})
 
 const config = createConfig({
     autoConnect: true,
@@ -80,7 +81,7 @@ const config = createConfig({
     webSocketPublicClient,
     connectors: [
         inject,
-        // walletConnectConnect,
+        walletConnectConnector,
         // new JoyIdConnector(
         // {
         //     chains: [mainnet, polygon, avalancheFuji],
