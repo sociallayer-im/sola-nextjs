@@ -9,7 +9,7 @@ const request = (
     variables?: any,
     requestHeaders?: any
 ) => {
-    console.log('gql doc :' + document)
+    // console.log('gql doc :' + document)
     return gqlRequest(url, document, variables, requestHeaders)
 }
 
