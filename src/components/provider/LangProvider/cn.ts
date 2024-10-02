@@ -280,7 +280,7 @@ const langCN: LangConfig = {
   Group_invite_detail_benefits: '权益',
   Group_invite_detail_benefits_des: slotLang('你就自动成为 {n} 的一员。'),
   Group_invite_share: '#1 给你颁发了 NFT 徽章：#2。赶快领取把！\n #3 \n 推荐使用MetaMask或者imToken的浏览器打开。',
-  Group_regist_confirm: '创建群组',
+  Group_regist_confirm: '创建社区群组',
   Group_regist_owner: '群组拥有者',
   Group_regist_confirm_dialog: '将会以这个域名创建群组: ',
   Group_regist_des: '徽章以群组的名义颁发给成员',
