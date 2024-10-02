@@ -66,7 +66,7 @@ function Home() {
         }
 
         async function showPointItemDetail() {
-            const item = await solas.queryPointItemDetail({id: Number(params!.pointItemId)})
+            const item = await solas.queryPointTransferDetail({id: Number(params!.pointItemId)})
             showPointItem(item)
         }
 

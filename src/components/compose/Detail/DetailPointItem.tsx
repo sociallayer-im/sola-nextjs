@@ -10,7 +10,7 @@ import DetailDes from './atoms/DetailDes/DetailDes'
 import DetailArea from './atoms/DetailArea'
 import AppButton, {BTN_KIND} from '../../base/AppButton/AppButton'
 import BtnGroup from '../../base/BtnGroup/BtnGroup'
-import solas, {PointItem} from '../../../service/solas'
+import solas, {PointTransfer} from '../../../service/solas'
 import useEvent, {EVENT} from '../../../hooks/globalEvent'
 import ReasonText from '../../base/ReasonText/ReasonText'
 import DetailScrollBox from './atoms/DetailScrollBox/DetailScrollBox'
@@ -28,7 +28,7 @@ import SwiperPagination from "../../base/SwiperPagination/SwiperPagination";
 
 
 export interface DetailBadgeletProps {
-    pointItem: PointItem,
+    pointItem: PointTransfer,
     handleClose: () => void
 }
 
@@ -40,7 +40,7 @@ function DetailPointItem(props: DetailBadgeletProps) {
     const [_1, emitUpdate] = useEvent(EVENT.pointItemUpdate)
     const [needUpdate, _2] = useEvent(EVENT.pointItemListUpdate)
     const [pointItem, setPointItem] = useState(props.pointItem)
-    const [pointItemList, setPointItemList] = useState<PointItem[]>([])
+    const [pointItemList, setPointItemList] = useState<PointTransfer[]>([])
     const formatTime = useTime()
     const swiper = useRef<any>(null)
     const swiperIndex = useRef(0)
@@ -50,12 +50,12 @@ function DetailPointItem(props: DetailBadgeletProps) {
 
 
     const upDateBadgelet = async () => {
-        const newPointItem = await solas.queryPointItemDetail({id: props.pointItem.id})
+        const newPointItem = await solas.queryPointTransferDetail({id: props.pointItem.id})
         setPointItem(newPointItem!)
     }
 
     const getItemsOfSamePoint = async () => {
-        const items = await solas.queryPointItems({point_id: props.pointItem.point.id, owner_id: props.pointItem.owner.id})
+        const items = await solas.queryPointTransfers({point_id: props.pointItem.point.id, owner_id: props.pointItem.owner.id})
         setPointItemList(items)
     }
 

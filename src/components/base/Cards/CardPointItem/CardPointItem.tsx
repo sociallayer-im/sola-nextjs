@@ -1,5 +1,5 @@
 import {useStyletron} from 'baseui'
-import {checkIsManager, getProfile, Group, PointItem} from '../../../../service/solas'
+import {checkIsManager, getProfile, Group, PointTransfer} from '../../../../service/solas'
 import DialogsContext from '../../../provider/DialogProvider/DialogsContext'
 import {useContext, useEffect, useState} from 'react'
 import UserContext from '../../../provider/UserProvider/UserContext'
@@ -83,7 +83,7 @@ const style = {
 }
 
 export interface CardBadgeletProps {
-    pointitem: PointItem
+    pointitem: PointTransfer
 }
 
 function CardPointItem(props: CardBadgeletProps) {
