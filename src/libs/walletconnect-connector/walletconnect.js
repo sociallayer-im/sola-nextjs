@@ -196,6 +196,7 @@ var WalletConnectConnector = class extends Connector {
             //     requestedChains.push(chainId);
             //     __privateMethod(this, _setRequestedChainsIds, setRequestedChainsIds_fn).call(this, requestedChains);
             // }
+            console.log('switch chain: ', chainId)
             await provider.request({
                 method: "wallet_switchEthereumChain",
                 params: [{ chainId: numberToHex(chainId) }]
