@@ -14,13 +14,13 @@ import TriangleDown from 'baseui/icon/triangle-down'
 import {
     Badge,
     Event,
-    PromoCode,
+    Coupon,
     queryBadgeDetail,
     queryBadgelet,
-    queryPromoCodes,
+    queryCoupons,
     rsvp,
-    Ticket, ValidPromoCode,
-    verifyPromoCode
+    Ticket, ValidCoupon,
+    verifyCoupon
 } from '@/service/solas'
 import useTime from "@/hooks/formatTime";
 import {PaymentSettingChain, PaymentSettingToken, paymentTokenList} from "@/payment_setting";
@@ -54,12 +54,12 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
     const formatTime = useTime()
 
     const [busy, setBusy] = useState(false)
-    const [promoCode, setPromoCode] = useState('')
-    const [showPromoCodeInput, setShowPromoCodeInput] = useState(false)
+    const [coupon, setCoupon] = useState('')
+    const [showCouponInput, setShowCouponInput] = useState(false)
 
 
-    const [validPromoCode, setValidPromoCode] = useState<null | ValidPromoCode>(null)
-    const [promoCodeError, setPromoCodeError] = useState('')
+    const [validCoupon, setValidCoupon] = useState<null | ValidCoupon>(null)
+    const [couponError, setCouponError] = useState('')
 
     const reFleshAllowanceRef = useRef<any>(null)
 
@@ -183,50 +183,50 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
 
     const [balance, setBalance] = useState<string | null>(null)
 
-    const removePromoCode = async () => {
-        setValidPromoCode(null)
-        setPromoCode('')
+    const removeCoupon = async () => {
+        setValidCoupon(null)
+        setCoupon('')
         setApproved(false)
     }
 
-    const checkPromoCode = async () => {
+    const checkCoupon = async () => {
         const unload = showLoading()
-        const verify = await verifyPromoCode({event_id: props.event.id, code: promoCode})
+        const verify = await verifyCoupon({event_id: props.event.id, code: coupon})
         if (!verify) {
-            setPromoCodeError('Invalid promo code')
-            setValidPromoCode(null)
+            setCouponError('Invalid coupon code')
+            setValidCoupon(null)
             unload()
             return
         }
 
         if (verify.max_allowed_usages === verify.order_usage_count) {
-            setPromoCodeError('Promo code has been used up')
-            setValidPromoCode(null)
+            setCouponError('Promo code has been used up')
+            setValidCoupon(null)
             unload()
             return
         }
 
         if (new Date(verify.expiry_time).getTime() < new Date().getTime()) {
-            setPromoCodeError('Promo code has expired')
-            setValidPromoCode(null)
+            setCouponError('Promo code has expired')
+            setValidCoupon(null)
             unload()
             return
         }
 
         unload()
-        setValidPromoCode(verify)
+        setValidCoupon(verify)
     }
 
     const finalPaymentPrice = useMemo(() => {
         let price: number
         const methodPrice = currPaymentMethod?.price || 0
-        if (!validPromoCode) {
+        if (!validCoupon) {
             price = methodPrice
         } else {
-            if (validPromoCode.discount_type === 'ratio') {
-                price = Number(methodPrice) * validPromoCode.discount / 10000
+            if (validCoupon.discount_type === 'ratio') {
+                price = Number(methodPrice) * validCoupon.discount / 10000
             } else {
-                price = Number(methodPrice) - (validPromoCode.discount / 100) * 10 ** (currToken?.decimals || 0)
+                price = Number(methodPrice) - (validCoupon.discount / 100) * 10 ** (currToken?.decimals || 0)
             }
         }
 
@@ -235,7 +235,7 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
         } else {
             return Math.max(price, 0)
         }
-    }, [currChain?.id, currPaymentMethod?.price, currToken?.decimals, validPromoCode])
+    }, [currChain?.id, currPaymentMethod?.price, currToken?.decimals, validCoupon])
 
     const paymentDiscount = useMemo(() => {
         return (currPaymentMethod?.price || 0) - finalPaymentPrice
@@ -483,27 +483,27 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
 
             {!!props.ticket.payment_methods.length && !soldOut && !stopSales &&
                 <div className={styles['promo']}>
-                    <div className={styles['promo-title']} onClick={e => {setShowPromoCodeInput(true)}}>
+                    <div className={styles['promo-title']} onClick={e => {setShowCouponInput(true)}}>
                         {lang['Promo_Code']}
-                        { !showPromoCodeInput ? <TriangleDown size={18}/> :  null}
+                        { !showCouponInput ? <TriangleDown size={18}/> :  null}
                     </div>
-                    { showPromoCodeInput &&
+                    { showCouponInput &&
                         <>
                             <div className={styles['promo-input']}>
-                                <AppInput value={promoCode}
+                                <AppInput value={coupon}
                                           onChange={e => {
-                                              setPromoCode(e.target.value)
+                                              setCoupon(e.target.value)
                                           }}
                                           placeholder={'Promo code'}/>
-                                {!!promoCode && !validPromoCode &&
-                                    <AppButton black onClick={checkPromoCode}>{lang['Apply']}</AppButton>
+                                {!!coupon && !validCoupon &&
+                                    <AppButton black onClick={checkCoupon}>{lang['Apply']}</AppButton>
                                 }
                                 {
-                                    !!validPromoCode &&
-                                    <AppButton onClick={removePromoCode}>{lang['Remove']}</AppButton>
+                                    !!validCoupon &&
+                                    <AppButton onClick={removeCoupon}>{lang['Remove']}</AppButton>
                                 }
                             </div>
-                            <div className={styles['errorMsg']}>{promoCodeError}</div>
+                            <div className={styles['errorMsg']}>{couponError}</div>
                         </>
                     }
                 </div>
@@ -547,7 +547,7 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
                 && !soldOut
                 && !stopSales
                 && <AppButton special onClick={e => {
-                    router.push(`/stripe-pay?ticket=${props.ticket.id}&methodid=${currPaymentMethod!.id}${validPromoCode?.code ? `&promo=${validPromoCode.code}` : ''}`)
+                    router.push(`/stripe-pay?ticket=${props.ticket.id}&methodid=${currPaymentMethod!.id}${validCoupon?.code ? `&coupon=${validCoupon.code}` : ''}`)
                     props.close()
                 }}>{lang['Pay_By_Card']}</AppButton>
             }
@@ -563,7 +563,7 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
                 && (approved || finalPaymentPrice === 0) &&
                 <Erc20TokenPaymentHandler
                     isGroupTicket={props.ticket.ticket_type === 'group'}
-                    promo_code={validPromoCode?.code || undefined}
+                    coupon={validCoupon?.code || undefined}
                     eventId={props.event.id}
                     methodId={currPaymentMethod.id!}
                     ticketId={props.ticket.id}
@@ -588,8 +588,8 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
                         return errorMsg ? <AppButton special onClick={e => {
                                 setErrorMsg('')
                                 setApproved(false)
-                                setValidPromoCode(null)
-                                setPromoCode('')
+                                setValidCoupon(null)
+                                setCoupon('')
                                 reFleshAllowanceRef.current && reFleshAllowanceRef.current.reFleshAllowance()
                             }
                             }>{lang['Retry']}</AppButton>

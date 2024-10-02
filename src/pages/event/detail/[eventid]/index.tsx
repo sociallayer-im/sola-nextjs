@@ -525,7 +525,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
             content: (close: any) => {
                 return <DialogGenPromoCode
                     close={close}
-                    promoCodes={[]}
+                    coupons={[]}
                     event={event!}
                     onChange={(codes) => {
                         console.log('codes', codes)

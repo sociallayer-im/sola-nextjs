@@ -28,7 +28,7 @@ function Erc20TokenPaymentHandler(
         methodId: number
         eventId: number
         isGroupTicket: boolean
-        promo_code?: string,
+        coupon?: string,
         onSuccess?: (hash: string) => any
         onErrMsg?: (message: string) => any
     }
@@ -151,7 +151,7 @@ function Erc20TokenPaymentHandler(
                     id: props.eventId,
                     ticket_id: props.ticketId,
                     payment_method_id: props.methodId,
-                    promo_code: props.promo_code
+                    coupon: props.coupon
                 }
             )
 

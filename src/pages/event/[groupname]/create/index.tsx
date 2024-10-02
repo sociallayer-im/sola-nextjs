@@ -20,12 +20,12 @@ import {
     Group,
     Profile,
     ProfileSimple,
-    PromoCode,
+    Coupon,
     queryBadge,
     queryBadgeDetail,
     queryEvent,
     queryGroupDetail,
-    queryPromoCodes,
+    queryCoupons,
     queryTickets,
     RecurringEvent,
     RepeatEventSetBadge,
@@ -53,7 +53,7 @@ import DialogsContext from "@/components/provider/DialogProvider/DialogsContext"
 import CohostInput, {emptyProfile} from "@/components/base/IssuesInput/CohostInput";
 import {usePathname, useRouter, useSearchParams} from "next/navigation";
 import Toggle from "@/components/base/Toggle/Toggle"
-import DialogGenPromoCode from "@/components/base/Dialog/DialogGenPromoCode/DialogGenPromoCode"
+import DialogGenCoupon from "@/components/base/Dialog/DialogGenPromoCode/DialogGenPromoCode"
 
 import * as dayjsLib from "dayjs";
 import TriangleDown from 'baseui/icon/triangle-down'
@@ -151,8 +151,8 @@ function EditEvent({
     const ticketSettingRef = useRef<{ verify: () => boolean } | null>(null)
     const ticketsRef = useRef<Partial<Ticket>[]>([])
 
-    // promoCode
-    const [promoCodes, setPromoCodes] = useState<PromoCode[] | []>([])
+    // coupon
+    const [coupons, setCoupons] = useState<Coupon[] | []>([])
 
     const [venueInfo, setVenueInfo] = useState<null | EventSites>(null)
     const [cohost, setCohost] = useState<string[]>([''])
@@ -231,11 +231,11 @@ function EditEvent({
                 }
             })
 
-            queryPromoCodes({event_id: initEvent.id}).then((res) => {
+            queryCoupons({event_id: initEvent.id}).then((res) => {
                 if (res && res.length > 0) {
-                    setPromoCodes(res)
+                    setCoupons(res)
                 } else {
-                    setPromoCodes([])
+                    setCoupons([])
                 }
             })
 
@@ -1103,12 +1103,12 @@ function EditEvent({
         })
     }
 
-    const showGenPromoCodeDialog = () => {
+    const showGenCouponDialog = () => {
         openDialog({
             content: (close: any) => {
-                return <DialogGenPromoCode
+                return <DialogGenCoupon
                     close={close}
-                    promoCodes={promoCodes}
+                    coupons={coupons}
                     event={initEvent!}
                     onChange={(codes) => {
                         console.log('codes', codes)
@@ -1129,7 +1129,7 @@ function EditEvent({
                             return initEvent && (isManager || initEvent?.owner.id === user.id) && !!tickets.length ?
                             <div>
                                 <AppButton
-                                    onClick={showGenPromoCodeDialog}
+                                    onClick={showGenCouponDialog}
                                     style={{fontSize: '12px!important'}} kind={'primary'} size={'compact'}>
                                     {lang['Promo_Code']}
                                 </AppButton>

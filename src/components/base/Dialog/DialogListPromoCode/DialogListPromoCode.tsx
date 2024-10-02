@@ -1,6 +1,6 @@
 import styles from './DialogListPromoCode.module.scss';
 import PageBack from "@/components/base/PageBack";
-import {getPromoCode, PromoCode, queryTicketItems} from "@/service/solas"
+import {getCoupon, Coupon, queryTicketItems} from "@/service/solas"
 import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
 import React, {useContext} from "react";
 import DialogPromoDetail from "@/components/base/Dialog/DialogPromoDetail/DialogPromoDetail"
@@ -13,22 +13,22 @@ const dayjs: any = dayjsLib
 
 export default function DialogListPromoCode(props: {
     close: () => any,
-    promoCodes: PromoCode[],
-    selected?: PromoCode
+    coupons: Coupon[],
+    selected?: Coupon
 }) {
     const {showToast, openDialog, showLoading} = useContext(DialogsContext)
     const {user} = useContext(userContext)
     const {lang} = useContext(LangContext)
 
-    const openDialogPromoDetail = async (code: PromoCode) => {
+    const openDialogPromoDetail = async (code: Coupon) => {
         const unload = showLoading()
         try {
-            const codeStr = await getPromoCode({id: code.id!, auth_token: user.authToken || ''})
-            const history = await queryTicketItems({promo_code_id: code.id!})
+            const codeStr = await getCoupon({id: code.id!, auth_token: user.authToken || ''})
+            const history = await queryTicketItems({coupon_id: code.id!})
 
             openDialog({
                 content: (close: any) => {
-                    return <DialogPromoDetail history={history} promoCode={code} close={close} code={codeStr}/>
+                    return <DialogPromoDetail history={history} coupon={code} close={close} code={codeStr}/>
                 },
                 size: ['100%', '100%']
             })
@@ -48,7 +48,7 @@ export default function DialogListPromoCode(props: {
 
             <div className={styles['body']}>
                 <div className={styles['list']}>
-                    {props.promoCodes.map(p => {
+                    {props.coupons.map(p => {
                         let discount = ''
                         if (p.discount_type === 'ratio') {
                             discount = `${100 - p.discount / 100}% off`
@@ -74,7 +74,7 @@ export default function DialogListPromoCode(props: {
                     })}
                 </div>
 
-                { !props.promoCodes.length &&
+                { !props.coupons.length &&
                     <div className={styles['empty']}>
                         <Empty text={'No data'}/>
                     </div>
