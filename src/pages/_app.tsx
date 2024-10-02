@@ -73,7 +73,6 @@ const walletConnectConnector: any = new CustomWalletConnectConnector({
     options: {
         projectId: '75f461ff2b14465255978cb9e730a6ac',
         qrModalOptions: {
-            enableAuthMode: true,
             enableExplorer: false,
             themeMode:  'light'
         },
