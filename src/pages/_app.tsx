@@ -16,7 +16,7 @@ import {Provider as StyletronProvider} from 'styletron-react'
 import {BaseProvider} from 'baseui'
 import {avalancheFuji, polygon, mainnet, optimism, base, arbitrum} from 'wagmi/chains'
 import {InjectedConnector} from 'wagmi/connectors/injected'
-// import {WalletConnectConnector} from 'wagmi/connectors/walletConnect'
+import {WalletConnectConnector} from 'wagmi/connectors/walletConnect'
 import {publicProvider} from 'wagmi/providers/public'
 import {configureChains, createConfig, WagmiConfig} from 'wagmi'
 import {styletron} from '@/styletron'
@@ -62,12 +62,12 @@ const inject = new InjectedConnector({
     chains: [ethChain, polygon, avalancheFuji, optimism, base, arbitrum],
 } as any)
 
-// const walletConnectConnect = new WalletConnectConnector({
-//     chains: [ethChain, polygon, avalancheFuji, optimism, base, arbitrum],
-//     options: {
-//         projectId: '291f8dbc68b408d4552ec4e7193c1b47'
-//     }
-// })
+const walletConnectConnect = new WalletConnectConnector({
+    chains: [ethChain, polygon, avalancheFuji, optimism, base, arbitrum],
+    options: {
+        projectId: '291f8dbc68b408d4552ec4e7193c1b47'
+    }
+})
 
 const {chains, publicClient, webSocketPublicClient} = configureChains(
     [ethChain, polygon, avalancheFuji, optimism, base, arbitrum],
@@ -80,7 +80,7 @@ const config = createConfig({
     webSocketPublicClient,
     connectors: [
         inject,
-        // walletConnectConnect,
+        walletConnectConnect,
         // new JoyIdConnector(
         // {
         //     chains: [mainnet, polygon, avalancheFuji],
