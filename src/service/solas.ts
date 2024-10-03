@@ -2299,7 +2299,7 @@ export async function createPoint(props: CreatePointProps) {
 export interface SendPointProps {
     auth_token: string,
     receivers: { receiver: string, value: number }[],
-    point_balance_id: number,
+    point_id: number,
     value: number
 }
 

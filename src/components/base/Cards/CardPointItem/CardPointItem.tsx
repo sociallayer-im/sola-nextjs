@@ -88,7 +88,7 @@ export interface CardBadgeletProps {
 
 function CardPointItem(props: CardBadgeletProps) {
     const [css] = useStyletron()
-    const {showPointItem} = useContext(DialogsContext)
+    const {showPointTransfer} = useContext(DialogsContext)
     const {user} = useContext(UserContext)
     const [isGroupManager, setIsGroupManager] = useState(false)
 
@@ -112,7 +112,7 @@ function CardPointItem(props: CardBadgeletProps) {
         checkManager()
     }, [user.id])
 
-    return (<div className={css(style.wrapper)} onClick={() => {showPointItem(props.pointitem)}}>
+    return (<div className={css(style.wrapper)} onClick={() => {showPointTransfer(props.pointitem)}}>
         <div className={css(style.coverBg)}>
             <img className={css(style.img)} src={props.pointitem.point.image_url} alt=""/>
         </div>

@@ -28,7 +28,7 @@ import SwiperPagination from "../../base/SwiperPagination/SwiperPagination";
 
 
 export interface DetailBadgeletProps {
-    pointItem: PointTransfer,
+    pointTransfer: PointTransfer,
     handleClose: () => void
 }
 
@@ -39,24 +39,24 @@ function DetailPointItem(props: DetailBadgeletProps) {
     const {defaultAvatar} = usePicture()
     const [_1, emitUpdate] = useEvent(EVENT.pointItemUpdate)
     const [needUpdate, _2] = useEvent(EVENT.pointItemListUpdate)
-    const [pointItem, setPointItem] = useState(props.pointItem)
-    const [pointItemList, setPointItemList] = useState<PointTransfer[]>([])
+    const [pointTransfer, setPointTransfer] = useState(props.pointTransfer)
+    const [pointTransferList, setPointTransferList] = useState<PointTransfer[]>([])
     const formatTime = useTime()
     const swiper = useRef<any>(null)
     const swiperIndex = useRef(0)
 
     const [isGroupManager, setIsGroupManager] = useState(false)
-    const isOwner = user.id === props.pointItem.owner.id
+    const isOwner = user.id === props.pointTransfer.owner.id
 
 
     const upDateBadgelet = async () => {
-        const newPointItem = await solas.queryPointTransferDetail({id: props.pointItem.id})
-        setPointItem(newPointItem!)
+        const newPointTransfer = await solas.queryPointTransferDetail({id: props.pointTransfer.id})
+        setPointTransfer(newPointTransfer!)
     }
 
     const getItemsOfSamePoint = async () => {
-        const items = await solas.queryPointTransfers({point_id: props.pointItem.point.id, owner_id: props.pointItem.owner.id})
-        setPointItemList(items)
+        const items = await solas.queryPointTransfers({point_balance_id: props.pointTransfer.point.id, owner_id: props.pointTransfer.owner.id})
+        setPointTransferList(items)
     }
 
     useEffect(() => {
@@ -73,12 +73,12 @@ function DetailPointItem(props: DetailBadgeletProps) {
         async function checkGroupManager() {
             if (user.id && !isOwner) {
                 const ownerDetail = await solas.getProfile({
-                    id: props.pointItem.owner.id
+                    id: props.pointTransfer.owner.id
                 })
 
                 if (!!(ownerDetail as any)?.creator) { //group
                     const isManager = await solas.checkIsManager({
-                        group_id: props.pointItem.owner.id,
+                        group_id: props.pointTransfer.owner.id,
                         profile_id: user.id
                     })
                     setIsGroupManager(isManager)
@@ -93,7 +93,7 @@ function DetailPointItem(props: DetailBadgeletProps) {
         const unload = showLoading()
         try {
             const accept = await solas.acceptPoint({
-                point_item_id: props.pointItem.id,
+                point_transfer_id: props.pointTransfer.id,
                 auth_token: user.authToken || ''
             })
 
@@ -113,7 +113,7 @@ function DetailPointItem(props: DetailBadgeletProps) {
         const unload = showLoading()
         try {
             const reject = await solas.rejectPoint({
-                point_item_id: props.pointItem.id,
+                point_transfer_id: props.pointTransfer.id,
                 auth_token: user.authToken || ''
             })
 
@@ -154,18 +154,18 @@ function DetailPointItem(props: DetailBadgeletProps) {
     </>
 
     const swiperMaxHeight = window.innerHeight - 320
-    console.log('props.pointItem', pointItem)
+    console.log('props.pointTransfer', pointTransfer)
     return (
         <DetailWrapper>
             <DetailHeader
                 title={lang['Point_Detail_Title']}
                 onClose={props.handleClose}/>
 
-            <PointCover value={pointItem.value} src={pointItem.point.image_url}/>
-            <DetailName> {pointItem.point.title} </DetailName>
+            <PointCover value={pointTransfer.value} src={pointTransfer.point.image_url}/>
+            <DetailName> {pointTransfer.point.title} </DetailName>
             <DetailRow>
-                <DetailCreator isGroup={!!pointItem.point.group}
-                               profile={pointItem.point.group || pointItem.sender}/>
+                <DetailCreator isGroup={!!pointTransfer.point.group}
+                               profile={pointTransfer.point.group || pointTransfer.sender}/>
             </DetailRow>
 
             <div style={{width: '100%', overflow: 'hidden', maxHeight: swiperMaxHeight + 'px'}}>
@@ -176,9 +176,9 @@ function DetailPointItem(props: DetailBadgeletProps) {
                     className='badge-detail-swiper'
                     onSlideChange={ (swiper) => swiperIndex.current = swiper.activeIndex }
                     slidesPerView={'auto'}>
-                    <SwiperPagination total={ pointItemList.length } showNumber={3} />
+                    <SwiperPagination total={ pointTransferList.length } showNumber={3} />
                     {
-                        pointItemList.map((item, index) =>
+                        pointTransferList.map((item, index) =>
                             <SwiperSlide className='badge-detail-swiper-slide' key={ item.id }>
                                 <DetailScrollBox style={{maxHeight: swiperMaxHeight - 60 + 'px', marginLeft: 0}}>
                                     {
@@ -194,7 +194,7 @@ function DetailPointItem(props: DetailBadgeletProps) {
 
                                     <DetailArea
                                         title={lang['Create_Point_Symbol']}
-                                        content={pointItem.point.sym ? pointItem.point.sym.toUpperCase() : '--'}/>
+                                        content={pointTransfer.point.sym ? pointTransfer.point.sym.toUpperCase() : '--'}/>
 
                                     <DetailArea
                                         onClose={props.handleClose}
@@ -225,7 +225,7 @@ function DetailPointItem(props: DetailBadgeletProps) {
 
                 {!!user.domain
                     && (isOwner || isGroupManager)
-                    && props.pointItem.status === 'sending'
+                    && props.pointTransfer.status === 'sending'
                     && ActionBtns}
             </BtnGroup>
         </DetailWrapper>
