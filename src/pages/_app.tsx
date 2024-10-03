@@ -16,7 +16,7 @@ import {Provider as StyletronProvider} from 'styletron-react'
 import {BaseProvider} from 'baseui'
 import {avalancheFuji, polygon, mainnet, optimism, base, arbitrum} from 'wagmi/chains'
 import {InjectedConnector} from 'wagmi/connectors/injected'
-// import {WalletConnectConnector} from 'wagmi/connectors/walletConnect'
+// import {WalletConnectConnector as CustomWalletConnectConnector } from 'wagmi/connectors/walletConnect'
 import {WalletConnectConnector as CustomWalletConnectConnector} from '@/libs/walletconnect-connector/walletconnect'
 import {publicProvider} from 'wagmi/providers/public'
 import {configureChains, Connector, createConfig, WagmiConfig} from 'wagmi'
@@ -71,7 +71,17 @@ const inject = new InjectedConnector({
 const walletConnectConnector: any = new CustomWalletConnectConnector({
     chains: chains,
     options: {
-        projectId: '75f461ff2b14465255978cb9e730a6ac'
+        projectId: '75f461ff2b14465255978cb9e730a6ac',
+        qrModalOptions: {
+            enableExplorer: false,
+            themeMode:  'light'
+        },
+        metadata: {
+            name: 'Social Layer',
+            description: 'Social Layer',
+            url: 'https://www.sola.day', // origin must match your domain & subdomain
+            icons: ['https://www.sola.day/images/header_logo.svg']
+        }
     }
 })
 

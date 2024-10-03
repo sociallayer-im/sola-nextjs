@@ -18,9 +18,7 @@
     "qrcode": "1.5.1",
     "query-string": "6.13.5",
     "bn.js": "5.2.1",
-    "@solana/web3.js": "file:src/libs/@solana/web3.js",
-    "@walletconnect/ethereum-provider":"2.17.0",
-    "@walletconnect/universal-provider": "2.17.0"
+    "@solana/web3.js": "file:src/libs/@solana/web3.js"
   },
   "overrides": {
     "webpack": "^5.52.0"
@@ -56,7 +54,6 @@
     "@solana/web3.js": "file:src/libs/@solana/web3.js",
     "@stripe/react-stripe-js": "^2.7.3",
     "@stripe/stripe-js": "^4.1.0",
-    "@walletconnect/ethereum-provider": "^2.17.0",
     "@zxing/library": "^0.20.0",
     "add": "^2.0.6",
     "alchemy-sdk": "^2.10.1",
