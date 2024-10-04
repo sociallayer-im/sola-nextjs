@@ -20,12 +20,12 @@ import {
     Group,
     Profile,
     ProfileSimple,
-    PromoCode,
+    Coupon,
     queryBadge,
     queryBadgeDetail,
     queryEvent,
     queryGroupDetail,
-    queryPromoCodes,
+    queryCoupons,
     queryTickets,
     RecurringEvent,
     RepeatEventSetBadge,
@@ -53,7 +53,7 @@ import DialogsContext from "@/components/provider/DialogProvider/DialogsContext"
 import CohostInput, {emptyProfile} from "@/components/base/IssuesInput/CohostInput";
 import {usePathname, useRouter, useSearchParams} from "next/navigation";
 import Toggle from "@/components/base/Toggle/Toggle"
-import DialogGenPromoCode from "@/components/base/Dialog/DialogGenPromoCode/DialogGenPromoCode"
+import DialogGenCoupon from "@/components/base/Dialog/DialogGenPromoCode/DialogGenPromoCode"
 
 import * as dayjsLib from "dayjs";
 import TriangleDown from 'baseui/icon/triangle-down'
@@ -151,8 +151,8 @@ function EditEvent({
     const ticketSettingRef = useRef<{ verify: () => boolean } | null>(null)
     const ticketsRef = useRef<Partial<Ticket>[]>([])
 
-    // promoCode
-    const [promoCodes, setPromoCodes] = useState<PromoCode[] | []>([])
+    // coupon
+    const [coupons, setCoupons] = useState<Coupon[] | []>([])
 
     const [venueInfo, setVenueInfo] = useState<null | EventSites>(null)
     const [cohost, setCohost] = useState<string[]>([''])
@@ -231,11 +231,11 @@ function EditEvent({
                 }
             })
 
-            queryPromoCodes({event_id: initEvent.id}).then((res) => {
+            queryCoupons({event_id: initEvent.id}).then((res) => {
                 if (res && res.length > 0) {
-                    setPromoCodes(res)
+                    setCoupons(res)
                 } else {
-                    setPromoCodes([])
+                    setCoupons([])
                 }
             })
 
@@ -261,11 +261,11 @@ function EditEvent({
                 }
             }
 
-            if (initEvent.recurring_event_id) {
-                const recurring_event = await getRecurringEvents(initEvent.recurring_event_id)
-                if (recurring_event) {
-                    setRepeatCounter(recurring_event.event_count)
-                    setRepeat(recurring_event.interval)
+            if (initEvent.recurring_id) {
+                const recurring = await getRecurringEvents(initEvent.recurring_id)
+                if (recurring) {
+                    setRepeatCounter(recurring.event_count)
+                    setRepeat(recurring.interval)
                 }
             }
         }
@@ -619,7 +619,7 @@ function EditEvent({
             return false
         }
 
-        if (!!tickets && tickets.length > 0 && (event.recurring_event_id || repeat)) {
+        if (!!tickets && tickets.length > 0 && (event.recurring_id || repeat)) {
             showToast('Recurring events do not support ticket features')
             return false
         }
@@ -760,7 +760,7 @@ function EditEvent({
             auth_token: user.authToken || '',
         } as CreateRepeatEventProps
 
-        if (initEvent?.recurring_event_id) {
+        if (initEvent?.recurring_id) {
             const dialog = openConfirmDialog({
                 confirmLabel: 'Save',
                 cancelLabel: 'Cancel',
@@ -875,7 +875,7 @@ function EditEvent({
                         const setBadge = await RepeatEventSetBadge({
                             auth_token: user.authToken || '',
                             badge_class_id: saveProps.badge_class_id,
-                            recurring_event_id: saveProps.recurring_event_id!,
+                            recurring_id: saveProps.recurring_id!,
                             selector: repeatEventSelectorRef.current
                         })
                     }
@@ -935,7 +935,7 @@ function EditEvent({
                 const newEvent = await createRepeatEvent(props)
                 if (props.badge_class_id) {
                     const setBadge = await RepeatEventSetBadge({
-                        recurring_event_id: newEvent.recurring_event_id!,
+                        recurring_id: newEvent.recurring_id!,
                         badge_class_id: props.badge_class_id,
                         auth_token: user.authToken || ''
                     })
@@ -976,7 +976,7 @@ function EditEvent({
     }
 
     const cancel = async (redirect = true) => {
-        if (!initEvent?.recurring_event_id) {
+        if (!initEvent?.recurring_id) {
             await cancelOne(redirect)
         } else {
             const dialog = openConfirmDialog({
@@ -1060,7 +1060,7 @@ function EditEvent({
                 try {
                     const cancel = await cancelRepeatEvent({
                         auth_token: user.authToken || '',
-                        recurring_event_id: initEvent!.recurring_event_id!,
+                        recurring_id: initEvent!.recurring_id!,
                         event_id: initEvent!.id,
                         selector: repeatEventSelectorRef.current,
                     })
@@ -1103,12 +1103,12 @@ function EditEvent({
         })
     }
 
-    const showGenPromoCodeDialog = () => {
+    const showGenCouponDialog = () => {
         openDialog({
             content: (close: any) => {
-                return <DialogGenPromoCode
+                return <DialogGenCoupon
                     close={close}
-                    promoCodes={promoCodes}
+                    coupons={coupons}
                     event={initEvent!}
                     onChange={(codes) => {
                         console.log('codes', codes)
@@ -1129,7 +1129,7 @@ function EditEvent({
                             return initEvent && (isManager || initEvent?.owner.id === user.id) && !!tickets.length ?
                             <div>
                                 <AppButton
-                                    onClick={showGenPromoCodeDialog}
+                                    onClick={showGenCouponDialog}
                                     style={{fontSize: '12px!important'}} kind={'primary'} size={'compact'}>
                                     {lang['Promo_Code']}
                                 </AppButton>
@@ -1296,8 +1296,8 @@ function EditEvent({
                                         repeatCount={repeatCounter}
                                         repeat={repeat}
                                         showRepeat={isManager}
-                                        repeatDisabled={!!initEvent?.recurring_event_id}
-                                        recurringEventId={initEvent?.recurring_event_id}
+                                        repeatDisabled={!!initEvent?.recurring_id}
+                                        recurringId={initEvent?.recurring_id}
                                         disabled={false}
                                         onChange={e => {
                                             console.log('slot value', e)
@@ -1326,8 +1326,8 @@ function EditEvent({
                                         repeatCount={repeatCounter}
                                         repeat={repeat}
                                         showRepeat={isManager}
-                                        repeatDisabled={!!initEvent?.recurring_event_id}
-                                        recurringEventId={initEvent?.recurring_event_id}
+                                        repeatDisabled={!!initEvent?.recurring_id}
+                                        recurringId={initEvent?.recurring_id}
                                         disabled={false}
                                         onChange={e => {
                                             console.log('eee', e)

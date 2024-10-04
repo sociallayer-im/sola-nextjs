@@ -84,7 +84,7 @@ interface AppDateInputProps {
     repeatCount: number,
     repeat: string | null
     showRepeat?: boolean,
-    recurringEventId?: null | number
+    recurringId?: null | number
     disabled?: boolean,
     repeatDisabled?: boolean,
     onChange: (value: {
@@ -179,9 +179,9 @@ function AppDateInput({
 
     const showRepeatOption = async () => {
         let repeatEvents: Event[] | null = null
-        if (props.recurringEventId) {
+        if (props.recurringId) {
             const unload = showLoading()
-            repeatEvents = await queryEvent({recurring_event_id: props.recurringEventId, page: 1, page_size: 100})
+            repeatEvents = await queryEvent({recurring_id: props.recurringId, page: 1, page_size: 100})
             unload()
         }
 

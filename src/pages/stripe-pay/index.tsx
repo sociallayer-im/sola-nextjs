@@ -22,7 +22,7 @@ import LangContext from "@/components/provider/LangProvider/LangContext"
 import {formatUnits} from "viem/utils";
 
 
-export default function StripePay({ticketId, methodId, promoCode}: { ticketId: number | null, methodId: number | null, promoCode: string | null }) {
+export default function StripePay({ticketId, methodId, coupon}: { ticketId: number | null, methodId: number | null, coupon: string | null }) {
     if (ticketId === null || !methodId === null) {
         throw new Error('Invalid ticketId or methodId')
     }
@@ -81,7 +81,7 @@ export default function StripePay({ticketId, methodId, promoCode}: { ticketId: n
         }
     }
 
-    const handleJoin = async (eventDetail: Event, ticket: Ticket, methodId: number, promoCode?: string) => {
+    const handleJoin = async (eventDetail: Event, ticket: Ticket, methodId: number, coupon?: string) => {
         const participantsAll = eventDetail?.participants || []
         const participants = participantsAll.filter(item => item.status !== 'cancel')
 
@@ -100,7 +100,7 @@ export default function StripePay({ticketId, methodId, promoCode}: { ticketId: n
             id: eventDetail.id,
             ticket_id: ticketId,
             payment_method_id: methodId,
-            promo_code: promoCode
+            coupon: coupon
         })
     }
 
@@ -126,7 +126,7 @@ export default function StripePay({ticketId, methodId, promoCode}: { ticketId: n
                             return
                         }
 
-                        const {participant, ticket_item} = await handleJoin(event[0], tickets[0], methodId, promoCode || undefined)
+                        const {participant, ticket_item} = await handleJoin(event[0], tickets[0], methodId, coupon || undefined)
 
                         // 处理价格为0直接购买成功的情况
                         if (participant.payment_status === 'succeeded') {
@@ -233,13 +233,13 @@ export default function StripePay({ticketId, methodId, promoCode}: { ticketId: n
 export async function getServerSideProps(context: any) {
     const ticketId = context.query?.ticket
     const paymentMethodId = context.query?.methodid
-    const promoCode = context.query?.promo
+    const coupon = context.query?.coupon
 
     return {
         props: {
             ticketId: ticketId ? parseInt(ticketId) : null,
             methodId: paymentMethodId ? parseInt(paymentMethodId) : null,
-            promoCode: promoCode || null
+            coupon: coupon || null
         }
     }
 }

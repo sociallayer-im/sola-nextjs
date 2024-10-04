@@ -76,7 +76,7 @@ function Issue() {
         }
 
         try {
-            const pointItems = await sendPoint({
+            const pointTransfers = await sendPoint({
                 point_id: Number(params!.pointId),
                 value: Number(data.points),
                 auth_token: user.authToken || '',
@@ -87,7 +87,7 @@ function Issue() {
                     }
                 })
             })
-            // router.push(`/issue-success?point=${params.pointId}&pointitem=${pointItems[0].id}`)
+            // router.push(`/issue-success?point=${params.pointId}&pointtransfer=${pointTransfers[0].id}`)
         } catch (e: any) {
             console.error(e)
             showToast(e.message || 'Issue fail')

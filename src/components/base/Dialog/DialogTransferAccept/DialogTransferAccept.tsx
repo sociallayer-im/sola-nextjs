@@ -1,12 +1,12 @@
 import {useState, useContext, useEffect} from 'react'
-import {Badgelet, PointItem, NftPasslet} from "../../../../service/solas";
+import {Badgelet, PointTransfer, NftPasslet} from "../../../../service/solas";
 import ReasonText from "../../ReasonText/ReasonText";
 import AppButton from "../../AppButton/AppButton";
 import langContext from "../../../provider/LangProvider/LangContext";
 
 export interface DialogTransferAcceptProps {
     badgelet?: Badgelet | NftPasslet
-    pointItem?: PointItem
+    pointItem?: PointTransfer
     handleClose: () => any
 }
 
