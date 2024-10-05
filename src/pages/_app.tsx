@@ -16,8 +16,10 @@ import {Provider as StyletronProvider} from 'styletron-react'
 import {BaseProvider} from 'baseui'
 import {avalancheFuji, polygon, mainnet, optimism, base, arbitrum} from 'wagmi/chains'
 import {InjectedConnector} from 'wagmi/connectors/injected'
+// import {WalletConnectConnector as CustomWalletConnectConnector } from 'wagmi/connectors/walletConnect'
+import {WalletConnectConnector as CustomWalletConnectConnector} from '@/libs/walletconnect-connector/walletconnect'
 import {publicProvider} from 'wagmi/providers/public'
-import {configureChains, createConfig, WagmiConfig} from 'wagmi'
+import {configureChains, Connector, createConfig, WagmiConfig} from 'wagmi'
 import {styletron} from '@/styletron'
 import Head from 'next/head'
 import MapProvider from "@/components/provider/MapProvider/MapProvider";
@@ -37,29 +39,59 @@ const farcasterConfig = {
     siweUri: process.env.NEXT_PUBLIC_HOST,
 };
 
-const inject = new InjectedConnector({
-    chains: [mainnet, polygon, avalancheFuji, optimism, base, arbitrum],
-} as any)
-
-// const walletConnectConnect = new WalletConnectConnector({
-//     chains: [mainnet, moonbeam],
-//     options: {
-//         projectId: '291f8dbc68b408d4552ec4e7193c1b47'
-//     }
-// })
+const ethChain = {
+    ...mainnet,
+    rpcUrls: {
+        alchemy: {
+            http: ['https://eth-mainnet.g.alchemy.com/v2'],
+            webSocket: ['wss://eth-mainnet.g.alchemy.com/v2'],
+        },
+        infura: {
+            http: ['https://mainnet.infura.io/v3'],
+            webSocket: ['wss://mainnet.infura.io/ws/v3'],
+        },
+        default: {
+            http: ['https://mainnet.infura.io/v3/df69a66a46e94a1bb0e0f2914af8b403'],
+        },
+        public: {
+            http: ['https://mainnet.infura.io/v3/df69a66a46e94a1bb0e0f2914af8b403'],
+        },
+    },
+}
 
 const {chains, publicClient, webSocketPublicClient} = configureChains(
-    [mainnet, polygon, avalancheFuji, optimism, base, arbitrum],
+    [ethChain, polygon, avalancheFuji, optimism, base, arbitrum],
     [publicProvider()],
 )
+
+const inject = new InjectedConnector({
+    chains: chains,
+} as any)
+
+const walletConnectConnector: any = new CustomWalletConnectConnector({
+    chains: chains,
+    options: {
+        projectId: '75f461ff2b14465255978cb9e730a6ac',
+        qrModalOptions: {
+            enableExplorer: false,
+            themeMode:  'light'
+        },
+        metadata: {
+            name: 'Social Layer',
+            description: 'Social Layer',
+            url: 'https://www.sola.day', // origin must match your domain & subdomain
+            icons: ['https://www.sola.day/images/header_logo.svg']
+        }
+    }
+})
 
 const config = createConfig({
     autoConnect: true,
     publicClient,
     webSocketPublicClient,
     connectors: [
-        //  walletConnectConnect,
         inject,
+        walletConnectConnector,
         // new JoyIdConnector(
         // {
         //     chains: [mainnet, polygon, avalancheFuji],

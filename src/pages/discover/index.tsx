@@ -69,7 +69,7 @@ function Discover({eventGroups, popupCities } : {eventGroups: Group[], popupCiti
                  <h2 className={styles['page-title']}>{lang['Featured']}</h2>
                     <Swiper
                         autoplay={{
-                            delay: 3000,
+                            delay: 5000,
                             disableOnInteraction: true,
                         }}
                         loop={true}
@@ -118,6 +118,18 @@ function Discover({eventGroups, popupCities } : {eventGroups: Group[], popupCiti
             }
 
             <h2 className={styles['page-title']}>
+                <div>{lang['Chiangmai_Popup_Cities']}</div>
+            </h2>
+
+            <div className={styles['popup-city-list']}>
+                {
+                    _sortedPopupCities.filter((x) => x.group_tags && x.group_tags.indexOf(":cnx") >= 0).map((popupCity, index) => {
+                        return <CardPopupCity popupCity={popupCity} key={popupCity.id}/>
+                    })
+                }
+            </div>
+
+            <h2 className={styles['page-title']}>
                 <div>{lang['Events_Of_Popup_Cities']}</div>
                 <Link href={'/popup-city'}>
                     {lang['See_All_Popup_Cities_Events']}
@@ -131,7 +143,7 @@ function Discover({eventGroups, popupCities } : {eventGroups: Group[], popupCiti
 
             <div className={styles['popup-city-list']}>
                 {
-                    _sortedPopupCities.map((popupCity, index) => {
+                    _sortedPopupCities.filter((x) => !x.group_tags || x.group_tags.indexOf(":cnx") < 0).map((popupCity, index) => {
                         return <CardPopupCity popupCity={popupCity} key={popupCity.id}/>
                     })
                 }
@@ -207,7 +219,7 @@ function Discover({eventGroups, popupCities } : {eventGroups: Group[], popupCiti
                     </Link>
 
                 </>}
-                <Link href={'/'}
+                <Link href={'https://www.sociallayer.im/'} target='_blank'
                       style={{'background': 'linear-gradient(180deg, #FFF6F3 0%, rgba(255, 255, 255, 0.00) 100%)'}}>
                     <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M4.41475 23.5903H25.1884V21.6904L26.7864 21.6904V23.5903C26.7864 24.4691 26.0673 25.1882 25.1884 25.1882H4.41475C3.53586 25.1882 2.81677 24.4691 2.81677 23.5903V10.8065C2.81677 9.92758 3.53586 9.2085 4.41475 9.2085H5.81677V10.8065L4.41475 10.8065V23.5903Z" fill="#272928"/>
@@ -219,7 +231,7 @@ function Discover({eventGroups, popupCities } : {eventGroups: Group[], popupCiti
                     </svg>
                     <div className={styles['name']}>{lang['About_Us']}</div>
                 </Link>
-                <Link href={'/'}
+                <Link href={'https://social-layer.notion.site/Use-Badges-531bcb47d3694d45bd6c73da99b1ad6f?pvs=4'} target='_blank'
                       style={{'background': 'linear-gradient(180deg, #FFF2FB 0%, rgba(255, 255, 255, 0.00) 100%)'}}>
                     <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none">
                         <path

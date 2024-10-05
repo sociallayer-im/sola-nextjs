@@ -10,7 +10,7 @@ export interface DialogsContextType {
     showBadgelet: (...rest: any[]) => any,
     showVoucher: (...rest: any[]) => any,
     showPoint: (...rest: any[]) => any,
-    showPointItem: (...rest: any[]) => any,
+    showPointTransfer: (...rest: any[]) => any,
     showNftpasslet: (...rest: any[]) => any,
     showPresend: (...rest: any[]) => any,
     showBadge: (...rest: any[]) => any
@@ -40,7 +40,7 @@ const DialogsContext  = createContext<DialogsContextType>({
     openDialog: () => {},
     showBadgelet: () => {},
     showVoucher: () => {},
-    showPointItem: () => {},
+    showPointTransfer: () => {},
     showPoint: () => {},
     showPresend: () => {},
     showBadge: () => {},

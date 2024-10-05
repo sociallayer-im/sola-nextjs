@@ -21,7 +21,7 @@ function Home() {
         showNftpasslet,
         showNftpass,
         showPoint,
-        showPointItem,
+        showPointTransfer,
         showGift,
         showGiftItem,
         showVoucher
@@ -66,8 +66,8 @@ function Home() {
         }
 
         async function showPointItemDetail() {
-            const item = await solas.queryPointItemDetail({id: Number(params!.pointItemId)})
-            showPointItem(item)
+            const item = await solas.queryPointTransferDetail({id: Number(params!.pointItemId)})
+            showPointTransfer(item)
         }
 
         async function showGiftDetail() {

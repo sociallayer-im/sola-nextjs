@@ -42,6 +42,8 @@ interface ErrorMsg {
 
 const timeStep = 5
 
+const banedChain = ['stripe']
+
 function Ticket({creator, ...props}: {
     ticket: Partial<Ticket>,
     creator: Group | Profile,
@@ -342,7 +344,7 @@ function Ticket({creator, ...props}: {
                                         value={[payments[index].chain] as any}
                                         clearable={false}
                                         searchable={false}
-                                        options={paymentTokenList}
+                                        options={paymentTokenList.filter((chain) => !banedChain.includes(chain.id))}
                                         onChange={(params) => {
                                             const targetToken = (params.option as any).tokenList.find((t: PaymentSettingToken) => {
                                                 const currPaymentToken = props.ticket.payment_methods?.map((method) => method.token_address) || []

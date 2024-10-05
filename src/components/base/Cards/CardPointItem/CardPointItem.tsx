@@ -1,5 +1,5 @@
 import {useStyletron} from 'baseui'
-import {checkIsManager, getProfile, Group, PointItem} from '../../../../service/solas'
+import {checkIsManager, getProfile, Group, PointTransfer} from '../../../../service/solas'
 import DialogsContext from '../../../provider/DialogProvider/DialogsContext'
 import {useContext, useEffect, useState} from 'react'
 import UserContext from '../../../provider/UserProvider/UserContext'
@@ -83,12 +83,12 @@ const style = {
 }
 
 export interface CardBadgeletProps {
-    pointitem: PointItem
+    pointitem: PointTransfer
 }
 
 function CardPointItem(props: CardBadgeletProps) {
     const [css] = useStyletron()
-    const {showPointItem} = useContext(DialogsContext)
+    const {showPointTransfer} = useContext(DialogsContext)
     const {user} = useContext(UserContext)
     const [isGroupManager, setIsGroupManager] = useState(false)
 
@@ -112,7 +112,7 @@ function CardPointItem(props: CardBadgeletProps) {
         checkManager()
     }, [user.id])
 
-    return (<div className={css(style.wrapper)} onClick={() => {showPointItem(props.pointitem)}}>
+    return (<div className={css(style.wrapper)} onClick={() => {showPointTransfer(props.pointitem)}}>
         <div className={css(style.coverBg)}>
             <img className={css(style.img)} src={props.pointitem.point.image_url} alt=""/>
         </div>

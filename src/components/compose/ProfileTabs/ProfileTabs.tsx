@@ -67,6 +67,11 @@ function ComponentName({profile}: {profile: Profile}) {
                 setSelectedTab(activeKey as any);
                 window.history.replaceState(null, '', `/profile/${profile!.username}?tab=${activeKey}`)
             }}>
+
+            <Tab title={lang['Profile_Tab_Groups']}>
+                <UserGroup profile={profile}/>
+            </Tab>
+
             <Tab title={lang['Profile_Tab_Received']}>
                 <AppSubTabs
                     renderAll
@@ -105,10 +110,6 @@ function ComponentName({profile}: {profile: Profile}) {
                     </Tab>
                     : <></>
             }
-
-            <Tab title={lang['Profile_Tab_Groups']}>
-                <UserGroup profile={profile}/>
-            </Tab>
 
             <Tab title={lang['Profile_Tab_Asset']}>
                 <AppSubTabs
