@@ -1455,6 +1455,7 @@ function CreateEvent(props: CreateEventPageProps) {
                         {
                             enableTicket && creator &&
                             <TicketSetting
+                                tracks={[]}
                                 ref={ticketSettingRef}
                                 creator={creator}
                                 value={tickets}

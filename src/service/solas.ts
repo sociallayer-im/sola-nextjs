@@ -5324,6 +5324,7 @@ export async function setEventStatus(props: {
 }
 
 export interface Ticket {
+    tracks_allowed: null | number[],
     id: number,
     check_badge_class_id: number | null
     content: string,
@@ -5367,6 +5368,7 @@ export async function queryTickets (props: {
 
     const doc = gql`query MyQuery {
       tickets(where: {${variables}}, order_by: {id: asc}) {
+        tracks_allowed
         payment_methods {
             id
             item_type
@@ -6251,7 +6253,8 @@ export async function queryTicketItems (props: {event_id?: number, participant_i
            ticket {
                 title
                 content
-                ticket_type
+                ticket_type,
+                tracks_allowed
             }
             coupon_id
             sender_address

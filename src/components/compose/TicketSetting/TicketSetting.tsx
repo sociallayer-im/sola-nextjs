@@ -13,7 +13,7 @@ import {
     Profile,
     queryBadge,
     queryBadgeDetail,
-    Ticket
+    Ticket, Track
 } from "@/service/solas";
 import DialogIssuePrefill from "@/components/eventSpecial/DialogIssuePrefill/DialogIssuePrefill";
 import {OpenDialogProps} from "@/components/provider/DialogProvider/DialogProvider";
@@ -23,6 +23,7 @@ import {PaymentSettingChain, PaymentSettingToken, paymentTokenList} from '@/paym
 import {formatUnits, parseUnits} from "viem/utils";
 import {Datepicker} from "baseui/datepicker";
 import {TimePicker} from 'baseui/timepicker';
+import TrackSelect from "@/components/base/TrackSelect/TrackSelect"
 
 const emptyTicket: Partial<Ticket> = {
     title: '',
@@ -30,7 +31,8 @@ const emptyTicket: Partial<Ticket> = {
     check_badge_class_id: null,
     quantity: null,
     end_time: null,
-    payment_methods: []
+    payment_methods: [],
+    tracks_allowed: []
 }
 
 interface ErrorMsg {
@@ -47,6 +49,7 @@ const banedChain = ['stripe']
 function Ticket({creator, ...props}: {
     ticket: Partial<Ticket>,
     creator: Group | Profile,
+    tracks:Track[]
     index?: number,
     errorMsg?: ErrorMsg[]
     onChange?: (ticket: Partial<Ticket>) => any
@@ -265,6 +268,14 @@ function Ticket({creator, ...props}: {
                       })
                   }}
                   placeholder={lang['Ticket_Description']}/>
+
+        <div className={styles['item-title']}>Event Track</div>
+        <TrackSelect tracks={props.tracks} value={props.ticket.tracks_allowed || []} multi={true} onChange={trackIds => {
+            props.onChange && props.onChange({
+                ...props.ticket,
+                tracks_allowed: trackIds,
+            })
+        }}/>
 
         <div className={styles['item-title-inline']}>
             <div className={styles['label']}> {lang['Price']}</div>
@@ -603,6 +614,7 @@ function Ticket({creator, ...props}: {
 }
 
 function TicketSetting(props: {
+    tracks:Track[]
     creator: Group | Profile,
     onChange?: (tickets: Partial<Ticket>[]) => any,
     value: Partial<Ticket>[]
@@ -666,6 +678,7 @@ function TicketSetting(props: {
                 return <Ticket
                     creator={props.creator}
                     ticket={ticket}
+                    tracks={props.tracks}
                     key={index}
                     index={index}
                     errorMsg={errorMsg}

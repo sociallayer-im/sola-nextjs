@@ -26,7 +26,7 @@ export default function TrackSelect(props: {value: number[], multi: boolean, tra
                 return <div key={item.id!}
                             onClick={e => handleClick(item.id!)}
                             className={`${styles['item']} ${props.value?.includes(item.id!) ? styles['active'] : ''}`}>
-                    { item.tag}
+                    { item.tag || item.title}
                 </div>
             })
         }

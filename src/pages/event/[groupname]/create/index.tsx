@@ -58,6 +58,7 @@ import * as dayjsLib from "dayjs";
 import TriangleDown from 'baseui/icon/triangle-down'
 import TriangleUp from 'baseui/icon/triangle-up'
 import TicketSetting from "@/components/compose/TicketSetting/TicketSetting";
+import TrackSelect from "@/components/base/TrackSelect/TrackSelect";
 
 const utc = require('dayjs/plugin/utc')
 const timezone = require('dayjs/plugin/timezone')
@@ -1543,6 +1544,7 @@ function EditEvent({
                                     ref={ticketSettingRef}
                                     creator={creator}
                                     value={tickets}
+                                    tracks={tracks}
                                     onChange={
                                         (tickets) => {
                                             console.log('setTicket', tickets)
