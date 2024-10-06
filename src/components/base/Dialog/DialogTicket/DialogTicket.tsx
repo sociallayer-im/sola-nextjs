@@ -206,7 +206,7 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
             return
         }
 
-        if (new Date(verify.expiry_time).getTime() < new Date().getTime()) {
+        if (new Date(verify.expires_at).getTime() < new Date().getTime()) {
             setCouponError('Promo code has expired')
             setValidCoupon(null)
             unload()
