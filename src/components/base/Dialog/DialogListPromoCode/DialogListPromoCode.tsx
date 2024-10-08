@@ -61,7 +61,7 @@ export default function DialogListPromoCode(props: {
                         }}>
                             <div>
                                 <div
-                                    className={styles['info']}>{discount}, {dayjs(p.expiry_time).format('MMM DD, YYYY')}</div>
+                                    className={styles['info']}>{discount}, {dayjs(p.expires_at).format('MMM DD, YYYY')}</div>
                                 <div className={styles['memo']}>{p.label}</div>
                             </div>
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"

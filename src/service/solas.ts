@@ -6189,7 +6189,7 @@ export interface Coupon {
     discount: number,
     applicable_ticket_ids: number[] | null,
     ticket_item_ids: number[] | null,
-    expiry_time: string,
+    expires_at: string,
     max_allowed_usages: number
     order_usage_count: number
     _destroy?: string
@@ -6213,7 +6213,7 @@ export async function queryCoupons (props: {event_id: number}) {
             discount
             applicable_ticket_ids
             ticket_item_ids
-            expiry_time
+            expires_at
             max_allowed_usages
             order_usage_count
             }

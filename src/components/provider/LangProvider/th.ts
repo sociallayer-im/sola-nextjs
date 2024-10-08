@@ -213,7 +213,7 @@ let langTHData: Partial<LangConfig> = {
     Activity_Commended: 'แนะนำ',
     Activity_Popular: 'ยอดนิยม',
     Activity_Past: 'งานที่ผ่านมา',
-    Activity_Coming: 'กำลังจะม',
+    Activity_Coming: 'กำลังจะมา',
     Activity_Greeting_Morning: 'สวัสดีตอนเช้า',
     Activity_Greeting_Afternoon: 'สวัสดีตอนบ่าย',
     Activity_Greeting_Evening: 'สวัสดีตอนเย็น',

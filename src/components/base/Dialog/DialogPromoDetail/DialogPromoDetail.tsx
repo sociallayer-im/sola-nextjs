@@ -48,7 +48,7 @@ export default function DialogPromoDetail(props: {
                     <div className={styles['show-detail']}>
                         <div className={styles['title']}>{lang['You_Have_Generated_Code']([discountType])}</div>
                         <div className={styles['des']}>{lang['Please_Sending_Until']}<span
-                            style={{fontWeight: '600'}}>{dayjs(props.coupon.expiry_time).format('MMM DD, YYYY')}</span>
+                            style={{fontWeight: '600'}}>{dayjs(props.coupon.expires_at).format('MMM DD, YYYY')}</span>
                         </div>
                         <div className={styles['des']}>{lang['Remaining_Uses']} <span
                             style={{fontWeight: '600'}}>{props.coupon.max_allowed_usages - props.coupon.order_usage_count}</span>
