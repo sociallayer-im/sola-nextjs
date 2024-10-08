@@ -66,7 +66,6 @@ function ListEventVertical({eventGroup, ...props}: { initData?: Event[], patch?:
             ...getTimeProps(),
             page: page,
             search: search,
-            // end_time_lte: new Date().toISOString(),
             event_order: 'desc',
             group_id: eventGroup?.id || undefined,
             tag: tagRef.current || undefined,
