@@ -4,7 +4,7 @@ import {usePathname, useRouter} from 'next/navigation'
 import LangContext from '@/components/provider/LangProvider/LangContext'
 import HomeUserPanel from "@/components/base/HomeUserPanel/HomeUserPanel";
 import {Badge, Event, getGroupMembership, getGroups, Group, Membership, queryBadge, queryEvent} from "@/service/solas";
-import ListEventVertical from "@/components/compose/ListEventVertical/ListEventVertical";
+import ListEventVertical from "@/components/compose/ListEventVerticalNew/ListEventVertical";
 import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
 import EventHomeContext from "@/components/provider/EventHomeProvider/EventHomeContext";
 import MaodaoListEventVertical from "@/components/maodao/MaodaoListEventVertical/ListEventVertical";
