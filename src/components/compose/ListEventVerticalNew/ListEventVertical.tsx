@@ -62,9 +62,36 @@ function ListEventVertical({eventGroup, ...props}: {isManager?:boolean, initData
         return user.id === eventGroup.creator.id
     }, [eventGroup, user])
 
+    const getTimeProps = () => {
+        if (filter.current === 'today') {
+            return {
+                start_date: dayjs().format('YYYY-MM-DD'),
+                end_date: dayjs().format('YYYY-MM-DD'),
+            }
+        } else if (filter.current === 'week') {
+            return {
+                start_date: dayjs().format('YYYY-MM-DD'),
+                end_date: dayjs().endOf('week').format('YYYY-MM-DD'),
+            }
+        } else if (filter.current === 'month') {
+            return {
+                start_date: dayjs().format('YYYY-MM-DD'),
+                end_date: dayjs().endOf('month').format('YYYY-MM-DD'),
+            }
+        } else {
+            return {
+                start_date: dayjs().format('YYYY-MM-DD'),
+            }
+        }
+    }
+
     const queryPass = async (page: number, page_size: number, venue_ids: number[], search?: string) => {
+        const {start_date, end_date} = getTimeProps()
+
         const searchParams = new URLSearchParams()
         searchParams.set('collection', 'past')
+        !!start_date && searchParams.set('start_date', start_date)
+        !!end_date && searchParams.set('end_date', end_date)
         !!eventGroup?.id && searchParams.set('group_id', eventGroup.id.toString())
         !!eventGroup?.timezone && searchParams.set('timezone', eventGroup.timezone)
         !!user.authToken && searchParams.set('auth_token', user.authToken)
@@ -80,8 +107,12 @@ function ListEventVertical({eventGroup, ...props}: {isManager?:boolean, initData
     }
 
     const queryPrivate = async (page: number, page_size: number, venue_ids: number[], search?: string) => {
+        const {start_date, end_date} = getTimeProps()
         const searchParams = new URLSearchParams()
+
         searchParams.set('private_event', '1')
+        !!start_date && searchParams.set('start_date', start_date)
+        !!end_date && searchParams.set('end_date', end_date)
         !!eventGroup?.id && searchParams.set('group_id', eventGroup.id.toString())
         !!eventGroup?.timezone && searchParams.set('timezone', eventGroup.timezone)
         !!user.authToken && searchParams.set('auth_token', user.authToken)
@@ -97,8 +128,12 @@ function ListEventVertical({eventGroup, ...props}: {isManager?:boolean, initData
     }
 
     const queryComing = async (page: number, page_size: number,venue_ids: number[], search?: string,) => {
+        const {start_date, end_date} = getTimeProps()
+
         const searchParams = new URLSearchParams()
         searchParams.set('collection', 'upcoming')
+        !!start_date && searchParams.set('start_date', start_date)
+        !!end_date && searchParams.set('end_date', end_date)
         !!eventGroup?.id && searchParams.set('group_id', eventGroup.id.toString())
         !!eventGroup?.timezone && searchParams.set('timezone', eventGroup.timezone)
         !!user.authToken && searchParams.set('auth_token', user.authToken)
@@ -111,61 +146,6 @@ function ListEventVertical({eventGroup, ...props}: {isManager?:boolean, initData
         const res = await fetch.get({url})
 
         return  res.data.events as Event[]
-    }
-
-    const getTimeProps = () => {
-        if (tab2IndexRef.current === 'coming') {
-            if (filter.current === 'today') {
-                const end = new Date()
-                end.setHours(23, 59, 59, 999)
-                return {
-                    start_time_from: new Date().toISOString(),
-                    start_time_to: end.toISOString(),
-                }
-            } else if (filter.current === 'week') {
-                const end = dayjs().endOf('week').toDate()
-                return {
-                    start_time_from: new Date().toISOString(),
-                    start_time_to: end.toISOString(),
-                }
-            } else if (filter.current === 'month') {
-                const end = dayjs().endOf('month').toDate()
-                return {
-                    start_time_from: new Date().toISOString(),
-                    start_time_to: end.toISOString(),
-                }
-            } else {
-                return {
-                    end_time_gte: new Date().toISOString(),
-                }
-            }
-        } else {
-            if (filter.current === 'today') {
-                const start = new Date()
-                start.setHours(0, 0, 0, 0)
-                return {
-                    end_time_gte: start.toISOString(),
-                    end_time_lte: new Date().toISOString(),
-                }
-            } else if (filter.current === 'week') {
-                const start = dayjs().startOf('week').toDate()
-                return {
-                    end_time_gte: start.toISOString(),
-                    end_time_lte: new Date().toISOString(),
-                }
-
-            } else if (filter.current === 'month') {
-                const start = dayjs().startOf('month').toDate()
-                return {
-                    end_time_gte: start.toISOString(),
-                    end_time_lte: new Date().toISOString(),
-                }
-            } else {
-                return {
-                    end_time_lte: new Date().toISOString(),
-                }
-            }
-        }
     }
 
     function updatePageParam(key: string, value: string) {
