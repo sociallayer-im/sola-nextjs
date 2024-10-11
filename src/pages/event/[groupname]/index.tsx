@@ -115,7 +115,7 @@ function Home(props: { badges: Badge[], initEvent: Group, initList?: Event[], me
                     { !!eventGroup &&
                         <div className={`center ${mode === 'public' ? '' : 'hide'}`}>
                             {!isMaodao || pathname?.includes('event-home') ?
-                                <ListEventVertical initData={props.initList || []} eventGroup={eventGroup as Group}/>
+                                <ListEventVertical isManager={isManager} initData={props.initList || []} eventGroup={eventGroup as Group}/>
                                 : <MaodaoListEventVertical/>
                             }
                         </div>
