@@ -3,7 +3,7 @@ import React, {useContext, useEffect, useMemo, useRef, useState} from 'react'
 import LangContext from "../../provider/LangProvider/LangContext";
 import Empty from "../../base/Empty";
 import CardEvent from "../../base/Cards/CardEventNew/CardEvent";
-import {Event, EventSites, getEventSide, Group, queryEvent} from "@/service/solas";
+import {Event, EventSites, getEventSide, getTracks, Group, queryEvent} from "@/service/solas";
 import EventLabels from "../../base/EventLabels/EventLabels";
 import DialogsContext from "../../provider/DialogProvider/DialogsContext";
 import AppButton from "@/components/base/AppButton/AppButton";
@@ -50,6 +50,7 @@ function ListEventVertical({eventGroup, ...props}: {isManager?:boolean, initData
     const tab2IndexRef = useRef<'coming' | 'past' | 'private'>(tab2Index)
     const filter = useRef<'' | 'coming' | 'past' | 'today' | 'week' | 'month'>('')
     const selectVenueIdRef = useRef(searchParams?.get('venue') ? searchParams!.get('venue')!.split(',').map(v => Number(v)) : [])
+    const trackIdRef = useRef(searchParams?.get('track') ? Number(searchParams?.get('track')) : undefined)
 
     const searchRef = useRef<any>(null)
     const [searchKeyword, setSearchKeyword] = useState('')
@@ -62,7 +63,7 @@ function ListEventVertical({eventGroup, ...props}: {isManager?:boolean, initData
         return user.id === eventGroup.creator.id
     }, [eventGroup, user])
 
-    const queryPass = async (page: number, page_size: number, venue_ids: number[], search?: string) => {
+    const queryPass = async (page: number, page_size: number, venue_ids: number[], search?: string, trackid?:number) => {
         const searchParams = new URLSearchParams()
         searchParams.set('collection', 'past')
         !!eventGroup?.id && searchParams.set('group_id', eventGroup.id.toString())
@@ -71,6 +72,7 @@ function ListEventVertical({eventGroup, ...props}: {isManager?:boolean, initData
         !!search && searchParams.set('search_title', search)
         !!tagRef.current && searchParams.set('tags', tagRef.current)
         !!venue_ids.length && searchParams.set('venue_id', venue_ids[0].toString())
+        !!trackid && searchParams.set('track_id', trackid.toString())
 
         const url = `${process.env.NEXT_PUBLIC_EVENT_LIST_API}/event/list?${searchParams.toString()}`
 
@@ -79,7 +81,7 @@ function ListEventVertical({eventGroup, ...props}: {isManager?:boolean, initData
         return  res.data.events as Event[]
     }
 
-    const queryPrivate = async (page: number, page_size: number, venue_ids: number[], search?: string) => {
+    const queryPrivate = async (page: number, page_size: number, venue_ids: number[], search?: string, trackid?:number) => {
         const searchParams = new URLSearchParams()
         searchParams.set('private_event', '1')
         !!eventGroup?.id && searchParams.set('group_id', eventGroup.id.toString())
@@ -88,6 +90,7 @@ function ListEventVertical({eventGroup, ...props}: {isManager?:boolean, initData
         !!search && searchParams.set('search', search)
         !!tagRef.current && searchParams.set('tag', tagRef.current)
         !!venue_ids.length && searchParams.set('venue_ids', venue_ids[0].toString())
+        !!trackid && searchParams.set('track_id', trackid.toString())
 
         const url = `${process.env.NEXT_PUBLIC_EVENT_LIST_API}/event/list?${searchParams.toString()}`
 
@@ -96,7 +99,7 @@ function ListEventVertical({eventGroup, ...props}: {isManager?:boolean, initData
         return  res.data.events as Event[]
     }
 
-    const queryComing = async (page: number, page_size: number,venue_ids: number[], search?: string,) => {
+    const queryComing = async (page: number, page_size: number,venue_ids: number[], search?: string, trackid?: number) => {
         const searchParams = new URLSearchParams()
         searchParams.set('collection', 'upcoming')
         !!eventGroup?.id && searchParams.set('group_id', eventGroup.id.toString())
@@ -105,6 +108,7 @@ function ListEventVertical({eventGroup, ...props}: {isManager?:boolean, initData
         !!search && searchParams.set('search', search)
         !!tagRef.current && searchParams.set('tag', tagRef.current)
         !!venue_ids.length && searchParams.set('venue_ids', venue_ids[0].toString())
+        !!trackid && searchParams.set('track_id', trackid.toString())
 
         const url = `${process.env.NEXT_PUBLIC_EVENT_LIST_API}/event/list?${searchParams.toString()}`
 
@@ -217,7 +221,8 @@ function ListEventVertical({eventGroup, ...props}: {isManager?:boolean, initData
                     init ? 1 : pageRef.current,
                     init ? pageRef.current * 10 : 10,
                     selectVenueIdRef.current,
-                    search
+                    search,
+                    trackIdRef.current
                 )
 
                 const unique = res.filter((item) => !list.find((i) => i.id === item.id))
@@ -233,7 +238,8 @@ function ListEventVertical({eventGroup, ...props}: {isManager?:boolean, initData
                     init ? 1 : pageRef.current,
                     init ? pageRef.current * 10 : 10,
                     selectVenueIdRef.current,
-                    search
+                    search,
+                    trackIdRef.current
                 )
                 const unique = res.filter((item) => !list.find((i) => i.id === item.id))
                 setList(init ? res : [...list, ...unique])
@@ -244,7 +250,8 @@ function ListEventVertical({eventGroup, ...props}: {isManager?:boolean, initData
                     init ? 1 : pageRef.current,
                     init ? pageRef.current * 10 : 10,
                     selectVenueIdRef.current,
-                    search
+                    search,
+                    trackIdRef.current
                 )
                 const unique = res.filter((item) => !list.find((i) => i.id === item.id))
                 setList(init ? res : [...list, ...unique])
@@ -347,26 +354,33 @@ function ListEventVertical({eventGroup, ...props}: {isManager?:boolean, initData
 
     const [filtered, setFiltered] = useState(filter.current || selectVenueIdRef.current.length > 0)
 
-    const handleOpenEventFilter = () => {
+    const handleOpenEventFilter = async () => {
+        const unload = showLoading()
+        const tracks = await getTracks({groupId: eventGroup.id})
+        unload()
         openDialog({
             content: (close: any) => {
                 return <EventFilter
                     close={close}
+                    tracks={tracks}
                     time={filter.current}
                     venues={venues}
                     onConfirm={(res) => {
                         selectVenueIdRef.current = res.venueIds
                         filter.current = res.time
+                        trackIdRef.current = res.trackId
                         const patch = updatePageParams([
                             {key: 'filter', value: res.time},
-                            {key: 'venue', value: res.venueIds.join(',')}
+                            {key: 'venue', value: res.venueIds.join(',')},
+                            {key: 'track', value: res.trackId ? res.trackId + '' : ''}
                         ])
-                        setFiltered(res.time || res.venueIds.length > 0)
+                        setFiltered(res.time || res.venueIds.length > 0 || !!res.trackId)
                         history.replaceState(null, '', patch)
                         setTimeout(() => {
                             changeTab(tab2Index, true);
                         },100)
                     }}
+                    currTrackId={trackIdRef.current}
                     currVenueIds={selectVenueIdRef.current}/>
             },
             size: ['370px', 'auto'],
