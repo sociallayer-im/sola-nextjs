@@ -65,6 +65,7 @@ function ListEventVertical({eventGroup, ...props}: {isManager?:boolean, initData
 
     const queryPass = async (page: number, page_size: number, venue_ids: number[], search?: string, trackid?:number) => {
         const searchParams = new URLSearchParams()
+        const {start_date, end_date} = getTimeProps()
         searchParams.set('collection', 'past')
         !!start_date && searchParams.set('start_date', start_date)
         !!end_date && searchParams.set('end_date', end_date)
@@ -85,7 +86,7 @@ function ListEventVertical({eventGroup, ...props}: {isManager?:boolean, initData
 
     const queryPrivate = async (page: number, page_size: number, venue_ids: number[], search?: string, trackid?:number) => {
         const searchParams = new URLSearchParams()
-
+        const {start_date, end_date} = getTimeProps()
         searchParams.set('private_event', '1')
         !!start_date && searchParams.set('start_date', start_date)
         !!end_date && searchParams.set('end_date', end_date)
@@ -106,6 +107,8 @@ function ListEventVertical({eventGroup, ...props}: {isManager?:boolean, initData
 
     const queryComing = async (page: number, page_size: number,venue_ids: number[], search?: string, trackid?: number) => {
         const searchParams = new URLSearchParams()
+        const {start_date, end_date} = getTimeProps()
+
         searchParams.set('collection', 'upcoming')
         !!start_date && searchParams.set('start_date', start_date)
         !!end_date && searchParams.set('end_date', end_date)
