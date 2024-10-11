@@ -73,7 +73,7 @@ function HomeUserPanel({showSchedule=true, ...props}: {
 
     const toCalendar = () => {
         const referer = location.origin
-        let url = `${process.env.NEXT_PUBLIC_SCHEDULE_URL}/iframe/schedule/week/${eventGroup?.username}?referer=${referer}`
+        let url = `${process.env.NEXT_PUBLIC_SCHEDULE_URL}/schedule/week/${eventGroup?.username}?referer=${referer}`
         if (user.id) {
             url+= `&profile=${user.id}`
         }
