@@ -80,17 +80,20 @@ function ListEventVertical({eventGroup, ...props}: { initData?: Event[], patch?:
     }
 
     const queryPrivate = async (page: number, page_size: number, venue_ids: number[], search?: string) => {
-        return await queryEvent({
-            page: page,
-            search: search,
-            // end_time_lte: new Date().toISOString(),
-            event_order: 'desc',
-            group_id: eventGroup?.id || undefined,
-            tag: tagRef.current || undefined,
-            only_private: true,
-            venue_ids: venue_ids,
-            page_size
-        })
+        const searchParams = new URLSearchParams()
+        searchParams.set('private_event', '1')
+        !!eventGroup?.id && searchParams.set('group_id', eventGroup.id.toString())
+        !!eventGroup?.timezone && searchParams.set('timezone', eventGroup.timezone)
+        !!user.authToken && searchParams.set('auth_token', user.authToken)
+        !!search && searchParams.set('search', search)
+        !!tagRef.current && searchParams.set('tag', tagRef.current)
+        !!venue_ids.length && searchParams.set('venue_ids', venue_ids[0].toString())
+
+        const url = `https://api.sola.day/event/list?${searchParams.toString()}`
+
+        const res = await fetch.get({url})
+
+        return  res.data.events as Event[]
     }
 
     const queryComing = async (page: number, page_size: number,venue_ids: number[], search?: string,) => {
@@ -504,7 +507,7 @@ function ListEventVertical({eventGroup, ...props}: { initData?: Event[], patch?:
                     </div>
                 }
 
-                {!loadAll &&
+                {!loadAll && false &&
                     <AppButton
                         disabled={loading}
                         onClick={e => {
