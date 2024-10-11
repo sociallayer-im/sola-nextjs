@@ -94,7 +94,7 @@ function ListEventVertical({eventGroup, ...props}: {isManager?:boolean, initData
         !!eventGroup?.timezone && searchParams.set('timezone', eventGroup.timezone)
         !!user.authToken && searchParams.set('auth_token', user.authToken)
         !!search && searchParams.set('search', search)
-        !!tagRef.current && searchParams.set('tag', tagRef.current)
+        !!tagRef.current && searchParams.set('tags', tagRef.current)
         !!venue_ids.length && searchParams.set('venue_ids', venue_ids[0].toString())
         !!trackid && searchParams.set('track_id', trackid.toString())
 
@@ -116,7 +116,7 @@ function ListEventVertical({eventGroup, ...props}: {isManager?:boolean, initData
         !!eventGroup?.timezone && searchParams.set('timezone', eventGroup.timezone)
         !!user.authToken && searchParams.set('auth_token', user.authToken)
         !!search && searchParams.set('search', search)
-        !!tagRef.current && searchParams.set('tag', tagRef.current)
+        !!tagRef.current && searchParams.set('tags', tagRef.current)
         !!venue_ids.length && searchParams.set('venue_ids', venue_ids[0].toString())
         !!trackid && searchParams.set('track_id', trackid.toString())
 
@@ -327,6 +327,8 @@ function ListEventVertical({eventGroup, ...props}: {isManager?:boolean, initData
     useEffect(() => {
         if (!user.id && tab2IndexRef.current === 'private') {
             changeTab('coming')
+        } else if (!!user.id) {
+            changeTab(tab2IndexRef.current)
         }
     }, [user.id]);
 
