@@ -62,29 +62,6 @@ function ListEventVertical({eventGroup, ...props}: {isManager?:boolean, initData
         return user.id === eventGroup.creator.id
     }, [eventGroup, user])
 
-    const getTimeProps = () => {
-        if (filter.current === 'today') {
-            return {
-                start_date: dayjs().format('YYYY-MM-DD'),
-                end_date: dayjs().format('YYYY-MM-DD'),
-            }
-        } else if (filter.current === 'week') {
-            return {
-                start_date: dayjs().format('YYYY-MM-DD'),
-                end_date: dayjs().endOf('week').format('YYYY-MM-DD'),
-            }
-        } else if (filter.current === 'month') {
-            return {
-                start_date: dayjs().format('YYYY-MM-DD'),
-                end_date: dayjs().endOf('month').format('YYYY-MM-DD'),
-            }
-        } else {
-            return {
-                start_date: dayjs().format('YYYY-MM-DD'),
-            }
-        }
-    }
-
     const queryPass = async (page: number, page_size: number, venue_ids: number[], search?: string) => {
         const {start_date, end_date} = getTimeProps()
 
@@ -146,6 +123,29 @@ function ListEventVertical({eventGroup, ...props}: {isManager?:boolean, initData
         const res = await fetch.get({url})
 
         return  res.data.events as Event[]
+    }
+
+    const getTimeProps = () => {
+        if (filter.current === 'today') {
+            return {
+                start_date: dayjs().format('YYYY-MM-DD'),
+                end_date: dayjs().format('YYYY-MM-DD'),
+            }
+        } else if (filter.current === 'week') {
+            return {
+                start_date: dayjs().format('YYYY-MM-DD'),
+                end_date: dayjs().endOf('week').format('YYYY-MM-DD'),
+            }
+        } else if (filter.current === 'month') {
+            return {
+                start_date: dayjs().format('YYYY-MM-DD'),
+                end_date: dayjs().endOf('month').format('YYYY-MM-DD'),
+            }
+        } else {
+            return {
+                start_date: dayjs().format('YYYY-MM-DD'),
+            }
+        }
     }
 
     function updatePageParam(key: string, value: string) {
