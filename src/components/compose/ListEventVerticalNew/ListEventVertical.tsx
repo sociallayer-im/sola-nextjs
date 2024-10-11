@@ -72,7 +72,7 @@ function ListEventVertical({eventGroup, ...props}: { initData?: Event[], patch?:
         !!tagRef.current && searchParams.set('tags', tagRef.current)
         !!venue_ids.length && searchParams.set('venue_id', venue_ids[0].toString())
 
-        const url = `https://api.sola.day/event/list?${searchParams.toString()}`
+        const url = `${process.env.NEXT_PUBLIC_EVENT_LIST_API}/event/list?${searchParams.toString()}`
 
         const res = await fetch.get({url})
 
@@ -89,7 +89,7 @@ function ListEventVertical({eventGroup, ...props}: { initData?: Event[], patch?:
         !!tagRef.current && searchParams.set('tag', tagRef.current)
         !!venue_ids.length && searchParams.set('venue_ids', venue_ids[0].toString())
 
-        const url = `https://api.sola.day/event/list?${searchParams.toString()}`
+        const url = `${process.env.NEXT_PUBLIC_EVENT_LIST_API}/event/list?${searchParams.toString()}`
 
         const res = await fetch.get({url})
 
@@ -106,7 +106,7 @@ function ListEventVertical({eventGroup, ...props}: { initData?: Event[], patch?:
         !!tagRef.current && searchParams.set('tag', tagRef.current)
         !!venue_ids.length && searchParams.set('venue_ids', venue_ids[0].toString())
 
-        const url = `https://api.sola.day/event/list?${searchParams.toString()}`
+        const url = `${process.env.NEXT_PUBLIC_EVENT_LIST_API}/event/list?${searchParams.toString()}`
 
         const res = await fetch.get({url})
 
