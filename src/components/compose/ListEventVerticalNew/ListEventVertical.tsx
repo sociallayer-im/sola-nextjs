@@ -22,7 +22,7 @@ import {PageBackContext} from "@/components/provider/PageBackProvider";
 const dayjs: any = dayjsLib
 let scrollInterval: any = null
 
-function ListEventVertical({eventGroup, ...props}: { initData?: Event[], patch?: string, eventGroup: Group }) {
+function ListEventVertical({eventGroup, ...props}: {isManager?:boolean, initData?: Event[], patch?: string, eventGroup: Group }) {
     const router = useRouter()
     const searchParams = useSearchParams()
     const params = useParams()
@@ -413,7 +413,7 @@ function ListEventVertical({eventGroup, ...props}: { initData?: Event[], patch?:
                         {lang['Activity_Past']}
                     </Link>
                     {
-                        isGroupOwner &&
+                        (isGroupOwner || props.isManager) &&
                         <Link href={props.patch ?
                             `${props.patch}?tab=private`
                             : params?.groupname ?
