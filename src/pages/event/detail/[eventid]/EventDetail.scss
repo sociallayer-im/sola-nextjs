@@ -482,11 +482,20 @@
 }
 
 .switch-preview-map {
-  width: calc(100% - 46px);
-  margin-left: 46px;
   margin-bottom: 6px;
   color: #7492EF !important;
   cursor: pointer;
+}
+
+.map-action {
+  margin-left: 46px;
+  display: flex;
+  flex-flow: nowrap;
+  flex-flow: row nowrap;
+
+  >div {
+    margin-right: 12px;
+  }
 }
 
 .venue-link {

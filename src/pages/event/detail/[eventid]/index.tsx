@@ -59,6 +59,7 @@ import Empty from "@/components/base/Empty";
 import useEvent, {EVENT} from "@/hooks/globalEvent";
 import useZuAuth from "@/service/zupass/useZuAuth";
 import {isHideLocation} from "@/global_config";
+import copy from "@/utils/copy";
 
 const utc = require('dayjs/plugin/utc')
 const timezone = require('dayjs/plugin/timezone')
@@ -492,8 +493,15 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
         })
     }
 
-    const genGoogleMapUrl = (id: number) => {
-        return `/event/${eventGroup?.username}/map/?target_event=${id}`
+    const genGoogleMapUrl = () => {
+        // if (marker.formatted_address && marker.location !== 'Custom location') {
+        //     const json = JSON.parse(marker.formatted_address)
+        //     return `https://www.google.com/maps/search/?api=1&query=${json.name.split('').join('+')}`
+        // } else {
+        //     return `https://www.google.com/maps/search/?api=1&query=${marker.geo_lat}%2C${marker.geo_lng}`
+        // }
+
+        return `https://www.google.com/maps/search/?api=1&query=${event!.geo_lat}%2C${event!.geo_lng}`
     }
 
     const handlePublish = (e: any) => {
@@ -751,7 +759,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                             {
                                                 (isJoined || isManager || isOperator || isGroupOwner || isHoster || isMember || isTrackManager || !isHideLocation(event.group_id)) ? <>
                                                         {event.formatted_address ?
-                                                            <a href={genGoogleMapUrl(event.id)}
+                                                            <a href={genGoogleMapUrl()}
                                                                target={'_blank'}>
                                                                 <div className={'main'}>{event.location}</div>
                                                                 <div className={'sub'}>{event.formatted_address}</div>
@@ -772,14 +780,22 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
 
                                         {MapReady && (isJoined || isManager || isOperator || isGroupOwner || isHoster || isMember || isTrackManager || !isHideLocation(event.group_id)) &&
                                             <>
-                                                <div className={'switch-preview-map'}
-                                                     onClick={() => {
-                                                         setShowMap(!showMap)
-                                                     }
-                                                     }
-                                                >{showMap ? 'Hide Map' : 'Show Map'}</div>
+                                                <div className="map-action">
+                                                    <div className={'switch-preview-map'}
+                                                         onClick={() => {
+                                                             setShowMap(!showMap)
+                                                         }
+                                                         }
+                                                    >{showMap ? 'Hide Map' : 'Show Map'}</div>
+                                                    <div className={'switch-preview-map'}
+                                                         onClick={()=> {
+                                                             copy(event.formatted_address)
+                                                             showToast('Copied')
+                                                         }}
+                                                    >Copy Address</div>
+                                                </div>
                                                 {showMap &&
-                                                    <Link href={genGoogleMapUrl(event.id)}
+                                                    <Link href={genGoogleMapUrl()}
                                                           target={'_blank'}
                                                           className={`map-preview`}>
                                                         <img

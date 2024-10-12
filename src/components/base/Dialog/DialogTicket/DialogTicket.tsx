@@ -293,21 +293,20 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
             }
         </div>
 
-        <div className={styles['dialog-event']}>
-            {
-                props.event.cover_url ?
-                    <img className={styles['cover']} src={props.event.cover_url} alt=""/>
-                    : <EventDefaultCover width={53} height={74} event={props.event}/>
-
-            }
-            <div className={styles['info']}>
-                <div className={styles['title']}>{props.event.title}</div>
-                <div className={styles['time']}>{formatTime(props.event.start_time!)}</div>
-                <div className={styles['location']}>{props.event.location}</div>
-            </div>
-        </div>
-
         <div className={styles['scroll']}>
+            <div className={styles['dialog-event']}>
+                {
+                    props.event.cover_url ?
+                        <img className={styles['cover']} src={props.event.cover_url} alt=""/>
+                        : <EventDefaultCover width={53} height={74} event={props.event}/>
+
+                }
+                <div className={styles['info']}>
+                    <div className={styles['title']}>{props.event.title}</div>
+                    <div className={styles['time']}>{formatTime(props.event.start_time!)}</div>
+                    <div className={styles['location']}>{props.event.location}</div>
+                </div>
+            </div>
             <div className={styles['type-name-title']}>{lang['Ticket_Type']}</div>
             <div className={styles['type-name']}>{props.ticket.title}</div>
 
@@ -473,7 +472,8 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
                     </div>
 
                     {currPaymentMethod?.chain !== 'stripe' &&
-                        <div style={{color: '#7B7C7B', marginBottom: '12px'}}>{lang['Payments_Will_Be_Sent_To']} <span style={{color: '#272928'}}>
+                        <div style={{color: '#7B7C7B', marginBottom: '12px'}}>{lang['Payments_Will_Be_Sent_To']} <span
+                            style={{color: '#272928'}}>
                         {shotAddress(currPaymentMethod?.receiver_address || '')}
                     </span>
                         </div>
@@ -483,11 +483,13 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
 
             {!!props.ticket.payment_methods.length && !soldOut && !stopSales &&
                 <div className={styles['promo']}>
-                    <div className={styles['promo-title']} onClick={e => {setShowCouponInput(true)}}>
+                    <div className={styles['promo-title']} onClick={e => {
+                        setShowCouponInput(true)
+                    }}>
                         {lang['Promo_Code']}
-                        { !showCouponInput ? <TriangleDown size={18}/> :  null}
+                        {!showCouponInput ? <TriangleDown size={18}/> : null}
                     </div>
-                    { showCouponInput &&
+                    {showCouponInput &&
                         <>
                             <div className={styles['promo-input']}>
                                 <AppInput value={coupon}

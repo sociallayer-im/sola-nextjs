@@ -953,7 +953,7 @@ function EventCard({
                  onClick={e => {
                      e.stopPropagation()
                      e.preventDefault()
-                     location.href = `/event/${group?.username}/map?target_event=${event.id}`
+                     location.href = `https://www.google.com/maps/search/?api=1&query=${event.geo_lat}%2C${event.geo_lng}`
                  }}>
                 <i className={`${styles['icon']} icon-Outline`}/>
                 <div className={styles['location-text']}>{event.location}</div>
