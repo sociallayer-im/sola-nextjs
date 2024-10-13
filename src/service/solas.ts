@@ -3734,7 +3734,16 @@ export async function queryMyEvent({page = 1, page_size = 10, ...props}: QueryMy
     }`
 
     const resp: any = await request(graphUrl, doc)
-    return resp.participants as Participants[]
+    return resp.participants.map((e: any) => {
+        return {
+            ...e,
+            event: {
+                ...e.event,
+                start_time: e.event.start_time && !e.event.start_time.endsWith('Z') ? e.event.start_time + 'Z' : e.event.start_time,
+                end_time: e.event.end_time && !e.event.end_time.endsWith('Z') ? e.event.end_time + 'Z' : e.event.end_time,
+            }
+        }
+    }) as Participants[]
 }
 
 export interface CancelEventProps {
