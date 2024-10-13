@@ -24,6 +24,7 @@ import Timezone from "@/utils/timezone";
 import {Select} from "baseui/select";
 import DialogTrack from "@/components/base/Dialog/DialogTracks/DialogTracks"
 import DialogEventSiteInput from "@/components/base/Dialog/DialogEventSiteInput/DialogEventSiteInput";
+import {usePathname, useRouter, useSearchParams} from "next/navigation";
 
 function Dashboard() {
     const params = useParams()
@@ -43,6 +44,7 @@ function Dashboard() {
     const [eventGroup, setEventGroup] = useState<Group | null>(null)
     const [isManager, setIsManager] = useState<boolean>(false)
 
+    const [permissionCanView, setPermissionCanView] = useState<'everyone' | 'member'>('everyone')
     const [permissionCanJoin, setPermissionCanJoin] = useState<'everyone' | 'member'>('everyone')
     const [permissionCanCreate, setPermissionCanCreate] = useState<'everyone' | 'member' | 'manager'>('everyone')
     const [showPermission, setShowPermission] = useState(false)
@@ -62,6 +64,7 @@ function Dashboard() {
     const [tracks, setTracks] = useState<Track[]>([])
 
     const [ready, setReady] = useState(false)
+    const router = useRouter()
 
     const switchOverflow = (hidden: boolean) => {
         if (hidden) {
@@ -123,6 +126,7 @@ function Dashboard() {
             getGroupTrack(eventGroup.id)
             setBanner(eventGroup.banner_image_url || '')
             setBannerUrl(eventGroup.banner_link_url || '')
+            setPermissionCanView((eventGroup as Group)!.can_view_event as any || 'everyone')
             setPermissionCanJoin((eventGroup as Group)!.can_join_event as any || 'everyone')
             setPermissionCanCreate((eventGroup as Group)!.can_publish_event as any || 'everyone')
             setTimezone(eventGroup.timezone || null)
@@ -235,13 +239,16 @@ function Dashboard() {
             ...eventGroup,
             auth_token: user.authToken || '',
             id: eventGroup?.id || 1516,
-            can_publish_event: permissionCanCreate ,
+            can_publish_event: permissionCanCreate,
             can_join_event: permissionCanJoin,
+            can_view_event: permissionCanView,
         } as any)
         const newGroup = await queryGroupDetail(eventGroup!.id)
         setEventGroup(newGroup)
         unload()
         showToast('Update permission success')
+        router.replace(`/event/${params?.groupname}`)
+
     }
 
     const saveTag = async function () {
@@ -647,6 +654,14 @@ function Dashboard() {
                             </div>
                             <div className={'permission-item'} onClick={e => {setPermissionCanJoin('member')}}>
                                 <AppRadio checked={permissionCanJoin === 'member'} /> Member
+                            </div>
+
+                            <div className={'permission-title'}>View Events</div>
+                            <div className={'permission-item'} onClick={e => {setPermissionCanView('everyone')}}>
+                                <AppRadio checked={permissionCanView === 'everyone'} /> Everyone
+                            </div>
+                            <div className={'permission-item'} onClick={e => {setPermissionCanView('member')}}>
+                                <AppRadio checked={permissionCanView === 'member'} /> Member
                             </div>
                         </div>
                         <div className={'action-bar'}>
