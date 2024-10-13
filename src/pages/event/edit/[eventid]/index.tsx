@@ -34,8 +34,6 @@ export const getServerSideProps: any = async (context: any) => {
                 ]
             )
 
-            console.log('tracks ===>', tracks)
-
             if (!!events[0].host_info) {
                 const info = JSON.parse(events[0].host_info!)
                 if (info.group_host) {

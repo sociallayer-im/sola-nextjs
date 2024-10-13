@@ -466,7 +466,7 @@ const langEN = {
     Permission: 'Permission',
     Event_Today: 'Today',
     Event_Tomorrow: 'Tomorrow',
-    Event_Label_All: 'All',
+    Event_Label_All: 'All Tags',
     UserAction_Bind_Email: 'Bind Email',
     Bind_Email_Title: 'Bind Email',
     Bind_Email_Des: 'Please enter your email address so that you can log in and receive important notifications via email.',

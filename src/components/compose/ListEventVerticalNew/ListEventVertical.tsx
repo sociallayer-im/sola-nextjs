@@ -3,13 +3,12 @@ import React, {useContext, useEffect, useMemo, useRef, useState} from 'react'
 import LangContext from "../../provider/LangProvider/LangContext";
 import Empty from "../../base/Empty";
 import CardEvent from "../../base/Cards/CardEventNew/CardEvent";
-import {Event, EventSites, getEventSide, getTracks, Group, queryEvent} from "@/service/solas";
+import {Event, EventSites, getEventSide, getTracks, Group} from "@/service/solas";
 import EventLabels from "../../base/EventLabels/EventLabels";
 import DialogsContext from "../../provider/DialogProvider/DialogsContext";
 import AppButton from "@/components/base/AppButton/AppButton";
 import Link from "next/link";
 import useEvent, {EVENT} from "@/hooks/globalEvent";
-import {StatefulPopover} from "baseui/popover";
 import AppInput from "@/components/base/AppInput";
 import userContext from "@/components/provider/UserProvider/UserContext";
 import EventFilter from "@/components/base/EventFilter/EventFilter";
@@ -18,11 +17,17 @@ import fetch from "@/utils/fetch";
 
 import * as dayjsLib from "dayjs";
 import {PageBackContext} from "@/components/provider/PageBackProvider";
+import TrackSelect from "@/components/base/TrackSelect/TrackSelect";
 
 const dayjs: any = dayjsLib
 let scrollInterval: any = null
 
-function ListEventVertical({eventGroup, ...props}: {isManager?:boolean, initData?: Event[], patch?: string, eventGroup: Group }) {
+function ListEventVertical({eventGroup, ...props}: {
+    isManager?: boolean,
+    initData?: Event[],
+    patch?: string,
+    eventGroup: Group
+}) {
     const router = useRouter()
     const searchParams = useSearchParams()
     const params = useParams()
@@ -55,6 +60,8 @@ function ListEventVertical({eventGroup, ...props}: {isManager?:boolean, initData
     const searchRef = useRef<any>(null)
     const [searchKeyword, setSearchKeyword] = useState('')
 
+    const [tracks, setTracks] = useState<any[]>([])
+
     const isGroupOwner = useMemo(() => {
         if (!user.id || !eventGroup) {
             return false
@@ -63,7 +70,7 @@ function ListEventVertical({eventGroup, ...props}: {isManager?:boolean, initData
         return user.id === eventGroup.creator.id
     }, [eventGroup, user])
 
-    const queryPass = async (page: number, page_size: number, venue_ids: number[], search?: string, trackid?:number) => {
+    const queryPass = async (page: number, page_size: number, venue_ids: number[], search?: string, trackid?: number) => {
         const searchParams = new URLSearchParams()
         const {start_date, end_date} = getTimeProps()
         searchParams.set('collection', 'past')
@@ -81,10 +88,17 @@ function ListEventVertical({eventGroup, ...props}: {isManager?:boolean, initData
 
         const res = await fetch.get({url})
 
-        return  res.data.events as Event[]
+        setTracks(res.data.group.tracks || [])
+
+        return res.data.events.map((e: any) => {
+            return {
+                ...e,
+                track: e.track_id ? res.data.group.tracks.find((t: any) => t.id === e.track_id) : undefined
+            }
+        }) as Event[]
     }
 
-    const queryPrivate = async (page: number, page_size: number, venue_ids: number[], search?: string, trackid?:number) => {
+    const queryPrivate = async (page: number, page_size: number, venue_ids: number[], search?: string, trackid?: number) => {
         const searchParams = new URLSearchParams()
         const {start_date, end_date} = getTimeProps()
         searchParams.set('private_event', '1')
@@ -102,10 +116,17 @@ function ListEventVertical({eventGroup, ...props}: {isManager?:boolean, initData
 
         const res = await fetch.get({url})
 
-        return  res.data.events as Event[]
+        setTracks(res.data.group.tracks || [])
+
+        return res.data.events.map((e: any) => {
+            return {
+                ...e,
+                track: e.track_id ? res.data.group.tracks.find((t: any) => t.id === e.track_id) : undefined
+            }
+        }) as Event[]
     }
 
-    const queryComing = async (page: number, page_size: number,venue_ids: number[], search?: string, trackid?: number) => {
+    const queryComing = async (page: number, page_size: number, venue_ids: number[], search?: string, trackid?: number) => {
         const searchParams = new URLSearchParams()
         const {start_date, end_date} = getTimeProps()
 
@@ -124,7 +145,14 @@ function ListEventVertical({eventGroup, ...props}: {isManager?:boolean, initData
 
         const res = await fetch.get({url})
 
-        return  res.data.events as Event[]
+        setTracks(res.data.group.tracks || [])
+
+        return res.data.events.map((e: any) => {
+            return {
+                ...e,
+                track: e.track_id ? res.data.group.tracks.find((t: any) => t.id === e.track_id) : undefined
+            }
+        }) as Event[]
     }
 
     const getTimeProps = () => {
@@ -358,7 +386,7 @@ function ListEventVertical({eventGroup, ...props}: {isManager?:boolean, initData
                         history.replaceState(null, '', patch)
                         setTimeout(() => {
                             changeTab(tab2Index, true);
-                        },100)
+                        }, 100)
                     }}
                     currTrackId={trackIdRef.current}
                     currVenueIds={selectVenueIdRef.current}/>
@@ -371,7 +399,7 @@ function ListEventVertical({eventGroup, ...props}: {isManager?:boolean, initData
     const handleShowCalendarLink = () => {
         openDialog({
             content: (close: any) => {
-                return <DialogCalendarLinks  groupname={eventGroup.username} />
+                return <DialogCalendarLinks groupname={eventGroup.username}/>
             },
             size: ['316px', 'auto'],
             position: 'bottom'
@@ -446,7 +474,7 @@ function ListEventVertical({eventGroup, ...props}: {isManager?:boolean, initData
                     </svg>
                     {
                         !!filtered &&
-                        <div className={'dot'} />
+                        <div className={'dot'}/>
                     }
                 </div>
 
@@ -486,6 +514,25 @@ function ListEventVertical({eventGroup, ...props}: {isManager?:boolean, initData
                         value={selectTag}/>
                 </div>
             }
+
+            <div className={'tag-list'}>
+                <TrackSelect tracks={tracks}
+                             showAll={true}
+                             value={trackIdRef.current ? [trackIdRef.current] : []}
+                             multi={false}
+                             onChange={trackIds => {
+                                 trackIdRef.current = trackIds[0]
+                                 const patch = updatePageParams([
+                                     {key: 'track', value: trackIds[0] ? trackIds[0].toString() : ''}
+                                 ])
+                                 setFiltered(!!trackIds[0])
+                                 history.replaceState(null, '', patch)
+                                 setTimeout(() => {
+                                     changeTab(tab2Index, true);
+                                 }, 100)
+                             }}/>
+            </div>
+
 
             <div className={'tab-contains'}>
                 {!listToShow.length && ready ? <Empty/> :

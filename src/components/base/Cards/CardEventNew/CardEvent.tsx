@@ -242,14 +242,22 @@ function CardEventNew({fixed = true, ...props}: CardEventProps) {
                                 </div>
                             })
                         }
+                        {
+                            (eventDetail as any).track
+                                ? <div className={'tag'} title={'Event Track'}>
+                                    <i className={'dot'} style={{background: getLabelColor((eventDetail as any).track.title)}}/>
+                                    {(eventDetail as any).track.tag || (eventDetail as any).track.title}
+                                </div>
+                                : ''
+                        }
                     </div>
 
                     <div className={'host-info'}>
                         <div className={'wrap'}>
                             <div className={'con'}>
                                 {!!hostInfo.length && hostInfo.map((name, index) => {
-                                        return <span className={'tag'} key={index}>{index === 0 ? '': ', '} {name}</span>
-                                    })
+                                    return <span className={'tag'} key={index}>{index === 0 ? '' : ', '} {name}</span>
+                                })
                                 }
                             </div>
                         </div>
