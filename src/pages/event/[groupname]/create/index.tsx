@@ -1639,12 +1639,34 @@ function EditEvent({
                                                         })
                                                     }
                                                     }
-                                                    checked={event.display !== 'normal'}/>
+                                                    checked={event.display === 'private'}/>
                                             </div>
                                         </div>
                                         <div className={styles['input-area-des']}>Select a private event, the event you
                                             created can only be viewed through the link, and users can view the event
                                             in <a href={'/my-event'} target={'_blank'}>My Event</a> page.
+                                        </div>
+                                    </div>
+
+                                    <div className={styles['input-area']} data-testid={'input-event-participants'}>
+                                        <div className={styles['toggle']}>
+                                            <div
+                                                className={styles['item-title']}>{'Public event'}</div>
+
+                                            <div className={styles['item-value']}>
+                                                <Toggle
+                                                    onChange={(e: any) => {
+                                                        setEvent({
+                                                            ...event,
+                                                            display: e.target.checked ? 'public' : 'normal'
+                                                        })
+                                                    }
+                                                    }
+                                                    checked={event.display === 'public'}/>
+                                            </div>
+                                        </div>
+                                        <div className={styles['input-area-des']}>Select a public event, the event you
+                                            created is open to the public even other events are hidden for non-members.
                                         </div>
                                     </div>
                                 </>
