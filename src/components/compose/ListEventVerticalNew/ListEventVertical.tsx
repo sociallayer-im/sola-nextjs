@@ -515,6 +515,7 @@ function ListEventVertical({eventGroup, ...props}: {
                 </div>
             }
 
+            {!!tracks.length &&
             <div className={'tag-list'}>
                 <TrackSelect tracks={tracks}
                              showAll={true}
@@ -532,6 +533,7 @@ function ListEventVertical({eventGroup, ...props}: {
                                  }, 100)
                              }}/>
             </div>
+            }
 
 
             <div className={'tab-contains'}>
