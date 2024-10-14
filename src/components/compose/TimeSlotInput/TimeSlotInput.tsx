@@ -392,11 +392,11 @@ function TimeSlotInput({
                         value={data.from as any}
                         options={genStartOption(slotOptions, data.date)}
                         onChange={({value}) => {
-                            const to = dayjs(strToDate(value[0].id as string)).add(timeStep, 'minute').format('HH:mm')
+                            // const to = dayjs(strToDate(value[0].id as string)).add(timeStep, 'minute').format('HH:mm')
                             setData({
                                 ...data,
                                 from: value as Slot[],
-                                to: [{id: to, label: to}]
+                                // to: [{id: to, label: to}]
                             })
                         }}
                     />
