@@ -46,7 +46,7 @@ const discoverData: any = async (context: any): Promise<{
           }
         }
       }
-      popup_cities(where:{group_tags: {_contains: [":top"]}},offset: 0, limit: 16, order_by: {id: desc}) {
+      popup_cities(where:{group_tags: {_contains: [":top"]}},offset: 0, limit: 100, order_by: {id: desc}) {
             id
             group_tags
             image_url
