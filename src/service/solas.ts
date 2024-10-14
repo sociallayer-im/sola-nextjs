@@ -6523,6 +6523,9 @@ export async function queryScheduleEvent(props: QueryEventProps): Promise<Event[
         operators
         padge_link
         badge_class_id
+        participants {
+            profile_id
+        }
         notes
         geo_lat
         geo_lng
