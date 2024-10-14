@@ -145,8 +145,8 @@ function AppDateInput({
         setFrom(newDate)
 
 
-        const new_to = dayjs(newDate.getTime()).add(timeStep, 'minute').toDate()
-        setTo(new_to)
+        // const new_to = dayjs(newDate.getTime()).add(timeStep, 'minute').toDate()
+        // setTo(new_to)
     }
 
     function changeToDate(date: Date) {
