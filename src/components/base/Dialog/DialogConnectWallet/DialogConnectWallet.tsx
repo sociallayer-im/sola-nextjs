@@ -148,10 +148,7 @@ function DialogConnectWallet(props: DialogConnectWalletProps) {
                            key={connector.id}
                            onClick={() => handleConnectWallet(connector)}>
                         <img src={walletIcon[connector.name.toLowerCase()] || `/images/injected.png`} alt={connector.name}/>
-                        <div className='connect-name'>{connector.name}</div>
-                        {!connector.ready &&
-                            <div className={'spinner'}><Spinner size={20}/></div>
-                        }
+                        <div className='connect-name'>{connector.name === 'Injected' ? 'Browser wallet' : connector.name}</div>
                     </div>
             ))}
             {process.env.NEXT_PUBLIC_SPECIAL_VERSION !== 'maodao' &&
