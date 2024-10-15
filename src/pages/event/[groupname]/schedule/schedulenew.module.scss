@@ -30,6 +30,13 @@
   padding-right: 12px;
 }
 
+.label-item-venue {
+  max-width: 100px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .schedule-page {
   height: 100%;
   width: 100vw;
