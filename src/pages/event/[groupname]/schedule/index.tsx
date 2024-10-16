@@ -191,8 +191,9 @@ function ComponentName(props: { group: Group, eventSite: EventSites[], tracks: T
                 return 1
             }
         }
-        if (typeof window !== 'undefined') {
-            const timezone = props.group.timezone || dayjs.tz.guess()
+
+        if (typeof window !== 'undefined' && !timezoneSelected) {
+            const timezone = props.group.timezone || dayjs.tz.guess() 
             setTimezoneSelected(timezone)
             setData({
                 ...data,
@@ -222,7 +223,6 @@ function ComponentName(props: { group: Group, eventSite: EventSites[], tracks: T
 
         return list
     }, [data.events, data.interval, props.group.timezone])
-
 
     const scrollDebounce = useRef<any>(null)
 
@@ -259,7 +259,7 @@ function ComponentName(props: { group: Group, eventSite: EventSites[], tracks: T
     }
 
     const lastPage = () => {
-        const nextStart = data.end.subtract(data.pageSize, 'day')
+        const nextStart = data.start.subtract(data.pageSize, 'day')
         setData({
             ...data,
             selectedDate: nextStart.format('YYYY-MM-DD')
