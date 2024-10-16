@@ -31,7 +31,7 @@ function EventLabels({showAll=false, ...props}: EventLabelsProps) {
                     if (props.disabled) return
                     props.onChange && props.onChange([])
                 }}
-                className={'event-label-item'}>
+                className={`event-label-item ${!props.disabled && !props.value.length ? 'all-active' : ''}`}>
                 <span>{lang['Event_Label_All']}</span>
             </div>
         }
