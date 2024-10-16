@@ -549,6 +549,14 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
         })
     }
 
+    const tagWithTrack = useMemo(() => {
+        let tag = event?.tags || []
+        if (props.track && props.track.title) {
+            tag = [...tag, props.track.title]
+        }
+        return tag
+    }, [event?.tags, props.track])
+
     return (<>
         <Head>
             <meta property="og:title" content={`${event?.title} | ${props.appName}`}/>
@@ -648,7 +656,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
 
                                 {event.tags && !!event.tags.length &&
                                     <div className={'label'}>
-                                        <EventLabels data={[...event.tags, props.track ? (props.track.tag || props.track.title || '') : '']} value={[...event.tags, props.track ? (props.track.tag || props.track.title || '') : '']} disabled/>
+                                        <EventLabels data={tagWithTrack} value={tagWithTrack} disabled/>
                                     </div>
                                 }
 
