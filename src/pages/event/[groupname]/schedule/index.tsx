@@ -293,7 +293,7 @@ function ComponentName(props: { group: Group, eventSite: EventSites[], tracks: T
                 const {from, end, now, interval} = getCalendarData(timezone, data.pageSize, data.selectedDate)
                 const apiSearchParams = new URLSearchParams()
                 apiSearchParams.set('group_id', eventGroup.id.toString())
-                apiSearchParams.set('limit', '400')
+                apiSearchParams.set('limit', '1000')
                 apiSearchParams.set('timezone', timezone)
                 apiSearchParams.set('start_date', from.format('YYYY-MM-DD'))
                 apiSearchParams.set('end_date', end.format('YYYY-MM-DD'))
