@@ -19,7 +19,7 @@ function EventLabels({showAll=false, ...props}: EventLabelsProps) {
     const {lang} = useContext(LangContext)
 
     if (!props.showRecommend) {
-        list = list.filter(item => item !== 'Recommended')
+        list = list.filter(item => item !== 'Recommended' && item !== ':featured')
     }
 
     const className = props.nowrap ? 'event-label-list nowrap' : 'event-label-list'

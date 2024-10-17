@@ -1,10 +1,11 @@
-import {Group, PopupCity} from "@/service/solas";
+import {Event, Group, PopupCity} from "@/service/solas";
 import {gql, request} from "graphql-request";
 
 const discoverData: any = async (context: any): Promise<{
     props: {
         eventGroups: Group[],
         popupCities: PopupCity[]
+        events: Event[]
     }
 }> => {
     const doc = gql`query MyQuery {
@@ -67,6 +68,22 @@ const discoverData: any = async (context: any): Promise<{
               map_enabled
             }
           }
+          events: events(where:{tags: {_contains: [":featured"]}}, order_by: {id: desc}) {
+            id
+            title
+            timezone
+            tags
+            start_time
+            host_info
+            location
+            cover_url
+            owner {
+            id
+            username
+            nickname
+            image_url
+            }
+          }
     }`
     console.time('discover page fetch data: ')
     const graphUrl = process.env.NEXT_PUBLIC_GRAPH!
@@ -76,6 +93,7 @@ const discoverData: any = async (context: any): Promise<{
         props: {
             eventGroups: res.groups,
             popupCities: res.popup_cities,
+            events: res.events,
         }
     }
 }

@@ -12,6 +12,7 @@ import solas, {
     groupComingEventCount,
     memberCount,
     PopupCity,
+    Event,
     queryPopupCity
 } from "@/service/solas";
 import usePicture from "@/hooks/pictrue";
@@ -23,12 +24,16 @@ import 'swiper/css';
 import discoverData from "@/data/discover.data";
 import Footer from "@/components/base/Footer";
 import Feedback from "@/components/feedback/feedback";
+import CardEvent from "@/components/base/Cards/DiscoverCardEvent/CardEvent";
 
 export interface GroupWithMemberCount extends Group {
     member_count: number
 }
 
-function Discover({eventGroups, popupCities } : {eventGroups: Group[], popupCities: PopupCity[]}) {
+function Discover({eventGroups, popupCities, events } : {
+    events: Event[],
+    eventGroups: Group[],
+    popupCities: PopupCity[]}) {
     const {user} = useContext(UserContext)
     const {showLoading} = useContext(DialogsContext)
     const startIssueBadge = useIssueBadge()
@@ -65,7 +70,7 @@ function Discover({eventGroups, popupCities } : {eventGroups: Group[], popupCiti
     return <div className={styles['discover-page']}>
         <div className={styles['center']}>
             {featureds.length > 0 &&
-                <>
+                <div className={styles['featured']}>
                     <h2 className={styles['page-title']}>{lang['Featured']}</h2>
                     <Swiper
                         autoplay={{
@@ -117,7 +122,7 @@ function Discover({eventGroups, popupCities } : {eventGroups: Group[], popupCiti
                             })
                         }
                     </Swiper>
-                </>
+                </div>
             }
 
             <h2 className={styles['page-title']}>
@@ -130,7 +135,7 @@ function Discover({eventGroups, popupCities } : {eventGroups: Group[], popupCiti
                     <i className={'icon-icon_share'}></i>
                 </a>
             </div>
-            {false && <div className={styles['page-sub-title']}>{lang['Events_Of_Popup_Cities']}</div>}
+            <div className={styles['page-sub-title']}>{lang['Events_Of_Popup_Cities']}</div>
             <div className={styles['popup-city-list']}>
                 {
                     _sortedPopupCities.filter((x) => x.group_tags && x.group_tags.indexOf(":cnx") >= 0).map((popupCity, index) => {
@@ -138,13 +143,21 @@ function Discover({eventGroups, popupCities } : {eventGroups: Group[], popupCiti
                     })
                 }
             </div>
-            {false &&
-                <div className={styles['page-sub-title']}
-                     style={{background: 'linear-gradient(90deg, #EAF6F3 0%, rgba(234, 246, 243, 0.00) 99.89%)'}}>
-                    {'Highlight Events'}
-                </div>
+            {!!events.length &&
+                <>
+                    <div className={styles['page-sub-title']}
+                         style={{background: 'linear-gradient(90deg, #EAF6F3 0%, rgba(234, 246, 243, 0.00) 99.89%)'}}>
+                        {'Highlight Events'}
+                    </div>
+                    <div className={styles['highlight-events']}>
+                        {
+                            events.map(e => {
+                                return <CardEvent fixed={false} key={e.id} event={e} />
+                            })
+                        }
+                    </div>
+                </>
             }
-            {false && <div className={styles['highlight-events']}></div>}
 
             <h2 className={styles['page-title']}>
                 <div>{lang['Events_Of_Popup_Cities']}</div>
@@ -306,6 +319,6 @@ function Discover({eventGroups, popupCities } : {eventGroups: Group[], popupCiti
 
 export default Discover
 
-export const getServerSideProps: any  = async (context: any) => {
-   return await discoverData(context)
+export const getServerSideProps: any = async (context: any) => {
+    return await discoverData(context)
 }
