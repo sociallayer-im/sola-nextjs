@@ -7,7 +7,7 @@
   }
 
   &.nowrap {
-    flex-flow: row nowrap;
+    flex-flow: row nowrap!important;
     overflow: auto;
   }
 
@@ -38,10 +38,15 @@
   }
 }
 
+.all-active {
+  background: #1E1E1E;
+  color: #fff!important;
+}
+
 .event-label-list.nowrap  {
   flex-flow: row nowrap;
   overflow: auto;
-  margin-left: 12px;
+
 
   .event-label-item {
     white-space: nowrap;
