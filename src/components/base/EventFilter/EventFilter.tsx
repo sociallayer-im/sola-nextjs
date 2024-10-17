@@ -55,18 +55,22 @@ export default function EventFilter(props: {
             <div className={styles['reset']} onClick={handleReset}>Reset</div>
         </div>
 
-        <div className={styles['item-title']}>Event Track</div>
-        <div className={styles['times']}>
-            {
-                props.tracks.map((track, index) => {
-                    return <div key={index} className={trackId === track.id ? styles['active'] : ''} onClick={e => {
-                        setTrackId(track.id)
-                    }}>{track.tag || track.title}
-                    </div>
-                })
-            }
-        </div>
-
+        {!!props.tracks.length &&
+            <>
+                <div className={styles['item-title']}>Event Track</div>
+                <div className={styles['times']}>
+                    {
+                        props.tracks.map((track, index) => {
+                            return <div key={index} className={trackId === track.id ? styles['active'] : ''}
+                                        onClick={e => {
+                                            setTrackId(track.id)
+                                        }}>{track.tag || track.title}
+                            </div>
+                        })
+                    }
+                </div>
+            </>
+        }
 
         <div className={styles['item-title']}>Venues</div>
         <AppInput
@@ -79,7 +83,7 @@ export default function EventFilter(props: {
             value={venueSearchKeyword}/>
 
         <div className={styles['venue-list']}>
-            <div className={styles['scroll']}>
+        <div className={styles['scroll']}>
                 <div className={styles['venue-list-item']}>
                     <div><strong>All venue</strong></div>
                     <div className={styles['select']} onClick={(e) => {

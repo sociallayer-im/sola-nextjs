@@ -29,7 +29,6 @@ import usePicture from "@/hooks/pictrue";
 import AppButton from "@/components/base/AppButton/AppButton";
 import userContext from "@/components/provider/UserProvider/UserContext";
 import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
-import PageBack from "@/components/base/PageBack";
 import ListCheckLog from "@/components/compose/ListCheckLog/ListCheckLog";
 import useCalender from "@/hooks/addToCalendar/addToCalendar";
 import ListEventParticipants from "@/components/compose/ListEventParticipants/ListEventParticipants";
@@ -46,6 +45,7 @@ import {Swiper, SwiperSlide} from 'swiper/react'
 import {Mousewheel, FreeMode} from "swiper";
 import EventTickets from "@/components/compose/EventTickets/EventTickets";
 import EventNotes from "@/components/base/EventNotes/EventNotes";
+import RichTextDisplayerNew from "@/components/compose/RichTextEditor/DisplayerNew";
 import RichTextDisplayer from "@/components/compose/RichTextEditor/Displayer";
 import removeMarkdown from "markdown-to-text"
 import {StatefulPopover} from "baseui/popover";
@@ -1048,7 +1048,10 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                         }
                                                     </>
                                                 }
-                                                <RichTextDisplayer markdownStr={event.content}/>
+                                                <div>
+
+                                                </div>
+                                                <RichTextDisplayerNew markdownStr={event.content}/>
 
                                                 {!!event.notes &&
                                                     <EventNotes

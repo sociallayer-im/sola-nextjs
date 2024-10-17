@@ -144,15 +144,6 @@ export default function DialogTrackEdit(props: {
                     </div>
 
                     <div className={styles['input-item']}>
-                        <div className={styles['label']}>{'Tag'}</div>
-                        <AppInput value={track.tag || ''}
-                                  placeholder={'Short name of the track'}
-                                  onChange={e => {
-                                      setTrack({...track, tag: e.target.value})
-                                  }}/>
-                    </div>
-
-                    <div className={styles['input-item']}>
                         <div className={styles['label']}>{'Icon (optional)'}</div>
                         <div className={styles['des']}>Display on the schedule page</div>
                         {!!track.icon_url && <img src={track.icon_url} alt="icon" className={styles['icon']}/>}
