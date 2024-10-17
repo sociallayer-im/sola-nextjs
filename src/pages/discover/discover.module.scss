@@ -1,5 +1,6 @@
 .discover-page {
   background: var(--color-page-bg-1);
+  overflow: auto;
 
   :global {
     .swiper-slide {
