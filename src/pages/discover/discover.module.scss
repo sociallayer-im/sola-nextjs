@@ -193,6 +193,10 @@
   margin-right: -12px;
   margin-bottom: -12px;
 
+  &.season {
+    margin-bottom: 0;
+  }
+
 
   :global(>a) {
     min-width: calc((100% - 12px * 3) / 4);

@@ -136,7 +136,7 @@ function Discover({eventGroups, popupCities, events } : {
                 </a>
             </div>
             <div className={styles['page-sub-title']}>{lang['Events_Of_Popup_Cities']}</div>
-            <div className={styles['popup-city-list']}>
+            <div className={`${styles['popup-city-list']} ${styles['season']}`}>
                 {
                     _sortedPopupCities.filter((x) => x.group_tags && x.group_tags.indexOf(":cnx") >= 0).map((popupCity, index) => {
                         return <CardPopupCity popupCity={popupCity} key={popupCity.id}/>
@@ -146,7 +146,9 @@ function Discover({eventGroups, popupCities, events } : {
             {!!events.length &&
                 <>
                     <div className={styles['page-sub-title']}
-                         style={{background: 'linear-gradient(90deg, #EAF6F3 0%, rgba(234, 246, 243, 0.00) 99.89%)'}}>
+                         style={{
+                             marginTop:'4px',
+                             background: 'linear-gradient(90deg, #EAF6F3 0%, rgba(234, 246, 243, 0.00) 99.89%)'}}>
                         {'Highlight Events'}
                     </div>
                     <div className={styles['highlight-events']}>
