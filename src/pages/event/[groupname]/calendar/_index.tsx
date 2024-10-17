@@ -26,7 +26,6 @@ import * as dayjsLib from "dayjs";
 import timezoneList from "@/utils/timezone";
 import {getLabelColor} from "@/hooks/labelColor";
 import {isHideLocation} from "@/global_config";
-import fetch from "@/utils/fetch";
 
 const utc = require('dayjs/plugin/utc')
 const timezone = require('dayjs/plugin/timezone')
@@ -77,28 +76,6 @@ const getCalendarData = (timeZone: string) => {
     }
     console.log('dayArray length', dayArray.length)
     return dayArray as DateItem[]
-}
-
-const getInterval = (timeZone: string, selectedDate?: string, view?:string) => {
-    const now = selectedDate ? dayjs.tz(selectedDate?.replace('-', '/'), timeZone) : dayjs.tz(new Date().getTime(), timeZone)
-
-    // const timeStr = `${now.year()}-${now.month() + 1}-${now.date()} 00:00`
-    // const _nowZero = dayjs(timeStr, timeZone)
-    if (view === 'day') {
-        return  {
-            start: now.startOf('day'),
-            end: now.endOf('day')
-        }
-    } else {
-        // return  {
-        //     start: fixNow.startOf('month').subtract(7, 'day').startOf('day'),
-        //     end: fixNow.add(1, 'month').add(7, 'day').endOf('day')
-        // }
-        return  {
-            start: now.startOf('month').subtract(7, 'day').startOf('day'),
-            end: now.add(1, 'month').add(7, 'day').endOf('day')
-        }
-    }
 }
 
 function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
@@ -159,29 +136,25 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
     }
 
     useEffect(() => {
-        ;(async ()=> {
-            if (typeof window !== 'undefined' && timezoneSelected[0] ) {
-                const unload = showLoading()
-                const {start, end} = getInterval(timezoneSelected[0].id, presetDate, view)
-                const apiSearchParams = new URLSearchParams()
-                apiSearchParams.set('group_id', props.group.id.toString())
-                apiSearchParams.set('limit', '1000')
-                apiSearchParams.set('timezone', timezoneSelected[0].id)
-                apiSearchParams.set('start_date', start.format('YYYY-MM-DD'))
-                apiSearchParams.set('end_date', end.format('YYYY-MM-DD'))
-                !!selectedTags.length && apiSearchParams.set('tags', selectedTags.join(','))
-                !!venue.length && apiSearchParams.set('venue_id', venue[0].toString())
-                if (user.authToken) {
-                    apiSearchParams.set('auth_token', user.authToken)
-                }
-                const url = `${process.env.NEXT_PUBLIC_EVENT_LIST_API}/event/list?${apiSearchParams.toString()}`
-                const res = await fetch.get({url})
-
-                const eventList = res.data.events.map((event: SolarEvent) => {
+        if (timezoneSelected[0]) {
+            const dayList = getCalendarData(timezoneSelected[0].id)
+            queryScheduleEvent({
+                group_id: eventGroup.id,
+                start_time_from: new Date(dayList[0].timestamp).toISOString(),
+                start_time_to: new Date(dayList[dayList.length - 1].timestamp).toISOString(),
+                page: 1,
+                tags: selectedTags.length ? selectedTags : undefined,
+                event_order: 'asc',
+                page_size: 1000,
+                venue_ids: venue.length ? venue : undefined
+            }).then(res => {
+                const eventList = res.map((event: SolarEvent) => {
                     let host = [event.owner.username]
-                    if ((event.host_info as any)?.group_host?.[0]) {
-                        host = [(event.host_info as any)?.group_host[0].nickname
-                        || (event.host_info as any)?.group_host[0].username]
+                    if (event.host_info) {
+                        const _host = JSON.parse(event.host_info)
+                        if (_host.group_host) {
+                            host = [_host.group_host.nickname || _host.group_host.username]
+                        }
                     }
 
                     const calendarId = event.tags && event.tags[0] ? event.tags[0].replace(/[^\w\s]/g, '').replace(/\s/g, '').toLowerCase() : 'sola'
@@ -200,7 +173,6 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
                         event: event,
                     }
                 })
-                unload()
 
                 if (!calendarRef.current) return
 
@@ -300,6 +272,8 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
                             nEventsPerDay: 30
                         },
                         views: [viewMonthGrid, viewMonthAgenda, viewDay, viewWeek],
+                        minDate: dayjs.tz(dayList[0].timestamp, timezoneSelected[0].id).format('YYYY-MM-DD'),
+                        maxDate: dayjs.tz(dayList[dayList.length - 1].timestamp, timezoneSelected[0].id).format('YYYY-MM-DD'),
                         selectedDate: selectedDate,
                         plugins: [
                             createEventsServicePlugin(),
@@ -319,14 +293,6 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
                             onClickDateTime(dateTime: string) {
                                 createEvent(dateTime)
                             },
-                            onSelectedDateUpdate(date: string) {
-                               if (scheduleXRef.current) {
-                                      scheduleXRef.current.events.set([])
-                               }
-                               setTimeout(() => {
-                                   setPresetDate(date)
-                               }, 100)
-                            },
                             onRangeUpdate(range: { start: string, end: string }) {
                                 const interval = dayjs(range.end.replace(/-/g, '/')).diff(dayjs(range.start.replace(/-/g, '/')), 'day')
                                 let view = 'month'
@@ -337,8 +303,9 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
                                 } else {
                                     view = 'week'
                                 }
-                                setView(view)
 
+                                setView(view)
+                                setPresetDate(range.start.split(' ')[0])
                             },
                             onEventClick(calendarEvent: any) {
                                 console.log('onEventClick', calendarEvent)
@@ -371,16 +338,16 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
                         }
                     }, 1500)
                 }
-            }
+            })
+        }
 
-            return () => {
-                const container = document.querySelector('.sx__view-container')
-                if (scheduleXRef.current && container) {
-                    container.removeEventListener('scroll', toggleFullDayEvent)
-                }
+        return () => {
+            const container = document.querySelector('.sx__view-container')
+            if (scheduleXRef.current && container) {
+                container.removeEventListener('scroll', toggleFullDayEvent)
             }
-        })()
-    }, [timezoneSelected, selectedTags, venue, user, presetDate])
+        }
+    }, [timezoneSelected, selectedTags, venue, user])
 
 
     useEffect(() => {

@@ -499,6 +499,7 @@ function ListEventVertical({eventGroup, ...props}: {
             {!!eventGroup && (eventGroup as Group).event_tags &&
                 <div className={'tag-list'}>
                     <EventLabels
+                        nowrap={true}
                         showAll={true}
                         single
                         onChange={(value) => {

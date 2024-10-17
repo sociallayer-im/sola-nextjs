@@ -3,17 +3,29 @@
   flex-flow: row wrap;
 }
 
+.track-select.onwrap {
+    flex-flow: row nowrap;
+    overflow: auto;
+}
+
 .item {
   border-radius: 8px;
   border: 1px solid #EDEDED;
   padding: 8px 12px;
   display: flex;
-  flex-flow: row nowrap;
+  flex-flow: column nowrap;
   justify-content: center;
   align-items: center;
   cursor: pointer;
   margin-right: 12px;
   font-weight: 500;
+  height: 58px;
+  box-sizing: border-box;
+}
+
+.all-active {
+  background: #1E1E1E;
+  color: #fff!important;
 }
 
 .item.active {
@@ -21,4 +33,9 @@
   border: 1px solid var(--Fill-6-Dark, #272928);
   background: var(--Fill-6-Dark, #272928);
   color: #fff
+}
+
+.permission-item {
+  font-weight: normal;
+  margin-top: 4px;
 }
