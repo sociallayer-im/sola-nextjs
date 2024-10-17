@@ -126,7 +126,7 @@ function Discover({eventGroups, popupCities } : {eventGroups: Group[], popupCiti
             <div className={styles['links']}>
                 <a className={styles['link-item']} href={'https://t.me/maicatalog'} target={"_blank"}>
                     <img src="https://ik.imagekit.io/soladata/wuifogms_0XJQWaem7" width={24} height={24} alt=""/>
-                    <div className={styles['link-text']}>Pop-up City Catalog: Chiang Mai Specia</div>
+                    <div className={styles['link-text']}>Pop-up City Catalog: Chiang Mai Special</div>
                     <i className={'icon-icon_share'}></i>
                 </a>
             </div>
