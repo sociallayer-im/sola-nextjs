@@ -1,5 +1,6 @@
 import {Event, Group, PopupCity} from "@/service/solas";
 import {gql, request} from "graphql-request";
+import fetch from "@/utils/fetch";
 
 const discoverData: any = async (context: any): Promise<{
     props: {
@@ -85,15 +86,19 @@ const discoverData: any = async (context: any): Promise<{
             }
           }
     }`
-    console.time('discover page fetch data: ')
-    const graphUrl = process.env.NEXT_PUBLIC_GRAPH!
-    const res: any = await request(graphUrl, doc)
-    console.timeEnd('discover page fetch data: ')
+    // console.time('discover page fetch data: ')
+    // const graphUrl = process.env.NEXT_PUBLIC_GRAPH!
+    // const res: any = await request(graphUrl, doc)
+    // console.timeEnd('discover page fetch data: ')
+
+
+    const data = await fetch.get({url: `${process.env.NEXT_PUBLIC_EVENT_LIST_API}/event/discover`})
+
     return {
         props: {
-            eventGroups: res.groups,
-            popupCities: res.popup_cities,
-            events: res.events,
+            eventGroups: data.data.groups,
+            popupCities: [...data.data.cnx_popups, ...data.data.popups],
+            events: data.data.events,
         }
     }
 }

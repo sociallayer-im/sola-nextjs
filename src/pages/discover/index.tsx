@@ -87,7 +87,7 @@ function Discover({eventGroups, popupCities, events } : {
                         slidesPerView={'auto'}>
                         {
                             featureds.map((featured, index) => {
-                                return <SwiperSlide key={featured.id}>
+                                return <SwiperSlide key={index}>
                                     <Link href={`/event/${featured.group.username}`}
                                           className={styles['card-featured']}>
                                         <div className={styles['cover']}>
@@ -196,10 +196,10 @@ function Discover({eventGroups, popupCities, events } : {
             <div className={styles['group-list']}>
                 {
                     eventGroups.slice(0, 16).map((group, index) => {
-                        return <Link href={`/group/${group.username}`} key={index}>
+                        return <Link href={`/group/${group.username || (group as any).handle}`} key={index}>
                             <ImgLazy className={styles['cover']} width={64} height={64}
                                      src={group.image_url || defaultAvatar(group.id)}/>
-                            <div className={styles['name']}>{group.nickname || group.username}</div>
+                            <div className={styles['name']}>{group.nickname || group.username || (group as any).handle}</div>
                             <div className={styles['detail']}><b>{group.memberships_count}</b> Members</div>
                             <div className={styles['detail']}><b>{group.events_count}</b> Events</div>
                         </Link>

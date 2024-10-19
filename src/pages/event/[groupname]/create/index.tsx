@@ -387,7 +387,7 @@ function EditEvent({
     // check tags
     useEffect(() => {
         if (event.tags?.length) {
-            setLabelError(event.tags?.length > 3)
+            setLabelError(event.tags?.filter(t => !t.startsWith(':')).length > 3)
         } else {
             setLabelError(false)
         }

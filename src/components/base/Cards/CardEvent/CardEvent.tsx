@@ -260,7 +260,7 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
                     </div>
                     <div className={'tags'}>
                         {
-                            eventDetail.tags?.map((tag, index) => {
+                            eventDetail.tags?.filter(t=> !t.startsWith(':')).map((tag, index) => {
                                 return <div key={tag} className={'tag'}>
                                     <i className={'dot'} style={{background: getLabelColor(tag)}}/>
                                     {tag}

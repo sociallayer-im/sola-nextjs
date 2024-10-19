@@ -25,6 +25,7 @@ import useEvent, {EVENT} from "@/hooks/globalEvent";
 import usePicture from "@/hooks/pictrue";
 import dynamic from 'next/dynamic'
 import {isHideLocation} from "@/global_config";
+import {startsWith} from "lodash";
 
 const EventTickets = dynamic(() => import('@/components/compose/EventTickets/EventTickets'), {ssr: false})
 
@@ -260,7 +261,7 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
                     </div>
                     <div className={'tags'}>
                         {
-                            eventDetail.tags?.map((tag, index) => {
+                            eventDetail.tags?.filter(t=> !t.startsWith(':')).map((tag, index) => {
                                 return <div key={tag} className={'tag'}>
                                     <i className={'dot'} style={{background: getLabelColor(tag)}}/>
                                     {tag}
@@ -276,15 +277,18 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
                         </div>
                     }
 
-                    {
-                        !!groupHost ? <div className={'detail'}>
-                                <img src={groupHost.image_url || defaultAvatar(groupHost.id)} alt=""/>
-                                <span> {groupHost.nickname || groupHost.username}</span>
-                            </div> :
-                            <div className={'detail'}>
-                                <img src={props.event.owner.image_url || defaultAvatar(props.event.owner.id)} alt=""/>
-                                <span> {props.event.owner.nickname || props.event.owner.username}</span>
-                            </div>
+                    {!!eventDetail.location && !eventDetail.venue && (!isHideLocation(eventDetail.group_id) || !!user.id) &&
+                        <div className={'detail'}>
+                            <i className={'icon-Outline'}/>
+                            <span>{eventDetail.location}</span>
+                        </div>
+                    }
+
+                    {!!eventDetail.venue && (!isHideLocation(eventDetail.group_id) || !!user.id) &&
+                        <div className={'detail'}>
+                            <i className={'icon-Outline'}/>
+                            <span>{eventDetail.venue!.title}</span>
+                        </div>
                     }
 
                 </div>
