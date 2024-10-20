@@ -22,7 +22,7 @@ function CardPopupCity({popupCity}: { popupCity: PopupCity }) {
         }
     }, [])
 
-    return (<Link href={`/event/${popupCity.group.username}`} className={styles['card-popup-city']}>
+    return (<Link href={`/event/${popupCity.group.username || popupCity.group.handle}`} className={styles['card-popup-city']}>
         {/*<div className={styles['citizens']}>321 citizens joined</div>*/}
         <div className={styles['cover']}>
             {!!popupCity.image_url ?

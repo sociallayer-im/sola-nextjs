@@ -200,6 +200,7 @@ export async function login(signer: any, walletName?: string) {
 export interface Profile {
     id: number,
     username: string | null,
+    handle: string | null,
     address: string | null,
     sol_address: string | null,
     email: string | null,
@@ -267,6 +268,7 @@ export interface ProfileSimple {
     email: string | null,
     nickname: string | null,
     username: string | null,
+    handle: string | null,
 }
 
 export async function queryProfileByGraph(props: { type: keyof GetProfileProps, address: string | number, skip_maodao?: boolean }) {
@@ -1069,7 +1071,8 @@ export interface Group extends Profile {
     token_id: string,
     twitter: string | null
     twitter_proof_url: string | null
-    username: string
+    username: string,
+    handle: string | null,
     domain: string,
     nickname: string,
     event_tags: string[] | null,
