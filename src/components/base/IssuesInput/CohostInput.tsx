@@ -21,6 +21,7 @@ export interface IssuesInputProps {
 export const emptyProfile: ProfileSimple = {
     id: 0,
     username: '',
+    handle: '',
     nickname: null,
     image_url: '/images/default_avatar/avatar_0.png',
     address: null,

@@ -276,6 +276,7 @@ export async function queryProfileByGraph(props: { type: keyof GetProfileProps, 
 
     const doc = gql`query MyQuery {
       profiles(${condition}) {
+        handle
         zupass_edge_end_date
         zupass_edge_event_id
         zupass_edge_product_id
@@ -470,6 +471,7 @@ export async function getGroups(props: GetGroupProps): Promise<Group[]> {
           id
           profile {
             id
+            handle
             image_url
             username
             nickname
@@ -1132,6 +1134,7 @@ export async function queryGroupsUserJoined(props: QueryUserGroupProps): Promise
           role
           profile {
             id
+            handle
             nickname
             username
             image_url
@@ -1182,6 +1185,7 @@ export async function queryGroupsUserCreated(props: QueryUserGroupProps): Promis
           id
           role
           profile {
+            handle
             id
             nickname
             username
@@ -1234,6 +1238,7 @@ export async function queryGroupsUserManager(props: QueryUserGroupProps): Promis
           role
           profile {
             id
+            handle
             nickname
             username
             image_url
@@ -1490,6 +1495,7 @@ export async function getGroupMembers(props: GetGroupMembersProps): Promise<Prof
         role
         profile {
           id
+          handle
           image_url
           nickname
           username
@@ -1520,6 +1526,7 @@ export async function getGroupMembership(props: GetGroupMembersProps): Promise<M
         role
         profile {
           id
+          handle
           image_url
           nickname
           username
@@ -1555,6 +1562,7 @@ export async function getGroupMemberShips(props: GetGroupMembersProps): Promise<
         role
         profile {
           id
+          handle
           image_url
           nickname
           username
@@ -1595,6 +1603,7 @@ export async function getFollowers(userId: number): Promise<Profile[]> {
     const resp2: any = await request(graphUrl, gql`query MyQuery {
       profiles(where: {id: {_in: [${ids.join(',')}]}}) {
         id
+        handle
         username
         nickname
         image_url,
@@ -2081,6 +2090,7 @@ export async function searchDomain(props: SearchDomainProps): Promise<Profile[]>
     const doc = gql`query MyQuery {
       profiles(where: {_or: [{username: {_iregex: "${props.username}"}}, {nickname: {_iregex: "${props.username}"}}]}, limit: 20, offset: ${(props.page - 1) * 20}) {
         id
+        handle
         username
         nickname
         image_url,
@@ -2538,6 +2548,7 @@ export async function queryCheckInList(props: QueryCheckInListProps): Promise<Ch
         }
         profile {
           id
+          handle
           image_url
           nickname
           username
@@ -2933,6 +2944,7 @@ export async function isMember(props: { profile_id: number, group_id: number }) 
         role
         profile {
           id
+          handle
           image_url
           nickname
           username
@@ -3279,6 +3291,7 @@ export async function queryEvent(props: QueryEventProps): Promise<Event[]> {
           profile_id
           profile {
             id
+            handle
             address
             username
             nickname
@@ -3435,6 +3448,7 @@ export async function queryPendingEvent(props: QueryEventProps): Promise<Event[]
           profile_id
           profile {
             id
+            handle
             username
             nickname
             image_url
@@ -3560,6 +3574,7 @@ export async function queryCohostingEvent(props: { id: number, email?: string })
           profile_id
           profile {
             id
+            handle
             username
             nickname
             image_url
@@ -3655,6 +3670,7 @@ export async function queryMyEvent({page = 1, page_size = 10, ...props}: QueryMy
         profile_id
         profile {
           id
+          handle
           image_url
           nickname
           username
@@ -3716,6 +3732,7 @@ export async function queryMyEvent({page = 1, page_size = 10, ...props}: QueryMy
           profile_id
           profile {
             id
+            handle
             username
             nickname
             image_url
@@ -3981,6 +3998,7 @@ export async function searchEvent(keyword: string, group_id?: number): Promise<E
           profile_id
           profile {
             id
+            handle
             username
             nickname
             image_url
@@ -4258,6 +4276,7 @@ export async function getEventGroup() {
           role
           profile {
             id
+            handle
             nickname
             username
             image_url
@@ -4707,6 +4726,7 @@ export async function queryMarkers(props: {
               participants {
                 profile {
                   id
+                  handle
                   image_url
                   nickname
                   username
@@ -4771,6 +4791,7 @@ export async function markersCheckinList({page = 1, ...props}: {
       map_checkins(where: {marker_id: {_eq: ${props.id}}}, limit: 50, offset: ${(page - 1) * 50}, order_by: {created_at: desc}){
         profile {
           id
+          handle
           image_url
           nickname
           username
@@ -5294,6 +5315,7 @@ export async function getProfileBatch(usernames: string[]) {
     const doc = gql`query MyQuery @cached {
           profiles(where: {username: {_in:${JSON.stringify(usernames)}}}) {
             id,
+            handle,
             username,
             nickname,
             image_url,
@@ -5309,6 +5331,7 @@ export async function getProfileBatchById(ids: number[]) {
     const doc = gql`query MyQuery @cached {
           profiles(where: {id: {_in:${JSON.stringify(ids)}}}) {
             id,
+            handle,
             username,
             nickname,
             image_url,
@@ -5539,6 +5562,7 @@ export async function getParticipantDetail (props: {id?: number, event_id?: numb
           profile_id
           profile {
             id
+            handle
             username
             nickname
             image_url
@@ -6025,6 +6049,7 @@ export async function getTopEventGroup() {
           role
           profile {
             id
+            handle
             nickname
             username
             image_url
@@ -6289,6 +6314,7 @@ export async function queryTicketItems (props: {event_id?: number, participant_i
             order_number
             profile {
                 id,
+                handle,
                 username,
                 nickname,
                 image_url
@@ -6694,6 +6720,7 @@ export async function queryMapEvent(props: QueryEventProps): Promise<Event[]> {
           profile_id
           profile {
             id
+            handle
             address
             username
             nickname

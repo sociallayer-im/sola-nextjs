@@ -12,6 +12,7 @@ export const getServerSideProps: any = (async (context: any) => {
         id: 0,
         sol_address: null,
         username: '--',
+        handle: '--',
         address: null,
         email: null,
         phone: null,
