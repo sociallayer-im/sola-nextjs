@@ -88,7 +88,7 @@ function Discover({eventGroups, popupCities, events } : {
                         {
                             featureds.map((featured, index) => {
                                 return <SwiperSlide key={index}>
-                                    <Link href={`/event/${featured.group.username}`}
+                                    <Link href={`/event/${featured.group.username || featured.group.handle}`}
                                           className={styles['card-featured']}>
                                         <div className={styles['cover']}>
                                             {!!featured.image_url ?
