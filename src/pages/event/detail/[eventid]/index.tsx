@@ -20,7 +20,7 @@ import {
     queryGroupDetail,
     queryProfileByEmail,
     queryUserGroup,
-    RecurringEvent, setEventStatus, TicketItem, queryTicketItems, queryTrackDetail, Track
+    RecurringEvent, setEventStatus, TicketItem, queryTicketItems, queryTrackDetail, Track, unJoinEvent
 } from "@/service/solas";
 import LangContext from "@/components/provider/LangProvider/LangContext";
 import {useTime2, useTime3} from "@/hooks/formatTime";
@@ -549,6 +549,31 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
         })
     }
 
+    const handleUnJoin = async () => {
+        const a = await openConfirmDialog({
+            title: lang['Activity_Unjoin_Confirm_title'],
+            confirmBtnColor: '#F64F4F',
+            confirmTextColor: '#fff',
+            confirmText: lang['Group_Member_Manage_Dialog_Confirm_Dialog_Confirm'],
+            cancelText: lang['Group_Member_Manage_Dialog_Confirm_Dialog_Cancel'],
+            onConfirm: async (close: any) => {
+                const unload = showLoading()
+                try {
+                    const join = await unJoinEvent({id: event!.id, auth_token: user.authToken || ''})
+                    unload()
+                    showToast('Canceled')
+                    setParticipants(participants.filter(item => item.profile.id !== user.id))
+                    setIsJoined(false)
+                    close()
+                } catch (e: any) {
+                    console.error(e)
+                    unload()
+                    showToast(e.message)
+                }
+            }
+        })
+    }
+
     const tagWithTrack = useMemo(() => {
         let tag = event?.tags || []
         if (props.track && props.track.title) {
@@ -946,6 +971,14 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                             : lang['Activity_Detail_Btn_Checkin']
                                                     }</AppButton>
                                                 }
+
+                                                {isJoined &&
+                                                    <AppButton
+
+                                                        onClick={e => {
+                                                            handleUnJoin()
+                                                        }}>{lang['Profile_Edit_Cancel']}</AppButton>
+                                                }
                                             </div>
                                         </div>
 
@@ -1211,6 +1244,14 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                     ? lang['Activity_Host_Check_And_Send']
                                                     : lang['Activity_Detail_Btn_Checkin']
                                             }</AppButton>
+                                        }
+
+                                        {isJoined &&
+                                            <AppButton
+
+                                                onClick={e => {
+                                                    handleUnJoin()
+                                                }}>{lang['Profile_Edit_Cancel']}</AppButton>
                                         }
                                     </div>
 

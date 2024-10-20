@@ -56,6 +56,8 @@ function ListEventVertical({eventGroup, ...props}: {
     const filter = useRef<'' | 'coming' | 'past' | 'today' | 'week' | 'month'>('')
     const selectVenueIdRef = useRef(searchParams?.get('venue') ? searchParams!.get('venue')!.split(',').map(v => Number(v)) : [])
     const trackIdRef = useRef(searchParams?.get('track') ? Number(searchParams?.get('track')) : undefined)
+    const skipMultiDayRef = useRef(!!searchParams?.get('skip_multi_day'))
+    const skipRepeat = useRef(!!searchParams?.get(' skip_recurring'))
 
     const searchRef = useRef<any>(null)
     const [searchKeyword, setSearchKeyword] = useState('')
@@ -83,6 +85,8 @@ function ListEventVertical({eventGroup, ...props}: {
         !!tagRef.current && searchParams.set('tags', tagRef.current)
         !!venue_ids.length && searchParams.set('venue_id', venue_ids[0].toString())
         !!trackid && searchParams.set('track_id', trackid.toString())
+        skipMultiDayRef.current && searchParams.set('skip_multi_day', '1')
+        skipRepeat.current && searchParams.set('skip_recurring', '1')
 
         const url = `${process.env.NEXT_PUBLIC_EVENT_LIST_API}/event/list?${searchParams.toString()}`
 
@@ -111,6 +115,8 @@ function ListEventVertical({eventGroup, ...props}: {
         !!tagRef.current && searchParams.set('tags', tagRef.current)
         !!venue_ids.length && searchParams.set('venue_ids', venue_ids[0].toString())
         !!trackid && searchParams.set('track_id', trackid.toString())
+        skipMultiDayRef.current && searchParams.set('skip_multi_day', '1')
+        skipRepeat.current && searchParams.set('skip_recurring', '1')
 
         const url = `${process.env.NEXT_PUBLIC_EVENT_LIST_API}/event/list?${searchParams.toString()}`
 
@@ -140,6 +146,8 @@ function ListEventVertical({eventGroup, ...props}: {
         !!tagRef.current && searchParams.set('tags', tagRef.current)
         !!venue_ids.length && searchParams.set('venue_ids', venue_ids[0].toString())
         !!trackid && searchParams.set('track_id', trackid.toString())
+        skipMultiDayRef.current && searchParams.set('skip_multiday', '1')
+        skipRepeat.current && searchParams.set('skip_recurring', '1')
 
         const url = `${process.env.NEXT_PUBLIC_EVENT_LIST_API}/event/list?${searchParams.toString()}`
 
@@ -360,7 +368,7 @@ function ListEventVertical({eventGroup, ...props}: {
         }
     }, [user.id]);
 
-    const [filtered, setFiltered] = useState(filter.current || selectVenueIdRef.current.length > 0)
+    const [filtered, setFiltered] = useState(filter.current || selectVenueIdRef.current.length > 0 || skipRepeat.current || skipMultiDayRef.current)
 
     const handleOpenEventFilter = async () => {
         const unload = showLoading()
@@ -373,16 +381,22 @@ function ListEventVertical({eventGroup, ...props}: {
                     tracks={tracks}
                     time={filter.current}
                     venues={venues}
+                    skipRepeat={skipRepeat.current}
+                    skipMultiDay={skipMultiDayRef.current}
                     onConfirm={(res) => {
                         selectVenueIdRef.current = res.venueIds
                         filter.current = res.time
                         trackIdRef.current = res.trackId
+                        skipRepeat.current = res.skipRepeat
+                        skipMultiDayRef.current = res.skipMultiDay
                         const patch = updatePageParams([
                             {key: 'filter', value: res.time},
                             {key: 'venue', value: res.venueIds.join(',')},
-                            {key: 'track', value: res.trackId ? res.trackId + '' : ''}
+                            {key: 'track', value: res.trackId ? res.trackId + '' : ''},
+                            {key: 'skip_recurring', value: res.skipRepeat ? 'true' : ''},
+                            {key: 'skip_multi_day', value: res.skipMultiDay ? 'true' : ''},
                         ])
-                        setFiltered(res.time || res.venueIds.length > 0 || !!res.trackId)
+                        setFiltered(res.time || res.venueIds.length > 0 || !!res.trackId || res.skipRepeat || res.skipMultiDay)
                         history.replaceState(null, '', patch)
                         setTimeout(() => {
                             changeTab(tab2Index, true);

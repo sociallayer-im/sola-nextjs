@@ -12,13 +12,23 @@ export default function EventFilter(props: {
     tracks: Track[],
     currTrackId: number | undefined,
     currVenueIds: number[],
+    skipMultiDay: boolean,
+    skipRepeat: boolean,
     time: '' | 'coming' | 'past' | 'today' | 'week' | 'month',
-    onConfirm?: (res: { venueIds: number[], time: '' | 'coming' | 'past' | 'today' | 'week' | 'month', trackId: number | undefined }) => any
+    onConfirm?: (res: {
+        venueIds: number[],
+        time: '' | 'coming' | 'past' | 'today' | 'week' | 'month',
+        trackId: number | undefined,
+        skipRepeat: boolean,
+        skipMultiDay: boolean
+    }) => any
 }) {
     const [venueSearchKeyword, setVenueSearchKeyword] = useState('')
     const [currVenueIds, setCurrVenueIds] = useState(props.currVenueIds)
     const [time, setTime] = useState(props.time)
     const [trackId, setTrackId] = useState(props.currTrackId)
+    const [skipMultiDay, setSkipMultiDay] = useState(props.skipMultiDay)
+    const [skipRepeat, setSkipRepeat] = useState(props.skipRepeat)
 
     const handleSelectVenue = (venueId: number) => {
         if (currVenueIds.includes(venueId)) {
@@ -38,7 +48,9 @@ export default function EventFilter(props: {
         !!props.onConfirm && props.onConfirm({
             venueIds: currVenueIds,
             time: time,
-            trackId
+            trackId,
+            skipRepeat,
+            skipMultiDay
         })
         props.close()
     }
@@ -47,6 +59,8 @@ export default function EventFilter(props: {
         setTime('')
         setCurrVenueIds([])
         setTrackId(undefined)
+        setSkipMultiDay(false)
+        setSkipRepeat(false)
     }
 
     return <div className={styles['dialog']}>
@@ -55,35 +69,100 @@ export default function EventFilter(props: {
             <div className={styles['reset']} onClick={handleReset}>Reset</div>
         </div>
 
-        {!!props.tracks.length &&
-            <>
-                <div className={styles['item-title']}>Event Track</div>
-                <div className={styles['times']}>
+        <div className={styles['scroll']}>
+            <div className={styles['item-title-flex']}>
+                <div>Repeating Events</div>
+                <div className={styles['select']} onClick={(e) => {
+                    setSkipRepeat(!skipRepeat)
+                }}>
                     {
-                        props.tracks.map((track, index) => {
-                            return <div key={index} className={trackId === track.id ? styles['active'] : ''}
-                                        onClick={e => {
-                                            setTrackId(track.id)
-                                        }}>{track.tag || track.title}
-                            </div>
-                        })
+                        !skipRepeat ?
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                 fill="none">
+                                <path fillRule="evenodd" clipRule="evenodd"
+                                      d="M5.125 1C2.84683 1 1 2.84683 1 5.125V18.875C1 21.1532 2.84683 23 5.125 23H18.875C21.1532 23 23 21.1532 23 18.875V5.125C23 2.84683 21.1532 1 18.875 1H5.125ZM6.90273 11.0277C7.4397 10.4908 8.3103 10.4908 8.84727 11.0277L10.625 12.8055L15.1527 8.27773C15.6897 7.74076 16.5603 7.74076 17.0973 8.27773C17.6342 8.8147 17.6342 9.6853 17.0973 10.2223L11.5973 15.7223C11.0603 16.2592 10.1897 16.2592 9.65273 15.7223L6.90273 12.9723C6.36576 12.4353 6.36576 11.5647 6.90273 11.0277Z"
+                                      fill="#6CD7B2"/>
+                            </svg> :
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                 fill="none">
+                                <path fillRule="evenodd" clipRule="evenodd"
+                                      d="M5.125 1C2.84683 1 1 2.84683 1 5.125V18.875C1 21.1532 2.84683 23 5.125 23H18.875C21.1532 23 23 21.1532 23 18.875V5.125C23 2.84683 21.1532 1 18.875 1H5.125ZM6.90273 11.0277C7.4397 10.4908 8.3103 10.4908 8.84727 11.0277L10.625 12.8055L15.1527 8.27773C15.6897 7.74076 16.5603 7.74076 17.0973 8.27773C17.6342 8.8147 17.6342 9.6853 17.0973 10.2223L11.5973 15.7223C11.0603 16.2592 10.1897 16.2592 9.65273 15.7223L6.90273 12.9723C6.36576 12.4353 6.36576 11.5647 6.90273 11.0277Z"
+                                      fill="#E8E9E8"/>
+                            </svg>
                     }
                 </div>
-            </>
-        }
+            </div>
 
-        <div className={styles['item-title']}>Venues</div>
-        <AppInput
-            clearable={true}
-            onChange={e => {
-                setVenueSearchKeyword(e.target.value)
-            }}
-            placeholder={'Search venue'}
-            startEnhancer={() => <i className={'icon-search'}/>}
-            value={venueSearchKeyword}/>
+            <div className={styles['item-title-flex']}>
+                <div>Multi-day Events</div>
+                <div className={styles['select']} onClick={(e) => {
+                    setSkipMultiDay(!skipMultiDay)
+                }}>
+                    {
+                        !skipMultiDay ?
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                 fill="none">
+                                <path fillRule="evenodd" clipRule="evenodd"
+                                      d="M5.125 1C2.84683 1 1 2.84683 1 5.125V18.875C1 21.1532 2.84683 23 5.125 23H18.875C21.1532 23 23 21.1532 23 18.875V5.125C23 2.84683 21.1532 1 18.875 1H5.125ZM6.90273 11.0277C7.4397 10.4908 8.3103 10.4908 8.84727 11.0277L10.625 12.8055L15.1527 8.27773C15.6897 7.74076 16.5603 7.74076 17.0973 8.27773C17.6342 8.8147 17.6342 9.6853 17.0973 10.2223L11.5973 15.7223C11.0603 16.2592 10.1897 16.2592 9.65273 15.7223L6.90273 12.9723C6.36576 12.4353 6.36576 11.5647 6.90273 11.0277Z"
+                                      fill="#6CD7B2"/>
+                            </svg> :
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                 fill="none">
+                                <path fillRule="evenodd" clipRule="evenodd"
+                                      d="M5.125 1C2.84683 1 1 2.84683 1 5.125V18.875C1 21.1532 2.84683 23 5.125 23H18.875C21.1532 23 23 21.1532 23 18.875V5.125C23 2.84683 21.1532 1 18.875 1H5.125ZM6.90273 11.0277C7.4397 10.4908 8.3103 10.4908 8.84727 11.0277L10.625 12.8055L15.1527 8.27773C15.6897 7.74076 16.5603 7.74076 17.0973 8.27773C17.6342 8.8147 17.6342 9.6853 17.0973 10.2223L11.5973 15.7223C11.0603 16.2592 10.1897 16.2592 9.65273 15.7223L6.90273 12.9723C6.36576 12.4353 6.36576 11.5647 6.90273 11.0277Z"
+                                      fill="#E8E9E8"/>
+                            </svg>
+                    }
+                </div>
+            </div>
+            {!!props.tracks.length &&
+                <>
+                    <div className={styles['item-title']}>Event Track</div>
+                    <div className={styles['times']}>
+                        {
+                            props.tracks.map((track, index) => {
+                                return <div key={index} className={trackId === track.id ? styles['active'] : ''}
+                                            onClick={e => {
+                                                setTrackId(track.id)
+                                            }}>{track.tag || track.title}
+                                </div>
+                            })
+                        }
+                    </div>
+                </>
+            }
 
-        <div className={styles['venue-list']}>
-        <div className={styles['scroll']}>
+            <div className={styles['item-title']}>Times</div>
+            <div className={styles['times']}>
+                <div className={time === '' ? styles['active'] : ''} onClick={e => {
+                    setTime('')
+                }}>All Time
+                </div>
+                <div className={time === 'today' ? styles['active'] : ''} onClick={e => {
+                    setTime('today')
+                }}>Today
+                </div>
+                <div className={time === 'week' ? styles['active'] : ''} onClick={e => {
+                    setTime('week')
+                }}>Week
+                </div>
+                <div className={time === 'month' ? styles['active'] : ''} onClick={e => {
+                    setTime('month')
+                }}>Month
+                </div>
+            </div>
+
+            <div className={styles['item-title']}>Venues</div>
+            <AppInput
+                clearable={true}
+                onChange={e => {
+                    setVenueSearchKeyword(e.target.value)
+                }}
+                placeholder={'Search venue'}
+                startEnhancer={() => <i className={'icon-search'}/>}
+                value={venueSearchKeyword}/>
+
+            <div className={styles['venue-list']}>
                 <div className={styles['venue-list-item']}>
                     <div><strong>All venue</strong></div>
                     <div className={styles['select']} onClick={(e) => {
@@ -135,27 +214,10 @@ export default function EventFilter(props: {
                     })
                 }
             </div>
+
+
         </div>
 
-        <div className={styles['item-title']}>Times</div>
-        <div className={styles['times']}>
-            <div className={time === '' ? styles['active'] : ''} onClick={e => {
-                setTime('')
-            }}>All Time
-            </div>
-            <div className={time === 'today' ? styles['active'] : ''} onClick={e => {
-                setTime('today')
-            }}>Today
-            </div>
-            <div className={time === 'week' ? styles['active'] : ''} onClick={e => {
-                setTime('week')
-            }}>Week
-            </div>
-            <div className={time === 'month' ? styles['active'] : ''} onClick={e => {
-                setTime('month')
-            }}>Month
-            </div>
-        </div>
 
         <div className={styles['btns']}>
             <AppButton onClick={props.close}>Cancel</AppButton>

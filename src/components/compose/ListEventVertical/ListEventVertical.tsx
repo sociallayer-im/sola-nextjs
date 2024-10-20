@@ -351,6 +351,8 @@ function ListEventVertical({eventGroup, ...props}: { isManager?: boolean, initDa
         openDialog({
             content: (close: any) => {
                 return <EventFilter
+                    skipRepeat={false}
+                    skipMultiDay={false}
                     close={close}
                     tracks={tracks}
                     time={filter.current}
