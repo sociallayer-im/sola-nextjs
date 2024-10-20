@@ -18,7 +18,15 @@ import {
 import SeedaoHome from "@/pages/seedao";
 import discoverData from "@/data/discover.data";
 
-export default function HomePage(props: { badges?: Badge[], eventGroups?: Group[], initEvent?: Group, initList?: Event[], popupCities?: PopupCity[], membership?: Membership[] }) {
+export default function HomePage(props: {
+    badges?: Badge[],
+    eventGroups?: Group[],
+    initEvent?: Group,
+    initList?: Event[],
+    popupCities?: PopupCity[],
+    membership?: Membership[]
+    events?: Event[]
+}) {
     return <>
         {
             process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'zumap' ?
@@ -35,6 +43,7 @@ export default function HomePage(props: { badges?: Badge[], eventGroups?: Group[
                                 initList={props.initList || []}/>
                             :
                             <DiscoverPage
+                                events={props.events!}
                                 popupCities={props.popupCities!}
                                 eventGroups={props.eventGroups!}/>
         }

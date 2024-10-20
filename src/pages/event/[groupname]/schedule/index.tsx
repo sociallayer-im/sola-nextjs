@@ -193,7 +193,7 @@ function ComponentName(props: { group: Group, eventSite: EventSites[], tracks: T
         }
 
         if (typeof window !== 'undefined' && !timezoneSelected) {
-            const timezone = props.group.timezone || dayjs.tz.guess() 
+            const timezone = props.group.timezone || dayjs.tz.guess()
             setTimezoneSelected(timezone)
             setData({
                 ...data,
@@ -226,7 +226,8 @@ function ComponentName(props: { group: Group, eventSite: EventSites[], tracks: T
 
     const scrollDebounce = useRef<any>(null)
 
-    const tags = props.group.event_tags?.map((item: string) => {
+    const tags = props.group.event_tags?.filter(t=> !t.startsWith(':'))
+        .map((item: string) => {
         return {
             id: item,
             label: item,
@@ -873,7 +874,7 @@ function EventCard({
         {
             !!event.tags?.length &&
             <>
-                {event.tags.map(tag => {
+                {event.tags.filter(t=> !t.startsWith(':')).map(tag => {
                     return <div key={tag} className={styles['schedule-event-card-tag']}>
                         <i className={styles['schedule-event-card-dot']} style={{background: getLabelColor(tag)}}/>
                         <span>{tag}</span>

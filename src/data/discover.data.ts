@@ -1,10 +1,12 @@
-import {Group, PopupCity} from "@/service/solas";
+import {Event, Group, PopupCity} from "@/service/solas";
 import {gql, request} from "graphql-request";
+import fetch from "@/utils/fetch";
 
 const discoverData: any = async (context: any): Promise<{
     props: {
         eventGroups: Group[],
         popupCities: PopupCity[]
+        events: Event[]
     }
 }> => {
     const doc = gql`query MyQuery {
@@ -67,15 +69,36 @@ const discoverData: any = async (context: any): Promise<{
               map_enabled
             }
           }
+          events: events(where:{tags: {_contains: [":featured"]}}, order_by: {id: desc}) {
+            id
+            title
+            timezone
+            tags
+            start_time
+            host_info
+            location
+            cover_url
+            owner {
+            id
+            username
+            nickname
+            image_url
+            }
+          }
     }`
-    console.time('discover page fetch data: ')
-    const graphUrl = process.env.NEXT_PUBLIC_GRAPH!
-    const res: any = await request(graphUrl, doc)
-    console.timeEnd('discover page fetch data: ')
+    // console.time('discover page fetch data: ')
+    // const graphUrl = process.env.NEXT_PUBLIC_GRAPH!
+    // const res: any = await request(graphUrl, doc)
+    // console.timeEnd('discover page fetch data: ')
+
+
+    const data = await fetch.get({url: `${process.env.NEXT_PUBLIC_EVENT_LIST_API}/event/discover`})
+
     return {
         props: {
-            eventGroups: res.groups,
-            popupCities: res.popup_cities,
+            eventGroups: data.data.groups,
+            popupCities: [...data.data.cnx_popups, ...data.data.popups],
+            events: data.data.events,
         }
     }
 }

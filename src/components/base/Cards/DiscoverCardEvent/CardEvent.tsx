@@ -25,6 +25,7 @@ import useEvent, {EVENT} from "@/hooks/globalEvent";
 import usePicture from "@/hooks/pictrue";
 import dynamic from 'next/dynamic'
 import {isHideLocation} from "@/global_config";
+import {startsWith} from "lodash";
 
 const EventTickets = dynamic(() => import('@/components/compose/EventTickets/EventTickets'), {ssr: false})
 
@@ -41,7 +42,7 @@ export interface CardEventProps {
 
 const localeTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone
 
-function CardEventNew({fixed = true, ...props}: CardEventProps) {
+function CardEvent({fixed = true, ...props}: CardEventProps) {
     const router = useRouter()
     const [eventDetail, setEventDetail] = useState(props.event)
     const formatTime = useTime2()
@@ -78,11 +79,36 @@ function CardEventNew({fixed = true, ...props}: CardEventProps) {
 
     useEffect(() => {
         setEventDetail(props.event)
+
+
         if (props.event?.host_info) {
-            const hostInfo:any = props.event.host_info
-            hostInfo.group_host?.[0] && setGroupHost(hostInfo.group_host[0])
-            hostInfo.speaker?.[0] && setSpeaker(hostInfo.speaker)
-            hostInfo.co_host?.[0] && setCohost(hostInfo.co_host)
+            if (props.event?.host_info.startsWith('{')) {
+                const hostInfo = JSON.parse(props.event?.host_info!)
+                if (hostInfo.group_host) {
+                    if (hostInfo.group_host.id) {
+                        queryGroupDetail(hostInfo.group_host.id).then(res => {
+                            if (res) {
+                                setGroupHost(res)
+                            }
+                        })
+                    } else {
+                        setGroupHost(hostInfo.group_host)
+                    }
+                }
+                if (hostInfo.speaker) {
+                    setSpeaker(hostInfo.speaker)
+                }
+
+                if (hostInfo.co_host) {
+                    setCohost(hostInfo.co_host)
+                }
+            } else {
+                queryGroupDetail(Number(props.event?.host_info)).then(res => {
+                    if (res) {
+                        setGroupHost(res)
+                    }
+                })
+            }
         }
     }, [props.event])
 
@@ -196,7 +222,7 @@ function CardEventNew({fixed = true, ...props}: CardEventProps) {
 
     return (<Link href={`/event/detail/${props.event.id}`}
                   target={props.blank ? '_blank' : '_self'}
-                  className={largeCard ? 'event-card large' : 'event-card'}>
+                  className={largeCard ? 'event-card-discover large' : 'event-card-discover'}>
         {largeCard &&
             <div className={'markers'}>
                 {props.event.display === 'private' && <div className={'marker private'}>{'Private'}</div>}
@@ -242,25 +268,6 @@ function CardEventNew({fixed = true, ...props}: CardEventProps) {
                                 </div>
                             })
                         }
-                        {
-                            (eventDetail as any).track
-                                ? <div className={'tag'} title={'Event Track'}>
-                                    <i className={'dot'} style={{background: getLabelColor((eventDetail as any).track.title)}}/>
-                                    {(eventDetail as any).track.tag || (eventDetail as any).track.title}
-                                </div>
-                                : ''
-                        }
-                    </div>
-
-                    <div className={'host-info'}>
-                        <div className={'wrap'}>
-                            <div className={'con'}>
-                                {!!hostInfo.length && hostInfo.map((name, index) => {
-                                    return <span className={'tag'} key={index}>{index === 0 ? '' : ', '} {name}</span>
-                                })
-                                }
-                            </div>
-                        </div>
                     </div>
 
                     {!!eventDetail.start_time &&
@@ -284,12 +291,6 @@ function CardEventNew({fixed = true, ...props}: CardEventProps) {
                         </div>
                     }
 
-                    {!!eventDetail.meeting_url && (!isHideLocation(eventDetail.group_id) || !!user.id) &&
-                        <div className={'detail'}>
-                            <i className={'icon-link'}/>
-                            <span>{eventDetail.meeting_url}</span>
-                        </div>
-                    }
                 </div>
 
                 {props.event.status === 'pending' && props.canPublish &&
@@ -303,7 +304,7 @@ function CardEventNew({fixed = true, ...props}: CardEventProps) {
                 {
                     props.event.cover_url ?
                         <ImgLazy src={props.event.cover_url} width={280} alt=""/>
-                        : <EventDefaultCover event={props.event} width={140} height={140} showLocation={!isHideLocation(props.event.group_id)}/>
+                        : <EventDefaultCover event={props.event} width={152} height={152} showLocation={!isHideLocation(props.event.group_id)}/>
                 }
             </div>
             <div className={(fixed || hasMarker && !fixed) ? 'post marker mobile' : 'post mobile'}>
@@ -317,4 +318,4 @@ function CardEventNew({fixed = true, ...props}: CardEventProps) {
     </Link>)
 }
 
-export default CardEventNew
+export default CardEvent
