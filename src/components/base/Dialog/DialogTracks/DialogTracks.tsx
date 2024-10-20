@@ -90,7 +90,7 @@ export default function DialogTrack(props: {
                 })}
 
                 {
-                    !props.tracks.length && <Empty/>
+                    !tracks.length && <Empty/>
                 }
 
                 <AppButton onClick={e => {
