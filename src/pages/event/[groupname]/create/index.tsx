@@ -59,6 +59,7 @@ import TriangleDown from 'baseui/icon/triangle-down'
 import TriangleUp from 'baseui/icon/triangle-up'
 import TicketSetting from "@/components/compose/TicketSetting/TicketSetting";
 import TrackSelect from "@/components/base/TrackSelect/TrackSelect";
+import {edgeGroups} from "@/global_config";
 
 const utc = require('dayjs/plugin/utc')
 const timezone = require('dayjs/plugin/timezone')
@@ -1313,7 +1314,7 @@ function EditEvent({
                                                      dangerouslySetInnerHTML={{__html: occupiedError}}></div>}
                             {!!dayDisable && <div className={styles['start-time-error']}>{dayDisable}</div>}
 
-                            {!!event.venue_id && !!eventGroup?.id && [3427, 3409, 3463, 3454].includes(eventGroup?.id) &&
+                            {!!event.venue_id && !!eventGroup?.id && edgeGroups.includes(eventGroup?.id) &&
                                 <>
                                     <div className={styles['input-area']}>
                                         <div className={styles['input-area-title']}>{'Seating arrangement style'}</div>

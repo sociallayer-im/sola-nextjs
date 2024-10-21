@@ -14,6 +14,7 @@ import {useTime5} from "@/hooks/formatTime";
 import ZupassTicket from "@/components/base/ZupassTicket/ZupassTicket";
 import EdgeToken from "@/components/base/EdgeToken/EdgeToken";
 import GroupTicketsPurchased from "@/components/base/GroupTicketsPurchased/GroupTicketsPurchased";
+import {edgeGroups, showZupassTicket} from "@/global_config";
 
 function HomeUserPanel({showSchedule=true, ...props}: {
     membership: Membership[],
@@ -187,13 +188,13 @@ function HomeUserPanel({showSchedule=true, ...props}: {
            </>
         }
 
-        { eventGroup?.id != 3409 && !!user && !!user.detail &&
-            <GroupTicketsPurchased eventGroup={props.group} />
+        { showZupassTicket.includes(eventGroup?.id || 0) && !!user && !!user.detail ?
+            <ZupassTicket user={user.detail} />
+            :  <GroupTicketsPurchased eventGroup={props.group} />
         }
 
-        {eventGroup?.id === 3409 && !!user && !!user.detail &&
+        { edgeGroups.includes(eventGroup?.id || 0) && !!user && !!user.detail &&
             <>
-            <ZupassTicket user={user.detail} />
             <EdgeToken />
             </>
         }
