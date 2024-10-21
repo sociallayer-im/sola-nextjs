@@ -301,9 +301,11 @@ function ComponentName(props: { group: Group, eventSite: EventSites[], tracks: T
                 !!data.selectedTags?.[0] && apiSearchParams.set('tags', data.selectedTags.join(','))
                 !!data.selectedVenue?.[0] && apiSearchParams.set('venue_id', data.selectedVenue[0].toString())
                 !!data.selectedTrack?.[0] && apiSearchParams.set('track_id', data.selectedTrack[0].toString())
-                if (showJoined && user.authToken) {
+                if (user.authToken) {
                     apiSearchParams.set('auth_token', user.authToken)
-                    apiSearchParams.set('my_event', '1')
+                    if (showJoined) {
+                        apiSearchParams.set('my_event', '1')
+                    }
                 }
                 const url = `${process.env.NEXT_PUBLIC_EVENT_LIST_API}/event/list?${apiSearchParams.toString()}`
                 const res = await fetch.get({url})
