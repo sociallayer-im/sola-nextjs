@@ -76,6 +76,7 @@ function ListEventVertical({eventGroup, ...props}: {
         const searchParams = new URLSearchParams()
         const {start_date, end_date} = getTimeProps()
         searchParams.set('collection', 'past')
+        searchParams.set('with_stars', '1')
         !!start_date && searchParams.set('start_date', start_date)
         !!end_date && searchParams.set('end_date', end_date)
         !!eventGroup?.id && searchParams.set('group_id', eventGroup.id.toString())
@@ -106,6 +107,7 @@ function ListEventVertical({eventGroup, ...props}: {
         const searchParams = new URLSearchParams()
         const {start_date, end_date} = getTimeProps()
         searchParams.set('private_event', '1')
+        searchParams.set('with_stars', '1')
         !!start_date && searchParams.set('start_date', start_date)
         !!end_date && searchParams.set('end_date', end_date)
         !!eventGroup?.id && searchParams.set('group_id', eventGroup.id.toString())
@@ -137,6 +139,7 @@ function ListEventVertical({eventGroup, ...props}: {
         const {start_date, end_date} = getTimeProps()
 
         searchParams.set('collection', 'upcoming')
+        searchParams.set('with_stars', '1')
         !!start_date && searchParams.set('start_date', start_date)
         !!end_date && searchParams.set('end_date', end_date)
         !!eventGroup?.id && searchParams.set('group_id', eventGroup.id.toString())

@@ -18,6 +18,7 @@ import fetch from "@/utils/fetch";
 import alchemy from "@/service/alchemy/alchemy";
 import useSafePush from "@/hooks/useSafePush";
 
+
 const UserTabs = dynamic(() => import('@/components/compose/ProfileTabs/ProfileTabs'), {
     loading: () => <p>Loading...</p>,
 })

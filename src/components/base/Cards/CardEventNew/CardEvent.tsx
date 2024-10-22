@@ -25,6 +25,7 @@ import useEvent, {EVENT} from "@/hooks/globalEvent";
 import usePicture from "@/hooks/pictrue";
 import dynamic from 'next/dynamic'
 import {isHideLocation} from "@/global_config";
+import {handleEventStar} from "@/service/solasv2";
 
 const EventTickets = dynamic(() => import('@/components/compose/EventTickets/EventTickets'), {ssr: false})
 
@@ -48,7 +49,7 @@ function CardEventNew({fixed = true, ...props}: CardEventProps) {
     const {lang} = useContext(langContext)
     const [isCreated, setIsCreated] = useState(false)
     const {user} = useContext(userContext)
-    const {showToast, showLoading, openConfirmDialog, openDialog} = useContext(DialogsContext)
+    const {showToast, showLoading, openConfirmDialog, openDialog, openConnectWalletDialog} = useContext(DialogsContext)
     const [hasRegistered, setHasRegistered] = useState(false)
     const {addToCalenderDialog} = useCalender()
     const [_, emit] = useEvent(EVENT.setEventStatus)
@@ -56,6 +57,7 @@ function CardEventNew({fixed = true, ...props}: CardEventProps) {
     const [cohost, setCohost] = useState<any | null>([])
     const [speaker, setSpeaker] = useState<any | null>([])
     const {defaultAvatar} = usePicture()
+    const [stared, setStared] = useState((props.event as any).star)
 
     const now = new Date().getTime()
     const endTime = new Date(eventDetail.end_time!).getTime()
@@ -92,6 +94,7 @@ function CardEventNew({fixed = true, ...props}: CardEventProps) {
             location.href = props.event.external_url
             return
         }
+        setStared(true)
     }
 
     const hasMarker = isExpired
@@ -194,9 +197,23 @@ function CardEventNew({fixed = true, ...props}: CardEventProps) {
         }
     }, [props.timezone, eventDetail.timezone])
 
+    const handleStar = async (e: any) => {
+        if (!user.authToken) {
+            openConnectWalletDialog()
+            return
+        }
+
+        e.preventDefault()
+        e.stopPropagation()
+        const unload = showLoading()
+        await handleEventStar({event_id: props.event.id, auth_token: user.authToken || ''})
+        setStared(true)
+        unload()
+    }
+
     return (<Link href={`/event/detail/${props.event.id}`}
                   target={props.blank ? '_blank' : '_self'}
-                  className={largeCard ? 'event-card large' : 'event-card'}>
+                  className={largeCard ? 'event-card-new large' : 'event-card-new'}>
         {largeCard &&
             <div className={'markers'}>
                 {props.event.display === 'private' && <div className={'marker private'}>{'Private'}</div>}
@@ -300,17 +317,23 @@ function CardEventNew({fixed = true, ...props}: CardEventProps) {
                 }
             </div>
             <div className={(fixed || hasMarker && !fixed) ? 'post marker' : 'post'}>
+                {stared
+                    ? <img className="star" src="/images/favorite_active.png" width={24} height={24} alt="Star" title="Star"/>
+                    : <img onClick={handleStar} className="star" src="/images/favorite.png" width={24} height={24} title="Star" alt="Star"/>
+                }
                 {
                     props.event.cover_url ?
                         <ImgLazy src={props.event.cover_url} width={280} alt=""/>
-                        : <EventDefaultCover event={props.event} width={140} height={140} showLocation={!isHideLocation(props.event.group_id)}/>
+                        : <EventDefaultCover event={props.event} width={140} height={140}
+                                             showLocation={!isHideLocation(props.event.group_id)}/>
                 }
             </div>
             <div className={(fixed || hasMarker && !fixed) ? 'post marker mobile' : 'post mobile'}>
                 {
                     props.event.cover_url ?
                         <ImgLazy src={props.event.cover_url} width={280} alt=""/>
-                        : <EventDefaultCover event={props.event} width={100} height={100} showLocation={!isHideLocation(props.event.group_id)}/>
+                        : <EventDefaultCover event={props.event} width={100} height={100}
+                                             showLocation={!isHideLocation(props.event.group_id)}/>
                 }
             </div>
         </div>

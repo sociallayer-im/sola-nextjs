@@ -8,7 +8,8 @@ import UserContext from "@/components/provider/UserProvider/UserContext";
 import dynamic from 'next/dynamic'
 import ListUserCurrency from "@/components/compose/ListUserCurrency/ListUserCurrency";
 import ListNftAsset from "@/components/compose/ListNftAsset/ListNftAsset";
-import {PageBackContext} from "@/components/provider/PageBackProvider";
+import ListMyEvent from "@/components/compose/ListMyEvent/ListMyEvent"
+
 
 const UserRecognition = dynamic(() => import('@/components/compose/ListUserRecognition/ListUserRecognition'), {
     loading: () => <p>Loading...</p>,
@@ -70,6 +71,12 @@ function ComponentName({profile}: {profile: Profile}) {
 
             <Tab title={lang['Profile_Tab_Groups']}>
                 <UserGroup profile={profile}/>
+            </Tab>
+
+            <Tab title={'Events'}>
+               <div className={'profile-tab'}>
+                   <ListMyEvent profile_id={profile.id}/>
+               </div>
             </Tab>
 
             <Tab title={lang['Profile_Tab_Received']}>
