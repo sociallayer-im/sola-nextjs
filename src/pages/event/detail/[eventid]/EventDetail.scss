@@ -298,9 +298,12 @@
           color: var(--Fill-6-Dark, #272928);
           font-weight: 600;
 
-          @media(max-width: 450px) {
+          @media(max-width: 650px) {
             & {
+              min-width: 48%;
+              max-width: 48%;
               font-size: 12px;
+              flex-grow: 0;
             }
           }
 

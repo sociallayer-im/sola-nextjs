@@ -52,6 +52,7 @@ import {StatefulPopover} from "baseui/popover";
 import {AVNeeds, SeatingStyle} from "@/pages/event/[groupname]/create";
 import DialogGenPromoCode from "@/components/base/Dialog/DialogGenPromoCode/DialogGenPromoCode";
 import TicketsPurchased from "@/components/base/TicketsPurchased/TicketsPurchased";
+import EventComment from "@/components/compose/EventComment/EventComment";
 
 
 import * as dayjsLib from "dayjs";
@@ -1015,13 +1016,14 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                              }}>
                                             <div>{lang['Activity_Des']}</div>
                                         </div>
-                                        { tickets.length > 0 &&
+                                        {tickets.length > 0 &&
                                             <>
                                                 <div className={'split mobile-item'}/>
-                                                <div className={tab === 4 ? 'tab-title mobile-item active' : 'mobile-item tab-title'}
-                                                     onClick={e => {
-                                                         setTab(4)
-                                                     }}>
+                                                <div
+                                                    className={tab === 4 ? 'tab-title mobile-item active' : 'mobile-item tab-title'}
+                                                    onClick={e => {
+                                                        setTab(4)
+                                                    }}>
                                                     <div>{lang['Tickets']}</div>
                                                 </div>
                                             </>
@@ -1038,6 +1040,14 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                 </div>
                                             </>
                                         }
+
+                                        <div className={'split'}/>
+                                        <div className={tab === 5 ? 'tab-title active' : 'tab-title'}
+                                             onClick={e => {
+                                                 setTab(5)
+                                             }}>
+                                            <div>{'Comments'}</div>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -1131,6 +1141,11 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                     {
                                         tab === 4 && !!event &&
                                         <EventTickets tickets={tickets} event={event} canAccess={canAccess}/>
+                                    }
+
+                                    {
+                                        tab === 5 && !!event &&
+                                        <EventComment event={event} />
                                     }
                                 </div>
                             </div>

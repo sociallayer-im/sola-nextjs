@@ -6819,3 +6819,22 @@ export async function queryTrackDetail(id: number) {
     const res: any = await request(graphUrl, doc)
     return res.tracks[0] as Track || null
 }
+
+export interface CommentType {
+    id: number
+    title?: string,
+    item_type: string,
+    item_id: number,
+    reply_parent_id: null | number,
+    content: string,
+    content_type: string,
+    profile_id: number,
+    removed: boolean,
+    status: string,
+    comment_type: string,
+    icon_url: string | null,
+    edit_parent_id: null | number,
+    badge_id: null | number,
+    created_at: string,
+    profile: ProfileSimple
+}
