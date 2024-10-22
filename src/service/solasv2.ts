@@ -39,3 +39,16 @@ export const getStarEvent = async (props: {auth_token: string}) => {
 
     return res.data as Event[]
 }
+
+export const sendEventFeedback = async (props: {event_id: number, content: string, auth_token: string}) => {
+    return await fetch.post({
+        url: `${apiUrl}/comment/create`,
+        data: {
+            auth_token: props.auth_token,
+            comment_type:'feedback',
+            item_type: 'Event',
+            item_id: props.event_id,
+            content: props.content,
+        }
+    })
+}

@@ -63,6 +63,7 @@ import {isHideLocation} from "@/global_config";
 import copy from "@/utils/copy";
 import fetch from "@/utils/fetch";
 import {getUserStaredComment, handleEventStar} from "@/service/solasv2";
+import DialogFeedback from "@/components/base/Dialog/DialogFeedback";
 
 const utc = require('dayjs/plugin/utc')
 const timezone = require('dayjs/plugin/timezone')
@@ -606,6 +607,14 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
         await handleEventStar({event_id: event!.id, auth_token: user.authToken || ''})
         setStared(true)
         unload()
+    }
+
+    const showFeedBackDialog = async () => {
+        openDialog({
+            content: (close: any) => <DialogFeedback event_id={event!.id} close={close} />,
+            size: [420, 'auto'],
+            position: 'bottom'
+        })
     }
 
     return (<>
@@ -1306,14 +1315,23 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                     : lang['Activity_Detail_Btn_Checkin']
                                             }</AppButton>
                                         }
+                                    </div>
+
 
                                         {isJoined &&
-                                            <AppButton
-
-                                                onClick={e => {
-                                                    handleUnJoin()
-                                                }}>{lang['Profile_Edit_Cancel']}</AppButton>
+                                            <div className={'event-action'}>
+                                                <AppButton
+                                                    onClick={e => {
+                                                        handleUnJoin()
+                                                    }}>{lang['Profile_Edit_Cancel']}</AppButton>
+                                            </div>
                                         }
+
+                                        <div className={'event-action'}>
+                                        <AppButton
+                                            onClick={e => {
+                                                showFeedBackDialog()
+                                            }}>{'Feedback'}</AppButton>
                                     </div>
 
                                     {!canAccess &&
