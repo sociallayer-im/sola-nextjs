@@ -1064,7 +1064,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
 
                             <div className={'event-tab'}>
                                 <div className={'tab-titles'}>
-                                    <div className={'center'}>
+                                    <div className={'center'} style={{flexWrap: 'wrap'}}>
                                         <div className={tab === 1 ? 'tab-title active' : 'tab-title'}
                                              onClick={e => {
                                                  setTab(1)

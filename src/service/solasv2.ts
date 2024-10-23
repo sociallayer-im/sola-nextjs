@@ -1,5 +1,4 @@
 import fetch from '../utils/fetch'
-import ex = CSS.ex;
 const apiUrl = process.env.NEXT_PUBLIC_EVENT_LIST_API!
 import {Comment, CommentType, Event} from './solas'
 
@@ -37,7 +36,7 @@ export const getStarEvent = async (props: {auth_token: string}) => {
         }
     })
 
-    return res.data as Event[]
+    return res.data.events as Event[]
 }
 
 export const sendEventFeedback = async (props: {event_id: number, content: string, auth_token: string}) => {
@@ -49,6 +48,16 @@ export const sendEventFeedback = async (props: {event_id: number, content: strin
             item_type: 'Event',
             item_id: props.event_id,
             content: props.content,
+        }
+    })
+}
+
+export const removeComment = async (props: {id: number, auth_token: string}) => {
+    return await fetch.post({
+        url: `${apiUrl}/comment/remove`,
+        data: {
+            auth_token: props.auth_token,
+            id: props.id,
         }
     })
 }

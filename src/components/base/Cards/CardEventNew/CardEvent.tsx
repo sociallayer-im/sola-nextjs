@@ -25,7 +25,7 @@ import useEvent, {EVENT} from "@/hooks/globalEvent";
 import usePicture from "@/hooks/pictrue";
 import dynamic from 'next/dynamic'
 import {isHideLocation} from "@/global_config";
-import {handleEventStar} from "@/service/solasv2";
+import {handleEventStar, removeComment} from "@/service/solasv2";
 
 const EventTickets = dynamic(() => import('@/components/compose/EventTickets/EventTickets'), {ssr: false})
 
@@ -329,6 +329,10 @@ function CardEventNew({fixed = true, ...props}: CardEventProps) {
                 }
             </div>
             <div className={(fixed || hasMarker && !fixed) ? 'post marker mobile' : 'post mobile'}>
+                {stared
+                    ? <img className="star" src="/images/favorite_active.png" width={24} height={24} alt="Star" title="Star"/>
+                    : <img onClick={handleStar} className="star" src="/images/favorite.png" width={24} height={24} title="Star" alt="Star"/>
+                }
                 {
                     props.event.cover_url ?
                         <ImgLazy src={props.event.cover_url} width={280} alt=""/>
