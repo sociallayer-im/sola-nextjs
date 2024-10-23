@@ -988,7 +988,13 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                         {lang['Activity_Detail_Btn_add_Calender']}</AppButton>
                                                 }
 
+                                                <AppButton
+                                                    onClick={e => {
+                                                        showFeedBackDialog()
+                                                    }}>{'Feedback'}</AppButton>
+                                            </div>
 
+                                            <div className={'center'}>
                                                 {!isJoined && !canceled && !tickets.length &&
                                                     <AppButton special onClick={e => {
                                                         handleJoin()
@@ -1272,7 +1278,13 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                 {lang['Activity_Detail_Btn_add_Calender']}</AppButton>
                                         }
 
+                                        <AppButton
+                                            onClick={e => {
+                                                showFeedBackDialog()
+                                            }}>{'Feedback'}</AppButton>
+                                    </div>
 
+                                    <div className={'event-action'}>
                                         {!isJoined && !canceled && !tickets.length &&  event.status !== 'pending' &&
                                             <AppButton special onClick={e => {
                                                 handleJoin()
@@ -1326,13 +1338,6 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                     }}>{lang['Profile_Edit_Cancel']}</AppButton>
                                             </div>
                                         }
-
-                                        <div className={'event-action'}>
-                                        <AppButton
-                                            onClick={e => {
-                                                showFeedBackDialog()
-                                            }}>{'Feedback'}</AppButton>
-                                    </div>
 
                                     {!canAccess &&
                                         <div className={'event-action'}>
