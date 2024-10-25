@@ -30,6 +30,7 @@ import ButtonLoading from "@/components/base/ButtonLoading";
 import {Select} from "baseui/select";
 import {useRouter} from "next/navigation"
 import AppInput from "@/components/base/AppInput";
+import {generatePayment} from "@/service/daimo";
 
 const shotAddress = (address: string) => {
     const len = address.length
@@ -277,6 +278,36 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
         setCurrToken({...token, label: token.id})
     }
 
+    const handleDaimoPayment = async (copyLink?: boolean) => {
+        const unload = showLoading()
+        try {
+            const {url, id} = await generatePayment({
+                eventTitle: props.event.title,
+                eventCover: props.event.cover_url,
+                amount: finalPaymentPrice.toString() || '0',
+                receiver: currPaymentMethod!.receiver_address!,
+                ticketName: props.ticket.title,
+                tokenContract: currToken!.contract,
+                ticketId: props.ticket.id,
+                returnUrl: location.href,
+                eventId: props.event.id,
+                authToken: user.authToken || '',
+                payment_method_id: currPaymentMethod!.id!,
+            })
+
+            if (copyLink) {
+                copyWithDialog(url)
+                unload()
+            } else {
+               location.href = url
+            }
+
+        } catch (e: any) {
+            showToast(e.message)
+            unload()
+        }
+    }
+
     return (<div className={styles['dialog-ticket']}>
         <div className={styles['dialog-title']}>
             <div>{lang['Event']}</div>
@@ -447,7 +478,10 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
                     }
 
                     <div className={styles['balance']}>
-                        {currPaymentMethod?.chain !== 'stripe' && !!currToken && !!currChain &&
+                        {
+                            currPaymentMethod?.chain !== 'stripe'
+                            && currPaymentMethod?.chain !== 'daimo'
+                            && !!currToken && !!currChain &&
                             <>
                                 <div className={styles['label']}>{lang['Balance']}</div>
                                 <div className={styles['value']}>
@@ -537,22 +571,13 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
                 && !!user.id
                 && hasBadgePermission
                 && !!cryptoChains.length
-                && currPaymentMethod?.chain !== 'stripe' &&
+                && currPaymentMethod?.chain !== 'stripe'
+                && currPaymentMethod?.chain !== 'daimo' &&
                 <AppButton special onClick={e => {
                     connectWallet()
                 }}>{'Connect Wallet'}</AppButton>
             }
 
-            {
-                !!user.id
-                && currPaymentMethod?.chain === 'stripe'
-                && !soldOut
-                && !stopSales
-                && <AppButton special onClick={e => {
-                    router.push(`/stripe-pay?ticket=${props.ticket.id}&methodid=${currPaymentMethod!.id}${validCoupon?.code ? `&coupon=${validCoupon.code}` : ''}`)
-                    props.close()
-                }}>{lang['Pay_By_Card']}</AppButton>
-            }
 
             {!!address
                 && !!cryptoChains.length
@@ -562,6 +587,7 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
                 && !!user.id
                 && hasBadgePermission
                 && currPaymentMethod?.chain !== 'stripe'
+                && currPaymentMethod?.chain !== 'daimo'
                 && (approved || finalPaymentPrice === 0) &&
                 <Erc20TokenPaymentHandler
                     isGroupTicket={props.ticket.ticket_type === 'group'}
@@ -621,7 +647,8 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
                 && !!user.id
                 && finalPaymentPrice !== 0
                 && hasBadgePermission
-                && currPaymentMethod?.chain !== 'stripe' &&
+                && currPaymentMethod?.chain !== 'stripe'
+                && currPaymentMethod?.chain !== 'daimo' &&
                 <Erc20TokenApproveHandler
                     ref={reFleshAllowanceRef}
                     token={currToken!.contract}
@@ -649,6 +676,33 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
                             : 'Approve'}</AppButton>
                     }}
                 />
+            }
+
+            {
+                !!user.id
+                && currPaymentMethod?.chain === 'stripe'
+                && !soldOut
+                && !stopSales
+                && <AppButton special onClick={e => {
+                    router.push(`/stripe-pay?ticket=${props.ticket.id}&methodid=${currPaymentMethod!.id}${validCoupon?.code ? `&coupon=${validCoupon.code}` : ''}`)
+                    props.close()
+                }}>{lang['Pay_By_Card']}</AppButton>
+            }
+
+            {
+                !!user.id
+                && currPaymentMethod?.chain === 'daimo'
+                && !soldOut
+                && !stopSales
+                && <div>
+                    <AppButton special style={{marginBottom: '12px'}} onClick={() => {
+                        handleDaimoPayment()
+                    }}>{'Pay'}</AppButton>
+
+                    <AppButton onClick={() => {
+                        handleDaimoPayment(true)
+                    }}>{'Copy payment link'}</AppButton>
+                </div>
             }
 
             {!!user.id && !props.ticket.payment_methods.length && hasBadgePermission && !stopSales && !soldOut &&
