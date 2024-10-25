@@ -3044,7 +3044,9 @@ export interface Event {
     external_url: null | string,
     operators: null | number[],
     requirement_tags: null | string[],
-    extra: null | string[]
+    extra: null | string[],
+    pinned: boolean,
+    theme: null | string,
 
 }
 
@@ -3205,6 +3207,8 @@ export async function queryEvent(props: QueryEventProps): Promise<Event[]> {
 
     const doc = gql`query MyQuery ${props.cache? '@cached' : ''} {
       events (where: {${variables}, status: {_in: [${status}]}} ${order} limit: ${page_size}, offset: ${props.offset || ((props.page - 1) * page_size)}) {
+        pinned
+        theme
         track_id
         extra
         requirement_tags
@@ -3383,6 +3387,8 @@ export async function queryPendingEvent(props: QueryEventProps): Promise<Event[]
 
     const doc = gql`query MyQuery {
       events (where: {${variables} status: {_eq: "pending"}}, ${order} limit: ${page_size}, offset: ${(props.page - 1) * page_size}) {
+        pinned
+        theme
         track_id
         extra
         requirement_tags
@@ -3493,6 +3499,8 @@ export async function queryCohostingEvent(props: { id: number, email?: string })
 
     const doc = gql`query MyQuery {
       events (where: {${variables}}, ${order} limit: ${page_size}) {
+        pinned
+        theme
         track_id
         extra
         requirement_tags
@@ -3918,6 +3926,8 @@ export async function unJoinEvent(props: JoinEventProps) {
 export async function searchEvent(keyword: string, group_id?: number): Promise<Event[]> {
     const doc = gql`query MyQuery {
       events (where: {title: {_iregex: "${keyword}"} , ${group_id ? `group_id: {_eq: ${group_id}},` : ''} status: {_neq: "closed"}}, limit: 10) {
+        pinned
+        theme
         track_id
         extra
         requirement_tags
@@ -6545,6 +6555,8 @@ export async function queryScheduleEvent(props: QueryEventProps): Promise<Event[
 
     const doc = gql`query MyQuery ${props.cache? '@cached' : ''} {
       events (where: {${variables}, status: {_in: [${status}]}} ${order} limit: ${page_size}, offset: ${props.offset || ((props.page - 1) * page_size)}) {
+        pinned
+        theme
         track_id
         extra
         venue_id
@@ -6681,6 +6693,8 @@ export async function queryMapEvent(props: QueryEventProps): Promise<Event[]> {
 
     const doc = gql`query MyQuery ${props.cache? '@cached' : ''} {
       events (where: {${variables}, status: {_in: [${status}]}} ${order} limit: ${page_size}, offset: ${props.offset || ((props.page - 1) * page_size)}) {
+        pinned
+        theme
         track_id
         extra
         requirement_tags

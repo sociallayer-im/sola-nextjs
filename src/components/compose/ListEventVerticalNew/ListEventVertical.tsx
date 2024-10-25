@@ -423,6 +423,29 @@ function ListEventVertical({eventGroup, ...props}: {
         })
     }
 
+    const listGroupedByDate = useMemo(() => {
+        let res : {
+            date: string,
+            events: Event[]
+        }[] = []
+
+        const timezone = dayjs.tz.guess()
+        listToShow.forEach((event) => {
+            const date = dayjs.tz(new Date(event.start_time!).getTime(), eventGroup.timezone || timezone).format('DD MMMM, ddd')
+            const index = res.findIndex(r => r.date === date)
+            if (index === -1) {
+                res.push({
+                    date,
+                    events: [event]
+                })
+            } else {
+                res[index].events.push(event)
+            }
+        })
+
+        return res
+    }, [eventGroup.timezone, listToShow])
+
     return (
         <div className={'module-tabs'}>
             <div className={'tab-titles'}>
@@ -558,13 +581,31 @@ function ListEventVertical({eventGroup, ...props}: {
                 {!listToShow.length && ready ? <Empty/> :
                     <div className={'list'}>
                         {
-                            listToShow.map((item, index) => {
-                                return <CardEvent
-                                    timezone={eventGroup.timezone || undefined}
-                                    fixed={false} key={item.id}
-                                    event={item}/>
+                            listGroupedByDate.map((item, index) => {
+                                return <div key={index} className={'event-group'}>
+                                    <div className={'date'}>{item.date}</div>
+                                    {
+                                        item.events.map((item) => {
+                                            return <CardEvent
+                                                timezone={eventGroup.timezone || undefined}
+                                                fixed={false} key={item.id}
+                                                event={item}/>
+                                        })
+                                    }
+                                </div>
                             })
                         }
+
+
+
+                        {/*{*/}
+                        {/*    listToShow.map((item, index) => {*/}
+                        {/*        return <CardEvent*/}
+                        {/*            timezone={eventGroup.timezone || undefined}*/}
+                        {/*            fixed={false} key={item.id}*/}
+                        {/*            event={item}/>*/}
+                        {/*    })*/}
+                        {/*}*/}
                     </div>
                 }
 
