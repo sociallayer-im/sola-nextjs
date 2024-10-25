@@ -801,8 +801,11 @@ function EventCard({
         })
     }
 
-    const highlight = event.display && event.display.includes('color:') ?
-        {background: `linear-gradient(180deg, #fff -20%, ${event.display.split('color:')[1].split(';')[0]}`} : {}
+    // const highlight = event.display && event.display.includes('color:') ?
+    //     {background: `linear-gradient(180deg, #fff -20%, ${event.display.split('color:')[1].split(';')[0]}`} : {}
+
+    const highlight = event.pinned ?
+        {background: '#FFF7E8'} : undefined
 
     const {defaultAvatar} = usePicture()
     return <div className={styles['schedule-event-card']}
