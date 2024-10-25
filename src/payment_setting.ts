@@ -227,6 +227,22 @@ export const paymentTokenList: PaymentSettingChain[] = process.env.NEXT_PUBLIC_P
                 }
             ]
         },
+        {
+            chain: 'Daimo',
+            id: 'daimo',
+            chainId: 0,
+            icon: '/images/daimo.jpg',
+            payHub: '',
+            tokenList: [
+                {
+                    name: 'USDT',
+                    id: 'usdt',
+                    contract: '0xc2132D05D31c914a87C6611C10748AEb04B58e8F',
+                    icon: '/images/tether_32.webp',
+                    decimals: 6
+                }
+            ]
+        }
         // {
         //     chain: 'Fuji Testnet',
         //     id: 'fuji',
