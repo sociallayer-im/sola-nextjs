@@ -20,8 +20,9 @@ export default function TicketsPurchased(props: {eventGroup?: Group, event?: Eve
         queryTicketItems({
             profile_id: user.id,
         }) .then(res => {
+
             const currGroupTicket = res.filter(ti => {
-                return ti.event_id === props.event?.id
+                return ti.event_id === props.event?.id && ti.status === 'succeeded'
             })
             setTicketItems(currGroupTicket)
         })

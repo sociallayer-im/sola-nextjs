@@ -1,6 +1,6 @@
 import { zuAuthPopup } from "@/libs/zuauth"
-import {edge_tickets} from './edge_tickets'
 import {zuzalu_tickets} from './zuzalu_tickets'
+import {ESMERALDA_TICKET} from '@pcd/zuauth'
 import {setAuth} from "@/utils/authStorage";
 import {useContext} from "react";
 import userContext from "@/components/provider/UserProvider/UserContext";
@@ -20,7 +20,7 @@ function useZuAuth() {
                 revealProductId: true
             },
             watermark: '12345',
-            config: [...edge_tickets, ...zuzalu_tickets],
+            config: [...ESMERALDA_TICKET, ...zuzalu_tickets],
             multi: true
         });
 

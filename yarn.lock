@@ -3242,18 +3242,12 @@
   dependencies:
     ffjavascript "0.3.0"
 
-"@pcd/eddsa-frog-pcd@0.3.1":
-  version "0.3.1"
-  resolved "https://registry.npmjs.org/@pcd/eddsa-frog-pcd/-/eddsa-frog-pcd-0.3.1.tgz#6115162d8a3c49fc1c89660eec4d3265bc9b8335"
-  integrity sha512-VPBXNAMA2QLVNe9mLObHmp77d8pjnq9vPw9t6Oi47tsB1rjN8pHLMJ1RNm6iQ5CtUTdz80a4Jb2dfjzhK0yBNQ==
+"@pcd/circom_runtime@0.3.0":
+  version "0.3.0"
+  resolved "https://registry.npmmirror.com/@pcd/circom_runtime/-/circom_runtime-0.3.0.tgz#97e5e8b9d51ccbd0aaa6e6b04d478a54c2dbed79"
+  integrity sha512-Sfwk22603SwT35MMEmqyW18FJNslh07+jxEatbU51YPoAJAQC+H+h87MaYDOdDp2iMA1W6Q/fLjKKWe2xtgDqA==
   dependencies:
-    "@pcd/eddsa-pcd" "0.6.1"
-    "@pcd/pcd-types" "0.11.1"
-    "@pcd/util" "0.5.1"
-    chai "^4.3.7"
-    json-bigint "^1.0.0"
-    lodash "^4.17.21"
-    uuid "^9.0.0"
+    ffjavascript "0.3.0"
 
 "@pcd/eddsa-frog-pcd@0.3.2":
   version "0.3.2"
@@ -3268,14 +3262,17 @@
     lodash "^4.17.21"
     uuid "^9.0.0"
 
-"@pcd/eddsa-pcd@0.6.1", "@pcd/eddsa-pcd@^0.6.1":
-  version "0.6.1"
-  resolved "https://registry.npmjs.org/@pcd/eddsa-pcd/-/eddsa-pcd-0.6.1.tgz#194ce34d8691a17581c834090112f3471aa1c6be"
-  integrity sha512-XNVwoIlgrJLM5WS70rwAQX1YJ/AA+F0Fh8lKoqdBLkZ2Pu+0B3GhSd2+SKkzAM9vznbpqj931SnakDdb4/02hg==
+"@pcd/eddsa-frog-pcd@0.5.0":
+  version "0.5.0"
+  resolved "https://registry.npmmirror.com/@pcd/eddsa-frog-pcd/-/eddsa-frog-pcd-0.5.0.tgz#ed3bd858371a47fdd4074ce95ba8b1ca811ecbcb"
+  integrity sha512-UC7A7MuK1dc1Arvb+KgTyxXV6u811dT8w4cahkjl2de/X2BGkuYj/Ddt9a/GUlx9BkFR44Rs5C9MSBzrh2pd3g==
   dependencies:
-    "@pcd/pcd-types" "0.11.1"
-    "@pcd/util" "0.5.1"
-    circomlibjs "^0.1.7"
+    "@pcd/eddsa-pcd" "0.8.0"
+    "@pcd/pcd-types" "0.13.0"
+    "@pcd/util" "0.7.0"
+    chai "^4.3.7"
+    json-bigint "^1.0.0"
+    lodash "^4.17.21"
     uuid "^9.0.0"
 
 "@pcd/eddsa-pcd@0.6.2", "@pcd/eddsa-pcd@^0.6.2":
@@ -3288,6 +3285,17 @@
     circomlibjs "^0.1.7"
     uuid "^9.0.0"
 
+"@pcd/eddsa-pcd@0.8.0", "@pcd/eddsa-pcd@^0.8.0":
+  version "0.8.0"
+  resolved "https://registry.npmmirror.com/@pcd/eddsa-pcd/-/eddsa-pcd-0.8.0.tgz#17ff02b7ebda63ec9f4ecc8a2c3f62d7a2a58cdc"
+  integrity sha512-ZQIRRkKVZs6r/Ukd0CgJqw8uBfIlYjf3qeF/oqIeEG/gn/I0dKAsK9ThppRKX3jSeOz/wXHqQmV4BI3h0y1gsg==
+  dependencies:
+    "@pcd/pcd-types" "0.13.0"
+    "@pcd/util" "0.7.0"
+    "@zk-kit/eddsa-poseidon" "1.0.3"
+    poseidon-lite "^0.3.0"
+    uuid "^9.0.0"
+
 "@pcd/eddsa-pcd@^0.6.0":
   version "0.6.0"
   resolved "https://registry.npmmirror.com/@pcd/eddsa-pcd/-/eddsa-pcd-0.6.0.tgz#712cd28286d63051477859cfc6d4a45a6d3b2e8b"
@@ -3296,20 +3304,6 @@
     "@pcd/pcd-types" "0.11.0"
     "@pcd/util" "0.5.0"
     circomlibjs "^0.1.7"
-    uuid "^9.0.0"
-
-"@pcd/eddsa-ticket-pcd@0.6.1", "@pcd/eddsa-ticket-pcd@^0.6.1":
-  version "0.6.1"
-  resolved "https://registry.npmjs.org/@pcd/eddsa-ticket-pcd/-/eddsa-ticket-pcd-0.6.1.tgz#0eccfab53d0870d273d3b116158209833902cebc"
-  integrity sha512-dLt/oVuHxhlRcvVEhIpeNUzyyl+XnChLc/AU1ris/Pv7aPyADWtAKfPzq8/87t5l9X6SnkUiLwaQII607J1+nw==
-  dependencies:
-    "@pcd/eddsa-pcd" "0.6.1"
-    "@pcd/pcd-types" "0.11.1"
-    "@pcd/util" "0.5.1"
-    chai "^4.3.7"
-    json-bigint "^1.0.0"
-    lodash "^4.17.21"
-    url-join "4.0.1"
     uuid "^9.0.0"
 
 "@pcd/eddsa-ticket-pcd@0.6.2", "@pcd/eddsa-ticket-pcd@^0.6.2":
@@ -3326,17 +3320,18 @@
     url-join "4.0.1"
     uuid "^9.0.0"
 
-"@pcd/email-pcd@^0.6.1":
-  version "0.6.1"
-  resolved "https://registry.npmjs.org/@pcd/email-pcd/-/email-pcd-0.6.1.tgz#4ab15dc1a612ca1f7a2f1d703742e1a955f67c7b"
-  integrity sha512-M0b/hDh0GmAkJmGKnTu7r3cE1Kjr0lqgT87RHhsOEYqgOze5NJleGXz0e2wBk40we5P/TqvR3NcaB/8KJioXmg==
+"@pcd/eddsa-ticket-pcd@0.8.0", "@pcd/eddsa-ticket-pcd@^0.8.0":
+  version "0.8.0"
+  resolved "https://registry.npmmirror.com/@pcd/eddsa-ticket-pcd/-/eddsa-ticket-pcd-0.8.0.tgz#bfda1b2aa0153451b03e33bf626cfd9770fe079a"
+  integrity sha512-mNZOGKXBGnbeuFiBVPyj4QHPSSshG6XQ3+Ey8N+fzasg2up/7yor5NfZO8HEudFFT/9HT/1oMoyq6A4dYJh/Ww==
   dependencies:
-    "@pcd/eddsa-pcd" "0.6.1"
-    "@pcd/pcd-types" "0.11.1"
-    "@pcd/util" "0.5.1"
+    "@pcd/eddsa-pcd" "0.8.0"
+    "@pcd/pcd-types" "0.13.0"
+    "@pcd/util" "0.7.0"
     chai "^4.3.7"
     json-bigint "^1.0.0"
     lodash "^4.17.21"
+    url-join "4.0.1"
     uuid "^9.0.0"
 
 "@pcd/email-pcd@^0.6.2":
@@ -3352,12 +3347,18 @@
     lodash "^4.17.21"
     uuid "^9.0.0"
 
-"@pcd/emitter@0.5.1":
-  version "0.5.1"
-  resolved "https://registry.npmjs.org/@pcd/emitter/-/emitter-0.5.1.tgz#5087a3f706d298cb0b9d4a03654e817155cb2140"
-  integrity sha512-mV9PTpBfTJ6WDbn1M+cXoOW4XnXX5wNY//GDXDeW4BGXR/t5gUwL8DujEWNY74dMgbRHoT+Tl8884r7QT7vF1A==
+"@pcd/email-pcd@^0.8.0":
+  version "0.8.0"
+  resolved "https://registry.npmmirror.com/@pcd/email-pcd/-/email-pcd-0.8.0.tgz#eabb64599918ab95a58d6d5443d2341e8a2bbd77"
+  integrity sha512-KkXAQTH5v+lMc0xZQDMeLAFi4xH7k70RDjzpETqJwBZ7sZQ1NopMYzQtlEdCQB9+NQHG7sDEmkdMzNAIzbFxBg==
   dependencies:
+    "@pcd/eddsa-pcd" "0.8.0"
+    "@pcd/pcd-types" "0.13.0"
+    "@pcd/util" "0.7.0"
     chai "^4.3.7"
+    json-bigint "^1.0.0"
+    lodash "^4.17.21"
+    uuid "^9.0.0"
 
 "@pcd/emitter@0.5.2":
   version "0.5.2"
@@ -3366,19 +3367,17 @@
   dependencies:
     chai "^4.3.7"
 
+"@pcd/emitter@0.7.0":
+  version "0.7.0"
+  resolved "https://registry.npmmirror.com/@pcd/emitter/-/emitter-0.7.0.tgz#b05e87453978bce97138b64ded8d5c12cf5b0464"
+  integrity sha512-jE9ck65Yray38sWT+zONo9XyaSP3V9HPsV5DwYzxEK5Rwt/gyHlUbYByJrdKa3DMUjmNM54ufnSDnefQp6wyQQ==
+  dependencies:
+    chai "^4.3.7"
+
 "@pcd/eslint-config-custom@^0.8.0":
   version "0.8.0"
   resolved "https://registry.npmmirror.com/@pcd/eslint-config-custom/-/eslint-config-custom-0.8.0.tgz#b09e6f9deee200d2ff7eb42d6926ddd8da82baa6"
   integrity sha512-ktjOVzOY0YXcq74WBd+PPcM4rXlavC1gIKgcE9OApKrc+naedSnrI8WQ71VpRswTWUCi6Jw/Hjw4ChMS95hNjA==
-
-"@pcd/obj-pcd@0.0.2":
-  version "0.0.2"
-  resolved "https://registry.npmjs.org/@pcd/obj-pcd/-/obj-pcd-0.0.2.tgz#f652264e1ff4f787b2c557866f584b182ab71e3a"
-  integrity sha512-0VDWB7ueq3PpWgr9EzF4pdzOl+NV4uwkqTsi7OeIIA7KNO5qLhOP/DY4yHkrt/uv25qoGotgTHMnQYKrxCQt0w==
-  dependencies:
-    "@pcd/pcd-types" "^0.11.1"
-    "@pcd/util" "^0.5.1"
-    uuid "^9.0.1"
 
 "@pcd/obj-pcd@0.0.3":
   version "0.0.3"
@@ -3389,18 +3388,18 @@
     "@pcd/util" "^0.5.2"
     uuid "^9.0.1"
 
-"@pcd/passport-crypto@0.11.1":
-  version "0.11.1"
-  resolved "https://registry.npmjs.org/@pcd/passport-crypto/-/passport-crypto-0.11.1.tgz#2716e9f30f126a067561364a146015d21ba59c58"
-  integrity sha512-WMPBEuCb8dpCNyj/nqF4MeSkPZv2EBx+NDFELD9njzlGkzlO11mjZN4S297Q1BfQNBCY+h4gyMLLrRls4nDJ5Q==
-  dependencies:
-    buffer "^6.0.3"
-    libsodium-wrappers-sumo "^0.7.11"
-
 "@pcd/passport-crypto@0.11.2":
   version "0.11.2"
   resolved "https://registry.npmjs.org/@pcd/passport-crypto/-/passport-crypto-0.11.2.tgz#a7377b13faf434a4bdd7a1c7d33a924b3df64557"
   integrity sha512-KVh6rQ9qzMhLnSYZNDCDN83c5s/A2W/bW+wXsOzn0cWM0r0a8s06GDGw1psfLsyj9KByONFWoLimSUrbUqpN8g==
+  dependencies:
+    buffer "^6.0.3"
+    libsodium-wrappers-sumo "^0.7.11"
+
+"@pcd/passport-crypto@0.13.0":
+  version "0.13.0"
+  resolved "https://registry.npmmirror.com/@pcd/passport-crypto/-/passport-crypto-0.13.0.tgz#75a8c3c9ea59a8d8a712f086a36b20cbab89fc03"
+  integrity sha512-2SUaB+JHJvbkCF29J3IRhI/PhPT+snvT2zXU56xgrsQt22elr2JtYKgVNOcaHGnZQfETD6ToeIREOj5te/wUCw==
   dependencies:
     buffer "^6.0.3"
     libsodium-wrappers-sumo "^0.7.11"
@@ -3433,26 +3432,26 @@
     uuid "^9.0.0"
     zod "^3.22.4"
 
-"@pcd/passport-interface@^0.11.2":
-  version "0.11.2"
-  resolved "https://registry.npmjs.org/@pcd/passport-interface/-/passport-interface-0.11.2.tgz#fa517c58902deba7cd19f1078fbb65a46f738e5f"
-  integrity sha512-A+XtCbfazflkX/bRqtIS8T8C8nyGgSp6t2+O7Cr4zHfLjg39kaUkmkKIIYlPlKeikqgYoMoi2C1n3W9u0OdU+g==
+"@pcd/passport-interface@^0.13.0":
+  version "0.13.0"
+  resolved "https://registry.npmmirror.com/@pcd/passport-interface/-/passport-interface-0.13.0.tgz#e1b77a2c0f2fa02b882cff8349b08a88cf5e9484"
+  integrity sha512-Bkv2unQ/HSCI89di0dFVZivx5ureoQ61/of0hbojkIaLL2UKcv9Xxt14988yx2ce+4W2C9nV0OhMYEgrESC79g==
   dependencies:
-    "@pcd/eddsa-frog-pcd" "0.3.1"
-    "@pcd/eddsa-pcd" "^0.6.1"
-    "@pcd/eddsa-ticket-pcd" "0.6.1"
-    "@pcd/email-pcd" "^0.6.1"
-    "@pcd/emitter" "0.5.1"
-    "@pcd/obj-pcd" "0.0.2"
-    "@pcd/passport-crypto" "0.11.1"
-    "@pcd/pcd-collection" "0.11.1"
-    "@pcd/pcd-types" "0.11.1"
-    "@pcd/pod" "0.1.1"
-    "@pcd/pod-pcd" "0.1.1"
-    "@pcd/semaphore-group-pcd" "0.11.1"
-    "@pcd/semaphore-identity-pcd" "0.11.1"
-    "@pcd/semaphore-signature-pcd" "0.11.1"
-    "@pcd/util" "0.5.1"
+    "@pcd/eddsa-frog-pcd" "0.5.0"
+    "@pcd/eddsa-pcd" "^0.8.0"
+    "@pcd/eddsa-ticket-pcd" "0.8.0"
+    "@pcd/email-pcd" "^0.8.0"
+    "@pcd/emitter" "0.7.0"
+    "@pcd/passport-crypto" "0.13.0"
+    "@pcd/pcd-collection" "0.13.0"
+    "@pcd/pcd-types" "0.13.0"
+    "@pcd/pod" "0.3.0"
+    "@pcd/pod-pcd" "0.3.0"
+    "@pcd/pod-ticket-pcd" "0.3.0"
+    "@pcd/semaphore-group-pcd" "0.13.0"
+    "@pcd/semaphore-identity-pcd" "0.13.0"
+    "@pcd/semaphore-signature-pcd" "0.13.0"
+    "@pcd/util" "0.7.0"
     "@semaphore-protocol/identity" "^3.15.2"
     fast-json-stable-stringify "^2.1.0"
     js-sha256 "^0.10.1"
@@ -3460,20 +3459,6 @@
     url-join "4.0.1"
     uuid "^9.0.0"
     zod "^3.22.4"
-
-"@pcd/pcd-collection@0.11.1":
-  version "0.11.1"
-  resolved "https://registry.npmjs.org/@pcd/pcd-collection/-/pcd-collection-0.11.1.tgz#aee00b6928039998db6784f22887d205c092e1cf"
-  integrity sha512-sHnLgdFZzJhJWoTO3s0mUF01UV1yFoCccEprNeTP4MEgfYqlzGZUiMLF2nyxpOoO08QlrUdb9xHeCy8c5MEoyg==
-  dependencies:
-    "@pcd/emitter" "0.5.1"
-    "@pcd/passport-crypto" "0.11.1"
-    "@pcd/pcd-types" "0.11.1"
-    "@pcd/semaphore-identity-pcd" "0.11.1"
-    chai "^4.3.7"
-    fast-json-stable-stringify "^2.1.0"
-    lodash "^4.17.21"
-    uuid "^9.0.0"
 
 "@pcd/pcd-collection@0.11.2":
   version "0.11.2"
@@ -3489,36 +3474,39 @@
     lodash "^4.17.21"
     uuid "^9.0.0"
 
+"@pcd/pcd-collection@0.13.0":
+  version "0.13.0"
+  resolved "https://registry.npmmirror.com/@pcd/pcd-collection/-/pcd-collection-0.13.0.tgz#935637956b109502af51be24061185da67a62083"
+  integrity sha512-P93FzxLIqOs/RBSidh+8JMjqh+AZDS7886MkLlWd0OJiow0j9O/VmTu8ZBof6qbaK+hiYtl6/FzFf67k6v6g7w==
+  dependencies:
+    "@pcd/emitter" "0.7.0"
+    "@pcd/passport-crypto" "0.13.0"
+    "@pcd/pcd-types" "0.13.0"
+    "@pcd/semaphore-identity-pcd" "0.13.0"
+    chai "^4.3.7"
+    fast-json-stable-stringify "^2.1.0"
+    lodash "^4.17.21"
+    uuid "^9.0.0"
+
 "@pcd/pcd-types@0.11.0":
   version "0.11.0"
   resolved "https://registry.npmmirror.com/@pcd/pcd-types/-/pcd-types-0.11.0.tgz#3d839a9840e38e88836c397f81809f8a3370c3b1"
   integrity sha512-N5HAKE4fkz8+dk5KvBIDL0mpMJ4swlcLbXHXaI5mHiCABCvWAsd3xtNKouTRt6On9rRDzLzliFFUZd4+0CFSWg==
-
-"@pcd/pcd-types@0.11.1", "@pcd/pcd-types@^0.11.1":
-  version "0.11.1"
-  resolved "https://registry.npmmirror.com/@pcd/pcd-types/-/pcd-types-0.11.1.tgz#8ad8b4560b829e60205981abb1f52212c4015b68"
-  integrity sha512-wTjeMuglVNf2JiwNiedgzstbrKOLqKs3g3MdZ12HRaGHehtFDIZXNwFxVP6tkNzrmm3zXyAnp8qqzYDOHTKmPw==
 
 "@pcd/pcd-types@0.11.2", "@pcd/pcd-types@^0.11.2":
   version "0.11.2"
   resolved "https://registry.npmjs.org/@pcd/pcd-types/-/pcd-types-0.11.2.tgz#89a4bc5d30d5c364f75321c31efe61fed946be36"
   integrity sha512-x6Gm1wTiR/ly7aW5ScY33e3pG+GBtPzBVUp98ntcIMd4uADKeKUlNMBmprddq378ATG4FaB9aXwCJp3nEKSSHQ==
 
+"@pcd/pcd-types@0.13.0", "@pcd/pcd-types@^0.13.0":
+  version "0.13.0"
+  resolved "https://registry.npmmirror.com/@pcd/pcd-types/-/pcd-types-0.13.0.tgz#d8f62933cff7b9ae45c7b7c9afe9a6bdff8f23df"
+  integrity sha512-TJo4oSHaLwaEdCouHc/KW7cMJrBWvBNdak0lC4XFdqGgw5A6pXxwUpz0XgK2wLibpNcfKMXcWfOoCB7L4bR5eg==
+
 "@pcd/pcd-types@^0.8.0":
   version "0.8.0"
   resolved "https://registry.npmmirror.com/@pcd/pcd-types/-/pcd-types-0.8.0.tgz#0a849099ce473daacbbbb0b403b769358f612d7b"
   integrity sha512-3+9bRpidRK7GNSlRZWBM1NJckn9q4Ki81StoL6w/52k9FUIGpdGNP5ymZhyZcUOi9JXh2zCiKXLLL5EPL6441w==
-
-"@pcd/pod-pcd@0.1.1":
-  version "0.1.1"
-  resolved "https://registry.npmjs.org/@pcd/pod-pcd/-/pod-pcd-0.1.1.tgz#08c719bb42183bb859ec0cbdcdf356061f12807b"
-  integrity sha512-jCD/7hKv3USMjWM3CrFXKpm7fHO2NMLqUjMEpB/8H5pn7gKxuvZzM91SWLegJJkNCzzsb+JZqkERFTz+vHXSkg==
-  dependencies:
-    "@pcd/pcd-types" "0.11.1"
-    "@pcd/pod" "0.1.1"
-    "@pcd/util" "0.5.1"
-    json-bigint "^1.0.0"
-    uuid "^9.0.0"
 
 "@pcd/pod-pcd@0.1.2":
   version "0.1.2"
@@ -3531,19 +3519,29 @@
     json-bigint "^1.0.0"
     uuid "^9.0.0"
 
-"@pcd/pod@0.1.1":
-  version "0.1.1"
-  resolved "https://registry.npmjs.org/@pcd/pod/-/pod-0.1.1.tgz#1a699083aae5407f41665c5f6cac89c633f23cf6"
-  integrity sha512-gTphxqrsefVGdrPdywqtF6hCgxbbqXebRlHaUJe6KA41QuPRPtSIuQIxjIZ6fAUL8V+E4RrWvhpQaUG7US1uLg==
+"@pcd/pod-pcd@0.3.0":
+  version "0.3.0"
+  resolved "https://registry.npmmirror.com/@pcd/pod-pcd/-/pod-pcd-0.3.0.tgz#2ac54f1a8d90373d9c583add6670175f36d99716"
+  integrity sha512-XFGmg6Htd30kDmpEchjHRVfY4BANXU+lL6LS3cIpzDaQfaWBWoU+DfCKod2T0U7lO8GdjQALmG00Mn9DFPMtgg==
   dependencies:
-    "@pcd/util" "0.5.1"
-    "@zk-kit/baby-jubjub" "1.0.0-beta"
-    "@zk-kit/eddsa-poseidon" "1.0.0-beta"
-    "@zk-kit/imt" "2.0.0-beta.4"
-    "@zk-kit/utils" "1.0.0-beta.4"
-    js-sha256 "^0.10.1"
+    "@pcd/pcd-types" "0.13.0"
+    "@pcd/pod" "0.3.0"
+    "@pcd/util" "0.7.0"
     json-bigint "^1.0.0"
-    poseidon-lite "^0.2.0"
+    uuid "^9.0.0"
+
+"@pcd/pod-ticket-pcd@0.3.0":
+  version "0.3.0"
+  resolved "https://registry.npmmirror.com/@pcd/pod-ticket-pcd/-/pod-ticket-pcd-0.3.0.tgz#c11b3f2e64eb9282a53736ec2d9f5640d2ce49ed"
+  integrity sha512-u+yZ8sKmcYx9JBXRYqlnOFM5RGVORzAa/q1oZj5mzvfoCMl8VsUvd/Dn9MLj+ZGmmsk/ZImnEw8ZskVJkczUqA==
+  dependencies:
+    "@pcd/pcd-types" "0.13.0"
+    "@pcd/pod" "0.3.0"
+    "@pcd/pod-pcd" "0.3.0"
+    "@pcd/util" "0.7.0"
+    json-bigint "^1.0.0"
+    uuid "^9.0.0"
+    zod "^3.22.4"
 
 "@pcd/pod@0.1.2":
   version "0.1.2"
@@ -3559,21 +3557,18 @@
     json-bigint "^1.0.0"
     poseidon-lite "^0.2.0"
 
-"@pcd/semaphore-group-pcd@0.11.1":
-  version "0.11.1"
-  resolved "https://registry.npmjs.org/@pcd/semaphore-group-pcd/-/semaphore-group-pcd-0.11.1.tgz#08355adb4ae474de211492a816dbc6b565b765c9"
-  integrity sha512-yykPezrVeD3Vqotl009FmZDUUsjVAPBvy8xRrb7HY3be5/XdRjZtX+AXgiezxF8ZgWEARPwqkOqtetpwuRCmww==
+"@pcd/pod@0.3.0":
+  version "0.3.0"
+  resolved "https://registry.npmmirror.com/@pcd/pod/-/pod-0.3.0.tgz#4b6e041fc867a1d632d309dd3009d6845b26ae5d"
+  integrity sha512-7bWchkdMn1z+cZcNdNMl9t7WhFfhmbT3xVKojZWDxKW/cB60t/ohZ+SIgzf0/6TnY4NqRK+udsI3pn2D2wszmA==
   dependencies:
-    "@pcd/pcd-types" "0.11.1"
-    "@pcd/semaphore-identity-pcd" "0.11.1"
-    "@pcd/semaphore-signature-pcd" "0.11.1"
-    "@pcd/util" "0.5.1"
-    "@semaphore-protocol/group" "^3.15.2"
-    "@semaphore-protocol/identity" "^3.15.2"
-    "@semaphore-protocol/proof" "^3.15.2"
+    "@pcd/util" "0.7.0"
+    "@zk-kit/eddsa-poseidon" "1.0.3"
+    "@zk-kit/lean-imt" "2.2.1"
+    "@zk-kit/utils" "1.2.1"
+    js-sha256 "^0.10.1"
     json-bigint "^1.0.0"
-    typescript "^5.3.3"
-    uuid "^9.0.0"
+    poseidon-lite "^0.3.0"
 
 "@pcd/semaphore-group-pcd@0.11.2":
   version "0.11.2"
@@ -3591,15 +3586,20 @@
     typescript "^5.3.3"
     uuid "^9.0.0"
 
-"@pcd/semaphore-identity-pcd@0.11.1", "@pcd/semaphore-identity-pcd@^0.11.1":
-  version "0.11.1"
-  resolved "https://registry.npmjs.org/@pcd/semaphore-identity-pcd/-/semaphore-identity-pcd-0.11.1.tgz#f409e6b99487a1ff7c60f5a933cf48a71e38e5a3"
-  integrity sha512-e408sdjnmQd+mSs2rYdoBu3MH8+ACEkiX5p63YMrJq7vWeJWWG4MEjGlcfb+Do9nUMis1lQerzqz7TRvjAmbTQ==
+"@pcd/semaphore-group-pcd@0.13.0":
+  version "0.13.0"
+  resolved "https://registry.npmmirror.com/@pcd/semaphore-group-pcd/-/semaphore-group-pcd-0.13.0.tgz#4ef6719a40384f07318531cb1552e5c73ec4f492"
+  integrity sha512-FGFuZv0NCbCo7L7rjUJnrl4bjzfJ6AGXqG57H8gV2L7QTIRx6VQO7xxRrPXZeTE4aYgnZFd5C1oS/+38zYNS2g==
   dependencies:
-    "@pcd/pcd-types" "0.11.1"
-    "@pcd/util" "0.5.1"
+    "@pcd/pcd-types" "0.13.0"
+    "@pcd/semaphore-identity-pcd" "0.13.0"
+    "@pcd/semaphore-signature-pcd" "0.13.0"
+    "@pcd/util" "0.7.0"
+    "@semaphore-protocol/group" "^3.15.2"
     "@semaphore-protocol/identity" "^3.15.2"
+    "@semaphore-protocol/proof" "^3.15.2"
     json-bigint "^1.0.0"
+    typescript "^5.3.3"
     uuid "^9.0.0"
 
 "@pcd/semaphore-identity-pcd@0.11.2", "@pcd/semaphore-identity-pcd@^0.11.2":
@@ -3613,18 +3613,22 @@
     json-bigint "^1.0.0"
     uuid "^9.0.0"
 
-"@pcd/semaphore-signature-pcd@0.11.1":
-  version "0.11.1"
-  resolved "https://registry.npmmirror.com/@pcd/semaphore-signature-pcd/-/semaphore-signature-pcd-0.11.1.tgz#0963f0b2f85cf7a39e07bfee0d159d5c0de9e79b"
-  integrity sha512-PhuSGJx1OEmNZ6/r15fPRoW53OSZmM843PApp0usjZh0Yp8kNR+IIcVlbY9hN9jyxOUjSZYv51KwlxZCKz948A==
+"@pcd/semaphore-identity-pcd@0.13.0", "@pcd/semaphore-identity-pcd@^0.13.0":
+  version "0.13.0"
+  resolved "https://registry.npmmirror.com/@pcd/semaphore-identity-pcd/-/semaphore-identity-pcd-0.13.0.tgz#926ca896965abf3281049df8add57781bcf037d3"
+  integrity sha512-AObjS5p7Cxow6cPUdqgZ4BzjpQ67PbceciXkD/CLKUnPQnx7JztdSYLTxBXkoE/COLrWndc07WrN6w1zpNqYtA==
   dependencies:
-    "@pcd/pcd-types" "0.11.1"
-    "@pcd/semaphore-identity-pcd" "0.11.1"
-    "@pcd/util" "0.5.1"
-    "@semaphore-protocol/group" "^3.15.2"
+    "@pcd/pcd-types" "0.13.0"
+    "@pcd/pod" "0.3.0"
+    "@pcd/util" "0.7.0"
     "@semaphore-protocol/identity" "^3.15.2"
-    "@semaphore-protocol/proof" "^3.15.2"
+    "@types/json-bigint" "^1.0.3"
+    "@zk-kit/eddsa-poseidon" "1.0.3"
+    "@zk-kit/utils" "^1.2.1"
+    js-sha256 "^0.11.0"
     json-bigint "^1.0.0"
+    poseidon-lite "^0.3.0"
+    semaphore-identity-v4 "npm:@semaphore-protocol/identity@^4.0.3"
     uuid "^9.0.0"
 
 "@pcd/semaphore-signature-pcd@0.11.2":
@@ -3635,6 +3639,20 @@
     "@pcd/pcd-types" "0.11.2"
     "@pcd/semaphore-identity-pcd" "0.11.2"
     "@pcd/util" "0.5.2"
+    "@semaphore-protocol/group" "^3.15.2"
+    "@semaphore-protocol/identity" "^3.15.2"
+    "@semaphore-protocol/proof" "^3.15.2"
+    json-bigint "^1.0.0"
+    uuid "^9.0.0"
+
+"@pcd/semaphore-signature-pcd@0.13.0":
+  version "0.13.0"
+  resolved "https://registry.npmmirror.com/@pcd/semaphore-signature-pcd/-/semaphore-signature-pcd-0.13.0.tgz#e55a5f2c4f2043a2899b406d0d1818c765c0538a"
+  integrity sha512-NGSCnomKeKUMYZqWTji7GTO1VgvmlEsKnOSMcAXduvAOOrhTm6W43qLS/XWnZ2AFy3fXnQlZI8gV2jAsm6Kp3Q==
+  dependencies:
+    "@pcd/pcd-types" "0.13.0"
+    "@pcd/semaphore-identity-pcd" "0.13.0"
+    "@pcd/util" "0.7.0"
     "@semaphore-protocol/group" "^3.15.2"
     "@semaphore-protocol/identity" "^3.15.2"
     "@semaphore-protocol/proof" "^3.15.2"
@@ -3657,21 +3675,26 @@
     logplease "^1.2.15"
     r1csfile "0.0.48"
 
+"@pcd/snarkjs@0.9.0":
+  version "0.9.0"
+  resolved "https://registry.npmmirror.com/@pcd/snarkjs/-/snarkjs-0.9.0.tgz#f8e0ff0feb2380c5361d87121886b473558beafa"
+  integrity sha512-KDZ4hietKkdJ5Dt/MQXBed9vlFNfxXcsCWlQ8d37UrLjLgl4PDMZht4/1YdICJ1PDGuvj2+T4QJWRsmUvprDbw==
+  dependencies:
+    "@iden3/binfileutils" "0.0.12"
+    "@pcd/circom_runtime" "0.3.0"
+    bfj "^7.0.2"
+    blake2b-wasm "^2.4.0"
+    ejs "^3.1.6"
+    fastfile "0.0.20"
+    ffjavascript "0.3.0"
+    js-sha3 "^0.8.0"
+    logplease "^1.2.15"
+    r1csfile "0.0.48"
+
 "@pcd/util@0.5.0", "@pcd/util@^0.5.0":
   version "0.5.0"
   resolved "https://registry.npmmirror.com/@pcd/util/-/util-0.5.0.tgz#8a095db7d70316bcc15273b2516869a1484ffff1"
   integrity sha512-cQDSxZaudcASyUmVsIBVznLNeXRgcGSpdQXTEYY42ft/OtvrKwLc3nH2CURdNCYyJXW5lCAmt19RtMT8IFodVQ==
-  dependencies:
-    buffer "^6.0.3"
-    email-validator "^2.0.4"
-    js-sha256 "^0.10.1"
-    secure-random "^1.1.2"
-    uuid "^9.0.0"
-
-"@pcd/util@0.5.1", "@pcd/util@^0.5.1":
-  version "0.5.1"
-  resolved "https://registry.npmmirror.com/@pcd/util/-/util-0.5.1.tgz#fae9ceded4418312d6a1a46cd033f4bc3aab8115"
-  integrity sha512-+gjJACUV6mDZtfgCEIOv79cyJv0xkEseI2iuV9gvpLwm5DZy94JZg9YdPgsOKZU1R4roaXv30/7RWsYt7y368g==
   dependencies:
     buffer "^6.0.3"
     email-validator "^2.0.4"
@@ -3690,21 +3713,15 @@
     secure-random "^1.1.2"
     uuid "^9.0.0"
 
-"@pcd/zk-eddsa-event-ticket-pcd@^0.6.1":
-  version "0.6.1"
-  resolved "https://registry.npmjs.org/@pcd/zk-eddsa-event-ticket-pcd/-/zk-eddsa-event-ticket-pcd-0.6.1.tgz#5f7439e7a3c5fcdcaa155261e26c9a69e479cc14"
-  integrity sha512-lcTnF7GefbwG1MQ0owJ0o81TbWedYHBlGO0QQzLWmm2akMH7VcmK+CjhMOFalhr25e1LNqovNMSzgL4nf4hTGw==
+"@pcd/util@0.7.0":
+  version "0.7.0"
+  resolved "https://registry.npmmirror.com/@pcd/util/-/util-0.7.0.tgz#7ab1f75edf303f1002ab6812dfa53ac073aae58e"
+  integrity sha512-LVSNKvTppLhqNvjwFyXm1eVPuIh8NglsFx4epy6/LiMtr6GfrFDou6+R7kT33CAfACDsyVf/vw15ugRCnN6h9A==
   dependencies:
-    "@pcd/eddsa-pcd" "0.6.1"
-    "@pcd/eddsa-ticket-pcd" "0.6.1"
-    "@pcd/pcd-types" "^0.11.1"
-    "@pcd/semaphore-identity-pcd" "0.11.1"
-    "@pcd/semaphore-signature-pcd" "0.11.1"
-    "@pcd/util" "0.5.1"
-    "@semaphore-protocol/identity" "^3.15.2"
-    circomlibjs "^0.1.7"
-    json-bigint "^1.0.0"
-    snarkjs "^0.7.4"
+    buffer "^6.0.3"
+    email-validator "^2.0.4"
+    js-sha256 "^0.10.1"
+    secure-random "^1.1.2"
     uuid "^9.0.0"
 
 "@pcd/zk-eddsa-event-ticket-pcd@^0.6.2":
@@ -3725,17 +3742,35 @@
     snarkjs "^0.7.4"
     uuid "^9.0.0"
 
-"@pcd/zuauth@1.4.0":
-  version "1.4.0"
-  resolved "https://registry.npmjs.org/@pcd/zuauth/-/zuauth-1.4.0.tgz#985e0f625bb80ebcc88d1cc2a17d932f2826152e"
-  integrity sha512-ArnjOY66N7cL1pJCRkpme0QJqTDuA8rJ2ry2gN+F3tkigLK7jfrW+88cwmR0iSKoXIeXTkTFeBRA8iIgrxKy+w==
+"@pcd/zk-eddsa-event-ticket-pcd@^0.8.0":
+  version "0.8.0"
+  resolved "https://registry.npmmirror.com/@pcd/zk-eddsa-event-ticket-pcd/-/zk-eddsa-event-ticket-pcd-0.8.0.tgz#bc5f52bd9d975ed971e1681f786190e95c14552e"
+  integrity sha512-nd3Mehu7QQT85srqkKo7QusbUQlK6eSAwdRZl9iA8BHgJ82yEJzpEmx7YhpMcKCQZmdXvhdxhMls90w1/CZQCw==
   dependencies:
-    "@pcd/eddsa-pcd" "^0.6.1"
-    "@pcd/eddsa-ticket-pcd" "^0.6.1"
-    "@pcd/passport-interface" "^0.11.2"
-    "@pcd/pcd-types" "^0.11.1"
-    "@pcd/semaphore-identity-pcd" "^0.11.1"
-    "@pcd/zk-eddsa-event-ticket-pcd" "^0.6.1"
+    "@pcd/eddsa-pcd" "0.8.0"
+    "@pcd/eddsa-ticket-pcd" "0.8.0"
+    "@pcd/pcd-types" "^0.13.0"
+    "@pcd/semaphore-identity-pcd" "0.13.0"
+    "@pcd/semaphore-signature-pcd" "0.13.0"
+    "@pcd/snarkjs" "0.9.0"
+    "@pcd/util" "0.7.0"
+    "@semaphore-protocol/identity" "^3.15.2"
+    "@zk-kit/eddsa-poseidon" "1.0.3"
+    json-bigint "^1.0.0"
+    snarkjs "^0.7.4"
+    uuid "^9.0.0"
+
+"@pcd/zuauth@^1.6.0":
+  version "1.6.0"
+  resolved "https://registry.npmmirror.com/@pcd/zuauth/-/zuauth-1.6.0.tgz#160de317019f89463ec2b6b2870f535cb3c71d9b"
+  integrity sha512-c+42anqJknz7d+S0ssaB4rLnIhRwy6Re2pNXKVHeKkFbnS2hfk+slu5ggtEtunnfjhAlTpOcF+5duXp3p62jWA==
+  dependencies:
+    "@pcd/eddsa-pcd" "^0.8.0"
+    "@pcd/eddsa-ticket-pcd" "^0.8.0"
+    "@pcd/passport-interface" "^0.13.0"
+    "@pcd/pcd-types" "^0.13.0"
+    "@pcd/semaphore-identity-pcd" "^0.13.0"
+    "@pcd/zk-eddsa-event-ticket-pcd" "^0.8.0"
 
 "@pkgjs/parseargs@^0.11.0":
   version "0.11.0"
@@ -7398,7 +7433,7 @@
     "@types/tough-cookie" "*"
     parse5 "^7.0.0"
 
-"@types/json-bigint@^1.0.4":
+"@types/json-bigint@^1.0.3", "@types/json-bigint@^1.0.4":
   version "1.0.4"
   resolved "https://registry.npmmirror.com/@types/json-bigint/-/json-bigint-1.0.4.tgz#250d29e593375499d8ba6efaab22d094c3199ef3"
   integrity sha512-ydHooXLbOmxBbubnA7Eh+RpBzuaIiQjh8WGJYQB50JFGFrdxW7JzVlyEV7fAXw0T2sqJ1ysTneJbiyNLqZRAag==
@@ -7425,10 +7460,23 @@
   resolved "https://registry.npmmirror.com/@types/libsodium-wrappers/-/libsodium-wrappers-0.7.13.tgz#769c4ea01de96bb297207586a70777ebf066dcb4"
   integrity sha512-KeAKtlObirLJk/na6jHBFEdTDjDfFS6Vcr0eG2FjiHKn3Nw8axJFfIu0Y9TpwaauRldQBj/pZm/MHtK76r6OWg==
 
+"@types/linkify-it@^5":
+  version "5.0.0"
+  resolved "https://registry.npmmirror.com/@types/linkify-it/-/linkify-it-5.0.0.tgz#21413001973106cda1c3a9b91eedd4ccd5469d76"
+  integrity sha512-sVDA58zAw4eWAffKOaQH5/5j3XeayukzDk+ewSsnv3p4yJEZHCCzMDiZM8e0OUrRvmpGZ85jf4yDHkHsgBNr9Q==
+
 "@types/lodash@^4.14.136", "@types/lodash@^4.14.167", "@types/lodash@^4.14.191":
   version "4.14.202"
   resolved "https://registry.npmmirror.com/@types/lodash/-/lodash-4.14.202.tgz#f09dbd2fb082d507178b2f2a5c7e74bd72ff98f8"
   integrity sha512-OvlIYQK9tNneDlS0VN54LLd5uiPCBOp7gS5Z0f1mjoJYBrtStzgmJBxONW3U6OZqdtNzZPmn9BS/7WI7BFFcFQ==
+
+"@types/markdown-it@^14.1.2":
+  version "14.1.2"
+  resolved "https://registry.npmmirror.com/@types/markdown-it/-/markdown-it-14.1.2.tgz#57f2532a0800067d9b934f3521429a2e8bfb4c61"
+  integrity sha512-promo4eFwuiW+TfGxhi+0x3czqTYJkG8qB17ZUJiVF10Xm7NLVRSLUsfRTU/6h1e24VvRnXCx+hG7li58lkzog==
+  dependencies:
+    "@types/linkify-it" "^5"
+    "@types/mdurl" "^2"
 
 "@types/mdast@^3.0.0":
   version "3.0.15"
@@ -7436,6 +7484,11 @@
   integrity sha512-LnwD+mUEfxWMa1QpDraczIn6k0Ee3SMicuYSSzS6ZYl2gKS09EClnJYGd8Du6rfc5r/GZEk5o1mRb8TaTj03sQ==
   dependencies:
     "@types/unist" "^2"
+
+"@types/mdurl@^2":
+  version "2.0.0"
+  resolved "https://registry.npmmirror.com/@types/mdurl/-/mdurl-2.0.0.tgz#d43878b5b20222682163ae6f897b20447233bdfd"
+  integrity sha512-RGdgjQUZba5p6QEFAVx2OGb8rQDL/cPRG7GiedRzMcJ1tYnUANBncjbSB1NRGwbvjcPeikRABz2nshyPk1bhWg==
 
 "@types/mdx@^2.0.0":
   version "2.0.11"
@@ -8059,7 +8112,7 @@
     "@walletconnect/time" "^1.0.2"
     tslib "1.14.1"
 
-"@walletconnect/jsonrpc-http-connection@^1.0.4", "@walletconnect/jsonrpc-http-connection@^1.0.7":
+"@walletconnect/jsonrpc-http-connection@^1.0.4":
   version "1.0.7"
   resolved "https://registry.npmmirror.com/@walletconnect/jsonrpc-http-connection/-/jsonrpc-http-connection-1.0.7.tgz#a6973569b8854c22da707a759d241e4f5c2d5a98"
   integrity sha512-qlfh8fCfu8LOM9JRR9KE0s0wxP6ZG9/Jom8M0qsoIQeKF3Ni0FyV4V1qy/cc7nfI46SLQLSl4tgWSfLiE1swyQ==
@@ -8069,7 +8122,17 @@
     cross-fetch "^3.1.4"
     tslib "1.14.1"
 
-"@walletconnect/jsonrpc-provider@1.0.13", "@walletconnect/jsonrpc-provider@^1.0.13", "@walletconnect/jsonrpc-provider@^1.0.6":
+"@walletconnect/jsonrpc-http-connection@^1.0.7":
+  version "1.0.8"
+  resolved "https://registry.npmmirror.com/@walletconnect/jsonrpc-http-connection/-/jsonrpc-http-connection-1.0.8.tgz#2f4c3948f074960a3edd07909560f3be13e2c7ae"
+  integrity sha512-+B7cRuaxijLeFDJUq5hAzNyef3e3tBDIxyaCNmFtjwnod5AGis3RToNqzFU33vpVcxFhofkpE7Cx+5MYejbMGw==
+  dependencies:
+    "@walletconnect/jsonrpc-utils" "^1.0.6"
+    "@walletconnect/safe-json" "^1.0.1"
+    cross-fetch "^3.1.4"
+    events "^3.3.0"
+
+"@walletconnect/jsonrpc-provider@1.0.13", "@walletconnect/jsonrpc-provider@^1.0.6":
   version "1.0.13"
   resolved "https://registry.npmmirror.com/@walletconnect/jsonrpc-provider/-/jsonrpc-provider-1.0.13.tgz#9a74da648d015e1fffc745f0c7d629457f53648b"
   integrity sha512-K73EpThqHnSR26gOyNEL+acEex3P7VWZe6KE12ZwKzAt2H4e5gldZHbjsu2QR9cLeJ8AXuO7kEMOIcRv1QEc7g==
@@ -8077,6 +8140,15 @@
     "@walletconnect/jsonrpc-utils" "^1.0.8"
     "@walletconnect/safe-json" "^1.0.2"
     tslib "1.14.1"
+
+"@walletconnect/jsonrpc-provider@^1.0.13":
+  version "1.0.14"
+  resolved "https://registry.npmmirror.com/@walletconnect/jsonrpc-provider/-/jsonrpc-provider-1.0.14.tgz#696f3e3b6d728b361f2e8b853cfc6afbdf2e4e3e"
+  integrity sha512-rtsNY1XqHvWj0EtITNeuf8PHMvlCLiS3EjQL+WOkxEOA4KPxsohFnBDeyPYiNm4ZvkQdLnece36opYidmtbmow==
+  dependencies:
+    "@walletconnect/jsonrpc-utils" "^1.0.8"
+    "@walletconnect/safe-json" "^1.0.2"
+    events "^3.3.0"
 
 "@walletconnect/jsonrpc-types@1.0.3", "@walletconnect/jsonrpc-types@^1.0.2", "@walletconnect/jsonrpc-types@^1.0.3":
   version "1.0.3"
@@ -8194,6 +8266,13 @@
   dependencies:
     valtio "1.11.2"
 
+"@walletconnect/modal-core@2.7.0":
+  version "2.7.0"
+  resolved "https://registry.npmmirror.com/@walletconnect/modal-core/-/modal-core-2.7.0.tgz#73c13c3b7b0abf9ccdbac9b242254a86327ce0a4"
+  integrity sha512-oyMIfdlNdpyKF2kTJowTixZSo0PGlCJRdssUN/EZdA6H6v03hZnf09JnwpljZNfir2M65Dvjm/15nGrDQnlxSA==
+  dependencies:
+    valtio "1.11.2"
+
 "@walletconnect/modal-ui@2.6.2":
   version "2.6.2"
   resolved "https://registry.npmmirror.com/@walletconnect/modal-ui/-/modal-ui-2.6.2.tgz#fa57c087c57b7f76aaae93deab0f84bb68b59cf9"
@@ -8204,13 +8283,31 @@
     motion "10.16.2"
     qrcode "1.5.3"
 
-"@walletconnect/modal@2.6.2", "@walletconnect/modal@^2.6.2":
+"@walletconnect/modal-ui@2.7.0":
+  version "2.7.0"
+  resolved "https://registry.npmmirror.com/@walletconnect/modal-ui/-/modal-ui-2.7.0.tgz#dbbb7ee46a5a25f7d39db622706f2d197b268cbb"
+  integrity sha512-gERYvU7D7K1ANCN/8vUgsE0d2hnRemfAFZ2novm9aZBg7TEd/4EgB+AqbJ+1dc7GhOL6dazckVq78TgccHb7mQ==
+  dependencies:
+    "@walletconnect/modal-core" "2.7.0"
+    lit "2.8.0"
+    motion "10.16.2"
+    qrcode "1.5.3"
+
+"@walletconnect/modal@2.6.2":
   version "2.6.2"
   resolved "https://registry.npmmirror.com/@walletconnect/modal/-/modal-2.6.2.tgz#4b534a836f5039eeb3268b80be7217a94dd12651"
   integrity sha512-eFopgKi8AjKf/0U4SemvcYw9zlLpx9njVN8sf6DAkowC2Md0gPU/UNEbH1Wwj407pEKnEds98pKWib1NN1ACoA==
   dependencies:
     "@walletconnect/modal-core" "2.6.2"
     "@walletconnect/modal-ui" "2.6.2"
+
+"@walletconnect/modal@^2.6.2":
+  version "2.7.0"
+  resolved "https://registry.npmmirror.com/@walletconnect/modal/-/modal-2.7.0.tgz#55f969796d104cce1205f5f844d8f8438b79723a"
+  integrity sha512-RQVt58oJ+rwqnPcIvRFeMGKuXb9qkgSmwz4noF8JZGUym3gUAzVs+uW2NQ1Owm9XOJAV+sANrtJ+VoVq1ftElw==
+  dependencies:
+    "@walletconnect/modal-core" "2.7.0"
+    "@walletconnect/modal-ui" "2.7.0"
 
 "@walletconnect/qrcode-modal@^1.8.0":
   version "1.8.0"
@@ -8678,6 +8775,13 @@
   dependencies:
     "@zk-kit/utils" "1.0.0-beta"
 
+"@zk-kit/baby-jubjub@1.0.3":
+  version "1.0.3"
+  resolved "https://registry.npmmirror.com/@zk-kit/baby-jubjub/-/baby-jubjub-1.0.3.tgz#8d2eccd20d729f1dbd39203dbff9a245a61dea76"
+  integrity sha512-Wl+QfV6XGOMk1yU2JTqHXeKWfJVXp83is0+dtqfj9wx4wsAPpb+qzYvwAxW5PBx5/Nu71Bh7jp/5vM+6QgHSwA==
+  dependencies:
+    "@zk-kit/utils" "1.2.1"
+
 "@zk-kit/eddsa-poseidon@1.0.0-beta":
   version "1.0.0-beta"
   resolved "https://registry.npmjs.org/@zk-kit/eddsa-poseidon/-/eddsa-poseidon-1.0.0-beta.tgz#5402ce7db3b4271e4b07fd1cc23e7ab919c7e057"
@@ -8686,6 +8790,25 @@
     "@zk-kit/baby-jubjub" "1.0.0-beta"
     "@zk-kit/utils" "1.0.0-beta.4"
     buffer "6.0.3"
+
+"@zk-kit/eddsa-poseidon@1.0.3":
+  version "1.0.3"
+  resolved "https://registry.npmmirror.com/@zk-kit/eddsa-poseidon/-/eddsa-poseidon-1.0.3.tgz#0da41ca6a6888072db7639d8499edf2eb0650d79"
+  integrity sha512-VyTu5jXHDqno3MBDWhoIwGz0vO/HB1X/2wqwope4JRvS4V8S9sYTwH3paf7ynImrJV7L/zK61RHxpGKbNemYRQ==
+  dependencies:
+    "@zk-kit/baby-jubjub" "1.0.3"
+    "@zk-kit/utils" "1.2.1"
+    buffer "6.0.3"
+
+"@zk-kit/eddsa-poseidon@1.0.4":
+  version "1.0.4"
+  resolved "https://registry.npmmirror.com/@zk-kit/eddsa-poseidon/-/eddsa-poseidon-1.0.4.tgz#80e20fd94eca610002e58a5dc8c1716458f0cb60"
+  integrity sha512-w0HrF5F+Kh+77+VK/p9qzB7wvitiZMAoWnqrmzPUM+MWlaNp0ipmtuO8KTLxnj8ACjt98GAK4voxl7XeWjC4XQ==
+  dependencies:
+    "@zk-kit/baby-jubjub" "1.0.3"
+    "@zk-kit/utils" "1.2.1"
+    buffer "6.0.3"
+    poseidon-lite "0.3.0"
 
 "@zk-kit/groth16@0.3.0":
   version "0.3.0"
@@ -8710,6 +8833,13 @@
   resolved "https://registry.npmmirror.com/@zk-kit/incremental-merkle-tree/-/incremental-merkle-tree-1.1.0.tgz#6b0ccce56f9e05ccf73f7ea4fa746d5ef7d24b1d"
   integrity sha512-WnNR/GQse3lX8zOHMU8zwhgX8u3qPoul8w4GjJ0WDHq+VGJimo7EGheRZ/ILeBQabnlzAerdv3vBqYBehBeoKA==
 
+"@zk-kit/lean-imt@2.2.1":
+  version "2.2.1"
+  resolved "https://registry.npmmirror.com/@zk-kit/lean-imt/-/lean-imt-2.2.1.tgz#aa24ed3d281cff270013c3654fa1eec6f785ccef"
+  integrity sha512-Zq5yunUYu+ztp9RR5nuqiG1GpK1wjUoAjC0+x/MB95sI/Ns7zCxpzxo/Om9E0gme74Y3jO9KM5UUh3f9tqU++w==
+  dependencies:
+    "@zk-kit/utils" "1.2.1"
+
 "@zk-kit/utils@1.0.0-beta":
   version "1.0.0-beta"
   resolved "https://registry.npmjs.org/@zk-kit/utils/-/utils-1.0.0-beta.tgz#aacbdc39b193560bdcaad34038f22402d742bc30"
@@ -8721,6 +8851,13 @@
   version "1.0.0-beta.4"
   resolved "https://registry.npmjs.org/@zk-kit/utils/-/utils-1.0.0-beta.4.tgz#3811d2c77279eea8ca07084ba2c7d5147adc8560"
   integrity sha512-MwsiIykjq02JlyZyv2bGraB9cV0ZC7bJz74DEDT7rwoxl1UBAVk6uiZ10fj1qCcfoLO+1wpwo5viHPPWYOW8Hg==
+  dependencies:
+    buffer "^6.0.3"
+
+"@zk-kit/utils@1.2.1", "@zk-kit/utils@^1.2.1":
+  version "1.2.1"
+  resolved "https://registry.npmmirror.com/@zk-kit/utils/-/utils-1.2.1.tgz#6cb38120535c73ab68cd0f09684882af148f256d"
+  integrity sha512-H2nTsyWdicVOyvqC5AjgU7tsTgmR6PDrruFJNmlmdhKp7RxEia/E1B1swMZjaasYa2QMp4Zc6oB7cWchty7B2Q==
   dependencies:
     buffer "^6.0.3"
 
@@ -18908,6 +19045,11 @@ popper.js@^1.16.0:
   resolved "https://registry.npmmirror.com/popper.js/-/popper.js-1.16.1.tgz#2a223cb3dc7b6213d740e40372be40de43e65b1b"
   integrity sha512-Wb4p1J4zyFTbM+u6WuO4XstYx4Ky9Cewe4DWrel7B0w6VVICvPwdOpotjzcf6eD8TsckVnIMNONQyPIUFOUbCQ==
 
+poseidon-lite@0.3.0, poseidon-lite@^0.3.0:
+  version "0.3.0"
+  resolved "https://registry.npmmirror.com/poseidon-lite/-/poseidon-lite-0.3.0.tgz#93c42f6f9b870f154f2722dfd686b909c4285765"
+  integrity sha512-ilJj4MIve4uBEG7SrtPqUUNkvpJ/pLVbndxa0WvebcQqeIhe+h72JR4g0EvwchUzm9sOQDlOjiDNmRAgxNZl4A==
+
 poseidon-lite@^0.2.0:
   version "0.2.0"
   resolved "https://registry.npmjs.org/poseidon-lite/-/poseidon-lite-0.2.0.tgz#dbc242ebd9c10c32d507a533fa497231d168fd72"
@@ -20738,6 +20880,16 @@ secure-random@^1.1.2:
   version "1.1.2"
   resolved "https://registry.npmmirror.com/secure-random/-/secure-random-1.1.2.tgz#ed103b460a851632d420d46448b2a900a41e7f7c"
   integrity sha512-H2bdSKERKdBV1SwoqYm6C0y+9EA94v6SUBOWO8kDndc4NoUih7Dv6Tsgma7zO1lv27wIvjlD0ZpMQk7um5dheQ==
+
+"semaphore-identity-v4@npm:@semaphore-protocol/identity@^4.0.3":
+  version "4.4.0"
+  resolved "https://registry.npmmirror.com/@semaphore-protocol/identity/-/identity-4.4.0.tgz#ef9bf1b1e65b24ec8928bab46b1c659250f1050d"
+  integrity sha512-hX03M6kAInyP41rssE1f29B0reI7TbrrmcweGjuReqGYpgtfQinQvGuD7cLdQlMBPJutOW55DXlAiK3j1I32hg==
+  dependencies:
+    "@zk-kit/baby-jubjub" "1.0.3"
+    "@zk-kit/eddsa-poseidon" "1.0.4"
+    "@zk-kit/utils" "1.2.1"
+    poseidon-lite "0.3.0"
 
 "semver@2 || 3 || 4 || 5", semver@^5.4.1, semver@^5.6.0:
   version "5.7.2"

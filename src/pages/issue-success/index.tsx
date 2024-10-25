@@ -107,7 +107,7 @@ function IssueSuccessPage(props: any) {
             //
             // if (pointId && pointitemId) {
             //     const point = await solas.queryPointDetail({id: Number(pointId)})
-            //     const pointItem = await solas.queryPointItemDetail({id: Number(pointitemId)})
+            //     const pointItem = await solas.queryPointTransferDetail({id: Number(pointitemId)})
             //
             //     setInfo({
             //         sender: point.sender,

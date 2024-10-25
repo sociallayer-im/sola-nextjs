@@ -17,7 +17,7 @@ import ImgLazy from "@/components/base/ImgLazy/ImgLazy";
 import userContext from "@/components/provider/UserProvider/UserContext";
 import useEvent, {EVENT} from "@/hooks/globalEvent";
 import {formatUnits} from "viem/utils";
-import {paymentTokenList} from "@/payment_settring";
+import {paymentTokenList} from "@/payment_setting";
 import BigNumber from "bignumber.js";
 
 function TicketItem({
@@ -162,6 +162,8 @@ function EventTickets({
         })
     }
 
+    const hasGroupTicket = props.tickets.some((t) => t.ticket_type === 'group')
+
     return (<div className={styles['event-ticket-list']}>
         <div className={styles['event-ticket-title']}>{lang['Tickets']}</div>
         <div className={`${styles['list']} ${props.isDialog ? styles['dialog'] : ''}`}>
@@ -172,15 +174,15 @@ function EventTickets({
                             setSelectedTicket(item)
                         }}>
                             <TicketItem
-                                selected={selectedTicket?.id === item.id && !userHasPaid}
+                                selected={selectedTicket?.id === item.id}
                                 ticket={item}/>
                         </div>
                     })
                 }
             </div>
 
-            {
-                !!userHasPaid ?
+            {   // group ticket 可以购买多次
+                !!userHasPaid && !hasGroupTicket ?
                     <AppButton disabled>
                         {'You have purchased the ticket'}
                     </AppButton>

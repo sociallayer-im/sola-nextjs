@@ -88,18 +88,13 @@ function LocationInput(props: LocationInputProps) {
 
     const checkAvailable = (option: Partial<EventSites>, start_time: string, end_time: string, timezone: string) => {
         if (!!option && !!option.venue_timeslots && start_time && end_time) {
-            const day = dayjs.tz(new Date(start_time).getTime(), timezone).day()
-            const dayFullName:Weekday[] = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
-            const target = option.venue_timeslots.find(item => item.day_of_week === dayFullName[day])
-
             const startTime = dayjs.tz(new Date(start_time).getTime(), timezone)
-            const endTime = dayjs.tz(new Date(end_time).getTime(), timezone)
-            const availableStart = option.start_date ? dayjs.tz(option.start_date, timezone) : null
-            const availableEnd = option.end_date ? dayjs.tz(option.end_date, timezone).hour(23).minute(59) : null
+            const endTime = dayjs.tz(new Date(end_time!).getTime(), timezone)
 
+            // overrides 优先级最高
             const hasOverride = option.venue_overrides!.find((item) => {
                 const start_at = item.start_at || '00:00'
-                const end_at =  item.end_at || '23:59'
+                const end_at = item.end_at || '23:59'
                 return startTime.isBetween(dayjs.tz(`${item.day} ${start_at}`, timezone), dayjs.tz(`${item.day} ${end_at}`, timezone), null, '[]')
                     || endTime.isBetween(dayjs.tz(`${item.day} ${start_at}`, timezone), dayjs.tz(`${item.day} ${end_at}`, timezone), null, '[]')
             })
@@ -108,33 +103,39 @@ function LocationInput(props: LocationInputProps) {
                 return !hasOverride.disabled
             }
 
-            let available = true
+            // 判断 venue 的 start date 和 end date
+            let venueAvailable = true
+            const availableStart = option.start_date ? dayjs.tz(option.start_date, timezone) : null
+            const availableEnd = option.end_date ? dayjs.tz(option.end_date, timezone).hour(23).minute(59) : null
             if (availableStart && !availableEnd) {
-                available = startTime.isSameOrAfter(availableStart)
+                venueAvailable = startTime.isSameOrAfter(availableStart)
             } else if (!availableStart && availableEnd) {
-                available = endTime.isBefore(availableEnd)
+                venueAvailable = endTime.isBefore(availableEnd)
             } else if (availableStart && availableEnd) {
-                available = startTime.isSameOrAfter(availableStart) && endTime.isBefore(availableEnd)
+                console.log('here', startTime.isSameOrAfter(availableStart), endTime.isBefore(availableEnd))
+                venueAvailable = startTime.isSameOrAfter(availableStart) && endTime.isBefore(availableEnd)
             }
 
-            const overrides = option.venue_overrides!
-            const override = overrides.find((item) => {
-                const itemStartTime = item.start_at || '00:00'
-                const itemEndTime =  item.end_at || '23:59'
-
-                const itemStart = dayjs.tz(`${item.day} ${itemStartTime}`, timezone)
-                const itemEnd = dayjs.tz(`${item.day} ${itemEndTime}`, timezone)
-                return item.disabled && startTime.isBetween(itemStart, itemEnd, null, '[]') || endTime.isBetween(itemStart, itemEnd, null, '[]')
-
-            })
-
-            if (override) {
-                available = false
+            // 判断timeslot
+            let timeslotAvailable = true
+            const day = dayjs.tz(new Date(startTime).getTime(), timezone).day()
+            const dayFullName: Weekday[] = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
+            const timeslots = option.venue_timeslots.filter(item => item.day_of_week === dayFullName[day])
+            if (!!timeslots.length) {
+                if (timeslots[0].disabled) {
+                    timeslotAvailable = false
+                } else {
+                    const eventStartTimeHour = startTime.format('HH:mm')
+                    const eventEndTimeHour = endTime.format('HH:mm')
+                    timeslotAvailable = timeslots.some(timeslot => {
+                        return eventStartTimeHour >= timeslot.start_at && eventEndTimeHour <= timeslot.end_at
+                    })
+                }
             }
 
-            return !(target?.disabled || !available);
+            return timeslotAvailable && venueAvailable
         } else {
-            return  true
+            return true
         }
     }
 

@@ -106,6 +106,16 @@
     right: 16px;
     overflow: hidden;
 
+    .star {
+      position: absolute;
+      right: 10px;
+      bottom: 10px;
+      z-index: 2;
+      width: 24px;
+      height: 24px;
+      cursor: pointer;
+    }
+
     &.mobile {
       display: none;
     }
@@ -265,6 +275,36 @@
           margin-right: 6px;
         }
       }
+    }
+
+    .host-info {
+      display: flex;
+      flex-flow: row nowrap;
+      font-size: 14px;
+      color: #272928;
+
+      .wrap{
+        display: flex;
+        align-items: center;
+        overflow: hidden;
+        width: 100%;
+      }
+
+      .con{
+        position: relative;
+        overflow: hidden;
+        height: 22px;
+        display: -webkit-box;
+        -webkit-line-clamp: 1;
+        -webkit-box-orient: vertical;
+      }
+
+      .tag{
+        display: inline-block;
+        margin-right: 5px;
+        white-space: nowrap;
+      }
+
     }
 
     .detail {

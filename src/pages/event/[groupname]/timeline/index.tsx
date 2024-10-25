@@ -123,10 +123,7 @@ function Gan(props: { group: Group, eventSite: EventSites[] }) {
 
         try {
             let timezone: { label: string, id: string }[]
-            const historyTimeZone = localStorage.getItem('schedule-timezone')
-            if (historyTimeZone) {
-                timezone = JSON.parse(historyTimeZone)
-            } else if (props.group.timezone) {
+            if (props.group.timezone) {
                 timezone = [{
                     id: props.group.timezone,
                     label: timezoneList.find(item => item.id === props.group.timezone)!.label

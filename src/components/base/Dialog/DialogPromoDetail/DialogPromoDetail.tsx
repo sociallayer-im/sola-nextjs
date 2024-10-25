@@ -1,6 +1,6 @@
 import styles from './DialogPromoDetail.module.scss';
 import PageBack from "@/components/base/PageBack";
-import {PromoCode, TicketItem} from "@/service/solas"
+import {Coupon, TicketItem} from "@/service/solas"
 import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
 import React, {useContext, useEffect, useMemo} from "react";
 import useCopy from "@/hooks/copy";
@@ -15,7 +15,7 @@ const dayjs: any = dayjsLib
 export default function DialogPromoDetail(props: {
     close: () => any,
     code: string,
-    promoCode: PromoCode,
+    coupon: Coupon,
     history: TicketItem[]
 }) {
     const {showToast, showLoading} = useContext(DialogsContext)
@@ -30,13 +30,13 @@ export default function DialogPromoDetail(props: {
 
     const discountType = useMemo(() => {
         let txt = ''
-        if (props.promoCode.discount_type === 'ratio') {
-            txt = `${(10000 - props.promoCode.discount) / 100}% off`
+        if (props.coupon.discount_type === 'ratio') {
+            txt = `${(10000 - props.coupon.discount) / 100}% off`
         } else {
-            txt = `${props.promoCode.discount / 100} USD off`
+            txt = `${props.coupon.discount / 100} USD off`
         }
         return txt
-    }, [props.promoCode])
+    }, [props.coupon])
 
     return <div className={styles['dialog']}>
         <div className={styles['center']}>
@@ -48,10 +48,10 @@ export default function DialogPromoDetail(props: {
                     <div className={styles['show-detail']}>
                         <div className={styles['title']}>{lang['You_Have_Generated_Code']([discountType])}</div>
                         <div className={styles['des']}>{lang['Please_Sending_Until']}<span
-                            style={{fontWeight: '600'}}>{dayjs(props.promoCode.expiry_time).format('MMM DD, YYYY')}</span>
+                            style={{fontWeight: '600'}}>{dayjs(props.coupon.expires_at).format('MMM DD, YYYY')}</span>
                         </div>
                         <div className={styles['des']}>{lang['Remaining_Uses']} <span
-                            style={{fontWeight: '600'}}>{props.promoCode.max_allowed_usages - props.promoCode.order_usage_count}</span>
+                            style={{fontWeight: '600'}}>{props.coupon.max_allowed_usages - props.coupon.order_usage_count}</span>
                         </div>
 
                         <div className={styles['show-code']}>

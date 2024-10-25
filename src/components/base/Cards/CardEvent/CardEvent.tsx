@@ -1,5 +1,5 @@
 import {useRouter} from "next/navigation";
-import {useContext, useEffect, useState} from 'react'
+import {useContext, useEffect, useMemo, useState} from 'react'
 import {
     Event,
     getGroupMembers,
@@ -25,6 +25,7 @@ import useEvent, {EVENT} from "@/hooks/globalEvent";
 import usePicture from "@/hooks/pictrue";
 import dynamic from 'next/dynamic'
 import {isHideLocation} from "@/global_config";
+import {handleEventStar} from "@/service/solasv2";
 
 const EventTickets = dynamic(() => import('@/components/compose/EventTickets/EventTickets'), {ssr: false})
 
@@ -35,7 +36,9 @@ export interface CardEventProps {
     attend?: boolean,
     canPublish?: boolean,
     onRemove?: (event: Event) => void,
-    blank?: boolean
+    blank?: boolean,
+    timezone?: string,
+    enableStar?: boolean
 }
 
 const localeTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone
@@ -47,12 +50,15 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
     const {lang} = useContext(langContext)
     const [isCreated, setIsCreated] = useState(false)
     const {user} = useContext(userContext)
-    const {showToast, showLoading, openConfirmDialog, openDialog} = useContext(DialogsContext)
+    const {showToast, showLoading, openConfirmDialog, openDialog, openConnectWalletDialog} = useContext(DialogsContext)
     const [hasRegistered, setHasRegistered] = useState(false)
     const {addToCalenderDialog} = useCalender()
     const [_, emit] = useEvent(EVENT.setEventStatus)
     const [groupHost, setGroupHost] = useState<Group>()
+    const [cohost, setCohost] = useState<any | null>([])
+    const [speaker, setSpeaker] = useState<any | null>([])
     const {defaultAvatar} = usePicture()
+    const [stared, setStared] = useState((props.event as any).star)
 
     const now = new Date().getTime()
     const endTime = new Date(eventDetail.end_time!).getTime()
@@ -78,7 +84,11 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
 
 
         if (props.event?.host_info) {
-            if (props.event?.host_info.startsWith('{')) {
+            if (typeof props.event.host_info === 'object') {
+                if ((props.event.host_info as any).group_host?.[0]) {
+                    setGroupHost((props.event.host_info as any).group_host?.[0])
+                }
+            } else if (props.event?.host_info.startsWith('{')) {
                 const hostInfo = JSON.parse(props.event?.host_info!)
                 if (hostInfo.group_host) {
                     if (hostInfo.group_host.id) {
@@ -90,6 +100,13 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
                     } else {
                         setGroupHost(hostInfo.group_host)
                     }
+                }
+                if (hostInfo.speaker) {
+                    setSpeaker(hostInfo.speaker)
+                }
+
+                if (hostInfo.co_host) {
+                    setCohost(hostInfo.co_host)
                 }
             } else {
                 queryGroupDetail(Number(props.event?.host_info)).then(res => {
@@ -178,6 +195,51 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
         })
     }
 
+    const hostInfo = useMemo(() => {
+        let str = []
+        if (groupHost) {
+            str.push(`by ${(groupHost.nickname || groupHost.username)}`)
+        } else if (props.event.owner) {
+            str.push(`by ${props.event.owner.nickname || props.event.owner.username}`)
+        }
+
+        if (cohost.length) {
+            cohost.forEach((c: any) => {
+                str.push(`${c.nickname || c.username}`)
+            })
+        }
+
+        if (speaker.length) {
+            speaker.forEach((s: any) => {
+                str.push(`${s.nickname || s.username}`)
+            })
+        }
+
+        return str
+    }, [groupHost, props.event, cohost, speaker])
+
+    const displayTimezone = useMemo(() => {
+        if (props.timezone && props.timezone === 'UTC') {
+            return localeTimezone
+        } else {
+            return eventDetail.timezone || localeTimezone
+        }
+    }, [props.timezone, eventDetail.timezone])
+
+    const handleStar = async (e: any) => {
+        if (!user.authToken) {
+            openConnectWalletDialog()
+            return
+        }
+
+        e.preventDefault()
+        e.stopPropagation()
+        const unload = showLoading()
+        await handleEventStar({event_id: props.event.id, auth_token: user.authToken || ''})
+        setStared(true)
+        unload()
+    }
+
     return (<Link href={`/event/detail/${props.event.id}`}
                   target={props.blank ? '_blank' : '_self'}
                   className={largeCard ? 'event-card large' : 'event-card'}>
@@ -219,7 +281,7 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
                     </div>
                     <div className={'tags'}>
                         {
-                            eventDetail.tags?.map((tag, index) => {
+                            eventDetail.tags?.filter(t=> !t.startsWith(':')).map((tag, index) => {
                                 return <div key={tag} className={'tag'}>
                                     <i className={'dot'} style={{background: getLabelColor(tag)}}/>
                                     {tag}
@@ -228,26 +290,21 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
                         }
                     </div>
 
-                    {
-                        groupHost ?
-                            <div className={'detail'}>
-                                <ImgLazy src={groupHost.image_url || defaultAvatar(groupHost.id)} width={16} height={16}
-                                         alt=""/>
-                                <span>hosted by {groupHost?.nickname || groupHost?.username}</span>
+                    <div className={'host-info'}>
+                        <div className={'wrap'}>
+                            <div className={'con'}>
+                                {!!hostInfo.length && hostInfo.map((name, index) => {
+                                        return <span className={'tag'} key={index}>{index === 0 ? '': ', '} {name}</span>
+                                    })
+                                }
                             </div>
-                            : props.event.owner ?
-                                <div className={'detail'}>
-                                    <ImgLazy src={props.event.owner.image_url || defaultAvatar(props.event.owner.id)}
-                                             width={16} height={16} alt=""/>
-                                    <span>hosted by {`${props.event.owner?.nickname || props.event.owner?.username}`}</span>
-                                </div>
-                                : <></>
-                    }
+                        </div>
+                    </div>
 
                     {!!eventDetail.start_time &&
                         <div className={'detail'}>
                             <i className={'icon-calendar'}/>
-                            <span>{formatTime(eventDetail.start_time, eventDetail.timezone || localeTimezone)}</span>
+                            <span>{formatTime(eventDetail.start_time, displayTimezone)}</span>
                         </div>
                     }
 
@@ -282,12 +339,30 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
             </div>
             <div className={(fixed || hasMarker && !fixed) ? 'post marker' : 'post'}>
                 {
+                    props.enableStar &&
+                    <>
+                        {stared
+                            ? <img className="star" src="/images/favorite_active.png" width={24} height={24} alt="Star" title="Star"/>
+                            : <img onClick={handleStar} className="star" src="/images/favorite.png" width={24} height={24} title="Star" alt="Star"/>
+                        }
+                    </>
+                }
+                {
                     props.event.cover_url ?
                         <ImgLazy src={props.event.cover_url} width={280} alt=""/>
                         : <EventDefaultCover event={props.event} width={140} height={140} showLocation={!isHideLocation(props.event.group_id)}/>
                 }
             </div>
             <div className={(fixed || hasMarker && !fixed) ? 'post marker mobile' : 'post mobile'}>
+                {
+                    props.enableStar &&
+                    <>
+                        {stared
+                            ? <img className="star" src="/images/favorite_active.png" width={24} height={24} alt="Star" title="Star"/>
+                            : <img onClick={handleStar} className="star" src="/images/favorite.png" width={24} height={24} title="Star" alt="Star"/>
+                        }
+                    </>
+                }
                 {
                     props.event.cover_url ?
                         <ImgLazy src={props.event.cover_url} width={280} alt=""/>

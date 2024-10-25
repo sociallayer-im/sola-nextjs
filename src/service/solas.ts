@@ -9,7 +9,7 @@ const request = (
     variables?: any,
     requestHeaders?: any
 ) => {
-    console.log('gql doc :' + document)
+    // console.log('gql doc :' + document)
     return gqlRequest(url, document, variables, requestHeaders)
 }
 
@@ -200,6 +200,7 @@ export async function login(signer: any, walletName?: string) {
 export interface Profile {
     id: number,
     username: string | null,
+    handle: string | null,
     address: string | null,
     sol_address: string | null,
     email: string | null,
@@ -267,6 +268,7 @@ export interface ProfileSimple {
     email: string | null,
     nickname: string | null,
     username: string | null,
+    handle: string | null,
 }
 
 export async function queryProfileByGraph(props: { type: keyof GetProfileProps, address: string | number, skip_maodao?: boolean }) {
@@ -274,6 +276,7 @@ export async function queryProfileByGraph(props: { type: keyof GetProfileProps, 
 
     const doc = gql`query MyQuery {
       profiles(${condition}) {
+        handle
         zupass_edge_end_date
         zupass_edge_event_id
         zupass_edge_product_id
@@ -434,6 +437,8 @@ export async function getGroups(props: GetGroupProps): Promise<Group[]> {
 
     const doc = gql`query MyQuery {
       groups(${condition}) {
+        start_date
+        end_date
         farcaster
         timezone
         events_count
@@ -466,6 +471,7 @@ export async function getGroups(props: GetGroupProps): Promise<Group[]> {
           id
           profile {
             id
+            handle
             image_url
             username
             nickname
@@ -1067,7 +1073,8 @@ export interface Group extends Profile {
     token_id: string,
     twitter: string | null
     twitter_proof_url: string | null
-    username: string
+    username: string,
+    handle: string | null,
     domain: string,
     nickname: string,
     event_tags: string[] | null,
@@ -1082,7 +1089,9 @@ export interface Group extends Profile {
     events_count: number
     memberships_count: number
     group_tags: string | null
-    timezone: string | null
+    timezone: string | null,
+    start_date: string | null,
+    end_date: string | null,
 }
 
 export interface QueryUserGroupProps {
@@ -1125,6 +1134,7 @@ export async function queryGroupsUserJoined(props: QueryUserGroupProps): Promise
           role
           profile {
             id
+            handle
             nickname
             username
             image_url
@@ -1175,6 +1185,7 @@ export async function queryGroupsUserCreated(props: QueryUserGroupProps): Promis
           id
           role
           profile {
+            handle
             id
             nickname
             username
@@ -1227,6 +1238,7 @@ export async function queryGroupsUserManager(props: QueryUserGroupProps): Promis
           role
           profile {
             id
+            handle
             nickname
             username
             image_url
@@ -1483,6 +1495,7 @@ export async function getGroupMembers(props: GetGroupMembersProps): Promise<Prof
         role
         profile {
           id
+          handle
           image_url
           nickname
           username
@@ -1513,6 +1526,7 @@ export async function getGroupMembership(props: GetGroupMembersProps): Promise<M
         role
         profile {
           id
+          handle
           image_url
           nickname
           username
@@ -1548,6 +1562,7 @@ export async function getGroupMemberShips(props: GetGroupMembersProps): Promise<
         role
         profile {
           id
+          handle
           image_url
           nickname
           username
@@ -1588,6 +1603,7 @@ export async function getFollowers(userId: number): Promise<Profile[]> {
     const resp2: any = await request(graphUrl, gql`query MyQuery {
       profiles(where: {id: {_in: [${ids.join(',')}]}}) {
         id
+        handle
         username
         nickname
         image_url,
@@ -2074,6 +2090,7 @@ export async function searchDomain(props: SearchDomainProps): Promise<Profile[]>
     const doc = gql`query MyQuery {
       profiles(where: {_or: [{username: {_iregex: "${props.username}"}}, {nickname: {_iregex: "${props.username}"}}]}, limit: 20, offset: ${(props.page - 1) * 20}) {
         id
+        handle
         username
         nickname
         image_url,
@@ -2274,7 +2291,7 @@ export interface Point {
     token_id: string
     sym: string
     total_supply: number | null
-    point_items?: PointItem[],
+    point_transfers?: PointTransfer[],
     transferable?: boolean
 }
 
@@ -2299,7 +2316,7 @@ export interface SendPointProps {
     value: number
 }
 
-export interface PointItem {
+export interface PointTransfer {
     created_at: string
     id: number
     owner: ProfileSimple
@@ -2319,7 +2336,7 @@ export async function sendPoint(props: SendPointProps) {
     //     throw new Error(res.data.message)
     // }
     //
-    // return res.data.point_items as PointItem[]
+    // return res.data.point_transfers as PointTransfer[]
     throw new Error('not implemented')
 }
 
@@ -2341,14 +2358,14 @@ export async function queryPoint(props: QueryPointProps) {
     return []
 }
 
-interface QueryPointItemProps {
+interface QueryPointTransferProps {
     status?: 'sending' | 'accepted' | 'rejected',
-    point_id?: number
+    point_balance_id?: number
     sender_id?: number,
     owner_id?: number,
 }
 
-export async function queryPointItems(props: QueryPointItemProps) {
+export async function queryPointTransfers(props: QueryPointTransferProps) {
     // const res = await fetch.get({
     //     url: `${api}/point/list_item`,
     //     data: props
@@ -2357,7 +2374,7 @@ export async function queryPointItems(props: QueryPointItemProps) {
     // if (res.data.result === 'error') {
     //     throw new Error(res.data.message)
     // }
-    // return res.data.point_items as PointItem[]
+    // return res.data.point_transfers as PointTransfer[]
     return []
 }
 
@@ -2370,7 +2387,7 @@ export async function queryPointDetail(props: QueryPointDetail) {
     //     url: `${api}/point/get`,
     //     data: {
     //         ...props,
-    //         // with_point_items: 1
+    //         // with_point_transfers: 1
     //     }
     // })
     //
@@ -2382,7 +2399,7 @@ export async function queryPointDetail(props: QueryPointDetail) {
     throw new Error('not implemented')
 }
 
-export async function queryPointItemDetail(props: QueryPointDetail) {
+export async function queryPointTransferDetail(props: QueryPointDetail) {
     // const res = await fetch.get({
     //     url: `${api}/point/get_item`,
     //     data: {
@@ -2394,12 +2411,12 @@ export async function queryPointItemDetail(props: QueryPointDetail) {
     //     throw new Error(res.data.message)
     // }
     //
-    // return res.data.point_item as PointItem
+    // return res.data.point_transfer as PointTransfer
     throw new Error('not implemented')
 }
 
 export interface AcceptPointProp {
-    point_item_id: number
+    point_transfer_id: number
     auth_token: string
 }
 
@@ -2415,7 +2432,7 @@ export async function acceptPoint(props: AcceptPointProp) {
     //     throw new Error(res.data.message || 'Accept fail')
     // }
     //
-    // return res.data.point_item as PointItem
+    // return res.data.point_transfer as PointTransfer
     throw new Error('not implemented')
 }
 
@@ -2431,7 +2448,7 @@ export async function rejectPoint(props: AcceptPointProp) {
     //     throw new Error(res.data.message || 'Reject fail')
     // }
     //
-    // return res.data.point_item as PointItem
+    // return res.data.point_transfer as PointTransfer
     throw new Error('not implemented')
 }
 
@@ -2531,6 +2548,7 @@ export async function queryCheckInList(props: QueryCheckInListProps): Promise<Ch
         }
         profile {
           id
+          handle
           image_url
           nickname
           username
@@ -2632,8 +2650,8 @@ export async function badgeletBurn(props: BadgeBurnProps): Promise<Badgelet> {
 export interface QueryUserActivityProps {
     badge_class_id?: number
     badge_id?: number,
-    point_id?: number,
-    point_item_id?: number,
+    point_balance_id?: number,
+    point_transfer_id?: number,
     initiator_id?: number,
     target_id?: number,
     action?: string,
@@ -2643,8 +2661,8 @@ export interface Activity {
     "id": number,
     "badge_class_id": null | number
     "badge_id": null | number,
-    "point_id": null | number,
-    "point_item_id": null,
+    "point_balance_id": null | number,
+    "point_transfer_id": null,
     "initiator_id": null | number,
     "target_id": null | number,
     "action": string,
@@ -2926,6 +2944,7 @@ export async function isMember(props: { profile_id: number, group_id: number }) 
         role
         profile {
           id
+          handle
           image_url
           nickname
           username
@@ -2977,6 +2996,7 @@ export interface Participants {
 }
 
 export interface Event {
+    track_id: number | null
     padge_link: string | null,
     id: number,
     title: string,
@@ -3009,8 +3029,8 @@ export interface Event {
     category: null | string,
     status: string,
     telegram_contact_group?: null | string,
-    recurring_event_id: null | number,
-    recurring_event: null | {
+    recurring_id: null | number,
+    recurring: null | {
         id: number
         interval: string
         start_time: string
@@ -3078,7 +3098,7 @@ export interface QueryEventProps {
     page_size?: number,
     show_pending_event?: boolean,
     show_rejected_event?: boolean,
-    recurring_event_id?: number,
+    recurring_id?: number,
     show_cancel_event?: boolean,
     group_ids?: number[]
     allow_private?: boolean,
@@ -3087,6 +3107,8 @@ export interface QueryEventProps {
     cache?: boolean,
     offset?: number
     only_private?: boolean
+    venue_ids?: number[],
+    track_id?: number
 }
 
 
@@ -3116,8 +3138,16 @@ export async function queryEvent(props: QueryEventProps): Promise<Event[]> {
         variables += `venue_id: {_eq: ${props.venue_id}}, `
     }
 
-    if (props.recurring_event_id) {
-        variables += `recurring_event_id: {_eq: ${props.recurring_event_id}}, `
+    if (props.venue_ids && !!props.venue_ids.length) {
+        variables += `venue_id: {_in: [${props.venue_ids.join(',')}]}, `
+    }
+
+    if (props.recurring_id) {
+        variables += `recurring_id: {_eq: ${props.recurring_id}}, `
+    }
+
+    if (props.track_id) {
+        variables += `track_id: {_eq: ${props.track_id}}, `
     }
 
     if (props.only_private) {
@@ -3158,7 +3188,7 @@ export async function queryEvent(props: QueryEventProps): Promise<Event[]> {
         variables += `title: {_iregex: "${props.search}"}, `
     }
 
-    let status = `"open", "new", "normal"`
+    let status = `"open", "published"`
     if (props.show_pending_event) {
         status = status + ', "pending"'
     }
@@ -3175,6 +3205,7 @@ export async function queryEvent(props: QueryEventProps): Promise<Event[]> {
 
     const doc = gql`query MyQuery ${props.cache? '@cached' : ''} {
       events (where: {${variables}, status: {_in: [${status}]}} ${order} limit: ${page_size}, offset: ${props.offset || ((props.page - 1) * page_size)}) {
+        track_id
         extra
         requirement_tags
         display
@@ -3251,19 +3282,21 @@ export async function queryEvent(props: QueryEventProps): Promise<Event[]> {
         id
         location_viewport
         min_participant
-        recurring_event {
+        recurring {
           id
         }
-        recurring_event_id
+        recurring_id
         participants(where: {status: {_neq: "cancel"}}) {
           id
           profile_id
           profile {
             id
+            handle
             address
             username
             nickname
             image_url
+            email
           }
           role
           status
@@ -3311,8 +3344,8 @@ export async function queryPendingEvent(props: QueryEventProps): Promise<Event[]
         variables += `venue_id: {_eq: ${props.venue_id}}, `
     }
 
-    if (props.recurring_event_id) {
-        variables += `recurring_event_id: {_eq: ${props.recurring_event_id}}, `
+    if (props.recurring_id) {
+        variables += `recurring_id: {_eq: ${props.recurring_id}}, `
     }
 
     if (props.start_time_from && props.start_time_to) {
@@ -3350,6 +3383,7 @@ export async function queryPendingEvent(props: QueryEventProps): Promise<Event[]
 
     const doc = gql`query MyQuery {
       events (where: {${variables} status: {_eq: "pending"}}, ${order} limit: ${page_size}, offset: ${(props.page - 1) * page_size}) {
+        track_id
         extra
         requirement_tags
         display
@@ -3405,15 +3439,16 @@ export async function queryPendingEvent(props: QueryEventProps): Promise<Event[]
         id
         location_viewport
         min_participant
-        recurring_event {
+        recurring {
           id
         }
-        recurring_event_id
+        recurring_id
         participants(where: {status: {_neq: "cancel"}}) {
           id
           profile_id
           profile {
             id
+            handle
             username
             nickname
             image_url
@@ -3458,6 +3493,7 @@ export async function queryCohostingEvent(props: { id: number, email?: string })
 
     const doc = gql`query MyQuery {
       events (where: {${variables}}, ${order} limit: ${page_size}) {
+        track_id
         extra
         requirement_tags
         display
@@ -3529,15 +3565,16 @@ export async function queryCohostingEvent(props: { id: number, email?: string })
         id
         location_viewport
         min_participant
-        recurring_event {
+        recurring {
           id
         }
-        recurring_event_id
+        recurring_id
         participants(where: {status: {_neq: "cancel"}}) {
           id
           profile_id
           profile {
             id
+            handle
             username
             nickname
             image_url
@@ -3633,6 +3670,7 @@ export async function queryMyEvent({page = 1, page_size = 10, ...props}: QueryMy
         profile_id
         profile {
           id
+          handle
           image_url
           nickname
           username
@@ -3694,6 +3732,7 @@ export async function queryMyEvent({page = 1, page_size = 10, ...props}: QueryMy
           profile_id
           profile {
             id
+            handle
             username
             nickname
             image_url
@@ -3715,7 +3754,16 @@ export async function queryMyEvent({page = 1, page_size = 10, ...props}: QueryMy
     }`
 
     const resp: any = await request(graphUrl, doc)
-    return resp.participants as Participants[]
+    return resp.participants.map((e: any) => {
+        return {
+            ...e,
+            event: {
+                ...e.event,
+                start_time: e.event.start_time && !e.event.start_time.endsWith('Z') ? e.event.start_time + 'Z' : e.event.start_time,
+                end_time: e.event.end_time && !e.event.end_time.endsWith('Z') ? e.event.end_time + 'Z' : e.event.end_time,
+            }
+        }
+    }) as Participants[]
 }
 
 export interface CancelEventProps {
@@ -3822,7 +3870,7 @@ export interface TicketItem {
     ticket_price :  null | string
     txhash: null | string
     payment_method_id: number
-    promo_code_id: null | number
+    coupon_id: null | number
     sender_address: null | string
     created_at: string,
     profile: ProfileSimple,
@@ -3832,6 +3880,7 @@ export interface TicketItem {
     ticket: {
         title: string,
         content: string
+        ticket_type: string
     }
 }
 
@@ -3869,6 +3918,7 @@ export async function unJoinEvent(props: JoinEventProps) {
 export async function searchEvent(keyword: string, group_id?: number): Promise<Event[]> {
     const doc = gql`query MyQuery {
       events (where: {title: {_iregex: "${keyword}"} , ${group_id ? `group_id: {_eq: ${group_id}},` : ''} status: {_neq: "closed"}}, limit: 10) {
+        track_id
         extra
         requirement_tags
         display
@@ -3939,15 +3989,16 @@ export async function searchEvent(keyword: string, group_id?: number): Promise<E
         id
         location_viewport
         min_participant
-        recurring_event {
+        recurring {
           id
         }
-        recurring_event_id
+        recurring_id
         participants(where: {status: {_neq: "cancel"}}) {
           id
           profile_id
           profile {
             id
+            handle
             username
             nickname
             image_url
@@ -4190,6 +4241,8 @@ export async function divineBeastRemerge(props: DivineBeastRmergeProps) {
 export async function getEventGroup() {
     const doc = gql`query MyQuery {
       groups(where: {event_enabled: {_eq: true}, status: {_neq: "freezed"}}) {
+        start_date
+        end_date
         farcaster
         timezone
         events_count
@@ -4223,6 +4276,7 @@ export async function getEventGroup() {
           role
           profile {
             id
+            handle
             nickname
             username
             image_url
@@ -4380,7 +4434,7 @@ export async function eventCheckIn(props: EventCheckInProps) {
 export interface CancelRepeatProps {
     auth_token: string,
     selector: 'one' | 'after' | 'all',
-    recurring_event_id: number,
+    recurring_id: number,
     event_id?: number,
 }
 
@@ -4388,7 +4442,7 @@ export async function cancelRepeatEvent(props: CancelRepeatProps) {
     checkAuth(props)
 
     const res: any = await fetch.post({
-        url: `${apiUrl}/recurring_event/cancel_event`,
+        url: `${apiUrl}/recurring/cancel_event`,
         data: props
     })
 
@@ -4407,7 +4461,7 @@ export interface CreateRepeatEventProps extends CreateEventProps {
 export async function createRepeatEvent(props: CreateRepeatEventProps) {
     checkAuth(props)
     const res: any = await fetch.post({
-        url: `${apiUrl}/recurring_event/create`,
+        url: `${apiUrl}/recurring/create`,
         data: props
     })
 
@@ -4415,7 +4469,7 @@ export async function createRepeatEvent(props: CreateRepeatEventProps) {
         throw new Error(res.data.message)
     }
 
-    const event = await queryEvent({recurring_event_id: res.data.recurring_event_id, page: 1, allow_private: true})
+    const event = await queryEvent({recurring_id: res.data.recurring_id, page: 1, allow_private: true})
     return event[0]
 }
 
@@ -4459,14 +4513,14 @@ export async function RepeatEventInvite(props: RepeatEventInviteProps) {
 export interface RepeatEventSetBadgeProps {
     auth_token: string,
     badge_class_id: number,
-    recurring_event_id: number,
+    recurring_id: number,
     selector?: 'one' | 'after' | 'all'
 }
 
 export async function RepeatEventSetBadge(props: RepeatEventSetBadgeProps) {
     checkAuth(props)
     const res: any = await fetch.post({
-        url: `${apiUrl}/recurring_event/set_badge`,
+        url: `${apiUrl}/recurring/set_badge`,
         data: props
     })
 
@@ -4487,7 +4541,7 @@ export interface RepeatEventUpdateProps extends CreateEventProps {
 export async function RepeatEventUpdate(props: RepeatEventUpdateProps) {
     checkAuth(props)
     const res: any = await fetch.post({
-        url: `${apiUrl}/recurring_event/update`,
+        url: `${apiUrl}/recurring/update`,
         data: props
     })
 
@@ -4672,6 +4726,7 @@ export async function queryMarkers(props: {
               participants {
                 profile {
                   id
+                  handle
                   image_url
                   nickname
                   username
@@ -4736,6 +4791,7 @@ export async function markersCheckinList({page = 1, ...props}: {
       map_checkins(where: {marker_id: {_eq: ${props.id}}}, limit: 50, offset: ${(page - 1) * 50}, order_by: {created_at: desc}){
         profile {
           id
+          handle
           image_url
           nickname
           username
@@ -5259,6 +5315,7 @@ export async function getProfileBatch(usernames: string[]) {
     const doc = gql`query MyQuery @cached {
           profiles(where: {username: {_in:${JSON.stringify(usernames)}}}) {
             id,
+            handle,
             username,
             nickname,
             image_url,
@@ -5274,6 +5331,7 @@ export async function getProfileBatchById(ids: number[]) {
     const doc = gql`query MyQuery @cached {
           profiles(where: {id: {_in:${JSON.stringify(ids)}}}) {
             id,
+            handle,
             username,
             nickname,
             image_url,
@@ -5301,6 +5359,7 @@ export async function setEventStatus(props: {
 }
 
 export interface Ticket {
+    tracks_allowed: null | number[],
     id: number,
     check_badge_class_id: number | null
     content: string,
@@ -5325,6 +5384,7 @@ export interface Ticket {
     }[],
     payment_methods: PaymentMethod[]
     payment_methods_attributes: PaymentMethod[]
+    ticket_type: string
 }
 
 export async function queryTickets (props: {
@@ -5343,6 +5403,7 @@ export async function queryTickets (props: {
 
     const doc = gql`query MyQuery {
       tickets(where: {${variables}}, order_by: {id: asc}) {
+        tracks_allowed
         payment_methods {
             id
             item_type
@@ -5360,6 +5421,7 @@ export async function queryTickets (props: {
         end_time
         event_id
         id
+        ticket_type
         need_approval
         payment_chain
         payment_target_address
@@ -5500,6 +5562,7 @@ export async function getParticipantDetail (props: {id?: number, event_id?: numb
           profile_id
           profile {
             id
+            handle
             username
             nickname
             image_url
@@ -5681,9 +5744,9 @@ export async function combine(props: {
 
 export async function queryTimeLineEvent(groupid: number, from: string, to: string): Promise<{ latest: Event[], curr: Event[], first: Event[] }> {
     let condition1: string, condition2: string, condition3: string
-    condition1 = `where: {group_id: {_eq: ${groupid}}, status: {_in: ["open", "new", "normal"]}, end_time: {_gte: "${new Date().toISOString()}"}} , order_by: {end_time: asc}, limit: 1`
-    condition2 = `where: {group_id: {_eq: ${groupid}}, status: {_in: ["open", "new", "normal"]}, start_time: {_gte: "${from}"}, _and: {start_time: {_lte: "${to}"}}, } , order_by: {start_time: asc}, limit: 1`
-    condition3 = `where: {group_id: {_eq: ${groupid}}, status: {_in: ["open", "new", "normal"]} } , order_by: {id: desc}, limit: 1`
+    condition1 = `where: {group_id: {_eq: ${groupid}}, status: {_in: ["open", "published"]}, end_time: {_gte: "${new Date().toISOString()}"}} , order_by: {end_time: asc}, limit: 1`
+    condition2 = `where: {group_id: {_eq: ${groupid}}, status: {_in: ["open", "published"]}, start_time: {_gte: "${from}"}, _and: {start_time: {_lte: "${to}"}}, } , order_by: {start_time: asc}, limit: 1`
+    condition3 = `where: {group_id: {_eq: ${groupid}}, status: {_in: ["open", "published"]} } , order_by: {id: desc}, limit: 1`
 
 
     const doc = gql`query MyQuery {
@@ -5732,7 +5795,7 @@ export interface RecurringEvent {
 
 export async function getRecurringEvents(id: number) {
     const doc = `query MyQuery{
-      recurring_events(where: {id: {_eq: ${id}}}) {
+      recurrings(where: {id: {_eq: ${id}}}) {
         end_time
         event_count
         id
@@ -5743,9 +5806,9 @@ export async function getRecurringEvents(id: number) {
     }`
 
     const res: any = await request(graphUrl, doc)
-    return res.recurring_events[0] ? {
-        ...res.recurring_events[0],
-        start_time: res.recurring_events[0].start_time + 'z'
+    return res.recurrings[0] ? {
+        ...res.recurrings[0],
+        start_time: res.recurrings[0].start_time + 'z'
     } as RecurringEvent : null
 }
 
@@ -5951,6 +6014,8 @@ export async function updatePaymentStatus (props: {
 export async function getTopEventGroup() {
     const doc = gql`query MyQuery {
       groups(where: {event_enabled: {_eq: true}, group_tags:{_contains: [":top"]}, status: {_neq: "freezed"}}) {
+        start_date
+        end_date
         farcaster
         timezone
         events_count
@@ -5984,6 +6049,7 @@ export async function getTopEventGroup() {
           role
           profile {
             id
+            handle
             nickname
             username
             image_url
@@ -6050,7 +6116,7 @@ export interface VenueOverride {
     _destroy?: string
 }
 
-    export async function rsvp(props: {auth_token: string, id: number, ticket_id: number, payment_method_id?: number, promo_code?: string}){
+    export async function rsvp(props: {auth_token: string, id: number, ticket_id: number, payment_method_id?: number, coupon?: string}){
     checkAuth(props)
 
     const res: any = await fetch.post({
@@ -6106,7 +6172,7 @@ export async function getTicketItemDetail (props: {id?: number, participant_id?:
 
     const doc = `query MyQuery {
         ticket_items(where: {${variables}}) {
-            promo_code_id
+            coupon_id
             sender_address
             id
             amount
@@ -6149,7 +6215,7 @@ export async function getPaymentMethod (props: {id: number}) {
     return res.payment_methods[0] as PaymentMethod || null
 }
 
-export interface PromoCode {
+export interface Coupon {
     id?: number
     event_id?: number
     selector_type: string,
@@ -6160,13 +6226,13 @@ export interface PromoCode {
     discount: number,
     applicable_ticket_ids: number[] | null,
     ticket_item_ids: number[] | null,
-    expiry_time: string,
+    expires_at: string,
     max_allowed_usages: number
     order_usage_count: number
     _destroy?: string
 }
 
-export async function queryPromoCodes (props: {event_id: number}) {
+export async function queryCoupons (props: {event_id: number}) {
     let variables = ''
 
     if (props.event_id) {
@@ -6174,7 +6240,7 @@ export async function queryPromoCodes (props: {event_id: number}) {
     }
 
     const doc = `query MyQuery {
-        promo_codes (where: {${variables}}, order_by: {id: desc}) {
+        coupons (where: {${variables}}, order_by: {id: desc}) {
             id
             event_id
             selector_type
@@ -6184,17 +6250,17 @@ export async function queryPromoCodes (props: {event_id: number}) {
             discount
             applicable_ticket_ids
             ticket_item_ids
-            expiry_time
+            expires_at
             max_allowed_usages
             order_usage_count
             }
     }`
 
     const res: any = await request(graphUrl, doc)
-    return res.promo_codes as PromoCode[]
+    return res.coupons as Coupon[]
 }
 
-export async function queryTicketItems (props: {event_id?: number, participant_id?: number, order_number?: string, profile_id?: number, promo_code_id?: number, isGroupTicket?: boolean}) {
+export async function queryTicketItems (props: {event_id?: number, participant_id?: number, order_number?: string, profile_id?: number, coupon_id?: number}) {
     let variables = ''
     if (props.event_id) {
         variables += `event_id: {_eq: ${props.event_id}}, `
@@ -6212,12 +6278,8 @@ export async function queryTicketItems (props: {event_id?: number, participant_i
         variables += `profile_id: {_eq: ${props.profile_id}}, `
     }
 
-    if (props.promo_code_id) {
-        variables += `promo_code_id: {_eq: ${props.promo_code_id}}, `
-    }
-
-    if (props.isGroupTicket) {
-        variables += `ticket :{ticket_type:{_eq:"group_ticket"}}, `
+    if (props.coupon_id) {
+        variables += `coupon_id: {_eq: ${props.coupon_id}}, `
     }
 
     const doc = `query MyQuery {
@@ -6228,8 +6290,10 @@ export async function queryTicketItems (props: {event_id?: number, participant_i
            ticket {
                 title
                 content
+                ticket_type,
+                tracks_allowed
             }
-            promo_code_id
+            coupon_id
             sender_address
             id
             amount
@@ -6250,6 +6314,7 @@ export async function queryTicketItems (props: {event_id?: number, participant_i
             order_number
             profile {
                 id,
+                handle,
                 username,
                 nickname,
                 image_url
@@ -6270,11 +6335,11 @@ export async function getStripeApiKey(props: {event_id: number}) {
     return res.data.app_key as string
 }
 
-export async function getPromoCode(props: {id: number, auth_token: string}) {
+export async function getCoupon(props: {id: number, auth_token: string}) {
     checkAuth(props)
 
     const res: any = await fetch.get({
-        url: `${apiUrl}/event/get_promo_code`,
+        url: `${apiUrl}/event/get_coupon`,
         data: props
     })
 
@@ -6282,19 +6347,19 @@ export async function getPromoCode(props: {id: number, auth_token: string}) {
 
 }
 
-export interface ValidPromoCode extends PromoCode {
+export interface ValidCoupon extends Coupon {
     code: string
 }
 
 
-export async function verifyPromoCode(props: {event_id: number,  code: string}) {
+export async function verifyCoupon(props: {event_id: number,  code: string}) {
     try {
         const res: any = await fetch.get({
-            url: `${apiUrl}/event/check_promo_code`,
+            url: `${apiUrl}/event/check_coupon`,
             data: props
         })
 
-        return res.data.promo_code as ValidPromoCode
+        return res.data.coupon as ValidCoupon
     } catch (e: any) {
         return  null
     }
@@ -6364,8 +6429,8 @@ export default {
     verifyTwitter,
     sendPoint,
     queryPointDetail,
-    queryPointItemDetail,
-    queryPointItems,
+    queryPointTransferDetail,
+    queryPointTransfers,
     rejectPoint,
     acceptPoint,
     queryNftPasslet,
@@ -6413,8 +6478,16 @@ export async function queryScheduleEvent(props: QueryEventProps): Promise<Event[
         variables += `venue_id: {_eq: ${props.venue_id}}, `
     }
 
-    if (props.recurring_event_id) {
-        variables += `recurring_event_id: {_eq: ${props.recurring_event_id}}, `
+    if (props.venue_ids) {
+        variables += `venue_id: {_in: [${props.venue_ids.join(',')}]}, `
+    }
+
+    if (props.recurring_id) {
+        variables += `recurring_id: {_eq: ${props.recurring_id}}, `
+    }
+
+    if (props.track_id) {
+        variables += `track_id: {_eq: ${props.track_id}}, `
     }
 
     if (props.only_private) {
@@ -6455,7 +6528,7 @@ export async function queryScheduleEvent(props: QueryEventProps): Promise<Event[
         variables += `title: {_iregex: "${props.search}"}, `
     }
 
-    let status = `"open", "new", "normal"`
+    let status = `"open", "published"`
     if (props.show_pending_event) {
         status = status + ', "pending"'
     }
@@ -6472,11 +6545,16 @@ export async function queryScheduleEvent(props: QueryEventProps): Promise<Event[
 
     const doc = gql`query MyQuery ${props.cache? '@cached' : ''} {
       events (where: {${variables}, status: {_in: [${status}]}} ${order} limit: ${page_size}, offset: ${props.offset || ((props.page - 1) * page_size)}) {
+        track_id
         extra
+        venue_id
         requirement_tags
         operators
         padge_link
         badge_class_id
+        participants {
+            profile_id
+        }
         notes
         geo_lat
         geo_lng
@@ -6544,8 +6622,8 @@ export async function queryMapEvent(props: QueryEventProps): Promise<Event[]> {
         variables += `venue_id: {_eq: ${props.venue_id}}, `
     }
 
-    if (props.recurring_event_id) {
-        variables += `recurring_event_id: {_eq: ${props.recurring_event_id}}, `
+    if (props.recurring_id) {
+        variables += `recurring_id: {_eq: ${props.recurring_id}}, `
     }
 
     if (props.only_private) {
@@ -6586,7 +6664,7 @@ export async function queryMapEvent(props: QueryEventProps): Promise<Event[]> {
         variables += `title: {_iregex: "${props.search}"}, `
     }
 
-    let status = `"open", "new", "normal"`
+    let status = `"open", "published"`
     if (props.show_pending_event) {
         status = status + ', "pending"'
     }
@@ -6603,6 +6681,7 @@ export async function queryMapEvent(props: QueryEventProps): Promise<Event[]> {
 
     const doc = gql`query MyQuery ${props.cache? '@cached' : ''} {
       events (where: {${variables}, status: {_in: [${status}]}} ${order} limit: ${page_size}, offset: ${props.offset || ((props.page - 1) * page_size)}) {
+        track_id
         extra
         requirement_tags
         operators
@@ -6641,6 +6720,7 @@ export async function queryMapEvent(props: QueryEventProps): Promise<Event[]> {
           profile_id
           profile {
             id
+            handle
             address
             username
             nickname
@@ -6658,4 +6738,103 @@ export async function queryMapEvent(props: QueryEventProps): Promise<Event[]> {
             start_time: item.end_time && !item.start_time.endsWith('Z') ? item.start_time + 'Z' : item.start_time,
         }
     }) as Event[]
+}
+
+export interface Track {
+    id?: number
+    tag: string | null,
+    title: string | null,
+    kind: 'public' | 'private',
+    icon_url: string | null,
+    about: string | null,
+    group_id: number,
+    start_date: string | null,
+    end_date: string | null,
+    manager_ids: number[] | null,
+    '_destroy'?: string
+
+}
+
+export async function getTracks(props: {groupId: number}) {
+    const doc = gql`query MyQuery {
+      tracks(where: {group_id: {_eq: ${props.groupId}}}, order_by: {id: asc}) {
+        id
+        tag
+        title
+        kind
+        icon_url
+        about
+        group_id
+        start_date
+        end_date
+        manager_ids
+      }
+    }`
+
+    const res: any = await request(graphUrl, doc)
+    return res.tracks as Track[]
+}
+
+export interface EditTrackProps extends Track {
+    auth_token: string
+}
+export async function updateTrack(props: EditTrackProps) {
+    checkAuth(props)
+
+    const res = await fetch.post({
+        url: `${apiUrl}/group/update_tracks`,
+        data: {
+            auth_token: props.auth_token,
+            id: props.group_id,
+            tracks: [props]
+        }
+    })
+
+
+    if (res.data.result === 'error') {
+        throw new Error(res.data.message)
+    }
+
+    return res.data.tracks.sort((a: Track, b: Track) => {
+        return a.id! - b.id!
+    }) as Track[]
+}
+
+export async function queryTrackDetail(id: number) {
+    const doc = gql`query MyQuery {
+      tracks(where: {id: {_eq: ${id}}}) {
+        id
+        tag
+        title
+        kind
+        icon_url
+        about
+        group_id
+        start_date
+        end_date
+        manager_ids
+      }
+    }`
+
+    const res: any = await request(graphUrl, doc)
+    return res.tracks[0] as Track || null
+}
+
+export interface CommentType {
+    id: number
+    title?: string,
+    item_type: string,
+    item_id: number,
+    reply_parent_id: null | number,
+    content: string,
+    content_type: string,
+    profile_id: number,
+    removed: boolean,
+    status: string,
+    comment_type: string,
+    icon_url: string | null,
+    edit_parent_id: null | number,
+    badge_id: null | number,
+    created_at: string,
+    profile: ProfileSimple
 }

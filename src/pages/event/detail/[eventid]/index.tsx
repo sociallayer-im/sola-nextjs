@@ -20,7 +20,7 @@ import {
     queryGroupDetail,
     queryProfileByEmail,
     queryUserGroup,
-    RecurringEvent, setEventStatus, TicketItem, queryTicketItems
+    RecurringEvent, setEventStatus, TicketItem, queryTicketItems, queryTrackDetail, Track, unJoinEvent
 } from "@/service/solas";
 import LangContext from "@/components/provider/LangProvider/LangContext";
 import {useTime2, useTime3} from "@/hooks/formatTime";
@@ -29,7 +29,6 @@ import usePicture from "@/hooks/pictrue";
 import AppButton from "@/components/base/AppButton/AppButton";
 import userContext from "@/components/provider/UserProvider/UserContext";
 import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
-import PageBack from "@/components/base/PageBack";
 import ListCheckLog from "@/components/compose/ListCheckLog/ListCheckLog";
 import useCalender from "@/hooks/addToCalendar/addToCalendar";
 import ListEventParticipants from "@/components/compose/ListEventParticipants/ListEventParticipants";
@@ -46,11 +45,14 @@ import {Swiper, SwiperSlide} from 'swiper/react'
 import {Mousewheel, FreeMode} from "swiper";
 import EventTickets from "@/components/compose/EventTickets/EventTickets";
 import EventNotes from "@/components/base/EventNotes/EventNotes";
+import RichTextDisplayerNew from "@/components/compose/RichTextEditor/DisplayerNew";
 import RichTextDisplayer from "@/components/compose/RichTextEditor/Displayer";
 import removeMarkdown from "markdown-to-text"
 import {StatefulPopover} from "baseui/popover";
 import {AVNeeds, SeatingStyle} from "@/pages/event/[groupname]/create";
+import DialogGenPromoCode from "@/components/base/Dialog/DialogGenPromoCode/DialogGenPromoCode";
 import TicketsPurchased from "@/components/base/TicketsPurchased/TicketsPurchased";
+import EventComment from "@/components/compose/EventComment/EventComment";
 
 
 import * as dayjsLib from "dayjs";
@@ -58,6 +60,10 @@ import Empty from "@/components/base/Empty";
 import useEvent, {EVENT} from "@/hooks/globalEvent";
 import useZuAuth from "@/service/zupass/useZuAuth";
 import {isHideLocation} from "@/global_config";
+import copy from "@/utils/copy";
+import fetch from "@/utils/fetch";
+import {getUserStaredComment, handleEventStar} from "@/service/solasv2";
+import DialogFeedback from "@/components/base/Dialog/DialogFeedback";
 
 const utc = require('dayjs/plugin/utc')
 const timezone = require('dayjs/plugin/timezone')
@@ -66,7 +72,7 @@ dayjs.extend(utc)
 dayjs.extend(timezone)
 
 
-function EventDetail(props: { event: Event | null, appName: string, host: string, des: string }) {
+function EventDetail(props: { event: Event | null, appName: string, host: string, des: string, track: Track | null }) {
     const router = useRouter()
     const [event, setEvent] = useState<Event | null>(props.event || null)
     const [hoster, setHoster] = useState<Profile | null>(null)
@@ -86,6 +92,11 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
     const {MapReady} = useContext(MapContext)
     const [needUpdate, _] = useEvent(EVENT.participantUpdate)
     const zuAuthLogin = useZuAuth()
+
+    const isTrackManager = useMemo(() => {
+        if (!user.id) return false
+        return props.track?.manager_ids?.includes(user.id)
+    }, [props.track, user])
 
     const [tab, setTab] = useState(1)
     const [isHoster, setIsHoster] = useState(false)
@@ -108,10 +119,12 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
     const [group, setGroup] = useState<Group | null>(null)
     const [ticketItems, setTicketItems] = useState<TicketItem[]>([])
 
+
     const [cohost, setCohost] = useState<ProfileSimple[]>([])
     const [speaker, setSpeaker] = useState<ProfileSimple[]>([])
     const [repeatEventDetail, setRepeatEventDetail] = useState<RecurringEvent | null>(null)
     const [ticketReady, setTicketReady] = useState(false)
+    const [stared, setStared] = useState(false)
 
     async function fetchData() {
         if (params?.eventid) {
@@ -156,9 +169,10 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                     setNotStart(true)
                 }
 
-                if (now >= start && now <= end) {
+                if (now >= start) {
                     setInProgress(true)
                 }
+
                 if (now > end) {
                     setOutOfDate(true)
                 }
@@ -175,7 +189,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                 if (now < start) {
                     setNotStart(true)
                 }
-                if (now > start) {
+                if (now >= start) {
                     setInProgress(true)
                 }
             }
@@ -225,10 +239,16 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                 setBadge(badge)
             }
 
-            if (res?.recurring_event_id) {
-                const repeatEvent = await getRecurringEvents(res.recurring_event_id)
+            if (res?.recurring_id) {
+                const repeatEvent = await getRecurringEvents(res.recurring_id)
                 setRepeatEventDetail(repeatEvent as RecurringEvent)
             }
+
+          !!user.id && getUserStaredComment({
+                profile_id: user.id
+            }).then(comments => {
+                setStared(comments.some(item => item.item_id === res?.id))
+            })
         } else {
             router.push('/error')
         }
@@ -239,9 +259,9 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
             const eventParticipants = event?.participants || []
             const joined = eventParticipants.find((item: Participants) => {
                 const ticket = tickets.find(t => t.id === item.ticket_id)
-                return (!item.ticket_id && item.profile.id === user.id && (item.status === 'applied' || item.status === 'attending')) // no tickets needed
-                    || (!!ticket && !!item.ticket_id && item.profile.id === user.id && (item.status === 'applied' || item.status === 'attending') && item.payment_status?.includes('succe')) // paid ticket
-                    || (!!ticket && !!item.ticket_id && item.profile.id === user.id && (item.status === 'applied' || item.status === 'attending') && ticket.payment_methods.length === 0) // free ticket
+                return (!item.ticket_id && item.profile.id === user.id && (item.status === 'applied' || item.status === 'attending' || item.status === 'checked')) // no tickets needed
+                    || (!!ticket && !!item.ticket_id && item.profile.id === user.id && (item.status === 'applied' || item.status === 'attending' || item.status === 'checked') && item.payment_status?.includes('succe')) // paid ticket
+                    || (!!ticket && !!item.ticket_id && item.profile.id === user.id && (item.status === 'applied' || item.status === 'attending' || item.status === 'checked') && ticket.payment_methods.length === 0) // free ticket
             })
 
             setIsJoined(!!joined)
@@ -275,7 +295,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
 
     async function showAllRepeatEvent() {
         const unloading = showLoading()
-        const events = await queryEvent({recurring_event_id: event!.recurring_event_id!, page: 1, page_size: 1000})
+        const events = await queryEvent({recurring_id: event!.recurring_id!, page: 1, page_size: 1000})
         unloading()
 
         openDialog({
@@ -351,7 +371,8 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
         if (params?.eventid || needUpdate) {
             fetchData()
         }
-    }, [params, needUpdate])
+    }, [params, needUpdate, user.id])
+
 
     useEffect(() => {
         if (event && event.group_id && ready) {
@@ -485,8 +506,15 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
         })
     }
 
-    const genGoogleMapUrl = (id: number) => {
-        return `/event/${eventGroup?.username}/map/?target_event=${id}`
+    const genGoogleMapUrl = () => {
+        // if (marker.formatted_address && marker.location !== 'Custom location') {
+        //     const json = JSON.parse(marker.formatted_address)
+        //     return `https://www.google.com/maps/search/?api=1&query=${json.name.split('').join('+')}`
+        // } else {
+        //     return `https://www.google.com/maps/search/?api=1&query=${marker.geo_lat}%2C${marker.geo_lng}`
+        // }
+
+        return `https://www.google.com/maps/search/?api=1&query=${event!.geo_lat}%2C${event!.geo_lng}`
     }
 
     const handlePublish = (e: any) => {
@@ -514,6 +542,78 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                     showToast(e.message)
                 }
             }
+        })
+    }
+
+    const showGenPromoCodeDialog = async () => {
+        if (!event) return
+        openDialog({
+            content: (close: any) => {
+                return <DialogGenPromoCode
+                    close={close}
+                    coupons={[]}
+                    event={event!}
+                    onChange={(codes) => {
+                        console.log('codes', codes)
+                    }}
+                />
+            },
+            size: ['100%', '100%'],
+        })
+    }
+
+    const handleUnJoin = async () => {
+        const a = await openConfirmDialog({
+            title: lang['Activity_Unjoin_Confirm_title'],
+            confirmBtnColor: '#F64F4F',
+            confirmTextColor: '#fff',
+            confirmText: lang['Group_Member_Manage_Dialog_Confirm_Dialog_Confirm'],
+            cancelText: lang['Group_Member_Manage_Dialog_Confirm_Dialog_Cancel'],
+            onConfirm: async (close: any) => {
+                const unload = showLoading()
+                try {
+                    const join = await unJoinEvent({id: event!.id, auth_token: user.authToken || ''})
+                    unload()
+                    showToast('Canceled')
+                    setParticipants(participants.filter(item => item.profile.id !== user.id))
+                    setIsJoined(false)
+                    close()
+                } catch (e: any) {
+                    console.error(e)
+                    unload()
+                    showToast(e.message)
+                }
+            }
+        })
+    }
+
+    const tagWithTrack = useMemo(() => {
+        let tag = event?.tags || []
+        if (props.track && props.track.title) {
+            tag = [...tag, props.track.title]
+        }
+        return tag
+    }, [event?.tags, props.track])
+
+    const handleStar = async (e: any) => {
+        if (!user.authToken) {
+            openConnectWalletDialog()
+            return
+        }
+
+        e.preventDefault()
+        e.stopPropagation()
+        const unload = showLoading()
+        await handleEventStar({event_id: event!.id, auth_token: user.authToken || ''})
+        setStared(true)
+        unload()
+    }
+
+    const showFeedBackDialog = async () => {
+        openDialog({
+            content: (close: any) => <DialogFeedback event_id={event!.id} close={close} />,
+            size: [420, 'auto'],
+            position: 'bottom'
         })
     }
 
@@ -558,13 +658,46 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                             }
                         </div>
                         <div className={'event-top-btn'}>
-                            {(isHoster || isManager || isOperator || isGroupOwner) && !canceled &&
-                                <Link href={`/event/edit/${event?.id}`}>
-                                    <i className={'icon-edit'}></i>{lang['Activity_Detail_Btn_Modify']}</Link>
+                            {!stared ?
+                                <AppButton size={'compact'} onClick={handleStar}>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 16 16"
+                                         fill="none">
+                                        <path
+                                            d="M14.6665 6.44579C14.6244 6.32385 14.5478 6.21674 14.446 6.13745C14.3443 6.05817 14.2217 6.01012 14.0932 5.99912L10.2998 5.44579L8.59982 1.99912C8.54523 1.88641 8.46 1.79135 8.35388 1.72484C8.24777 1.65832 8.12506 1.62305 7.99982 1.62305C7.87458 1.62305 7.75188 1.65832 7.64576 1.72484C7.53965 1.79135 7.45441 1.88641 7.39982 1.99912L5.69982 5.43912L1.90649 5.99912C1.7831 6.01666 1.6671 6.06843 1.57166 6.14856C1.47621 6.22869 1.40513 6.33397 1.36649 6.45245C1.33112 6.56824 1.32794 6.69147 1.35731 6.80892C1.38667 6.92637 1.44746 7.0336 1.53316 7.11912L4.28649 9.78579L3.61982 13.5725C3.59291 13.6981 3.60286 13.8288 3.64848 13.9489C3.6941 14.069 3.77345 14.1733 3.87698 14.2494C3.9805 14.3254 4.1038 14.37 4.23204 14.3776C4.36028 14.3853 4.48799 14.3557 4.59982 14.2925L7.99982 12.5125L11.3998 14.2925C11.4934 14.3452 11.5991 14.3728 11.7065 14.3725C11.8477 14.373 11.9854 14.3286 12.0998 14.2458C12.2033 14.1717 12.2833 14.0696 12.3306 13.9514C12.3778 13.8333 12.3903 13.7041 12.3665 13.5791L11.6998 9.79245L14.4532 7.12579C14.5494 7.04424 14.6206 6.93706 14.6583 6.81669C14.6961 6.69632 14.6989 6.5677 14.6665 6.44579ZM10.5665 9.11245C10.4893 9.18739 10.4314 9.27989 10.3978 9.38204C10.3641 9.4842 10.3557 9.59299 10.3732 9.69912L10.8532 12.4991L8.34649 11.1658C8.24907 11.1176 8.14184 11.0925 8.03316 11.0925C7.92447 11.0925 7.81724 11.1176 7.71982 11.1658L5.21316 12.4991L5.69316 9.69912C5.71065 9.59299 5.7022 9.4842 5.66854 9.38204C5.63487 9.27989 5.57698 9.18739 5.49982 9.11245L3.49982 7.11245L6.30649 6.70579C6.41449 6.69076 6.51715 6.64948 6.60549 6.58556C6.69382 6.52163 6.76513 6.43701 6.81316 6.33912L7.99982 3.79912L9.25316 6.34579C9.30118 6.44368 9.37249 6.5283 9.46082 6.59222C9.54916 6.65615 9.65182 6.69743 9.75982 6.71245L12.5665 7.11912L10.5665 9.11245Z"
+                                            fill="black"/>
+                                    </svg>
+                                    <span>{'Star'}</span>
+                                </AppButton> :
+                                <AppButton size={'compact'}>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14"
+                                         fill="none">
+                                        <path
+                                            d="M13.4463 5.13745C13.5481 5.21674 13.6246 5.32385 13.6667 5.44579C13.6992 5.5677 13.6963 5.69632 13.6586 5.81669C13.6208 5.93706 13.5497 6.04424 13.4534 6.12579C13.3571 6.20733 10.7001 8.79245 10.7001 8.79245C10.7001 8.79245 11.3429 12.4541 11.3667 12.5791C11.3905 12.7041 11.3781 12.8333 11.3308 12.9514C11.2836 13.0696 11.2035 13.1717 11.1001 13.2458C10.9857 13.3286 10.848 13.373 10.7067 13.3725C10.5993 13.3728 10.4936 13.3452 10.4001 13.2925L7.00007 11.5125L3.60007 13.2925C3.48824 13.3557 3.36052 13.3853 3.23229 13.3776C3.10405 13.37 2.98075 13.3254 2.87722 13.2494C2.77369 13.1733 2.69434 13.069 2.64872 12.9489C2.6031 12.8288 2.59315 12.6981 2.62007 12.5725L3.28673 8.78579L0.5334 6.11912C0.447705 6.0336 0.386914 5.92637 0.357552 5.80892C0.328189 5.69147 0.331363 5.56824 0.366733 5.45245C0.405373 5.33397 0.476451 5.22869 0.5719 5.14856C0.667349 5.06843 0.783348 5.01666 0.906733 4.99912C0.906733 4.99912 3.48921 5.32013 4.70007 4.43912C5.91177 3.55749 6.40007 0.99912 6.40007 0.99912C6.45466 0.886406 6.53989 0.791348 6.64601 0.724836C6.75212 0.658324 6.87483 0.623047 7.00007 0.623047C7.1253 0.623047 7.24801 0.658324 7.35413 0.724836C7.46024 0.791348 7.54548 0.886406 7.60007 0.99912L9.30007 4.44579L13.0934 4.99912C13.2219 5.01012 13.3445 5.05817 13.4463 5.13745Z"
+                                            fill="#F1CB45"/>
+                                    </svg>
+                                    <span>{'Star'}</span>
+                                </AppButton>
+                            }
+                            {(isHoster || isManager || isOperator || isGroupOwner || isTrackManager) && !canceled &&
+                                <>
+                                    {!!tickets.length &&
+                                        <AppButton
+                                            onClick={showGenPromoCodeDialog}
+                                            kind={'primary'} size={'compact'}>
+                                            {lang['Promo_Code']}
+                                        </AppButton>
+                                    }
+                                    <Link href={`/event/edit/${event?.id}`}>
+                                        <i className={'icon-edit'}></i>
+                                        <span>{lang['Activity_Detail_Btn_Modify']}</span>
+                                    </Link>
+                                </>
                             }
                             {event?.status !== 'pending' &&
                                 <Link href={`/event/success/${event?.id}`}>
-                                    <img src="/images/icon_share.svg" alt=""/>{lang['IssueFinish_Title']}</Link>
+                                    <img src="/images/icon_share.svg" alt=""/>
+                                    <span>{lang['IssueFinish_Title']}</span>
+                                </Link>
                             }
                         </div>
 
@@ -576,7 +709,8 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                             {
                                 event.cover_url ?
                                     <ImgLazy src={event.cover_url} alt="" width={624}/>
-                                    : <EventDefaultCover event={event} width={324} height={324} showLocation={!isHideLocation(event.group_id) || isOperator || isGroupOwner || isHoster || isJoined || isManager}/>
+                                    : <EventDefaultCover event={event} width={324} height={324}
+                                                         showLocation={!isHideLocation(event.group_id) || isOperator || isGroupOwner || isHoster || isJoined || isManager || isTrackManager}/>
                             }
                         </div>
 
@@ -603,7 +737,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
 
                                 {event.tags && !!event.tags.length &&
                                     <div className={'label'}>
-                                        <EventLabels data={event.tags} value={event.tags} disabled/>
+                                        <EventLabels data={tagWithTrack} value={tagWithTrack} disabled/>
                                     </div>
                                 }
 
@@ -712,9 +846,9 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                         <div className={'detail-item'}>
                                             <i className={'icon-Outline'}/>
                                             {
-                                                (isJoined || isManager || isOperator || isGroupOwner || isHoster || isMember || !isHideLocation(event.group_id)) ? <>
+                                                (isJoined || isManager || isOperator || isGroupOwner || isHoster || isMember || isTrackManager || !isHideLocation(event.group_id)) ? <>
                                                         {event.formatted_address ?
-                                                            <a href={genGoogleMapUrl(event.id)}
+                                                            <a href={genGoogleMapUrl()}
                                                                target={'_blank'}>
                                                                 <div className={'main'}>{event.location}</div>
                                                                 <div className={'sub'}>{event.formatted_address}</div>
@@ -727,22 +861,30 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                             }
                                         </div>
                                         {
-                                            !!eventSite && eventSite.link && (isJoined || isManager || isOperator || isGroupOwner || isHoster || isMember || !isHideLocation(event.group_id)) &&
+                                            !!eventSite && eventSite.link && (isJoined || isManager || isOperator || isGroupOwner || isHoster || isMember || isTrackManager || !isHideLocation(event.group_id)) &&
                                             <div className={'venue-link'}><a href={eventSite.link}
                                                                              target="_blank">{'View venue photos'}</a>
                                             </div>
                                         }
 
-                                        {MapReady && (isJoined || isManager || isOperator || isGroupOwner || isHoster || isMember || !isHideLocation(event.group_id)) &&
+                                        {MapReady && (isJoined || isManager || isOperator || isGroupOwner || isHoster || isMember || isTrackManager || !isHideLocation(event.group_id)) &&
                                             <>
-                                                <div className={'switch-preview-map'}
-                                                     onClick={() => {
-                                                         setShowMap(!showMap)
-                                                     }
-                                                     }
-                                                >{showMap ? 'Hide Map' : 'Show Map'}</div>
+                                                <div className="map-action">
+                                                    <div className={'switch-preview-map'}
+                                                         onClick={() => {
+                                                             setShowMap(!showMap)
+                                                         }
+                                                         }
+                                                    >{showMap ? 'Hide Map' : 'Show Map'}</div>
+                                                    <div className={'switch-preview-map'}
+                                                         onClick={()=> {
+                                                             copy(event.formatted_address)
+                                                             showToast('Copied')
+                                                         }}
+                                                    >Copy Address</div>
+                                                </div>
                                                 {showMap &&
-                                                    <Link href={genGoogleMapUrl(event.id)}
+                                                    <Link href={genGoogleMapUrl()}
                                                           target={'_blank'}
                                                           className={`map-preview`}>
                                                         <img
@@ -756,7 +898,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                     </>
                                 }
 
-                                {event.meeting_url && (isJoined || isManager || isOperator || isGroupOwner || isHoster || isMember || !isHideLocation(event.group_id)) &&
+                                {event.meeting_url && (isJoined || isManager || isOperator || isGroupOwner || isHoster || isMember || isTrackManager || !isHideLocation(event.group_id)) &&
                                     <div className={'detail-item'} onClick={e => {
                                         if (isJoined) {
                                             copy(event!.meeting_url!)
@@ -766,7 +908,13 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                         <i className={'icon-link'}/>
                                         <div>
                                             <div className={'main'}>{getMeetingName(event.meeting_url)}</div>
-                                            <div className={'sub'}>{event.meeting_url}</div>
+                                            {
+                                                event.meeting_url.startsWith('https') || event.meeting_url.startsWith('http') ?
+                                                    <a className={'sub'} href={event.meeting_url}
+                                                       target={'_blank'}>{event.meeting_url}</a>
+                                                    : <div className={'sub'}>{event.meeting_url}</div>
+                                            }
+
                                         </div>
                                     </div>
                                 }
@@ -833,21 +981,27 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                                 endTime: event!.end_time!,
                                                                 location: eventSite?.title || event!.location || '',
                                                                 details: event!.content,
-                                                                url: window.location.href
+                                                                url: event!.meeting_url || window.location.href
                                                             })
                                                         }}>
                                                         <i className="icon-calendar" style={{marginRight: '8px'}}/>
                                                         {lang['Activity_Detail_Btn_add_Calender']}</AppButton>
                                                 }
 
+                                                <AppButton
+                                                    onClick={e => {
+                                                        showFeedBackDialog()
+                                                    }}>{'Feedback'}</AppButton>
+                                            </div>
 
+                                            <div className={'center'}>
                                                 {!isJoined && !canceled && !tickets.length &&
                                                     <AppButton special onClick={e => {
                                                         handleJoin()
                                                     }}>{lang['Activity_Detail_Btn_Attend']}</AppButton>
                                                 }
 
-                                                {!canceled && isJoined && !isHoster && !isManager && !isOperator && !isGroupOwner &&
+                                                {!canceled && isJoined && !isHoster && !isManager && !isOperator && !isGroupOwner && !isTrackManager && !event.meeting_url &&
                                                     <AppButton
                                                         special
                                                         onClick={e => {
@@ -860,14 +1014,16 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                         onClick={e => {
                                                             copy(event!.meeting_url!);
                                                             showToast('Online location has been copied!')
-                                                            // window.open(getUrl(event!.online_location!) || '#', '_blank')
+                                                            if (event!.meeting_url!.startsWith('http') || event!.meeting_url!.startsWith('https')) {
+                                                                window.open(getUrl(event!.meeting_url!) || '#', '_blank')
+                                                            }
                                                         }}
                                                         special>{lang['Activity_Detail_Btn_AttendOnline']}</AppButton>
                                                 }
                                             </div>
 
                                             <div className={'center'}>
-                                                {(isHoster || isManager || isOperator || isGroupOwner) && !canceled &&
+                                                {(isHoster || isManager || isOperator || isGroupOwner) && !canceled && !isTrackManager &&
                                                     <AppButton
                                                         onClick={e => {
                                                             handleHostCheckIn()
@@ -876,6 +1032,14 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                             ? lang['Activity_Host_Check_And_Send']
                                                             : lang['Activity_Detail_Btn_Checkin']
                                                     }</AppButton>
+                                                }
+
+                                                {isJoined &&
+                                                    <AppButton
+
+                                                        onClick={e => {
+                                                            handleUnJoin()
+                                                        }}>{lang['Profile_Edit_Cancel']}</AppButton>
                                                 }
                                             </div>
                                         </div>
@@ -906,30 +1070,44 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
 
                             <div className={'event-tab'}>
                                 <div className={'tab-titles'}>
-                                    <div className={'center'}>
+                                    <div className={'center'} style={{flexWrap: 'wrap'}}>
                                         <div className={tab === 1 ? 'tab-title active' : 'tab-title'}
                                              onClick={e => {
                                                  setTab(1)
                                              }}>
                                             <div>{lang['Activity_Des']}</div>
                                         </div>
-                                        { tickets.length > 0 &&
+                                        {tickets.length > 0 &&
                                             <>
                                                 <div className={'split mobile-item'}/>
-                                                <div className={tab === 4 ? 'tab-title mobile-item active' : 'mobile-item tab-title'}
-                                                     onClick={e => {
-                                                         setTab(4)
-                                                     }}>
+                                                <div
+                                                    className={tab === 4 ? 'tab-title mobile-item active' : 'mobile-item tab-title'}
+                                                    onClick={e => {
+                                                        setTab(4)
+                                                    }}>
                                                     <div>{lang['Tickets']}</div>
                                                 </div>
                                             </>
                                         }
+                                        {
+                                            (!tickets.length || isHoster || isManager || isOperator || isGroupOwner || isTrackManager) &&
+                                            <>
+                                                <div className={'split'}/>
+                                                <div className={tab === 2 ? 'tab-title active' : 'tab-title'}
+                                                     onClick={e => {
+                                                         setTab(2)
+                                                     }}>
+                                                    <div>{lang['Activity_Participants']}({filteredParticipants.length})</div>
+                                                </div>
+                                            </>
+                                        }
+
                                         <div className={'split'}/>
-                                        <div className={tab === 2 ? 'tab-title active' : 'tab-title'}
+                                        <div className={tab === 5 ? 'tab-title active' : 'tab-title'}
                                              onClick={e => {
-                                                 setTab(2)
+                                                 setTab(5)
                                              }}>
-                                            <div>{lang['Activity_Participants']}({filteredParticipants.length})</div>
+                                            <div>{'Comments'}</div>
                                         </div>
                                     </div>
                                 </div>
@@ -948,39 +1126,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                             }
 
                                             <div className={'center'}>
-                                                {!!event.wechat_contact_group &&
-                                                    <>
-                                                        <div
-                                                            className={'wechat-title'}>{lang['Activity_Detail_Wechat']}</div>
-                                                        {
-                                                            !!event.wechat_contact_person &&
-                                                            <div
-                                                                className={'wechat-account'}>{lang['Activity_Detail_Account']}
-                                                                <span onClick={e => {
-                                                                    copy(event?.wechat_contact_person!);
-                                                                    showToast('Copied!')
-                                                                }}>
-                                                        {event.wechat_contact_person}
-                                                        </span>
-                                                            </div>
-                                                        }
-                                                        <div className={'wechat-contact-group'} onClick={e => {
-                                                            showImage(event?.wechat_contact_group!)
-                                                        }}>
-                                                            <img src={event.wechat_contact_group} alt=""/>
-                                                        </div>
-                                                    </>
-                                                }
-                                                {!!event.telegram_contact_group &&
-                                                    <div className={'wechat-account'}>
-                                                        <div className={'wechat-title'}>Join the Telegram group</div>
-                                                        <a href={event.telegram_contact_group} target={'_blank'}>
-                                                            {event.telegram_contact_group}
-                                                        </a>
-                                                    </div>
-                                                }
-
-                                                {!!event.requirement_tags && (event.group_id === 3427 || event.group_id === 3409) && (isOperator || isManager || isHoster || isGroupOwner) &&
+                                                {!!event.requirement_tags && !!event.group_id && [3427, 3409, 3463, 3454].includes(event.group_id) && (isOperator || isManager || isHoster || isGroupOwner || isTrackManager ) &&
                                                     <>
                                                         {!!event.requirement_tags.filter((t) => {
                                                                 return SeatingStyle.includes(t)
@@ -1006,11 +1152,14 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                         }
                                                     </>
                                                 }
-                                                <RichTextDisplayer markdownStr={event.content}/>
+                                                <div>
+
+                                                </div>
+                                                <RichTextDisplayerNew markdownStr={event.content}/>
 
                                                 {!!event.notes &&
                                                     <EventNotes
-                                                        hide={!isJoined && !isHoster && !isOperator && !isGroupOwner}
+                                                        hide={!isJoined && !isHoster && !isOperator && !isGroupOwner && !isTrackManager}
                                                         notes={event.notes}/>
                                                 }
                                             </div>
@@ -1029,9 +1178,9 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                         onChange={e => {
                                                             fetchData()
                                                         }}
-                                                        showDownload={isHoster || isOperator || isGroupOwner || isManager}
+                                                        showDownload={isHoster || isOperator || isGroupOwner || isManager || isTrackManager}
                                                         participants={filteredParticipants}
-                                                        isHost={isHoster || isOperator || isGroupOwner || isManager}
+                                                        isHost={isHoster || isOperator || isGroupOwner || isManager || isTrackManager}
                                                         eventId={Number(params?.eventid)}
                                                         tickets={tickets}
                                                     />
@@ -1054,6 +1203,11 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                         tab === 4 && !!event &&
                                         <EventTickets tickets={tickets} event={event} canAccess={canAccess}/>
                                     }
+
+                                    {
+                                        tab === 5 && !!event &&
+                                        <EventComment event={event} />
+                                    }
                                 </div>
                             </div>
                         </div>
@@ -1063,7 +1217,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                             {
                                 event.cover_url ?
                                     <ImgLazy src={event.cover_url} alt="" width={624}/>
-                                    : <EventDefaultCover event={event} width={324} height={324} showLocation={!isHideLocation(event.group_id) || isOperator || isGroupOwner || isHoster || isJoined || isManager} />
+                                    : <EventDefaultCover event={event} width={324} height={324} showLocation={!isHideLocation(event.group_id) || isOperator || isGroupOwner || isHoster || isJoined || isManager || isTrackManager} />
                             }
                         </div>
                         <div className={'center'}>
@@ -1117,22 +1271,36 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                         endTime: event!.end_time!,
                                                         location: eventSite?.title || event!.location || '',
                                                         details: event!.content,
-                                                        url: window.location.href
+                                                        url: event!.meeting_url || window.location.href
                                                     })
                                                 }}>
                                                 <i className="icon-calendar" style={{marginRight: '8px'}}/>
                                                 {lang['Activity_Detail_Btn_add_Calender']}</AppButton>
                                         }
 
+                                        <AppButton
+                                            onClick={e => {
+                                                showFeedBackDialog()
+                                            }}>{'Feedback'}</AppButton>
+                                    </div>
 
+                                    <div className={'event-action'}>
                                         {!isJoined && !canceled && !tickets.length &&  event.status !== 'pending' &&
                                             <AppButton special onClick={e => {
                                                 handleJoin()
                                             }}>{lang['Activity_Detail_Btn_Attend']}</AppButton>
                                         }
 
-                                        {  event.status === 'pending' && (isManager || isGroupOwner) &&
+                                        {  event.status === 'pending' && (isManager || isGroupOwner || isTrackManager) &&
                                             <AppButton special onClick={handlePublish}>{lang['Publish']}</AppButton>
+                                        }
+
+                                        {!canceled && isJoined && !isHoster && !isManager && !isOperator && !isGroupOwner && !isTrackManager && !event.meeting_url &&
+                                            <AppButton
+                                                special
+                                                onClick={e => {
+                                                    handleUserCheckIn()
+                                                }}>{lang['Activity_Detail_Btn_Checkin']}</AppButton>
                                         }
 
                                         {!canceled && isJoined && inProgress && !!event.meeting_url &&
@@ -1140,14 +1308,16 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                 onClick={e => {
                                                     copy(event!.meeting_url!);
                                                     showToast('Online location has been copied!')
-                                                    // window.open(getUrl(event!.online_location!) || '#', '_blank')
+                                                    if (event!.meeting_url!.startsWith('http') || event!.meeting_url!.startsWith('https')) {
+                                                        window.open(getUrl(event!.meeting_url!) || '#', '_blank')
+                                                    }
                                                 }}
                                                 special>{lang['Activity_Detail_Btn_AttendOnline']}</AppButton>
                                         }
                                     </div>
 
                                     <div className={'event-action'}>
-                                        {(isHoster || isManager || isOperator || isGroupOwner || isJoined) && !canceled && event.status !== 'pending' &&
+                                        {(isHoster || isManager || isOperator || isGroupOwner || isTrackManager) && !canceled && event.status !== 'pending' &&
                                             <AppButton
                                                 onClick={e => {
                                                     handleHostCheckIn()
@@ -1158,6 +1328,16 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                             }</AppButton>
                                         }
                                     </div>
+
+
+                                        {isJoined &&
+                                            <div className={'event-action'}>
+                                                <AppButton
+                                                    onClick={e => {
+                                                        handleUnJoin()
+                                                    }}>{lang['Profile_Edit_Cancel']}</AppButton>
+                                            </div>
+                                        }
 
                                     {!canAccess &&
                                         <div className={'event-action'}>
@@ -1211,12 +1391,14 @@ export const getServerSideProps: any = (async (context: any) => {
     const eventid = context.params?.eventid
     if (eventid) {
         const detail = await queryEventDetail({id: eventid})
+        const track = detail?.track_id ? await queryTrackDetail(detail.track_id) : null
         return {
             props: {
                 event: detail || null,
                 host: process.env.NEXT_PUBLIC_HOST,
                 appName: process.env.NEXT_PUBLIC_APP_NAME,
-                des: removeMarkdown(detail?.content || '')
+                des: removeMarkdown(detail?.content || ''),
+                track: track || null
             },
         }
     } else {

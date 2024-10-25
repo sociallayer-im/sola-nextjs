@@ -70,5 +70,42 @@ export default function usePicture () {
         }
     }
 
-    return  { defaultAvatar, selectImage }
+    const upload = async ():Promise<string> => {
+        return new Promise(async (resolve, reject) => {
+            try {
+                const file = await chooseFile({accepts: ['image/png', 'image/jpeg', 'image/webp', 'image/svg+xml']})
+                const reader = new FileReader()
+                reader.readAsDataURL(file[0])
+                reader.onload = async (file) => {
+                    const baseData = reader.result as string;
+                    //base64-->blob
+                    let byteString;
+                    if (baseData!.split(',')[0].indexOf('base64') >= 0)
+                        byteString = atob(baseData.split(',')[1]);//base64 解码
+                    else {
+                        byteString = unescape(baseData.split(',')[1]);
+                    }
+                    const ia = new Uint8Array(byteString.length);//创建视图
+                    for (let i = 0; i < byteString.length; i++) {
+                        ia[i] = byteString.charCodeAt(i);
+                    }
+                    let blob = new Blob([ia], {type: 'image/png'});
+                    const unload = showLoading()
+                    const newImage = await solas.uploadImage({
+                        file: blob,
+                        uploader: user.wallet || user.email || '',
+                        auth_token: user.authToken || ''
+                    })
+                    unload()
+                    resolve(newImage)
+                }
+            } catch (e: any) {
+                reject(e)
+            } finally {
+
+            }
+        })
+    }
+
+    return  { defaultAvatar, selectImage, upload }
 }

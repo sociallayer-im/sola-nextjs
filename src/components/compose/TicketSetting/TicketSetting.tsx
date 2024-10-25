@@ -13,16 +13,17 @@ import {
     Profile,
     queryBadge,
     queryBadgeDetail,
-    Ticket
+    Ticket, Track
 } from "@/service/solas";
 import DialogIssuePrefill from "@/components/eventSpecial/DialogIssuePrefill/DialogIssuePrefill";
 import {OpenDialogProps} from "@/components/provider/DialogProvider/DialogProvider";
 import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
 import {Delete} from "baseui/icon";
-import {PaymentSettingChain, PaymentSettingToken, paymentTokenList} from '@/payment_settring'
+import {PaymentSettingChain, PaymentSettingToken, paymentTokenList} from '@/payment_setting'
 import {formatUnits, parseUnits} from "viem/utils";
 import {Datepicker} from "baseui/datepicker";
 import {TimePicker} from 'baseui/timepicker';
+import TrackSelect from "@/components/base/TrackSelect/TrackSelect"
 
 const emptyTicket: Partial<Ticket> = {
     title: '',
@@ -30,7 +31,8 @@ const emptyTicket: Partial<Ticket> = {
     check_badge_class_id: null,
     quantity: null,
     end_time: null,
-    payment_methods: []
+    payment_methods: [],
+    tracks_allowed: []
 }
 
 interface ErrorMsg {
@@ -40,9 +42,14 @@ interface ErrorMsg {
     min_price: number[],
 }
 
+const timeStep = 5
+
+const banedChain = ['stripe']
+
 function Ticket({creator, ...props}: {
     ticket: Partial<Ticket>,
     creator: Group | Profile,
+    tracks:Track[]
     index?: number,
     errorMsg?: ErrorMsg[]
     onChange?: (ticket: Partial<Ticket>) => any
@@ -262,6 +269,14 @@ function Ticket({creator, ...props}: {
                   }}
                   placeholder={lang['Ticket_Description']}/>
 
+        <div className={styles['item-title']}>Event Track</div>
+        <TrackSelect tracks={props.tracks} value={props.ticket.tracks_allowed || []} multi={true} onChange={trackIds => {
+            props.onChange && props.onChange({
+                ...props.ticket,
+                tracks_allowed: trackIds,
+            })
+        }}/>
+
         <div className={styles['item-title-inline']}>
             <div className={styles['label']}> {lang['Price']}</div>
 
@@ -340,7 +355,7 @@ function Ticket({creator, ...props}: {
                                         value={[payments[index].chain] as any}
                                         clearable={false}
                                         searchable={false}
-                                        options={paymentTokenList}
+                                        options={paymentTokenList.filter((chain) => !banedChain.includes(chain.id))}
                                         onChange={(params) => {
                                             const targetToken = (params.option as any).tokenList.find((t: PaymentSettingToken) => {
                                                 const currPaymentToken = props.ticket.payment_methods?.map((method) => method.token_address) || []
@@ -386,9 +401,13 @@ function Ticket({creator, ...props}: {
                                 </div>
                                 <div className={styles['width-limit-3']} style={{flex: 1}}>
                                     <AppInput
-                                        type={'number'}
+                                        type={'tel'}
                                         placeholder={lang['Price']}
                                         onChange={e => {
+                                            if (isNaN(Number(e.target.value))) {
+                                                return
+                                            }
+
                                             if (Number(e.target.value) < 0) {
                                                 return
                                             }
@@ -483,12 +502,16 @@ function Ticket({creator, ...props}: {
                         <div className={styles['width-limit-3']}>
                             <AppInput
                                 onChange={e => {
+                                    if (isNaN(e.target.value)) {
+                                        return
+                                    }
+
                                     props.onChange && props.onChange({
                                         ...props.ticket,
                                         quantity: e.target.value >= 0 ? e.target.value * 1 : 0
                                     })
                                 }}
-                                type={'number'}
+                                type={'tel'}
                                 placeholder={'Quantity'}
                                 value={props.ticket.quantity ? props.ticket.quantity + '' : '0'}/>
                         </div>
@@ -535,6 +558,7 @@ function Ticket({creator, ...props}: {
                             }}
                         />
                         <TimePicker
+                            step={60 * timeStep}
                             value={new Date(props.ticket.end_time!)}
                             onChange={(date) => {
                                 props.onChange && props.onChange({
@@ -590,6 +614,7 @@ function Ticket({creator, ...props}: {
 }
 
 function TicketSetting(props: {
+    tracks:Track[]
     creator: Group | Profile,
     onChange?: (tickets: Partial<Ticket>[]) => any,
     value: Partial<Ticket>[]
@@ -653,6 +678,7 @@ function TicketSetting(props: {
                 return <Ticket
                     creator={props.creator}
                     ticket={ticket}
+                    tracks={props.tracks}
                     key={index}
                     index={index}
                     errorMsg={errorMsg}

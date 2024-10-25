@@ -205,7 +205,7 @@ function CreateEvent(props: CreateEventPageProps) {
     }
 
     const cancel = async (redirect = true) => {
-        if (!currEvent?.recurring_event_id) {
+        if (!currEvent?.recurring_id) {
             await cancelOne(redirect)
         } else {
             const dialog = openConfirmDialog({
@@ -289,7 +289,7 @@ function CreateEvent(props: CreateEventPageProps) {
                 try {
                     const cancel = await cancelRepeatEvent({
                         auth_token: user.authToken || '',
-                        recurring_event_id: currEvent?.recurring_event_id!,
+                        recurring_id: currEvent?.recurring_id!,
                         event_id: props.eventId!,
                         selector: repeatEventSelectorRef.current,
                     })
@@ -872,7 +872,7 @@ function CreateEvent(props: CreateEventPageProps) {
                 const newEvent = await createRepeatEvent(props)
                 if (badgeId) {
                     const setBadge = await RepeatEventSetBadge({
-                        recurring_event_id: newEvent.recurring_event_id!,
+                        recurring_id: newEvent.recurring_id!,
                         badge_class_id: badgeId,
                         auth_token: user.authToken || ''
                     })
@@ -935,7 +935,7 @@ function CreateEvent(props: CreateEventPageProps) {
             host_info: null,
             location: locationInfo.location,
             formatted_address: locationInfo.formatted_address,
-            recurring_event_id: currEvent!.recurring_event_id || undefined,
+            recurring_id: currEvent!.recurring_id || undefined,
             timezone,
             tickets: enableTicket && tickets.length ? tickets : null,
             geo_lng: locationInfo.lng,
@@ -946,7 +946,7 @@ function CreateEvent(props: CreateEventPageProps) {
 
         }
 
-        if (currEvent?.recurring_event_id) {
+        if (currEvent?.recurring_id) {
             const dialog = openConfirmDialog({
                 confirmLabel: 'Save',
                 cancelLabel: 'Cancel',
@@ -1064,7 +1064,7 @@ function CreateEvent(props: CreateEventPageProps) {
                         const setBadge = await RepeatEventSetBadge({
                             auth_token: user.authToken || '',
                             badge_class_id: saveProps.badge_class_id,
-                            recurring_event_id: saveProps.recurring_event_id!,
+                            recurring_id: saveProps.recurring_id!,
                             selector: repeatEventSelectorRef.current
                         })
                     }
@@ -1164,7 +1164,7 @@ function CreateEvent(props: CreateEventPageProps) {
 
                         {!!occupiedError && <div className={'start-time-error'}>{occupiedError}</div>}
 
-                        { locationInfo.venue_id && isSlot && (!isEditMode || (!!currEvent && !currEvent.recurring_event_id)) &&
+                        { locationInfo.venue_id && isSlot && (!isEditMode || (!!currEvent && !currEvent.recurring_id)) &&
                             <div className='input-area'>
                                 <div className='input-area-title'>{lang['Activity_Form_Starttime']}</div>
                                 <TimeSlot eventSiteId={locationInfo.venue_id}
@@ -1182,7 +1182,7 @@ function CreateEvent(props: CreateEventPageProps) {
                             </div>
                         }
 
-                        {(!isEditMode || (!!currEvent && !currEvent.recurring_event_id)) && !isSlot && formReady && !!start &&
+                        {(!isEditMode || (!!currEvent && !currEvent.recurring_id)) && !isSlot && formReady && !!start &&
                             <div className='input-area'>
                                 <div className='input-area-title'>{lang['Activity_Form_Starttime']}</div>
                                 <AppEventTimeInput
@@ -1455,6 +1455,7 @@ function CreateEvent(props: CreateEventPageProps) {
                         {
                             enableTicket && creator &&
                             <TicketSetting
+                                tracks={[]}
                                 ref={ticketSettingRef}
                                 creator={creator}
                                 value={tickets}

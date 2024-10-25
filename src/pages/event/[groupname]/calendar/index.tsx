@@ -26,6 +26,7 @@ import * as dayjsLib from "dayjs";
 import timezoneList from "@/utils/timezone";
 import {getLabelColor} from "@/hooks/labelColor";
 import {isHideLocation} from "@/global_config";
+import fetch from "@/utils/fetch";
 
 const utc = require('dayjs/plugin/utc')
 const timezone = require('dayjs/plugin/timezone')
@@ -78,6 +79,28 @@ const getCalendarData = (timeZone: string) => {
     return dayArray as DateItem[]
 }
 
+const getInterval = (timeZone: string, selectedDate?: string, view?:string) => {
+    const now = selectedDate ? dayjs.tz(selectedDate?.replace('-', '/'), timeZone) : dayjs.tz(new Date().getTime(), timeZone)
+
+    // const timeStr = `${now.year()}-${now.month() + 1}-${now.date()} 00:00`
+    // const _nowZero = dayjs(timeStr, timeZone)
+    if (view === 'day') {
+        return  {
+            start: now.startOf('day'),
+            end: now.endOf('day')
+        }
+    } else {
+        // return  {
+        //     start: fixNow.startOf('month').subtract(7, 'day').startOf('day'),
+        //     end: fixNow.add(1, 'month').add(7, 'day').endOf('day')
+        // }
+        return  {
+            start: now.startOf('month').subtract(7, 'day').startOf('day'),
+            end: now.add(1, 'month').add(7, 'day').endOf('day')
+        }
+    }
+}
+
 function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
     const eventGroup = props.group
     const calendarRef = useRef<any>(null)
@@ -89,25 +112,25 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
     const searchParams = useSearchParams()
 
     const [timezoneSelected, setTimezoneSelected] = useState<{ label: string, id: string }[]>([])
-    const [venue, setVenue] = useState<number>(0)
     const [presetDate, setPresetDate] = useState<string>(searchParams?.get('date') || '')
     const [view, setView] = useState<string>(searchParams?.get('view') || 'month')
 
     let presetTag = searchParams?.get('tag')
+    let presetVenue = searchParams?.get('venue')
     const [selectedTags, setSelectedTags] = useState<string[]>(presetTag ? presetTag.split(',') : [])
+    const [venue, setVenue] = useState<number[]>(presetVenue ? presetVenue.split(',').map(i => Number(i)) : [])
+
 
     useEffect(() => {
         try {
-            const historyTimeZone = localStorage.getItem('schedule-timezone')
-            if (historyTimeZone) {
-                setTimezoneSelected(JSON.parse(historyTimeZone))
-            } else if (props.group.timezone) {
+            const localTimezone = dayjs.tz.guess()
+            if (props.group.timezone) {
+                const displayTimezone = props.group.timezone === 'UTC' ? localTimezone : props.group.timezone
                 setTimezoneSelected([{
-                    id: props.group.timezone,
-                    label: timezoneList.find(item => item.id === props.group.timezone)!.label
+                    id: displayTimezone,
+                    label: timezoneList.find(item => item.id === displayTimezone)!.label
                 }])
             } else {
-                const localTimezone = dayjs.tz.guess()
                 const timezoneInfo = timezoneList.find(item => item.id === localTimezone) || {
                     id: 'UTC',
                     label: 'UTC+00:00'
@@ -115,6 +138,7 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
                 setTimezoneSelected([timezoneInfo])
             }
         } catch (e: any) {
+            console.error(e)
         }
     }, [])
 
@@ -135,25 +159,29 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
     }
 
     useEffect(() => {
-        if (timezoneSelected[0]) {
-            const dayList = getCalendarData(timezoneSelected[0].id)
-            queryScheduleEvent({
-                group_id: eventGroup.id,
-                start_time_from: new Date(dayList[0].timestamp).toISOString(),
-                start_time_to: new Date(dayList[dayList.length - 1].timestamp).toISOString(),
-                page: 1,
-                tags: selectedTags.length ? selectedTags : undefined,
-                event_order: 'asc',
-                page_size: 1000,
-                venue_id: venue || undefined
-            }).then(res => {
-                const eventList = res.map((event: SolarEvent) => {
+        ;(async ()=> {
+            if (typeof window !== 'undefined' && timezoneSelected[0] ) {
+                const unload = showLoading()
+                const {start, end} = getInterval(timezoneSelected[0].id, presetDate, view)
+                const apiSearchParams = new URLSearchParams()
+                apiSearchParams.set('group_id', props.group.id.toString())
+                apiSearchParams.set('limit', '1000')
+                apiSearchParams.set('timezone', timezoneSelected[0].id)
+                apiSearchParams.set('start_date', start.format('YYYY-MM-DD'))
+                apiSearchParams.set('end_date', end.format('YYYY-MM-DD'))
+                !!selectedTags.length && apiSearchParams.set('tags', selectedTags.join(','))
+                !!venue.length && apiSearchParams.set('venue_id', venue[0].toString())
+                if (user.authToken) {
+                    apiSearchParams.set('auth_token', user.authToken)
+                }
+                const url = `${process.env.NEXT_PUBLIC_EVENT_LIST_API}/event/list?${apiSearchParams.toString()}`
+                const res = await fetch.get({url})
+
+                const eventList = res.data.events.map((event: SolarEvent) => {
                     let host = [event.owner.username]
-                    if (event.host_info) {
-                        const _host = JSON.parse(event.host_info)
-                        if (_host.group_host) {
-                            host = [_host.group_host.nickname || _host.group_host.username]
-                        }
+                    if ((event.host_info as any)?.group_host?.[0]) {
+                        host = [(event.host_info as any)?.group_host[0].nickname
+                        || (event.host_info as any)?.group_host[0].username]
                     }
 
                     const calendarId = event.tags && event.tags[0] ? event.tags[0].replace(/[^\w\s]/g, '').replace(/\s/g, '').toLowerCase() : 'sola'
@@ -172,6 +200,7 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
                         event: event,
                     }
                 })
+                unload()
 
                 if (!calendarRef.current) return
 
@@ -239,7 +268,7 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
                             options: [
                                 {
                                     label: `<div class="${styles['drop-list']}"> All Venues</div>`,
-                                    value: ''
+                                    value: 0
                                 },
                                 ...(props.eventSite || []).map((venue) => {
                                     return {
@@ -248,15 +277,16 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
                                     }
                                 })
                             ],
-                            onClick: (value: { label: string, value: any }) => {
-                                setVenue(value.value)
+                            onClick: (value: number[]) => {
+                                setVenue(value)
                             },
+                            placeholder: 'Venues',
                             multiple: false,
-                            defaultSelectedIndex: 0
+                            defaultValue: venue
                         } : undefined
 
-                    // const customMenus = [customTagFilter, venueFilter].filter(Boolean)
-                    const customMenus = customTagFilter ? [customTagFilter] : undefined
+                    const customMenus = [customTagFilter, venueFilter].filter(Boolean)
+                    // const customMenus = customTagFilter ? [customTagFilter] : undefined
 
                     const selectedDate = presetDate ?
                         dayjs.tz(presetDate, timezoneSelected[0].id).format('YYYY-MM-DD') :
@@ -270,8 +300,6 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
                             nEventsPerDay: 30
                         },
                         views: [viewMonthGrid, viewMonthAgenda, viewDay, viewWeek],
-                        minDate: dayjs.tz(dayList[0].timestamp, timezoneSelected[0].id).format('YYYY-MM-DD'),
-                        maxDate: dayjs.tz(dayList[dayList.length - 1].timestamp, timezoneSelected[0].id).format('YYYY-MM-DD'),
                         selectedDate: selectedDate,
                         plugins: [
                             createEventsServicePlugin(),
@@ -291,6 +319,14 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
                             onClickDateTime(dateTime: string) {
                                 createEvent(dateTime)
                             },
+                            onSelectedDateUpdate(date: string) {
+                               if (scheduleXRef.current) {
+                                      scheduleXRef.current.events.set([])
+                               }
+                               setTimeout(() => {
+                                   setPresetDate(date)
+                               }, 100)
+                            },
                             onRangeUpdate(range: { start: string, end: string }) {
                                 const interval = dayjs(range.end.replace(/-/g, '/')).diff(dayjs(range.start.replace(/-/g, '/')), 'day')
                                 let view = 'month'
@@ -301,9 +337,8 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
                                 } else {
                                     view = 'week'
                                 }
-
                                 setView(view)
-                                setPresetDate(range.start.split(' ')[0])
+
                             },
                             onEventClick(calendarEvent: any) {
                                 console.log('onEventClick', calendarEvent)
@@ -336,23 +371,23 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
                         }
                     }, 1500)
                 }
-            })
-        }
-
-        return () => {
-            const container = document.querySelector('.sx__view-container')
-            if (scheduleXRef.current && container) {
-                container.removeEventListener('scroll', toggleFullDayEvent)
             }
-        }
-    }, [timezoneSelected, selectedTags, venue, user])
+
+            return () => {
+                const container = document.querySelector('.sx__view-container')
+                if (scheduleXRef.current && container) {
+                    container.removeEventListener('scroll', toggleFullDayEvent)
+                }
+            }
+        })()
+    }, [timezoneSelected, selectedTags, venue, user, presetDate])
 
 
     useEffect(() => {
-        history.replaceState(null, '', genHref({date: presetDate, tag: selectedTags.join(','), view}))
+        history.replaceState(null, '', genHref({date: presetDate, tag: selectedTags.join(','), view, venue: venue.join(',')}))
     }, [selectedTags, presetDate, view])
 
-    const genHref = ({date, tag, view}: { date?: string, tag?: string, view?: string }): string => {
+    const genHref = ({date, tag, view, venue}: { date?: string, tag?: string, view?: string, venue?: string }): string => {
         // 根据传参生成query string
         const query = new URLSearchParams()
         if (date) {
@@ -363,6 +398,9 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
         }
         if (view) {
             query.set('view', view)
+        }
+        if (venue) {
+            query.set('venue', venue)
         }
 
         if (searchParams?.get('group')) {
@@ -408,6 +446,7 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
 
     return <div>
         <ScheduleHeader group={eventGroup} params={genHref({
+            venue: venue.join(','),
             date: presetDate,
             tag: selectedTags.join(',')
         })}/>

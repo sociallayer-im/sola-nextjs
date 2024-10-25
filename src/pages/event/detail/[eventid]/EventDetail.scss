@@ -160,6 +160,7 @@
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
+          display: block;
         }
 
         .repeat {
@@ -297,9 +298,12 @@
           color: var(--Fill-6-Dark, #272928);
           font-weight: 600;
 
-          @media(max-width: 450px) {
+          @media(max-width: 650px) {
             & {
+              min-width: 48%;
+              max-width: 48%;
               font-size: 12px;
+              flex-grow: 0;
             }
           }
 
@@ -426,7 +430,34 @@
   display: inline-flex;
   flex-flow: row nowrap;
 
+  button {
+    white-space: nowrap;
+    display: inline-flex;
+    padding: 4px 12px;
+    justify-content: center;
+    align-items: center;
+    border-radius: 8px;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 24px;
+    text-decoration: none;
+    margin-left: 12px;
+
+    @media (max-width: 450px) {
+     & {
+       font-size:  14px;
+     }
+    }
+
+    svg {
+      margin-right: 6px;
+    }
+  }
+
+
   a {
+    white-space: nowrap;
     display: inline-flex;
     padding: 4px 8px;
     justify-content: center;
@@ -444,15 +475,34 @@
     img, i {
       margin-right: 6px;
     }
+
+    @media (max-width: 450px) {
+      img, i {
+        margin-right: 0;
+      }
+
+      & span {
+        display: none;
+      }
+    }
   }
 }
 
 .switch-preview-map {
-  width: calc(100% - 46px);
-  margin-left: 46px;
   margin-bottom: 6px;
   color: #7492EF !important;
   cursor: pointer;
+}
+
+.map-action {
+  margin-left: 46px;
+  display: flex;
+  flex-flow: nowrap;
+  flex-flow: row nowrap;
+
+  >div {
+    margin-right: 12px;
+  }
 }
 
 .venue-link {

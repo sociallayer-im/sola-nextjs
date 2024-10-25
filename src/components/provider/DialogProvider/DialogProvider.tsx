@@ -10,7 +10,7 @@ import {
     Group,
     NftPass,
     Point,
-    PointItem,
+    PointTransfer,
     NftPasslet, Voucher
 } from '@/service/solas'
 import DialogsContext, { DialogsContextType } from './DialogsContext'
@@ -429,14 +429,14 @@ function DialogProvider (props: DialogProviderProps) {
         setDialogsGroup({ ...dialogsGroup })
     }
 
-    const showPointItem = (props: PointItem) => {
-        if (checkDuplicate('pointItem', props.id)) return
+    const showPointTransfer = (props: PointTransfer) => {
+        if (checkDuplicate('pointTransfer', props.id)) return
 
         const id = genID()
         dialogsGroup.dialogs.push({
             id,
             itemId: props.id,
-            type: 'pointItem',
+            type: 'pointTransfer',
             content: () => {
                 const close = () => {
                     closeDialogByID(id)
@@ -451,7 +451,7 @@ function DialogProvider (props: DialogProviderProps) {
 
                 return (
                     <Dialog { ...dialogProps } >
-                        { (close) => <DetailPointItem pointItem={ props } handleClose={ close } /> }
+                        { (close) => <DetailPointItem pointTransfer={ props } handleClose={ close } /> }
                     </Dialog>
                 )
             }
@@ -855,7 +855,7 @@ function DialogProvider (props: DialogProviderProps) {
         setDialogsGroup({ ...dialogsGroup })
     }
 
-    const showTransferAccept = (props: {badgelet?: Badgelet, PointItem: PointItem}) => {
+    const showTransferAccept = (props: {badgelet?: Badgelet, PointTransfer: PointTransfer}) => {
         const id = genID()
         dialogsGroup.dialogs.push({
             id,
@@ -928,7 +928,7 @@ function DialogProvider (props: DialogProviderProps) {
         showNftpass,
         showNftpasslet,
         showPoint,
-        showPointItem,
+        showPointTransfer,
         showNftCheckIn,
         showGift,
         showGiftCheckIn,

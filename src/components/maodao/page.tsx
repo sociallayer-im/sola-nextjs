@@ -50,6 +50,7 @@ function Page(props: any) {
             const emptyProfile: Profile = {
                 sol_address: null,
                 id: 0,
+                handle: '--',
                 username: '--',
                 address: null,
                 email: null,

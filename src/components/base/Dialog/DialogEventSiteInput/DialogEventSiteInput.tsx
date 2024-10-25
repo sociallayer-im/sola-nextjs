@@ -496,7 +496,7 @@ function DialogEventSiteInput(props: LocationInputProps) {
                 <AppInput
                     placeholder={'Unlimited'}
                     value={newEventSite!.capacity ? Number(newEventSite!.capacity) + '' : ''}
-                    type={'number'}
+                    type={'tel'}
                     onChange={(e) => {
                         let value = e.target.value as any
                         if (isNaN(Number(value))) return

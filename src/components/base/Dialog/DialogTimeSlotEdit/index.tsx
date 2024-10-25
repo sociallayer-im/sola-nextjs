@@ -56,8 +56,10 @@ const subtract = (time: string, offset: number) => {
     return dayjs().hour(parseInt(hour)).minute(parseInt(minute)).second(0).millisecond(0).subtract(offset, 'minute').toDate()
 }
 
+const timeStep = 5
+
 export default function DialogTimeSlotEdit(props: { close: any, value: VenueTimeslot[], onChange?: (value:  VenueTimeslot[]) => any, hasTimeSlotError?: (hasError:  boolean) => any }) {
-    const [slot, setSlot] = useState(props.value && props.value.length ? props.value : emptySlot)
+    const [slot, setSlot] = useState<VenueTimeslot[]>(props.value && props.value.length ? props.value : [])
 
     const [allTime,setAllTime] = useState(!props.value || !props.value.length)
     const [OverlapErr, setOverlapErr] = useState(['', '', '', '', '', '', ''])
@@ -184,8 +186,8 @@ export default function DialogTimeSlotEdit(props: { close: any, value: VenueTime
                                                     <TimePicker
                                                         disabled={item[0].disabled || allTime}
                                                         format={'24'}
-                                                        step={60 * 15}
-                                                        maxTime={subtract(s.end_at, 15)}
+                                                        step={60 * timeStep}
+                                                        maxTime={subtract(s.end_at, timeStep)}
                                                         value={toDate(s.start_at)}
                                                         onChange={(date) => {
                                                             if (date) {
@@ -199,11 +201,11 @@ export default function DialogTimeSlotEdit(props: { close: any, value: VenueTime
                                                 <div className={styles['select']}>
                                                     <TimePicker
                                                         minTime={
-                                                            add(s.start_at, 15)
+                                                            add(s.start_at, timeStep)
                                                         }
                                                         disabled={item[0].disabled || allTime}
                                                         format={'24'}
-                                                        step={60 * 15}
+                                                        step={60 * timeStep}
                                                         value={toDate(s.end_at)}
                                                         onChange={(date) => {
                                                             if (date) {

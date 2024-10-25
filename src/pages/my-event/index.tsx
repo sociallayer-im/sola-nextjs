@@ -27,7 +27,7 @@ function MyEvent() {
     const {defaultAvatar} = usePicture()
 
 
-    const [tab, setTab] = useState<'attended' | 'created' | 'requests' | 'cohosting'>('attended')
+    const [tab, setTab] = useState<'attended' | 'created' | 'requests' | 'cohosting' | 'star'>('attended')
     const [myGroup, setMyGroup] = useState<number[]>([])
     const [createdGroup, setCreatedGroup] = useState<GroupWithMemberCount[]>([])
     const [joinedGroup, setJoinedGroup] = useState<GroupWithMemberCount[]>([])
@@ -92,6 +92,9 @@ function MyEvent() {
                             <div className={tab === 'created' ? styles['active'] : ''} onClick={e => {
                                 setTab('created')
                             }}>{lang['Activity_State_Created']}</div>
+                            <div className={tab === 'star' ? styles['active'] : ''} onClick={e => {
+                                setTab('star')
+                            }}>{'Star'}</div>
                             <div className={tab === 'requests' ? styles['active'] : ''} onClick={e => {
                                 setTab('requests')
                             }}>{lang['Pending_Requests']}</div>
@@ -101,7 +104,8 @@ function MyEvent() {
                         </div>
 
 
-                        <div className={(tab === 'attended' || tab === 'created') ? styles['tab-show'] : styles['tab-hide']}>
+                        <div
+                            className={(tab === 'attended' || tab === 'created' || tab === 'star') ? styles['tab-show'] : styles['tab-hide']}>
                             <ListMyEvent tab={tab as any}/>
                         </div>
 

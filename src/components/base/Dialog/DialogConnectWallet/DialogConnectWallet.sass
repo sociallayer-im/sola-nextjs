@@ -6,6 +6,9 @@
   box-sizing: border-box
   border-radius: 12px
   padding: 20px
+  .error
+    margin-top: 12px
+    color: #ff8c8c
   .title
     color: var(--Text-4-Headline, #272928)
     margin-bottom: 24px
@@ -81,3 +84,14 @@
     .wallet-adapter-button
       background: none
       border: 0
+
+@keyframes Spinner
+  0%
+    transform: rotate(0deg)
+  100%
+    transform: rotate(360deg)
+
+.spinner
+    width: 20px
+    height: 20px
+    animation: Spinner infinite 0.8s linear

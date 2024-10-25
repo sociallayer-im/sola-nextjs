@@ -7,6 +7,7 @@ import DialogsContext from "../../provider/DialogProvider/DialogsContext";
 import styles from './ListEventParticipants.module.scss'
 import Link from "next/link";
 import copy from "@/utils/copy";
+import dayjs from "dayjs";
 
 interface ListCheckinUserProps {
     participants: Participants[],
@@ -23,7 +24,9 @@ function ListEventParticipants(props: ListCheckinUserProps) {
     const {defaultAvatar} = usePicture()
     const {lang} = useContext(LangContext)
     const [participants, setParticipants] = useState<Participants[]>(
-        props.participants
+        props.participants.sort((a, b) => {
+            return b.id - a.id
+        })
     )
 
     const {user} = useContext(UserContext)
@@ -98,9 +101,12 @@ function ListEventParticipants(props: ListCheckinUserProps) {
     }
 
     const downloadCSV = () => {
-        const title = ['Username', 'Nickname', 'Status']
+        const title = ['Username', 'Nickname', 'Email', 'Payment wallet address', 'Status', 'RSVP time']
         const rows = participants.map((item, index) => {
-            return [item.profile.username, item.profile.nickname || '' ,item.status]
+            const profileTicketItem = props.ticketItems?.find(ti => {
+                return ti.event_id === props.eventId && ti.profile_id === item.profile.id
+            })
+            return [item.profile.username, item.profile.nickname || '', item.profile.email || '', profileTicketItem?.sender_address || '',  item.status, item.created_at + 'Z']
         })
 
         const csvContent = "data:text/csv;charset=utf-8,"
@@ -144,6 +150,9 @@ function ListEventParticipants(props: ListCheckinUserProps) {
                         <img src={item.profile.image_url || defaultAvatar(item.profile.id)} alt=""/>
                         <div>
                             <div>{item.profile.nickname || item.profile.username || `user #${item.profile.id}`}</div>
+                            {props.isHost && item.profile.email &&
+                                <div className={styles['address']}>{item.profile.email}</div>
+                            }
                             {props.isHost && !!profileTicketItem &&
                                 <div className={styles['address']} onClick={e => {
                                     e.preventDefault()
@@ -157,13 +166,15 @@ function ListEventParticipants(props: ListCheckinUserProps) {
                         </div>
                     </Link>
                     <div className={styles['right']}>
-                        {!!ticket && props.isHost &&
-                            <div className={styles['ticket']}>{ticket.title}</div>
-                        }
+                        <div className={styles['ticket']}>
+                            {!!ticket && props.isHost && <div>{ticket.title}</div>}
+                            <div>{dayjs(item.created_at + 'z').format('YYYY-MM-DD HH:mm')}</div>
+                        </div>
 
                         {
                             user.id === item.profile.id && item.status !== 'cancel' &&
-                            <div className={styles['unjoin']} onClick={handleUnJoin}>{lang['Activity_Detail_Btn_unjoin']}</div>
+                            <div className={styles['unjoin']}
+                                 onClick={handleUnJoin}>{lang['Activity_Detail_Btn_unjoin']}</div>
                         }
 
                         {props.isHost && !checked &&

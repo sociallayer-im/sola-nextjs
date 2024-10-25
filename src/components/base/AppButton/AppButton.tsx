@@ -17,6 +17,7 @@ export interface AppButtonProps {
     size?: keyof typeof SIZE,
     style?: any
     special?: boolean
+    black?: boolean
 }
 
 export default function AppButton(props: AppButtonProps) {
@@ -48,6 +49,15 @@ export default function AppButton(props: AppButtonProps) {
 
         if (props.special) {
             style.background = 'linear-gradient(88.02deg, #BAFFAD -2.09%, #A1F4E6 62.09%, #80F8C0 97.29%)'
+        }
+
+        if (props.black) {
+            style.background = '#1E1E1E!important'
+            style.color = '#fff'
+            style.transaction = 'all 0.3s'
+            style[':hover'] = {
+                opacity: 0.8
+            }
         }
 
         if (props.style) {

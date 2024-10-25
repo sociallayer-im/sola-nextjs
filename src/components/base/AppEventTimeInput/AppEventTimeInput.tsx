@@ -20,6 +20,7 @@ dayjs.extend(timezone)
 
 const dayName = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 const mouthName = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+const timeStep = 5
 
 export function mapTimezone(value: any) {
     const target = timezoneList.find((item) => {
@@ -83,7 +84,7 @@ interface AppDateInputProps {
     repeatCount: number,
     repeat: string | null
     showRepeat?: boolean,
-    recurringEventId?: null | number
+    recurringId?: null | number
     disabled?: boolean,
     repeatDisabled?: boolean,
     onChange: (value: {
@@ -144,8 +145,8 @@ function AppDateInput({
         setFrom(newDate)
 
 
-        const new_to = dayjs(newDate.getTime()).add(15, 'minute').toDate()
-        setTo(new_to)
+        // const new_to = dayjs(newDate.getTime()).add(timeStep, 'minute').toDate()
+        // setTo(new_to)
     }
 
     function changeToDate(date: Date) {
@@ -163,7 +164,7 @@ function AppDateInput({
     function changeFromTime(date: Date) {
         setFrom(date)
 
-        const new_to = dayjs(date.getTime()).add(15, 'minute').toDate()
+        const new_to = dayjs(date.getTime()).add(timeStep, 'minute').toDate()
         setTo(new_to)
     }
 
@@ -178,9 +179,9 @@ function AppDateInput({
 
     const showRepeatOption = async () => {
         let repeatEvents: Event[] | null = null
-        if (props.recurringEventId) {
+        if (props.recurringId) {
             const unload = showLoading()
-            repeatEvents = await queryEvent({recurring_event_id: props.recurringEventId, page: 1, page_size: 100})
+            repeatEvents = await queryEvent({recurring_id: props.recurringId, page: 1, page_size: 100})
             unload()
         }
 
@@ -270,7 +271,7 @@ function AppDateInput({
                 <div className={`${styles['time-input']} ${disabled ? styles['disabled'] : ''}`}>
                     <TimePicker
                         disabled={!!disabled}
-                        step={60 * 15}
+                        step={60 * timeStep}
                         value={from}
                         format={'24'}
                         overrides={{
@@ -330,7 +331,7 @@ function AppDateInput({
                 <div className={`${styles['time-input']} ${disabled ? styles['disabled'] : ''}`}>
                     <TimePicker
                         disabled={!!disabled}
-                        step={60 * 15}
+                        step={60 * timeStep}
                         value={to}
                         format={'24'}
                         overrides={{
@@ -393,6 +394,11 @@ function AppDateInput({
             <div className={`${styles['timezone']} ${disabled ? styles['disabled'] : ''}`}>
                 <div className={styles['offset']}>{getOffset(timezone)}</div>
                 <TimezonePicker
+                    additionalTimezones={[{
+                        id: 'UTC',
+                        label: '(GMT+0) UTC',
+                        offset: 0,
+                    }]}
                     disabled={!!disabled}
                     overrides={{
                         Select: {
@@ -587,7 +593,7 @@ function DialogRepeatOption({from, to, close, initRepeat, times, onChange, disab
             <div className={'ends-input'}>
                 <div className={styles['repeat-counter-input']}>
                     <input disabled={repeat[0].id === '' || disabled}
-                           type={'number'}
+                           type={'tel'}
                            value={Number(counter) + ''}
                            onChange={e => {
                                let value = e.target.value as any

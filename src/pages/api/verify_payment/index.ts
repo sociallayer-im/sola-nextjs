@@ -9,7 +9,27 @@ import {
 } from "@/service/solas"
 import {createPublicClient, decodeEventLog, http} from 'viem'
 import {arbitrum, avalancheFuji, base, mainnet, optimism, polygon} from 'wagmi/chains'
-import {payhub_abi, paymentTokenList} from "@/payment_settring"
+import {payhub_abi, paymentTokenList} from "@/payment_setting"
+
+const ethChain = {
+    ...mainnet,
+    rpcUrls: {
+        alchemy: {
+            http: ['https://eth-mainnet.g.alchemy.com/v2'],
+            webSocket: ['wss://eth-mainnet.g.alchemy.com/v2'],
+        },
+        infura: {
+            http: ['https://mainnet.infura.io/v3'],
+            webSocket: ['wss://mainnet.infura.io/ws/v3'],
+        },
+        default: {
+            http: ['https://mainnet.infura.io/v3/df69a66a46e94a1bb0e0f2914af8b403'],
+        },
+        public: {
+            http: ['https://mainnet.infura.io/v3/df69a66a46e94a1bb0e0f2914af8b403'],
+        },
+    },
+}
 
 export interface Props {
     tx: string, // 交易hash
@@ -17,7 +37,7 @@ export interface Props {
 }
 
 const getChainByChainId = (chainName: string) => {
-    const chains = [avalancheFuji, polygon, mainnet, optimism, base, arbitrum]
+    const chains = [avalancheFuji, polygon, ethChain, optimism, base, arbitrum]
     return chains.find((item) => item.network.includes(chainName) || item.name.toLowerCase().includes(chainName))
 }
 

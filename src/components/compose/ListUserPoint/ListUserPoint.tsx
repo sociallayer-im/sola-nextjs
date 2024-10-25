@@ -1,6 +1,6 @@
 import React, {useContext, useEffect, useRef} from 'react'
 import ListUserAssets, {ListUserAssetsMethods} from "../../base/ListUserAssets/ListUserAssets";
-import {PointItem, Profile, queryPoint, queryPointItems} from "../../../service/solas";
+import {PointTransfer, Profile, queryPoint, queryPointTransfers} from "../../../service/solas";
 import UserContext from "../../provider/UserProvider/UserContext";
 import CardPoint from "../../base/Cards/CardPoint/CardPoint";
 import CardPointItem from "../../base/Cards/CardPointItem/CardPointItem";
@@ -15,7 +15,7 @@ function ListUserPoint(props: ListUserPointProps) {
     const {user} = useContext(UserContext)
     const {lang} = useContext(LangContext)
     const [newItem, _] = useEvent(EVENT.pointItemUpdate)
-    const pointItem = useRef<PointItem[]>([])
+    const pointItem = useRef<PointTransfer[]>([])
 
     const getPoint = async (page: number) => {
         if (page > 1) return []
@@ -26,13 +26,13 @@ function ListUserPoint(props: ListUserPointProps) {
         return await queryPoint(queryProps)
     }
 
-    const getPointItems = async (page: number) => {
+    const getPointTransfers = async (page: number) => {
         if (page > 1) return []
-        const res = await queryPointItems({
+        const res = await queryPointTransfers({
             owner_id: props.profile.id,
         })
 
-        let list: PointItem[] = []
+        let list: PointTransfer[] = []
         let idList: Number[] = []
 
         if (!res.length) return []
@@ -69,7 +69,7 @@ function ListUserPoint(props: ListUserPointProps) {
     return (<div className={'list-user-point'}>
         <div className={'list-title'}>{lang['Badgelet_List_Title']}</div>
         <ListUserAssets
-            queryFcn={getPointItems}
+            queryFcn={getPointTransfers}
             onRef={listWrapperRefBadgeLet}
             child={(item, key) => <CardPointItem pointitem={item} key={key}/>}/>
 

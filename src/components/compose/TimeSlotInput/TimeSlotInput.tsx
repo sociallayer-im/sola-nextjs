@@ -22,6 +22,7 @@ dayjs.extend(timezone)
 const dayName = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 const mouthName = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 const dayFullName:Weekday[] =  ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
+const timeStep = 5
 
 export function mapTimezone(value: any) {
     const target = timezoneList.find((item) => {
@@ -58,7 +59,7 @@ function genSlotOption(slotInfo: VenueTimeslot[]): SlotOption[] {
                 id: startDate.format('HH:mm'),
                 label: startDate.format('HH:mm')
             })
-            startDate = startDate.add(15, 'minute')
+            startDate = startDate.add(timeStep, 'minute')
         }
 
         if (!!exist) {
@@ -171,7 +172,7 @@ interface AppDateInputProps {
     repeatCount: number,
     repeat: string | null
     showRepeat?: boolean,
-    recurringEventId?: null | number
+    recurringId?: null | number
     disabled?: boolean,
     repeatDisabled?: boolean,
     onChange: (value: {
@@ -272,9 +273,9 @@ function TimeSlotInput({
 
     const showRepeatOption = async () => {
         let repeatEvents: Event[] | null = null
-        if (props.recurringEventId) {
+        if (props.recurringId) {
             const unload = showLoading()
-            repeatEvents = await queryEvent({recurring_event_id: props.recurringEventId, page: 1, page_size: 100})
+            repeatEvents = await queryEvent({recurring_id: props.recurringId, page: 1, page_size: 100})
             unload()
         }
 
@@ -284,8 +285,8 @@ function TimeSlotInput({
             content: (close: any) => {
                 return <DialogRepeatOption
                     disabled={!!repeatDisabled}
-                    from={strToDate(data.from?.[0]!.id as string)}
-                    to={strToDate(data.to?.[0]!.id as string)}
+                    from={strToDate(data.from?.[0]!.id as string, data.date)}
+                    to={strToDate(data.to?.[0]!.id as string, data.date)}
                     repeatEvents={repeatEvents}
                     close={close}
                     initRepeat={repeat}
@@ -391,11 +392,11 @@ function TimeSlotInput({
                         value={data.from as any}
                         options={genStartOption(slotOptions, data.date)}
                         onChange={({value}) => {
-                            const to = dayjs(strToDate(value[0].id as string)).add(15, 'minute').format('HH:mm')
+                            // const to = dayjs(strToDate(value[0].id as string)).add(timeStep, 'minute').format('HH:mm')
                             setData({
                                 ...data,
                                 from: value as Slot[],
-                                to: [{id: to, label: to}]
+                                // to: [{id: to, label: to}]
                             })
                         }}
                     />
@@ -430,6 +431,11 @@ function TimeSlotInput({
             <div className={`${styles['timezone']} ${disabled ? styles['disabled'] : ''}`}>
                 <div className={styles['offset']}>{getOffset(timezone)}</div>
                 <TimezonePicker
+                    additionalTimezones={[{
+                        id: 'UTC',
+                        label: '(GMT+0) UTC',
+                        offset: 0,
+                    }]}
                     disabled={!!disabled}
                     overrides={{
                         Select: {
@@ -624,7 +630,7 @@ function DialogRepeatOption({from, to, close, initRepeat, times, onChange, disab
             <div className={'ends-input'}>
                 <div className={styles['repeat-counter-input']}>
                     <input disabled={repeat[0].id === '' || disabled}
-                           type={'number'}
+                           type={'tel'}
                            value={Number(counter) + ''}
                            onChange={e => {
                                let value = e.target.value as any

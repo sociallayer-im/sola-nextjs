@@ -45,7 +45,7 @@ function Login () {
                 <div className='login-page-content' >
                     <div className='title'>{ lang['Login_Title'] }</div>
                     <div className='des'>{ lang['Login_alert'] }</div>
-                    <EmailLoginForm onConfirm={(email) => { setLoginEmail(email)} } />
+                    <EmailLoginForm onConfirm={(email) => { setLoginEmail(email.trim())} } />
                 </div>
                 :
                 <div className='login-page-content code' >

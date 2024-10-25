@@ -90,6 +90,12 @@ function ProfileMenu() {
                     }}>{lang['UserAction_Bind_Email']}</MenuItem>
                 }
                 <MenuItem onClick={() => {
+                    router.push('/create-group');
+                    close()
+                }}>
+                    {lang['Group_regist_confirm']}
+                </MenuItem>
+                <MenuItem onClick={() => {
                     showNotification();
                     close()
                 }}>

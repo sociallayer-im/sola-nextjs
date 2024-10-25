@@ -15,6 +15,7 @@ const dayjs: any = dayjsLib
 dayjs.extend(isSameOrBefore)
 dayjs.extend(isSameOrAfter)
 dayjs.extend(isBetween)
+const timeStep = 5
 
 
 export default function DialogOverrideEdit(props: {
@@ -77,12 +78,13 @@ export default function DialogOverrideEdit(props: {
                         format={'24'}
                         value={new Date(`${newVenueOverride.day} ${newVenueOverride.start_at || '00:00'}`)}
                         maxTime={new Date(`${newVenueOverride.day} ${newVenueOverride.end_at || '23:59'}`)}
-                        step={60 * 15}
+                        step={60 * timeStep}
                         onChange={date => {
                             const time = dayjs(date).format('HH:mm')
                             setNewVenueOverride({
                                 ...newVenueOverride,
-                                start_at: time
+                                start_at: time,
+                                end_at: '23:59'
                             })
                         }}
                     />
@@ -92,7 +94,7 @@ export default function DialogOverrideEdit(props: {
                         format={'24'}
                         value={new Date(`${newVenueOverride.day} ${newVenueOverride.end_at || '23:59'}`)}
                         minTime={new Date(`${newVenueOverride.day} ${newVenueOverride.start_at || '00:00'}`)}
-                        step={60 * 15}
+                        step={60 * timeStep}
                         onChange={date => {
                             const time = dayjs(date).format('HH:mm')
                             setNewVenueOverride({

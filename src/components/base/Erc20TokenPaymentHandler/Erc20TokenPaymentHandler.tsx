@@ -1,11 +1,16 @@
 import {ReactNode, useContext, useState} from 'react'
 import {useAccount, useNetwork, usePublicClient, useSwitchNetwork, useWalletClient} from "wagmi";
-import {payhub_abi, paymentTokenList} from "@/payment_settring";
+import {payhub_abi, paymentTokenList} from "@/payment_setting";
 import {getParticipantDetail, getTicketItemDetail, rsvp} from "@/service/solas";
 import UserContext from "@/components/provider/UserProvider/UserContext";
 import fetch from "@/utils/fetch"
 
 let loadingRef: any = null
+
+function sleep(time:number){
+    return new Promise((resolve) => setTimeout(resolve, time));
+}
+
 
 function Erc20TokenPaymentHandler(
     props: {
@@ -22,7 +27,8 @@ function Erc20TokenPaymentHandler(
         ticketId: number
         methodId: number
         eventId: number
-        promo_code?: string,
+        isGroupTicket: boolean
+        coupon?: string,
         onSuccess?: (hash: string) => any
         onErrMsg?: (message: string) => any
     }
@@ -72,6 +78,22 @@ function Erc20TokenPaymentHandler(
         })
     }
 
+    const pollingQueryTx = async (tx: string) => {
+        let leftTimes = 10;
+        while (leftTimes > 0) {
+            try {
+                await publicClient.waitForTransactionReceipt({hash: tx});
+                return; // Exit if successful
+            } catch (e) {
+                leftTimes--;
+                if (leftTimes === 0) {
+                    throw new Error('Transaction receipt retrieval failed after 10 attempts');
+                }
+                await sleep(1000); // Wait for 1 second before retrying
+            }
+        }
+    }
+
     const handlePay = async () => {
         try {
             setBusy(true)
@@ -80,8 +102,7 @@ function Erc20TokenPaymentHandler(
             const payhubContract = paymentTokenList.find((item) => item.chainId === props.chainId)?.payHub
             const participant = await getParticipantDetail({event_id: props.eventId, profile_id: user.id!})
 
-            // check already paid
-            if (!!participant) {
+            if (!!participant && !props.isGroupTicket) {
                 if (participant.payment_status === 'succeeded') {
                     setBusy(false)
                     setSending(false)
@@ -130,12 +151,12 @@ function Erc20TokenPaymentHandler(
                     id: props.eventId,
                     ticket_id: props.ticketId,
                     payment_method_id: props.methodId,
-                    promo_code: props.promo_code
+                    coupon: props.coupon
                 }
             )
 
             // 处理价格为0直接购买成功的情况
-            if (join.participant.payment_status === 'succeeded') {
+            if (join.ticket_item.status === 'succeeded') {
                 loadingRef?.()
                 !!props.onSuccess && props.onSuccess('')
                 setTimeout(() => {
@@ -168,7 +189,8 @@ function Erc20TokenPaymentHandler(
 
             const hash = await walletClient.writeContract(request)
 
-            const transaction = await publicClient.waitForTransactionReceipt({hash})
+            // const transaction = await publicClient.waitForTransactionReceipt({hash})
+            await pollingQueryTx(hash)
 
             setSending(false)
             setVerifying(true)
@@ -180,7 +202,7 @@ function Erc20TokenPaymentHandler(
 
             if (!!verify) {
                 loadingRef?.()
-                console.log('transaction: ', transaction)
+                console.log('transaction: ', hash)
                 deleteOrder(join.ticket_item.order_number)
                 !!props.onSuccess && props.onSuccess(hash)
             } else {
@@ -189,8 +211,11 @@ function Erc20TokenPaymentHandler(
 
         } catch (e: any) {
             console.error(e)
-            props.onErrMsg?.(e.message)
-
+            if (e.message?.includes('rejected')) {
+                return
+            } else {
+                props.onErrMsg?.(e.message)
+            }
         } finally {
             setTimeout(() => {
                 setBusy(false)

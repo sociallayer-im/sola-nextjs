@@ -10,19 +10,20 @@ import Erc20TokenPaymentHandler from "@/components/base/Erc20TokenPaymentHandler
 import Erc20TokenApproveHandler from "@/components/base/Erc20TokenApproveHandler/Erc20TokenApproveHandler";
 import Erc20Balance from "@/components/base/Erc20Balance/Erc20Balance";
 import EventDefaultCover from "@/components/base/EventDefaultCover";
+import TriangleDown from 'baseui/icon/triangle-down'
 import {
     Badge,
     Event,
-    PromoCode,
+    Coupon,
     queryBadgeDetail,
     queryBadgelet,
-    queryPromoCodes,
+    queryCoupons,
     rsvp,
-    Ticket, ValidPromoCode,
-    verifyPromoCode
+    Ticket, ValidCoupon,
+    verifyCoupon
 } from '@/service/solas'
 import useTime from "@/hooks/formatTime";
-import {PaymentSettingChain, PaymentSettingToken, paymentTokenList} from "@/payment_settring";
+import {PaymentSettingChain, PaymentSettingToken, paymentTokenList} from "@/payment_setting";
 import UserContext from "@/components/provider/UserProvider/UserContext";
 import useEvent, {EVENT} from "@/hooks/globalEvent";
 import ButtonLoading from "@/components/base/ButtonLoading";
@@ -53,11 +54,12 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
     const formatTime = useTime()
 
     const [busy, setBusy] = useState(false)
-    const [promoCode, setPromoCode] = useState('')
+    const [coupon, setCoupon] = useState('')
+    const [showCouponInput, setShowCouponInput] = useState(false)
 
 
-    const [validPromoCode, setValidPromoCode] = useState<null | ValidPromoCode>(null)
-    const [promoCodeError, setPromoCodeError] = useState('')
+    const [validCoupon, setValidCoupon] = useState<null | ValidCoupon>(null)
+    const [couponError, setCouponError] = useState('')
 
     const reFleshAllowanceRef = useRef<any>(null)
 
@@ -181,50 +183,50 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
 
     const [balance, setBalance] = useState<string | null>(null)
 
-    const removePromoCode = async () => {
-        setValidPromoCode(null)
-        setPromoCode('')
+    const removeCoupon = async () => {
+        setValidCoupon(null)
+        setCoupon('')
         setApproved(false)
     }
 
-    const checkPromoCode = async () => {
+    const checkCoupon = async () => {
         const unload = showLoading()
-        const verify = await verifyPromoCode({event_id: props.event.id, code: promoCode})
+        const verify = await verifyCoupon({event_id: props.event.id, code: coupon})
         if (!verify) {
-            setPromoCodeError('Invalid promo code')
-            setValidPromoCode(null)
+            setCouponError('Invalid coupon code')
+            setValidCoupon(null)
             unload()
             return
         }
 
         if (verify.max_allowed_usages === verify.order_usage_count) {
-            setPromoCodeError('Promo code has been used up')
-            setValidPromoCode(null)
+            setCouponError('Promo code has been used up')
+            setValidCoupon(null)
             unload()
             return
         }
 
-        if (new Date(verify.expiry_time).getTime() < new Date().getTime()) {
-            setPromoCodeError('Promo code has expired')
-            setValidPromoCode(null)
+        if (new Date(verify.expires_at).getTime() < new Date().getTime()) {
+            setCouponError('Promo code has expired')
+            setValidCoupon(null)
             unload()
             return
         }
 
         unload()
-        setValidPromoCode(verify)
+        setValidCoupon(verify)
     }
 
     const finalPaymentPrice = useMemo(() => {
         let price: number
         const methodPrice = currPaymentMethod?.price || 0
-        if (!validPromoCode) {
+        if (!validCoupon) {
             price = methodPrice
         } else {
-            if (validPromoCode.discount_type === 'ratio') {
-                price = Number(methodPrice) * validPromoCode.discount / 10000
+            if (validCoupon.discount_type === 'ratio') {
+                price = Number(methodPrice) * validCoupon.discount / 10000
             } else {
-                price = Number(methodPrice) - (validPromoCode.discount / 100) * 10 ** (currToken?.decimals || 0)
+                price = Number(methodPrice) - (validCoupon.discount / 100) * 10 ** (currToken?.decimals || 0)
             }
         }
 
@@ -233,7 +235,7 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
         } else {
             return Math.max(price, 0)
         }
-    }, [currChain?.id, currPaymentMethod?.price, currToken?.decimals, validPromoCode])
+    }, [currChain?.id, currPaymentMethod?.price, currToken?.decimals, validCoupon])
 
     const paymentDiscount = useMemo(() => {
         return (currPaymentMethod?.price || 0) - finalPaymentPrice
@@ -291,21 +293,20 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
             }
         </div>
 
-        <div className={styles['dialog-event']}>
-            {
-                props.event.cover_url ?
-                    <img className={styles['cover']} src={props.event.cover_url} alt=""/>
-                    : <EventDefaultCover width={53} height={74} event={props.event}/>
-
-            }
-            <div className={styles['info']}>
-                <div className={styles['title']}>{props.event.title}</div>
-                <div className={styles['time']}>{formatTime(props.event.start_time!)}</div>
-                <div className={styles['location']}>{props.event.location}</div>
-            </div>
-        </div>
-
         <div className={styles['scroll']}>
+            <div className={styles['dialog-event']}>
+                {
+                    props.event.cover_url ?
+                        <img className={styles['cover']} src={props.event.cover_url} alt=""/>
+                        : <EventDefaultCover width={53} height={74} event={props.event}/>
+
+                }
+                <div className={styles['info']}>
+                    <div className={styles['title']}>{props.event.title}</div>
+                    <div className={styles['time']}>{formatTime(props.event.start_time!)}</div>
+                    <div className={styles['location']}>{props.event.location}</div>
+                </div>
+            </div>
             <div className={styles['type-name-title']}>{lang['Ticket_Type']}</div>
             <div className={styles['type-name']}>{props.ticket.title}</div>
 
@@ -471,12 +472,9 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
                     </div>
 
                     {currPaymentMethod?.chain !== 'stripe' &&
-                        <div style={{color: '#7B7C7B', marginBottom: '12px'}}>{lang['Payments_Will_Be_Sent_To']} <span style={{color: '#272928'}}>
+                        <div style={{color: '#7B7C7B', marginBottom: '12px'}}>{lang['Payments_Will_Be_Sent_To']} <span
+                            style={{color: '#272928'}}>
                         {shotAddress(currPaymentMethod?.receiver_address || '')}
-                            <i onClick={e => {
-                                copyWithDialog(currPaymentMethod?.receiver_address || '')
-                            }}
-                               className={'icon-copy'} style={{marginLeft: '4px', cursor: "pointer"}}/>
                     </span>
                         </div>
                     }
@@ -485,22 +483,31 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
 
             {!!props.ticket.payment_methods.length && !soldOut && !stopSales &&
                 <div className={styles['promo']}>
-                    <div className={styles['promo-title']}>{lang['Input_The_Promo_Code']}</div>
-                    <div className={styles['promo-input']}>
-                        <AppInput value={promoCode}
-                                  onChange={e => {
-                                      setPromoCode(e.target.value)
-                                  }}
-                                  placeholder={'Promo code'}/>
-                        {!!promoCode && !validPromoCode &&
-                            <AppButton onClick={checkPromoCode}>{lang['Verify']}</AppButton>
-                        }
-                        {
-                            !!validPromoCode &&
-                            <AppButton onClick={removePromoCode}>{lang['Remove']}</AppButton>
-                        }
+                    <div className={styles['promo-title']} onClick={e => {
+                        setShowCouponInput(true)
+                    }}>
+                        {lang['Promo_Code']}
+                        {!showCouponInput ? <TriangleDown size={18}/> : null}
                     </div>
-                    <div className={styles['errorMsg']}>{promoCodeError}</div>
+                    {showCouponInput &&
+                        <>
+                            <div className={styles['promo-input']}>
+                                <AppInput value={coupon}
+                                          onChange={e => {
+                                              setCoupon(e.target.value)
+                                          }}
+                                          placeholder={'Promo code'}/>
+                                {!!coupon && !validCoupon &&
+                                    <AppButton black onClick={checkCoupon}>{lang['Apply']}</AppButton>
+                                }
+                                {
+                                    !!validCoupon &&
+                                    <AppButton onClick={removeCoupon}>{lang['Remove']}</AppButton>
+                                }
+                            </div>
+                            <div className={styles['errorMsg']}>{couponError}</div>
+                        </>
+                    }
                 </div>
             }
 
@@ -542,9 +549,9 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
                 && !soldOut
                 && !stopSales
                 && <AppButton special onClick={e => {
-                    router.push(`/stripe-pay?ticket=${props.ticket.id}&methodid=${currPaymentMethod!.id}${validPromoCode?.code ? `&promo=${validPromoCode.code}` : ''}`)
+                    router.push(`/stripe-pay?ticket=${props.ticket.id}&methodid=${currPaymentMethod!.id}${validCoupon?.code ? `&coupon=${validCoupon.code}` : ''}`)
                     props.close()
-                }}>{'Go to pay'}</AppButton>
+                }}>{lang['Pay_By_Card']}</AppButton>
             }
 
             {!!address
@@ -557,7 +564,8 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
                 && currPaymentMethod?.chain !== 'stripe'
                 && (approved || finalPaymentPrice === 0) &&
                 <Erc20TokenPaymentHandler
-                    promo_code={validPromoCode?.code || undefined}
+                    isGroupTicket={props.ticket.ticket_type === 'group'}
+                    coupon={validCoupon?.code || undefined}
                     eventId={props.event.id}
                     methodId={currPaymentMethod.id!}
                     ticketId={props.ticket.id}
@@ -582,11 +590,11 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
                         return errorMsg ? <AppButton special onClick={e => {
                                 setErrorMsg('')
                                 setApproved(false)
-                                setValidPromoCode(null)
-                                setPromoCode('')
+                                setValidCoupon(null)
+                                setCoupon('')
                                 reFleshAllowanceRef.current && reFleshAllowanceRef.current.reFleshAllowance()
                             }
-                            }>{'Retry'}</AppButton>
+                            }>{lang['Retry']}</AppButton>
                             : <AppButton
                                 disabled={busy || !!errorMsg}
                                 special
@@ -598,7 +606,7 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
                                     <ButtonLoading>Sending Transaction</ButtonLoading> :
                                     verifying ?
                                         <ButtonLoading>Verifying</ButtonLoading> :
-                                        'Pay'
+                                        lang['Pay']
                             }</AppButton>
                     }}
                 />

@@ -52,6 +52,12 @@ export const markerTypeList2: MarkerType[] = [
         category: 'book-zine',
         pin: '/images/map_marker.png',
         pin_checked: '/images/map_marker.png',
+    },
+    {
+        label: 'Music & Club',
+        category: 'music-club',
+        pin: '/images/map_marker.png',
+        pin_checked: '/images/map_marker.png',
     }
 ]
 
