@@ -211,7 +211,10 @@ function CardEventNew({fixed = true, ...props}: CardEventProps) {
         unload()
     }
 
+    const bgStyle = props.event.pinned ? {background: '#FFF7E8'} : undefined
+
     return (<Link href={`/event/detail/${props.event.id}`}
+                  style={bgStyle}
                   target={props.blank ? '_blank' : '_self'}
                   className={largeCard ? 'event-card-new large' : 'event-card-new'}>
         {largeCard &&
@@ -231,8 +234,13 @@ function CardEventNew({fixed = true, ...props}: CardEventProps) {
         <div className={largeCard ? 'info marker' : 'info'}>
             <div className={'left'}>
                 <div className={'details'}>
+                    {
+                        props.event.pinned &&
+                        <div className={'highlight'}>Highlight event</div>
+
+                    }
                     <div className={'title'}>
-                        {hasMarker &&
+                    {hasMarker &&
                             <div className={'markers'}>
                                 {props.event.display === 'private' &&
                                     <div className={'marker private'}>{'Private'}</div>}
