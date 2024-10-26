@@ -423,6 +423,18 @@ function ListEventVertical({eventGroup, ...props}: {
         })
     }
 
+    const pinnedEvents = useMemo(() => {
+        const res:Event[] = []
+        listToShow.forEach((event) => {
+            if (event.pinned) {
+                res.push(event)
+            }
+        })
+
+        return res
+
+    }, [eventGroup.timezone, listToShow])
+
     const listGroupedByDate = useMemo(() => {
         let res : {
             date: string,
@@ -430,7 +442,8 @@ function ListEventVertical({eventGroup, ...props}: {
         }[] = []
 
         const timezone = dayjs.tz.guess()
-        listToShow.forEach((event) => {
+        listToShow
+            .forEach((event) => {
             const date = dayjs.tz(new Date(event.start_time!).getTime(), eventGroup.timezone || timezone).format('DD MMMM, ddd')
             const index = res.findIndex(r => r.date === date)
             if (index === -1) {
@@ -581,6 +594,15 @@ function ListEventVertical({eventGroup, ...props}: {
                 {!listToShow.length && ready ? <Empty/> :
                     <div className={'list'}>
                         {
+                            pinnedEvents.map((item, index) => {
+                                return <CardEvent
+                                    showPinnedBg={true}
+                                    timezone={eventGroup.timezone || undefined}
+                                    fixed={true} key={index}
+                                    event={item}/>
+                            })
+                        }
+                        {
                             listGroupedByDate.map((item, index) => {
                                 return <div key={index} className={'event-group'}>
                                     <div className={'date'}>{item.date}</div>
@@ -588,7 +610,7 @@ function ListEventVertical({eventGroup, ...props}: {
                                         item.events.map((item) => {
                                             return <CardEvent
                                                 timezone={eventGroup.timezone || undefined}
-                                                fixed={false} key={item.id}
+                                                fixed={false} key={index}
                                                 event={item}/>
                                         })
                                     }

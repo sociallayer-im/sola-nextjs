@@ -37,7 +37,8 @@ export interface CardEventProps {
     canPublish?: boolean,
     onRemove?: (event: Event) => void,
     blank?: boolean,
-    timezone?: string
+    timezone?: string,
+    showPinnedBg?: boolean
 }
 
 const localeTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone
@@ -226,7 +227,7 @@ function CardEventNew({fixed = true, ...props}: CardEventProps) {
         unload()
     }
 
-    const bgStyle = props.event.pinned ? {background: '#FFF7E8'} : undefined
+    const bgStyle = props.event.pinned && props.showPinnedBg ? {background: '#FFF7E8'} : undefined
 
     return (<Link href={`/event/detail/${props.event.id}`}
                   style={bgStyle}
@@ -250,7 +251,7 @@ function CardEventNew({fixed = true, ...props}: CardEventProps) {
             <div className={'left'}>
                 <div className={'details'}>
                     {
-                        props.event.pinned &&
+                        props.event.pinned && props.showPinnedBg &&
                         <div className={'highlight'}>Highlight event</div>
 
                     }
