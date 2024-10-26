@@ -25,7 +25,7 @@ import useEvent, {EVENT} from "@/hooks/globalEvent";
 import usePicture from "@/hooks/pictrue";
 import dynamic from 'next/dynamic'
 import {isHideLocation} from "@/global_config";
-import {handleEventStar, removeComment} from "@/service/solasv2";
+import {cancelEventStar, handleEventStar, removeComment} from "@/service/solasv2";
 
 const EventTickets = dynamic(() => import('@/components/compose/EventTickets/EventTickets'), {ssr: false})
 
@@ -80,6 +80,7 @@ function CardEventNew({fixed = true, ...props}: CardEventProps) {
 
     useEffect(() => {
         setEventDetail(props.event)
+        setStared((props.event as any).star)
         if (props.event?.host_info) {
             const hostInfo:any = props.event.host_info
             hostInfo.group_host?.[0] && setGroupHost(hostInfo.group_host[0])
@@ -211,6 +212,20 @@ function CardEventNew({fixed = true, ...props}: CardEventProps) {
         unload()
     }
 
+    const handleCancelStar = async (e: any) => {
+        if (!user.authToken) {
+            openConnectWalletDialog()
+            return
+        }
+
+        e.preventDefault()
+        e.stopPropagation()
+        const unload = showLoading()
+        await cancelEventStar({event_id: props.event.id, auth_token: user.authToken || ''})
+        setStared(false)
+        unload()
+    }
+
     const bgStyle = props.event.pinned ? {background: '#FFF7E8'} : undefined
 
     return (<Link href={`/event/detail/${props.event.id}`}
@@ -326,7 +341,7 @@ function CardEventNew({fixed = true, ...props}: CardEventProps) {
             </div>
             <div className={(fixed || hasMarker && !fixed) ? 'post marker' : 'post'}>
                 {stared
-                    ? <img className="star" src="/images/favorite_active.png" width={24} height={24} alt="Star" title="Star"/>
+                    ? <img onClick={handleCancelStar} className="star" src="/images/favorite_active.png" width={24} height={24} alt="Star" title="Star"/>
                     : <img onClick={handleStar} className="star" src="/images/favorite.png" width={24} height={24} title="Star" alt="Star"/>
                 }
                 {
