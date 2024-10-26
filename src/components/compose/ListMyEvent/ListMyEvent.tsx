@@ -126,7 +126,7 @@ function ListMyEvent(props: {tab?: 'attended' | 'created' | 'star', profile_id?:
                             list.map((item, index) => {
                                 return <CardEvent
                                     enableStar={tab2Index === 'star'}
-                                    fixed={false} key={item.id}
+                                    fixed={false} key={index}
                                     event={item}/>
                             })
                         }

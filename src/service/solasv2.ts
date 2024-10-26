@@ -4,7 +4,19 @@ import {Comment, CommentType, Event} from './solas'
 
 export const handleEventStar = async (props: {event_id: number, auth_token: string}) => {
     return await fetch.post({
-        url: `${apiUrl}/comment/create`,
+        url: `${apiUrl}/comment/star`,
+        data: {
+            auth_token: props.auth_token,
+            comment_type:'star',
+            item_type: 'Event',
+            item_id: props.event_id,
+        }
+    })
+}
+
+export const cancelEventStar = async (props: {event_id: number, auth_token: string}) => {
+    return await fetch.post({
+        url: `${apiUrl}/comment/unstar`,
         data: {
             auth_token: props.auth_token,
             comment_type:'star',

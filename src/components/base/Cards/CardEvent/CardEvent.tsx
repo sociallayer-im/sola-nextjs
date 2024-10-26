@@ -25,7 +25,8 @@ import useEvent, {EVENT} from "@/hooks/globalEvent";
 import usePicture from "@/hooks/pictrue";
 import dynamic from 'next/dynamic'
 import {isHideLocation} from "@/global_config";
-import {handleEventStar} from "@/service/solasv2";
+import {cancelEventStar, handleEventStar} from "@/service/solasv2";
+import fa from "@walletconnect/legacy-modal/dist/cjs/browser/languages/fa";
 
 const EventTickets = dynamic(() => import('@/components/compose/EventTickets/EventTickets'), {ssr: false})
 
@@ -66,6 +67,8 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
     const isExpired = endTime < now
     const onGoing = startTime <= now && endTime >= now
 
+
+
     useEffect(() => {
         if (user.id) {
             setIsCreated(props.event.owner_id === user.id)
@@ -81,6 +84,7 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
 
     useEffect(() => {
         setEventDetail(props.event)
+        setStared((props.event as any).star)
 
 
         if (props.event?.host_info) {
@@ -240,6 +244,21 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
         unload()
     }
 
+    const handleCancelStar = async (e: any) => {
+        if (!user.authToken) {
+            openConnectWalletDialog()
+            return
+        }
+
+        e.preventDefault()
+        e.stopPropagation()
+        const unload = showLoading()
+        await cancelEventStar({event_id: props.event.id, auth_token: user.authToken || ''})
+        setStared(false)
+        unload()
+    }
+
+    console.log('star', stared, props.event)
     return (<Link href={`/event/detail/${props.event.id}`}
                   target={props.blank ? '_blank' : '_self'}
                   className={largeCard ? 'event-card large' : 'event-card'}>
@@ -342,7 +361,7 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
                     props.enableStar &&
                     <>
                         {stared
-                            ? <img className="star" src="/images/favorite_active.png" width={24} height={24} alt="Star" title="Star"/>
+                            ? <img onClick={handleCancelStar} className="star" src="/images/favorite_active.png" width={24} height={24} alt="Star" title="Star"/>
                             : <img onClick={handleStar} className="star" src="/images/favorite.png" width={24} height={24} title="Star" alt="Star"/>
                         }
                     </>

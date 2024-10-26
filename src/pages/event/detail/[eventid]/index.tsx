@@ -62,7 +62,7 @@ import useZuAuth from "@/service/zupass/useZuAuth";
 import {isHideLocation} from "@/global_config";
 import copy from "@/utils/copy";
 import fetch from "@/utils/fetch";
-import {getUserStaredComment, handleEventStar} from "@/service/solasv2";
+import {cancelEventStar, getUserStaredComment, handleEventStar} from "@/service/solasv2";
 import DialogFeedback from "@/components/base/Dialog/DialogFeedback";
 
 const utc = require('dayjs/plugin/utc')
@@ -609,6 +609,20 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
         unload()
     }
 
+    const handleCancelStar = async (e: any) => {
+        if (!user.authToken) {
+            openConnectWalletDialog()
+            return
+        }
+
+        e.preventDefault()
+        e.stopPropagation()
+        const unload = showLoading()
+        await cancelEventStar({event_id: event!.id, auth_token: user.authToken || ''})
+        setStared(false)
+        unload()
+    }
+
     const showFeedBackDialog = async () => {
         openDialog({
             content: (close: any) => <DialogFeedback event_id={event!.id} close={close} />,
@@ -668,7 +682,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                     </svg>
                                     <span>{'Star'}</span>
                                 </AppButton> :
-                                <AppButton size={'compact'}>
+                                <AppButton size={'compact'} onClick={handleCancelStar}>
                                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14"
                                          fill="none">
                                         <path
