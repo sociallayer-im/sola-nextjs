@@ -125,24 +125,6 @@ function Discover({eventGroups, popupCities, events } : {
                 </div>
             }
 
-            <h2 className={styles['page-title']}>
-                <div>{lang['Chiangmai_Popup_Cities']}</div>
-            </h2>
-            <div className={styles['links']}>
-                <a className={styles['link-item']} href={'https://t.me/maicatalog'} target={"_blank"}>
-                    <img src="https://ik.imagekit.io/soladata/wuifogms_0XJQWaem7" width={24} height={24} alt=""/>
-                    <div className={styles['link-text']}>Pop-up City Catalog: Chiang Mai Special</div>
-                    <i className={'icon-icon_share'}></i>
-                </a>
-            </div>
-            <div className={styles['page-sub-title']}>{lang['Events_Of_Popup_Cities']}</div>
-            <div className={`${styles['popup-city-list']} ${styles['season']}`}>
-                {
-                    _sortedPopupCities.filter((x) => x.group_tags && x.group_tags.indexOf(":cnx") >= 0).map((popupCity, index) => {
-                        return <CardPopupCity popupCity={popupCity} key={popupCity.id}/>
-                    })
-                }
-            </div>
             {!!events.length &&
                 <>
                     <div className={styles['page-sub-title']}
@@ -160,6 +142,34 @@ function Discover({eventGroups, popupCities, events } : {
                     </div>
                 </>
             }
+
+            <h2 className={styles['page-title']}>
+                <div>{lang['Chiangmai_Popup_Cities']}</div>
+            </h2>
+            <div className={styles['links']}>
+                <a className={styles['link-item']} href={'https://t.me/maicatalog'} target={"_blank"}>
+                    <img src="https://ik.imagekit.io/soladata/wuifogms_0XJQWaem7" width={24} height={24} alt=""/>
+                    <div className={styles['link-text']}>Pop-up City Catalog: Chiang Mai Special</div>
+                    <i className={'icon-icon_share'}></i>
+                </a>
+            </div>
+
+            <div className={styles['links']}>
+                <a className={styles['link-item']} href={'https://portal.sola.day/schedule/list/popupcnx'} target={"_blank"}>
+                    <img src="https://app.sola.day/images/header_logo.svg" width={24} height={24} alt=""/>
+                    <div className={styles['link-text']}>Pop-up City Event Calendar</div>
+                    <i className={'icon-icon_share'}></i>
+                </a>
+            </div>
+
+            <div className={styles['page-sub-title']}>{lang['Events_Of_Popup_Cities']}</div>
+            <div className={`${styles['popup-city-list']} ${styles['season']}`}>
+                {
+                    _sortedPopupCities.filter((x) => x.group_tags && x.group_tags.indexOf(":cnx") >= 0).map((popupCity, index) => {
+                        return <CardPopupCity popupCity={popupCity} key={popupCity.id}/>
+                    })
+                }
+            </div>
 
             <h2 className={styles['page-title']}>
                 <div>{lang['Events_Of_Popup_Cities']}</div>
