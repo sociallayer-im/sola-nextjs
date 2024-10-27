@@ -149,7 +149,7 @@ function Discover({eventGroups, popupCities, events } : {
                          style={{
                              marginTop:'4px',
                              background: 'linear-gradient(90deg, #EAF6F3 0%, rgba(234, 246, 243, 0.00) 99.89%)'}}>
-                        {'Highlight Events'}
+                        {'Highlighted Events'}
                     </div>
                     <div className={styles['highlight-events']}>
                         {

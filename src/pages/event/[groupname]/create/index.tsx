@@ -1662,7 +1662,7 @@ function EditEvent({
                                     <div className={styles['input-area']} data-testid={'input-event-participants'}>
                                         <div className={styles['toggle']}>
                                             <div
-                                                className={styles['item-title']}>{'Highlight event'}</div>
+                                                className={styles['item-title']}>{'Highlighted event'}</div>
 
                                             <div className={styles['item-value']}>
                                                 <Toggle
