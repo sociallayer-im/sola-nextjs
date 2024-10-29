@@ -31,11 +31,12 @@ export default function EventFilter(props: {
     const [skipRepeat, setSkipRepeat] = useState(props.skipRepeat)
 
     const handleSelectVenue = (venueId: number) => {
-        if (currVenueIds.includes(venueId)) {
-            setCurrVenueIds(currVenueIds.filter(id => id !== venueId))
-        } else {
-            setCurrVenueIds([...currVenueIds, venueId])
-        }
+        // if (currVenueIds.includes(venueId)) {
+        //     setCurrVenueIds(currVenueIds.filter(id => id !== venueId))
+        // } else {
+        //     setCurrVenueIds([...currVenueIds, venueId])
+        // }
+        setCurrVenueIds([venueId])
     }
 
     const venueToShow = useMemo(() => {
