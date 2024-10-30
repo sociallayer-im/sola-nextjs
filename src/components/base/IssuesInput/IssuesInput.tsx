@@ -1,4 +1,4 @@
-import { useContext, useRef, useState } from 'react'
+import {useContext, useEffect, useRef, useState} from 'react'
 import AppInput from '../AppInput'
 import LangContext from '../../provider/LangProvider/LangContext'
 import { Plus, CheckIndeterminate } from 'baseui/icon'
@@ -158,11 +158,27 @@ function IssuesInput ({allowAddressList=true, allowSearch=true, ...props}: Issue
         return <span onClick={showAddressList} className='icon-address-list' />
     }
 
-    const InputItem = (value: string, index: number) => {
+    const InputItem = (value: string, index: number, showSearchRes: number | null) => {
+        const itemRef = useRef<any>(null)
+        const [style, setStyle] = useState<any>({})
 
+        useEffect(() => {
+            if (showSearchRes === index) {
+                const rect = itemRef.current.getBoundingClientRect()
+                const top = rect.top + window.scrollY
+                const bottom = rect.bottom + window.scrollY
+                const windowHeight = window.innerHeight
+
+                if (windowHeight - bottom < 300) {
+                    setStyle({marginTop: `-256px`})
+                } else {
+                    setStyle({marginTop: `0`})
+                }
+            }
+        }, [showSearchRes, index])
 
         return (
-            <div className='issue-input-item' key={index.toString()}>
+            <div className='issue-input-item' ref={itemRef} key={index.toString()}>
                 <AppInput
                     endEnhancer={ allowAddressList ? addressListBtn: undefined }
                     placeholder={props.placeholder || lang['IssueBadge_IssueesPlaceholder']}
@@ -182,7 +198,7 @@ function IssuesInput ({allowAddressList=true, allowSearch=true, ...props}: Issue
                 }
 
                 {  showSearchRes === index && searchRes.length > 0 &&
-                    <div className={'search-res'}>
+                    <div className={'search-res'} style={style}>
                         <div className={'shell'} onClick={e => { hideSearchRes() }}></div>
                         {
                             searchRes.map((item, index2) => {
@@ -204,7 +220,7 @@ function IssuesInput ({allowAddressList=true, allowSearch=true, ...props}: Issue
     return (<div>
         {
             props.value.map((item, index) => {
-                return InputItem(item, index)
+                return InputItem(item, index, showSearchRes)
             })
         }
     </div>)
