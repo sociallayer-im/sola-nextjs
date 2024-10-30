@@ -1,6 +1,6 @@
 import fetch from '../utils/fetch'
 const apiUrl = process.env.NEXT_PUBLIC_EVENT_LIST_API!
-import {Activity, Badgelet, Badge, CommentType, Event, Voucher} from './solas'
+import {Activity, Badgelet, Badge, CommentType, Event, Voucher, ProfileSimple} from './solas'
 
 export const handleEventStar = async (props: {event_id: number, auth_token: string}) => {
     return await fetch.post({
@@ -95,7 +95,10 @@ export const joinRemember = async (props: {auth_token: string, voucher_id: numbe
         }
     })
 
-    return res.data.activity as Activity
+    return res.data as {
+        activity: Activity,
+        sender: ProfileSimple
+    }
 }
 
 

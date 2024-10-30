@@ -121,7 +121,7 @@ function Merge() {
     }
 
     async function showCombine() {
-        if (joinedUser.length< combineAmount) {
+        if (joinedUser.length < combineAmount) {
             showToast(`You need ${combineAmount - joinedUser.length} more people to mint`)
             return
         }
@@ -179,15 +179,15 @@ function Merge() {
                     const unloading = showLoading()
                     try {
                         const voucherId = parseInt(window.atob(res))
-                        const activity = await joinRemember({
+                        const joinInfo = await joinRemember({
                             auth_token: user.authToken || '',
                             voucher_id: voucherId
                         })
-                        const badge_class = await queryBadgelet({id: activity.badge_class_id!, page: 1})
-                        setJoinedTargetUser(badge_class[0].owner)
+                        setJoinedTargetUser(joinInfo.sender)
                         setIsJoinedOtherVoucherId(voucherId)
-                        setJoinedActivityId(activity.id)
+                        setJoinedActivityId(joinInfo.activity.id)
                     } catch (e: any) {
+                        cosnole.error(e)
                         showToast(e.message)
                     } finally {
                         unloading()
@@ -251,7 +251,7 @@ function Merge() {
                                         })
                                     }
                                     {
-                                        new Array(combineAmount - joinedUser.length).fill(0).map((_, i) => {
+                                        new Array(Math.max(combineAmount - joinedUser.length, 0)).fill(0).map((_, i) => {
                                             return <svg key={i} width="32" height="32" viewBox="0 0 32 32" fill="none"
                                                         xmlns="http://www.w3.org/2000/svg">
                                                 <circle cx="16" cy="16" r="15.6364" fill="#8466B1" stroke="#6A4C96"
@@ -284,13 +284,13 @@ function Merge() {
                             })
                             }
 
-                            {!!(combineAmount - joinedUser.length) && !!user.id && <div className={styles['tips']}>Waiting for
+                            {joinedUser.length < combineAmount && !!user.id && <div className={styles['tips']}>Waiting for
                                 other {combineAmount - joinedUser.length} person...</div>}
 
                             {
                                 !joinedTargetUser && !!user.id && <>
 
-                                    <svg style={{opacity: joinedUser.length === combineAmount ? 1 : 0.2}}
+                                    <svg style={{opacity: joinedUser.length >= combineAmount ? 1 : 0.2}}
                                          onClick={showCombine}
                                          className={styles['combine-btn']} width="294" height="58" viewBox="0 0 294 58"
                                          fill="none"
