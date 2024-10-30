@@ -82,7 +82,7 @@ function Merge() {
             interval = setInterval(async () => {
                 const res = await getJoinedRemember({voucher_id: isJoinedOtherVoucherId! || voucherId!})
                 setJoinedUser(res.activities.map(a => a.initiator ))
-                if (res.voucher.counter===0) {
+                if (res.voucher.counter===0 && !!isJoinedOtherVoucherId) {
                     showRes(res.badge_class)
                     setSuccess(true)
                     setTimeout(() => {
@@ -187,7 +187,7 @@ function Merge() {
                         setIsJoinedOtherVoucherId(voucherId)
                         setJoinedActivityId(joinInfo.activity.id)
                     } catch (e: any) {
-                        cosnole.error(e)
+                        console.error(e)
                         showToast(e.message)
                     } finally {
                         unloading()
