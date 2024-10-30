@@ -1,19 +1,20 @@
 .wamo-merge-page {
   position: relative;
   width: 100%;
+  min-height: calc(100svh - 48px);
   overflow: hidden;
   padding-bottom: 50px;
   box-sizing: border-box;
   background: #F1EAEA;
 
   .success-animation {
-    width: 300px;
-    height: 300px;
+    width: 600px;
+    height: 600px;
     position: fixed;
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
-    z-index: 999;
+    z-index: 9999999;
   }
 
 
@@ -219,10 +220,18 @@
 }
 
 .icons {
-  width: 50%;
+  width: 60%;
   display: flex;
   flex-flow: row nowrap;
-  justify-content: space-between;
+  justify-content: space-evenly;
+
+  img, svg {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    margin: 0 6px;
+    flex-shrink: 0;
+  }
 }
 
 .users {
@@ -325,10 +334,10 @@
     margin-bottom: 8px;
 
     img {
-        width: 16px;
-        height: 16px;
-        border-radius: 50%;
-        margin-right: 8px;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      margin-right: 8px;
     }
   }
 
@@ -393,5 +402,27 @@
     cursor: pointer;
     margin-top: 28px;
   }
+}
+
+.target-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-bottom: 20px;
+}
+
+.target-text {
+  margin-bottom: 52px;
+  color: var(--Text-4-Headline, #272928);
+  text-align: center;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+  letter-spacing: 0.48px;
+}
+
+.login-btn {
+  margin-top: 30px;
 }
 
