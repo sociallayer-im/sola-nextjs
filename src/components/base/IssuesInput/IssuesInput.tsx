@@ -158,69 +158,62 @@ function IssuesInput ({allowAddressList=true, allowSearch=true, ...props}: Issue
         return <span onClick={showAddressList} className='icon-address-list' />
     }
 
-    const InputItem = (value: string, index: number, showSearchRes: number | null) => {
-        const itemRef = useRef<any>(null)
-        const [style, setStyle] = useState<any>({})
+    const itemRef = useRef<any>([])
+    const [style, setStyle] = useState({marginTop: '0'})
 
-        useEffect(() => {
-            if (showSearchRes === index) {
-                const rect = itemRef.current.getBoundingClientRect()
-                const top = rect.top + window.scrollY
-                const bottom = rect.bottom + window.scrollY
-                const windowHeight = window.innerHeight
+    useEffect(() => {
+        if (showSearchRes !== null) {
+            const rect = itemRef.current[showSearchRes].getBoundingClientRect()
+            const bottom = rect.bottom + window.scrollY
+            const windowHeight = window.innerHeight
 
-                if (windowHeight - bottom < 300) {
-                    setStyle({marginTop: `-256px`})
-                } else {
-                    setStyle({marginTop: `0`})
-                }
+            if (windowHeight - bottom < 300) {
+                setStyle({marginTop: `-256px`})
+            } else {
+                setStyle({marginTop: `0`})
             }
-        }, [showSearchRes, index])
-
-        return (
-            <div className='issue-input-item' ref={itemRef} key={index.toString()}>
-                <AppInput
-                    endEnhancer={ allowAddressList ? addressListBtn: undefined }
-                    placeholder={props.placeholder || lang['IssueBadge_IssueesPlaceholder']}
-                    value={ value.replace('.sociallayer.im', '') }
-                    onChange={(e) => { onChange(e.target.value, index)} }
-                    key={index.toString()}
-                    onFocus={(e) => { onChange(e.target.value, index)}}
-                />
-
-                { index != props.value.length - 1 ?
-                    <div className='issue-input-remove-btn' onClick={ () => { removeItem(index) } }>
-                        <CheckIndeterminate />
-                    </div> :
-                    <div className='issue-input-add-btn'  onClick={ addItem }>
-                        <Plus />
-                    </div>
-                }
-
-                {  showSearchRes === index && searchRes.length > 0 &&
-                    <div className={'search-res'} style={style}>
-                        <div className={'shell'} onClick={e => { hideSearchRes() }}></div>
-                        {
-                            searchRes.map((item, index2) => {
-                                const username = item.username?.startsWith('0x') ?
-                                    item.username!.substr(0, 6) + '...' + item.username!.substr(-4):
-                                    item.username
-                                return <div className={'res-item'} key={index2} onClick={e => { onChange(item.username || '', index); hideSearchRes()}}>
-                                    <img src={item.image_url || defaultAvatar(item.id)} alt=""/>
-                                    <div>{ username }<span>{item.nickname ? `(${item.nickname})` : ''}</span><span>{(item as ProfileWithSns).sns ? `(${(item as ProfileWithSns).sns})` : ''}</span></div>
-                                </div>
-                            })
-                        }
-                    </div>
-                }
-            </div>
-        )
-    }
+        }
+    }, [showSearchRes])
 
     return (<div>
         {
             props.value.map((item, index) => {
-                return InputItem(item, index, showSearchRes)
+                return <div className='issue-input-item' ref={r => itemRef.current[index] = r} key={index.toString()}>
+                    <AppInput
+                        endEnhancer={ allowAddressList ? addressListBtn: undefined }
+                        placeholder={props.placeholder || lang['IssueBadge_IssueesPlaceholder']}
+                        value={ item.replace('.sociallayer.im', '') }
+                        onChange={(e) => { onChange(e.target.value, index)} }
+                        key={index.toString()}
+                        onFocus={(e) => { onChange(e.target.value, index)}}
+                    />
+
+                    { index != props.value.length - 1 ?
+                        <div className='issue-input-remove-btn' onClick={ () => { removeItem(index) } }>
+                            <CheckIndeterminate />
+                        </div> :
+                        <div className='issue-input-add-btn'  onClick={ addItem }>
+                            <Plus />
+                        </div>
+                    }
+
+                    {  showSearchRes === index && searchRes.length > 0 &&
+                        <div className={'search-res'} style={style}>
+                            <div className={'shell'} onClick={e => { hideSearchRes() }}></div>
+                            {
+                                searchRes.map((item, index2) => {
+                                    const username = item.username?.startsWith('0x') ?
+                                        item.username!.substr(0, 6) + '...' + item.username!.substr(-4):
+                                        item.username
+                                    return <div className={'res-item'} key={index2} onClick={e => { onChange(item.username || '', index); hideSearchRes()}}>
+                                        <img src={item.image_url || defaultAvatar(item.id)} alt=""/>
+                                        <div>{ username }<span>{item.nickname ? `(${item.nickname})` : ''}</span><span>{(item as ProfileWithSns).sns ? `(${(item as ProfileWithSns).sns})` : ''}</span></div>
+                                    </div>
+                                })
+                            }
+                        </div>
+                    }
+                </div>
             })
         }
     </div>)
