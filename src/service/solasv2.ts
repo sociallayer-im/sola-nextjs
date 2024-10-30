@@ -75,12 +75,11 @@ export const removeComment = async (props: {id: number, auth_token: string}) => 
 }
 
 export const createRememberVoucher = async (props: {auth_token: string}) => {
-    // 1749
      const res = await fetch.post({
         url: `${apiUrl}/remember/create`,
         data: {
             ...props,
-            badge_class_id: 1749,
+            badge_class_id: Number(process.env.NEXT_PUBLIC_SBT_CLASSID!),
         }
     })
 
