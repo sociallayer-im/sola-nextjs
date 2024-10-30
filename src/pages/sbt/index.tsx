@@ -235,7 +235,7 @@ function Merge() {
                                 {
                                     !!joinedTargetUser && <>
                                         <img className={styles['target-avatar']}
-                                             src={joinedTargetUser.image_url || defaultAvatar(1)}/>
+                                             src={joinedTargetUser.image_url || defaultAvatar(joinedTargetUser.id)}/>
                                         <div
                                             className={styles['target-text']}>{joinedTargetUser.nickname || joinedTargetUser.username || joinedTargetUser.handle} is
                                             combining
