@@ -16,6 +16,7 @@ import {
     joinRemember,
     mintRemember
 } from "@/service/solasv2";
+import {useSearchParams} from "next/navigation";
 
 const combineAmount = 2
 
@@ -25,7 +26,6 @@ function Merge() {
     const {defaultAvatar} = usePicture()
     const {openConnectWalletDialog, openDialog, showLoading, showToast, showBadgelet} = useContext(DialogsContext)
     const formatTime = useformatTime()
-    const [loading, setLoading] = useState(true)
     const [success, setSuccess] = useState(false)
     // 1080
     const [voucherId, setVoucherId] = useState<null | number>(null)
@@ -34,6 +34,14 @@ function Merge() {
     const [joinedTargetUser, setJoinedTargetUser] = useState<null | ProfileSimple>(null)
     const [joinedActivityId, setJoinedActivityId] = useState<null | number>(null)
 
+    const searchParams = useSearchParams()
+
+    async function handleCreateRememberVoucher() {
+        const res = await createRememberVoucher({auth_token: user.authToken || ''})
+        const str64 = window.btoa('0000' + res.id.toString())
+        console.log('res', str64, window.atob(str64))
+        setVoucherId(res.id)
+    }
 
     useEffect(() => {
         ;(async () => {
@@ -45,13 +53,13 @@ function Merge() {
                 return
             }
 
-            const res = await createRememberVoucher({auth_token: user.authToken || ''})
-            const str64 = window.btoa('0000' + res.id.toString())
-            console.log('res', str64, window.atob(str64))
-            setVoucherId(res.id)
-            setLoading(false)
+            const url = new URL(window.location.href)
+            const voucher = url.searchParams.get('voucher')
+            if (!!voucher) {
+                await handleScanSuccess(voucher)
+            }
         })()
-    }, [user.id])
+    }, [user.id, searchParams])
 
     useEffect(() => {
         // reset after success
@@ -61,12 +69,7 @@ function Merge() {
                 setJoinedUser([])
                 setIsJoinedOtherVoucherId(null)
                 setJoinedActivityId(null)
-
-                const res = await createRememberVoucher({auth_token: user.authToken || ''})
-                const str64 = window.btoa('0000' + res.id.toString())
-                console.log('res', str64, window.atob(str64))
-                setVoucherId(res.id)
-                setLoading(false)
+                setVoucherId(null)
             }
         })()
     }, [success]);
@@ -94,6 +97,25 @@ function Merge() {
             return () => clearInterval(interval)
         }
     }, [voucherId, isJoinedOtherVoucherId]);
+
+    async function handleScanSuccess(enCodedVoucherId: string) {
+        const unloading = showLoading()
+        try {
+            const voucherId = parseInt(window.atob(enCodedVoucherId))
+            const joinInfo = await joinRemember({
+                auth_token: user.authToken || '',
+                voucher_id: voucherId
+            })
+            setJoinedTargetUser(joinInfo.sender)
+            setIsJoinedOtherVoucherId(voucherId)
+            setJoinedActivityId(joinInfo.activity.id)
+        } catch (e: any) {
+            console.error(e)
+            showToast(e.message)
+        } finally {
+            unloading()
+        }
+    }
 
     async function showRes(badge_item: Badge) {
         openDialog({
@@ -176,22 +198,8 @@ function Merge() {
         openDialog({
             content: (close: any) => {
                 return <DialogScanQrCode handleClose={close} onScanResult={async (res) => {
-                    const unloading = showLoading()
-                    try {
-                        const voucherId = parseInt(window.atob(res))
-                        const joinInfo = await joinRemember({
-                            auth_token: user.authToken || '',
-                            voucher_id: voucherId
-                        })
-                        setJoinedTargetUser(joinInfo.sender)
-                        setIsJoinedOtherVoucherId(voucherId)
-                        setJoinedActivityId(joinInfo.activity.id)
-                    } catch (e: any) {
-                        console.error(e)
-                        showToast(e.message)
-                    } finally {
-                        unloading()
-                    }
+                    const url = new URL(res)
+                    await handleScanSuccess(url.searchParams.get('voucher')!)
                 }}/>
             },
             size: ['100%', '100%'],
@@ -224,10 +232,17 @@ function Merge() {
 
                         {!!user.id &&
                             <div className={styles['code-bg']}>
+                                {!voucherId && !joinedTargetUser &&
+                                    <div className={styles['create-btn']} onClick={handleCreateRememberVoucher}>
+                                        <img src="/images/create_badge_icon.png" alt=""/>
+                                        Create a SBT
+                                    </div>
+                                }
+
                                 {
                                     voucherId && !joinedTargetUser && <>
                                         <div className={styles['code']}>
-                                            <QRcode size={[147, 147]} text={window.btoa('0000' + voucherId)}/>
+                                            <QRcode size={[147, 147]} text={`${window.location.href}?voucher=${window.btoa('0000' + voucherId)}`}/>
                                         </div>
                                     </>
                                 }
@@ -251,7 +266,7 @@ function Merge() {
                                         })
                                     }
                                     {
-                                        new Array(Math.max(combineAmount - joinedUser.length, 0)).fill(0).map((_, i) => {
+                                      !!voucherId && new Array(Math.max(combineAmount - joinedUser.length, 0)).fill(0).map((_, i) => {
                                             return <svg key={i} width="32" height="32" viewBox="0 0 32 32" fill="none"
                                                         xmlns="http://www.w3.org/2000/svg">
                                                 <circle cx="16" cy="16" r="15.6364" fill="#8466B1" stroke="#6A4C96"
