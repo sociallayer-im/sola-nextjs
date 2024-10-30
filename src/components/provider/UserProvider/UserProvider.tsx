@@ -13,6 +13,7 @@ import {WalletContext as solanaWalletContext} from '@solana/wallet-adapter-react
 import fetch from "@/utils/fetch";
 import {createSignInMessage} from '@solana/wallet-standard-util';
 // import { useProfile as useFarcasterProfile, useSignInMessage, useSignIn } from '@farcaster/auth-kit';
+import Cookies from 'js-cookie'
 
 
 export interface User {
@@ -96,6 +97,8 @@ function UserProvider(props: UserProviderProps) {
                 far_address: profileInfo?.far_address,
                 detail: profileInfo
             })
+
+            Cookies.set('auth_token', props.authToken, {expires: 365, domain: '.sola.day'})
 
             // if (!profileInfo!.username) {
             //     // 如果当前页面是’/login‘说明是邮箱登录，fallback已经在点击邮箱登录按钮的时候设置了:

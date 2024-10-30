@@ -1659,27 +1659,30 @@ function EditEvent({
                                         </div>
                                     </div>
 
-                                    <div className={styles['input-area']} data-testid={'input-event-participants'}>
-                                        <div className={styles['toggle']}>
-                                            <div
-                                                className={styles['item-title']}>{'Highlight event'}</div>
+                                    { isManager &&
+                                        <div className={styles['input-area']} data-testid={'input-event-participants'}>
+                                            <div className={styles['toggle']}>
+                                                <div
+                                                    className={styles['item-title']}>{'Highlighted event'}</div>
 
-                                            <div className={styles['item-value']}>
-                                                <Toggle
-                                                    onChange={(e: any) => {
-                                                        setEvent({
-                                                            ...event,
-                                                            pinned: !event.pinned
-                                                        })
-                                                    }
-                                                    }
-                                                    checked={event.pinned}/>
+                                                <div className={styles['item-value']}>
+                                                    <Toggle
+                                                        onChange={(e: any) => {
+                                                            setEvent({
+                                                                ...event,
+                                                                pinned: !event.pinned
+                                                            })
+                                                        }
+                                                        }
+                                                        checked={event.pinned}/>
+                                                </div>
+                                            </div>
+                                            <div className={styles['input-area-des']}>Select a highlight event, the
+                                                event
+                                                you created will display on the top of the day.
                                             </div>
                                         </div>
-                                        <div className={styles['input-area-des']}>Select a highlight event, the event
-                                            you created will display on the top of the day.
-                                        </div>
-                                    </div>
+                                    }
                                 </>
                             }
                             {

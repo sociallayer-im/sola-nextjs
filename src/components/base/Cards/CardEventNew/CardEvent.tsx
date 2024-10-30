@@ -252,7 +252,7 @@ function CardEventNew({fixed = true, ...props}: CardEventProps) {
                 <div className={'details'}>
                     {
                         props.event.pinned && props.showPinnedBg &&
-                        <div className={'highlight'}>Highlight event</div>
+                        <div className={'highlight'}>Highlighted event</div>
 
                     }
                     <div className={'title'}>
