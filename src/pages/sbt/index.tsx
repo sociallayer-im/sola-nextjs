@@ -187,7 +187,7 @@ function Merge() {
                         setIsJoinedOtherVoucherId(voucherId)
                         setJoinedActivityId(joinInfo.activity.id)
                     } catch (e: any) {
-                        cosnole.error(e)
+                        console.error(e)
                         showToast(e.message)
                     } finally {
                         unloading()
