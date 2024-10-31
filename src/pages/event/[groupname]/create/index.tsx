@@ -1586,7 +1586,7 @@ function EditEvent({
                                                 <div className={styles['unlimited']}>
                                                     {
                                                         event.max_participant === null ?
-                                                            'no limited' :
+                                                            'not limited' :
                                                             event.max_participant
                                                     }
                                                 </div>
