@@ -168,12 +168,12 @@ function IssuesInput ({allowAddressList=true, allowSearch=true, ...props}: Issue
             const windowHeight = window.innerHeight
 
             if (windowHeight - bottom < 300) {
-                setStyle({marginTop: `-256px`})
+                setStyle({marginTop: `-${Math.min(42 * searchRes.length, 200) + 50}px`})
             } else {
                 setStyle({marginTop: `0`})
             }
         }
-    }, [showSearchRes])
+    }, [showSearchRes, searchRes])
 
     return (<div>
         {
