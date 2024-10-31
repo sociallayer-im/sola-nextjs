@@ -69,6 +69,15 @@ function Discover({eventGroups, popupCities, events } : {
 
     return <div className={styles['discover-page']}>
         <div className={styles['center']}>
+
+            <div className={styles['links']}>
+                <a className={styles['link-item']} href={'https://portal.sola.day/schedule/list/popupcnx'} target={"_blank"}>
+                    <img src="https://app.sola.day/images/header_logo.svg" width={24} height={24} alt=""/>
+                    <div className={styles['link-text']}>Pop-up City Event Calendar</div>
+                    <i className={'icon-icon_share'}></i>
+                </a>
+            </div>
+
             {featureds.length > 0 &&
                 <div className={styles['featured']}>
                     <h2 className={styles['page-title']}>{lang['Featured']}</h2>
@@ -150,14 +159,6 @@ function Discover({eventGroups, popupCities, events } : {
                 <a className={styles['link-item']} href={'https://t.me/maicatalog'} target={"_blank"}>
                     <img src="https://ik.imagekit.io/soladata/wuifogms_0XJQWaem7" width={24} height={24} alt=""/>
                     <div className={styles['link-text']}>Pop-up City Catalog: Chiang Mai Special</div>
-                    <i className={'icon-icon_share'}></i>
-                </a>
-            </div>
-
-            <div className={styles['links']}>
-                <a className={styles['link-item']} href={'https://portal.sola.day/schedule/list/popupcnx'} target={"_blank"}>
-                    <img src="https://app.sola.day/images/header_logo.svg" width={24} height={24} alt=""/>
-                    <div className={styles['link-text']}>Pop-up City Event Calendar</div>
                     <i className={'icon-icon_share'}></i>
                 </a>
             </div>
