@@ -1,9 +1,9 @@
-import {useRouter} from 'next/navigation'
-import {useContext, useEffect, useState} from 'react'
+import {useRouter, useSearchParams} from 'next/navigation'
+import {useContext, useEffect, useMemo, useState} from 'react'
 import UserContext from "@/components/provider/UserProvider/UserContext";
 import usePicture from "@/hooks/pictrue";
 import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
-import {Badge, ProfileSimple, queryBadgelet} from "@/service/solas";
+import {Badge, ProfileSimple} from "@/service/solas";
 import useformatTime from "@/hooks/formatTime";
 import styles from './sbt.module.scss'
 import QRcode from "@/components/base/QRcode";
@@ -13,12 +13,13 @@ import {
     cancelJoinRemember,
     createRememberVoucher,
     getJoinedRemember,
+    getUserPopupcitys,
     joinRemember,
     mintRemember
 } from "@/service/solasv2";
-import {useSearchParams} from "next/navigation";
 
 const combineAmount = 2
+const popupCityAmount = 4
 
 function Merge() {
     const router = useRouter()
@@ -33,6 +34,8 @@ function Merge() {
     const [isJoinedOtherVoucherId, setIsJoinedOtherVoucherId] = useState<null | number>(null)
     const [joinedTargetUser, setJoinedTargetUser] = useState<null | ProfileSimple>(null)
     const [joinedActivityId, setJoinedActivityId] = useState<null | number>(null)
+    const [joinedUserPopupcitys, setJoinedUserPopupcitys] = useState<{[index: string]: {groups: {id: number, handle: string, image_url: null | string}[] }}>({})
+
 
     const searchParams = useSearchParams()
 
@@ -98,6 +101,25 @@ function Merge() {
         }
     }, [voucherId, isJoinedOtherVoucherId]);
 
+    useEffect(() => {
+        if (joinedUser.length) {
+            getUserPopupcitys({ids: joinedUser.map((u => u.id))}).then(res => setJoinedUserPopupcitys(res))
+        }
+    }, [joinedUser]);
+
+    const totalPopUpCitys =useMemo(() => {
+        let res:{id: number, handle: string, image_url: null | string}[] = []
+        Object.values(joinedUserPopupcitys).map(g => {
+            g.groups.map(c => {
+                if (!res.some(r => r.id === c.id)) {
+                    res.push(c)
+                }
+            })
+        })
+
+        return res.splice(0, popupCityAmount)
+    }, [joinedUserPopupcitys])
+
     async function handleScanSuccess(enCodedVoucherId: string) {
         const unloading = showLoading()
         try {
@@ -143,8 +165,13 @@ function Merge() {
     }
 
     async function showCombine() {
-        if (joinedUser.length < combineAmount) {
+        if (joinedUser.length < combineAmount ) {
             showToast(`You need ${combineAmount - joinedUser.length} more people to mint`)
+            return
+        }
+
+        if (totalPopUpCitys.length < popupCityAmount) {
+            showToast(`You need ${popupCityAmount - totalPopUpCitys.length} more popup-city to mint`)
             return
         }
 
@@ -291,12 +318,12 @@ function Merge() {
 
                                 <div className={styles['icons']}>
                                     {
-                                        joinedUser.map((u, i) => {
+                                        totalPopUpCitys.map((u, i) => {
                                             return <img key={i} src={u.image_url || defaultAvatar(u.id)} alt=""/>
                                         })
                                     }
                                     {
-                                        !!voucherId && new Array(Math.max(combineAmount - joinedUser.length, 0)).fill(0).map((_, i) => {
+                                        !!voucherId && new Array(Math.max(popupCityAmount - totalPopUpCitys.length, 0)).fill(0).map((_, i) => {
                                             return <svg key={i} width="32" height="32" viewBox="0 0 32 32" fill="none"
                                                         xmlns="http://www.w3.org/2000/svg">
                                                 <circle cx="16" cy="16" r="15.6364" fill="#8466B1" stroke="#6A4C96"
@@ -324,6 +351,14 @@ function Merge() {
                                     </div>
                                     <div>
                                         <div className={styles['text']}>Joined</div>
+                                        <div className={styles['user-popup-cites']}>
+                                            {
+                                                joinedUserPopupcitys[u.id.toString()]?.groups.map((g, i) => {
+                                                    return <img width={18} height={18} key={i}
+                                                                src={g.image_url || defaultAvatar(g.id)} alt=""/>
+                                                })
+                                            }
+                                        </div>
                                     </div>
                                 </div>
                             })
@@ -333,8 +368,8 @@ function Merge() {
                                 <div className={styles['tips']}>Waiting for
                                     other {combineAmount - joinedUser.length} person...</div>}
 
-                            { !joinedTargetUser && !!voucherId && !!user.id && <>
-                                    <svg style={{opacity: joinedUser.length >= combineAmount ? 1 : 0.2}}
+                            {!joinedTargetUser && !!voucherId && !!user.id && <>
+                            <svg style={{opacity: joinedUser.length >= combineAmount && totalPopUpCitys.length === popupCityAmount ? 1 : 0.2}}
                                          onClick={showCombine}
                                          className={styles['combine-btn']} width="294" height="58" viewBox="0 0 294 58"
                                          fill="none"

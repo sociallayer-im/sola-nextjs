@@ -442,3 +442,15 @@
   }
 }
 
+.user-popup-cites {
+  display: flex;
+  flex-flow: row nowrap;
+
+  img {
+    margin-left: 8px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+  }
+}
+

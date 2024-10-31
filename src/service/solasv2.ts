@@ -135,3 +135,16 @@ export const cancelJoinRemember = async (props: {auth_token: string, voucher_id:
         }
     })
 }
+
+export const getUserPopupcitys = async (props: {ids: number[]}) => {
+    const res =  await fetch.get({
+        url: `${apiUrl}/service/get_user_related_groups`,
+        data: {
+            profile_ids: props.ids.join(',') ,
+        }
+    })
+
+    return res.data.group_data as {[index: string]: {
+            groups: {id: number, handle: string, image_url: null | string}[]
+        }}
+}
