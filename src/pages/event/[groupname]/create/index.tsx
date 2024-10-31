@@ -165,7 +165,6 @@ function EditEvent({
     const [creator, setCreator] = useState<Group | Profile | undefined>(initCreator)
     const [eventGroup, setEventGroup] = useState<Group | undefined>(group)
     const [repeatCounter, setRepeatCounter] = useState(1)
-    const [isClosed, setIsClosed] = useState(initEvent?.status === 'closed')
     const [event, setEvent] = useState<Partial<Event>>(initEvent || {
         title: '',
         cover_url: '',
@@ -192,8 +191,10 @@ function EditEvent({
         extra: null,
         track_id: null,
         pinned: false,
+        status: 'open'
     })
 
+    const statusRef = useRef(event.status)
 
     const init = async () => {
         if (!!group && user.id) {
@@ -805,7 +806,6 @@ function EditEvent({
             event_count: repeatCounter,
             extra,
             tickets: _tickets,
-            status: isClosed ? 'closed' : undefined,
 
             auth_token: user.authToken || '',
         } as CreateRepeatEventProps
@@ -976,7 +976,6 @@ function EditEvent({
             event_count: repeatCounter,
             extra,
             tickets: enableTicket && tickets.length ? tickets : null,
-            status: isClosed ? 'closed' : undefined,
 
             auth_token: user.authToken || '',
         } as CreateRepeatEventProps
@@ -1689,17 +1688,20 @@ function EditEvent({
                                         </div>
                                     }
 
-
+                                    <div>{statusRef.current}</div>
                                     <div className={styles['input-area']} data-testid={'input-event-participants'}>
                                         <div className={styles['toggle']}>
                                             <div className={styles['item-title']}>{'Close event'}</div>
                                             <div className={styles['item-value']}>
                                                 <Toggle
                                                     onChange={(e: any) => {
-                                                        setIsClosed(!isClosed)
+                                                       setEvent({
+                                                           ...event,
+                                                           status: event.status === 'closed' ? (statusRef.current === 'closed' ? 'open' : statusRef.current) : 'closed'
+                                                       })
                                                     }
                                                     }
-                                                    checked={isClosed}/>
+                                                    checked={event.status === 'closed'}/>
                                             </div>
                                         </div>
                                         <div className={styles['input-area-des']}>People can not RSVP the event
