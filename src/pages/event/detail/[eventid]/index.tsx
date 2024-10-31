@@ -732,6 +732,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                             <div className={'center'}>
                                 <div className={'name'}>
                                     {event.status === 'pending' && <span className={'pending'}>Pending</span>}
+                                    {event.status === 'closed' && <span className={'cancel'}>Closed</span>}
                                     {event.status === 'cancel' && <span className={'cancel'}>Canceled</span>}
                                     {event.display === 'private' && <StatefulPopover
                                         placement={'bottom'}
@@ -1009,7 +1010,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                             </div>
 
                                             <div className={'center'}>
-                                                {!isJoined && !canceled && !tickets.length &&
+                                                {!isJoined && !canceled && !tickets.length && event?.status !== 'closed' &&
                                                     <AppButton special onClick={e => {
                                                         handleJoin()
                                                     }}>{lang['Activity_Detail_Btn_Attend']}</AppButton>
@@ -1299,7 +1300,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                     </div>
 
                                     <div className={'event-action'}>
-                                        {!isJoined && !canceled && !tickets.length &&  event.status !== 'pending' &&
+                                        {!isJoined && !canceled && !tickets.length &&  event.status !== 'pending' && event?.status !== 'closed' &&
                                             <AppButton special onClick={e => {
                                                 handleJoin()
                                             }}>{lang['Activity_Detail_Btn_Attend']}</AppButton>

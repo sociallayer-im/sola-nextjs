@@ -3190,7 +3190,7 @@ export async function queryEvent(props: QueryEventProps): Promise<Event[]> {
         variables += `title: {_iregex: "${props.search}"}, `
     }
 
-    let status = `"open", "published"`
+    let status = `"open", "published", "closed"`
     if (props.show_pending_event) {
         status = status + ', "pending"'
     }

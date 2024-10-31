@@ -156,7 +156,8 @@ function Page(props: any) {
                     <BgProfile profile={profile}/>
                     <div className='center'>
                         <div className='top-side'>
-                            <PageBack menu={() => ProfileMenu()}/>
+                            <div />
+                            <ProfileMenu />
                         </div>
                         <div className='slot_1'>
                             <ProfilePanel profile={profile}/>
