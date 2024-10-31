@@ -305,7 +305,6 @@ function ListEventVertical({eventGroup, ...props}: {
     }
 
     useEffect(() => {
-        console.log('list =>', list)
         setListToShow(list)
     }, [list])
 
@@ -607,10 +606,10 @@ function ListEventVertical({eventGroup, ...props}: {
                                 return <div key={index} className={'event-group'}>
                                     <div className={'date'}>{item.date}</div>
                                     {
-                                        item.events.map((item) => {
+                                        item.events.map((item, i) => {
                                             return <CardEvent
                                                 timezone={eventGroup.timezone || undefined}
-                                                fixed={false} key={index}
+                                                fixed={false} key={i}
                                                 event={item}/>
                                         })
                                     }

@@ -258,7 +258,6 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
         unload()
     }
 
-    console.log('star', stared, props.event)
     return (<Link href={`/event/detail/${props.event.id}`}
                   target={props.blank ? '_blank' : '_self'}
                   className={largeCard ? 'event-card large' : 'event-card'}>
