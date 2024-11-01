@@ -264,6 +264,10 @@
       font-style: normal;
       font-weight: 500;
       line-height: normal;
+      max-width: 110px;
+      white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     .text {
@@ -424,6 +428,7 @@
 
 .login-btn {
   margin-top: 30px;
+  padding: 0 16px;
 }
 
 .create-btn {
