@@ -224,7 +224,7 @@ function Merge() {
     async function scan() {
         openDialog({
             content: (close: any) => {
-                return <DialogScanQrCode handleClose={close} onScanResult={async (res) => {
+                return <DialogScanQrCode handleClose={close} onScanResult={async (res: string) => {
                     const url = new URL(res)
                     await handleScanSuccess(url.searchParams.get('voucher')!)
                 }}/>
@@ -253,11 +253,11 @@ function Merge() {
 
                         { !user.id &&
                             <div className={styles['login-btn']}>
-                                <AppButton onClick={openConnectWalletDialog}> Sign in to Claim</AppButton>
+                                <AppButton special onClick={openConnectWalletDialog}> Sign in to Claim</AppButton>
                             </div>
                         }
 
-                        {!voucherId && !joinedTargetUser &&
+                        {!!user.id && !voucherId && !joinedTargetUser &&
                             <svg onClick={handleCreateRememberVoucher}
                                  className={styles['combine-btn']} width="294" height="58" viewBox="0 0 294 58"
                                  fill="none"
