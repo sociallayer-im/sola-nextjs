@@ -13,7 +13,7 @@ export default function DialogCalendarLinks(props: { groupname: string }) {
     const outlookCalendarLink = `https://outlook.live.com/calendar/0/addcalendar?url=${encodeURIComponent(url)}`;
     const systemCalendarLink = url.replace('https', 'webcal');
 
-    const isMac = navigator.platform.indexOf('Mac') > -1;
+    const isMac = navigator.platform.indexOf('Mac') > -1 || /iPad|iPhone|iPod/.test(navigator.userAgent)
 
     return <div className={styles['dialog']}>
         <div className={styles['title']}>Add iCal Subscription</div>

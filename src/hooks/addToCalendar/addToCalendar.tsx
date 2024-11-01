@@ -114,6 +114,7 @@ function DialogAddToCalendar({close, event} : {close: any, event: AddToCalenderP
 
         <div className={styles['calendar-item']}>
             <AppButton onClick={e => {toLing('google_calendar')}} >Google Calendar</AppButton>
+            <AppButton onClick={e => {toLing('ics')}}>Apple Calendar</AppButton>
             <AppButton onClick={e => {toLing('yahoo')}}>Yahoo</AppButton>
             <AppButton onClick={e => {toLing('outlook')}} >Outlook.com</AppButton>
             <AppButton onClick={e => {toLing('office365')}}>Office365</AppButton>
