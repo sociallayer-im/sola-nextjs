@@ -191,8 +191,10 @@ function EditEvent({
         extra: null,
         track_id: null,
         pinned: false,
+        status: 'open'
     })
 
+    const statusRef = useRef(event.status)
 
     const init = async () => {
         if (!!group && user.id) {
@@ -1610,11 +1612,11 @@ function EditEvent({
                                             <div className={styles['item-value']}
                                                  style={{cursor: 'pointer'}}
                                                  onClick={e => {
-                                                setEvent({
-                                                    ...event,
-                                                    display: 'normal'
-                                                })
-                                            }}>
+                                                     setEvent({
+                                                         ...event,
+                                                         display: 'normal'
+                                                     })
+                                                 }}>
                                                 <AppRadio checked={event.display === 'normal'}/>
                                             </div>
                                         </div>
@@ -1625,14 +1627,15 @@ function EditEvent({
 
                                     <div className={styles['input-area']} data-testid={'input-event-participants'}>
                                         <div className={styles['toggle']}>
-                                        <div
+                                            <div
                                                 className={styles['item-title']}>{'Private event'}</div>
-                                            <div className={styles['item-value']} style={{cursor: 'pointer'}} onClick={e => {
-                                                setEvent({
-                                                    ...event,
-                                                    display: 'private'
-                                                })
-                                            }}>
+                                            <div className={styles['item-value']} style={{cursor: 'pointer'}}
+                                                 onClick={e => {
+                                                     setEvent({
+                                                         ...event,
+                                                         display: 'private'
+                                                     })
+                                                 }}>
                                                 <AppRadio checked={event.display === 'private'}/>
                                             </div>
                                         </div>
@@ -1645,12 +1648,13 @@ function EditEvent({
                                     <div className={styles['input-area']} data-testid={'input-event-participants'}>
                                         <div className={styles['toggle']}>
                                             <div className={styles['item-title']}>{'Public event'}</div>
-                                            <div className={styles['item-value']} style={{cursor: 'pointer'}} onClick={e => {
-                                                setEvent({
-                                                    ...event,
-                                                    display: 'public'
-                                                })
-                                            }}>
+                                            <div className={styles['item-value']} style={{cursor: 'pointer'}}
+                                                 onClick={e => {
+                                                     setEvent({
+                                                         ...event,
+                                                         display: 'public'
+                                                     })
+                                                 }}>
                                                 <AppRadio checked={event.display === 'public'}/>
                                             </div>
                                         </div>
@@ -1659,7 +1663,7 @@ function EditEvent({
                                         </div>
                                     </div>
 
-                                    { isManager &&
+                                    {isManager &&
                                         <div className={styles['input-area']} data-testid={'input-event-participants'}>
                                             <div className={styles['toggle']}>
                                                 <div
@@ -1683,6 +1687,25 @@ function EditEvent({
                                             </div>
                                         </div>
                                     }
+
+                                    <div className={styles['input-area']} data-testid={'input-event-participants'}>
+                                        <div className={styles['toggle']}>
+                                            <div className={styles['item-title']}>{'Close event'}</div>
+                                            <div className={styles['item-value']}>
+                                                <Toggle
+                                                    onChange={(e: any) => {
+                                                       setEvent({
+                                                           ...event,
+                                                           status: event.status === 'closed' ? (statusRef.current === 'closed' ? 'open' : statusRef.current) : 'closed'
+                                                       })
+                                                    }
+                                                    }
+                                                    checked={event.status === 'closed'}/>
+                                            </div>
+                                        </div>
+                                        <div className={styles['input-area-des']}>People can not RSVP the event
+                                        </div>
+                                    </div>
                                 </>
                             }
                             {
@@ -1693,7 +1716,7 @@ function EditEvent({
 
                                 {
                                     isEditMode && <div>
-                                        <AppButton
+                                    <AppButton
                                             style={{
                                                 color: '#F64F4F',
                                                 ':hover': {
