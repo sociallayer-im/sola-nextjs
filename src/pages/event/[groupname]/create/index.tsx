@@ -1688,7 +1688,6 @@ function EditEvent({
                                         </div>
                                     }
 
-                                    <div>{statusRef.current}</div>
                                     <div className={styles['input-area']} data-testid={'input-event-participants'}>
                                         <div className={styles['toggle']}>
                                             <div className={styles['item-title']}>{'Close event'}</div>
