@@ -3050,7 +3050,20 @@ export interface Event {
     extra: null | string[],
     pinned: boolean,
     theme: null | string,
+    event_roles: null | EventRole[],
 
+}
+
+export interface EventRole {
+    id?: number,
+    role: 'co_host' | 'group_host' | 'speaker',
+    event_id?: number | null,
+    email: string | null,
+    nickname: string | null
+    image_url: string | null
+    item_type: 'Group' | 'Profile'
+    _destroy?: string
+    item_id: number | null
 }
 
 export interface CreateEventProps extends Partial<Event> {
@@ -3210,6 +3223,16 @@ export async function queryEvent(props: QueryEventProps): Promise<Event[]> {
 
     const doc = gql`query MyQuery ${props.cache? '@cached' : ''} {
       events (where: {${variables}, status: {_in: [${status}]}} ${order} limit: ${page_size}, offset: ${props.offset || ((props.page - 1) * page_size)}) {
+        event_roles {
+            id,
+            event_id,
+            item_id,
+            email,
+            nickname,
+            image_url,
+            role,
+            item_type,
+        }
         pinned
         theme
         track_id
@@ -3390,6 +3413,16 @@ export async function queryPendingEvent(props: QueryEventProps): Promise<Event[]
 
     const doc = gql`query MyQuery {
       events (where: {${variables} status: {_eq: "pending"}}, ${order} limit: ${page_size}, offset: ${(props.page - 1) * page_size}) {
+        event_roles {
+            id,
+            event_id,
+            item_id,
+            email,
+            nickname,
+            image_url,
+            role,
+            item_type
+        }
         pinned
         theme
         track_id
@@ -3502,6 +3535,16 @@ export async function queryCohostingEvent(props: { id: number, email?: string })
 
     const doc = gql`query MyQuery {
       events (where: {${variables}}, ${order} limit: ${page_size}) {
+        event_roles  {
+            id,
+            event_id,
+            item_id,
+            email,
+            nickname,
+            image_url,
+            role,
+            item_type
+        }
         pinned
         theme
         track_id
@@ -3929,6 +3972,16 @@ export async function unJoinEvent(props: JoinEventProps) {
 export async function searchEvent(keyword: string, group_id?: number): Promise<Event[]> {
     const doc = gql`query MyQuery {
       events (where: {title: {_iregex: "${keyword}"} , ${group_id ? `group_id: {_eq: ${group_id}},` : ''} status: {_neq: "cancel"}}, limit: 10) {
+        event_roles{
+            id,
+            event_id,
+            item_id,
+            email,
+            nickname,
+            image_url,
+            role,
+            item_type
+        }
         pinned
         theme
         track_id
@@ -6558,6 +6611,16 @@ export async function queryScheduleEvent(props: QueryEventProps): Promise<Event[
 
     const doc = gql`query MyQuery ${props.cache? '@cached' : ''} {
       events (where: {${variables}, status: {_in: [${status}]}} ${order} limit: ${page_size}, offset: ${props.offset || ((props.page - 1) * page_size)}) {
+        event_roles{
+            id,
+            event_id,
+            item_id,
+            email,
+            nickname,
+            image_url,
+            role,
+            item_type
+        }
         pinned
         theme
         track_id
@@ -6696,6 +6759,16 @@ export async function queryMapEvent(props: QueryEventProps): Promise<Event[]> {
 
     const doc = gql`query MyQuery ${props.cache? '@cached' : ''} {
       events (where: {${variables}, status: {_in: [${status}]}} ${order} limit: ${page_size}, offset: ${props.offset || ((props.page - 1) * page_size)}) {
+        event_roles{
+            id,
+            event_id,
+            item_id,
+            email,
+            nickname,
+            image_url,
+            role,
+            item_type
+        }
         pinned
         theme
         track_id
