@@ -41,7 +41,7 @@ function CardPopupCity({popupCity}: { popupCity: PopupCity }) {
                 </div>
                 <div className={styles['item']}>
                     <img src={popupCity.group.image_url || defaultAvatar(popupCity.group_id)} alt=""/>
-                    <div>by {popupCity.group.nickname || popupCity.group.username}</div>
+                    <div>by {popupCity.group.nickname || popupCity.group.username || popupCity.group.handle}</div>
                 </div>
             </div>
             <div className={styles['link']}>{'View events'}</div>
