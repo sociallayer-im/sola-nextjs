@@ -703,8 +703,6 @@ function EditEvent({
                 new_event_roles.push({
                     item_id: creator!.id,
                     item_type: 'Group',
-                    group_id: creator!.id,
-                    profile_id: null,
                     role: 'group_host',
                     nickname: creator!.nickname || creator!.username,
                     image_url: creator!.image_url,
@@ -759,8 +757,6 @@ function EditEvent({
                 new_event_roles.push({
                     item_id: hostinfo.group_host.id,
                     item_type: 'Group',
-                    profile_id: null,
-                    group_id: hostinfo.group_host.id,
                     role: 'group_host',
                     nickname: hostinfo.group_host.nickname || hostinfo.group_host.username,
                     image_url: hostinfo.group_host.image_url,
@@ -773,8 +769,6 @@ function EditEvent({
                     new_event_roles.push({
                         item_id: p.id || null,
                         item_type: 'Profile',
-                        profile_id: p.id || null,
-                        group_id: null,
                         role: 'co_host',
                         nickname: p.nickname || p.username,
                         image_url: p.image_url,
@@ -788,8 +782,6 @@ function EditEvent({
                     new_event_roles.push({
                         item_id: p.id || null,
                         item_type: 'Profile',
-                        group_id: null,
-                        profile_id: p.id || null,
                         role: 'speaker',
                         nickname: p.nickname || p.username,
                         image_url: p.image_url,

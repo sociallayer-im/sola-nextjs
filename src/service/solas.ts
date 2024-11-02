@@ -3054,9 +3054,7 @@ export interface Event {
 export interface EventRole {
     id?: number,
     role: 'co_host' | 'group_host' | 'speaker',
-    group_id?: number | null,
     event_id?: number | null,
-    profile_id?: number | null,
     email: string | null,
     nickname: string | null
     image_url: string | null
@@ -3230,7 +3228,7 @@ export async function queryEvent(props: QueryEventProps): Promise<Event[]> {
             nickname,
             image_url,
             role,
-            item_type
+            item_type,
         }
         pinned
         theme

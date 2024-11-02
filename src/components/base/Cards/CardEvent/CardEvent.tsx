@@ -87,38 +87,42 @@ function CardEvent({fixed = true, ...props}: CardEventProps) {
         setStared((props.event as any).star)
 
 
-        if (props.event?.host_info) {
-            if (typeof props.event.host_info === 'object') {
-                if ((props.event.host_info as any).group_host?.[0]) {
-                    setGroupHost((props.event.host_info as any).group_host?.[0])
-                }
-            } else if (props.event?.host_info.startsWith('{')) {
-                const hostInfo = JSON.parse(props.event?.host_info!)
-                if (hostInfo.group_host) {
-                    if (hostInfo.group_host.id) {
-                        queryGroupDetail(hostInfo.group_host.id).then(res => {
-                            if (res) {
-                                setGroupHost(res)
-                            }
-                        })
-                    } else {
-                        setGroupHost(hostInfo.group_host)
-                    }
-                }
-                if (hostInfo.speaker) {
-                    setSpeaker(hostInfo.speaker)
-                }
+        if (props.event.event_roles && props.event.event_roles.length) {
+            const roles = props.event.event_roles
+            const groupHostRole = roles.find((r: any) => r.role === 'group_host')
+            setGroupHost(groupHostRole ? {
+                email: null,
+                id: groupHostRole.item_id,
+                username: groupHostRole.nickname,
+                nickname: groupHostRole.nickname,
+                avatar: groupHostRole.image_url || defaultAvatar(groupHostRole.item_id),
+                handle: groupHostRole.nickname
+            } as any : null)
 
-                if (hostInfo.co_host) {
-                    setCohost(hostInfo.co_host)
+            const speakerRole = roles.filter((r: any) => r.role === 'speaker')
+            setSpeaker(speakerRole.map(s => {
+                return {
+                    email: null,
+                    id: s.item_id,
+                    username: s.nickname,
+                    nickname: s.nickname,
+                    avatar: s.image_url || defaultAvatar(s.item_id),
+                    handle: s.nickname
                 }
-            } else {
-                queryGroupDetail(Number(props.event?.host_info)).then(res => {
-                    if (res) {
-                        setGroupHost(res)
-                    }
-                })
-            }
+            }))
+
+            const cohostRole = roles.filter((r: any) => r.role === 'co_host')
+            setCohost(cohostRole.map(s => {
+                return {
+                    email: null,
+                    id: s.item_id,
+                    username: s.nickname,
+                    nickname: s.nickname,
+                    avatar: s.image_url || defaultAvatar(s.item_id),
+                    handle: s.nickname
+                }
+            }))
+
         }
     }, [props.event])
 

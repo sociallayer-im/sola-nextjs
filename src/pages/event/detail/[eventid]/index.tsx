@@ -15,12 +15,18 @@ import {
     queryBadgeDetail,
     queryEvent,
     queryEventDetail,
-    queryTickets,
-    Ticket,
     queryGroupDetail,
     queryProfileByEmail,
+    queryTicketItems,
+    queryTickets,
+    queryTrackDetail,
     queryUserGroup,
-    RecurringEvent, setEventStatus, TicketItem, queryTicketItems, queryTrackDetail, Track, unJoinEvent
+    RecurringEvent,
+    setEventStatus,
+    Ticket,
+    TicketItem,
+    Track,
+    unJoinEvent
 } from "@/service/solas";
 import LangContext from "@/components/provider/LangProvider/LangContext";
 import {useTime2, useTime3} from "@/hooks/formatTime";
@@ -42,11 +48,10 @@ import MapContext from "@/components/provider/MapProvider/MapContext";
 import ImgLazy from "@/components/base/ImgLazy/ImgLazy";
 import EventDefaultCover from "@/components/base/EventDefaultCover";
 import {Swiper, SwiperSlide} from 'swiper/react'
-import {Mousewheel, FreeMode} from "swiper";
+import {FreeMode, Mousewheel} from "swiper";
 import EventTickets from "@/components/compose/EventTickets/EventTickets";
 import EventNotes from "@/components/base/EventNotes/EventNotes";
 import RichTextDisplayerNew from "@/components/compose/RichTextEditor/DisplayerNew";
-import RichTextDisplayer from "@/components/compose/RichTextEditor/Displayer";
 import removeMarkdown from "markdown-to-text"
 import {StatefulPopover} from "baseui/popover";
 import {AVNeeds, SeatingStyle} from "@/pages/event/[groupname]/create";
@@ -60,8 +65,6 @@ import Empty from "@/components/base/Empty";
 import useEvent, {EVENT} from "@/hooks/globalEvent";
 import useZuAuth from "@/service/zupass/useZuAuth";
 import {isHideLocation} from "@/global_config";
-import copy from "@/utils/copy";
-import fetch from "@/utils/fetch";
 import {cancelEventStar, getUserStaredComment, handleEventStar} from "@/service/solasv2";
 import DialogFeedback from "@/components/base/Dialog/DialogFeedback";
 
@@ -131,6 +134,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
             let res: Event | null = null
             try {
                 res = await queryEventDetail({id: Number(params?.eventid)})
+                console.log('res', res)
             } catch (e) {
                 router.push('/error')
                 return
@@ -143,7 +147,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
 
             queryTickets({event_id: res.id}).then((res) => {
                 setTickets(res)
-            }).finally(()=>{
+            }).finally(() => {
                 setTicketReady(true)
             })
 
@@ -194,41 +198,51 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                 }
             }
 
-            let profile: Profile | Group | null = null
-            if (res.host_info) {
-                if (!res.host_info.startsWith('{')) {
-                    profile = await queryGroupDetail(Number(res.host_info))
-                    if (profile) {
-                        setHoster(profile)
+            if (res.event_roles && res.event_roles.length) {
+                const ids: number[] = res.event_roles
+                    .filter((item) => item.role !== 'group_host' && !!item.item_id)
+                    .map((item) => item.item_id!)
+
+                const profiles = await getProfileBatchById(ids)
+
+                const speakerRole = res.event_roles.filter((item) => item.role === 'speaker')
+
+
+                setSpeaker(speakerRole.map((s) => {
+                    const info = profiles.find((p) => (s.item_id === p.id && !!p.username))
+                    return info || {
+                        id: 0,
+                        nickname: s.nickname,
+                        username: s.nickname,
+                        image_url: s.image_url,
+                        email: s.email,
+                        domain: '',
+                        handle: s.nickname,
+                        address: ''
                     }
+                }))
+
+                const cohostRole = res.event_roles.filter((item) => item.role === 'co_host')
+                setCohost(cohostRole.map((s) => {
+                    const info = profiles.find((p) => (s.item_id === p.id && !!p.username))
+                    return info || {
+                        id: 0,
+                        nickname: s.nickname,
+                        username: s.nickname,
+                        image_url: s.image_url,
+                        email: s.email,
+                        domain: '',
+                        handle: s.nickname,
+                        address: ''
+                    }
+                }))
+
+                const groupHostRole = res.event_roles.find((item) => item.role === 'group_host')
+                if (!!groupHostRole) {
+                    const group = await queryGroupDetail(groupHostRole.item_id!)
+                    setHoster(group as any || res.owner as Profile)
                 } else {
-                    const info = JSON.parse(res.host_info)
-                    const ids: number[] = [...info.speaker, ...info.co_host]
-                        .filter((item: any) => !!item.id)
-                        .map((item: any) => item.id)
-
-                    const profiles = await getProfileBatchById(ids)
-
-                    if (info.speaker) {
-                        setSpeaker(info.speaker.map((p: Profile) => {
-                            const info = profiles.find((item: any) => (item.id === p.id && !!p.username))
-                            return info || p
-                        }))
-                    }
-
-                    if (info.co_host) {
-                        setCohost(info.co_host.map((p: Profile) => {
-                            const info = profiles.find((item: any) => item.id === p.id && !!p.username)
-                            return info || p
-                        }))
-                    }
-
-                    if (info.group_host) {
-                        const group =  await queryGroupDetail(info.group_host.id)
-                        setHoster(group as any || info.group_host)
-                    } else {
-                        setHoster(res.owner as Profile)
-                    }
+                    setHoster(res.owner as Profile)
                 }
             } else {
                 setHoster(res.owner as Profile)
@@ -244,7 +258,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                 setRepeatEventDetail(repeatEvent as RecurringEvent)
             }
 
-          !!user.id && getUserStaredComment({
+            !!user.id && getUserStaredComment({
                 profile_id: user.id
             }).then(comments => {
                 setStared(comments.some(item => item.item_id === res?.id))
@@ -413,8 +427,8 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
             if (event) {
                 checkEventPermission({id: event.id, auth_token: user.authToken || ''})
                     .then(res => {
-                    setHasPermission(res)
-                })
+                        setHasPermission(res)
+                    })
             }
         }
     }, [event, ready, user.id])
@@ -625,7 +639,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
 
     const showFeedBackDialog = async () => {
         openDialog({
-            content: (close: any) => <DialogFeedback event_id={event!.id} close={close} />,
+            content: (close: any) => <DialogFeedback event_id={event!.id} close={close}/>,
             size: [420, 'auto'],
             position: 'bottom'
         })
@@ -810,7 +824,8 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                 modules={[FreeMode, Mousewheel]}
                                                 spaceBetween={12}>
                                                 {speaker.map((item, index) => {
-                                                    return <SwiperSlide className={'slide'} key={item.username! + index}>
+                                                    return <SwiperSlide className={'slide'}
+                                                                        key={item.username! + index}>
                                                         <div className={'host-item'} key={item.username! + index}
                                                              onClick={e => {
                                                                  if (!!item?.username && item.id) {
@@ -891,11 +906,12 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                          }
                                                     >{showMap ? 'Hide Map' : 'Show Map'}</div>
                                                     <div className={'switch-preview-map'}
-                                                         onClick={()=> {
+                                                         onClick={() => {
                                                              copy(event.formatted_address)
                                                              showToast('Copied')
                                                          }}
-                                                    >Copy Address</div>
+                                                    >Copy Address
+                                                    </div>
                                                 </div>
                                                 {showMap &&
                                                     <Link href={genGoogleMapUrl()}
@@ -1140,7 +1156,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                             }
 
                                             <div className={'center'}>
-                                                {!!event.requirement_tags && !!event.group_id && [3427, 3409, 3463, 3454].includes(event.group_id) && (isOperator || isManager || isHoster || isGroupOwner || isTrackManager ) &&
+                                                {!!event.requirement_tags && !!event.group_id && [3427, 3409, 3463, 3454].includes(event.group_id) && (isOperator || isManager || isHoster || isGroupOwner || isTrackManager) &&
                                                     <>
                                                         {!!event.requirement_tags.filter((t) => {
                                                                 return SeatingStyle.includes(t)
@@ -1220,7 +1236,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
 
                                     {
                                         tab === 5 && !!event &&
-                                        <EventComment event={event} />
+                                        <EventComment event={event}/>
                                     }
                                 </div>
                             </div>
@@ -1231,7 +1247,8 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                             {
                                 event.cover_url ?
                                     <ImgLazy src={event.cover_url} alt="" width={624}/>
-                                    : <EventDefaultCover event={event} width={324} height={324} showLocation={!isHideLocation(event.group_id) || isOperator || isGroupOwner || isHoster || isJoined || isManager || isTrackManager} />
+                                    : <EventDefaultCover event={event} width={324} height={324}
+                                                         showLocation={!isHideLocation(event.group_id) || isOperator || isGroupOwner || isHoster || isJoined || isManager || isTrackManager}/>
                             }
                         </div>
                         <div className={'center'}>
@@ -1257,7 +1274,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                             }
 
 
-                            {user.userName && canAccess  && !props.event?.external_url &&
+                            {user.userName && canAccess && !props.event?.external_url &&
                                 <div className={'event-login-status'}>
                                     <div className={'user-info'}>
                                         <img src={user.avatar || defaultAvatar(user.id!)} alt=""/>
@@ -1299,13 +1316,13 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                     </div>
 
                                     <div className={'event-action'}>
-                                        {!isJoined && !canceled && !tickets.length &&  event.status !== 'pending' &&
+                                        {!isJoined && !canceled && !tickets.length && event.status !== 'pending' &&
                                             <AppButton special onClick={e => {
                                                 handleJoin()
                                             }}>{lang['Activity_Detail_Btn_Attend']}</AppButton>
                                         }
 
-                                        {  event.status === 'pending' && (isManager || isGroupOwner || isTrackManager) &&
+                                        {event.status === 'pending' && (isManager || isGroupOwner || isTrackManager) &&
                                             <AppButton special onClick={handlePublish}>{lang['Publish']}</AppButton>
                                         }
 
@@ -1344,14 +1361,14 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                     </div>
 
 
-                                        {isJoined &&
-                                            <div className={'event-action'}>
-                                                <AppButton
-                                                    onClick={e => {
-                                                        handleUnJoin()
-                                                    }}>{lang['Profile_Edit_Cancel']}</AppButton>
-                                            </div>
-                                        }
+                                    {isJoined &&
+                                        <div className={'event-action'}>
+                                            <AppButton
+                                                onClick={e => {
+                                                    handleUnJoin()
+                                                }}>{lang['Profile_Edit_Cancel']}</AppButton>
+                                        </div>
+                                    }
 
                                     {!canAccess &&
                                         <div className={'event-action'}>
@@ -1388,7 +1405,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                 <TicketsPurchased eventGroup={group} event={event}/>
                             }
 
-                            { !!event && tickets.length > 0 &&
+                            {!!event && tickets.length > 0 &&
                                 <EventTickets tickets={tickets} event={event} canAccess={canAccess}/>
                             }
                         </div>

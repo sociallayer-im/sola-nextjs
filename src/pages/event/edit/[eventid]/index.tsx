@@ -2,7 +2,12 @@ import Edit from '@/pages/event/[groupname]/create'
 import {Event, getProfile, getTracks, Group, Profile, queryEvent, queryGroupDetail, Track} from "@/service/solas";
 
 
-export default function Page ({initEvent, group, initCreator, tracks}: {initEvent?: Event, group?: Group, initCreator?: Profile | Group, tracks: Track[]}) {
+export default function Page({initEvent, group, initCreator, tracks}: {
+    initEvent?: Event,
+    group?: Group,
+    initCreator?: Profile | Group,
+    tracks: Track[]
+}) {
     return <Edit initEvent={initEvent} group={group} initCreator={initCreator} tracks={tracks}/>
 }
 
@@ -34,10 +39,21 @@ export const getServerSideProps: any = async (context: any) => {
                 ]
             )
 
-            if (!!events[0].host_info) {
-                const info = JSON.parse(events[0].host_info!)
-                if (info.group_host) {
-                    return {props: {group: group, initEvent: events[0], initCreator: info.group_host, tracks}}
+            if (!!events[0].event_roles && events[0].event_roles.length > 0) {
+                const groupHostRole = events[0].event_roles.find(role => role.role === 'group_host')
+                if (groupHostRole) {
+                    return {
+                        props: {
+                            group: group,
+                            initEvent: events[0],
+                            initCreator: {
+                                id: groupHostRole.item_id,
+                                nickname: groupHostRole.nickname,
+                                image_url: groupHostRole.image_url,
+                                username: groupHostRole.nickname
+                            }, tracks
+                        }
+                    }
                 } else {
                     return {props: {group: group, initEvent: events[0], initCreator: creator, tracks}}
                 }

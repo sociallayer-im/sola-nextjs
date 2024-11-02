@@ -179,9 +179,11 @@ function ComponentName(props: { group: Group, eventSite: EventSites[] }) {
 
                 const eventList = res.data.events.map((event: SolarEvent) => {
                     let host = [event.owner.username]
-                    if ((event.host_info as any)?.group_host?.[0]) {
-                        host = [(event.host_info as any)?.group_host[0].nickname
-                        || (event.host_info as any)?.group_host[0].username]
+                    if (event.event_roles && event.event_roles.length > 0) {
+                        const groupHostRole = event.event_roles.find((role: any) => role.role === 'group_host')
+                        if (!!groupHostRole) {
+                            host = [groupHostRole.nickname]
+                        }
                     }
 
                     const calendarId = event.tags && event.tags[0] ? event.tags[0].replace(/[^\w\s]/g, '').replace(/\s/g, '').toLowerCase() : 'sola'
