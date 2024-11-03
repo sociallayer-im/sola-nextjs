@@ -883,6 +883,8 @@ export interface Badgelet {
     value?: null | number,
     last_consumed_at: null | string,
     metadata?: string | null
+    image_url?: string | null
+    title: string
 }
 
 export async function queryAllTypeBadgelet(props: QueryBadgeletProps): Promise<Badgelet[]> {
@@ -2668,7 +2670,8 @@ export interface Activity {
     "action": string,
     "data": any,
     "memo": any,
-    "created_at": string
+    "created_at": string,
+    "initiator": ProfileSimple
 }
 
 export interface Vote {

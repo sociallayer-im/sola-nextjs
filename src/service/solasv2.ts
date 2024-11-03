@@ -1,6 +1,6 @@
 import fetch from '../utils/fetch'
 const apiUrl = process.env.NEXT_PUBLIC_EVENT_LIST_API!
-import {Comment, CommentType, Event} from './solas'
+import {Activity, Badgelet, Badge, CommentType, Event, Voucher, ProfileSimple} from './solas'
 
 export const handleEventStar = async (props: {event_id: number, auth_token: string}) => {
     return await fetch.post({
@@ -72,4 +72,90 @@ export const removeComment = async (props: {id: number, auth_token: string}) => 
             id: props.id,
         }
     })
+}
+
+export const createRememberVoucher = async (props: {auth_token: string, badge_class_id: number}) => {
+     const res = await fetch.post({
+        url: `${apiUrl}/remember/create`,
+        data: props
+    })
+
+    return res.data.voucher as Voucher
+}
+
+export const joinRemember = async (props: {auth_token: string, voucher_id: number}) => {
+    const res =  await fetch.post({
+        url: `${apiUrl}/remember/join`,
+        data: {
+            ...props,
+        }
+    })
+
+    return res.data as {
+        activity: Activity,
+        sender: ProfileSimple
+    }
+}
+
+
+export const getJoinedRemember = async (props: {voucher_id: number}) => {
+    const res =  await fetch.get({
+        url: `${apiUrl}/remember/get`,
+        data: {
+            ...props,
+        }
+    })
+
+    return res.data as {
+        activities: Activity[],
+        voucher: Voucher,
+        badge_class: Badge
+    }
+}
+
+export const mintRemember = async (props: {auth_token: string, voucher_id: number}) => {
+    const res = await fetch.post({
+        url: `${apiUrl}/remember/mint`,
+        data: {
+            ...props,
+        }
+    })
+
+    return res.data.badge_class as Badge
+}
+
+export const cancelJoinRemember = async (props: {auth_token: string, voucher_id: number}) => {
+    return await fetch.post({
+        url: `${apiUrl}/remember/cancel`,
+        data: {
+            ...props,
+        }
+    })
+}
+
+export const getUserPopupcitys = async (props: {ids: number[]}) => {
+    const res =  await fetch.get({
+        url: `${apiUrl}/service/get_user_related_groups`,
+        data: {
+            profile_ids: props.ids.join(',') ,
+        }
+    })
+
+    return res.data.group_data as {[index: string]: {
+            groups: {id: number, handle: string, image_url: null | string}[]
+        }}
+}
+
+export const getRememberMetadata = async () => {
+    const res =  await fetch.get({
+        url: `${apiUrl}/remember/meta`,
+        data: {}
+    })
+
+    return res.data.types[0] as {
+        "path": string,
+        "badge_class_id": number,
+        "count": number,
+        "description": string
+    } | undefined
 }
