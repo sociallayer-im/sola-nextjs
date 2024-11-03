@@ -18,6 +18,7 @@ import {
     joinRemember,
     mintRemember
 } from "@/service/solasv2";
+import DialogBindWallet from "@/components/base/Dialog/DialogBindWallet/DialogBindWallet";
 
 const popupCityAmount = 4
 
@@ -67,6 +68,12 @@ function Merge() {
 
     async function handleCreateRememberVoucher() {
         if (!rememberBadgeClassId) return
+
+        if (!user.wallet) {
+            showBindWalletDialog()
+            return
+        }
+
         const res = await createRememberVoucher({
             auth_token: user.authToken || '',
             badge_class_id: rememberBadgeClassId
@@ -260,6 +267,15 @@ function Merge() {
                 }}/>
             },
             size: ['100%', '100%'],
+        })
+    }
+
+    async function showBindWalletDialog () {
+        openDialog({
+            content: (close: any) => {
+                return <DialogBindWallet />
+            },
+            size: [320, 'auto'],
         })
     }
 

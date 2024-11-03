@@ -71,7 +71,7 @@ function DialogConnectWalletForPay(props: DialogConnectWalletProps) {
     return (
         <div className='dialog-connect-wallet'>
             <div className={'title'}>
-                <div>{lang['Nav_Wallet_Connect']}</div>
+                <div>Connect wallet</div>
                 <i className={'icon-close'} onClick={e => {
                     props.handleClose()
                 }}/>
