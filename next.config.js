@@ -51,7 +51,8 @@ const nextConfig = {
                 pathname: '/*/**'
             }
         ]
-    }
+    },
+    productionBrowserSourceMaps: true,
 }
 
 module.exports = withBundleAnalyzer(nextConfig)
