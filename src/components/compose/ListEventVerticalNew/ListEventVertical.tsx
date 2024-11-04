@@ -145,7 +145,7 @@ function ListEventVertical({eventGroup, ...props}: {
         !!eventGroup?.id && searchParams.set('group_id', eventGroup.id.toString())
         !!eventGroup?.timezone && searchParams.set('timezone', eventGroup.timezone)
         !!user.authToken && searchParams.set('auth_token', user.authToken)
-        !!search && searchParams.set('search', search)
+        !!search && searchParams.set('search_title', search)
         !!tagRef.current && searchParams.set('tags', tagRef.current)
         !!venue_ids.length && searchParams.set('venue_id', venue_ids[0].toString())
         !!trackid && searchParams.set('track_id', trackid.toString())
