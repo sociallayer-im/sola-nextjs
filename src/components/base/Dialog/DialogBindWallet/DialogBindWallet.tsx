@@ -6,12 +6,13 @@ import DialogConnectWalletForPay from "@/components/base/Dialog/DialogConnectWal
 import {useAccount, useWalletClient} from "wagmi";
 import {getProfile, setWallet} from "@/service/solas";
 import UserContext from "@/components/provider/UserProvider/UserContext";
+import {createSiweMessage} from "@/service/SIWE";
 
-export default function DialogBindWallet(props: {}) {
+export default function DialogBindWallet(props: {close: () => void, onSuccess: () => void}) {
     const {openDialog, showToast, showLoading} = useContext(DialogsContext)
     const {address} = useAccount()
     const {data} = useWalletClient()
-    const {user} = useContext(UserContext)
+    const {user, setUser} = useContext(UserContext)
 
     const connectWallet = () => {
         openDialog({
@@ -36,11 +37,19 @@ export default function DialogBindWallet(props: {}) {
 
         const unloading = showLoading()
 
-        const message =  'Link wallet to account'
+        const message =   await createSiweMessage(
+            address,
+            'Sign in with Ethereum to the app.'
+        )
+
         try {
             const signature = await data.signMessage({account: address, message})
             await setWallet({message, auth_token: user.authToken || '', signature})
+            setUser({wallet: address})
+            props.onSuccess()
+            props.close()
         } catch (e: any) {
+            console.error(e)
             showToast(e.message || e.toString())
         } finally {
             unloading()
@@ -50,6 +59,7 @@ export default function DialogBindWallet(props: {}) {
 
     return <div className={styles['dialog']}>
         <div className={styles['title']}>Link Your Wallet</div>
+        <div className={styles['wallet']}>Before creating SBT, you will need to link your wallet</div>
         {
             !address &&
             <AppButton special onClick={connectWallet}>Connect wallet</AppButton>
