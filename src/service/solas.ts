@@ -6865,3 +6865,16 @@ export interface CommentType {
     created_at: string,
     profile: ProfileSimple
 }
+
+export async function setWallet(props: {auth_token: string, message: string, signature: string}) {
+    checkAuth(props)
+
+    const res: any = await fetch.post({
+        url: `${apiUrl}/profile/set_verified_address`,
+        data: props
+    })
+
+    if (res.data.result === 'error') {
+        throw new Error(res.data.message || 'Set email fail')
+    }
+}

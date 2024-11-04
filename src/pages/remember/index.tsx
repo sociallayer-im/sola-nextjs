@@ -18,6 +18,8 @@ import {
     joinRemember,
     mintRemember
 } from "@/service/solasv2";
+import DialogBindWallet from "@/components/base/Dialog/DialogBindWallet/DialogBindWallet";
+import DialogBindEmail from "@/components/base/Dialog/DialogBindEmail/DialogBindEmail";
 
 const popupCityAmount = 4
 
@@ -65,8 +67,20 @@ function Merge() {
     }, []);
 
 
-    async function handleCreateRememberVoucher() {
+    async function handleCreateRememberVoucher(checkLogin=true) {
         if (!rememberBadgeClassId) return
+
+        if (checkLogin) {
+            if (!user.wallet) {
+                showBindWalletDialog()
+                return
+            }
+
+            if (!user.email)
+                showBindEmailDialog()
+                return
+        }
+
         const res = await createRememberVoucher({
             auth_token: user.authToken || '',
             badge_class_id: rememberBadgeClassId
@@ -263,6 +277,28 @@ function Merge() {
         })
     }
 
+    async function showBindWalletDialog () {
+        openDialog({
+            content: (close: any) => {
+                return <DialogBindWallet close={close} onSuccess={async () => {
+                    await handleCreateRememberVoucher(false)
+                }}/>
+            },
+            size: [320, 'auto'],
+        })
+    }
+
+    async function showBindEmailDialog () {
+        openDialog({
+            content: (close: any) => {
+                return <DialogBindEmail close={close} onSuccess={async () => {
+                    await handleCreateRememberVoucher(false)
+                }}/>
+            },
+            size: [320, 'auto'],
+        })
+    }
+
     return (<div>
             <div className={styles['wamo-merge-page']}>
                 {success &&
@@ -288,7 +324,7 @@ function Merge() {
                         }
 
                         {!!user.id && !voucherId && !joinedTargetUser &&
-                            <svg onClick={handleCreateRememberVoucher}
+                            <svg onClick={() => {handleCreateRememberVoucher()}}
                                  className={styles['combine-btn']} width="294" height="58" viewBox="0 0 294 58"
                                  fill="none"
                                  xmlns="http://www.w3.org/2000/svg">
