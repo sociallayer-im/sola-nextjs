@@ -98,7 +98,11 @@ function UserProvider(props: UserProviderProps) {
                 detail: profileInfo
             })
 
-            Cookies.set('auth_token', props.authToken, {expires: 365, domain: '.sola.day'})
+           try {
+                Cookies.set('auth_token', props.authToken, {expires: 365, domain: '.sola.day'})
+           } catch (e: any) {
+                console.error('[set cookie]: ', e)
+           }
 
             // if (!profileInfo!.username) {
             //     // 如果当前页面是’/login‘说明是邮箱登录，fallback已经在点击邮箱登录按钮的时候设置了:
