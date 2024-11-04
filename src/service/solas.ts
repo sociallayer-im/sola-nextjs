@@ -380,21 +380,31 @@ export async function getProfile(props: GetProfileProps): Promise<Profile | null
     }
 }
 
-export async function myProfile(props: { auth_token: string }): Promise<Profile> {
+export async function myProfile(props: { auth_token: string, retryTimes?: number }): Promise<Profile> {
     checkAuth(props)
 
-    const res: any = await fetch.get({
-        url: `${apiUrl}/profile/me`,
-        data: props
-    })
-    if (res.data.result === 'error') {
-        throw new Error(res.data.message || 'Request fail')
-    }
+    try {
+        const res: any = await fetch.get({
+            url: `${apiUrl}/profile/me`,
+            data: props
+        })
 
-    return {
-        ...res.data.profile,
-        domain: res.data.profile.username!
-    } as Profile
+        if (res.data.result === 'error') {
+            throw new Error(res.data.message || 'Request fail')
+        }
+
+        return {
+            ...res.data.profile,
+            domain: res.data.profile.username!
+        } as Profile
+    } catch (e: any) {
+        console.error('Retry get profile', {auth_token: props.auth_token, retryTimes: props.retryTimes, message: e.message})
+        if (!!props.retryTimes) {
+            return await myProfile({auth_token: props.auth_token, retryTimes: props.retryTimes - 1})
+        } else {
+            throw e
+        }
+    }
 }
 
 async function getMaodaoProfile(props: { profile: Profile }) {
