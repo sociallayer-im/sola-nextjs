@@ -118,7 +118,11 @@ export function useTime2() {
 export function useTime3() {
     const {lang, langType} = useContext(LangContext)
 
-    return (from: string, to: string, timezone: string = 'UTC') => {
+    return (from: string, to: string, timezone?: string) => {
+        if (!timezone) {
+            // gmt+0
+            timezone = 'Europe/London'
+        }
         const fromStr = from.endsWith('Z') || !from.includes(":") ? from : from + 'Z'
         const toStr = to.endsWith('Z') || !from.includes(":") ? to : to + 'Z'
 
