@@ -6740,6 +6740,7 @@ export async function queryMapEvent(props: QueryEventProps): Promise<Event[]> {
         meeting_url
         group_id
         host_info
+        recurring_id
         id
         min_participant
         participants(where: {status: {_neq: "cancel"}}) {

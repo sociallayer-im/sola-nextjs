@@ -102,6 +102,7 @@ function ComponentName(props: { markerType: string | null, group?: Group, isIfra
                     map_checkins_count: 0,
                     voucher_id: null,
                     category: 'event',
+                    recurring_id: event.recurring_id,
                 } as any
             }).filter((marker: Marker) => !!marker.geo_lat)
 
@@ -216,7 +217,14 @@ function ComponentName(props: { markerType: string | null, group?: Group, isIfra
             })
 
             if (index > -1) {
-                markersGrouped[index].push(event)
+                if ((event as any).recurring_id) {
+                   const existRecurringEvent =  markersGrouped[index].find((item) => (item as any).recurring_id === (event as any).recurring_id)
+                    if (!existRecurringEvent) {
+                        markersGrouped[index].push(event)
+                    }
+                } else {
+                    markersGrouped[index].push(event)
+                }
             } else {
                 markersGrouped.push([event])
             }
