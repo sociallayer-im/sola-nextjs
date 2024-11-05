@@ -32,7 +32,7 @@ import {
     RepeatEventUpdate,
     setEventBadge,
     Ticket, Track,
-    updateEvent, Weekday,
+    updateEvent, Weekday, EventRole,
 } from "@/service/solas";
 import EventDefaultCover from "@/components/base/EventDefaultCover";
 import AppButton, {BTN_KIND} from "@/components/base/AppButton/AppButton";
@@ -682,6 +682,13 @@ function EditEvent({
         const speakers = speakerList.filter(p => !!p.username)
 
         if (!hosts.length && !speakers.length) {
+            const new_event_roles: EventRole[] = []
+            if (!!initEvent) {
+                initEvent.event_roles?.forEach((role) => {
+                    new_event_roles.push({...role, _destroy: '1'})
+                })
+            }
+
             if (!!(creator as Group).creator) {
                 const hostinfo = {
                     speaker: [],
@@ -694,18 +701,30 @@ function EditEvent({
                         image_url: creator!.image_url,
                     }
                 }
+
+                new_event_roles.push({
+                    item_id: creator!.id,
+                    item_type: 'Group',
+                    role: 'group_host',
+                    nickname: creator!.nickname || creator!.username,
+                    image_url: creator!.image_url,
+                    email: null
+                })
+
                 return {
                     json: JSON.stringify(hostinfo),
                     cohostId: null,
                     speakerId: null,
-                    extra: null
+                    extra: null,
+                    event_roles: new_event_roles
                 }
             } else {
                 return {
                     json: null,
                     cohostId: null,
                     speakerId: null,
-                    extra: null
+                    extra: null,
+                    event_roles: new_event_roles
                 }
             }
         } else {
@@ -729,11 +748,57 @@ function EditEvent({
                 throw new Error('Invalid email address for inviting co-host')
             }
 
+            const new_event_roles: EventRole[] = []
+            if (!!initEvent) {
+                initEvent.event_roles?.forEach((role) => {
+                    new_event_roles.push({...role, _destroy: '1'})
+                })
+            }
+
+            if (!!hostinfo.group_host) {
+                new_event_roles.push({
+                    item_id: hostinfo.group_host.id,
+                    item_type: 'Group',
+                    role: 'group_host',
+                    nickname: hostinfo.group_host.nickname || hostinfo.group_host.username,
+                    image_url: hostinfo.group_host.image_url,
+                    email: null
+                })
+            }
+
+            if (hostinfo.co_host.length) {
+                hostinfo.co_host.forEach((p) => {
+                    new_event_roles.push({
+                        item_id: p.id || null,
+                        item_type: 'Profile',
+                        role: 'co_host',
+                        nickname: p.nickname || p.username,
+                        image_url: p.image_url,
+                        email: p.email
+                    })
+                })
+            }
+
+            if (hostinfo.speaker.length) {
+                hostinfo.speaker.forEach((p) => {
+                    new_event_roles.push({
+                        item_id: p.id || null,
+                        item_type: 'Profile',
+                        role: 'speaker',
+                        nickname: p.nickname || p.username,
+                        image_url: p.image_url,
+                        email: p.email
+                    })
+                })
+            }
+
+
             return {
                 json: JSON.stringify(hostinfo),
                 cohostId: enableCoHost ? hosts.filter((p) => p.id).map((p) => p.id) : null,
                 speakerId: enableSpeakers ? speakers.map((p) => p.id) : null,
-                extra: extra.length ? extra : null
+                extra: extra.length ? extra : null,
+                event_roles: new_event_roles
             }
         }
     }
@@ -747,12 +812,14 @@ function EditEvent({
         let host_info: string | null = ''
         let cohostIds: number[] | null = null
         let extra: string[] | null = null
+        let event_roles: EventRole[] = []
 
         try {
             const info = await getHostInfo()
             host_info = info.json
             cohostIds = info.cohostId
             extra = info.extra
+            event_roles = info.event_roles
         } catch (e: any) {
             showToast(e.message)
             setCreating(false)
@@ -806,6 +873,7 @@ function EditEvent({
             event_count: repeatCounter,
             extra,
             tickets: _tickets,
+            event_roles,
 
             auth_token: user.authToken || '',
         } as CreateRepeatEventProps
@@ -952,11 +1020,13 @@ function EditEvent({
         let host_info: string | null = ''
         let cohostIds: number[] | null = null
         let extra: string[] | null = null
+        let event_roles: EventRole[] = []
         try {
             const info = await getHostInfo()
             host_info = info.json
             cohostIds = info.cohostId
             extra = info.extra
+            event_roles = info.event_roles
         } catch (e: any) {
             showToast(e.message)
             setCreating(false)
@@ -976,6 +1046,7 @@ function EditEvent({
             event_count: repeatCounter,
             extra,
             tickets: enableTicket && tickets.length ? tickets : null,
+            event_roles,
 
             auth_token: user.authToken || '',
         } as CreateRepeatEventProps

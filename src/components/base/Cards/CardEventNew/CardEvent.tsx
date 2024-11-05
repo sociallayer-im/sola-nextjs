@@ -1,16 +1,6 @@
 import {useRouter} from "next/navigation";
 import {useContext, useEffect, useMemo, useState} from 'react'
-import {
-    Event,
-    getGroupMembers,
-    Group,
-    joinEvent,
-    Participants,
-    queryTickets,
-    queryEventDetail,
-    queryGroupDetail,
-    setEventStatus
-} from "@/service/solas";
+import {Event, Group, Participants, setEventStatus} from "@/service/solas";
 import {useTime2} from "@/hooks/formatTime";
 import langContext from "../../../provider/LangProvider/LangContext";
 import userContext from "../../../provider/UserProvider/UserContext";
@@ -25,7 +15,7 @@ import useEvent, {EVENT} from "@/hooks/globalEvent";
 import usePicture from "@/hooks/pictrue";
 import dynamic from 'next/dynamic'
 import {isHideLocation} from "@/global_config";
-import {cancelEventStar, handleEventStar, removeComment} from "@/service/solasv2";
+import {cancelEventStar, handleEventStar} from "@/service/solasv2";
 
 const EventTickets = dynamic(() => import('@/components/compose/EventTickets/EventTickets'), {ssr: false})
 
@@ -82,11 +72,43 @@ function CardEventNew({fixed = true, ...props}: CardEventProps) {
     useEffect(() => {
         setEventDetail(props.event)
         setStared((props.event as any).star)
-        if (props.event?.host_info) {
-            const hostInfo:any = props.event.host_info
-            hostInfo.group_host?.[0] && setGroupHost(hostInfo.group_host[0])
-            hostInfo.speaker?.[0] && setSpeaker(hostInfo.speaker)
-            hostInfo.co_host?.[0] && setCohost(hostInfo.co_host)
+
+        if (props.event.event_roles && props.event.event_roles.length) {
+            const roles = props.event.event_roles
+            const groupHostRole = roles.find((r: any) => r.role === 'group_host')
+            setGroupHost(groupHostRole ? {
+                email: null,
+                id: groupHostRole.item_id,
+                username: groupHostRole.nickname,
+                nickname: groupHostRole.nickname,
+                avatar: groupHostRole.image_url || defaultAvatar(groupHostRole.item_id),
+                handle: groupHostRole.nickname
+            } as any : null)
+
+            const speakerRole = roles.filter((r: any) => r.role === 'speaker')
+            setSpeaker(speakerRole.map(s => {
+                return {
+                    email: null,
+                    id: s.item_id,
+                    username: s.nickname,
+                    nickname: s.nickname,
+                    avatar: s.image_url || defaultAvatar(s.item_id),
+                    handle: s.nickname
+                }
+            }))
+
+            const cohostRole = roles.filter((r: any) => r.role === 'co_host')
+            setCohost(cohostRole.map(s => {
+                return {
+                    email: null,
+                    id: s.item_id,
+                    username: s.nickname,
+                    nickname: s.nickname,
+                    avatar: s.image_url || defaultAvatar(s.item_id),
+                    handle: s.nickname
+                }
+            }))
+
         }
     }, [props.event])
 
@@ -253,10 +275,9 @@ function CardEventNew({fixed = true, ...props}: CardEventProps) {
                     {
                         props.event.pinned && props.showPinnedBg &&
                         <div className={'highlight'}>Highlighted event</div>
-
                     }
                     <div className={'title'}>
-                    {hasMarker &&
+                        {hasMarker &&
                             <div className={'markers'}>
                                 {props.event.display === 'private' &&
                                     <div className={'marker private'}>{'Private'}</div>}
@@ -276,7 +297,7 @@ function CardEventNew({fixed = true, ...props}: CardEventProps) {
                     </div>
                     <div className={'tags'}>
                         {
-                            eventDetail.tags?.filter(t=> !t.startsWith(':')).map((tag, index) => {
+                            eventDetail.tags?.filter(t => !t.startsWith(':')).map((tag, index) => {
                                 return <div key={tag} className={'tag'}>
                                     <i className={'dot'} style={{background: getLabelColor(tag)}}/>
                                     {tag}
@@ -286,7 +307,8 @@ function CardEventNew({fixed = true, ...props}: CardEventProps) {
                         {
                             (eventDetail as any).track
                                 ? <div className={'tag'} title={'Event Track'}>
-                                    <i className={'dot'} style={{background: getLabelColor((eventDetail as any).track.title)}}/>
+                                    <i className={'dot'}
+                                       style={{background: getLabelColor((eventDetail as any).track.title)}}/>
                                     {(eventDetail as any).track.tag || (eventDetail as any).track.title}
                                 </div>
                                 : ''
@@ -342,8 +364,10 @@ function CardEventNew({fixed = true, ...props}: CardEventProps) {
             </div>
             <div className={(fixed || hasMarker && !fixed) ? 'post marker' : 'post'}>
                 {stared
-                    ? <img onClick={handleCancelStar} className="star" src="/images/favorite_active.png" width={24} height={24} alt="Star" title="Star"/>
-                    : <img onClick={handleStar} className="star" src="/images/favorite.png" width={24} height={24} title="Star" alt="Star"/>
+                    ? <img onClick={handleCancelStar} className="star" src="/images/favorite_active.png" width={24}
+                           height={24} alt="Star" title="Star"/>
+                    : <img onClick={handleStar} className="star" src="/images/favorite.png" width={24} height={24}
+                           title="Star" alt="Star"/>
                 }
                 {
                     props.event.cover_url ?
@@ -354,8 +378,10 @@ function CardEventNew({fixed = true, ...props}: CardEventProps) {
             </div>
             <div className={(fixed || hasMarker && !fixed) ? 'post marker mobile' : 'post mobile'}>
                 {stared
-                    ? <img className="star" src="/images/favorite_active.png" width={24} height={24} alt="Star" title="Star"/>
-                    : <img onClick={handleStar} className="star" src="/images/favorite.png" width={24} height={24} title="Star" alt="Star"/>
+                    ? <img className="star" src="/images/favorite_active.png" width={24} height={24} alt="Star"
+                           title="Star"/>
+                    : <img onClick={handleStar} className="star" src="/images/favorite.png" width={24} height={24}
+                           title="Star" alt="Star"/>
                 }
                 {
                     props.event.cover_url ?

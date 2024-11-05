@@ -17,11 +17,11 @@ export function EventPopup({event, timezone, close}: { event: SolarEvent, timezo
     let host = event.owner.nickname || event.owner.username
     let avatar = event.owner.image_url || defaultAvatar(event.owner.id)
 
-    if (event.host_info) {
-        const _host = JSON.parse(event.host_info)
-        if (_host.group_host) {
-            host = _host.group_host.nickname || _host.group_host.username
-            avatar = _host.group_host.image_url || defaultAvatar(_host.id)
+    if (event.event_roles && event.event_roles.length > 0) {
+        const groupHostRole = event.event_roles.find(role => role.role === 'group_host')
+        if (!!groupHostRole) {
+            host = groupHostRole.nickname
+            avatar = groupHostRole.image_url || defaultAvatar(groupHostRole.item_id)
         }
     }
 

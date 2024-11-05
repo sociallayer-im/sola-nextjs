@@ -783,11 +783,6 @@ function EventCard({
         ' GMT +' + offset / 60 :
         ' GMT ' + offset / 60
 
-    const [groupHost, setGroupHost] = useState<Group | null>(null)
-    const [ready, setReady] = useState(false)
-
-    const router = useRouter()
-
     const showPopup = async () => {
         const unload = showLoading()
         const eventDetail = await queryEventDetail({id: event.id})
@@ -807,6 +802,8 @@ function EventCard({
     const highlight = event.pinned ?
         {background: '#FFF7E8'} : undefined
 
+    const groupHost = event.event_roles?.find(i => i.role === 'group_host')
+
     const {defaultAvatar} = usePicture()
     return <div className={styles['schedule-event-card']}
                 style={highlight}
@@ -825,10 +822,10 @@ function EventCard({
         </div>
 
         <div style={{height: '18px'}}>
-            {!!(event.host_info as any)?.group_host?.[0] ? <div className={styles['schedule-event-card-host']}>
+            {!!groupHost ? <div className={styles['schedule-event-card-host']}>
                     <img className={styles['schedule-event-card-avatar']}
-                         src={(event.host_info as any)?.group_host[0].image_url || defaultAvatar((event.host_info as any).group_host[0].id)} alt=""/>
-                    <div>{(event.host_info as any).group_host[0].nickname || (event.host_info as any).group_host[0].username}</div>
+                         src={groupHost.image_url || defaultAvatar(groupHost.item_id)} alt=""/>
+                    <div>{groupHost.nickname}</div>
                 </div>
                 :
                 <div className={styles['schedule-event-card-host']}>
