@@ -6878,3 +6878,22 @@ export async function setWallet(props: {auth_token: string, message: string, sig
         throw new Error(res.data.message || 'Set email fail')
     }
 }
+
+export async function searchGroup(props: {keyword: string, page: number}): Promise<Group[]> {
+    const doc = gql`query MyQuery {
+      groups(where: {_or: [{username: {_iregex: "${props.keyword}"}}, {nickname: {_iregex: "${props.keyword}"}}, {handle: {_iregex: "${props.keyword}"}}]}, limit: 20, offset: ${(props.page - 1) * 20}) {
+        id
+        handle
+        username
+        nickname
+        image_url,
+      }
+    }`
+
+    const res: any = await request(graphUrl, doc)
+
+    return res.groups.map((item: any) => {
+        item.domain = item.username + process.env.NEXT_PUBLIC_SOLAS_DOMAIN!
+        return item
+    }) as Group[]
+}

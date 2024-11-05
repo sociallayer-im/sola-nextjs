@@ -7,6 +7,7 @@ import ListSearchResultDomain from '@/components/compose/ListSearchResultDomain'
 import ListSearchResultBadgelet from '@/components/compose/ListSearchResultBadgelet'
 import ListSearchResultBadge from '@/components/compose/ListSearchResultBadge'
 import ListSearchResultEvent from "@/components/compose/ListSearchResultEvent/ListSearchResultEvent";
+import ListSearchResultGroup from "@/components/compose/ListSearchResultGroup";
 
 function SearchPage() {
     const params = useParams()
@@ -24,6 +25,9 @@ function SearchPage() {
             </Tab>
             <Tab key='domain' title={ 'User' }>
                 <ListSearchResultDomain keyword={ keyword as string }></ListSearchResultDomain>
+            </Tab>
+            <Tab key='group' title={'Group'}>
+                <ListSearchResultGroup keyword={ keyword as string } />
             </Tab>
             <Tab key='badge' title={ lang['Search_Tab_Badge'] }>
                 <ListSearchResultBadge keyword={ keyword as string}/>
