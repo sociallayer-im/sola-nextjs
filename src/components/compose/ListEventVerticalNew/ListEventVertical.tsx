@@ -338,7 +338,7 @@ function ListEventVertical({eventGroup, ...props}: {
         if (listToShow.length) {
             scrollInterval = setInterval(() => {
 
-                const a = document.querySelectorAll('.event-card')
+                const a = document.querySelectorAll('.event-card-new')
                 if (a.length >= listToShow.length) {
                     applyScroll()
                     clearInterval(scrollInterval)
