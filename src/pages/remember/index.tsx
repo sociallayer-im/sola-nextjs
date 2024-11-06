@@ -72,10 +72,10 @@ function Merge() {
 
 
         if (checkLogin) {
-            if (!user.wallet) {
-                showBindWalletDialog()
-                return
-            }
+            // if (!user.wallet) {
+            //     showBindWalletDialog()
+            //     return
+            // }
 
             if (!user.email) {
                 showBindEmailDialog()
