@@ -2,7 +2,7 @@ import fetch from '../utils/fetch'
 const apiUrl = process.env.NEXT_PUBLIC_EVENT_LIST_API!
 import {Activity, Badgelet, Badge, CommentType, Event, Voucher, ProfileSimple} from './solas'
 
-export const handleEventStar = async (props: {event_id: number, auth_token: string}) => {
+export const handleEventStar = async (props: { event_id: number, auth_token: string }) => {
     return await fetch.post({
         url: `${apiUrl}/comment/star`,
         data: {
@@ -19,19 +19,19 @@ export const cancelEventStar = async (props: {event_id: number, auth_token: stri
         url: `${apiUrl}/comment/unstar`,
         data: {
             auth_token: props.auth_token,
-            comment_type:'star',
+            comment_type: 'star',
             item_type: 'Event',
             item_id: props.event_id,
         }
     })
 }
 
-export const getUserStaredComment = async (props: {profile_id: number}) => {
-    const res =  await fetch.post({
+export const getUserStaredComment = async (props: { profile_id: number }) => {
+    const res = await fetch.post({
         url: `${apiUrl}/comment/list`,
         data: {
             profile_id: props.profile_id,
-            comment_type:'star',
+            comment_type: 'star',
             item_type: 'Event',
         }
     })
@@ -39,8 +39,8 @@ export const getUserStaredComment = async (props: {profile_id: number}) => {
     return res.data.comments as CommentType[]
 }
 
-export const getStarEvent = async (props: {auth_token: string}) => {
-    const res =  await fetch.get({
+export const getStarEvent = async (props: { auth_token: string }) => {
+    const res = await fetch.get({
         url: `${apiUrl}/event/my_event_list`,
         data: {
             collection: 'my_stars',
@@ -51,12 +51,12 @@ export const getStarEvent = async (props: {auth_token: string}) => {
     return res.data.events as Event[]
 }
 
-export const sendEventFeedback = async (props: {event_id: number, content: string, auth_token: string}) => {
+export const sendEventFeedback = async (props: { event_id: number, content: string, auth_token: string }) => {
     return await fetch.post({
         url: `${apiUrl}/comment/create`,
         data: {
             auth_token: props.auth_token,
-            comment_type:'feedback',
+            comment_type: 'feedback',
             item_type: 'Event',
             item_id: props.event_id,
             content: props.content,
@@ -64,7 +64,7 @@ export const sendEventFeedback = async (props: {event_id: number, content: strin
     })
 }
 
-export const removeComment = async (props: {id: number, auth_token: string}) => {
+export const removeComment = async (props: { id: number, auth_token: string }) => {
     return await fetch.post({
         url: `${apiUrl}/comment/remove`,
         data: {
@@ -158,4 +158,16 @@ export const getRememberMetadata = async () => {
         "count": number,
         "description": string
     } | undefined
+}
+
+export const genDaimoLink = async (props: { ticket_item_id: number, redirect_uri?: string }) => {
+    const res = await fetch.post({
+        url: `${apiUrl}/ticket/daimo_create_payment_link`,
+        data: props
+    })
+
+    return res.data as {
+        id: string,
+        url: string,
+    }
 }
