@@ -30,7 +30,6 @@ import ButtonLoading from "@/components/base/ButtonLoading";
 import {Select} from "baseui/select";
 import {useRouter} from "next/navigation"
 import AppInput from "@/components/base/AppInput";
-import {generatePayment} from "@/service/daimo";
 import {genDaimoLink} from "@/service/solasv2";
 
 const shotAddress = (address: string) => {
