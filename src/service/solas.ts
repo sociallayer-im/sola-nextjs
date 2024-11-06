@@ -380,21 +380,31 @@ export async function getProfile(props: GetProfileProps): Promise<Profile | null
     }
 }
 
-export async function myProfile(props: { auth_token: string }): Promise<Profile> {
+export async function myProfile(props: { auth_token: string, retryTimes?: number }): Promise<Profile> {
     checkAuth(props)
 
-    const res: any = await fetch.get({
-        url: `${apiUrl}/profile/me`,
-        data: props
-    })
-    if (res.data.result === 'error') {
-        throw new Error(res.data.message || 'Request fail')
-    }
+    try {
+        const res: any = await fetch.get({
+            url: `${apiUrl}/profile/me`,
+            data: props
+        })
 
-    return {
-        ...res.data.profile,
-        domain: res.data.profile.username!
-    } as Profile
+        if (res.data.result === 'error') {
+            throw new Error(res.data.message || 'Request fail')
+        }
+
+        return {
+            ...res.data.profile,
+            domain: res.data.profile.username!
+        } as Profile
+    } catch (e: any) {
+        console.error('Retry get profile', {auth_token: props.auth_token, retryTimes: props.retryTimes, message: e.message})
+        if (!!props.retryTimes) {
+            return await myProfile({auth_token: props.auth_token, retryTimes: props.retryTimes - 1})
+        } else {
+            throw e
+        }
+    }
 }
 
 async function getMaodaoProfile(props: { profile: Profile }) {
@@ -6803,6 +6813,7 @@ export async function queryMapEvent(props: QueryEventProps): Promise<Event[]> {
         meeting_url
         group_id
         host_info
+        recurring_id
         id
         min_participant
         participants(where: {status: {_neq: "cancel"}}) {
@@ -6927,4 +6938,36 @@ export interface CommentType {
     badge_id: null | number,
     created_at: string,
     profile: ProfileSimple
+}
+
+export async function setWallet(props: {auth_token: string, message: string, signature: string}) {
+    checkAuth(props)
+
+    const res: any = await fetch.post({
+        url: `${apiUrl}/profile/set_verified_address`,
+        data: props
+    })
+
+    if (res.data.result === 'error') {
+        throw new Error(res.data.message || 'Set email fail')
+    }
+}
+
+export async function searchGroup(props: {keyword: string, page: number}): Promise<Group[]> {
+    const doc = gql`query MyQuery {
+      groups(where: {_or: [{username: {_iregex: "${props.keyword}"}}, {nickname: {_iregex: "${props.keyword}"}}, {handle: {_iregex: "${props.keyword}"}}]}, limit: 20, offset: ${(props.page - 1) * 20}) {
+        id
+        handle
+        username
+        nickname
+        image_url,
+      }
+    }`
+
+    const res: any = await request(graphUrl, doc)
+
+    return res.groups.map((item: any) => {
+        item.domain = item.username + process.env.NEXT_PUBLIC_SOLAS_DOMAIN!
+        return item
+    }) as Group[]
 }

@@ -23,7 +23,7 @@ function HeaderSearch(props: HeaderSearchProps) {
             window.localStorage.setItem('searchfallback', window.location.pathname + window.location.search)
         }
 
-        router.push(`/search/${keyword}`)
+        router.push(`/search/${encodeURIComponent(keyword)}`)
     }
 
     const cancel = () => {

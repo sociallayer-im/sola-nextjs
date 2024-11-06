@@ -81,13 +81,13 @@ function UserProvider(props: UserProviderProps) {
 
     const setProfile = async (props: { authToken: string }) => {
         try {
-            const profileInfo = await myProfile({auth_token: props.authToken})
+            const profileInfo = await myProfile({auth_token: props.authToken, retryTimes: 3})
             setUser({
                 wallet: profileInfo.sol_address || profileInfo?.address,
                 id: profileInfo?.id! || null,
                 twitter: profileInfo?.twitter || null,
-                domain: profileInfo?.username ? profileInfo?.username + process.env.NEXT_PUBLIC_SOLAS_DOMAIN : null,
-                userName: profileInfo?.username || null,
+                domain: (profileInfo?.username || profileInfo?.handle) ? (profileInfo?.username || profileInfo?.handle!) + process.env.NEXT_PUBLIC_SOLAS_DOMAIN : null,
+                userName: profileInfo?.username || profileInfo?.handle || null,
                 email: profileInfo?.email || null,
                 avatar: profileInfo?.image_url || null,
                 authToken: props.authToken,
@@ -98,7 +98,11 @@ function UserProvider(props: UserProviderProps) {
                 detail: profileInfo
             })
 
-            Cookies.set('auth_token', props.authToken, {expires: 365, domain: '.sola.day'})
+           try {
+                Cookies.set('auth_token', props.authToken, {expires: 365, domain: '.sola.day'})
+           } catch (e: any) {
+                console.error('[set cookie]: ', e)
+           }
 
             // if (!profileInfo!.username) {
             //     // 如果当前页面是’/login‘说明是邮箱登录，fallback已经在点击邮箱登录按钮的时候设置了:

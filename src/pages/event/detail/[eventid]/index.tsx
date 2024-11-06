@@ -770,6 +770,11 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                     </div>
                                 }
 
+                                {event.theme &&
+                                    <a className={'theme'}
+                                       href={`/theme/${encodeURIComponent(event.theme)}?group_id=${event.group_id}`}>#{event.theme}</a>
+                                }
+
                                 {!!hoster &&
                                     <div className={'hoster'}>
                                         <Swiper

@@ -15,6 +15,7 @@ import Link from "next/link";
 import MapContext from "@/components/provider/MapProvider/MapContext";
 import usePicture from "@/hooks/pictrue";
 import Feedback from "@/components/feedback/feedback";
+import Map from '@/pages/event/[groupname]/map'
 
 import * as dayjsLib from "dayjs";
 const dayjs: any = dayjsLib
@@ -93,8 +94,10 @@ function Home(props: { badges: Badge[], initEvent: Group, initList?: Event[], me
 
                     {props.initEvent?.map_enabled && MapReady &&
                         <div className="home-map">
-                            <iframe src={`/iframe/map?group=${props.initEvent?.username}`} frameBorder={0} width="100%"
-                                    height="300"/>
+                           <div className="home-map-window" style={{width: '100%', height: '300px', position: 'relative'}}>
+                               <Map markerType={null} group={eventGroup} isIframe={true} />
+                           </div>
+
                             <Link className={'map-link'} href={`/event/${props.initEvent?.username}/map`}>
                                 {'Browse in map'}
                                 <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 15 15"

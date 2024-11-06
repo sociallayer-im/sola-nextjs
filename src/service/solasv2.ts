@@ -74,13 +74,10 @@ export const removeComment = async (props: {id: number, auth_token: string}) => 
     })
 }
 
-export const createRememberVoucher = async (props: {auth_token: string}) => {
+export const createRememberVoucher = async (props: {auth_token: string, badge_class_id: number}) => {
      const res = await fetch.post({
         url: `${apiUrl}/remember/create`,
-        data: {
-            ...props,
-            badge_class_id: Number(process.env.NEXT_PUBLIC_SBT_CLASSID!),
-        }
+        data: props
     })
 
     return res.data.voucher as Voucher
@@ -147,4 +144,31 @@ export const getUserPopupcitys = async (props: {ids: number[]}) => {
     return res.data.group_data as {[index: string]: {
             groups: {id: number, handle: string, image_url: null | string}[]
         }}
+}
+
+export const getRememberMetadata = async () => {
+    const res =  await fetch.get({
+        url: `${apiUrl}/remember/meta`,
+        data: {}
+    })
+
+    return res.data.types[0] as {
+        "path": string,
+        "badge_class_id": number,
+        "count": number,
+        "description": string
+    } | undefined
+}
+
+export const getThemeEvent = async (props: {theme: string, group_id?: number, auth_token?:  string}) => {
+    if (!props.group_id) {
+        return  []
+    }
+
+    const res =  await fetch.get({
+        url: `${apiUrl}/event/list`,
+        data: props
+    })
+
+    return res.data.events as Event[]
 }
