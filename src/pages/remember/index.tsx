@@ -70,16 +70,20 @@ function Merge() {
     async function handleCreateRememberVoucher(checkLogin=true) {
         if (!rememberBadgeClassId) return
 
+
         if (checkLogin) {
             if (!user.wallet) {
                 showBindWalletDialog()
                 return
             }
 
-            if (!user.email)
+            if (!user.email) {
                 showBindEmailDialog()
                 return
+            }
         }
+
+
 
         const res = await createRememberVoucher({
             auth_token: user.authToken || '',
