@@ -159,3 +159,16 @@ export const getRememberMetadata = async () => {
         "description": string
     } | undefined
 }
+
+export const getThemeEvent = async (props: {theme: string, group_id?: number, auth_token?:  string}) => {
+    if (!props.group_id) {
+        return  []
+    }
+
+    const res =  await fetch.get({
+        url: `${apiUrl}/event/list`,
+        data: props
+    })
+
+    return res.data.events as Event[]
+}

@@ -189,6 +189,18 @@
       text-decoration: none;
     }
 
+    .theme {
+      margin-top: 12px;
+      color: #7492EF;
+      font-size: 14px;
+      text-decoration: none;
+      display: flex;
+      &:hover {
+        text-decoration: underline;
+      }
+
+    }
+
     .label {
       margin-top: 12px;
     }

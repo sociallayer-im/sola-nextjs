@@ -191,7 +191,8 @@ function EditEvent({
         extra: null,
         track_id: null,
         pinned: false,
-        status: 'open'
+        status: 'open',
+        theme: null
     })
 
     const statusRef = useRef(event.status)
@@ -1478,7 +1479,8 @@ function EditEvent({
                                 </div>
                             }
 
-                            {!!trackDayError && <div className={styles['start-time-error']} style={{marginTop: '-24px'}}>{trackDayError}</div>}
+                            {!!trackDayError && <div className={styles['start-time-error']}
+                                                     style={{marginTop: '-24px'}}>{trackDayError}</div>}
 
                             {repeatCounterError &&
                                 <div className={styles['start-time-error']}>
@@ -1515,6 +1517,19 @@ function EditEvent({
                                         console.log('switch creator', res)
                                         setCreator(res)
                                     }}/>
+                            </div>
+
+                            <div className={styles['input-area']} data-test-id="theme">
+                                <div className={styles['input-area-title']}>{'Theme'}</div>
+                                <AppInput value={event.theme || ''}
+                                          startEnhancer={() => '#'}
+                                          placeholder={'Enter the theme of the event'}
+                                          onChange={e => {
+                                    setEvent({
+                                        ...event,
+                                        theme: e.target.value
+                                    })
+                                }}/>
                             </div>
 
 
@@ -1765,10 +1780,10 @@ function EditEvent({
                                             <div className={styles['item-value']}>
                                                 <Toggle
                                                     onChange={(e: any) => {
-                                                       setEvent({
-                                                           ...event,
-                                                           status: event.status === 'closed' ? (statusRef.current === 'closed' ? 'open' : statusRef.current) : 'closed'
-                                                       })
+                                                        setEvent({
+                                                            ...event,
+                                                            status: event.status === 'closed' ? (statusRef.current === 'closed' ? 'open' : statusRef.current) : 'closed'
+                                                        })
                                                     }
                                                     }
                                                     checked={event.status === 'closed'}/>
@@ -1787,7 +1802,7 @@ function EditEvent({
 
                                 {
                                     isEditMode && <div>
-                                    <AppButton
+                                        <AppButton
                                             style={{
                                                 color: '#F64F4F',
                                                 ':hover': {
@@ -1830,7 +1845,7 @@ function EditEvent({
                         </div>
 
                         <div className={styles['event-cover']}>
-                        {!!event.cover_url &&
+                            {!!event.cover_url &&
                                 <div className={styles['cover-preview']}>
                                     <img src={event.cover_url} alt=""/>
                                     <i className={'icon-close ' + styles['delete-cover']}
