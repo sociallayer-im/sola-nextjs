@@ -171,3 +171,19 @@ export const genDaimoLink = async (props: { ticket_item_id: number, redirect_uri
         url: string,
     }
 }
+
+export const signinWithZkEmail = async (props: {email: string, next_token: string}) => {
+    const response = await fetch.post({
+        url: `${apiUrl}/profile/signin_with_zkemail`,
+        data: {
+            ...props,
+            address_source: 'zkemail'
+        }
+    })
+
+    if (response.data.result !== 'ok') {
+        throw new Error(response.data.message)
+    }
+
+    return response.data.auth_token as string
+}
