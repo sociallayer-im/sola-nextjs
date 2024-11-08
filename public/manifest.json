@@ -1,0 +1,12 @@
+{
+  "name": "Social Layer",
+  "short_name": "Social Layer",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fff",
+  "theme_color": "#9efedd",
+  "icons": {
+    "72": "/images/icons/icon_72.jpg",
+    "512": "/images/icons/icon_512.jpg"
+  }
+}

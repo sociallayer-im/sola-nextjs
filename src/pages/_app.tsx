@@ -115,13 +115,20 @@ function MyApp({Component, pageProps, ...props}: any) {
             <Script src="/analyse/rollbar.js" />
             <PageBacProvider>
                 <Head>
+                    <link rel="manifest" href="/manifest.json"/>
                     <link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+                    <link rel="apple-touch-icon-precomposed" sizes="120x120" href="/images/icons/icon_512.jpg"/>
                     <script defer data-domain="app.sola.day" src="https://analytics.wamo.club/js/script.js"></script>
                     {/* eslint-disable-next-line @next/next/no-sync-scripts */}
                     <script src="/analyse/rollbar.js"></script>
                     <meta name="viewport"
                           content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-                    <title>{process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'maodao' ? 'Ready Player Club' : 'Social Layer'}</title>
+                    <title>{'Social Layer'}</title>
+                    <meta property="og:title" content={'Social Layer'}/>
+                    <meta property="og:type" content="website"/>
+                    <meta property="og:url" content={`/`}/>
+                    <meta property="og:image"
+                          content={'/images/icons/icon_512.jpg'}/>
                 </Head>
                 <WagmiConfig config={config as any}>
                     {/*<AuthKitProvider config={farcasterConfig}>*/}
@@ -129,7 +136,7 @@ function MyApp({Component, pageProps, ...props}: any) {
                         <ColorSchemeProvider>
                             <StyletronProvider value={styletron}>
                                 <BaseProvider theme={theme}>
-                                    <DialogProvider>
+                                <DialogProvider>
                                         <MapProvider>
                                         <UserProvider>
                                             <LangProvider>
