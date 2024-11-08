@@ -125,7 +125,7 @@ function Login() {
 
             unload()
             const zkEmailWalletIsCreate = await res.json()
-            if (zkEmailWalletIsCreate === 'true') {
+            if (zkEmailWalletIsCreate) {
                 await handleZkEmailSign(email)
             } else {
                 if (!!solarProfile && !!solarProfile.handle) {

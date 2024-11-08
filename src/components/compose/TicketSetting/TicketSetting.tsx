@@ -44,7 +44,7 @@ interface ErrorMsg {
 
 const timeStep = 5
 
-const banedChain = ['stripe']
+const banedChain = ['stripe', 'polygon', 'optimism', 'arbitrum', 'base', 'ethereum']
 
 function Ticket({creator, ...props}: {
     ticket: Partial<Ticket>,
@@ -226,6 +226,8 @@ function Ticket({creator, ...props}: {
     // console.log(`token: ${(props.index || 0) + 1}`, token)
     // console.log(`payments: ${(props.index || 0) + 1}`, payments)
 
+    const filteredPaymentTokenList = paymentTokenList.filter((chain) => !banedChain.includes(chain.id))
+
     return (<div className={styles['ticket-form']}>
         <div className={styles['title']}>
             <div className={styles['left']}>
@@ -300,21 +302,21 @@ function Ticket({creator, ...props}: {
                 </div>
                 <div className={styles['ticket-type']}
                      onClick={e => {
-                         props.onChange && props.onChange({
+                         !!filteredPaymentTokenList[0] && props.onChange && props.onChange({
                              ...props.ticket,
                              payment_methods: [{
                                  price: 0,
-                                 chain: paymentTokenList[0].id,
-                                 token_name: paymentTokenList[0].tokenList[0].id,
-                                 token_address: paymentTokenList[0].tokenList[0].contract,
+                                 chain: filteredPaymentTokenList[0].id,
+                                 token_name: filteredPaymentTokenList[0].tokenList[0].id,
+                                 token_address: filteredPaymentTokenList[0].tokenList[0].contract,
                                  receiver_address: '',
                                  item_type: 'Ticket',
                              }],
                              payment_methods_attributes: [{
                                  price: 0,
-                                 chain: paymentTokenList[0].id,
-                                 token_name: paymentTokenList[0].tokenList[0].id,
-                                 token_address: paymentTokenList[0].tokenList[0].contract,
+                                 chain: filteredPaymentTokenList[0].id,
+                                 token_name: filteredPaymentTokenList[0].tokenList[0].id,
+                                 token_address: filteredPaymentTokenList[0].tokenList[0].contract,
                                  receiver_address: '',
                                  item_type: 'Ticket',
                              }]
@@ -355,7 +357,7 @@ function Ticket({creator, ...props}: {
                                         value={[payments[index].chain] as any}
                                         clearable={false}
                                         searchable={false}
-                                        options={paymentTokenList.filter((chain) => !banedChain.includes(chain.id))}
+                                        options={filteredPaymentTokenList}
                                         onChange={(params) => {
                                             const targetToken = (params.option as any).tokenList.find((t: PaymentSettingToken) => {
                                                 const currPaymentToken = props.ticket.payment_methods?.map((method) => method.token_address) || []
