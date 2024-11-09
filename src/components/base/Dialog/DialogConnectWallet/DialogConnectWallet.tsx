@@ -99,6 +99,12 @@ function DialogConnectWallet(props: DialogConnectWalletProps) {
         router.push('/login-phone')
     }
 
+    const handleConnectZKEmail = () => {
+        window.localStorage.setItem('fallback', window.location.href)
+        clean()
+        router.push('/login-zkemail')
+    }
+
     // const handleSolanaLogin = (walletName: string) => {
     //     // solanaWallet.disconnect()
     //     setLastLoginType('solana')
@@ -125,14 +131,13 @@ function DialogConnectWallet(props: DialogConnectWalletProps) {
                 }}/>
             </div>
             <div className='connect-item' onClick={async () => {
-                const unload =  showLoading()
+                const unload = showLoading()
                 // const login = (await import('@/service/zupass/zupass')).login
                 try {
                     await zuAuthLogin()
                 } catch (e: any) {
                     showToast(e.message)
-                }
-                finally {
+                } finally {
                     unload()
                 }
             }}>
@@ -148,7 +153,8 @@ function DialogConnectWallet(props: DialogConnectWalletProps) {
                            key={connector.id}
                            onClick={() => handleConnectWallet(connector)}>
                         <img src={walletIcon[connector.name.toLowerCase()] || `/images/injected.png`} alt={connector.name}/>
-                        <div className='connect-name'>{connector.name === 'Injected' ? 'Browser wallet' : connector.name}</div>
+                        <div
+                            className='connect-name'>{connector.name === 'Injected' ? 'Browser wallet' : connector.name}</div>
                     </div>
             ))}
             {process.env.NEXT_PUBLIC_SPECIAL_VERSION !== 'maodao' &&
@@ -163,6 +169,10 @@ function DialogConnectWallet(props: DialogConnectWalletProps) {
                     <div className='connect-name'>Phone</div>
                 </div>
             }
+            <div className='connect-item' onClick={handleConnectZKEmail}>
+                <img src="/images/zkemail.png" alt="email"/>
+                <div className='connect-name'>ZK Email</div>
+            </div>
 
 
             {/*{solanaWallet.wallets && solanaWallet.wallets.length > 0 ?*/}

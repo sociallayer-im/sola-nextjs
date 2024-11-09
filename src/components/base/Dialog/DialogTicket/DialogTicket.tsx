@@ -30,7 +30,7 @@ import ButtonLoading from "@/components/base/ButtonLoading";
 import {Select} from "baseui/select";
 import {useRouter} from "next/navigation"
 import AppInput from "@/components/base/AppInput";
-import {generatePayment} from "@/service/daimo";
+import {genDaimoLink} from "@/service/solasv2";
 
 const shotAddress = (address: string) => {
     const len = address.length
@@ -281,19 +281,31 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
     const handleDaimoPayment = async (copyLink?: boolean) => {
         const unload = showLoading()
         try {
-            const {url, id} = await generatePayment({
-                eventTitle: props.event.title,
-                eventCover: props.event.cover_url,
-                amount: finalPaymentPrice.toString() || '0',
-                receiver: currPaymentMethod!.receiver_address!,
-                ticketName: props.ticket.title,
-                tokenContract: currToken!.contract,
-                ticketId: props.ticket.id,
-                returnUrl: location.href,
-                eventId: props.event.id,
-                authToken: user.authToken || '',
-                payment_method_id: currPaymentMethod!.id!,
-            })
+            // const {url, id} = await generatePayment({
+            //     eventTitle: props.event.title,
+            //     eventCover: props.event.cover_url,
+            //     amount: finalPaymentPrice.toString() || '0',
+            //     receiver: currPaymentMethod!.receiver_address!,
+            //     ticketName: props.ticket.title,
+            //     tokenContract: currToken!.contract,
+            //     ticketId: props.ticket.id,
+            //     returnUrl: location.href,
+            //     eventId: props.event.id,
+            //     authToken: user.authToken || '',
+            //     payment_method_id: currPaymentMethod!.id!,
+            // })
+
+            const join = await rsvp(
+                {
+                    auth_token: user.authToken || '',
+                    id: props.event.id,
+                    ticket_id:props.ticket.id,
+                    payment_method_id: currPaymentMethod!.id!,
+                    coupon: validCoupon?.code
+                }
+            )
+
+            const {url, id} = await genDaimoLink({ticket_item_id: join.ticket_item.id, redirect_uri: location.href})
 
             if (copyLink) {
                 copyWithDialog(url)

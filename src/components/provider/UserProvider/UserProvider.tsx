@@ -413,7 +413,7 @@ function UserProvider(props: UserProviderProps) {
 
     return (
         <UserContext.Provider
-            value={{user: userInfo, setUser, logOut, emailLogin, walletLogin, phoneLogin, zupassLogin}}>
+            value={{user: userInfo, setUser, logOut, emailLogin, walletLogin, phoneLogin, zupassLogin, setProfile}}>
             {props.children}
         </UserContext.Provider>
     )

@@ -1,10 +1,15 @@
 .login-page {
   position: relative;
+  background: #fff;
 
   .login-page-back {
     padding: 0 12px;
     z-index: 999;
     position: relative;
+  }
+
+  .input-padding {
+    margin: 16px 0;
   }
 
   .login-page-bg {
@@ -53,6 +58,17 @@
         -ms-touch-callout: none;
         -moz-touch-callout: none;
       }
+    }
+  }
+
+  .waiting {
+    display: flex;
+    align-items: center;
+    height: 100%;
+    font-weight: 600;
+
+    svg {
+      margin-right: 12px;
     }
   }
 }
