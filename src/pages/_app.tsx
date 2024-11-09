@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import '@/styles/index.sass'
 import 'swiper/css'
 import NextNProgress from 'nextjs-progressbar';
@@ -31,6 +31,7 @@ import NotificationsProvider from "@/components/provider/NotificationsProvider/N
 import {SolanaWalletProvider} from '@/components/provider/SolanaWalletProvider/SolanaWalletProvider'
 
 import '@farcaster/auth-kit/styles.css';
+import DialogToMainScreen from "@/components/base/Dialog/DialogToMainScreen/DialogToMainScreen";
 // import { AuthKitProvider } from '@farcaster/auth-kit';
 
 const farcasterConfig = {
@@ -109,6 +110,17 @@ function MyApp({Component, pageProps, ...props}: any) {
             ? <div className={'light'} style={{width: '100vw', height: '100vh'}}>{params.children}</div>
             : <Layout>{params.children}</Layout>
     }
+
+    useEffect(() => {
+       if (typeof window === 'undefined') return
+        window.addEventListener(`beforeinstallprompt`, (e) => {
+               e.preventDefault();
+               (window as any).deferredPrompt = e;
+        });
+       if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js')
+       }
+    }, [])
 
     return (
         <>

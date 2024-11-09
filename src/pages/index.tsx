@@ -17,6 +17,9 @@ import {
 } from "@/service/solas";
 import SeedaoHome from "@/pages/seedao";
 import discoverData from "@/data/discover.data";
+import {useEffect, useContext} from "react";
+import DialogToMainScreen from "@/components/base/Dialog/DialogToMainScreen/DialogToMainScreen";
+import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
 
 export default function HomePage(props: {
     badges?: Badge[],
@@ -27,6 +30,24 @@ export default function HomePage(props: {
     membership?: Membership[]
     events?: Event[]
 }) {
+
+    const {openDialog} = useContext(DialogsContext)
+
+    useEffect(() => {
+        if (typeof window === 'undefined') return
+        const expired = window.localStorage.getItem('installprompt')
+        // 7 days 1000 * 60 * 60 * 24 * 7
+        // 1min  1000 * 60
+        if (!!(window as any).deferredPrompt && (!expired || (expired && Number(expired) + 1000 * 60  < new Date().getTime()))) {
+            window.localStorage.setItem('installprompt', new Date().getTime().toString())
+            openDialog({
+                content: (close: any) => <DialogToMainScreen close={close}/>,
+                position: 'bottom',
+                size: ['auto', 'auto'],
+            })
+        }
+    }, []);
+
     return <>
         {
             process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'zumap' ?
