@@ -71,7 +71,8 @@ function Discover({eventGroups, popupCities, events } : {
         <div className={styles['center']}>
 
             <div className={styles['links']}>
-                <a className={styles['link-item']} href={'https://portal.sola.day/schedule/list/popupcnx'} target={"_blank"}>
+                <a className={styles['link-item']} href={'https://portal.sola.day/schedule/list/popupcnx'}
+                   target={"_blank"}>
                     <img src="https://app.sola.day/images/header_logo.svg" width={24} height={24} alt=""/>
                     <div className={styles['link-text']}>Pop-up City Event Calendar</div>
                     <i className={'icon-icon_share'}></i>
@@ -138,19 +139,32 @@ function Discover({eventGroups, popupCities, events } : {
                 <>
                     <div className={styles['page-sub-title']}
                          style={{
-                             marginTop:'4px',
-                             background: 'linear-gradient(90deg, #EAF6F3 0%, rgba(234, 246, 243, 0.00) 99.89%)'}}>
+                             marginTop: '4px',
+                             background: 'linear-gradient(90deg, #EAF6F3 0%, rgba(234, 246, 243, 0.00) 99.89%)'
+                         }}>
                         {'Highlighted Events'}
                     </div>
                     <div className={styles['highlight-events']}>
                         {
                             events.map(e => {
-                                return <CardEvent fixed={false} key={e.id} event={e} />
+                                return <CardEvent fixed={false} key={e.id} event={e}/>
                             })
                         }
                     </div>
                 </>
             }
+
+            <h2 className={styles['page-title']}>
+                <div>{lang['Bangkok_Popup_Cities']}</div>
+            </h2>
+            <div className={`${styles['popup-city-list']} ${styles['season']}`}>
+                {
+                    _sortedPopupCities.filter((x) => x.group_tags && x.group_tags.indexOf(":bkk") >= 0).map((popupCity, index) => {
+                        console.log(popupCity)
+                        return <CardPopupCity popupCity={popupCity} key={popupCity.id}/>
+                    })
+                }
+            </div>
 
             <h2 className={styles['page-title']}>
                 <div>{lang['Chiangmai_Popup_Cities']}</div>
@@ -186,7 +200,7 @@ function Discover({eventGroups, popupCities, events } : {
 
             <div className={styles['popup-city-list']}>
                 {
-                    _sortedPopupCities.filter((x) => !x.group_tags || x.group_tags.indexOf(":cnx") < 0).map((popupCity, index) => {
+                    _sortedPopupCities.filter((x) => !x.group_tags || (x.group_tags.indexOf(":cnx") < 0 && x.group_tags.indexOf(":bkk") < 0)).map((popupCity, index) => {
                         return <CardPopupCity popupCity={popupCity} key={popupCity.id}/>
                     })
                 }
@@ -210,7 +224,8 @@ function Discover({eventGroups, popupCities, events } : {
                         return <Link href={`/group/${group.username || (group as any).handle}`} key={index}>
                             <ImgLazy className={styles['cover']} width={64} height={64}
                                      src={group.image_url || defaultAvatar(group.id)}/>
-                            <div className={styles['name']}>{group.nickname || group.username || (group as any).handle}</div>
+                            <div
+                                className={styles['name']}>{group.nickname || group.username || (group as any).handle}</div>
                             <div className={styles['detail']}><b>{group.memberships_count}</b> Members</div>
                             <div className={styles['detail']}><b>{group.events_count}</b> Events</div>
                         </Link>

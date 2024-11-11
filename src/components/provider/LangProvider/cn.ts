@@ -681,6 +681,7 @@ const langCN: LangConfig = {
   Apply: '使用',
   Confirm: '确认',
   Pay: '支付',
+  Bangkok_Popup_Cities: '曼谷 Pop-up 季',
 }
 
 

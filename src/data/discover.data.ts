@@ -97,7 +97,7 @@ const discoverData: any = async (context: any): Promise<{
     return {
         props: {
             eventGroups: data.data.groups,
-            popupCities: [...data.data.cnx_popups, ...data.data.popups],
+            popupCities: [ ...data.data.popups],
             events: data.data.events,
         }
     }
