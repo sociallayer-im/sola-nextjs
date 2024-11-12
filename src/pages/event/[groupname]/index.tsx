@@ -18,6 +18,7 @@ import Feedback from "@/components/feedback/feedback";
 import Map from '@/pages/event/[groupname]/map'
 
 import * as dayjsLib from "dayjs";
+import DialogToMainScreen from "@/components/base/Dialog/DialogToMainScreen/DialogToMainScreen";
 const dayjs: any = dayjsLib
 
 function Home(props: { badges: Badge[], initEvent: Group, initList?: Event[], membership?: Membership[] }) {
@@ -25,7 +26,7 @@ function Home(props: { badges: Badge[], initEvent: Group, initList?: Event[], me
     const router = useRouter()
     const pathname = usePathname()
     const {lang} = useContext(LangContext)
-    const {showToast, openConnectWalletDialog} = useContext(DialogsContext)
+    const {showToast, openConnectWalletDialog, openDialog} = useContext(DialogsContext)
     const {ready, joined, isManager, setEventGroup} = useContext(EventHomeContext)
     const eventGroup = props.initEvent
     const startIssueBadge = useIssueBadge()

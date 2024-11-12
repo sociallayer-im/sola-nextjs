@@ -5,8 +5,35 @@
   "display": "standalone",
   "background_color": "#fff",
   "theme_color": "#9efedd",
-  "icons": {
-    "72": "/images/icons/icon_72.jpg",
-    "512": "/images/icons/icon_512.jpg"
-  }
+  "icons": [
+    {
+      "src": "/images/icons/icon_72.png",
+      "sizes": "72x72",
+      "type": "image/png"
+    },
+    {
+      "src": "/images/icons/icon_512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/images/icons/icon_144.png",
+      "sizes": "144x144",
+      "type": "image/png"
+    }
+  ],
+  "screenshots": [
+    {
+      "form_factor":"narrow",
+      "sizes": "375x667",
+      "type": "image/png",
+      "src": "/images/icons/narrow.png"
+    },
+    {
+      "form_factor":"wide",
+      "sizes": "2105x1316",
+      "type": "image/png",
+      "src": "/images/icons/wide.png"
+    }
+  ]
 }
