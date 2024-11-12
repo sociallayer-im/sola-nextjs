@@ -25,12 +25,14 @@ export interface LocationInputValue {
     venue_id: number | null,
     location: string | null,
     formatted_address: string | null,
-    venue?: EventSites | null
+    venue?: EventSites | null,
+    place_id?: string | null
 }
 
 export interface GMapPlaceRes {
     name: string
     formatted_address: string,
+    place_id: string,
     geometry: {
         location: {
             lat: () => number,
@@ -233,7 +235,8 @@ function LocationInput(props: LocationInputProps) {
                 geo_lat: result.customLatlng[0],
                 geo_lng: result.customLatlng[1],
                 formatted_address: `${result.customLatlng[0]},${result.customLatlng[1]}`,
-                location: result.structured_formatting.main_text
+                location: result.structured_formatting.main_text,
+                place_id: result.place_id
             } as any)
             setSearchKeyword(`${result.customLatlng[0]},${result.customLatlng[1]}`)
         } else {
@@ -245,16 +248,18 @@ function LocationInput(props: LocationInputProps) {
                 const service = new (window as any).google.maps.places.PlacesService(map)
                 service.getDetails({
                     sessionToken: sessionToken.current,
-                    fields: ['geometry', 'formatted_address', 'name'],
+                    fields: ['geometry', 'formatted_address', 'name', 'place_id'],
                     placeId: result.place_id
                 }, (place: any, status: string) => {
+                    console.log('place', place)
                     const placeInfo = place as GMapPlaceRes
                     setShowSearchRes(false)
                     props.onChange && props.onChange({
                         geo_lat: placeInfo.geometry.location.lat(),
                         geo_lng: placeInfo.geometry.location.lng(),
                         formatted_address: placeInfo.formatted_address,
-                        location: placeInfo.name
+                        location: placeInfo.name,
+                        place_id: placeInfo.place_id
                     } as any)
                     setSearchKeyword(placeInfo.formatted_address)
                     unload()
@@ -348,7 +353,8 @@ function LocationInput(props: LocationInputProps) {
                                 venue_id: params.value[0].id,
                                 location: params.value[0].title,
                                 formatted_address: params.value[0].formatted_address,
-                                venue: params.value[0]
+                                venue: params.value[0],
+                                place_id: params.value[0].location_data
                             })
                         } else {
                             setCreateMode(true)
@@ -361,7 +367,8 @@ function LocationInput(props: LocationInputProps) {
                                 venue_id: null,
                                 formatted_address: null,
                                 location: null,
-                                venue: null
+                                venue: null,
+                                place_id: null
                             })
                         }
                     }}
@@ -385,7 +392,8 @@ function LocationInput(props: LocationInputProps) {
                                 venue_id: null,
                                 formatted_address: null,
                                 location: null,
-                                venue: null
+                                venue: null,
+                                place_id: null
                             })
                         }}/>}
                         onChange={e => {

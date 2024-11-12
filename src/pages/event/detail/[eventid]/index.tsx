@@ -67,6 +67,7 @@ import useZuAuth from "@/service/zupass/useZuAuth";
 import {isHideLocation} from "@/global_config";
 import {cancelEventStar, getUserStaredComment, handleEventStar} from "@/service/solasv2";
 import DialogFeedback from "@/components/base/Dialog/DialogFeedback";
+import genGoogleMapLink from "@/utils/googleMapLink";
 
 const utc = require('dayjs/plugin/utc')
 const timezone = require('dayjs/plugin/timezone')
@@ -520,17 +521,6 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
         })
     }
 
-    const genGoogleMapUrl = () => {
-        // if (marker.formatted_address && marker.location !== 'Custom location') {
-        //     const json = JSON.parse(marker.formatted_address)
-        //     return `https://www.google.com/maps/search/?api=1&query=${json.name.split('').join('+')}`
-        // } else {
-        //     return `https://www.google.com/maps/search/?api=1&query=${marker.geo_lat}%2C${marker.geo_lng}`
-        // }
-
-        return `https://www.google.com/maps/search/?api=1&query=${event!.geo_lat}%2C${event!.geo_lng}`
-    }
-
     const handlePublish = (e: any) => {
         e.preventDefault()
         openConfirmDialog({
@@ -878,7 +868,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                             {
                                                 (isJoined || isManager || isOperator || isGroupOwner || isHoster || isMember || isTrackManager || !isHideLocation(event.group_id)) ? <>
                                                         {event.formatted_address ?
-                                                            <a href={genGoogleMapUrl()}
+                                                            <a href={genGoogleMapLink(event.geo_lat!, event.geo_lng!, event.location_data)}
                                                                target={'_blank'}>
                                                                 <div className={'main'}>{event.location}</div>
                                                                 <div className={'sub'}>{event.formatted_address}</div>
@@ -915,7 +905,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                     </div>
                                                 </div>
                                                 {showMap &&
-                                                    <Link href={genGoogleMapUrl()}
+                                                    <Link href={genGoogleMapLink(event.geo_lat!, event.geo_lng!, event.location_data)}
                                                           target={'_blank'}
                                                           className={`map-preview`}>
                                                         <img

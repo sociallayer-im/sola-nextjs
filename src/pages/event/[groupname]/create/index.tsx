@@ -191,7 +191,8 @@ function EditEvent({
         extra: null,
         track_id: null,
         pinned: false,
-        status: 'open'
+        status: 'open',
+        location_data: null
     })
 
     const statusRef = useRef(event.status)
@@ -1351,7 +1352,8 @@ function EditEvent({
                                             setVenueInfo(values.venue || null)
                                             setEvent({
                                                 ...event,
-                                                ...values
+                                                ...values,
+                                                location_data: values.place_id,
                                             } as any)
                                         }}/>
 

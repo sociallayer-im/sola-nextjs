@@ -26,7 +26,7 @@ import EventHomeContext from "@/components/provider/EventHomeProvider/EventHomeC
 import useMarkerCheckIn from "@/hooks/markerCheckIn";
 import Empty from "@/components/base/Empty";
 import styles from "@/components/base/Cards/CardMarker/CardMarker.module.scss";
-import {genGoogleMapUrl} from "@/components/base/Cards/CardMarker/CardMarker";
+import genGoogleMapLink from "@/utils/googleMapLink";
 
 function EventDetail() {
     const router = useRouter()
@@ -220,7 +220,7 @@ function EventDetail() {
                         }
 
                         {marker.location &&
-                            <a className={'detail-item'} href={genGoogleMapUrl(marker)} target={'_blank'}>
+                            <a className={'detail-item'} href={genGoogleMapLink(marker.geo_lat, marker.geo_lng, marker.location_data)} target={'_blank'}>
                                 <i className={'icon-Outline'}/>
                                 <div>{
                                     marker.location + (marker.formatted_address ? `(${marker.formatted_address})` : '')

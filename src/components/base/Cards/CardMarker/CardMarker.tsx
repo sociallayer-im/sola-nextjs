@@ -17,17 +17,7 @@ import useEvent, {EVENT} from "@/hooks/globalEvent";
 import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
 import {getLabelColor} from "@/hooks/labelColor";
 import {useTime2} from "@/hooks/formatTime";
-
-export const genGoogleMapUrl = (marker: Marker) => {
-    // if (marker.formatted_address && marker.location !== 'Custom location') {
-    //     const json = JSON.parse(marker.formatted_address)
-    //     return `https://www.google.com/maps/search/?api=1&query=${json.name.split('').join('+')}`
-    // } else {
-    //     return `https://www.google.com/maps/search/?api=1&query=${marker.geo_lat}%2C${marker.geo_lng}`
-    // }
-
-    return `https://www.google.com/maps/search/?api=1&query=${marker.geo_lat}%2C${marker.geo_lng}`
-}
+import genGoogleMapLink from "@/utils/googleMapLink";
 
 function CardMarker(props: { item: Marker, participants?: Participants[], isActive?: boolean, target?: string }) {
     const router = useRouter()
@@ -158,7 +148,7 @@ function CardMarker(props: { item: Marker, participants?: Participants[], isActi
                        onClick={e => {
                            e.stopPropagation()
                        }}
-                       href={genGoogleMapUrl(props.item)} target={'_blank'}>
+                       href={genGoogleMapLink(props.item.geo_lat!, props.item.geo_lng!, props.item.location_data)} target={'_blank'}>
                         <i className={`icon-Outline ${styles.icon}`}/>
                         <span>{props.item.location}</span>
                         <svg className={styles['link-icon']} xmlns="http://www.w3.org/2000/svg" width="8" height="8"
