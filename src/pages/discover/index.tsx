@@ -160,7 +160,6 @@ function Discover({eventGroups, popupCities, events } : {
             <div className={`${styles['popup-city-list']} ${styles['season']}`}>
                 {
                     _sortedPopupCities.filter((x) => x.group_tags && x.group_tags.indexOf(":bkk") >= 0).map((popupCity, index) => {
-                        console.log(popupCity)
                         return <CardPopupCity popupCity={popupCity} key={popupCity.id}/>
                     })
                 }

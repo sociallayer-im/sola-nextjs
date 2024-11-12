@@ -38,7 +38,7 @@ export default function HomePage(props: {
         const expired = window.localStorage.getItem('installprompt')
         // 7 days 1000 * 60 * 60 * 24 * 7
         // 1min  1000 * 60
-        if (!!(window as any).deferredPrompt && (!expired || (expired && Number(expired) + 1000 * 60  < new Date().getTime()))) {
+        if (!!(window as any).deferredPrompt && (!expired || (expired && Number(expired) + 1000 * 60 * 60 * 24 * 3  < new Date().getTime()))) {
             window.localStorage.setItem('installprompt', new Date().getTime().toString())
             openDialog({
                 content: (close: any) => <DialogToMainScreen close={close}/>,
