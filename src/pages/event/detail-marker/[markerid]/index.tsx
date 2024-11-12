@@ -9,7 +9,7 @@ import {
     markerDetail,
     markersCheckinList,
     Profile,
-    ProfileSimple,
+    ProfileSimple, queryGroupDetail,
     queryPresendDetail,
     queryUserGroup, queryVoucherDetail
 } from "@/service/solas";
@@ -39,7 +39,7 @@ function EventDetail() {
     const {user} = useContext(userContext)
     const {showLoading, showToast, showEventCheckIn} = useContext(DialogsContext)
     const {copy} = useCopy()
-    const {eventGroups, setEventGroup, eventGroup, ready, isManager} = useContext(EventHomeContext)
+    const {setEventGroup, eventGroup, ready, isManager} = useContext(EventHomeContext)
     const {scanQrcode} = useMarkerCheckIn()
 
 
@@ -55,6 +55,7 @@ function EventDetail() {
     const [guests, setGuests] = useState<ProfileSimple[]>([])
     const [badge, setBadge] = useState<Badge | null>(null)
     const [canAccess, setCanAccess] = useState(false)
+    const [group, setGroup] = useState<Group | null>(null)
 
     async function fetchData() {
         if (params?.markerid) {
@@ -64,6 +65,10 @@ function EventDetail() {
                 return
             }
 
+            const group = await queryGroupDetail(marker.group_id)
+
+            setGroup(group)
+            setEventGroup(group!)
             setMarker(marker)
             setCanceled(marker.status === 'cancel')
 
@@ -129,14 +134,6 @@ function EventDetail() {
 
     useEffect(() => {
         if (marker && marker.group_id && ready) {
-            const group: any = eventGroups.find(item => item.id === marker.group_id)
-            if (!group) {
-                router.push('/error')
-                return
-            }
-
-            setEventGroup(group as Group)
-
             const selectedGroup = group as Group
             if ((selectedGroup as Group).can_join_event === 'everyone') {
                 setCanAccess(true)
@@ -151,7 +148,7 @@ function EventDetail() {
             }
         }
 
-    }, [marker, ready, user.id])
+    }, [marker, ready, group, user.id])
 
     useEffect(() => {
         setIsHoster(hoster?.id === user.id)

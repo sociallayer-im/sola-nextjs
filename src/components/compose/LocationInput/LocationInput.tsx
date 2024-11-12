@@ -189,7 +189,7 @@ function LocationInput({arrowAlias = true, cleanable = true, ...props}: Location
             const service = new (window as any).google.maps.places.PlacesService(map)
             service.getDetails({
                 sessionToken: sessionToken.current,
-                fields: ['geometry', 'formatted_address', 'name'],
+                    fields: ['geometry', 'formatted_address', 'name', 'place_id'],
                 placeId: result.place_id
             }, (place: any, status: string) => {
                 console.log('placeplace detail', place)

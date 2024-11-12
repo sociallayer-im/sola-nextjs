@@ -4783,6 +4783,7 @@ export async function queryMarkers(props: {
     const doc = gql`
         query MyQuery {
           markers(where: {${variables} ,status: {_nin: ["pending", "removed"]}} order_by: {${sortStr}}) {
+          location_data
           voucher_id
           voucher {
             id

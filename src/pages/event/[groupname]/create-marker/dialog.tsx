@@ -76,7 +76,8 @@ function CreateMarkerDialog(props: {lat: number, lng: number, close: any, onSucc
         formatted_address: `${props.lat},${props.lng}`,
         location: `Custom location`,
         marker_type: 'site',
-        voucher_id: null
+        voucher_id: null,
+        location_data: null
     })
 
 
@@ -339,7 +340,8 @@ function CreateMarkerDialog(props: {lat: number, lng: number, close: any, onSucc
                                         geo_lat: values.geo_lat,
                                         geo_lng: values.geo_lng,
                                         location: values.location,
-                                        formatted_address: values.formatted_address
+                                        formatted_address: values.formatted_address,
+                                        location_data: values.place_id
                                     } as Partial<Marker>)
                                 }}/>
                         </div>

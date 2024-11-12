@@ -3,13 +3,13 @@ import styles from './map.module.scss'
 import MapContext from "@/components/provider/MapProvider/MapContext";
 import EventHomeContext from "@/components/provider/EventHomeProvider/EventHomeContext";
 import {
-    CheckIn,
+    CheckIn, getGroups,
     Group,
     isMember as checkIsMember,
     Marker,
     markersCheckinList,
     Participants,
-    queryCheckInList,
+    queryCheckInList, queryGroupDetail,
     queryMapEvent,
     queryMarkers,
     queryMyEvent
@@ -408,6 +408,7 @@ function ComponentName(props: { markerType: string | null, group?: Group, isIfra
         }
     }, [props.group])
 
+
     useEffect(() => {
         if (typeof window !== 'undefined' && !GoogleMapRef.current && MapReady && Map && MapEvent && mapDomRef.current && eventGroup?.id) {
             GoogleMapRef.current = new Map(mapDomRef.current as HTMLElement, {
@@ -655,6 +656,8 @@ export default ComponentName
 
 export const getServerSideProps: any = (async (context: any) => {
     const type = context.query?.type
-    return {props: {markerType: type || null, groupname: null}}
+    const groupName = context.params?.groupname
+    const groups = await getGroups({username: groupName!})
+    return {props: {markerType: type || null, groupname: null, group: groups[0] || null}}
 })
 

@@ -69,7 +69,8 @@ function ComponentName() {
         geo_lat: 0,
         geo_lng: 0,
         marker_type: 'site',
-        voucher_id: null
+        voucher_id: null,
+        location_data: null
     })
 
 
@@ -345,16 +346,18 @@ function ComponentName() {
                                     geo_lat: marker?.geo_lat || null,
                                     geo_lng: marker?.geo_lng || null,
                                     location: marker?.location || null,
-                                    formatted_address: marker?.formatted_address || null
+                                    formatted_address: marker?.formatted_address || null,
                                 }}
                                 eventGroup={eventGroup}
                                 onChange={values => {
+                                    console.log('values', values)
                                     setMarker({
                                         ...marker,
                                         geo_lat: values.geo_lat,
                                         geo_lng: values.geo_lng,
                                         location: values.location,
-                                        formatted_address: values.formatted_address
+                                        formatted_address: values.formatted_address,
+                                        location_data: values.place_id
                                     } as Partial<Marker>)
                                 }}/>
                         </div>
