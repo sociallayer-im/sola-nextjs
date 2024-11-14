@@ -1,6 +1,6 @@
 import fetch from '../utils/fetch'
 const apiUrl = process.env.NEXT_PUBLIC_EVENT_LIST_API!
-import {Activity, Badgelet, Badge, CommentType, Event, Voucher, ProfileSimple} from './solas'
+import {Activity, Badgelet, Badge, CommentType, Event, Voucher, ProfileSimple, Ticket, EventRole} from './solas'
 
 export const handleEventStar = async (props: { event_id: number, auth_token: string }) => {
     return await fetch.post({
@@ -186,4 +186,40 @@ export const signinWithZkEmail = async (props: {email: string, next_token: strin
     }
 
     return response.data.auth_token as string
+}
+
+export interface EventCreateOptions extends Partial<Event> {
+    auth_token: string
+    tickets_attributes?: Partial<Ticket>[] | null
+    event_roles_attributes: EventRole[] | null
+    interval?: 'day' | 'week' | 'month',
+    repeat_start_time?: string,
+    repeat_end_time?: string,
+    event_count?: number,
+}
+
+export const createEventV2 = async (props: EventCreateOptions) => {
+    const response = await fetch.post({
+        url: `${apiUrl}/event/create`,
+        data: props
+    })
+
+    if (response.data.result !== 'ok') {
+        throw new Error(response.data.message)
+    }
+
+    return response.data.event as Event
+}
+
+export const saveEventV2 = async (props: EventCreateOptions) => {
+    const response = await fetch.post({
+        url: `${apiUrl}/event/update`,
+        data: props
+    })
+
+    if (response.data.result !== 'ok') {
+        throw new Error(response.data.message)
+    }
+
+    return response.data.event as Event
 }

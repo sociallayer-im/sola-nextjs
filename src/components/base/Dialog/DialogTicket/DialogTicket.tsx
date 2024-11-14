@@ -81,36 +81,38 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
     }
 
     const stripePaymentMethod = useMemo(() => {
-        return props.ticket.payment_methods.find(item => item.chain === 'stripe')
+        return props.ticket.payment_methods.find(item => item.protocol === 'stripe')
     }, [props.ticket])
 
     const cryptoChains = useMemo(() => {
         if (props.ticket.payment_methods!.length === 0) return []
         let chains: ChainsOptions[] = []
         props.ticket.payment_methods!
-            .filter(p => p.chain !== 'stripe')
-            .forEach(p => {
-                const chain = paymentTokenList.find(i => i.id === p.chain)
-                if (!!chain && !chains.some(c => c.id === chain.id)) {
+            .filter(p => p.protocol !== 'stripe')
+            .forEach((p, index) => {
+                const chain = paymentTokenList.find(i => i.protocol === p.protocol && i.chainName === p.chain)
+                if (!!chain && !chains.some(c => c.chainName === chain.chainName && c.protocol === chain.protocol)) {
                     chains.push({
                         ...chain,
-                        label: chain.chain
+                        label: `${p.protocol}(${p.chain})`,
+                        id: index + ''
                     })
                 }
             })
+
         return chains
     }, [props.ticket])
-    const [currChain, setCurrChain] = useState<ChainsOptions | null>(cryptoChains[0] || (stripePaymentMethod ? paymentTokenList.find(i => i.id === 'stripe') : null))
+    const [currChain, setCurrChain] = useState<ChainsOptions | null>(cryptoChains[0] || null)
 
     interface TokenOptions extends PaymentSettingToken {
         label: string
     }
 
     const getTokenOptions = (chain: ChainsOptions) => {
-        const targetPayment = props.ticket.payment_methods.filter(item => item.chain === chain.id)
+        const targetPayment = props.ticket.payment_methods.filter(item => item.chain === chain.chainName && item.protocol === chain.protocol)
         if (!targetPayment) return []
 
-        return chain.tokenList.filter((token) => {
+        const tokens = chain.tokenList.filter((token) => {
             return targetPayment.some(t => token.id === t.token_name)
         }).map((token) => {
             return {
@@ -118,18 +120,19 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
                 label: token.id
             }
         })
+
+        return tokens
     }
 
     const [currToken, setCurrToken] = useState<TokenOptions | null>(currChain ? getTokenOptions(currChain)[0] : null)
 
     const currPaymentMethod = useMemo(() => {
-        const res = props.ticket.payment_methods.find((item) => item.chain === currChain?.id && item.token_name === currToken?.id)
-        console.log('currPaymentMethod', res)
+        const res = props.ticket.payment_methods.find((item) => item.chain === currChain?.chainName && item.protocol === currChain?.protocol && item.token_name === currToken?.id)
         return res
     }, [props.ticket, currChain, currToken])
 
     const StipePayment = useMemo(() => {
-        return props.ticket.payment_methods.find(item => item.chain === 'stripe')
+        return props.ticket.payment_methods.find(item => item.protocol === 'stripe')
     }, [props.ticket])
 
     useEffect(() => {
@@ -231,7 +234,7 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
             }
         }
 
-        if (currChain?.id === 'stripe' && price < 400) {
+        if (currChain?.protocol === 'stripe' && price < 400) {
             return 0
         } else {
             return Math.max(price, 0)
@@ -243,13 +246,12 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
     }, [currPaymentMethod?.price, finalPaymentPrice])
 
     useEffect(() => {
-        console.log('==>', hasBadgePermission, !!balance, !stopSales, !soldOut, Number(balance) < Number(finalPaymentPrice))
         if (
             hasBadgePermission
             && !!balance
             && !stopSales
             && !soldOut
-            && currPaymentMethod?.chain !== 'stripe'
+            && currPaymentMethod?.protocol === 'crypto'
             && Number(balance) < Number(finalPaymentPrice)) {
             setErrorMsg('Insufficient balance')
         } else {
@@ -261,7 +263,7 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
         if (!StipePayment) return
 
         setErrorMsg('')
-        const stripeChain = paymentTokenList.find(i => i.id === 'stripe')!
+        const stripeChain = paymentTokenList.find(i => i.protocol === 'stripe')!
         setCurrChain({...stripeChain, label: stripeChain.chain})
         setCurrToken({...stripeChain.tokenList[0], label: stripeChain.tokenList[0].id})
     }
@@ -270,9 +272,9 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
         if (!cryptoChains.length) return
 
         setErrorMsg('')
-        const method = props.ticket.payment_methods.find(item => item.chain !== 'stripe')
+        const method = props.ticket.payment_methods.find(item => item.protocol !== 'stripe')
 
-        const chain = paymentTokenList.find(i => i.id === method?.chain)!
+        const chain = paymentTokenList.find(i => i.chainName === method?.chain && i.protocol === method?.protocol)!
         const token = chain.tokenList.find(i => i.id === method?.token_name)!
         setCurrChain({...chain, label: chain.chain})
         setCurrToken({...token, label: token.id})
@@ -373,18 +375,18 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
             {!!StipePayment && !!cryptoChains.length &&
                 <div className={styles['payment-tab']}>
                     <div onClick={switchToCrypto}
-                         className={currChain?.id !== 'stripe' ? styles['active'] : ''}>
+                         className={currChain?.protocol !== 'stripe' ? styles['active'] : ''}>
                         {lang['Crypto']}
                     </div>
                     <div onClick={switchToStripe}
-                         className={currChain?.id === 'stripe' ? styles['active'] : ''}>{lang['Credit_Debit_Card']}
+                         className={currChain?.protocol === 'stripe' ? styles['active'] : ''}>{lang['Credit_Debit_Card']}
                     </div>
                 </div>
             }
 
             {!!props.ticket.payment_methods.length && !!currPaymentMethod &&
                 <>
-                    {currChain?.id !== 'stripe' &&
+                    {currChain?.protocol !== 'stripe' &&
                         <>
                             <div className={styles['price']}>
                                 <div className={styles['label']}>{lang['Main_Chain']}</div>
@@ -462,7 +464,7 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
                         </>
                     }
 
-                    {currPaymentMethod.chain !== 'stripe' &&
+                    {currPaymentMethod.protocol !== 'stripe' &&
                         <div className={styles['split']}/>
                     }
                     <div className={styles['payment-title']}>{lang['Payment']}</div>
@@ -491,8 +493,7 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
 
                     <div className={styles['balance']}>
                         {
-                            currPaymentMethod?.chain !== 'stripe'
-                            && currPaymentMethod?.chain !== 'daimo'
+                            currPaymentMethod?.protocol === 'crypto'
                             && !!currToken && !!currChain &&
                             <>
                                 <div className={styles['label']}>{lang['Balance']}</div>
@@ -517,7 +518,7 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
                         }
                     </div>
 
-                    {currPaymentMethod?.chain !== 'stripe' &&
+                    {currPaymentMethod?.protocol !== 'stripe' &&
                         <div style={{color: '#7B7C7B', marginBottom: '12px'}}>{lang['Payments_Will_Be_Sent_To']} <span
                             style={{color: '#272928'}}>
                         {shotAddress(currPaymentMethod?.receiver_address || '')}
@@ -583,8 +584,7 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
                 && !!user.id
                 && hasBadgePermission
                 && !!cryptoChains.length
-                && currPaymentMethod?.chain !== 'stripe'
-                && currPaymentMethod?.chain !== 'daimo' &&
+                && currPaymentMethod?.protocol == 'crypto' &&
                 <AppButton special onClick={e => {
                     connectWallet()
                 }}>{'Connect Wallet'}</AppButton>
@@ -598,8 +598,7 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
                 && !soldOut
                 && !!user.id
                 && hasBadgePermission
-                && currPaymentMethod?.chain !== 'stripe'
-                && currPaymentMethod?.chain !== 'daimo'
+                && currPaymentMethod?.protocol == 'crypto'
                 && (approved || finalPaymentPrice === 0) &&
                 <Erc20TokenPaymentHandler
                     isGroupTicket={props.ticket.ticket_type === 'group'}
@@ -659,8 +658,7 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
                 && !!user.id
                 && finalPaymentPrice !== 0
                 && hasBadgePermission
-                && currPaymentMethod?.chain !== 'stripe'
-                && currPaymentMethod?.chain !== 'daimo' &&
+                && currPaymentMethod?.protocol == 'crypto' &&
                 <Erc20TokenApproveHandler
                     ref={reFleshAllowanceRef}
                     token={currToken!.contract}
@@ -692,7 +690,7 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
 
             {
                 !!user.id
-                && currPaymentMethod?.chain === 'stripe'
+                && currPaymentMethod?.protocol === 'stripe'
                 && !soldOut
                 && !stopSales
                 && <AppButton special onClick={e => {
@@ -703,7 +701,7 @@ function DialogTicket(props: { close: () => any, event: Event, ticket: Ticket })
 
             {
                 !!user.id
-                && currPaymentMethod?.chain === 'daimo'
+                && currPaymentMethod?.protocol === 'daimo'
                 && !soldOut
                 && !stopSales
                 && <div>

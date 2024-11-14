@@ -5495,6 +5495,7 @@ export async function queryTickets (props: {
       tickets(where: {${variables}}, order_by: {id: asc}) {
         tracks_allowed
         payment_methods {
+            protocol
             id
             item_type
             chain
@@ -6181,6 +6182,7 @@ export interface PaymentMethod {
     token_address:  null | string
     receiver_address: null | string
     price: number
+    protocol: string | null
     _destroy?: string
 }
 
@@ -6290,6 +6292,7 @@ export async function getTicketItemDetail (props: {id?: number, participant_id?:
 export async function getPaymentMethod (props: {id: number}) {
     const doc = `query MyQuery {
         payment_methods(where: {id: {_eq: ${props.id}}}) {
+            protocol
             id
             item_type
             item_id
@@ -6297,7 +6300,8 @@ export async function getPaymentMethod (props: {id: number}) {
             token_name
             token_address
             receiver_address
-            price
+            price,
+            protocol
         }
     }`
 

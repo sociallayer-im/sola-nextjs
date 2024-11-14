@@ -38,8 +38,7 @@ function TicketItem({
     }, [chain, ticket])
 
     const chainsIcons = useMemo(() => {
-        const chains = ticket.payment_methods.map(item => item.chain)
-        return chains.map(chain => paymentTokenList.find(item => item.id === chain)?.icon).reverse()
+        return ticket.payment_methods.map(item => paymentTokenList.find(p => item.protocol === p.protocol && item.chain === p.chainName)?.icon)
     }, [ticket])
 
     useEffect(() => {

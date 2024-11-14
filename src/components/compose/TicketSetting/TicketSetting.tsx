@@ -44,7 +44,8 @@ interface ErrorMsg {
 
 const timeStep = 5
 
-const banedChain = ['stripe', 'polygon', 'optimism', 'arbitrum', 'base', 'ethereum']
+// const banedChain = ['stripe', 'polygon', 'optimism', 'arbitrum', 'base', 'ethereum']
+const banedChain: string[] = []
 
 function Ticket({creator, ...props}: {
     ticket: Partial<Ticket>,
@@ -66,6 +67,38 @@ function Ticket({creator, ...props}: {
         return props.errorMsg.find((msg) => msg.index === props.index) || null
     }, [props.errorMsg])
 
+    const filteredPaymentTokenList = paymentTokenList.filter((chain) => !banedChain.some((bc) => bc.includes(chain.id)))
+
+    const getAvailablePaymentTokenList = (currOpt: PaymentMethod) => {
+        let chains: PaymentSettingChain[] = []
+
+        let index = 0
+        while (index < filteredPaymentTokenList.length) {
+            const c = filteredPaymentTokenList[index]
+            if (c.chainName === currOpt.chain && c.protocol === currOpt.protocol) {
+                chains.push(c)
+            } else {
+                const hasUsedChain = props.ticket.payment_methods?.filter(payment_method => c.chainName === payment_method.chain && payment_method.protocol === c.protocol && payment_method._destroy !== '1')
+                if (!hasUsedChain || !hasUsedChain.length) {
+                    // 没有使用过的支付方式
+                    chains.push(c)
+                } else {
+                    // 已经有了的支付方式，判断是否有其他可用token
+                    const currPaymentToken = hasUsedChain!.map((method) => method.token_address)
+                    c.tokenList.forEach((tokenInfo) => {
+                        if (!currPaymentToken.includes(tokenInfo.contract)) {
+                            chains.push(c)
+                        }
+                    })
+                }
+            }
+
+            index++
+        }
+
+        return chains
+    }
+
     const handleChangePayment = (payment: PaymentMethod, index: number) => {
         const newPayments = [...props.ticket.payment_methods!]
         newPayments[index] = payment
@@ -76,21 +109,30 @@ function Ticket({creator, ...props}: {
         })
     }
 
+
     const addPayment = () => {
         let chain: PaymentSettingChain | undefined
         let token: PaymentSettingToken | undefined
 
-        const currPaymentToken = props.ticket.payment_methods?.map((method) => method.token_address) || []
         let index = 0
-        while ((!chain || !token) && index < paymentTokenList.length) {
-            console.log('index', index)
-           const c = paymentTokenList[index]
-           c.tokenList.forEach((t) => {
-                if (!currPaymentToken.includes(t.contract) && !token && !chain) {
-                    chain = c
-                    token = t
-                }
-            })
+        while ((!chain || !token) && index < filteredPaymentTokenList.length) {
+           const c = filteredPaymentTokenList[index]
+           const hasUsedChain = props.ticket.payment_methods?.filter(payment_method => c.chainName === payment_method.chain && payment_method.protocol === c.protocol && payment_method._destroy !== '1')
+            if ((!hasUsedChain || !hasUsedChain.length) && !token && !chain) {
+                // 没有使用过的支付方式, 使用该支付方式并使用第一个token
+                chain = c
+                token = c.tokenList[0]
+            } else {
+                // 已经有了的支付方式，判断是否有其他可用token
+                const currPaymentToken = hasUsedChain!.map((method) => method.token_address)
+                c.tokenList.forEach((tokenInfo) => {
+                    if (!currPaymentToken.includes(tokenInfo.contract) && !token && !chain) {
+                        chain = c
+                        token = tokenInfo
+                    }
+                })
+            }
+
             index++
         }
 
@@ -106,22 +148,24 @@ function Ticket({creator, ...props}: {
                 ...props.ticket.payment_methods!,
                 {
                     item_type: 'Ticket',
-                    chain: chain.id,
+                    chain: chain.chainName,
                     token_name: token.id,
                     token_address: token.contract,
                     receiver_address: '',
-                    price: ''
+                    price: '',
+                    protocol: chain.protocol
                 }
             ] as PaymentMethod[],
             payment_methods_attributes: [
                 ...props.ticket.payment_methods!,
                 {
                     item_type: 'Ticket',
-                    chain: chain.id,
+                    chain: chain.chainName,
                     token_name: token.id,
                     token_address: token.contract,
                     receiver_address: '',
-                    price: ''
+                    price: '',
+                    protocol: chain.protocol
                 }
             ] as PaymentMethod[]
         })
@@ -208,7 +252,7 @@ function Ticket({creator, ...props}: {
     const payments = useMemo(() => {
         if (props.ticket.payment_methods!.length === 0) return []
         return props.ticket.payment_methods!.map(payment => {
-            const chain = paymentTokenList.find((chain) => chain.id === payment.chain)
+            const chain = paymentTokenList.find((chain) => chain.chainName === payment.chain && chain.protocol === payment.protocol)
 
             let token: any = undefined
             if (!!chain) {
@@ -225,8 +269,6 @@ function Ticket({creator, ...props}: {
     // console.log(`ticket: ${(props.index || 0) + 1}`, props.ticket)
     // console.log(`token: ${(props.index || 0) + 1}`, token)
     // console.log(`payments: ${(props.index || 0) + 1}`, payments)
-
-    const filteredPaymentTokenList = paymentTokenList.filter((chain) => !banedChain.includes(chain.id))
 
     return (<div className={styles['ticket-form']}>
         <div className={styles['title']}>
@@ -306,19 +348,21 @@ function Ticket({creator, ...props}: {
                              ...props.ticket,
                              payment_methods: [{
                                  price: 0,
-                                 chain: filteredPaymentTokenList[0].id,
+                                 chain: filteredPaymentTokenList[0].chainName,
                                  token_name: filteredPaymentTokenList[0].tokenList[0].id,
                                  token_address: filteredPaymentTokenList[0].tokenList[0].contract,
                                  receiver_address: '',
                                  item_type: 'Ticket',
+                                 protocol: filteredPaymentTokenList[0].protocol
                              }],
                              payment_methods_attributes: [{
                                  price: 0,
-                                 chain: filteredPaymentTokenList[0].id,
+                                 chain: filteredPaymentTokenList[0].chainName,
                                  token_name: filteredPaymentTokenList[0].tokenList[0].id,
                                  token_address: filteredPaymentTokenList[0].tokenList[0].contract,
                                  receiver_address: '',
                                  item_type: 'Ticket',
+                                 protocol: filteredPaymentTokenList[0].protocol
                              }]
                          })
                      }}>
@@ -337,38 +381,40 @@ function Ticket({creator, ...props}: {
                                 <div className={styles['label']}>{lang['Price']}</div>
                                 <div className={`${styles['ticket-payment']} ticket-payment`}>
                                     <Select
-                                        getOptionLabel={(option) => {
-                                            return <span>{(option.option as any).chain}</span>
+                                        getOptionLabel={(option: any) => {
+                                            return <span className={styles['chain-display']}>{option.option.protocol}({option.option.chainName})</span>
                                         }}
-                                        getValueLabel={(option) => {
-                                            return <span>{(option.option as any).chain}</span>
+                                        getValueLabel={(option: any) => {
+                                            return <span className={styles['chain-display']}>{option.option.protocol}({option.option.chainName})</span>
                                         }}
-                                        filterOptions={(options: any) => {
-                                           return options.filter((option: PaymentSettingChain) => {
-                                               const available = option.tokenList.filter((token) => {
-                                                    return !props.ticket.payment_methods!.some((p) => {
-                                                         return p.token_address === token.contract
-                                                    })
-                                               })
-
-                                               return !!available.length || option.id === payment.chain || option.id === 'daimo'
-                                            })
+                                        filterOptions={() => {
+                                            return getAvailablePaymentTokenList(payment)
                                         }}
                                         value={[payments[index].chain] as any}
                                         clearable={false}
                                         searchable={false}
                                         options={filteredPaymentTokenList}
                                         onChange={(params) => {
+                                            // const targetToken = (params.option as any).tokenList.find((t: PaymentSettingToken) => {
+                                            //     const currPaymentToken = props.ticket.payment_methods?.map((method) => method.token_address) || []
+                                            //     return !currPaymentToken.includes(t.contract) || t.contract === payment.token_address || (params.option as any).protocal === 'daimo'
+                                            // })
+
+
                                             const targetToken = (params.option as any).tokenList.find((t: PaymentSettingToken) => {
-                                                const currPaymentToken = props.ticket.payment_methods?.map((method) => method.token_address) || []
-                                                return !currPaymentToken.includes(t.contract) || t.contract === payment.token_address || (params.option as any).id === 'daimo'
+                                                return !props.ticket.payment_methods!.find(method => method.chain === (params.option as any).chainName
+                                                    && method.protocol === (params.option as any).protocol
+                                                    && method.token_address === t.contract
+                                                    && method._destroy !== '1'
+                                                )
                                             })
 
                                             handleChangePayment({
                                                 ...payment,
-                                                chain: (params.option as any).id,
+                                                chain: (params.option as any).chainName,
                                                 token_name: targetToken.id,
                                                 token_address: targetToken.contract,
+                                                protocol: (params.option as any).protocol
                                             }, index)
                                         }}
                                     />

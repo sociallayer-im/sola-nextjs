@@ -4,7 +4,9 @@ export interface PaymentSettingChain {
     chainId: number,
     icon: string,
     payHub: string,
-    tokenList: PaymentSettingToken[]
+    tokenList: PaymentSettingToken[],
+    protocol: string,
+    chainName: string
 }
 
 export interface PaymentSettingToken {
@@ -19,8 +21,10 @@ export const paymentTokenList: PaymentSettingChain[] = process.env.NEXT_PUBLIC_P
     [
         {
             chain: 'Polygon',
+            chainName: 'polygon',
             id: 'polygon',
             chainId: 137,
+            protocol: 'crypto',
             icon: '/images/polygon.svg',
             payHub: '0xA73405D59e136f574a2FD690079B240f6fbff0a8',
             tokenList: [
@@ -42,8 +46,10 @@ export const paymentTokenList: PaymentSettingChain[] = process.env.NEXT_PUBLIC_P
         },
         {
             chain: 'Optimism',
+            chainName: 'optimism',
             id: 'optimism',
             chainId: 10,
+            protocol: 'crypto',
             icon: '/images/op.png',
             payHub: '0xA73405D59e136f574a2FD690079B240f6fbff0a8',
             tokenList: [
@@ -58,8 +64,10 @@ export const paymentTokenList: PaymentSettingChain[] = process.env.NEXT_PUBLIC_P
         },
         {
             chain: 'Arbitrum',
+            chainName: 'arbitrum',
             id: 'arbitrum',
             chainId: 42161,
+            protocol: 'crypto',
             icon: '/images/arbitrum.png',
             payHub: '0xA73405D59e136f574a2FD690079B240f6fbff0a8',
             tokenList: [
@@ -75,8 +83,10 @@ export const paymentTokenList: PaymentSettingChain[] = process.env.NEXT_PUBLIC_P
         },
         {
             chain: 'Base',
+            chainName: 'base',
             id: 'base',
             chainId: 8453,
+            protocol: 'crypto',
             icon: '/images/base_chain.png',
             payHub: '0xA73405D59e136f574a2FD690079B240f6fbff0a8',
             tokenList: [
@@ -92,8 +102,10 @@ export const paymentTokenList: PaymentSettingChain[] = process.env.NEXT_PUBLIC_P
         },
         {
             chain: "Ethereum",
+            chainName: 'ethereum',
             id: 'ethereum',
             chainId: 1,
+            protocol: 'crypto',
             icon: '/images/ethereum-icon.webp',
             payHub: '0xa17DA9562a4331669Fd2FBb9c607c409Ae190957',
             tokenList: [
@@ -108,8 +120,10 @@ export const paymentTokenList: PaymentSettingChain[] = process.env.NEXT_PUBLIC_P
         },
         {
             chain: 'Daimo(OP)',
+            chainName: 'optimism',
             id: 'daimo',
-            chainId: 0,
+            protocol: 'daimo',
+            chainId: 42161,
             icon: '/images/daimo.jpg',
             payHub: '',
             tokenList: [
@@ -124,8 +138,29 @@ export const paymentTokenList: PaymentSettingChain[] = process.env.NEXT_PUBLIC_P
             ]
         },
         {
+            chain: 'Daimo(Base)',
+            chainName: 'base',
+            id: 'daimo_base',
+            protocol: 'daimo',
+            chainId: 8453,
+            icon: '/images/daimo.jpg',
+            payHub: '',
+            tokenList: [
+                // base chain
+                {
+                    name: 'USDC',
+                    id: 'usdc',
+                    contract: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
+                    icon: '/images/usdc_32.webp',
+                    decimals: 6
+                }
+            ]
+        },
+        {
             chain: 'Stripe',
+            chainName: 'stripe',
             id: 'stripe',
+            protocol: 'stripe',
             chainId: 0,
             icon: '/images/stripe.png',
             payHub: '',
@@ -144,7 +179,9 @@ export const paymentTokenList: PaymentSettingChain[] = process.env.NEXT_PUBLIC_P
         {
             chain: 'Polygon',
             id: 'polygon',
+            chainName: 'polygon',
             chainId: 137,
+            protocol: 'crypto',
             icon: '/images/polygon.svg',
             payHub: '0xac8272de12ec2af2ad4f8dad0a0dc41e48638111',
             tokenList: [
@@ -181,7 +218,9 @@ export const paymentTokenList: PaymentSettingChain[] = process.env.NEXT_PUBLIC_P
         {
             chain: 'Optimism',
             id: 'optimism',
+            chainName: 'optimism',
             chainId: 10,
+            protocol: 'crypto',
             icon: '/images/op.png',
             payHub: '0x35fca106dcfec9dfc16dc6da46fae951703e18a0',
             tokenList: [
@@ -197,7 +236,9 @@ export const paymentTokenList: PaymentSettingChain[] = process.env.NEXT_PUBLIC_P
         {
             chain: 'Arbitrum',
             id: 'arbitrum',
+            chainName: 'arbitrum',
             chainId: 42161,
+            protocol: 'crypto',
             icon: '/images/arbitrum.png',
             payHub: '0x35fca106dcfec9dfc16dc6da46fae951703e18a0',
             tokenList: [
@@ -214,7 +255,9 @@ export const paymentTokenList: PaymentSettingChain[] = process.env.NEXT_PUBLIC_P
         {
             chain: 'Base',
             id: 'base',
+            chainName: 'base',
             chainId: 8453,
+            protocol: 'crypto',
             icon: '/images/base_chain.png',
             payHub: '0x35fca106dcfec9dfc16dc6da46fae951703e18a0',
             tokenList: [
@@ -231,7 +274,9 @@ export const paymentTokenList: PaymentSettingChain[] = process.env.NEXT_PUBLIC_P
         {
             chain: 'Stripe',
             id: 'stripe',
+            chainName: 'stripe',
             chainId: 0,
+            protocol: 'stripe',
             icon: '/images/stripe.png',
             payHub: '',
             tokenList: [
@@ -247,7 +292,9 @@ export const paymentTokenList: PaymentSettingChain[] = process.env.NEXT_PUBLIC_P
         {
             chain: 'Daimo(OP)',
             id: 'daimo',
+            chainName: 'optimism',
             chainId: 0,
+            protocol: 'daimo',
             icon: '/images/daimo.jpg',
             payHub: '',
             tokenList: [
@@ -261,22 +308,6 @@ export const paymentTokenList: PaymentSettingChain[] = process.env.NEXT_PUBLIC_P
                 }
             ]
         }
-        // {
-        //     chain: 'Fuji Testnet',
-        //     id: 'fuji',
-        //     chainId: 43113,
-        //     icon: '/images/fuji.png',
-        //     payHub: '0x408e8ef7b90F1356c13aAD15A877162AC259404c',
-        //     tokenList: [
-        //         {
-        //             name: 'TUSDT',
-        //             id: 'tusdt',
-        //             contract: '0x70c34957154355a0bF048073eb1d4b7895359743',
-        //             icon: '/images/tether_32.webp',
-        //             decimals: 6
-        //         }
-        //     ]
-        // },
     ]
 
 export const erc20_abi = [{
