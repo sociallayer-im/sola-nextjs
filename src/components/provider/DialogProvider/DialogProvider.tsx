@@ -138,6 +138,7 @@ export interface OpenDialogProps {
     position?: 'bottom' | 'center'
     closeable?: boolean
     shellClose?: boolean
+    noShell: boolean
 }
 
 function genID () {
@@ -211,7 +212,8 @@ function DialogProvider (props: DialogProviderProps) {
                     position: openDialogProps.position || undefined,
                     handleClose: close,
                     closeable: openDialogProps.closeable,
-                    shellClose: openDialogProps.shellClose
+                    shellClose: openDialogProps.shellClose,
+                    noShell: openDialogProps.noShell
                 }
 
                 return (

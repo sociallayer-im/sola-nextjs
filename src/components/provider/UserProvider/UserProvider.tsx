@@ -131,8 +131,10 @@ function UserProvider(props: UserProviderProps) {
 
         } catch (e: any) {
             console.error('[setProfile]: ', e)
-            showToast('Login fail', 3000)
-            logOut()
+            // showToast('Login fail', 3000)
+            if (e.message === 'Signature verification failed') {
+                logOut()
+            }
         }
     }
 
