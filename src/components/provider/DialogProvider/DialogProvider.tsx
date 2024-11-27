@@ -138,7 +138,7 @@ export interface OpenDialogProps {
     position?: 'bottom' | 'center'
     closeable?: boolean
     shellClose?: boolean
-    noShell: boolean
+    noShell?: boolean
 }
 
 function genID () {
