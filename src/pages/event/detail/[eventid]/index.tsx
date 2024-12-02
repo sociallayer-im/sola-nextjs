@@ -890,21 +890,23 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                         {MapReady && (isJoined || isManager || isOperator || isGroupOwner || isHoster || isMember || isTrackManager || !isHideLocation(event.group_id)) &&
                                             <>
                                                 <div className="map-action">
+                                                    {!!event.formatted_address &&
+                                                        <div className={'switch-preview-map'}
+                                                             onClick={() => {
+                                                                 setShowMap(!showMap)
+                                                             }
+                                                             }
+                                                        >{showMap ? 'Hide Map' : 'Show Map'}</div>
+                                                    }
                                                     <div className={'switch-preview-map'}
                                                          onClick={() => {
-                                                             setShowMap(!showMap)
-                                                         }
-                                                         }
-                                                    >{showMap ? 'Hide Map' : 'Show Map'}</div>
-                                                    <div className={'switch-preview-map'}
-                                                         onClick={() => {
-                                                             copy(event.formatted_address)
+                                                             copy(event.formatted_address || event?.location)
                                                              showToast('Copied')
                                                          }}
                                                     >Copy Address
                                                     </div>
                                                 </div>
-                                                {showMap &&
+                                                {showMap && !!event.formatted_address &&
                                                     <Link href={genGoogleMapLink(event.geo_lat!, event.geo_lng!, event.location_data)}
                                                           target={'_blank'}
                                                           className={`map-preview`}>
