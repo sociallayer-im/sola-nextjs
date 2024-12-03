@@ -68,6 +68,7 @@ import {isHideLocation} from "@/global_config";
 import {cancelEventStar, getUserStaredComment, handleEventStar} from "@/service/solasv2";
 import DialogFeedback from "@/components/base/Dialog/DialogFeedback";
 import genGoogleMapLink from "@/utils/googleMapLink";
+import {useZupassTicket} from "@/hooks/useZupassTicket";
 
 const utc = require('dayjs/plugin/utc')
 const timezone = require('dayjs/plugin/timezone')
@@ -129,6 +130,8 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
     const [repeatEventDetail, setRepeatEventDetail] = useState<RecurringEvent | null>(null)
     const [ticketReady, setTicketReady] = useState(false)
     const [stared, setStared] = useState(false)
+
+    const {claimPOD} = useZupassTicket()
 
     async function fetchData() {
         if (params?.eventid) {
@@ -1064,8 +1067,19 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                             handleUnJoin()
                                                         }}>{lang['Profile_Edit_Cancel']}</AppButton>
                                                 }
+
                                             </div>
                                         </div>
+
+                                        {isJoined && event.group_id === 1516 &&
+                                            <div className={'event-action'}>
+                                                <AppButton
+                                                    onClick={e => {
+                                                        claimPOD(event.id)
+                                                    }}
+                                                    special>Claim Zupass POD</AppButton>
+                                            </div>
+                                        }
 
                                         {!canAccess &&
                                             <div className={'event-action'}>
@@ -1327,6 +1341,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                 }}>{lang['Activity_Detail_Btn_Checkin']}</AppButton>
                                         }
 
+
                                         {!canceled && isJoined && inProgress && !!event.meeting_url &&
                                             <AppButton
                                                 onClick={e => {
@@ -1367,6 +1382,16 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                         <div className={'event-action'}>
                                             <div className={'can-not-access'}> Event only open to members of the group
                                             </div>
+                                        </div>
+                                    }
+
+                                    {isJoined && event.group_id === 1516 &&
+                                        <div className={'event-action'}>
+                                            <AppButton
+                                                onClick={e => {
+                                                    claimPOD(event.id)
+                                                }}
+                                                special>Claim Zupass POD</AppButton>
                                         </div>
                                     }
                                 </div>

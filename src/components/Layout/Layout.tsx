@@ -69,6 +69,7 @@ function Layout(props?: any) {
                 <div className={css(content)} id={'PageContent'}>
                     {props.children}
                 </div>
+                <div id="zapp-connector" />
             </div>
         </div>
     )
