@@ -130,6 +130,33 @@ function DialogConnectWallet(props: DialogConnectWalletProps) {
                     props.handleClose()
                 }}/>
             </div>
+
+            {process.env.NEXT_PUBLIC_SPECIAL_VERSION !== 'maodao' &&
+                <div className='connect-item' onClick={handleConnectEmail}>
+                    <img src="/images/email.svg" alt="email"/>
+                    <div className='connect-name'>Email</div>
+                </div>
+            }
+
+            {connectors.map((connector) => (
+                (isEdgeCity && connector.name === 'JoyID') ?
+                    null
+                    : <div className={`connect-item ${!connector.ready ? 'disable' : ''}`}
+                           key={connector.id}
+                           onClick={() => handleConnectWallet(connector)}>
+                        <img src={walletIcon[connector.name.toLowerCase()] || `/images/injected.png`} alt={connector.name}/>
+                        <div
+                            className='connect-name'>{connector.name === 'Injected' ? 'Browser wallet' : connector.name}</div>
+                    </div>
+            ))}
+
+            {arrowPhoneLogin &&
+                <div className='connect-item' onClick={handlePhoneLogin}>
+                    <img src="/images/phone_login.png" alt="email"/>
+                    <div className='connect-name'>Phone</div>
+                </div>
+            }
+
             <div className='connect-item' onClick={async () => {
                 const unload = showLoading()
                 // const login = (await import('@/service/zupass/zupass')).login
@@ -146,29 +173,6 @@ function DialogConnectWallet(props: DialogConnectWalletProps) {
                     Zupass
                 </div>
             </div>
-            {connectors.map((connector) => (
-                (isEdgeCity && connector.name === 'JoyID') ?
-                    null
-                    : <div className={`connect-item ${!connector.ready ? 'disable' : ''}`}
-                           key={connector.id}
-                           onClick={() => handleConnectWallet(connector)}>
-                        <img src={walletIcon[connector.name.toLowerCase()] || `/images/injected.png`} alt={connector.name}/>
-                        <div
-                            className='connect-name'>{connector.name === 'Injected' ? 'Browser wallet' : connector.name}</div>
-                    </div>
-            ))}
-            {process.env.NEXT_PUBLIC_SPECIAL_VERSION !== 'maodao' &&
-                <div className='connect-item' onClick={handleConnectEmail}>
-                    <img src="/images/email.svg" alt="email"/>
-                    <div className='connect-name'>Email</div>
-                </div>
-            }
-            {arrowPhoneLogin &&
-                <div className='connect-item' onClick={handlePhoneLogin}>
-                    <img src="/images/phone_login.png" alt="email"/>
-                    <div className='connect-name'>Phone</div>
-                </div>
-            }
             <div className='connect-item' onClick={handleConnectZKEmail}>
                 <img src="/images/zkemail.png" alt="email"/>
                 <div className='connect-name'>ZK Email</div>
