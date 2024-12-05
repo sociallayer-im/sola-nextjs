@@ -9,6 +9,7 @@ import {useRouter} from 'next/navigation'
 // import {SignInButton} from '@farcaster/auth-kit';
 import useZuAuth from '@/service/zupass/useZuAuth'
 import {Spinner} from "baseui/icon";
+import useAuroWallet from "@/hooks/useAuroWallet";
 
 interface DialogConnectWalletProps {
     handleClose: (...rest: any[]) => any
@@ -24,6 +25,8 @@ const walletIcon: any = {
 
 function DialogConnectWallet(props: DialogConnectWalletProps) {
     const unloading_1 = useRef<any>(null)
+
+    const {connect: connectAuroWallet} = useAuroWallet()
 
     const [connectorsErr, setConnectorsErr] = useState<string>('')
     const {connect, connectors, error, isLoading } = useConnect({
@@ -149,6 +152,17 @@ function DialogConnectWallet(props: DialogConnectWalletProps) {
                             className='connect-name'>{connector.name === 'Injected' ? 'Browser wallet' : connector.name}</div>
                     </div>
             ))}
+
+            {!!(window as any).mina &&
+                <div className='connect-item' onClick={async () => {
+                    await connectAuroWallet()
+                }}>
+                    <img src="https://ik.imagekit.io/soladata/frniiuc9_5-PAFvV1h" alt="Auro Wallet"/>
+                    <div className='connect-name'>
+                        Auro Wallet
+                    </div>
+                </div>
+            }
 
             {arrowPhoneLogin &&
                 <div className='connect-item' onClick={handlePhoneLogin}>
