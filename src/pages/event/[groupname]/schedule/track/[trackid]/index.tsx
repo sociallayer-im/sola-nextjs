@@ -25,6 +25,7 @@ import DialogsContext from "@/components/provider/DialogProvider/DialogsContext"
 
 import * as dayjsLib from "dayjs";
 import {isHideLocation} from "@/global_config";
+import genGoogleMapLink from "@/utils/googleMapLink";
 
 const utc = require('dayjs/plugin/utc')
 const timezone = require('dayjs/plugin/timezone')
@@ -953,7 +954,7 @@ function EventCard({
                  onClick={e => {
                      e.stopPropagation()
                      e.preventDefault()
-                     location.href = `https://www.google.com/maps/search/?api=1&query=${event.geo_lat}%2C${event.geo_lng}`
+                     location.href =  genGoogleMapLink(event.geo_lat!, event.geo_lng!, event.location_data)
                  }}>
                 <i className={`${styles['icon']} icon-Outline`}/>
                 <div className={styles['location-text']}>{event.location}</div>

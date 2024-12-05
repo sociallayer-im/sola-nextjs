@@ -2,7 +2,7 @@
   position: relative;
   background: var(--color-page-bg-1);
 
-  .require-approval{
+  .require-approval {
     color: #272928;
     text-align: center;
     font-size: 16px;
@@ -601,13 +601,35 @@
   font-size: 14px;
   padding: 0 12px;
 
-  >div {
-    display: flex;
-    flex-flow: row wrap;
-    align-items: center;
+}
 
-    svg {
-      margin-left: 6px;
-    }
+.venue-available-time-btn {
+  display: inline-flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  margin-right: 12px;
+  cursor: pointer;
+  color: var(--color-text-main);
+  text-decoration: none;
+
+  svg {
+    margin-left: 2px!important;
+  }
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.venue-info {
+  display: flex;
+  flex-flow: row wrap;
+  font-size: 14px!important;
+  margin-bottom: 4px;
+
+  > * {
+    white-space: nowrap;
+    margin-top: 4px;
+    margin-bottom: 4px;
   }
 }

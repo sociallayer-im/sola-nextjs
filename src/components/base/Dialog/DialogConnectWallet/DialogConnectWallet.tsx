@@ -9,6 +9,7 @@ import {useRouter} from 'next/navigation'
 // import {SignInButton} from '@farcaster/auth-kit';
 import useZuAuth from '@/service/zupass/useZuAuth'
 import {Spinner} from "baseui/icon";
+import useAuroWallet from "@/hooks/useAuroWallet";
 
 interface DialogConnectWalletProps {
     handleClose: (...rest: any[]) => any
@@ -24,6 +25,8 @@ const walletIcon: any = {
 
 function DialogConnectWallet(props: DialogConnectWalletProps) {
     const unloading_1 = useRef<any>(null)
+
+    const {connect: connectAuroWallet} = useAuroWallet()
 
     const [connectorsErr, setConnectorsErr] = useState<string>('')
     const {connect, connectors, error, isLoading } = useConnect({
@@ -130,6 +133,44 @@ function DialogConnectWallet(props: DialogConnectWalletProps) {
                     props.handleClose()
                 }}/>
             </div>
+
+            {process.env.NEXT_PUBLIC_SPECIAL_VERSION !== 'maodao' &&
+                <div className='connect-item' onClick={handleConnectEmail}>
+                    <img src="/images/email.svg" alt="email"/>
+                    <div className='connect-name'>Email</div>
+                </div>
+            }
+
+            {connectors.map((connector) => (
+                (isEdgeCity && connector.name === 'JoyID') ?
+                    null
+                    : <div className={`connect-item ${!connector.ready ? 'disable' : ''}`}
+                           key={connector.id}
+                           onClick={() => handleConnectWallet(connector)}>
+                        <img src={walletIcon[connector.name.toLowerCase()] || `/images/injected.png`} alt={connector.name}/>
+                        <div
+                            className='connect-name'>{connector.name === 'Injected' ? 'Browser wallet' : connector.name}</div>
+                    </div>
+            ))}
+
+            {!!(window as any).mina &&
+                <div className='connect-item' onClick={async () => {
+                    await connectAuroWallet()
+                }}>
+                    <img src="https://ik.imagekit.io/soladata/frniiuc9_5-PAFvV1h" alt="Auro Wallet"/>
+                    <div className='connect-name'>
+                        Auro Wallet
+                    </div>
+                </div>
+            }
+
+            {arrowPhoneLogin &&
+                <div className='connect-item' onClick={handlePhoneLogin}>
+                    <img src="/images/phone_login.png" alt="email"/>
+                    <div className='connect-name'>Phone</div>
+                </div>
+            }
+
             <div className='connect-item' onClick={async () => {
                 const unload = showLoading()
                 // const login = (await import('@/service/zupass/zupass')).login
@@ -146,29 +187,6 @@ function DialogConnectWallet(props: DialogConnectWalletProps) {
                     Zupass
                 </div>
             </div>
-            {connectors.map((connector) => (
-                (isEdgeCity && connector.name === 'JoyID') ?
-                    null
-                    : <div className={`connect-item ${!connector.ready ? 'disable' : ''}`}
-                           key={connector.id}
-                           onClick={() => handleConnectWallet(connector)}>
-                        <img src={walletIcon[connector.name.toLowerCase()] || `/images/injected.png`} alt={connector.name}/>
-                        <div
-                            className='connect-name'>{connector.name === 'Injected' ? 'Browser wallet' : connector.name}</div>
-                    </div>
-            ))}
-            {process.env.NEXT_PUBLIC_SPECIAL_VERSION !== 'maodao' &&
-                <div className='connect-item' onClick={handleConnectEmail}>
-                    <img src="/images/email.svg" alt="email"/>
-                    <div className='connect-name'>Email</div>
-                </div>
-            }
-            {arrowPhoneLogin &&
-                <div className='connect-item' onClick={handlePhoneLogin}>
-                    <img src="/images/phone_login.png" alt="email"/>
-                    <div className='connect-name'>Phone</div>
-                </div>
-            }
             <div className='connect-item' onClick={handleConnectZKEmail}>
                 <img src="/images/zkemail.png" alt="email"/>
                 <div className='connect-name'>ZK Email</div>

@@ -211,7 +211,8 @@ function Dashboard() {
             overrides: null,
             visibility: null,
             venue_timeslots: [],
-            venue_overrides: []
+            venue_overrides: [],
+            location_data: null,
         })
         setEventSite(_eventSite)
         setEditingVenueIndex(_eventSite.length - 1)

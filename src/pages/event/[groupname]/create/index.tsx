@@ -61,6 +61,7 @@ import TicketSetting from "@/components/compose/TicketSetting/TicketSetting";
 import TrackSelect from "@/components/base/TrackSelect/TrackSelect";
 import {edgeGroups} from "@/global_config";
 import AppRadio from "@/components/base/AppRadio/AppRadio";
+import DialogVenueDetail from "@/components/base/Dialog/DialogVenueDetail/DialogVenueDetail";
 
 const utc = require('dayjs/plugin/utc')
 const timezone = require('dayjs/plugin/timezone')
@@ -192,10 +193,19 @@ function EditEvent({
         track_id: null,
         pinned: false,
         status: 'open',
-        theme: null
+        theme: null,
+        location_data: null
     })
 
     const statusRef = useRef(event.status)
+
+    const handleShowVenueDetail = () => {
+        openDialog({
+            content: (close: any) => <DialogVenueDetail close={close} venue={venueInfo!} />,
+            size: [360, 'auto'],
+            position: 'bottom'
+        } as OpenDialogProps)
+    }
 
     const init = async () => {
         if (!!group && user.id) {
@@ -1352,35 +1362,50 @@ function EditEvent({
                                             setVenueInfo(values.venue || null)
                                             setEvent({
                                                 ...event,
-                                                ...values
+                                                ...values,
+                                                location_data: values.place_id,
                                             } as any)
                                         }}/>
 
                                     {!!venueInfo &&
                                         <div className={styles['venue-detail']}>
-                                            {
-                                                venueInfo.require_approval &&
-                                                <div className={'approval-tag'}>Require Approval</div>
-                                            }
-                                            <div>
-                                                {venueInfo.about}
-                                                {
-                                                    !!venueInfo.link &&
-                                                    <a href={venueInfo.link} target="_blank" rel="noreferrer"
-                                                    >
+                                            <div className={styles['venue-info']}>
+                                                <div className={styles['venue-available-time-btn']} onClick={handleShowVenueDetail}>
+                                                    <div>Venue Timeslots</div>
+                                                    <svg className="icon" viewBox="0 0 1024 1024"
+                                                         version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4274"
+                                                         width="18" height="18">
+                                                        <path
+                                                            d="M512 97.52381c228.912762 0 414.47619 185.563429 414.47619 414.47619s-185.563429 414.47619-414.47619 414.47619S97.52381 740.912762 97.52381 512 283.087238 97.52381 512 97.52381z m0 73.142857C323.486476 170.666667 170.666667 323.486476 170.666667 512s152.81981 341.333333 341.333333 341.333333 341.333333-152.81981 341.333333-341.333333S700.513524 170.666667 512 170.666667z m45.32419 487.619047v73.142857h-68.510476l-0.024381-73.142857h68.534857z m-4.047238-362.008381c44.251429 8.923429 96.889905 51.126857 96.889905 112.518096 0 61.415619-50.151619 84.650667-68.120381 96.134095-17.993143 11.50781-24.722286 24.771048-24.722286 38.863238V609.52381h-68.534857v-90.672762c0-21.504 6.89981-36.571429 26.087619-49.883429l4.315429-2.852571 38.497524-25.6c24.551619-16.530286 24.210286-49.712762 9.020952-64.365715a68.998095 68.998095 0 0 0-60.391619-15.481904c-42.715429 8.387048-47.640381 38.521905-47.932952 67.779047v16.554667H390.095238c0-56.953905 6.534095-82.773333 36.912762-115.395048 34.03581-36.449524 81.993143-42.300952 126.268952-33.328762z"
+                                                            p-id="4275"/>
+                                                    </svg>
+                                                </div>
+
+                                                {!!venueInfo.link &&
+                                                    <a href={venueInfo.link} className={styles['venue-available-time-btn']} target="_blank" rel="noreferrer"
+                                                    > <div>External Link</div>
                                                         <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12"
-                                                             viewBox="0 0 12 12" fill="none">
+                                                             viewBox="0 0 12 12">
                                                             <path
                                                                 d="M11.2941 6.93176C11.1069 6.93176 10.9274 7.00613 10.795 7.13851C10.6626 7.27089 10.5882 7.45044 10.5882 7.63765V9.88235C10.5882 10.0696 10.5139 10.2491 10.3815 10.3815C10.2491 10.5139 10.0696 10.5882 9.88235 10.5882H2.11765C1.93044 10.5882 1.75089 10.5139 1.61851 10.3815C1.48613 10.2491 1.41176 10.0696 1.41176 9.88235V2.11765C1.41176 1.93044 1.48613 1.75089 1.61851 1.61851C1.75089 1.48613 1.93044 1.41176 2.11765 1.41176H4.36235C4.54956 1.41176 4.72911 1.3374 4.86149 1.20502C4.99387 1.07264 5.06824 0.893094 5.06824 0.705882C5.06824 0.518671 4.99387 0.339127 4.86149 0.206748C4.72911 0.0743697 4.54956 0 4.36235 0H2.11765C1.55601 0 1.01738 0.223109 0.620244 0.620245C0.223108 1.01738 0 1.55601 0 2.11765V9.88235C0 10.444 0.223108 10.9826 0.620244 11.3798C1.01738 11.7769 1.55601 12 2.11765 12H9.88235C10.444 12 10.9826 11.7769 11.3798 11.3798C11.7769 10.9826 12 10.444 12 9.88235V7.63765C12 7.45044 11.9256 7.27089 11.7933 7.13851C11.6609 7.00613 11.4813 6.93176 11.2941 6.93176ZM11.9435 0.437647C11.8719 0.265165 11.7348 0.1281 11.5624 0.0564705C11.4775 0.0203004 11.3864 0.00111529 11.2941 0H7.05882C6.87161 0 6.69207 0.0743695 6.55969 0.206748C6.42731 0.339127 6.35294 0.518671 6.35294 0.705882C6.35294 0.893094 6.42731 1.07264 6.55969 1.20502C6.69207 1.3374 6.87161 1.41176 7.05882 1.41176H9.59294L4.44 6.55765C4.37384 6.62327 4.32133 6.70134 4.28549 6.78736C4.24965 6.87338 4.2312 6.96564 4.2312 7.05882C4.2312 7.15201 4.24965 7.24427 4.28549 7.33029C4.32133 7.41631 4.37384 7.49438 4.44 7.56C4.50562 7.62616 4.58369 7.67867 4.66971 7.71451C4.75573 7.75035 4.84799 7.7688 4.94118 7.7688C5.03436 7.7688 5.12662 7.75035 5.21264 7.71451C5.29866 7.67867 5.37673 7.62616 5.44235 7.56L10.5882 2.40706V4.94118C10.5882 5.12839 10.6626 5.30793 10.795 5.44031C10.9274 5.57269 11.1069 5.64706 11.2941 5.64706C11.4813 5.64706 11.6609 5.57269 11.7933 5.44031C11.9256 5.30793 12 5.12839 12 4.94118V0.705882C11.9989 0.61364 11.9797 0.52251 11.9435 0.437647Z"
-                                                                fill="#7492EF"/>
+                                                                />
                                                         </svg>
                                                     </a>
                                                 }
+
+                                                {
+                                                    venueInfo.require_approval &&
+                                                    <div className={'approval-tag'}>Require Approval</div>
+                                                }
+
                                             </div>
-                                            {
-                                                !!venueInfo.capacity &&
-                                                <div>{venueInfo.capacity} seats</div>
-                                            }
+                                            <div>
+                                                {venueInfo.about}
+
+                                                {!!venueInfo.capacity &&
+                                                    <div>{venueInfo.capacity} seats</div>
+                                                }
+                                            </div>
                                         </div>
                                     }
                                 </div>

@@ -10,6 +10,7 @@ import * as dayjsLib from 'dayjs'
 import Head from 'next/head'
 import {useRouter} from "next/navigation";
 import {getLabelColor} from "@/hooks/labelColor";
+import genGoogleMapLink from "@/utils/googleMapLink";
 
 const utc = require('dayjs/plugin/utc')
 const timezone = require('dayjs/plugin/timezone')
@@ -470,7 +471,7 @@ function EventCard({
             <div className={styles['schedule-event-card-position']}
                  onClick={e => {
                      e.stopPropagation()
-                     location.href = `https://www.google.com/maps/search/?api=1&query=${event.geo_lat}%2C${event.geo_lng}`
+                     location.href =  genGoogleMapLink(event.geo_lat!, event.geo_lng!, event.location_data)
                  }}>
                 <i className={`${styles['icon']} icon-Outline`}/>
                 <div className={styles['location-text']}>{event.location}</div>
@@ -487,7 +488,7 @@ function EventCard({
             <div className={styles['schedule-event-card-position']}
                  onClick={e => {
                      e.stopPropagation()
-                     location.href = `https://www.google.com/maps/search/?api=1&query=${event.geo_lat}%2C${event.geo_lng}`
+                     location.href =  genGoogleMapLink(event.geo_lat!, event.geo_lng!, event.location_data)
                  }}>
                 <i className={`${styles['icon']} icon-Outline`}/>
                 <div className={styles['location-text']}>{event.venue.title}</div>

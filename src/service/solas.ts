@@ -2970,6 +2970,7 @@ export async function isMember(props: { profile_id: number, group_id: number }) 
 }
 
 export interface EventSites {
+    location_data: string | null,
     "id": number,
     "title": string,
     "location": string,
@@ -3009,6 +3010,7 @@ export interface Participants {
 }
 
 export interface Event {
+    location_data: string | null,
     track_id: number | null
     padge_link: string | null,
     id: number,
@@ -3233,6 +3235,7 @@ export async function queryEvent(props: QueryEventProps): Promise<Event[]> {
 
     const doc = gql`query MyQuery ${props.cache? '@cached' : ''} {
       events (where: {${variables}, status: {_in: [${status}]}} ${order} limit: ${page_size}, offset: ${props.offset || ((props.page - 1) * page_size)}) {
+      location_data
         event_roles {
             id,
             event_id,
@@ -3264,6 +3267,7 @@ export async function queryEvent(props: QueryEventProps): Promise<Event[]> {
         end_time
         venue_id
         venue {
+        location_data
             visibility
             id
             title
@@ -3423,6 +3427,7 @@ export async function queryPendingEvent(props: QueryEventProps): Promise<Event[]
 
     const doc = gql`query MyQuery {
       events (where: {${variables} status: {_eq: "pending"}}, ${order} limit: ${page_size}, offset: ${(props.page - 1) * page_size}) {
+      location_data
         event_roles {
             id,
             event_id,
@@ -3453,6 +3458,7 @@ export async function queryPendingEvent(props: QueryEventProps): Promise<Event[]
         display
         venue_id
         venue {
+        location_data
             visibility
             id
             title
@@ -3545,6 +3551,7 @@ export async function queryCohostingEvent(props: { id: number, email?: string })
 
     const doc = gql`query MyQuery {
       events (where: {${variables}}, ${order} limit: ${page_size}) {
+      location_data
         event_roles  {
             id,
             event_id,
@@ -3575,6 +3582,7 @@ export async function queryCohostingEvent(props: { id: number, email?: string })
         display
         venue_id
         venue {
+        location_data
             visibility
             id
             title
@@ -3757,6 +3765,7 @@ export async function queryMyEvent({page = 1, page_size = 10, ...props}: QueryMy
           status
           venue_id
           venue {
+          location_data
                visibility
                id
                title
@@ -3854,6 +3863,7 @@ export async function getEventSide(groupId?: number, allowRemoved?: boolean): Pr
     const status = allowRemoved ? '' : ', removed: {_is_null: true}'
     const doc = gql`query MyQuery {
       venues(where: {group_id: {_eq: ${groupId}}${status}}, order_by: {id: desc}) {
+      location_data
         visibility
         removed
         formatted_address
@@ -3982,6 +3992,7 @@ export async function unJoinEvent(props: JoinEventProps) {
 export async function searchEvent(keyword: string, group_id?: number): Promise<Event[]> {
     const doc = gql`query MyQuery {
       events (where: {title: {_iregex: "${keyword}"} , ${group_id ? `group_id: {_eq: ${group_id}},` : ''} status: {_neq: "cancel"}}, limit: 10) {
+      location_data
         event_roles{
             id,
             event_id,
@@ -4013,6 +4024,7 @@ export async function searchEvent(keyword: string, group_id?: number): Promise<E
         end_time
         venue_id
         venue {
+        location_data
             visibility
             id
             title
@@ -4655,6 +4667,7 @@ export interface Marker {
     zugame_state?: string | null,
     event?: Event | null,
     timezone: string,
+    location_data?: string | null
 }
 
 export interface CreateMarkerProps extends Partial<Marker> {
@@ -4770,6 +4783,7 @@ export async function queryMarkers(props: {
     const doc = gql`
         query MyQuery {
           markers(where: {${variables} ,status: {_nin: ["pending", "removed"]}} order_by: {${sortStr}}) {
+          location_data
           voucher_id
           voucher {
             id
@@ -6621,6 +6635,7 @@ export async function queryScheduleEvent(props: QueryEventProps): Promise<Event[
 
     const doc = gql`query MyQuery ${props.cache? '@cached' : ''} {
       events (where: {${variables}, status: {_in: [${status}]}} ${order} limit: ${page_size}, offset: ${props.offset || ((props.page - 1) * page_size)}) {
+      location_data
         event_roles{
             id,
             event_id,
@@ -6769,6 +6784,7 @@ export async function queryMapEvent(props: QueryEventProps): Promise<Event[]> {
 
     const doc = gql`query MyQuery ${props.cache? '@cached' : ''} {
       events (where: {${variables}, status: {_in: [${status}]}} ${order} limit: ${page_size}, offset: ${props.offset || ((props.page - 1) * page_size)}) {
+      location_data
         event_roles{
             id,
             event_id,

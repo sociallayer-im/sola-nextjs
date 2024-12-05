@@ -36,14 +36,14 @@ export default function HomePage(props: {
     useEffect(() => {
         if (typeof window === 'undefined') return
         const expired = window.localStorage.getItem('installprompt')
-        // 7 days 1000 * 60 * 60 * 24 * 7
-        // 1min  1000 * 60
-        if (!!(window as any).deferredPrompt && (!expired || (expired && Number(expired) + 1000 * 60  < new Date().getTime()))) {
+        // 7 days
+        if (window.innerWidth < 460 && !!(window as any).deferredPrompt && (!expired || (expired && Number(expired) + 1000 * 60 * 60 * 24 * 3  < new Date().getTime()))) {
             window.localStorage.setItem('installprompt', new Date().getTime().toString())
             openDialog({
                 content: (close: any) => <DialogToMainScreen close={close}/>,
                 position: 'bottom',
                 size: ['auto', 'auto'],
+                noShell: true
             })
         }
     }, []);

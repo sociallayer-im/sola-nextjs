@@ -67,6 +67,8 @@ import useZuAuth from "@/service/zupass/useZuAuth";
 import {isHideLocation} from "@/global_config";
 import {cancelEventStar, getUserStaredComment, handleEventStar} from "@/service/solasv2";
 import DialogFeedback from "@/components/base/Dialog/DialogFeedback";
+import genGoogleMapLink from "@/utils/googleMapLink";
+import {useZupassTicket} from "@/hooks/useZupassTicket";
 
 const utc = require('dayjs/plugin/utc')
 const timezone = require('dayjs/plugin/timezone')
@@ -128,6 +130,8 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
     const [repeatEventDetail, setRepeatEventDetail] = useState<RecurringEvent | null>(null)
     const [ticketReady, setTicketReady] = useState(false)
     const [stared, setStared] = useState(false)
+
+    const {claimPOD} = useZupassTicket()
 
     async function fetchData() {
         if (params?.eventid) {
@@ -520,17 +524,6 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
         })
     }
 
-    const genGoogleMapUrl = () => {
-        // if (marker.formatted_address && marker.location !== 'Custom location') {
-        //     const json = JSON.parse(marker.formatted_address)
-        //     return `https://www.google.com/maps/search/?api=1&query=${json.name.split('').join('+')}`
-        // } else {
-        //     return `https://www.google.com/maps/search/?api=1&query=${marker.geo_lat}%2C${marker.geo_lng}`
-        // }
-
-        return `https://www.google.com/maps/search/?api=1&query=${event!.geo_lat}%2C${event!.geo_lng}`
-    }
-
     const handlePublish = (e: any) => {
         e.preventDefault()
         openConfirmDialog({
@@ -883,7 +876,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                             {
                                                 (isJoined || isManager || isOperator || isGroupOwner || isHoster || isMember || isTrackManager || !isHideLocation(event.group_id)) ? <>
                                                         {event.formatted_address ?
-                                                            <a href={genGoogleMapUrl()}
+                                                            <a href={genGoogleMapLink(event.geo_lat!, event.geo_lng!, event.location_data)}
                                                                target={'_blank'}>
                                                                 <div className={'main'}>{event.location}</div>
                                                                 <div className={'sub'}>{event.formatted_address}</div>
@@ -905,22 +898,24 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                         {MapReady && (isJoined || isManager || isOperator || isGroupOwner || isHoster || isMember || isTrackManager || !isHideLocation(event.group_id)) &&
                                             <>
                                                 <div className="map-action">
+                                                    {!!event.formatted_address &&
+                                                        <div className={'switch-preview-map'}
+                                                             onClick={() => {
+                                                                 setShowMap(!showMap)
+                                                             }
+                                                             }
+                                                        >{showMap ? 'Hide Map' : 'Show Map'}</div>
+                                                    }
                                                     <div className={'switch-preview-map'}
                                                          onClick={() => {
-                                                             setShowMap(!showMap)
-                                                         }
-                                                         }
-                                                    >{showMap ? 'Hide Map' : 'Show Map'}</div>
-                                                    <div className={'switch-preview-map'}
-                                                         onClick={() => {
-                                                             copy(event.formatted_address)
+                                                             copy(event.formatted_address || event?.location)
                                                              showToast('Copied')
                                                          }}
                                                     >Copy Address
                                                     </div>
                                                 </div>
-                                                {showMap &&
-                                                    <Link href={genGoogleMapUrl()}
+                                                {showMap && !!event.formatted_address &&
+                                                    <Link href={genGoogleMapLink(event.geo_lat!, event.geo_lng!, event.location_data)}
                                                           target={'_blank'}
                                                           className={`map-preview`}>
                                                         <img
@@ -1077,8 +1072,19 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                             handleUnJoin()
                                                         }}>{lang['Profile_Edit_Cancel']}</AppButton>
                                                 }
+
                                             </div>
                                         </div>
+
+                                        {isJoined && event.group_id === 1516 &&
+                                            <div className={'event-action'}>
+                                                <AppButton
+                                                    onClick={e => {
+                                                        claimPOD(event.id)
+                                                    }}
+                                                    special>Claim Zupass POD</AppButton>
+                                            </div>
+                                        }
 
                                         {!canAccess &&
                                             <div className={'event-action'}>
@@ -1340,6 +1346,7 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                                 }}>{lang['Activity_Detail_Btn_Checkin']}</AppButton>
                                         }
 
+
                                         {!canceled && isJoined && inProgress && !!event.meeting_url &&
                                             <AppButton
                                                 onClick={e => {
@@ -1380,6 +1387,16 @@ function EventDetail(props: { event: Event | null, appName: string, host: string
                                         <div className={'event-action'}>
                                             <div className={'can-not-access'}> Event only open to members of the group
                                             </div>
+                                        </div>
+                                    }
+
+                                    {isJoined && event.group_id === 1516 &&
+                                        <div className={'event-action'}>
+                                            <AppButton
+                                                onClick={e => {
+                                                    claimPOD(event.id)
+                                                }}
+                                                special>Claim Zupass POD</AppButton>
                                         </div>
                                     }
                                 </div>

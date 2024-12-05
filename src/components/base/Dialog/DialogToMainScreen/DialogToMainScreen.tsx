@@ -1,7 +1,13 @@
 import styles from './DialogToMainScreen.module.scss'
 import AppButton from "@/components/base/AppButton/AppButton";
+import {useEffect} from "react";
 
 export default function DialogToMainScreen(props: {close: () => void}) {
+
+    useEffect(() => {
+        const timeout = setTimeout(() => {props.close()}, 3000)
+        return () => clearTimeout(timeout)
+    }, [])
 
     return <div className={styles['dialog']}>
         <div className={styles['text']}>

@@ -685,7 +685,7 @@ const langEN = {
     Apply: 'Apply',
     Confirm: 'Confirm',
     Pay: 'Pay',
-
+    Bangkok_Popup_Cities: 'Bangkok Pop-up Season',
 }
 
 

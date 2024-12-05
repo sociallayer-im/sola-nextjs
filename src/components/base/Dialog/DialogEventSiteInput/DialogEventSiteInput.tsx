@@ -164,7 +164,8 @@ function DialogEventSiteInput(props: LocationInputProps) {
                 title: '',
                 location: '',
                 geo_lng: null,
-                geo_lat: null
+                geo_lat: null,
+                location_data: null
             }
         )
     }
@@ -181,7 +182,8 @@ function DialogEventSiteInput(props: LocationInputProps) {
                     title: result.structured_formatting.main_text,
                     location: `${result.customLatlng[0]},${result.customLatlng[1]}`,
                     geo_lng: result.customLatlng[1] + '',
-                    geo_lat: result.customLatlng[0] + ''
+                    geo_lat: result.customLatlng[0] + '',
+                    location_data: null
                 }
             )
         } else {
@@ -193,7 +195,7 @@ function DialogEventSiteInput(props: LocationInputProps) {
                 const service = new (window as any).google.maps.places.PlacesService(map)
                 service.getDetails({
                     sessionToken: sessionToken.current,
-                    fields: ['geometry', 'formatted_address', 'name'],
+                    fields: ['geometry', 'formatted_address', 'name', 'place_id'],
                     placeId: result.place_id
                 }, (place: any, status: string) => {
                     console.log('placeplace detail', place)
@@ -207,7 +209,8 @@ function DialogEventSiteInput(props: LocationInputProps) {
                             title: newEventSite!.title || place.name,
                             location: newEventSite!.title || place.name,
                             geo_lng: place.geometry.location.lng(),
-                            geo_lat: place.geometry.location.lat()
+                            geo_lat: place.geometry.location.lat(),
+                            location_data: place.place_id
                         }
                     )
                     unload()

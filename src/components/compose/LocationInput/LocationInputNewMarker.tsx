@@ -23,10 +23,12 @@ export interface LocationInputValue {
     geo_lng: number | null,
     location: string | null,
     formatted_address: string | null,
+    place_id?: string | null
 }
 
 export interface GMapPlaceRes {
     name: string
+    place_id: string,
     formatted_address: string,
     geometry: {
         location: {
@@ -153,7 +155,8 @@ function LocationInput(props: LocationInputProps) {
                 geo_lat: result.customLatlng[0],
                 geo_lng: result.customLatlng[1],
                 formatted_address: `${result.customLatlng[0]},${result.customLatlng[1]}`,
-                location: result.structured_formatting.main_text
+                location: result.structured_formatting.main_text,
+                place_id: null
             } as any)
             setSearchKeyword(`${result.customLatlng[0]},${result.customLatlng[1]}`)
         } else {
@@ -165,7 +168,7 @@ function LocationInput(props: LocationInputProps) {
                 const service = new (window as any).google.maps.places.PlacesService(map)
                 service.getDetails({
                     sessionToken: sessionToken.current,
-                    fields: ['geometry', 'formatted_address', 'name'],
+                    fields: ['geometry', 'formatted_address', 'name', 'place_id'],
                     placeId: result.place_id
                 }, (place: any, status: string) => {
                     const placeInfo = place as GMapPlaceRes
@@ -174,7 +177,8 @@ function LocationInput(props: LocationInputProps) {
                         geo_lat: placeInfo.geometry.location.lat(),
                         geo_lng: placeInfo.geometry.location.lng(),
                         formatted_address: placeInfo.formatted_address,
-                        location: placeInfo.name
+                        location: placeInfo.name,
+                        place_id: placeInfo.place_id
                     } as any)
                     setSearchKeyword(placeInfo.formatted_address)
                     unload()
@@ -209,6 +213,7 @@ function LocationInput(props: LocationInputProps) {
                                 geo_lng: null,
                                 formatted_address: null,
                                 location: null,
+                                place_id: null
                             })
                             setSearchKeyword('')
                         }}/>}
