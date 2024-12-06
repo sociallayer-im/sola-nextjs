@@ -187,3 +187,20 @@ export const signinWithZkEmail = async (props: {email: string, next_token: strin
 
     return response.data.auth_token as string
 }
+
+export async function minaLogin(props: {
+    mina_address: string,
+    next_token: string,
+    host?: string
+}) {
+    const res: any = await fetch.post({
+        url: `${apiUrl}/profile/signin_with_mina`,
+        data: {...props, app: props.host, address_source: 'mina'}
+    })
+
+    if (res.data.result === 'error') {
+        throw new Error(res.data.message)
+    }
+
+    return res.data.auth_token as string
+}
