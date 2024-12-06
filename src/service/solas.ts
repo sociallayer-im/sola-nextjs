@@ -198,6 +198,8 @@ export async function login(signer: any, walletName?: string) {
 }
 
 export interface Profile {
+    mina_address: string | null,
+    fuel_address: string | null,
     id: number,
     username: string | null,
     handle: string | null,

@@ -135,7 +135,7 @@ function ProfileMenu() {
             autoFocus>
             <div className={css(style.wrapper)}>
                 <ImgLazy className={css(style.img)} src={user.avatar || defaultAvatar(user.id)} width={32} alt=""/>
-                <div className={css(style.showName)}> {user.nickname || user.userName || shortAddress(user.wallet) || user.email || shortAddress(user.far_address)}</div>
+                <div className={css(style.showName)}> {user.nickname || user.userName || shortAddress(user.wallet) || user.email || shortAddress(user.far_address) || shortAddress(user.mina_address) || shortAddress(user.fuel_address)}</div>
                 { newNotificationCount > 0 && <i className={css(style.dot as any)} /> }
             </div>
         </StatefulPopover>
