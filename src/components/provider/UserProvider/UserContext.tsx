@@ -13,7 +13,9 @@ const emptyUser: User = {
     nickname: null,
     permissions: [],
     phone: null,
-    far_address: null
+    far_address: null,
+    mina_address: null,
+    fuel_address: null
 }
 
 const UserContext  = createContext<UserContextType>({
