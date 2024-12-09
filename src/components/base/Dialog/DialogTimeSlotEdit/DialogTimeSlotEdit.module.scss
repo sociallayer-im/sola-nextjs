@@ -134,3 +134,32 @@
   color: #FF4D4F;
   margin-bottom: 6px;
 }
+
+.book-role {
+  display: flex;
+  width: 200px;
+  flex-flow: row nowrap;
+  white-space: nowrap;
+  align-items: center;
+  margin-left: 12px;
+
+  .book-role-label {
+    margin-right: 12px;
+  }
+}
+
+.slot-row {
+  display: flex;
+  flex-flow: row wrap;
+  align-items: center;
+  flex: 1;
+}
+
+@media (max-width: 600px) {
+  .book-role {
+    width: calc(100% - 12px);
+    flex-shrink: 0;
+    margin-top: 12px;
+    margin-right: 12px;
+  }
+}

@@ -1,6 +1,6 @@
 import fetch from '../utils/fetch'
 const apiUrl = process.env.NEXT_PUBLIC_EVENT_LIST_API!
-import {Activity, Badgelet, Badge, CommentType, Event, Voucher, ProfileSimple} from './solas'
+import {Activity, Badgelet, Badge, CommentType, Event, Voucher, ProfileSimple, EventSites} from './solas'
 
 export const handleEventStar = async (props: { event_id: number, auth_token: string }) => {
     return await fetch.post({
@@ -143,7 +143,7 @@ export const getUserPopupcitys = async (props: {ids: number[]}) => {
 
     return res.data.group_data as {[index: string]: {
             groups: {id: number, handle: string, image_url: null | string}[]
-        }}
+    }}
 }
 
 export const getRememberMetadata = async () => {
@@ -204,3 +204,51 @@ export async function minaLogin(props: {
 
     return res.data.auth_token as string
 }
+
+interface EditEventProps extends Partial<EventSites> {
+    auth_token: string,
+    venue_id?: number,
+}
+
+export async function updateEventSite(props: EditEventProps) {
+    const res: any = await fetch.post({
+        url: `${apiUrl}/venue/update`,
+        data: {
+            auth_token: props.auth_token,
+            id: props.venue_id,
+            venue: {
+                ...props,
+                venue_overrides_attributes: props.venue_overrides,
+                venue_timeslots_attributes: props.venue_timeslots
+            }
+        }
+    })
+
+    if (res.data.result === 'error') {
+        throw new Error(res.data.message)
+    }
+
+    return res.data.venue as EventSites
+}
+
+export async function createEventSite(props: EditEventProps) {
+    const res: any = await fetch.post({
+        url: `${apiUrl}/venue/create`,
+        data: {
+            group_id: props.group_id,
+            auth_token: props.auth_token,
+            venue: {
+                ...props,
+                venue_overrides_attributes: props.venue_overrides,
+                venue_timeslots_attributes: props.venue_timeslots
+            }
+        }
+    })
+
+    if (res.data.result === 'error') {
+        throw new Error(res.data.message)
+    }
+
+    return res.data.venue as EventSites
+}
+

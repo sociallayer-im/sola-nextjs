@@ -263,6 +263,7 @@ function DialogEventSiteInput(props: LocationInputProps) {
             start_at: '00:00',
             end_at: '23:59',
             disabled: false,
+            role: 'all',
             venue_id: newEventSite!.id
         }
 
@@ -474,11 +475,11 @@ function DialogEventSiteInput(props: LocationInputProps) {
                 <Select
                     clearable={false}
                     searchable={false}
-                    options={[{id: null, label: 'All'}, {id: 'manager', label: 'Manager'}] as any}
+                    options={[{id: 'all', label: 'All'}, {id: 'manager', label: 'Manager'}] as any}
                     value={newEventSite!.visibility ? [{
                         id: newEventSite!.visibility,
                         label: newEventSite!.visibility
-                    }] : [{id: null, label: 'All'}] as any}
+                    }] : [{id: 'all', label: 'All'}] as any}
                     onChange={({option}) => {
                         setNewEventSite({
                             ...newEventSite!,
@@ -573,7 +574,7 @@ function DialogEventSiteInput(props: LocationInputProps) {
                                     <div>
                                         <div>{dayjs(new Date(o.day)).format('dddd, DD MMM')}</div>
                                         <div style={{fontSize: '12px', color: '#7B7C7B'}}>
-                                            {o.disabled ? 'Unavailable' : 'Available'}
+                                            {o.disabled ? 'Unavailable' : 'Available'} {o.role && !o.disabled  ? `for ${o.role}` : ''}
                                         </div>
                                     </div>
                                     <i className={'icon-edit'}/>

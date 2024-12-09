@@ -3,10 +3,8 @@ import {useContext, useEffect, useState, useRef} from 'react'
 import PageBack from "@/components/base/PageBack";
 import {
     Group,
-    createEventSite,
     EventSites,
     getEventSide,
-    updateEventSite,
     updateGroup,
     removeEventSite,
     queryGroupDetail, getGroupMembers, getGroupMembership, Track, getTracks
@@ -25,6 +23,7 @@ import {Select} from "baseui/select";
 import DialogTrack from "@/components/base/Dialog/DialogTracks/DialogTracks"
 import DialogEventSiteInput from "@/components/base/Dialog/DialogEventSiteInput/DialogEventSiteInput";
 import {usePathname, useRouter, useSearchParams} from "next/navigation";
+import {updateEventSite, createEventSite} from "@/service/solasv2";
 
 function Dashboard() {
     const params = useParams()

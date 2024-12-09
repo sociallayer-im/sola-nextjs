@@ -61,7 +61,7 @@ export interface LocationInputProps {
 
 
 function LocationInput(props: LocationInputProps) {
-    const {showToast, showLoading} = useContext(DialogsContext)
+    const {showLoading} = useContext(DialogsContext)
     const {langType, lang} = useContext(langContext)
     const {AutoComplete, Section, MapLibReady, MapReady, MapError} = useContext(MapContext)
 
@@ -74,6 +74,7 @@ function LocationInput(props: LocationInputProps) {
             timeslots: null,
             start_date: null,
             end_date: null,
+            visibility: 'all'
         }
     ])
     const [searchKeyword, setSearchKeyword] = useState('')
@@ -102,7 +103,14 @@ function LocationInput(props: LocationInputProps) {
             })
 
             if (!!hasOverride) {
-                return !hasOverride.disabled
+                if (hasOverride.disabled) {
+                   return false
+                } else if (hasOverride.role === 'manager') {
+                    return props.role === 'manager'
+                } else {
+                    // role 为 member
+                    return props.role === 'manager' || props.role === 'member'
+                }
             }
 
             // 判断 venue 的 start date 和 end date
@@ -130,7 +138,15 @@ function LocationInput(props: LocationInputProps) {
                     const eventStartTimeHour = startTime.format('HH:mm')
                     const eventEndTimeHour = endTime.format('HH:mm')
                     timeslotAvailable = timeslots.some(timeslot => {
-                        return eventStartTimeHour >= timeslot.start_at && eventEndTimeHour <= timeslot.end_at
+                        let canbook = true
+                        if (timeslot.role==='manager') {
+                            canbook = props.role === 'manager'
+                        }
+                        if (timeslot.role==='member') {
+                            canbook = props.role === 'manager' || props.role === 'member'
+                        }
+
+                        return canbook && eventStartTimeHour >= timeslot.start_at && eventEndTimeHour <= timeslot.end_at
                     })
                 }
             }
@@ -281,7 +297,6 @@ function LocationInput(props: LocationInputProps) {
     return (<div className={'input-area event-location-input'}>
         <input type="text" id={'map'}/>
         <div className={'input-area-sub-title'}>{lang['Activity_Detail_Offline_location']}</div>
-
         {!createMode &&
             <div className={'selector venue'}>
                 <i className={'icon-Outline'}/>
@@ -310,7 +325,7 @@ function LocationInput(props: LocationInputProps) {
                         return <div
                             style={{padding: '7px', width: width ? `${width - 60}px`: 'auto', opacity: available ? 1: 0.3}}>
                             <div style={{fontSize: '16px', color: '#272928', whiteSpace: 'pre-wrap'}}>
-                                {option.option.title}
+                                {option.option.title} {option.option.role}
                                 {
                                     !!option.option.link &&
                                     <a href={option.option.link} target={'_blank'} style={{marginLeft: '6px'}}>

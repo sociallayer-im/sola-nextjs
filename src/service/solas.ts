@@ -3294,6 +3294,7 @@ export async function queryEvent(props: QueryEventProps): Promise<Event[]> {
                 disabled
                 start_at
                 end_at
+                role
             }
             venue_overrides {
                 id
@@ -3302,6 +3303,7 @@ export async function queryEvent(props: QueryEventProps): Promise<Event[]> {
                 disabled
                 start_at
                 end_at
+                role
             }
         }
         event_type
@@ -3604,6 +3606,7 @@ export async function queryCohostingEvent(props: { id: number, email?: string })
                 disabled
                 start_at
                 end_at
+                role
             }
             venue_overrides {
                 id
@@ -3786,6 +3789,7 @@ export async function queryMyEvent({page = 1, page_size = 10, ...props}: QueryMy
                 disabled
                 start_at
                 end_at
+                role
             }
             venue_overrides {
                 id
@@ -3892,6 +3896,7 @@ export async function getEventSide(groupId?: number, allowRemoved?: boolean): Pr
                 disabled
                 start_at
                 end_at
+                role
         }
         venue_overrides {
                 id
@@ -3900,6 +3905,7 @@ export async function getEventSide(groupId?: number, allowRemoved?: boolean): Pr
                 disabled
                 start_at
                 end_at
+                role
         }
       }
     }`
@@ -4045,6 +4051,7 @@ export async function searchEvent(keyword: string, group_id?: number): Promise<E
                 disabled
                 start_at
                 end_at
+                role
             }
             venue_overrides {
                 id
@@ -4053,6 +4060,7 @@ export async function searchEvent(keyword: string, group_id?: number): Promise<E
                 disabled
                 start_at
                 end_at
+                role
             }
         }
          owner {
@@ -6195,6 +6203,7 @@ export interface VenueTimeslot {
     disabled: boolean,
     start_at: string,
     end_at: string,
+    role: 'member' | 'manager' | 'all'
     _destroy?: string
 }
 
@@ -6205,6 +6214,7 @@ export interface VenueOverride {
     disabled: boolean,
     start_at: string | null,
     end_at: string | null,
+    role: 'member' | 'manager' | 'all'
     _destroy?: string
 }
 

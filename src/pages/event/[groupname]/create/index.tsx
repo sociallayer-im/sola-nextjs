@@ -120,6 +120,7 @@ function EditEvent({
     const [formReady, setFormReady] = useState(false)
     const [isEditMode, setIsEditMode] = useState(!!initEvent)
     const [isManager, setIsManager] = useState(false)
+    const [isJoined, setIsJoined] = useState(false)
     const [repeat, setRepeat] = useState<string | null>(null)
     const [badgeDetail, setBadgeDetail] = useState<Badge | null>(null)
     const [creating, setCreating] = useState(false)
@@ -215,6 +216,7 @@ function EditEvent({
             const isManager = !!membership && membership.role === 'manager' || group.creator.id === user.id
 
             setIsManager(isManager)
+            setIsJoined(isJoined)
 
             if (!!initEvent && user.userName && initEvent.operators?.includes(user!.id!)) {
                 setNeedPublish(false)
@@ -478,10 +480,25 @@ function EditEvent({
                     || endTime.isBetween(dayjs.tz(`${item.day} ${start_at}`, event.timezone), dayjs.tz(`${item.day} ${end_at}`, event.timezone), null, '[]')
             })
 
+            setDayDisable('')
+
             if (!!hasOverride) {
-                setDayDisable(!hasOverride.disabled ? '' : 'The date you selected is not available for the current venue')
-                return
+                if (hasOverride.disabled) {
+                    setDayDisable('The date you selected is not available for the current venue')
+                    return
+                }
+
+                if (hasOverride.role === 'manager' && !isManager) {
+                    setDayDisable('The date you selected is not available for the current venue, requires manager permission')
+                    return
+                }
+
+                if (hasOverride.role === 'member' && !isJoined) {
+                    setDayDisable('The date you selected is not available for the current venue, requires member permission')
+                    return
+                }
             }
+
 
             // 判断 venue 的 start date 和 end date
             let venueAvailable = true
@@ -507,9 +524,20 @@ function EditEvent({
                 } else {
                     const eventStartTimeHour = startTime.format('HH:mm')
                     const eventEndTimeHour = endTime.format('HH:mm')
-                    timeslotAvailable = timeslots.some(timeslot => {
+                    const currTimeslot = timeslots.find(timeslot => {
                         return eventStartTimeHour >= timeslot.start_at && eventEndTimeHour <= timeslot.end_at
                     })
+
+                    if (!!currTimeslot) {
+                        if (currTimeslot.role === 'manager' && !isManager) {
+                            setDayDisable('The date you selected is not available for the current venue, requires manager permission')
+                            return
+                        }
+                        if (currTimeslot.role === 'member' && !isJoined) {
+                            setDayDisable('The date you selected is not available for the current venue, requires member permission')
+                            return
+                        }
+                    }
                 }
             }
             if (timeslotAvailable && venueAvailable) {
@@ -1337,22 +1365,10 @@ function EditEvent({
                                 </div>
                             }
 
-                            {false &&
-                                <div className={styles['input-area']}>
-                                    <div className={styles['input-area-title']}>{lang['External_Url']}</div>
-                                    <AppInput clearable={false}
-                                              value={event.external_url || ''}
-                                              placeholder={lang['External_Url']}
-                                              onChange={(e) => {
-                                                  setEvent({...event, external_url: e.target.value})
-                                              }}/>
-                                </div>
-                            }
-
                             {!!eventGroup &&
                                 <div className={styles['input-area']}>
                                     <LocationInput
-                                        role={isManager ? 'manager' : undefined}
+                                        role={isManager ? 'manager' : (isJoined ? 'member' : undefined)}
                                         event={event as any}
                                         initValue={event as any}
                                         eventGroup={eventGroup as Group}

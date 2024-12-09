@@ -7,6 +7,7 @@ import AppRadio from "@/components/base/AppRadio/AppRadio";
 import {TimePicker} from "baseui/datepicker";
 import {CheckIndeterminate, Plus} from "baseui/icon";
 import {VenueTimeslot} from "@/service/solas";
+import {Select} from "baseui/select";
 
 const isSameOrBefore = require('dayjs/plugin/isSameOrBefore')
 const isSameOrAfter = require('dayjs/plugin/isSameOrAfter')
@@ -23,14 +24,16 @@ export interface TimeSlotItem {
     slot: { start: string, end: string, _destroy?: number }[]
 }
 
+const roleOpts = [{id: 'all', label: 'All'}, {id: 'member', label: 'Member'}, {id: 'manager', label: 'Manager'}]
+
 const emptySlot: VenueTimeslotWithIndex[] = [
-    {day_of_week: 'monday', disabled: false, start_at: '08:00', end_at: '20:00', _index: 0},
-    {day_of_week: 'tuesday', disabled: false, start_at: '08:00', end_at: '20:00', _index: 1},
-    {day_of_week: 'wednesday', disabled: false, start_at: '08:00', end_at: '20:00', _index: 2},
-    {day_of_week: 'thursday', disabled: false, start_at: '08:00', end_at: '20:00',_index: 3},
-    {day_of_week: 'friday', disabled: false, start_at: '08:00', end_at: '20:00', _index: 4},
-    {day_of_week: 'saturday', disabled: false, start_at: '08:00', end_at: '20:00', _index: 5},
-    {day_of_week: 'sunday', disabled: false, start_at: '08:00', end_at: '20:00', _index: 6},
+    {day_of_week: 'monday', disabled: false, start_at: '08:00', end_at: '20:00', _index: 0, role: 'all'},
+    {day_of_week: 'tuesday', disabled: false, start_at: '08:00', end_at: '20:00', _index: 1, role: 'all'},
+    {day_of_week: 'wednesday', disabled: false, start_at: '08:00', end_at: '20:00', _index: 2, role: 'all'},
+    {day_of_week: 'thursday', disabled: false, start_at: '08:00', end_at: '20:00',_index: 3, role: 'all'},
+    {day_of_week: 'friday', disabled: false, start_at: '08:00', end_at: '20:00', _index: 4, role: 'all'},
+    {day_of_week: 'saturday', disabled: false, start_at: '08:00', end_at: '20:00', _index: 5, role: 'all'},
+    {day_of_week: 'sunday', disabled: false, start_at: '08:00', end_at: '20:00', _index: 6, role: 'all'},
 ]
 
 interface VenueTimeslotWithIndex extends VenueTimeslot {
@@ -148,7 +151,7 @@ export default function DialogTimeSlotEdit(props: { close: any, value: VenueTime
                     }
                 }}>
                     <div className={styles['row']}>
-                        <div className={styles['title']}>Opening hours 24/7 {allTime.toString()}</div>
+                        <div className={styles['title']}>Opening hours 24*7</div>
                         <AppRadio checked={allTime}/>
                     </div>
                 </div>
@@ -182,44 +185,71 @@ export default function DialogTimeSlotEdit(props: { close: any, value: VenueTime
                                     <>
                                         {item.map((s, i) => {
                                             return <div key={i} className={item[0].disabled ? `${styles['row']} ${styles['disable']}` : styles['row']}>
-                                                <div className={styles['select']}>
-                                                    <TimePicker
-                                                        disabled={item[0].disabled || allTime}
-                                                        format={'24'}
-                                                        step={60 * timeStep}
-                                                        maxTime={subtract(s.end_at, timeStep)}
-                                                        value={toDate(s.start_at)}
-                                                        onChange={(date) => {
-                                                            if (date) {
-                                                                slot[s._index].start_at = dayjs(date).format('HH:mm')
-                                                                setSlot([...slot])
+                                                <div className={styles['slot-row']}>
+                                                    <div className={styles['select']}>
+                                                        <TimePicker
+                                                            disabled={item[0].disabled || allTime}
+                                                            format={'24'}
+                                                            step={60 * timeStep}
+                                                            maxTime={subtract(s.end_at, timeStep)}
+                                                            value={toDate(s.start_at)}
+                                                            onChange={(date) => {
+                                                                if (date) {
+                                                                    slot[s._index].start_at = dayjs(date).format('HH:mm')
+                                                                    setSlot([...slot])
+                                                                }
+                                                            }}
+                                                        />
+                                                    </div>
+                                                    <span className={styles['split']}>to</span>
+                                                    <div className={styles['select']}>
+                                                        <TimePicker
+                                                            minTime={
+                                                                add(s.start_at, timeStep)
                                                             }
-                                                        }}
-                                                    />
-                                                </div>
-                                                <span className={styles['split']}>to</span>
-                                                <div className={styles['select']}>
-                                                    <TimePicker
-                                                        minTime={
-                                                            add(s.start_at, timeStep)
-                                                        }
-                                                        disabled={item[0].disabled || allTime}
-                                                        format={'24'}
-                                                        step={60 * timeStep}
-                                                        value={toDate(s.end_at)}
-                                                        onChange={(date) => {
-                                                            if (date) {
-                                                                slot[s._index].end_at = dayjs(date).format('HH:mm')
-                                                                setSlot([...slot])
+                                                            disabled={item[0].disabled || allTime}
+                                                            format={'24'}
+                                                            step={60 * timeStep}
+                                                            value={toDate(s.end_at)}
+                                                            onChange={(date) => {
+                                                                if (date) {
+                                                                    slot[s._index].end_at = dayjs(date).format('HH:mm')
+                                                                    setSlot([...slot])
+                                                                }
+                                                            }}
+                                                        />
+                                                    </div>
+                                                    <div className={styles['book-role']}>
+                                                        <div className={styles['book-role-label']}>Can book</div>
+                                                        <Select
+                                                            clearable={false}
+                                                            searchable={false}
+                                                            options={roleOpts as any}
+                                                            value={slot[s._index].role
+                                                                ? [roleOpts.find((ro) => ro.id === slot[s._index].role)]
+                                                                : [{id: 'all', label: 'All'}] as any
                                                             }
-                                                        }}
-                                                    />
+                                                            onChange={({option}) => {
+                                                                if (option) {
+                                                                    slot[s._index].role = option.id as any
+                                                                    setSlot([...slot])
+                                                                }
+                                                            }}
+                                                        />
+                                                    </div>
                                                 </div>
+
                                                 {
                                                     i === item.length - 1 &&
                                                     <div className={styles['issue-input-add-btn']}
                                                          onClick={e => {
-                                                             slot.push({day_of_week: item[0].day_of_week, disabled: false, start_at: '08:00', end_at: '20:00'})
+                                                             slot.push({
+                                                                 day_of_week: item[0].day_of_week,
+                                                                 disabled: false,
+                                                                 start_at: '08:00',
+                                                                 end_at: '20:00',
+                                                                 role: 'all'
+                                                             })
                                                              setSlot([...slot])
                                                          }}>
                                                         <Plus/>
