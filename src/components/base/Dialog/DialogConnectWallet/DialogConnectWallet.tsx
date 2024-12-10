@@ -9,6 +9,7 @@ import {useRouter} from 'next/navigation'
 // import {SignInButton} from '@farcaster/auth-kit';
 import useZuAuth from '@/service/zupass/useZuAuth'
 import useAuroWallet from "@/hooks/useAuroWallet";
+import useFuelWallet from "@/hooks/useFuelWallet";
 
 interface DialogConnectWalletProps {
     handleClose: (...rest: any[]) => any
@@ -26,6 +27,7 @@ function DialogConnectWallet(props: DialogConnectWalletProps) {
     const unloading_1 = useRef<any>(null)
 
     const {connect: connectAuroWallet} = useAuroWallet()
+    const {connectFuelWallet} = useFuelWallet()
 
     const [connectorsErr, setConnectorsErr] = useState<string>('')
     const {connect, connectors, error, isPending } = useConnect({
@@ -164,9 +166,8 @@ function DialogConnectWallet(props: DialogConnectWalletProps) {
                 </div>
             }
 
-            { false &&
-                <div className='connect-item' onClick={async () => {
-
+            {<div className='connect-item' onClick={async () => {
+                    await connectFuelWallet()
                 }}>
                     <img src="https://ik.imagekit.io/soladata/9rh5adid_AdhrcpoJw" alt="Fuel Wallet"/>
                     <div className='connect-name'>

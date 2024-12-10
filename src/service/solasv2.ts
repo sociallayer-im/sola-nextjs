@@ -252,3 +252,20 @@ export async function createEventSite(props: EditEventProps) {
     return res.data.venue as EventSites
 }
 
+export async function fuelLogin(props: {
+    fuel_address: string,
+    next_token: string,
+    host?: string
+}) {
+    const res: any = await fetch.post({
+        url: `${apiUrl}/profile/signin_with_fuel`,
+        data: {...props, app: props.host, address_source: 'fuel'}
+    })
+
+    if (res.data.result === 'error') {
+        throw new Error(res.data.message)
+    }
+
+    return res.data.auth_token as string
+}
+
