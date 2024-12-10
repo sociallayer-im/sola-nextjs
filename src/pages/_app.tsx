@@ -4,7 +4,6 @@ import 'swiper/css'
 import NextNProgress from 'nextjs-progressbar';
 import Script from 'next/script'
 import Layout from "@/components/Layout/Layout";
-import fetch from "@/utils/fetch";
 
 // providers
 import LangProvider from "@/components/provider/LangProvider/LangProvider"
@@ -14,24 +13,21 @@ import UserProvider from "@/components/provider/UserProvider/UserProvider";
 import theme from "@/theme"
 import {Provider as StyletronProvider} from 'styletron-react'
 import {BaseProvider} from 'baseui'
-import {avalancheFuji, polygon, mainnet, optimism, base, arbitrum} from 'wagmi/chains'
-import {InjectedConnector} from 'wagmi/connectors/injected'
-// import {WalletConnectConnector as CustomWalletConnectConnector } from 'wagmi/connectors/walletConnect'
-import {WalletConnectConnector as CustomWalletConnectConnector} from '@/libs/walletconnect-connector/walletconnect'
-import {publicProvider} from 'wagmi/providers/public'
-import {configureChains, Connector, createConfig, WagmiConfig} from 'wagmi'
+import {arbitrum, avalancheFuji, base, mainnet, optimism, polygon} from 'wagmi/chains'
+import {WagmiProvider} from 'wagmi'
+import {createConfig, http} from '@wagmi/core'
 import {styletron} from '@/styletron'
 import Head from 'next/head'
 import MapProvider from "@/components/provider/MapProvider/MapProvider";
 import EventHomeProvider from "@/components/provider/EventHomeProvider/EventHomeProvider";
 import ColorSchemeProvider from "@/components/provider/ColorSchemeProvider";
 import Subscriber from '@/components/base/Subscriber'
-import {JoyIdConnector} from '@/libs/joid'
 import NotificationsProvider from "@/components/provider/NotificationsProvider/NotificationsProvider";
 import {SolanaWalletProvider} from '@/components/provider/SolanaWalletProvider/SolanaWalletProvider'
+import {injected, walletConnect} from '@wagmi/connectors'
+import {QueryClient, QueryClientProvider} from '@tanstack/react-query'
 
 import '@farcaster/auth-kit/styles.css';
-import DialogToMainScreen from "@/components/base/Dialog/DialogToMainScreen/DialogToMainScreen";
 // import { AuthKitProvider } from '@farcaster/auth-kit';
 
 const farcasterConfig = {
@@ -39,6 +35,8 @@ const farcasterConfig = {
     domain: process.env.NEXT_PUBLIC_HOST!.split('//')[1],
     siweUri: process.env.NEXT_PUBLIC_HOST,
 };
+
+const queryClient = new QueryClient()
 
 const ethChain = {
     ...mainnet,
@@ -60,39 +58,31 @@ const ethChain = {
     },
 }
 
-const {chains, publicClient, webSocketPublicClient} = configureChains(
-    [ethChain, polygon, avalancheFuji, optimism, base, arbitrum],
-    [publicProvider()],
-)
-
-const inject = new InjectedConnector({
-    chains: chains,
-} as any)
-
-const walletConnectConnector: any = new CustomWalletConnectConnector({
-    chains: chains,
-    options: {
-        projectId: '75f461ff2b14465255978cb9e730a6ac',
-        qrModalOptions: {
-            enableExplorer: true,
-            themeMode:  'light'
-        },
-        metadata: {
-            name: 'Social Layer',
-            description: 'Social Layer',
-            url: 'https://www.sola.day', // origin must match your domain & subdomain
-            icons: ['https://www.sola.day/images/header_logo.svg']
-        }
-    }
-})
-
 const config = createConfig({
-    autoConnect: true,
-    publicClient,
-    webSocketPublicClient,
+    chains: [ethChain, polygon, avalancheFuji, optimism, base, arbitrum],
+    transports: {
+        [mainnet.id]: http(),
+        [polygon.id]: http(),
+        [avalancheFuji.id]: http(),
+        [optimism.id]: http(),
+        [base.id]: http(),
+        [arbitrum.id]: http(),
+    },
     connectors: [
-        inject,
-        walletConnectConnector,
+        injected(),
+        walletConnect({
+            projectId: '75f461ff2b14465255978cb9e730a6ac',
+            qrModalOptions: {
+                enableExplorer: true,
+                themeMode: 'light'
+            },
+            metadata: {
+                name: 'Social Layer',
+                description: 'Social Layer',
+                url: 'https://www.sola.day', // origin must match your domain & subdomain
+                icons: ['https://www.sola.day/images/header_logo.svg']
+            }
+        }),
         // new JoyIdConnector(
         // {
         //     chains: [mainnet, polygon, avalancheFuji],
@@ -112,19 +102,19 @@ function MyApp({Component, pageProps, ...props}: any) {
     }
 
     useEffect(() => {
-       if (typeof window === 'undefined') return
+        if (typeof window === 'undefined') return
         window.addEventListener(`beforeinstallprompt`, (e) => {
-               e.preventDefault();
-               (window as any).deferredPrompt = e;
+            e.preventDefault();
+            (window as any).deferredPrompt = e;
         });
-       if ('serviceWorker' in navigator) {
+        if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('/sw.js')
-       }
+        }
     }, [])
 
     return (
         <>
-            <Script src="/analyse/rollbar.js" />
+            <Script src="/analyse/rollbar.js"/>
             <PageBacProvider>
                 <Head>
                     <link rel="manifest" href="/manifest.json"/>
@@ -142,37 +132,39 @@ function MyApp({Component, pageProps, ...props}: any) {
                     <meta property="og:image"
                           content={'/images/icons/icon_512.jpg'}/>
                 </Head>
-                <WagmiConfig config={config as any}>
-                    {/*<AuthKitProvider config={farcasterConfig}>*/}
-                    <SolanaWalletProvider>
-                        <ColorSchemeProvider>
-                            <StyletronProvider value={styletron}>
-                                <BaseProvider theme={theme}>
-                                <DialogProvider>
-                                        <MapProvider>
-                                        <UserProvider>
-                                            <LangProvider>
-                                                <DialogProvider>
-                                                        <EventHomeProvider>
-                                                            <NotificationsProvider>
-                                                                <DisplayLay>
-                                                                    <NextNProgress options={{showSpinner: false}}/>
-                                                                    <Component {...pageProps} />
-                                                                    <Subscriber/>
-                                                                </DisplayLay>
-                                                            </NotificationsProvider>
-                                                        </EventHomeProvider>
-                                                </DialogProvider>
-                                            </LangProvider>
-                                        </UserProvider>
-                                        </MapProvider>
-                                    </DialogProvider>
-                                </BaseProvider>
-                            </StyletronProvider>
-                        </ColorSchemeProvider>
-                    </SolanaWalletProvider>
-                    {/*</AuthKitProvider>*/}
-                </WagmiConfig>
+                <WagmiProvider config={config}>
+                    <QueryClientProvider client={queryClient}>
+                        {/*<AuthKitProvider config={farcasterConfig}>*/}
+                        <SolanaWalletProvider>
+                            <ColorSchemeProvider>
+                                <StyletronProvider value={styletron}>
+                                    <BaseProvider theme={theme}>
+                                        <DialogProvider>
+                                            <MapProvider>
+                                                <UserProvider>
+                                                    <LangProvider>
+                                                        <DialogProvider>
+                                                            <EventHomeProvider>
+                                                                <NotificationsProvider>
+                                                                    <DisplayLay>
+                                                                        <NextNProgress options={{showSpinner: false}}/>
+                                                                        <Component {...pageProps} />
+                                                                        <Subscriber/>
+                                                                    </DisplayLay>
+                                                                </NotificationsProvider>
+                                                            </EventHomeProvider>
+                                                        </DialogProvider>
+                                                    </LangProvider>
+                                                </UserProvider>
+                                            </MapProvider>
+                                        </DialogProvider>
+                                    </BaseProvider>
+                                </StyletronProvider>
+                            </ColorSchemeProvider>
+                        </SolanaWalletProvider>
+                        {/*</AuthKitProvider>*/}
+                    </QueryClientProvider>
+                </WagmiProvider>
             </PageBacProvider>
         </>
     );

@@ -44,9 +44,9 @@ interface ErrorMsg {
 
 const timeStep = 5
 
-const banedChain = ['stripe', 'polygon', 'optimism', 'arbitrum', 'base', 'ethereum']
+const banedChain = ['stripe',  'optimism', 'arbitrum', 'base', 'ethereum']
 
-function Ticket({creator, ...props}: {
+function TicketItem({creator, ...props}: {
     ticket: Partial<Ticket>,
     creator: Group | Profile,
     tracks:Track[]
@@ -677,7 +677,7 @@ function TicketSetting(props: {
     return (<div className={styles['ticket-setting-list']}>
         {
             props.value.map((ticket, index) => {
-                return <Ticket
+                return <TicketItem
                     creator={props.creator}
                     ticket={ticket}
                     tracks={props.tracks}

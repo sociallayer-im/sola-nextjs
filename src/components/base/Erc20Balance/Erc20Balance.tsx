@@ -1,4 +1,4 @@
-import {useContractRead} from "wagmi";
+import {useReadContract} from "wagmi";
 import {erc20_abi} from "@/payment_setting";
 import {formatUnits} from "viem/utils";
 import {useEffect} from "react";
@@ -10,10 +10,9 @@ function Erc20Balance(props: {
     decimals: number
     onChange?: (balance: string) => any
 }) {
-
-    const {data: balance} = useContractRead({
-        address: props.token as any,
+    const {data: balance} = useReadContract({
         abi: erc20_abi,
+        address: props.token as any,
         chainId: props.chanId,
         functionName: 'balanceOf',
         args: [

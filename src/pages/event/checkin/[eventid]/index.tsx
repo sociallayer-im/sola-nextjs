@@ -17,11 +17,9 @@ import {useTime2} from "@/hooks/formatTime";
 import QRcode from "@/components/base/QRcode";
 import langContext from "@/components/provider/LangProvider/LangContext";
 import AppButton from "@/components/base/AppButton/AppButton";
-import ListCheckinUser from "@/components/compose/ListCheckinUser/ListCheckinUser";
 import ListEventParticipants from "@/components/compose/ListEventParticipants/ListEventParticipants";
 import ListCheckLog from "@/components/compose/ListCheckLog/ListCheckLog";
 import useEvent, {EVENT} from "@/hooks/globalEvent";
-import fa from "@walletconnect/legacy-modal/dist/cjs/browser/languages/fa";
 
 function EventCheckIn() {
     const router = useRouter()

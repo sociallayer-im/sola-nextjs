@@ -1,5 +1,5 @@
 import {forwardRef, ReactNode, useContext, useEffect, useImperativeHandle, useState} from 'react'
-import {useAccount, useContractRead, useNetwork, usePublicClient, useSwitchNetwork, useWalletClient} from "wagmi";
+import {useAccount, usePublicClient, useWalletClient, useSwitchChain} from "wagmi";
 import {erc20_abi, paymentTokenList} from "@/payment_setting";
 import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
 
@@ -24,11 +24,10 @@ function Erc20TokenApproveHandler(
 ) {
     const publicClient: any = usePublicClient({chainId: props.chainId})
     const {data: walletClient}: any = useWalletClient({chainId: props.chainId})
-    const {address} = useAccount()
+    const {address, chain} = useAccount()
     const {showToast} = useContext(DialogsContext)
     const [busy, setBusy] = useState(true)
-    const {switchNetworkAsync} = useSwitchNetwork()
-    const {chain} = useNetwork()
+    const {switchChainAsync} = useSwitchChain()
 
     const pollingQueryTx = async (tx: string) => {
         let leftTimes = 10;
@@ -85,7 +84,7 @@ function Erc20TokenApproveHandler(
             setBusy(true)
 
             if (chain?.id !== props.chainId) {
-                await switchNetworkAsync?.(props.chainId)
+                await switchChainAsync({chainId: props.chainId})
                 setBusy(false)
                 return
             }

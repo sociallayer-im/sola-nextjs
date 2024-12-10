@@ -20,21 +20,23 @@ function DialogConnectWalletForPay(props: DialogConnectWalletProps) {
     const unloading_1 = useRef<any>(null)
 
     const [connectorsErr, setConnectorsErr] = useState<string>('')
-    const {connect, connectors, error, isLoading, pendingConnector} = useConnect({
-        onError(error) {
-            if (!!error.message && error.message.includes('rejected')) {
-                return
-            } else {
-                setConnectorsErr(error.message || error.toString())
-            }
-        },
-        onMutate:() => {
-          setConnectorsErr('')
-        },
-        onSettled: () => {
-            if (unloading_1) {
-                unloading_1.current?.()
-                unloading_1.current = null
+    const {connect, connectors, error, isPending} = useConnect({
+        mutation: {
+            onError(error) {
+                if (!!error.message && error.message.includes('rejected')) {
+                    return
+                } else {
+                    setConnectorsErr(error.message || error.toString())
+                }
+            },
+            onMutate:() => {
+                setConnectorsErr('')
+            },
+            onSettled: () => {
+                if (unloading_1) {
+                    unloading_1.current?.()
+                    unloading_1.current = null
+                }
             }
         }
     })
@@ -49,13 +51,13 @@ function DialogConnectWalletForPay(props: DialogConnectWalletProps) {
     }, [isConnected])
 
     useEffect(() => {
-        if (isLoading) {
+        if (isPending) {
             unloading_1.current = showLoading()
         } else {
             unloading_1.current?.()
             unloading_1.current = null
         }
-    }, [isLoading])
+    }, [isPending])
 
     const handleConnectWallet = (connector: Connector) => {
         if (error) {
