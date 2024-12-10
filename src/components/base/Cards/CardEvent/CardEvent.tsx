@@ -2,13 +2,8 @@ import {useRouter} from "next/navigation";
 import {useContext, useEffect, useMemo, useState} from 'react'
 import {
     Event,
-    getGroupMembers,
     Group,
-    joinEvent,
     Participants,
-    queryTickets,
-    queryEventDetail,
-    queryGroupDetail,
     setEventStatus
 } from "@/service/solas";
 import {useTime2} from "@/hooks/formatTime";
@@ -23,12 +18,8 @@ import useCalender from "@/hooks/addToCalendar/addToCalendar";
 import AppButton from "@/components/base/AppButton/AppButton";
 import useEvent, {EVENT} from "@/hooks/globalEvent";
 import usePicture from "@/hooks/pictrue";
-import dynamic from 'next/dynamic'
 import {isHideLocation} from "@/global_config";
 import {cancelEventStar, handleEventStar} from "@/service/solasv2";
-import fa from "@walletconnect/legacy-modal/dist/cjs/browser/languages/fa";
-
-const EventTickets = dynamic(() => import('@/components/compose/EventTickets/EventTickets'), {ssr: false})
 
 export interface CardEventProps {
     event: Event,

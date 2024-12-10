@@ -1,4 +1,3 @@
-import {createSiweMessage} from "@/service/SIWE";
 import {useContext} from "react";
 import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
 import fetch from "@/utils/fetch";

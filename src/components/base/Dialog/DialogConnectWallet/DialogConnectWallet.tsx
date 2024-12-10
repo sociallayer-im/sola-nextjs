@@ -1,4 +1,4 @@
-import {Connector, useAccount, useConnect, useDisconnect} from 'wagmi'
+import {Connector, useConnect, useDisconnect} from 'wagmi'
 import {useContext, useEffect, useRef, useState} from 'react'
 import LangContext from '../../../provider/LangProvider/LangContext'
 import {setLastLoginType} from '@/utils/authStorage'
@@ -8,8 +8,8 @@ import {useRouter} from 'next/navigation'
 // import {WalletContext as solanaWalletContext} from '@solana/wallet-adapter-react'
 // import {SignInButton} from '@farcaster/auth-kit';
 import useZuAuth from '@/service/zupass/useZuAuth'
-import {Spinner} from "baseui/icon";
 import useAuroWallet from "@/hooks/useAuroWallet";
+import useFuelWallet from "@/hooks/useFuelWallet";
 
 interface DialogConnectWalletProps {
     handleClose: (...rest: any[]) => any
@@ -27,32 +27,34 @@ function DialogConnectWallet(props: DialogConnectWalletProps) {
     const unloading_1 = useRef<any>(null)
 
     const {connect: connectAuroWallet} = useAuroWallet()
+    const {connectFuelWallet} = useFuelWallet()
 
     const [connectorsErr, setConnectorsErr] = useState<string>('')
-    const {connect, connectors, error, isLoading } = useConnect({
-        onError(error) {
-            if (!!error.message && error.message.includes('rejected')) {
-                return
-            } else {
-                setConnectorsErr(error.message || error.toString())
-            }
-        },
-        onMutate:() => {
-            setConnectorsErr('')
-        },
-        onSettled: () => {
-            if (unloading_1) {
-                unloading_1.current?.()
-                unloading_1.current = null
+    const {connect, connectors, error, isPending } = useConnect({
+        mutation: {
+            onError(error) {
+                if (!!error.message && error.message.includes('rejected')) {
+                    return
+                } else {
+                    setConnectorsErr(error.message || error.toString())
+                }
+            },
+            onMutate:() => {
+                setConnectorsErr('')
+            },
+            onSettled: () => {
+                if (unloading_1) {
+                    unloading_1.current?.()
+                    unloading_1.current = null
+                }
             }
         }
     })
     const {disconnect} = useDisconnect()
     const {lang} = useContext(LangContext)
-    const {isDisconnected} = useAccount()
     const router = useRouter()
     const {clean, showLoading, showToast} = useContext(DialogsContext)
-    const {user, logOut, setUser} = useContext(UserContext)
+    const {user, logOut} = useContext(UserContext)
     //  const solanaWallet: any = useContext(solanaWalletContext)
     const zuAuthLogin = useZuAuth()
 
@@ -63,17 +65,17 @@ function DialogConnectWallet(props: DialogConnectWalletProps) {
     }, [user.id])
 
     useEffect(() => {
-        if (isLoading) {
+        if (isPending) {
             unloading_1.current = showLoading()
         } else {
             unloading_1.current?.()
             unloading_1.current = null
         }
-    }, [isLoading])
+    }, [isPending])
 
     const handleConnectWallet = (connector: Connector) => {
         // test code to trace the error
-        if (isLoading) {
+        if (isPending) {
             console.error('Connector is loading')
         }
 
@@ -141,25 +143,36 @@ function DialogConnectWallet(props: DialogConnectWalletProps) {
                 </div>
             }
 
-            {connectors.map((connector) => (
-                (isEdgeCity && connector.name === 'JoyID') ?
+            {connectors.map((connector) => {
+                return (isEdgeCity && connector.name === 'JoyID') ?
                     null
-                    : <div className={`connect-item ${!connector.ready ? 'disable' : ''}`}
+                    : <div className={`connect-item`}
                            key={connector.id}
                            onClick={() => handleConnectWallet(connector)}>
                         <img src={walletIcon[connector.name.toLowerCase()] || `/images/injected.png`} alt={connector.name}/>
                         <div
                             className='connect-name'>{connector.name === 'Injected' ? 'Browser wallet' : connector.name}</div>
                     </div>
-            ))}
+            })}
 
-            {!!(window as any).mina &&
+            {!!(window as any).mina && false &&
                 <div className='connect-item' onClick={async () => {
                     await connectAuroWallet()
                 }}>
                     <img src="https://ik.imagekit.io/soladata/frniiuc9_5-PAFvV1h" alt="Auro Wallet"/>
                     <div className='connect-name'>
                         Auro Wallet
+                    </div>
+                </div>
+            }
+
+            { false &&
+                <div className='connect-item' onClick={async () => {
+                    await connectFuelWallet()
+                }}>
+                    <img src="https://ik.imagekit.io/soladata/9rh5adid_AdhrcpoJw" alt="Fuel Wallet"/>
+                    <div className='connect-name'>
+                        Fuel Wallet
                     </div>
                 </div>
             }

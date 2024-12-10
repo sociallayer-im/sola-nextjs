@@ -1,6 +1,6 @@
 import {NextApiRequest, NextApiResponse} from "next/dist/shared/lib/utils";
 import Client from 'mina-signer'
-import {solanaLogin} from "@/service/solas"
+import {minaLogin} from "@/service/solasv2"
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     try {
@@ -21,8 +21,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             res.status(200).send({error: 'Signature is not valid'});
         }
 
-        const authToken = await solanaLogin({
-            sol_address: req.body.publicKey,
+        const authToken = await minaLogin({
+            mina_address: req.body.publicKey,
             next_token: process.env.NEXT_TOKEN || ''
         })
 

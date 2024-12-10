@@ -1,7 +1,6 @@
 import {NextApiRequest, NextApiResponse} from "next/dist/shared/lib/utils";
 import {myProfile, queryEventDetail, queryGroupDetail} from "@/service/solas";
-import {POD, PODEntries} from "@pcd/pod";
-import removeMarkdown from "markdown-to-text"
+import podLib from "@pcd/pod";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     try {
@@ -45,7 +44,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             return
         }
 
-        const entries: PODEntries = {
+        const entries: podLib.PODEntries = {
             "pod_type": {
                 type: "string",
                 value: `app.sola.day/attendance`,
@@ -99,7 +98,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 value: profile.nickname || profile.handle || '',
             },
         }
-        const _signedPod = POD.sign(entries, process.env.ZUPASS_PRIVATE_KEY!);
+        const _signedPod = podLib.POD.sign(entries, process.env.ZUPASS_PRIVATE_KEY!);
 
         res.status(200).send({
             entries: entries,

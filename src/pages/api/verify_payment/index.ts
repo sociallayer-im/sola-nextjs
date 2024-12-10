@@ -38,7 +38,7 @@ export interface Props {
 
 const getChainByChainId = (chainName: string) => {
     const chains = [avalancheFuji, polygon, ethChain, optimism, base, arbitrum]
-    return chains.find((item) => item.network.includes(chainName) || item.name.toLowerCase().includes(chainName))
+    return chains.find((item) => item.name.includes(chainName) || item.name.toLowerCase().includes(chainName))
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {

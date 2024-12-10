@@ -47,7 +47,7 @@ function Page(props: any) {
 
     useEffect(() => {
         const getProfile = async function () {
-            const emptyProfile: Profile = {
+            const emptyProfile: any = {
                 sol_address: null,
                 id: 0,
                 handle: '--',

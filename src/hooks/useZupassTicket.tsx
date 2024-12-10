@@ -1,9 +1,7 @@
-import {connect, Zapp} from "../../node_modules/@parcnet-js/app-connector/dist/index"
+import {connect, Zapp} from "@parcnet-js/app-connector"
+import {pod} from "../../node_modules/@parcnet-js/podspec/dist/index";
 import {useContext} from "react";
-import {POD, PODEntries,} from "@pcd/pod";
-import {Event} from "@/service/solas";
 import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
-import * as p from "@parcnet-js/podspec";
 import fetch from "@/utils/fetch";
 import UserContext from "@/components/provider/UserProvider/UserContext";
 
@@ -55,7 +53,7 @@ export const useZupassTicket = () => {
 
 
             // check if already claimed
-            const query = p.pod({
+            const query = pod({
                 entries: {
                     event_id: {type: "string"},
                 }

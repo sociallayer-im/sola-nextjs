@@ -12,6 +12,7 @@ import {
   proveMembership,
   serializeMembershipProof,
   verifyMembership,
+  MAX_MERKLE_TREE_DEPTH
 } from "babyjubjub-ecdsa";
 import {
   getMerkleProofFromCache,
@@ -95,6 +96,7 @@ export class JubmojiInCollection {
       sigNullifierRandomness: hexToBigInt(this.sigNullifierRandomness),
       pubKeyNullifierRandomness,
       pathToCircuits: this.pathToCircuits,
+      merkleTreeDepth: MAX_MERKLE_TREE_DEPTH
     });
     this.onUpdateProvingState?.({
       numProofsTotal: 1,
@@ -118,6 +120,7 @@ export class JubmojiInCollection {
       sigNullifierRandomness: hexToBigInt(this.sigNullifierRandomness),
       usedSigNullifiers: usedSigNullifiers?.map(hexToBigInt),
       pathToCircuits: this.pathToCircuits,
+      merkleTreeDepth: MAX_MERKLE_TREE_DEPTH
     });
   }
 }
@@ -171,6 +174,7 @@ export class JubmojiInCollectionWithNonce {
       sigNullifierRandomness: hexToBigInt(this.sigNullifierRandomness),
       pubKeyNullifierRandomness,
       pathToCircuits: this.pathToCircuits,
+      merkleTreeDepth: MAX_MERKLE_TREE_DEPTH
     });
     this.onUpdateProvingState?.({
       numProofsTotal: 1,
@@ -208,6 +212,7 @@ export class JubmojiInCollectionWithNonce {
       sigNullifierRandomness: hexToBigInt(this.sigNullifierRandomness),
       usedSigNullifiers: usedSigNullifiers?.map(hexToBigInt),
       pathToCircuits: this.pathToCircuits,
+      merkleTreeDepth: MAX_MERKLE_TREE_DEPTH
     });
   }
 }
@@ -266,6 +271,7 @@ export class NUniqueJubmojisInCollection {
         sigNullifierRandomness: hexToBigInt(this.sigNullifierRandomness),
         pubKeyNullifierRandomness,
         pathToCircuits: this.pathToCircuits,
+        merkleTreeDepth: MAX_MERKLE_TREE_DEPTH
       });
 
       membershipProofs.push(membershipProof);
@@ -323,6 +329,7 @@ export class NUniqueJubmojisInCollection {
       sigNullifierRandomness: hexToBigInt(this.sigNullifierRandomness),
       usedSigNullifiers: usedSigNullifiers?.map(hexToBigInt),
       pathToCircuits: this.pathToCircuits,
+      merkleTreeDepth: MAX_MERKLE_TREE_DEPTH
     });
   }
 }
@@ -426,6 +433,7 @@ export class TeamLeaderboard
       sigNullifierRandomness: hexToBigInt(this.sigNullifierRandomness),
       pubKeyNullifierRandomness,
       pathToCircuits: this.pathToCircuits,
+      merkleTreeDepth: MAX_MERKLE_TREE_DEPTH
     });
     this.onUpdateProvingState?.({
       numProofsTotal,
@@ -453,6 +461,7 @@ export class TeamLeaderboard
         sigNullifierRandomness: hexToBigInt(this.sigNullifierRandomness),
         pubKeyNullifierRandomness,
         pathToCircuits: this.pathToCircuits,
+        merkleTreeDepth: MAX_MERKLE_TREE_DEPTH
       });
       collectionMembershipProofs.push(collectionMembershipProof);
       this.onUpdateProvingState?.({
@@ -490,6 +499,7 @@ export class TeamLeaderboard
       sigNullifierRandomness: hexToBigInt(this.sigNullifierRandomness),
       usedSigNullifiers: undefined, // We don't care about reusing a team sig
       pathToCircuits: this.pathToCircuits,
+      merkleTreeDepth: MAX_MERKLE_TREE_DEPTH
     });
 
     if (!teamVerificationResult.verified) {
@@ -509,6 +519,7 @@ export class TeamLeaderboard
       sigNullifierRandomness: hexToBigInt(this.sigNullifierRandomness),
       usedSigNullifiers: undefined, // Verify usedSigNullifiers outside of this proof, since we sometimes want to increase a user's score as long as they have used some new sigs
       pathToCircuits: this.pathToCircuits,
+      merkleTreeDepth: MAX_MERKLE_TREE_DEPTH
     });
   }
 }

@@ -1,13 +1,11 @@
 import {useContext, useEffect, useRef, useState} from 'react'
 import {EventSites, getEventSide, Group, Event} from "@/service/solas";
-import {Select} from "baseui/select";
 import AppInput from "../../base/AppInput";
 import {Delete} from "baseui/icon";
 import DialogsContext from "../../provider/DialogProvider/DialogsContext";
 import langContext from "../../provider/LangProvider/LangContext";
 import MapContext from "../../provider/MapProvider/MapContext";
 import * as dayjsLib from "dayjs";
-import fa from "@walletconnect/legacy-modal/dist/cjs/browser/languages/fa";
 
 const utc = require('dayjs/plugin/utc')
 const timezone = require('dayjs/plugin/timezone')

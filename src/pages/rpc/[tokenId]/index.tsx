@@ -8,7 +8,7 @@ export default Page
 
 export const getServerSideProps: any = (async (context: any) => {
     const tokenId = context.params?.tokenId
-    const emptyProfile: Profile = {
+    const emptyProfile: any = {
         id: 0,
         sol_address: null,
         username: '--',

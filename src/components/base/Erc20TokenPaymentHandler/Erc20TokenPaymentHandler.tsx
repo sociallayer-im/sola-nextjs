@@ -1,5 +1,5 @@
 import {ReactNode, useContext, useState} from 'react'
-import {useAccount, useNetwork, usePublicClient, useSwitchNetwork, useWalletClient} from "wagmi";
+import {useAccount, usePublicClient, useWalletClient, useSwitchChain} from "wagmi";
 import {payhub_abi, paymentTokenList} from "@/payment_setting";
 import {getParticipantDetail, getTicketItemDetail, rsvp} from "@/service/solas";
 import UserContext from "@/components/provider/UserProvider/UserContext";
@@ -10,7 +10,6 @@ let loadingRef: any = null
 function sleep(time:number){
     return new Promise((resolve) => setTimeout(resolve, time));
 }
-
 
 function Erc20TokenPaymentHandler(
     props: {
@@ -33,11 +32,10 @@ function Erc20TokenPaymentHandler(
         onErrMsg?: (message: string) => any
     }
 ) {
-    const {address} = useAccount()
+    const {address, chain} = useAccount()
     const {data: walletClient}: any = useWalletClient({chainId: props.chainId})
     const publicClient: any = usePublicClient({chainId: props.chainId})
-    const {switchNetworkAsync} = useSwitchNetwork()
-    const {chain} = useNetwork()
+    const {switchChainAsync} = useSwitchChain()
     const {user} = useContext(UserContext)
 
     const [busy, setBusy] = useState(false)
@@ -137,7 +135,7 @@ function Erc20TokenPaymentHandler(
             }
 
             if (chain?.id !== props.chainId) {
-                await switchNetworkAsync?.(props.chainId)
+                await switchChainAsync({chainId: props.chainId})
                 setBusy(false)
                 setSending(false)
                 setVerifying(false)

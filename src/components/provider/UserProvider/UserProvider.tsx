@@ -30,8 +30,9 @@ export interface User {
     permissions: string[],
     phone: string | null,
     maodaoid?: number | null,
-    detail?: Profile | null
-
+    detail?: Profile | null,
+    mina_address: string | null
+    fuel_address: string | null
 }
 
 export interface UserContext {
@@ -56,7 +57,9 @@ const emptyUser: User = {
     nickname: null,
     permissions: [],
     phone: null,
-    far_address: null
+    far_address: null,
+    mina_address: null,
+    fuel_address: null
 }
 
 function UserProvider(props: UserProviderProps) {
@@ -95,6 +98,8 @@ function UserProvider(props: UserProviderProps) {
                 permissions: profileInfo?.permissions || [],
                 maodaoid: profileInfo?.maodaoid,
                 far_address: profileInfo?.far_address,
+                fuel_address: profileInfo?.fuel_address,
+                mina_address: profileInfo?.mina_address,
                 detail: profileInfo
             })
 

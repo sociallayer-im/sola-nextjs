@@ -6,6 +6,7 @@ import {StatefulCalendar, TimePicker} from "baseui/datepicker";
 import {VenueOverride} from "@/service/solas";
 import Toggle from "@/components/base/Toggle/Toggle";
 import AppButton from "@/components/base/AppButton/AppButton"
+import {Select} from "baseui/select";
 
 const isSameOrBefore = require('dayjs/plugin/isSameOrBefore')
 const isSameOrAfter = require('dayjs/plugin/isSameOrAfter')
@@ -17,6 +18,7 @@ dayjs.extend(isSameOrAfter)
 dayjs.extend(isBetween)
 const timeStep = 5
 
+const roleOpts = [{id: 'all', label: 'All'}, {id: 'member', label: 'Member'}, {id: 'manager', label: 'Manager'}]
 
 export default function DialogOverrideEdit(props: {
     close: any,
@@ -101,6 +103,27 @@ export default function DialogOverrideEdit(props: {
                                 ...newVenueOverride,
                                 end_at: time
                             })
+                        }}
+                    />
+                </div>
+
+                <div className={styles['time']} style={{marginTop: 0}}>
+                    <div className={styles['to']} style={{whiteSpace: 'nowrap'}}>Can book</div>
+                    <Select
+                        clearable={false}
+                        searchable={false}
+                        options={roleOpts as any}
+                        value={newVenueOverride.role
+                            ? [roleOpts.find((ro) => ro.id === newVenueOverride.role)]
+                            : [{id: 'all', label: 'All'}] as any
+                        }
+                        onChange={({option}) => {
+                            if (option) {
+                                newVenueOverride.role = option.id as any
+                                setNewVenueOverride({
+                                    ...newVenueOverride
+                                })
+                            }
                         }}
                     />
                 </div>
