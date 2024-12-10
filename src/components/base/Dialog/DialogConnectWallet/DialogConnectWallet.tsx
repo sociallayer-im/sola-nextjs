@@ -155,7 +155,7 @@ function DialogConnectWallet(props: DialogConnectWalletProps) {
                     </div>
             })}
 
-            {!!(window as any).mina && false &&
+            {!!(window as any).mina &&
                 <div className='connect-item' onClick={async () => {
                     await connectAuroWallet()
                 }}>
@@ -166,7 +166,7 @@ function DialogConnectWallet(props: DialogConnectWalletProps) {
                 </div>
             }
 
-            { false &&
+            {
                 <div className='connect-item' onClick={async () => {
                     await connectFuelWallet()
                 }}>
