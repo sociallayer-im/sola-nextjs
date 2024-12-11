@@ -44,7 +44,7 @@ interface ErrorMsg {
 
 const timeStep = 5
 
-const banedChain = ['stripe',  'optimism', 'arbitrum', 'base', 'ethereum']
+const banedChain = ['stripe',  'polygon',  'optimism', 'arbitrum', 'base', 'ethereum']
 
 function TicketItem({creator, ...props}: {
     ticket: Partial<Ticket>,
