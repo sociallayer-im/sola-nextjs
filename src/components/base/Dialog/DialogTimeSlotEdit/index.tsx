@@ -8,6 +8,7 @@ import {TimePicker} from "baseui/datepicker";
 import {CheckIndeterminate, Plus} from "baseui/icon";
 import {VenueTimeslot} from "@/service/solas";
 import {Select} from "baseui/select";
+import Toggle from "@/components/base/Toggle/Toggle";
 
 const isSameOrBefore = require('dayjs/plugin/isSameOrBefore')
 const isSameOrAfter = require('dayjs/plugin/isSameOrAfter')
@@ -152,7 +153,7 @@ export default function DialogTimeSlotEdit(props: { close: any, value: VenueTime
                 }}>
                     <div className={styles['row']}>
                         <div className={styles['title']}>Opening hours 24*7</div>
-                        <AppRadio checked={allTime}/>
+                        <Toggle checked={allTime} />
                     </div>
                 </div>
 
@@ -174,7 +175,7 @@ export default function DialogTimeSlotEdit(props: { close: any, value: VenueTime
                                         })
                                         setSlot([...slot])
                                     }}>
-                                        <AppRadio checked={item[0].disabled}/> Closed
+                                        <Toggle checked={item[0].disabled} /> Closed
                                     </div>
                                 </div>
                                 {
@@ -220,7 +221,7 @@ export default function DialogTimeSlotEdit(props: { close: any, value: VenueTime
                                                         />
                                                     </div>
                                                     <div className={styles['book-role']}>
-                                                        <div className={styles['book-role-label']}>Can book</div>
+                                                        <div className={styles['book-role-label']}>for</div>
                                                         <Select
                                                             clearable={false}
                                                             searchable={false}

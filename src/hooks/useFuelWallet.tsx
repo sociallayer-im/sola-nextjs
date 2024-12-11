@@ -34,12 +34,12 @@ export default function useFuelWallet() {
             }
             const wallet = await fuel.getWallet(account);
             const domain = window.location.host
-            const signature = await wallet.signMessage(`${domain} wants you to sign in with Mina account: \n ${account}`);
+            const signature = await wallet.signMessage(`${domain} wants you to sign in with account: \n ${account}`);
             const res = await fetch.post({
                 url: '/api/fuel/authenticate',
                 data: {
                     publicKey: account,
-                    message: `${domain} wants you to sign in with Mina account: \n ${account}`,
+                    message: `${domain} wants you to sign in with account: \n ${account}`,
                     signature: signature
                 }
             })
