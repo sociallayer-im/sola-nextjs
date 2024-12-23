@@ -10,8 +10,9 @@ import {TimezonePicker} from "baseui/timezonepicker";
 import TriangleDown from 'baseui/icon/triangle-down'
 import dialogsContext from "@/components/provider/DialogProvider/DialogsContext";
 import AppButton from '@/components/base/AppButton/AppButton'
-import {Event, EventSites, queryEvent, VenueTimeslot, Weekday} from '@/service/solas'
+import {Event, EventSites, queryEvent, VenueOverride, VenueTimeslot, Weekday} from '@/service/solas'
 import {TimeSlotItem} from "@/components/base/Dialog/DialogTimeSlotEdit";
+import {Dayjs} from "dayjs";
 
 const utc = require('dayjs/plugin/utc')
 const timezone = require('dayjs/plugin/timezone')
@@ -46,13 +47,15 @@ export interface SlotOption {
 
 function genSlotOption(slotInfo: VenueTimeslot[]): SlotOption[] {
     let res: SlotOption[] = []
-
     slotInfo.forEach(s => {
         const exist = res.find(r => r.day === s.day_of_week)
-        const [startHour, startMinute] = s.start_at.split(':')
-        const [endHour, endMinute] = s.end_at.split(':')
-        let startDate = dayjs().hour(Number(startHour)).minute(Number(startMinute))
-        const endDate = dayjs().hour(Number(endHour)).minute(Number(endMinute))
+        // const [startHour, startMinute] = s.start_at.split(':')
+        // const [endHour, endMinute] = s.end_at.split(':')
+        // let startDate = dayjs().hour(Number(startHour)).minute(Number(startMinute))
+        // const endDate = dayjs().hour(Number(endHour)).minute(Number(endMinute))
+
+        let startDate = dayjs().hour(0).minute(0)
+        const endDate = dayjs().hour(23).minute(59)
         const soloOptions = []
         while (startDate.valueOf() <= endDate.valueOf()) {
             soloOptions.push({
@@ -72,7 +75,6 @@ function genSlotOption(slotInfo: VenueTimeslot[]): SlotOption[] {
             })
         }
     })
-
     return  res
 }
 

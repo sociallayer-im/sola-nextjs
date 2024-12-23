@@ -199,7 +199,7 @@ function Discover({eventGroups, popupCities, events } : {
 
             <div className={styles['popup-city-list']}>
                 {
-                    _sortedPopupCities.filter((x) => !x.group_tags || (x.group_tags.indexOf(":cnx") < 0 && x.group_tags.indexOf(":bkk") < 0)).map((popupCity, index) => {
+                    _sortedPopupCities.map((popupCity, index) => {
                         return <CardPopupCity popupCity={popupCity} key={popupCity.id}/>
                     })
                 }

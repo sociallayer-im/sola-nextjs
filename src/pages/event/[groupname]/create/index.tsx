@@ -318,14 +318,6 @@ function EditEvent({
         }
     }, [event.badge_class_id])
 
-    useEffect(() => {
-        if (event.badge_class_id) {
-            queryBadgeDetail({id: event.badge_class_id}).then(res => {
-                setBadgeDetail(res)
-            })
-        }
-    }, [event.badge_class_id])
-
     // check time
     useEffect(() => {
         setStartTimeError('')
