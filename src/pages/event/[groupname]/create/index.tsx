@@ -481,6 +481,7 @@ function EditEvent({
                 }
 
                 if (hasOverride.role === 'manager' && !isManager) {
+                    console.log('isManager', hasOverride.role, isManager)
                     setDayDisable('The date you selected is not available for the current venue, requires manager permission')
                     return
                 }
@@ -542,7 +543,7 @@ function EditEvent({
         } else {
             setDayDisable('')
         }
-    }, [event, venueInfo])
+    }, [event, venueInfo, isManager, isJoined])
 
     // check track day
     useEffect(() => {
@@ -1815,7 +1816,7 @@ function EditEvent({
                                 </>
                             }
                             {
-                                requireApproval && <div
+                                requireApproval && !isManager && <div
                                     className={styles['require-approval']}>{`You will apply to use venue "${venueInfo?.title}"`}</div>
                             }
                             <div className={styles['btns']}>
