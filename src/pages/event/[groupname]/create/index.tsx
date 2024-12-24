@@ -489,6 +489,8 @@ function EditEvent({
                     setDayDisable('The date you selected is not available for the current venue, requires member permission')
                     return
                 }
+
+                return
             }
 
 
