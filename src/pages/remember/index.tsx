@@ -21,7 +21,7 @@ import {
 import DialogBindWallet from "@/components/base/Dialog/DialogBindWallet/DialogBindWallet";
 import DialogBindEmail from "@/components/base/Dialog/DialogBindEmail/DialogBindEmail";
 
-const popupCityAmount = 4
+const popupCityAmount = 0
 
 function Merge() {
     const router = useRouter()
@@ -139,6 +139,7 @@ function Merge() {
                 if (res.voucher.counter === 0 && !!isJoinedOtherVoucherId) {
                     showRes(res.badge_class)
                     setSuccess(true)
+                    setJoinedUser([])
                     setTimeout(() => {
                         setSuccess(false)
                     }, 1000)
@@ -232,6 +233,7 @@ function Merge() {
                 })
                 showRes(data)
                 setSuccess(true)
+                setJoinedUser([])
                 setTimeout(() => {
                     setSuccess(false)
                 }, 1000)
@@ -318,7 +320,8 @@ function Merge() {
                     </div>
                     <div className={styles['main-contain']}>
                         <div className={styles['page-title']}/>
-                        <div className={styles['page-des']}>4 People from Different Pop-up city Scan to Claim an SBT
+                        <div className={styles['page-des']}>
+                            Scan QR code to claim the SBT.
                         </div>
 
                         {!user.id &&
