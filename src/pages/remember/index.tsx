@@ -417,7 +417,7 @@ function Merge() {
 
                             {joinedUser.length < combineAmount && !!user.id && (!!joinedTargetUser || !!voucherId) &&
                                 <div className={styles['tips']}>Waiting for
-                                    other {combineAmount - joinedUser.length} person...</div>}
+                                    other {combineAmount - joinedUser.length} people...</div>}
 
                             {!joinedTargetUser && !!voucherId && !!user.id && <>
                                 <svg
