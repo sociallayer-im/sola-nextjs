@@ -21,7 +21,6 @@ function RegistForm (props: RegistFormProps) {
     const [loading, setLoading] = useState(false)
     const { lang } = useContext(langContext)
     const [css] = useStyletron()
-    const domainEndEnhancer = process.env.NEXT_PUBLIC_SOLAS_DOMAIN
     const { verifyDomain, checkDomainInput } = useVerify()
     const { openDomainConfirmDialog, showLoading, showToast } = useContext(DialogsContext)
     const { user } = useContext(UserContext)
@@ -39,7 +38,7 @@ function RegistForm (props: RegistFormProps) {
 
     const handleUpdateDomain = (e: any) => {
         if (checkDomainInput(e.target.value)) {
-            setDomain(e.target.value.toLowerCase())
+            setDomain(e.target.value.toLowerCase().trim())
         }
     }
 
@@ -63,7 +62,7 @@ function RegistForm (props: RegistFormProps) {
         setLoading(true)
         try {
             const newGroup = await solas.createGroup({
-                username: domain,
+                username: domain.toLowerCase().trim(),
                 auth_token: user.authToken
             })
 

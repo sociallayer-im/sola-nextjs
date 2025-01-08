@@ -12,7 +12,7 @@ function useVerify () {
         const minLength = limitLength[0] || domainInputMinLength
         const maxLength = limitLength[1] || domainInputMaxLength
 
-        if (!domain) {
+        if (!domain || !domain.trim()) {
             return lang['Regist_Input_Empty']
         }
 
@@ -29,8 +29,8 @@ function useVerify () {
             return lang['Regist_Input_Validate_4']([char[0]])
         }
 
-        if (domain.match(/[`~!@#$%^&*()_+<>?:"{},./\\|;'[\]]/im)) {
-            const char: any = domain.match(/[`~!@#$%^&*()_+<>?:"{},./\\|;'[\]]/im)
+        if (domain.match(/[`~!@#$%^&*()_+<>?:"{},./\\|=;'[\]]/im)) {
+            const char: any = domain.match(/[`~!@#$%^&*()_+<>?:"{},./\\|=;'[\]]/im)
             return lang['Regist_Input_Validate_4']([char[0]])
         }
 
@@ -54,7 +54,11 @@ function useVerify () {
             return false
         }
 
-        return !domain.match(/[`~!@#$%^&*()_+<>?:"{},./\\|;'[\]]/im);
+        if (domain.match(/\s/)) {
+            return false
+        }
+
+        return !domain.match(/[`~!@#$%^&*()_+<>?:"{},./\\|=;'[\]]/im);
     }
 
     return { verifyDomain, checkDomainInput }

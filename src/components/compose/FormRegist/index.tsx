@@ -19,14 +19,29 @@ function RegistForm (props: RegistFormProps) {
     const [loading, setLoading] = useState(false)
     const { lang } = useContext(langContext)
     const [css] = useStyletron()
-    const domainEndEnhancer = process.env.NEXT_PUBLIC_SOLAS_DOMAIN
-    const { verifyDomain } = useVerify()
+    const { verifyDomain, checkDomainInput} = useVerify()
     const { openDomainConfirmDialog, showLoading, showToast } = useContext(DialogsContext)
     const { user, setUser } = useContext(UserContext)
 
+    useEffect(() => {
+        if (!domain) {
+            setError('')
+            return
+        }
+
+        const errorMsg = verifyDomain(domain)
+        setError(errorMsg || '')
+    }, [domain])
+
+    const handleUpdateDomain = (e: any) => {
+        if (checkDomainInput(e.target.value)) {
+            setDomain(e.target.value.toLowerCase().trim())
+        }
+    }
 
     const showConfirm = () => {
-        if (!domain) return
+        if (!domain || error) return
+
         const props = {
             title: lang['Regist_Dialog_Title'],
             confirmLabel: lang['Regist_Dialog_Create'],
@@ -44,12 +59,12 @@ function RegistForm (props: RegistFormProps) {
         setLoading(true)
         try {
             const create = await solas.regist({
-                username: domain,
+                username: domain.toLowerCase().trim(),
                 auth_token: user.authToken
             })
 
             const newProfile = await solas.getProfile({
-                username: domain,
+                username: domain.toLowerCase().trim(),
             })
 
             unload()
@@ -70,24 +85,14 @@ function RegistForm (props: RegistFormProps) {
         }
     }
 
-    useEffect(() => {
-        if (!domain) {
-            setError('')
-            return
-        }
-
-        const errorMsg = verifyDomain(domain)
-        setError(errorMsg || '')
-    }, [domain])
-
     return <>
         <AppInput
             clearable={ true }
             errorMsg={ error }
             value={ domain }
             readOnly = { loading }
-            onChange={ (e) => { setDomain(e.target.value.toLowerCase().trim()) } }
-            placeholder={ lang['Regist_Input_Placeholder'] } />
+            onChange={ handleUpdateDomain }
+            placeholder={ lang['Regist_Profile_Input_Placeholder'] } />
         <div className={css({ marginTop: '34px' })}>
             <AppButton
                 onClick={ async () => { await showConfirm() } }

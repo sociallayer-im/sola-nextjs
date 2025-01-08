@@ -33,6 +33,7 @@ const langEN = {
     Regist_Title: 'Set a unique Social Layer username',
     Domain_Rule: 'Name can contain the character a-z, 0-9 or hyphen "-".\nHyphens can also be used but it can not be used at the beginning or at the end.\nIt should be longer than 6 characters.',
     Regist_Input_Placeholder: 'Your group name',
+    Regist_Profile_Input_Placeholder: 'Your name',
     Regist_Input_Validate: slotLang('Cannot exceed {n} characters'),
     Regist_Input_Validate_2: slotLang('Cannot less then {n} characters'),
     Regist_Input_Validate_3: 'Username contains invalid characters',
