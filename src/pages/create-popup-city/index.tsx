@@ -7,13 +7,13 @@ import userContext from "@/components/provider/UserProvider/UserContext";
 import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
 import {Select} from "baseui/select";
 import {Group} from "@/service/solas";
-import {createPopupCityData} from "@/pages/create-popup-city/data";
 import usePicture from "@/hooks/pictrue";
 import {useRouter} from "next/router";
 import AppInput from "@/components/base/AppInput";
 import { DatePicker } from "baseui/datepicker";
 import UploadImage from "@/components/compose/UploadImage/UploadImage";
 import * as dayjsLib from "dayjs";
+import createPopupCityData from "@/data/create_popup_city.data";
 const dayjs: any = dayjsLib
 
 
