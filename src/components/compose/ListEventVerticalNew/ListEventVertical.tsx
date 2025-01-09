@@ -224,7 +224,7 @@ function ListEventVertical({eventGroup, ...props}: {
     }
 
 
-    const getEvent = async (init?: boolean, search?: string) => {
+    const getEvent = async (init?: boolean, search?: string, notRedirect?:boolean) => {
         if (!eventGroup?.id) {
             return []
         }
@@ -243,12 +243,17 @@ function ListEventVertical({eventGroup, ...props}: {
                 )
 
                 const unique = res.filter((item) => !list.find((i) => i.id === item.id))
-                setList(init ? res : [...list, ...unique])
-                setLoading(false)
-                setIsLoadAll(res.length < 10)
                 if (unique.length === 0 && checkedComingEmpty.current) {
-                    await changeTab('past')
+                    await changeTab('past', notRedirect)
                     return
+                } else {
+                    setList(init ? res : [...list, ...unique])
+                    setLoading(false)
+                    setIsLoadAll(res.length < 10)
+                    if (!notRedirect) {
+                        const href = updatePageParam('tab', 'coming')
+                        window?.history.replaceState({}, '', href)
+                    }
                 }
             } else if (tab2IndexRef.current == 'past') {
                 const res = await queryPass(
@@ -262,6 +267,10 @@ function ListEventVertical({eventGroup, ...props}: {
                 setList(init ? res : [...list, ...unique])
                 setIsLoadAll(res.length < 10)
                 setLoading(false)
+                if (!notRedirect) {
+                    const href = updatePageParam('tab', 'past')
+                    window?.history.replaceState({}, '', href)
+                }
             } else if (tab2IndexRef.current == 'private') {
                 const res = await queryPrivate(
                     init ? 1 : pageRef.current,
@@ -274,6 +283,10 @@ function ListEventVertical({eventGroup, ...props}: {
                 setList(init ? res : [...list, ...unique])
                 setIsLoadAll(res.length < 10)
                 setLoading(false)
+                if (!notRedirect) {
+                    const href = updatePageParam('tab', 'private')
+                    window?.history.replaceState({}, '', href)
+                }
             }
             const path = updatePageParam('page', pageRef.current + '')
             history.replaceState(null, '', path)
@@ -318,11 +331,7 @@ function ListEventVertical({eventGroup, ...props}: {
         setTab2Index(tab)
         tab2IndexRef.current = tab
         pageRef.current = 1
-        await getEvent(true)
-        if (!notRedirect) {
-            const href = updatePageParam('tab', tab)
-            window?.history.replaceState({}, '', href)
-        }
+        await getEvent(true, undefined, notRedirect)
     }
 
     const changeTag = (tag?: string) => {

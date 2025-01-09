@@ -108,7 +108,7 @@ export default function DialogOverrideEdit(props: {
                 </div>
 
                 <div className={styles['time']} style={{marginTop: 0}}>
-                    <div className={styles['to']} style={{whiteSpace: 'nowrap'}}>Can book</div>
+                    <div className={styles['to']} style={{whiteSpace: 'nowrap'}}>For</div>
                     <Select
                         clearable={false}
                         searchable={false}

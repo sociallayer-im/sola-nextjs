@@ -1,5 +1,6 @@
 import { useContext } from 'react'
 import LangContext from '../components/provider/LangProvider/LangContext'
+import fa from "@walletconnect/qrcode-modal/dist/cjs/browser/languages/fa";
 
 
 function useVerify () {
@@ -11,7 +12,7 @@ function useVerify () {
         const minLength = limitLength[0] || domainInputMinLength
         const maxLength = limitLength[1] || domainInputMaxLength
 
-        if (!domain) {
+        if (!domain || !domain.trim()) {
             return lang['Regist_Input_Empty']
         }
 
@@ -28,8 +29,8 @@ function useVerify () {
             return lang['Regist_Input_Validate_4']([char[0]])
         }
 
-        if (domain.match(/[`~!@#$%^&*()_+<>?:"{},./;'[\]]/im)) {
-            const char: any = domain.match(/[`~!@#$%^&*()_+<>?:"{},./;'[\]]/im)
+        if (domain.match(/[`~!@#$%^&*()_+<>?:"{},./\\|=;'[\]]/im)) {
+            const char: any = domain.match(/[`~!@#$%^&*()_+<>?:"{},./\\|=;'[\]]/im)
             return lang['Regist_Input_Validate_4']([char[0]])
         }
 
@@ -48,7 +49,19 @@ function useVerify () {
         return null
     }
 
-    return { verifyDomain }
+    const checkDomainInput =  (domain: string, limitLength=[domainInputMinLength, domainInputMaxLength]) => {
+        if (domain.startsWith('-')) {
+            return false
+        }
+
+        if (domain.match(/\s/)) {
+            return false
+        }
+
+        return !domain.match(/[`~!@#$%^&*()_+<>?:"{},./\\|=;'[\]]/im);
+    }
+
+    return { verifyDomain, checkDomainInput }
 }
 
 export default useVerify

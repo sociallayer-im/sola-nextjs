@@ -34,7 +34,7 @@ function ListSearchResultGroup (props: ListSearchResultDomainProps) {
             }
             {   list.length ?
                 list.map((item, index) => {
-                    return <CardSearchDomain profile={ item } keyword={ props.keyword } key={index} />
+                    return <CardSearchDomain type="group" profile={ item } keyword={ props.keyword } key={index} />
                 })
                 : false
             }

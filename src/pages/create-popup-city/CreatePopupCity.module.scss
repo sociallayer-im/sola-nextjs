@@ -1,0 +1,136 @@
+.step-bar {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  max-width: 90%;
+  margin: 0 auto 50px auto;
+
+  div {
+    border: 2px solid #999;
+    width: 24px;
+    height: 24px;
+    border-radius: 100%;
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 14px;
+
+    &.active {
+      border-color: #8cfbda;
+      background: #8cfbda;
+    }
+  }
+
+  i {
+    height: 2px;
+    flex: 1;
+    background: #f1f1f1;
+    margin: 0 12px;
+  }
+}
+
+.group-opt {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  width: 100vw;
+  max-width: 580px;
+  box-sizing: border-box;
+  padding: 6px 12px;
+
+  img {
+    height: 18px;
+    width: 18px;
+    border-radius: 100%;
+    margin-right: 4px;
+    flex-shrink: 0;
+  }
+}
+
+.form {
+  margin: 16px 0;
+
+  :global(input) {
+    background: #eceaea !important;
+  }
+
+  :global(div[data-baseweb="input"]) {
+    background: #eceaea !important;
+    border-radius: 8px;
+
+    & div {
+      background: #eceaea !important;
+    }
+  }
+
+}
+
+.btns {
+  display: flex;
+  flex-flow: row nowrap;
+
+  :global(button) {
+    flex: 1;
+
+    &:nth-child(2) {
+      margin-left: 12px;
+    }
+  }
+}
+
+.form-label {
+  font-weight: 600;
+  font-size: 16px;
+  margin-bottom: 4px;
+}
+
+.row {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+
+  &>div {
+    margin: 0 12px;
+    font-size: 16px;
+  }
+}
+
+.form-item {
+  margin-bottom: 36px;
+}
+
+.post {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  justify-content: center;
+  margin: 16px 0;
+  padding: 12px;
+  border-radius: 8px;
+  background: #f1f1f1;
+
+  img {
+    max-width: 100%;
+    max-height: 150px;
+  }
+}
+
+.wrapper{
+  z-index: 2;
+  position: relative;
+  max-width: var(--width-page-max);
+  padding: 0 var(--width-page-edge);
+  margin: 0 auto;
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: center;
+  min-height: calc(100vh - var(--height-nav));
+}
+
+.error {
+    color: #ff6363;
+    font-size: 12px;
+    margin-top: 4px;
+}

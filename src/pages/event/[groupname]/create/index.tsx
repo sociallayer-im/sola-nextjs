@@ -319,14 +319,6 @@ function EditEvent({
         }
     }, [event.badge_class_id])
 
-    useEffect(() => {
-        if (event.badge_class_id) {
-            queryBadgeDetail({id: event.badge_class_id}).then(res => {
-                setBadgeDetail(res)
-            })
-        }
-    }, [event.badge_class_id])
-
     // check time
     useEffect(() => {
         setStartTimeError('')
@@ -490,6 +482,7 @@ function EditEvent({
                 }
 
                 if (hasOverride.role === 'manager' && !isManager) {
+                    console.log('isManager', hasOverride.role, isManager)
                     setDayDisable('The date you selected is not available for the current venue, requires manager permission')
                     return
                 }
@@ -498,6 +491,8 @@ function EditEvent({
                     setDayDisable('The date you selected is not available for the current venue, requires member permission')
                     return
                 }
+
+                return
             }
 
 
@@ -549,7 +544,7 @@ function EditEvent({
         } else {
             setDayDisable('')
         }
-    }, [event, venueInfo])
+    }, [event, venueInfo, isManager, isJoined])
 
     // check track day
     useEffect(() => {
@@ -1836,7 +1831,7 @@ function EditEvent({
                                 </>
                             }
                             {
-                                requireApproval && <div
+                                requireApproval && !isManager && <div
                                     className={styles['require-approval']}>{`You will apply to use venue "${venueInfo?.title}"`}</div>
                             }
                             <div className={styles['btns']}>

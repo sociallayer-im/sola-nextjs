@@ -40,7 +40,8 @@ const style = {
 export interface CardSearchDomainProps {
     profile: Profile,
     keyword?: string
-    onClick?: () => any
+    onClick?: () => any,
+    type?: 'group' | 'profile'
 }
 
 function CardSearchDomain(props: CardSearchDomainProps) {
@@ -49,7 +50,7 @@ function CardSearchDomain(props: CardSearchDomainProps) {
     const {defaultAvatar} = usePicture()
 
     const navigateToProfile = () => {
-        if (!!(props.profile as Group).creator) {
+        if (props.type === 'group') {
             router.push(`/group/${props.profile?.username}`)
         } else {
             router.push(`/profile/${props.profile?.username}`)

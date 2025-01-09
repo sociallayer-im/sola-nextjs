@@ -21,19 +21,36 @@ function RegistForm (props: RegistFormProps) {
     const [loading, setLoading] = useState(false)
     const { lang } = useContext(langContext)
     const [css] = useStyletron()
-    const domainEndEnhancer = process.env.NEXT_PUBLIC_SOLAS_DOMAIN
-    const { verifyDomain } = useVerify()
+    const { verifyDomain, checkDomainInput } = useVerify()
     const { openDomainConfirmDialog, showLoading, showToast } = useContext(DialogsContext)
     const { user } = useContext(UserContext)
     const router = useRouter()
 
+    useEffect(() => {
+        if (!domain) {
+            setError('')
+            return
+        }
+
+        const errorMsg = verifyDomain(domain)
+        setError(errorMsg || '')
+    }, [domain])
+
+    const handleUpdateDomain = (e: any) => {
+        if (checkDomainInput(e.target.value)) {
+            setDomain(e.target.value.toLowerCase().trim())
+        }
+    }
+
     const showConfirm = () => {
+        if (!domain || error) return
+
         const props = {
             title: lang['Group_regist_confirm_dialog'],
             confirmLabel: lang['Regist_Dialog_Create'],
             cancelLabel: lang['Regist_Dialog_ModifyIt'],
             onConfirm: (close: any) => { close(); createGroup() },
-            content: () => <div className='confirm-domain'><span>{domain}{domainEndEnhancer}</span></div>
+            content: () => <div className='confirm-domain'><span>{domain}</span></div>
         }
 
         openDomainConfirmDialog(props)
@@ -45,7 +62,7 @@ function RegistForm (props: RegistFormProps) {
         setLoading(true)
         try {
             const newGroup = await solas.createGroup({
-                username: domain,
+                username: domain.toLowerCase().trim(),
                 auth_token: user.authToken
             })
 
@@ -62,15 +79,6 @@ function RegistForm (props: RegistFormProps) {
         }
     }
 
-    useEffect(() => {
-        if (!domain) {
-            setError('')
-            return
-        }
-
-        const errorMsg = verifyDomain(domain)
-        setError(errorMsg || '')
-    }, [domain])
 
     return <>
         <AppInput
@@ -78,8 +86,7 @@ function RegistForm (props: RegistFormProps) {
             errorMsg={ error }
             value={ domain }
             readOnly = { loading }
-            onChange={ (e) => { setDomain(e.target.value) } }
-            endEnhancer={() => <span>{ domainEndEnhancer }</span> }
+            onChange={ handleUpdateDomain }
             placeholder={ lang['Regist_Input_Placeholder'] } />
         <div className={css({ marginTop: '34px' })}>
             <AppButton

@@ -40,6 +40,11 @@
   }
 
   @media (max-width: 650px) {
+    display: flex;
+    flex-flow: column;
+    align-items: center;
+    justify-content: center;
+
     & .left {
       a {
         font-size: 13px!important;
@@ -51,6 +56,30 @@
       span {
         display: none;
       }
+    }
+
+    .right {
+      display: flex;
+      flex-flow: column;
+      justify-content: center;
+      align-items: center;
+      margin-top: 12px;
+    }
+  }
+}
+
+.right {
+  display: flex;
+  flex-flow: column nowrap;
+
+  .text {
+    margin-bottom: 6px;
+  }
+  a {
+    margin-right: 16px;
+    img {
+      width: 18px;
+      height: 18px;
     }
   }
 }
