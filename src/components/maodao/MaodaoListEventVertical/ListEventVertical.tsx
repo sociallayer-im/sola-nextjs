@@ -99,7 +99,7 @@ function ListEventVertical() {
     }
 
     const gotoGroupEventHome = () => {
-        router.push(`/event-home/${currGroup?.username}`)
+        router.push(`/event/${currGroup?.username}`)
     }
 
     return (
