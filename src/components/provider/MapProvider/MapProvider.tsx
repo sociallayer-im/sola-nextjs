@@ -4,7 +4,8 @@ import {usePathname} from "next/navigation";
 
 const routerWhiteList = [
     '/event/',
-    '/map'
+    '/map',
+    '/'
 ]
 
 function MapProvider(props: { children: any }) {

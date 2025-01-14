@@ -3,7 +3,7 @@ import ImgLazy from "@/components/base/ImgLazy/ImgLazy";
 import Link from 'next/link'
 import CardPopupCity from "@/components/base/Cards/CardPopupCity/index.ts";
 import UserContext from "@/components/provider/UserProvider/UserContext";
-import {useContext, useEffect, useState} from "react";
+import React, {useContext, useEffect, useState} from "react";
 import useIssueBadge from "@/hooks/useIssueBadge";
 import DialogsContext from "@/components/provider/DialogProvider/DialogsContext";
 import solas, {
@@ -18,22 +18,25 @@ import solas, {
 import usePicture from "@/hooks/pictrue";
 import {useTime3, useTimePopupCity} from "@/hooks/formatTime";
 import LangContext from "@/components/provider/LangProvider/LangContext";
-import { Swiper, SwiperSlide } from 'swiper/react'
-import { Virtual, Pagination, Autoplay, Navigation } from 'swiper'
+import {Swiper, SwiperSlide} from 'swiper/react'
+import {Virtual, Pagination, Autoplay, Navigation} from 'swiper'
 import 'swiper/css';
 import discoverData from "@/data/discover.data";
 import Footer from "@/components/base/Footer";
 import Feedback from "@/components/feedback/feedback";
 import CardEvent from "@/components/base/Cards/DiscoverCardEvent/CardEvent";
+import Map from "@/pages/event/[groupname]/map";
 
 export interface GroupWithMemberCount extends Group {
     member_count: number
 }
 
-function Discover({eventGroups, popupCities, events } : {
+function Discover({eventGroups, popupCities, events, mapGroup}: {
     events: Event[],
     eventGroups: Group[],
-    popupCities: PopupCity[]}) {
+    popupCities: PopupCity[]
+    mapGroup: Group
+}) {
     const {user} = useContext(UserContext)
     const {showLoading} = useContext(DialogsContext)
     const startIssueBadge = useIssueBadge()
@@ -79,7 +82,31 @@ function Discover({eventGroups, popupCities, events } : {
             {/*    </a>*/}
             {/*</div>*/}
 
-            {featureds.length > 0 &&
+            <div className={styles['featured']}>
+                <h2 className={styles['page-title']}>{"Pop-Up Cities 2025"}</h2>
+                <div className="home-map" style={{transform: 'scale(1)', margin: 0}}>
+                    <div className="home-map-window" style={{width: '100%', height: '300px', position: 'relative'}}>
+                        <Map markerType={null} group={mapGroup} isIframe={true} zoom={1}/>
+                    </div>
+                    <Link className={'map-link'} href={`/event/${mapGroup.username}/map`}>
+                        {'Browse in map'}
+                        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 15 15"
+                             fill="none">
+                            <path d="M13.3637 8.4541V13.3632H8.45459" stroke="#333333" strokeWidth="1.63636"
+                                  strokeLinecap="round" strokeLinejoin="round"/>
+                            <path d="M1.00009 5.90918L1.00009 1.00009L5.90918 1.00009" stroke="#333333"
+                                  strokeWidth="1.63636" strokeLinecap="round" strokeLinejoin="round"/>
+                            <path d="M13.3637 13.3632L8.45459 8.4541" stroke="#333333" strokeWidth="1.63636"
+                                  strokeLinecap="round" strokeLinejoin="round"/>
+                            <path d="M1.00009 1.00009L5.90918 5.90918" stroke="#333333" strokeWidth="1.63636"
+                                  strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                    </Link>
+                </div>
+            </div>
+
+
+            {featureds.length > 0 && false &&
                 <div className={styles['featured']}>
                     <h2 className={styles['page-title']}>{lang['Featured']}</h2>
                     <Swiper

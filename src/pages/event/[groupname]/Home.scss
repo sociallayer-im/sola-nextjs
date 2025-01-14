@@ -37,44 +37,7 @@
     position: absolute!important;
   }
 
-  .home-map {
-    margin: 20px;
-    overflow: hidden;
-    height: 300px;
-    outline: none;
-    position: relative;
-    background: #f1f1f1;
 
-    .map-link {
-      border-radius: 4px;
-      background: #FFF;
-      padding: 6px;
-      color: #000;
-      font-size: 12px;
-      font-style: normal;
-      font-weight: 600;
-      display: flex;
-      flex-flow: row nowrap;
-      align-items: center;
-      justify-content: center;
-      position: absolute;
-      right: 10px;
-      bottom: 10px;
-      text-decoration: none;
-      z-index: 2;
-
-      svg {
-        margin-left: 8px;
-      }
-    }
-
-    iframe {
-      outline: none;
-      position: absolute;
-      left: 0;
-      top: 0;
-    }
-  }
 
   .home-page-city-name {
     max-width: 1040px;
@@ -824,6 +787,49 @@
 @media (max-width: 750px) {
   .calendar-btn-compact.mobile-hide {
     display: none;
+  }
+}
+
+.home-map {
+  margin: 20px;
+  overflow: hidden;
+  height: 300px;
+  outline: none;
+  position: relative;
+  background: #f1f1f1;
+
+  .home-map-window {
+    z-index: 2;
+  }
+
+  .map-link {
+    border-radius: 4px;
+    background: #FFF;
+    padding: 6px;
+    color: #000;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 600;
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+    text-decoration: none;
+    z-index: 2;
+
+    svg {
+      margin-left: 8px;
+    }
+  }
+
+  iframe {
+    outline: none;
+    position: absolute!important;
+    left: 0;
+    top: 0;
   }
 }
 

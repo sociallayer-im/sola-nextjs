@@ -1,4 +1,4 @@
-import {createRef, useContext, useEffect, useRef, useState} from 'react'
+import {createRef, useContext, useEffect, useMemo, useRef, useState} from 'react'
 import styles from './map.module.scss'
 import MapContext from "@/components/provider/MapProvider/MapContext";
 import EventHomeContext from "@/components/provider/EventHomeProvider/EventHomeContext";
@@ -29,13 +29,21 @@ const menuList = markerTypeList2
 
 const defaultZoom = 17
 
-function ComponentName(props: { markerType: string | null, group?: Group, isIframe?: boolean }) {
+function ComponentName(props: { markerType: string | null, group?: Group, isIframe?: boolean, zoom?: number }) {
     const {Map, MapEvent, Marker, MapError, MapReady} = useContext(MapContext)
-    const {eventGroup, isManager, setEventGroup} = useContext(EventHomeContext)
+    const {eventGroup: _eventgroup, isManager, setEventGroup} = useContext(EventHomeContext)
     const {openConnectWalletDialog, openDialog} = useContext(DialogsContext)
     const {user} = useContext(userContext)
     const router = useRouter()
     const searchParams = useSearchParams()
+
+    const eventGroup = useMemo(() => {return props.group || _eventgroup}, [_eventgroup, props.group])
+
+    useEffect(() => {
+        if (props.group) {
+            setEventGroup(props.group)
+        }
+    }, [props.group])
 
     const readyRef = useRef(false)
     const mapDomRef = createRef()
@@ -189,7 +197,7 @@ function ComponentName(props: { markerType: string | null, group?: Group, isIfra
             const location = {lat: Number(marker.geo_lat), lng: Number(marker.geo_lng)}
             GoogleMapRef.current!.setCenter(location)
             if (zoom) {
-                GoogleMapRef.current!.setZoom(defaultZoom)
+                GoogleMapRef.current!.setZoom(props.zoom || defaultZoom)
             }
 
             setTimeout(() => {
@@ -402,12 +410,6 @@ function ComponentName(props: { markerType: string | null, group?: Group, isIfra
         }
     }, [user.id])
 
-    useEffect(() => {
-        if (props.group) {
-            setEventGroup(props.group)
-        }
-    }, [props.group])
-
 
     useEffect(() => {
         if (typeof window !== 'undefined' && !GoogleMapRef.current && MapReady && Map && MapEvent && mapDomRef.current && eventGroup?.id) {
@@ -416,7 +418,7 @@ function ComponentName(props: { markerType: string | null, group?: Group, isIfra
                     lat: -34.397,
                     lng: 150.644
                 },
-                zoom: defaultZoom,
+                zoom: props.zoom || defaultZoom,
                 // e696c45661cb505d 特殊色
                 // e2f9ddc0facd5a80 普通
                 mapId: process.env.NEXT_PUBLIC_SPECIAL_VERSION === 'zumap' ? 'e696c45661cb505d' : 'e2f9ddc0facd5a80',

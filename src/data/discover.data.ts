@@ -1,4 +1,4 @@
-import {Event, Group, PopupCity} from "@/service/solas";
+import {Event, Group, PopupCity, queryGroupDetail} from "@/service/solas";
 import {gql, request} from "graphql-request";
 import fetch from "@/utils/fetch";
 
@@ -6,11 +6,20 @@ const discoverData: any = async (context: any): Promise<{
     props: {
         eventGroups: Group[],
         popupCities: PopupCity[]
-        events: Event[]
+        events: Event[],
+        mapGroup: Group
     }
 }> => {
     const doc = gql`query MyQuery {
-      groups(where: {group_tags: {_contains: [":top"]}, status: {_neq: "freezed"}}) {
+        mapGroups: groups(where: {id: {_eq: 3558}}) {
+            id
+            image_url
+            lens
+            location
+            nickname
+            status
+        },
+        groups(where: {group_tags: {_contains: [":top"]}, status: {_neq: "freezed"}}) {
         events_count
         memberships_count
         group_tags
@@ -93,12 +102,14 @@ const discoverData: any = async (context: any): Promise<{
 
 
     const data = await fetch.get({url: `${process.env.NEXT_PUBLIC_EVENT_LIST_API}/event/discover`})
+    const mapGroup = await queryGroupDetail(3558)
 
     return {
         props: {
             eventGroups: data.data.groups,
             popupCities: [ ...data.data.popups],
             events: data.data.events,
+            mapGroup: mapGroup!
         }
     }
 }

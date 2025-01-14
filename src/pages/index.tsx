@@ -29,6 +29,7 @@ export default function HomePage(props: {
     popupCities?: PopupCity[],
     membership?: Membership[]
     events?: Event[]
+    mapGroup?: Group
 }) {
 
     const {openDialog} = useContext(DialogsContext)
@@ -64,6 +65,7 @@ export default function HomePage(props: {
                                 initList={props.initList || []}/>
                             :
                             <DiscoverPage
+                                mapGroup={props.mapGroup!}
                                 events={props.events!}
                                 popupCities={props.popupCities!}
                                 eventGroups={props.eventGroups!}/>
