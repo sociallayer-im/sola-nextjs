@@ -140,6 +140,7 @@ function Home(props: { badges: Badge[], initEvent: Group, initList?: Event[], me
                     {
                         !!user.id
                         && eventGroup
+                        && eventGroup.status !== 'freezed'
                         && ready
                         && <div className={'home-action-bar'}>
                             <div className={'create-event-btn'} onClick={e => {
@@ -161,9 +162,10 @@ function Home(props: { badges: Badge[], initEvent: Group, initList?: Event[], me
                                    isSide
                                    group={props.initEvent}
                                    slot={() => {
-                                       return <>
+                                       return  <>
                                            {!!user.id
                                                && eventGroup
+                                               && eventGroup.status !== 'freezed'
                                                && ready &&
                                                <div className={'home-action-bar'}>
                                                    <div className={'create-event-btn'} onClick={e => {
@@ -171,17 +173,21 @@ function Home(props: { badges: Badge[], initEvent: Group, initList?: Event[], me
                                                    }}>+ {lang['Activity_Create_Btn']}</div>
                                                </div>
                                            }
-                                           <div className={'home-action-bar'}>
-                                               <div className={'send-btn'} style={{minWidth: '200px'}} onClick={e => {
-                                                   issueBadge()
-                                               }}>{lang['Profile_User_MindBadge']}</div>
 
-                                               {eventGroup && (user.id === (eventGroup as Group).creator?.id || isManager) &&
-                                                   <div className={'setting-btn'} onClick={e => {
-                                                       router.push(`/event/setting/${eventGroup!.username}`)
-                                                   }}>{lang['Activity_Setting_Btn']}</div>
-                                               }
-                                           </div>
+                                           {eventGroup.status !== 'freezed' &&
+                                               <div className={'home-action-bar'}>
+                                                   <div className={'send-btn'} style={{minWidth: '200px'}}
+                                                        onClick={e => {
+                                                            issueBadge()
+                                                        }}>{lang['Profile_User_MindBadge']}</div>
+
+                                                   {eventGroup && (user.id === (eventGroup as Group).creator?.id || isManager) &&
+                                                       <div className={'setting-btn'} onClick={e => {
+                                                           router.push(`/event/setting/${eventGroup!.username}`)
+                                                       }}>{lang['Activity_Setting_Btn']}</div>
+                                                   }
+                                               </div>
+                                           }
 
                                            {eventGroup?.id === 3409 &&
                                                <div className={'home-action-bar'}>

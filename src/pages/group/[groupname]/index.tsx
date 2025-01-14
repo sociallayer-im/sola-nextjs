@@ -327,7 +327,7 @@ function GroupPage(props: any) {
                                                     {lang['Activity_Detail_Btn_add_Calender']}
                                                 </AppButton>
                                             }
-                                            {canCreateEvent &&
+                                            {canCreateEvent && profile.status !== 'freezed' &&
                                                 <AppButton special size={BTN_SIZE.compact} onClick={e => {
                                                     router.push(`/event/${profile?.username}/create`)
                                                 }}>
