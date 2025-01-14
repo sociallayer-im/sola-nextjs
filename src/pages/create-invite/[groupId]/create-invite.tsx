@@ -54,8 +54,11 @@ function Invite() {
         setBusy(true)
         const unload = showLoading()
         try {
-            const emails = checkedIssues.filter(item => /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/i.test(item))
+            const emails = checkedIssues.filter(item => /^(?=.*@)(?=.*\.).+$/i.test(item))
             const others = checkedIssues.filter(item => !emails.includes(item))
+
+            console.log('emails', emails)
+            console.log('others', others)
 
             let tasks: any[] = []
 
@@ -145,6 +148,10 @@ function Invite() {
         input.click()
     }
 
+    const downloadTemplate = async () => {
+        window.open('/invite_temp.csv', '_blank')
+    }
+
     return (
         <>
             <div className='issue-page'>
@@ -186,6 +193,7 @@ function Invite() {
                         <div className='issues-des'>
                             {`Input the username/domain/email address of the receiver can receive the invite.`}
                             <span onClick={e => {uploadFile()}}>Import from CSV file</span>
+                            <span onClick={e => {downloadTemplate()}}>Download CSV template</span>
                         </div>
                         <IssuesInput value={issues}
                                      onChange={(newIssues) => {
