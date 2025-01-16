@@ -3731,7 +3731,7 @@ export interface QueryMyEventProps {
 export async function queryMyEvent({page = 1, page_size = 10, ...props}: QueryMyEventProps): Promise<Participants[]> {
     const doc = gql`query MyQuery {
      participants(
-       where: {profile_id: {_eq: ${props.profile_id}}, status: {_neq: "cancel"}}
+       where: {profile_id: {_eq: ${props.profile_id}}, status: {_neq: "cancel"}, event: {status: {_neq: "cancel"}}},
        limit: ${page_size}
        offset: ${page * page_size - page_size}
        order_by: {id: desc}
