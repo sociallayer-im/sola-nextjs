@@ -57,7 +57,7 @@ function HomeUserPanel({showSchedule=true, ...props}: {
             }
         }
 
-        const list = [owner, ...manager, ...member]
+        const list = [owner, ...manager, ...issuer, ...member]
         list.forEach((item: Membership) => {
             if (!list.some((i: any) => i.profile.id === item.profile.id)) {
                 list.push(item)
