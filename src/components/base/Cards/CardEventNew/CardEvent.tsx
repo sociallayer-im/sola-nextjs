@@ -196,7 +196,9 @@ function CardEventNew({fixed = true, ...props}: CardEventProps) {
             str.push(`by ${(groupHost.nickname || groupHost.username)}`)
         } else if (props.event.owner) {
             str.push(`by ${props.event.owner.nickname || props.event.owner.username}`)
-        }
+        } else if ((props.event as any).profile) {
+            str.push(`by ${(props.event as any).profile.nickname || (props.event as any).profile.handle}`)
+            }
 
         if (cohost.length) {
             cohost.forEach((c: any) => {
