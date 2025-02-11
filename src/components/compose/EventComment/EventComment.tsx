@@ -62,7 +62,7 @@ function EventComment(props: { event: Event }) {
 
     const getComments = async () => {
         setBusy(true)
-        const res = await fetch.post({
+        const res = await fetch.get({
             url: `${process.env.NEXT_PUBLIC_EVENT_LIST_API}/comment/list`,
             data: {
                 comment_type:'comment',

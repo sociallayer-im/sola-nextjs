@@ -27,7 +27,7 @@ export const cancelEventStar = async (props: {event_id: number, auth_token: stri
 }
 
 export const getUserStaredComment = async (props: { profile_id: number }) => {
-    const res = await fetch.post({
+    const res = await fetch.get({
         url: `${apiUrl}/comment/list`,
         data: {
             profile_id: props.profile_id,
