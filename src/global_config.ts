@@ -4,5 +4,5 @@ export const isHideLocation = (group_id?: number | null) => {
     return hideAddressGroup.includes(group_id)
 }
 
-export const edgeGroups = [3427, 3409, 3463, 3454]
+export const edgeGroups = [3427, 3409, 3463, 3454, 924]
 export const showZupassTicket = [3409]
